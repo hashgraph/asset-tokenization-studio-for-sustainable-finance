@@ -1,0 +1,12 @@
+{
+  "name": "@hashgraph/green-bonds-platform",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "private": true,
+  "workspaces": [
+    "packages/shared/*",
+    "packages/treasury/*",
+    "apps/shared/*",
+    "apps/treasury/*"
+  ]
+}
