@@ -208,7 +208,7 @@ pragma solidity 0.8.18;
 
 import { IPauseStorageWrapper } from "../../../layer_1/interfaces/pause/IPauseStorageWrapper.sol";
 import { LocalContext } from "../../context/LocalContext.sol";
-import { _PAUSE_STORAGE_POSITION } from "../../../constants/storagePositions.sol";
+import { _PAUSE_STORAGE_POSITION } from "../../constants/storagePositions.sol";
 
 abstract contract PauseStorageWrapper is IPauseStorageWrapper, LocalContext {
     struct PauseDataStorage {

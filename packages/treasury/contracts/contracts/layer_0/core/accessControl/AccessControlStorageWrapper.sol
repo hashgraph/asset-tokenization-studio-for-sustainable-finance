@@ -210,7 +210,7 @@ import { LibCommon } from "../../common/libraries/LibCommon.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import { IAccessControlStorageWrapper } from "../../../layer_1/interfaces/accessControl/IAccessControlStorageWrapper.sol";
 import { LocalContext } from "../../context/LocalContext.sol";
-import { _ACCESS_CONTROL_STORAGE_POSITION } from "../../../constants/storagePositions.sol";
+import { _ACCESS_CONTROL_STORAGE_POSITION } from "../../constants/storagePositions.sol";
 
 abstract contract AccessControlStorageWrapper is IAccessControlStorageWrapper, LocalContext {
     using LibCommon for EnumerableSet.AddressSet;

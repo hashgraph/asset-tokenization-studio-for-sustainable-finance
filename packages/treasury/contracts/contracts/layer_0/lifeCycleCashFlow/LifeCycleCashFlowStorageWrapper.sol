@@ -223,7 +223,7 @@ import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2
 import { IEquity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/equity/IEquity.sol";
 import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol";
 import { _DEFAULT_PARTITION, _PERCENTAGE_DECIMALS_SIZE } from "../../constants/values.sol";
-import { _LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../../constants/storagePositions.sol";
+import { _LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../constants/storagePositions.sol";
 
 abstract contract LifeCycleCashFlowStorageWrapper is
     ILifeCycleCashFlowStorageWrapper,
