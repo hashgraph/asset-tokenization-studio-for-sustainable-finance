@@ -221,7 +221,7 @@ import {
     _CASHOUT_ROLE
 } from "../constants/roles.sol";
 
-contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFlowStorageWrapper, Pause, AccessControl {
+abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFlowStorageWrapper, Pause, AccessControl {
     function initialize(address _asset) public initializer {
         _grantRole(_DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(_PAUSER_ROLE, _msgSender());
