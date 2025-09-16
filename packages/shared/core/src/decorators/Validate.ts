@@ -205,7 +205,7 @@
 import { validateSync } from "class-validator"
 import { ConstraintsValidationError } from "../errors/ConstraintsValidationError"
 
-export function Validate(): ParameterDecorator {
+export function Validate() {
   return (target: any, key: string, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value
 
@@ -218,7 +218,5 @@ export function Validate(): ParameterDecorator {
       }
       return originalMethod.apply(this, args)
     }
-
-    return descriptor
   }
 }
