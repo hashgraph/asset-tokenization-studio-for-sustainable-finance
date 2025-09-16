@@ -206,7 +206,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
-import { LocalContext } from "../../../common/LocalContext.sol";
+import { LocalContext } from "../../../layer_0/context/LocalContext.sol";
 import { ITimeTravel } from "../interfaces/ITimeTravel.sol";
 
 abstract contract TimeTravel is ITimeTravel, LocalContext {

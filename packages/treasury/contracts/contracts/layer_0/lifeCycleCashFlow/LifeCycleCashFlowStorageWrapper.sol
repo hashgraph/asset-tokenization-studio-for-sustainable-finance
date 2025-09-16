@@ -207,9 +207,8 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import { ILifeCycleCashFlowStorageWrapper } from "./interfaces/ILifeCycleCashFlowStorageWrapper.sol";
-import { AssetType } from "./interfaces/ILifeCycleCashFlow.sol";
-import { LocalContext } from "./common/LocalContext.sol";
+import { ILifeCycleCashFlowStorageWrapper } from "../../layer_1/interfaces/lifeCycleCashFlow/ILifeCycleCashFlowStorageWrapper.sol";
+import { LocalContext } from "../context/LocalContext.sol";
 import {
     HederaTokenService
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
@@ -223,8 +222,8 @@ import {
 import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol";
 import { IEquity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/equity/IEquity.sol";
 import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol";
-import { _DEFAULT_PARTITION, _PERCENTAGE_DECIMALS_SIZE } from "./constants/values.sol";
-import { _LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "./constants/storagePositions.sol";
+import { _DEFAULT_PARTITION, _PERCENTAGE_DECIMALS_SIZE } from "../../constants/values.sol";
+import { _LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../../constants/storagePositions.sol";
 
 abstract contract LifeCycleCashFlowStorageWrapper is
     ILifeCycleCashFlowStorageWrapper,
@@ -233,7 +232,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 {
     struct LifeCycleCashFlowStorage {
         address asset;
-        AssetType assetType;
         OZ_IERC20 paymentToken;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
         mapping(uint256 => mapping(address => bool)) paidAddressesBySnapshot;
@@ -258,7 +256,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Pay a coupon or dividend to a list of holders
      *
-     * @param assetType The type of the asset, bond/equity, the distribution belongs to
      * @param asset The asset the distribution belongs to
      * @param distributionID The coupon/dividend identifier
      * @param pageIndex The index of the page whose holders will be paid
@@ -267,16 +264,14 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistribution(
-        AssetType _assetType,
         address _asset,
         uint256 _distributionID,
         uint256 _pageIndex,
         uint256 _pageLength
     ) internal returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool) {
-        address[] memory holders = _getHolders(_assetType, _asset, _distributionID, _pageIndex, _pageLength);
+        address[] memory holders = _getHolders(_asset, _distributionID, _pageIndex, _pageLength);
         if (holders.length == 0) return (failed_, succeeded_, paidAmount_, false);
         (failed_, succeeded_, paidAmount_) = _executeDistributionByAddresses(
-            _assetType,
             _asset,
             _distributionID,
             holders
@@ -287,7 +282,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Retry the payment of a coupon or dividend to a list of holders
      *
-     * @param assetType The type of the asset, bond/equity, the distribution belongs to
      * @param asset The asset the distribution belongs to
      * @param distributionID The coupon/dividend identifier
      * @param holders The array of holders addresses who will be paid
@@ -295,12 +289,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistributionByAddresses(
-        AssetType _assetType,
         address _asset,
         uint256 _distributionID,
         address[] memory _holders
     ) internal returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_) {
-        (failed_, succeeded_, paidAmount_) = _payHoldersDistribution(_assetType, _asset, _distributionID, _holders);
+        (failed_, succeeded_, paidAmount_) = _payHoldersDistribution(_asset, _distributionID, _holders);
     }
 
     /*
@@ -341,153 +334,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Pay a fixed amount of USDC tokens to a page of holders
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return True if ATS returns holders to be paid, and false otherwise
-     */
-    function _executeAmountSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _amount
-    )
-        internal
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool executed_)
-    {
-        address[] memory holders = _getHoldersBySnapshot(_asset, _snapshotID, _pageIndex, _pageLength);
-        if (holders.length == 0) return (failed_, succeeded_, paidAmount_, false);
-        (failed_, succeeded_, paidAmount_) = _executeSnapshotByAddresses(
-            _asset,
-            _snapshotID,
-            holders,
-            _amount,
-            _getSnapshotAmountByAmount
-        );
-        return (failed_, succeeded_, paidAmount_, true);
-    }
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a list of holders
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLength The number of holders who will be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return True if ATS returns holders to be paid, and false otherwise
-     */
-    function _executePercentageSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _percentage
-    )
-        internal
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool executed_)
-    {
-        if (_percentage > 100 * 10 ** _PERCENTAGE_DECIMALS_SIZE) revert InvalidPercentage(_percentage);
-        address[] memory holders = _getHoldersBySnapshot(_asset, _snapshotID, _pageIndex, _pageLength);
-        if (holders.length == 0) return (failed_, succeeded_, paidAmount_, false);
-        (failed_, succeeded_, paidAmount_) = _executeSnapshotByAddresses(
-            _asset,
-            _snapshotID,
-            holders,
-            _percentage,
-            _getSnapshotAmountByPercentage
-        );
-        return (failed_, succeeded_, paidAmount_, true);
-    }
-
-    /*
-     * @dev Pay an amount of USDC tokens, or a percentage of contract token balance, to a page of holders
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holders The array of holders addresses who will be paid * @param snapshotID The snapshot identifier
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     * @param getSnapshotAmount The function to calculate the amount of payment tokens to pay
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     */
-    function _executeSnapshotByAddresses(
-        address _asset,
-        uint256 _snapshotID,
-        address[] memory _holders,
-        uint256 _amount,
-        function(address, uint256, address, uint256) internal returns (uint256) _getSnapshotAmount
-    ) internal returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_) {
-        (failed_, succeeded_, paidAmount_) = _paySnapshotHolders(
-            _asset,
-            _holders,
-            _snapshotID,
-            _amount,
-            _getSnapshotAmount
-        );
-    }
-
-    /*
-     * @dev Transfers an amount of ERC20 tokens to an address
-     *
-     * @param to The destination of the amount of USDC tokens
-     * @param amount The amount of USDC tokens to be transferred
-     */
-    function _transferPaymentToken(address _to, uint256 _amount) internal {
-        OZ_IERC20 paymentToken = _lifeCycleCashFlowStorage().paymentToken;
-        if (paymentToken.balanceOf(address(this)) < _amount) {
-            revert NotEnoughBalance(_amount);
-        }
-
-        if (!paymentToken.transfer(_to, _amount)) {
-            revert TransferERC20TokenFailed(_to, _amount);
-        }
-    }
-
-    /*
-     * @dev Set a new payment token
-     *
-     * @param newPaymentToken The new payment token
-     */
-    function _updatePaymentToken(address _newPaymenToken) internal {
-        _setPaymentToken(OZ_IERC20(_newPaymenToken));
-        _associateToken(_newPaymenToken);
-    }
-
-    /*
      * @dev Set the asset
      *
      * @param asset The asset to be set
      */
     function _setAsset(address _asset) internal {
         _lifeCycleCashFlowStorage().asset = _asset;
-    }
-
-    /*
-     * @dev Set the asset type
-     *
-     * @param assetType The asset type to be set
-     */
-    function _setAssetType(AssetType _assetType) internal {
-        _lifeCycleCashFlowStorage().assetType = _assetType;
-    }
-
-    /*
-     * @dev Set the payment token
-     *
-     * @param token The payment token to be set
-     */
-    function _setPaymentToken(OZ_IERC20 token) internal {
-        _lifeCycleCashFlowStorage().paymentToken = token;
     }
 
     /*
@@ -504,65 +356,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Get snapshot amount to pay for a certain holder
+     * @dev Set the asset
      *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holder The holder address to be paid´
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The amount to be paid
+     * @param asset The asset to be set
      */
-    function _getSnapshotAmountByAmount(
-        address _asset,
-        uint256 _snapshotID,
-        address _holder,
-        uint256 _amount
-    ) internal view returns (uint256) {
-        uint256 assetTotalSupply = _getAssetTotalSupply(_asset);
-        uint256 holderTokens = ISnapshots(_asset).balanceOfAtSnapshot(_snapshotID, _holder);
-        return ((_amount * holderTokens) / assetTotalSupply);
-    }
-
-    /*
-     * @dev Get the snapshot amount to pay for a certain holder
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The coupon/dividend identifier
-     * @param holder The holder address to be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The amount to be paid
-     */
-    function _getSnapshotAmountByPercentage(
-        address _asset,
-        uint256 _snapshotID,
-        address _holder,
-        uint256 _percentage
-    ) internal view returns (uint256) {
-        uint256 paymentTokenBalance = _lifeCycleCashFlowStorage().paymentToken.balanceOf(address(this));
-        uint256 assetTotalSupply = _getAssetTotalSupply(_asset);
-        uint256 holderTokens = ISnapshots(_asset).balanceOfAtSnapshot(_snapshotID, _holder);
-        return ((((paymentTokenBalance * _percentage) / (100 * 10 ** _PERCENTAGE_DECIMALS_SIZE)) * holderTokens) /
-            assetTotalSupply);
-    }
-
-    /*
-     * @dev Get the payment token
-     *
-     * @return The payment token
-     */
-    function _getPaymentToken() internal view returns (OZ_IERC20) {
-        return _lifeCycleCashFlowStorage().paymentToken;
-    }
-
-    /*
-     * @dev Get the payment token decimals
-     *
-     * @return The payment token decimals
-     */
-    function _getPaymentTokenDecimals() internal view returns (uint8) {
-        return IERC20(address(_getPaymentToken())).decimals();
+    function _getAsset() internal view returns(address asset_) {
+        return _lifeCycleCashFlowStorage().asset;
     }
 
     /*
@@ -575,18 +374,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _isDistributionHolderPaid(uint256 _distributionID, address _holder) internal view returns (bool) {
         return _lifeCycleCashFlowStorage().paidAddressesByDistribution[_distributionID][_holder];
-    }
-
-    /*
-     * @dev Checks if a snapshot was already paid to a holder
-     *
-     * @param snapshotID The snapshot identifier
-     * @param holder The holder to the if the snapshot was already paid
-     *
-     * @return True if the snapshot was already paid to the holder, false otherwise
-     */
-    function _isSnapshotHolderPaid(uint256 _snapshotID, address _holder) internal view returns (bool) {
-        return _lifeCycleCashFlowStorage().paidAddressesBySnapshot[_snapshotID][_holder];
     }
 
     /*
@@ -607,16 +394,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Change the payment token
-     *
-     * @param paymentToken The new payment token
-     */
-    function _setNewPaymentToken(address _paymentToken) private {
-        _setPaymentToken(OZ_IERC20(_paymentToken));
-        _associateToken(_paymentToken);
-    }
-
-    /*
      * @dev Sets a payment to a holder for a distribution
      *
      * @param distributionID The distribution paid to a holder
@@ -624,16 +401,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _setDistributionHolderPaid(uint256 distributionID, address holder) private {
         _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionID][holder] = true;
-    }
-
-    /*
-     * @dev Sets a payment to a holder for a snapshot
-     *
-     * @param snapshotID The snapshot paid to a holder
-     * @param holder The holder who was paid
-     */
-    function _setSnapshotHolderPaid(uint256 snapshotID, address holder) private {
-        _lifeCycleCashFlowStorage().paidAddressesBySnapshot[snapshotID][holder] = true;
     }
 
     /*
@@ -648,7 +415,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Returns the array containing holders addresses who couldn't be paid for a distribution id
      *
-     * @param assetType The type of the asset, bond/equity, the distribution belongs to
      * @param asset The asset the distribution belongs to
      * @param distributionID The coupon/dividend identifier
      * @param holders The holders to be paid
@@ -656,7 +422,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful for the distribution
      */
     function _payHoldersDistribution(
-        AssetType _assetType,
         address _asset,
         uint256 _distributionID,
         address[] memory _holders
@@ -671,69 +436,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
         uint256 failedIndex;
         uint256 succeededIndex;
-        uint256 nominalValue;
 
-        if (_assetType == AssetType.Bond) {
-            nominalValue = IBond(_asset).getBondDetails().nominalValue;
-        }
-
+        uint256 nominalValue = IBond(_asset).getBondDetails().nominalValue;
         for (uint256 index; index < _holders.length; ) {
-            (bool success, uint256 amount) = (_assetType == AssetType.Bond)
-                ? _getCouponAmount(_asset, _distributionID, _holders[index], nominalValue)
-                : _getDividendAmount(_asset, _distributionID, _holders[index]);
+            (bool success, uint256 amount) = _getCouponAmount(_asset, _distributionID, _holders[index], nominalValue);
 
             if (!success || !_payHolderDistribution(_distributionID, _holders[index], amount, paymentToken)) {
-                failedAddresses_[failedIndex] = _holders[index];
-                unchecked {
-                    ++failedIndex;
-                }
-            } else {
-                succeededAddresses_[succeededIndex] = _holders[index];
-                paidAmount_[succeededIndex] = amount;
-                unchecked {
-                    ++succeededIndex;
-                }
-            }
-
-            unchecked {
-                ++index;
-            }
-        }
-        return (failedAddresses_, succeededAddresses_, paidAmount_);
-    }
-
-    /*
-     * @dev Pay a snapshot to a list of holders
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param holders The holders to be paid
-     * @param snapshotID The snapshot to be paid to the holders
-     * @param amountOrPercentage The amount or percentage to be paid to the holders
-     * @param getSnapshotAmount The function that calculates the amount to be paid to the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     */
-    function _paySnapshotHolders(
-        address _asset,
-        address[] memory _holders,
-        uint256 _snapshotID,
-        uint256 _amountOrPercentage,
-        function(address, uint256, address, uint256) internal returns (uint256) _getSnapshotAmount
-    )
-        private
-        returns (address[] memory failedAddresses_, address[] memory succeededAddresses_, uint256[] memory paidAmount_)
-    {
-        failedAddresses_ = new address[](_holders.length);
-        succeededAddresses_ = new address[](_holders.length);
-        paidAmount_ = new uint256[](_holders.length);
-        OZ_IERC20 paymentToken = _lifeCycleCashFlowStorage().paymentToken;
-
-        uint256 failedIndex;
-        uint256 succeededIndex;
-        for (uint256 index; index < _holders.length; ) {
-            uint256 amount = _getSnapshotAmount(_asset, _snapshotID, _holders[index], _amountOrPercentage);
-
-            if (!_paySnapshotHolder(_snapshotID, _holders[index], amount, paymentToken)) {
                 failedAddresses_[failedIndex] = _holders[index];
                 unchecked {
                     ++failedIndex;
@@ -837,40 +545,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Pay an amount of payment tokens to a holder
      *
-     * @param snapshot The snapshot identifier
-     * @param holder The holder address to be paid
-     * @param amount The amount of erc20 tokens to be paid to the holder
-     * @paymentToken The payment token used to pay the snapshot
-     *
-     * @return True if the payment succeeded, false otherwise
-     */
-    function _paySnapshotHolder(
-        uint256 _snapshotID,
-        address _holder,
-        uint256 _amount,
-        OZ_IERC20 _paymentToken
-    ) private returns (bool) {
-        if (_isSnapshotHolderPaid(_snapshotID, _holder)) {
-            return false;
-        }
-
-        if (_paymentToken.balanceOf(address(this)) < _amount) {
-            return false;
-        }
-
-        try _paymentToken.transfer(_holder, _amount) returns (bool result) {
-            if (result) {
-                _setSnapshotHolderPaid(_snapshotID, _holder);
-            }
-            return result;
-        } catch {
-            return false;
-        }
-    }
-
-    /*
-     * @dev Pay an amount of payment tokens to a holder
-     *
      * @param holder The holder address to be paid
      * @param amount The amount of erc20 tokens to be paid to the holder
      * @paymentToken The payment token used to pay the cash out
@@ -899,7 +573,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Get a list of holders of a coupon/dividend by page
      *
-     * @param assetType The type of the asset, bond/equity, to get the holders
      * @param asset The asset the holders belongs to
      * @param distributionID The coupon/dividend identifier
      * @param pageIndex The index of the page
@@ -908,36 +581,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses
      */
     function _getHolders(
-        AssetType _assetType,
         address _asset,
         uint256 _distributionID,
         uint256 _pageIndex,
         uint256 _pageLength
     ) private view returns (address[] memory holders_) {
-        if (_assetType == AssetType.Bond) {
-            return IBond(_asset).getCouponHolders(_distributionID, _pageIndex, _pageLength);
-        } else {
-            return IEquity(_asset).getDividendHolders(_distributionID, _pageIndex, _pageLength);
-        }
-    }
-
-    /*
-     * @dev Get a list of holders of a snapshot
-     *
-     * @param asset The asset the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page
-     * @param pageLenth The number of holders
-     *
-     * @return The array of the holders addresses
-     */
-    function _getHoldersBySnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) private view returns (address[] memory) {
-        return ISnapshots(_asset).getTokenHoldersAtSnapshot(_snapshotID, _pageIndex, _pageLength);
+        return IBond(_asset).getCouponHolders(_distributionID, _pageIndex, _pageLength);
     }
 
     /*
@@ -1038,30 +687,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Get the dividend amount to pay for a certain holder
-     *
-     * @param asset The asset the dividend amount is requested
-     * @param dividendID The dividend identifier
-     * @param holder The holder address to be paid
-     *
-     * @return True if getting dividends for was successfully executed, false otherwise
-     * @return The amount to be paid
-     */
-    function _getDividendAmount(
-        address _asset,
-        uint256 _dividendID,
-        address _holder
-    ) private view returns (bool success, uint256 amount) {
-        IEquity equity = IEquity(_asset);
-        try equity.getDividendsFor(_dividendID, _holder) returns (IEquity.DividendFor memory dividendFor) {
-            amount = ((dividendFor.tokenBalance * dividendFor.amount) / 10 ** dividendFor.decimals);
-            return (true, amount);
-        } catch {
-            return (false, 0);
-        }
-    }
-
-    /*
      * @dev Get the cash out amount to pay for a certain holder
      *
      * @param asset The asset its cash out amount is requested
@@ -1084,10 +709,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @returns The coupon or dividend execution date
      */
     function _getDistributionExecutionDate(address _asset, uint256 _distributionID) private view returns (uint256) {
-        return
-            (_lifeCycleCashFlowStorage().assetType == AssetType.Bond)
-                ? IBond(_asset).getCoupon(_distributionID).coupon.executionDate
-                : IEquity(_asset).getDividends(_distributionID).dividend.executionDate;
+        return IBond(_asset).getCoupon(_distributionID).coupon.executionDate;
     }
 
     /*

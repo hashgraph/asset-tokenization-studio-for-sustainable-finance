@@ -207,11 +207,6 @@ pragma solidity 0.8.18;
 
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-enum AssetType {
-    Bond,
-    Equity
-}
-
 interface ILifeCycleCashFlow {
     /*
      * @dev Emitted when a coupon/dividend by page is executed
@@ -275,101 +270,6 @@ interface ILifeCycleCashFlow {
      * @param paidAmount Amounts paid to succeeded holders
      */
     event CashOutByAddressesExecuted(address[] holders, address[] failed, address[] succceeded, uint256[] paidAmount);
-
-    /*
-     * @dev Emitted when the an amount of ERC20 token is transferred
-     *
-     * @param to The address for the ERC20 token to be transferred to
-     * @param amount The amount of ERC20 to be transferred
-     */
-    event PaymentTokenTransferred(address to, uint256 amount);
-
-    /*
-     * @dev Emitted when the payment token is changed
-     *
-     * @param paymentToken The new payment token
-     */
-    event PaymentTokenChanged(address paymentToken);
-
-    /*
-     * @dev Emitted when an amount snapshot payment is executed
-     *
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The page index
-     * @param pageLength The page length
-     * @param amount The payed total amount
-     * @param failed Holders addresses whose payments failed
-     * @param succeeded Holders addresses whose payments succeeded
-     * @param paidAmount Amounts paid to succeeded holders
-     */
-    event AmountSnapshotExecuted(
-        uint256 snapshotID,
-        uint256 pageIndex,
-        uint256 pageLength,
-        uint256 amount,
-        address[] failed,
-        address[] succceeded,
-        uint256[] paidAmount
-    );
-
-    /*
-     * @dev Emitted when an amount snapshot payment by addresses is executed
-     *
-     * @param snapshotID The snapshot identifier
-     * @param holders The holders addresses
-     * @param amount The payed total amount
-     * @param failed Holders addresses whose payments failed
-     * @param succeeded Holders addresses whose payments succeeded
-     * @param paidAmount Amounts paid to succeeded holders
-     */
-    event AmountSnapshotByAddressesExecuted(
-        uint256 snapshotID,
-        address[] holders,
-        uint256 amount,
-        address[] failed,
-        address[] succceeded,
-        uint256[] paidAmount
-    );
-
-    /*
-     * @dev Emitted when a percentage snapshot payment is executed
-     *
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The page index
-     * @param pageLength The page length
-     * @param percentage The payed contract balance percentage
-     * @param failed Holders addresses whose payments failed
-     * @param succeeded Holders addresses whose payments succeeded
-     * @param paidAmount Amounts paid to succeeded holders
-     */
-    event PercentageSnapshotExecuted(
-        uint256 snapshotID,
-        uint256 pageIndex,
-        uint256 pageLength,
-        uint256 percentage,
-        address[] failed,
-        address[] succceeded,
-        uint256[] paidAmount
-    );
-
-    /*
-     * @dev Emitted when a percentage snapshot payment by addresses is executed
-     *
-     * @param snapshotID The snapshot identifier
-     * @param holders The holders addresses
-     * @param percentage The payed contract balance percentage
-     * @param failed Holders addresses whose payments failed
-     * @param succeeded Holders addresses whose payments succeeded
-     * @param paidAmount Amounts paid to succeeded holders
-     */
-    event PercentageSnapshotByAddressesExecuted(
-        uint256 snapshotID,
-        address[] holders,
-        uint256 percentage,
-        address[] failed,
-        address[] succceeded,
-        uint256[] paidAmount
-    );
 
     /*
      * @dev Pay a coupon or dividend to a page of holders
@@ -442,112 +342,9 @@ interface ILifeCycleCashFlow {
     ) external returns (address[] memory, address[] memory, uint256[] memory);
 
     /*
-     * @dev Pay a fixed amount of USDC tokens to a page of holders
+     * @dev Returns the asset address
      *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     * @return True if ATS returns holders to be paid, and false otherwise
+     * @return The asset address
      */
-    function executeAmountSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _amount
-    ) external returns (address[] memory, address[] memory, uint256[] memory, bool);
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a list of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executePercentageSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _percentage
-    ) external returns (address[] memory, address[] memory, uint256[] memory, bool);
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a page of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holders The array of holders addresses who will be paid * @param snapshotID The snapshot identifier
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executeAmountSnapshotByAddresses(
-        address _asset,
-        uint256 _snapshotID,
-        address[] calldata _holders,
-        uint256 _percentage
-    ) external returns (address[] memory, address[] memory, uint256[] memory);
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a list of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holders The array of holders addresses who will be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executePercentageSnapshotByAddresses(
-        address _asset,
-        uint256 _snapshotID,
-        address[] calldata _holders,
-        uint256 _percentage
-    ) external returns (address[] memory, address[] memory, uint256[] memory);
-
-    /*
-     * @dev Transfers an amount of ERC20 token tokens to an address
-     *
-     * @param to The destination of the amount of ERC20 token tokens
-     * @param amount The amount of ERC20 token tokens to be transferred
-     */
-    function transferPaymentToken(address to, uint256 amount) external;
-
-    /*
-     * @dev Change the payment token
-     *
-     * @param paymentToken The new payment token
-     */
-    function updatePaymentToken(address paymentToken) external;
-
-    /*
-     * @dev Get the payment token
-     *
-     * @returns paymentToken The payment token
-     */
-    function getPaymentToken() external view returns (IERC20);
-
-    /*
-     * @dev Get the payment token decimals
-     *
-     * @returns The payment token decimals
-     */
-    function getPaymentTokenDecimals() external view returns (uint8);
+    function getAsset() external returns(address asset_);
 }

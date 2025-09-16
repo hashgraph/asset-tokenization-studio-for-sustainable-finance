@@ -208,6 +208,12 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
+// keccak256('green.bonds.treasury.businesslogicresolver.storage');
+bytes32 constant _BUSINESS_LOGIC_RESOLVER_STORAGE_POSITION = 0x0ff87fb31a0af0460b5102e42199524ac5fdb6acf2bab86ad4c86f0881925cda;
+
+// keccak256('green.bonds.treasury.diamond.cut.manager.storage');
+bytes32 constant _DIAMOND_CUT_MANAGER_STORAGE_POSITION = 0x2213f4aec56c91290c24f2816f8acb9eea88a483a2f165c524071246e8fa4744;
+
 // keccak256('lifecycle.cash.flow.storage');
 bytes32 constant _LIFECYCLE_CASH_FLOW_STORAGE_POSITION = 0x854679a93cebfd89e2d5a20fdc0f646e935c518a098cea2e09fbcd5137772703;
 

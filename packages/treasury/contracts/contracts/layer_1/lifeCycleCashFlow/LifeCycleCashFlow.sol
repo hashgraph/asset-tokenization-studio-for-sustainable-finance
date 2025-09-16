@@ -207,10 +207,10 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import { ILifeCycleCashFlow, AssetType } from "./interfaces/ILifeCycleCashFlow.sol";
-import { Pause } from "./core/Pause.sol";
-import { AccessControl } from "./core/AccessControl.sol";
-import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
+import { ILifeCycleCashFlow } from "../interfaces/lifeCycleCashFlow/ILifeCycleCashFlow.sol";
+import { Pause } from "../pause/Pause.sol";
+import { AccessControl } from "../accessControl/AccessControl.sol";
+import { LifeCycleCashFlowStorageWrapper } from "../../layer_0/lifeCycleCashFlow/LifeCycleCashFlowStorageWrapper.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import { ERC20 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol";
@@ -218,22 +218,16 @@ import {
     _DEFAULT_ADMIN_ROLE,
     _PAUSER_ROLE,
     _PAYOUT_ROLE,
-    _CASHOUT_ROLE,
-    _TRANSFERER_ROLE,
-    _PAYMENT_TOKEN_MANAGER_ROLE
-} from "./constants/roles.sol";
+    _CASHOUT_ROLE
+} from "../constants/roles.sol";
 
 contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFlowStorageWrapper, Pause, AccessControl {
-    function initialize(address _asset, address _paymentToken) public initializer {
+    function initialize(address _asset) public initializer {
         _grantRole(_DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(_PAUSER_ROLE, _msgSender());
         _grantRole(_PAYOUT_ROLE, _msgSender());
         _grantRole(_CASHOUT_ROLE, _msgSender());
-        _grantRole(_TRANSFERER_ROLE, _msgSender());
-        _grantRole(_PAYMENT_TOKEN_MANAGER_ROLE, _msgSender());
         _setAsset(_asset);
-        _setAssetType(AssetType(uint8(ERC20(_asset).getERC20Metadata().securityType)));
-        _updatePaymentToken(_paymentToken);
     }
 
     /*
@@ -264,7 +258,6 @@ contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFl
         returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool executed_)
     {
         (failed_, succeeded_, paidAmount_, executed_) = _executeDistribution(
-            _lifeCycleCashFlowStorage().assetType,
             _lifeCycleCashFlowStorage().asset,
             _distributionID,
             _pageIndex,
@@ -299,7 +292,6 @@ contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFl
         returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_)
     {
         (failed_, succeeded_, paidAmount_) = _executeDistributionByAddresses(
-            _lifeCycleCashFlowStorage().assetType,
             _lifeCycleCashFlowStorage().asset,
             _distributionID,
             _holders
@@ -370,201 +362,11 @@ contract LifeCycleCashFlow is ILifeCycleCashFlow, Initializable, LifeCycleCashFl
     }
 
     /*
-     * @dev Pay a fixed amount of USDC tokens to a page of holders
+     * @dev Returns the asset address
      *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     * @return True if ATS returns holders to be paid, and false otherwise
+     * @return The asset address
      */
-    function executeAmountSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _amount
-    )
-        external
-        onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool executed_)
-    {
-        (failed_, succeeded_, paidAmount_, executed_) = _executeAmountSnapshot(
-            _asset,
-            _snapshotID,
-            _pageIndex,
-            _pageLength,
-            _amount
-        );
-
-        emit AmountSnapshotExecuted(_snapshotID, _pageIndex, _pageLength, _amount, failed_, succeeded_, paidAmount_);
-    }
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a list of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executePercentageSnapshot(
-        address _asset,
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        uint256 _percentage
-    )
-        external
-        onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_, bool executed_)
-    {
-        (failed_, succeeded_, paidAmount_, executed_) = _executePercentageSnapshot(
-            _asset,
-            _snapshotID,
-            _pageIndex,
-            _pageLength,
-            _percentage
-        );
-
-        emit PercentageSnapshotExecuted(
-            _snapshotID,
-            _pageIndex,
-            _pageLength,
-            _percentage,
-            failed_,
-            succeeded_,
-            paidAmount_
-        );
-    }
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a page of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holders The array of holders addresses who will be paid * @param snapshotID The snapshot identifier
-     * @param amount The fixed amount to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executeAmountSnapshotByAddresses(
-        address _asset,
-        uint256 _snapshotID,
-        address[] calldata _holders,
-        uint256 _amount
-    )
-        external
-        onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_)
-    {
-        (failed_, succeeded_, paidAmount_) = _executeSnapshotByAddresses(
-            _asset,
-            _snapshotID,
-            _holders,
-            _amount,
-            _getSnapshotAmountByAmount
-        );
-
-        emit AmountSnapshotByAddressesExecuted(_snapshotID, _holders, _amount, failed_, succeeded_, paidAmount_);
-    }
-
-    /*
-     * @dev Pay a fixed amount of USDC tokens to a list of holders
-     *
-     * @param asset The address of the asset that the snapshot belongs to
-     * @param snapshotID The snapshot identifier
-     * @param holders The array of holders addresses who will be paid
-     * @param percentage The contract balance percentage to be paid distributed proportionally among the holders
-     *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
-     */
-    function executePercentageSnapshotByAddresses(
-        address _asset,
-        uint256 _snapshotID,
-        address[] calldata _holders,
-        uint256 _percentage
-    )
-        external
-        onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        returns (address[] memory failed_, address[] memory succeeded_, uint256[] memory paidAmount_)
-    {
-        (failed_, succeeded_, paidAmount_) = _executeSnapshotByAddresses(
-            _asset,
-            _snapshotID,
-            _holders,
-            _percentage,
-            _getSnapshotAmountByPercentage
-        );
-
-        emit PercentageSnapshotByAddressesExecuted(
-            _snapshotID,
-            _holders,
-            _percentage,
-            failed_,
-            succeeded_,
-            paidAmount_
-        );
-    }
-
-    /*
-     * @dev Transfers an amount of payment tokens to an address
-     *
-     * @param to The destination of the amount of payment tokens
-     * @param amount The amount of payment tokens to be transferred
-     */
-    function transferPaymentToken(address _to, uint256 _amount) external onlyUnpaused onlyRole(_TRANSFERER_ROLE) {
-        _transferPaymentToken(_to, _amount);
-        emit PaymentTokenTransferred(_to, _amount);
-    }
-
-    /*
-     * @dev Set the payment token
-     *
-     * @param paymentToken The new payment token
-     */
-    function updatePaymentToken(address _paymentToken) external onlyUnpaused onlyRole(_PAYMENT_TOKEN_MANAGER_ROLE) {
-        _updatePaymentToken(_paymentToken);
-        emit PaymentTokenChanged(_paymentToken);
-    }
-
-    /*
-     * @dev Get the payment token
-     *
-     * @returns The payment token
-     */
-    function getPaymentToken() external view returns (IERC20) {
-        return _getPaymentToken();
-    }
-
-    /*
-     * @dev Get the payment token decimals
-     *
-     * @returns The payment token decimals
-     */
-    function getPaymentTokenDecimals() external view returns (uint8) {
-        return _getPaymentTokenDecimals();
+    function getAsset() external view returns(address asset_) {
+        return _getAsset();
     }
 }
