@@ -202,8 +202,8 @@
  *    limitations under the License.
  */
 
-export class BaseEntity {
+export abstract class BaseEntity {
   readonly id: string
   readonly createdAt: Date
-  readonly updatedAt: Date
+  updatedAt: Date
 }

@@ -206,6 +206,5 @@ import { applyDecorators } from "@nestjs/common"
 import { CommandHandler, QueryHandler } from "@nestjs/cqrs"
 
 export function Handler(handleable: any) {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   return applyDecorators(handleable.name.endsWith("Command") ? CommandHandler(handleable) : QueryHandler(handleable))
 }

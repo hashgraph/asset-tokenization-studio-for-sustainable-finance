@@ -205,7 +205,7 @@
 import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { BaseEntity } from "./BaseEntity"
 
-export class BaseEntityPersistence {
+export abstract class BaseEntityPersistence {
   @PrimaryGeneratedColumn("uuid")
   id: string
 

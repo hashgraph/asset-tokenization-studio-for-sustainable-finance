@@ -211,8 +211,7 @@ export function RestController(prefix?: string) {
     UsePipes(
       new ValidationPipe({
         transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true,
+        forbidUnknownValues: false,
       }),
     ),
     UseFilters(new RestExceptionFilter()),

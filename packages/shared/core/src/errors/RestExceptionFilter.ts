@@ -207,6 +207,7 @@ import { DomainError } from "./DomainError"
 import { UnsubscriptionError } from "rxjs"
 import { EntityNotFoundError } from "./EntityNotFoundError"
 import { CustomError } from "./CustomError"
+import { ValidationError } from "./ValidationError"
 
 @Catch()
 export class RestExceptionFilter implements ExceptionFilter<Error> {
