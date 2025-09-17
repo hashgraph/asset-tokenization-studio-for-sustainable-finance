@@ -1,11 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { SignedTransactionMessage } from '../../domain/model/SignedTransactionMessage';
-import { PayloadValidationService } from '../../domain/service/PayloadValidationService';
-import { ValidationError } from '../../domain/error/TransactionSenderError';
 import { SendSignedTransactionCommand } from '../command/send-signed-transaction/SendSignedTransactionCommand';
+import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
 
 interface TransactionMetadata {
   requestId: string;
@@ -13,19 +8,16 @@ interface TransactionMetadata {
   description: string;
 }
 
-@Injectable()
+@Singleton()
 export class TransactionService {
   private readonly logger = new Logger(TransactionService.name);
 
-  constructor(
-    private readonly commandBus: CommandBus,
-    private readonly payloadValidationService: PayloadValidationService,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   async processSignedTransaction(
     payload: string,
     metadata: TransactionMetadata,
-    format: 'hedera' | 'ethereum',
+    format: string,
   ): Promise<void> {
     const startTime = Date.now();
     const requestId = metadata?.requestId || 'unknown';
@@ -37,26 +29,6 @@ export class TransactionService {
     });
 
     try {
-      const message = plainToClass(SignedTransactionMessage, {
-        payload,
-        metadata,
-        format,
-      });
-
-      const validationErrors = await validate(message);
-      if (validationErrors.length > 0) {
-        const errorMessages = validationErrors
-          .map((error) => Object.values(error.constraints || {}).join(', '))
-          .join('; ');
-        throw new ValidationError(`Validation failed: ${errorMessages}`);
-      }
-
-      if (format === 'hedera') {
-        this.payloadValidationService.validateHederaPayload(payload);
-      } else if (format === 'ethereum') {
-        this.payloadValidationService.validateEthereumPayload(payload);
-      }
-
       const command = new SendSignedTransactionCommand(
         payload,
         metadata,

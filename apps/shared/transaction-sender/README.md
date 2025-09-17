@@ -1,8 +1,8 @@
-# Transaction Sender - RabbitMQIncomingHandler Implementation
+# Transaction Sender - RabbitMQ Message Processing
 
 ## Overview
 
-This implementation provides the core `RabbitMQIncomingHandler` class that subscribes to Hedera and Ethereum queues and forwards messages to the `TransactionService` for processing.
+This implementation provides a clean, efficient RabbitMQ message processing system that subscribes to blockchain transaction queues and forwards messages to the `TransactionService` for processing. The architecture follows Hexagonal Architecture and DDD principles with automatic validation and minimal boilerplate.
 
 ## Architecture
 
@@ -10,39 +10,40 @@ The implementation follows Hexagonal Architecture and DDD principles:
 
 ```
 port.adapter/
-└── listener/
-    └── RabbitMQIncomingHandler.ts    # Main queue subscriber
+├── in/
+│   ├── RabbitMQIncomingAdapter.ts   # Main queue subscriber (simplified)
+│   └── RabbitMQIncomingPort.ts      # Port interface
 
 app/
 ├── service/
-│   └── TransactionService.ts        # Application coordination
-└── command/
-    └── send-signed-transaction/
-        └── SendSignedTransactionCommand.ts
+│   └── TransactionService.ts        # Application coordination (streamlined)
+├── command/
+│   └── send-signed-transaction/     # Command handlers
+└── event/
+    └── publish-transaction-result/  # Event handlers
 
 domain/
 ├── model/
-│   └── SignedTransactionMessage.ts  # Domain models and DTOs
-├── service/
-│   └── PayloadValidationService.ts  # Format validation
-└── error/
-    └── TransactionSenderError.ts    # Domain errors
+│   ├── SignedTransactionMessage.ts      # Base domain model
+│   ├── SignedTransactionWithFormat.ts   # Format-specific model
+│   └── TransactionMetadata.ts           # Metadata model
+└── service/                             # Domain services
 ```
 
 ## Core Features
 
-### ✅ RabbitMQIncomingHandler
+### ✅ RabbitMQIncomingAdapter (Optimized)
 - **Queue Subscriptions**: Listens to `hederaFormat.incoming` and `ethereumFormat.incoming`
-- **Message Validation**: Validates message structure using class-validator
-- **Format Validation**: Validates payload format for each blockchain
+- **Automatic Validation**: NestJS + class-validator handles validation automatically
+- **Clean Architecture**: Simplified code with single responsibility
 - **Basic Logging**: Logs incoming messages with requestId correlation
-- **Error Handling**: Proper error propagation for RabbitMQ retry logic
+- **Error Handling**: Leverages NestJS built-in error handling
 
-### ✅ Payload Validation
-- **Hedera Format**: Validates hex strings that can be converted to bytes
-- **Ethereum Format**: Validates hex strings matching `/^0x[0-9a-fA-F]+$/` pattern
-- **Domain Errors**: Custom error classes for different validation failures
-- **Request Correlation**: Tracks messages using requestId from metadata
+### ✅ Automatic Message Validation
+- **Input Validation**: Automatic validation via class-validator decorators
+- **Format Validation**: Built-in validation for different blockchain formats
+- **Type Safety**: Strong TypeScript typing throughout the pipeline
+- **No Redundancy**: Single point of validation at message entry
 
 ## Dependencies
 
@@ -72,17 +73,22 @@ All required dependencies are installed:
     "origin": "evercity",
     "description": "Bond creation",
     "requestId": "abc123-def456"
-  }
+  },
+  "format": "hedera"
 }
 ```
 
-### Validation Rules
-1. **payload**: Must be a non-empty string
-2. **metadata**: Must be an object with required fields
-3. **requestId**: Required for correlation and logging
-4. **Format-specific validation**:
-   - Hedera: Valid hex string convertible to bytes
-   - Ethereum: Valid hex string starting with `0x`
+### Validation Rules (Automatic)
+1. **payload**: Must be a non-empty string (validated by `@IsNotEmpty()`)
+2. **metadata**: Must be a valid TransactionMetadata object
+3. **requestId**: Required for correlation and logging (validated by `@IsString()`)
+4. **format**: Must be either 'hedera' or 'ethereum' (validated by `@IsIn(['hedera', 'ethereum'])`)
+
+### Supported Formats
+- **hedera**: For Hedera Hashgraph transactions
+- **ethereum**: For Ethereum-compatible transactions
+
+> **Note**: All validation is handled automatically by NestJS + class-validator at the message entry point. No manual validation needed in business logic.
 
 ## Usage
 
@@ -103,12 +109,34 @@ Once dependencies are installed, uncomment the imports in `AppModule.ts`:
 
 ## Testing
 
-The implementation includes comprehensive error handling and logging that can be tested with:
+The streamlined implementation can be tested with:
 
-1. **Valid Messages**: Send properly formatted messages to verify processing
-2. **Invalid Payloads**: Test format validation with malformed hex strings
-3. **Missing Fields**: Test validation with incomplete message structures
-4. **Error Scenarios**: Verify error handling and logging behavior
+1. **Valid Messages**: Send properly formatted messages to verify automatic processing
+2. **Invalid Formats**: Test automatic validation with invalid format values
+3. **Missing Fields**: Test class-validator automatic rejection of incomplete messages
+4. **Error Scenarios**: Verify NestJS built-in error handling and logging
+
+## Benefits of Current Architecture
+
+### ✅ **Simplified & Clean**
+- Removed redundant validation code
+- Single responsibility per class
+- Leverages NestJS built-in features
+
+### ✅ **Better Performance**
+- No duplicate validation
+- Automatic serialization/deserialization
+- Optimized message processing
+
+### ✅ **Maintainable**
+- Less code to maintain
+- Standard NestJS patterns
+- Clear separation of concerns
+
+### ✅ **Type Safe**
+- Strong TypeScript typing
+- Compile-time error detection
+- IDE support and autocomplete
 
 ## Next Steps
 
@@ -116,7 +144,7 @@ The implementation includes comprehensive error handling and logging that can be
 2. **RabbitMQ Broker**: Set up RabbitMQ server and create the required exchanges/queues
 3. **Integration Testing**: Test with actual RabbitMQ broker and message flows
 4. **Monitoring**: Add metrics and health checks for production readiness
-5. **Error Handling**: Implement dead letter queues for failed message processing
+5. **Business Logic**: Implement actual transaction processing logic in TransactionService
 
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
