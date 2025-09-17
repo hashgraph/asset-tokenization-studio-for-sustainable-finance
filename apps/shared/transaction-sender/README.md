@@ -1,3 +1,123 @@
+# Transaction Sender - RabbitMQIncomingHandler Implementation
+
+## Overview
+
+This implementation provides the core `RabbitMQIncomingHandler` class that subscribes to Hedera and Ethereum queues and forwards messages to the `TransactionService` for processing.
+
+## Architecture
+
+The implementation follows Hexagonal Architecture and DDD principles:
+
+```
+port.adapter/
+└── listener/
+    └── RabbitMQIncomingHandler.ts    # Main queue subscriber
+
+app/
+├── service/
+│   └── TransactionService.ts        # Application coordination
+└── command/
+    └── send-signed-transaction/
+        └── SendSignedTransactionCommand.ts
+
+domain/
+├── model/
+│   └── SignedTransactionMessage.ts  # Domain models and DTOs
+├── service/
+│   └── PayloadValidationService.ts  # Format validation
+└── error/
+    └── TransactionSenderError.ts    # Domain errors
+```
+
+## Core Features
+
+### ✅ RabbitMQIncomingHandler
+- **Queue Subscriptions**: Listens to `hederaFormat.incoming` and `ethereumFormat.incoming`
+- **Message Validation**: Validates message structure using class-validator
+- **Format Validation**: Validates payload format for each blockchain
+- **Basic Logging**: Logs incoming messages with requestId correlation
+- **Error Handling**: Proper error propagation for RabbitMQ retry logic
+
+### ✅ Payload Validation
+- **Hedera Format**: Validates hex strings that can be converted to bytes
+- **Ethereum Format**: Validates hex strings matching `/^0x[0-9a-fA-F]+$/` pattern
+- **Domain Errors**: Custom error classes for different validation failures
+- **Request Correlation**: Tracks messages using requestId from metadata
+
+## Dependencies
+
+All required dependencies are installed:
+
+- `@golevelup/nestjs-rabbitmq` - RabbitMQ integration for NestJS
+- `@nestjs/cqrs` - CQRS module for command and query handling
+- `class-transformer` & `class-validator` - Data validation and transformation
+
+## Configuration
+
+### Environment Variables
+- `RABBITMQ_URI`: RabbitMQ connection string (default: `amqp://localhost:5672`)
+
+### Queue Configuration
+- **Exchange**: `tx` (topic type)
+- **Hedera Queue**: `hederaFormat.incoming`
+- **Ethereum Queue**: `ethereumFormat.incoming`
+
+## Message Format
+
+### Incoming Message
+```json
+{
+  "payload": "0x0abc123...",
+  "metadata": {
+    "origin": "evercity",
+    "description": "Bond creation",
+    "requestId": "abc123-def456"
+  }
+}
+```
+
+### Validation Rules
+1. **payload**: Must be a non-empty string
+2. **metadata**: Must be an object with required fields
+3. **requestId**: Required for correlation and logging
+4. **Format-specific validation**:
+   - Hedera: Valid hex string convertible to bytes
+   - Ethereum: Valid hex string starting with `0x`
+
+## Usage
+
+Once dependencies are installed, uncomment the imports in `AppModule.ts`:
+
+```typescript
+@Module({
+  imports: [
+    CqrsModule,
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [{ name: 'tx', type: 'topic' }],
+      uri: process.env.RABBITMQ_URI || 'amqp://localhost:5672',
+    }),
+  ],
+  // ... rest of configuration
+})
+```
+
+## Testing
+
+The implementation includes comprehensive error handling and logging that can be tested with:
+
+1. **Valid Messages**: Send properly formatted messages to verify processing
+2. **Invalid Payloads**: Test format validation with malformed hex strings
+3. **Missing Fields**: Test validation with incomplete message structures
+4. **Error Scenarios**: Verify error handling and logging behavior
+
+## Next Steps
+
+1. **Environment Setup**: Configure RabbitMQ connection string in environment variables
+2. **RabbitMQ Broker**: Set up RabbitMQ server and create the required exchanges/queues
+3. **Integration Testing**: Test with actual RabbitMQ broker and message flows
+4. **Monitoring**: Add metrics and health checks for production readiness
+5. **Error Handling**: Implement dead letter queues for failed message processing
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
