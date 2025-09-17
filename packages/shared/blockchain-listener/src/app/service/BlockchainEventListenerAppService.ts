@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import type EventListenerPort from "@port/adapter/blockchain/EventListenerPort";
+import type EventListenerPort from "@port/adapter/listener/EventListenerPort";
 
 @Injectable()
 export default class BlockchainEventListenerAppService

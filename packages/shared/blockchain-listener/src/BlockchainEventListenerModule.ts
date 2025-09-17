@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import EventListenerPort from "@port/adapter/blockchain/EventListenerPort";
+import EventListenerPort from "@port/adapter/listener/EventListenerPort";
 import EventFetcherPort from "@port/adapter/blockchain/EventFetcherPort";
-import BlockchainEventListenerAdapter from "@port/adapter/blockchain/BlockchainEventListenerAdapter";
-import BlockchainEventFetcherAdapter from "@port/adapter/blockchain/BlockchainEventFetcherAdapter";
-import BlockchainEventListenerAppService from "@app/BlockchainEventListenerAppService";
+import EventListenerAdapter from "@port/adapter/listener/EventListenerAdapter";
+import EventFetcherAdapter from "@port/adapter/blockchain/EventFetcherAdapter";
+import BlockchainEventListenerAppService from "@app/service/BlockchainEventListenerAppService";
 
 @Module({
   imports: [
@@ -13,15 +13,15 @@ import BlockchainEventListenerAppService from "@app/BlockchainEventListenerAppSe
     })
   ],
   providers: [
-    BlockchainEventListenerAdapter,
+    EventListenerAdapter,
     {
       provide: "EventListenerPort",
-      useExisting: BlockchainEventListenerAdapter,
+      useExisting: EventListenerAdapter,
     },
-    BlockchainEventFetcherAdapter,
+    EventFetcherAdapter,
     {
       provide: "EventFetcherPort",
-      useExisting: BlockchainEventFetcherAdapter,
+      useExisting: EventFetcherAdapter,
     },
     BlockchainEventListenerAppService,
   ],
