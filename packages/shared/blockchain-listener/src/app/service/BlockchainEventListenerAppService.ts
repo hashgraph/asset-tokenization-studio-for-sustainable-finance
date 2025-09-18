@@ -1,8 +1,8 @@
 import { Inject, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { singleton } from 'tsyringe';
+import { Singleton } from "@hashgraph/green-bonds-shared-core";
 import type EventListenerPort from "@port/adapter/listener/EventListenerPort";
 
-@singleton()
+@Singleton()
 export default class BlockchainEventListenerAppService
   implements OnModuleInit, OnModuleDestroy
 {
