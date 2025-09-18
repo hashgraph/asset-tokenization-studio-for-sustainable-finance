@@ -2,9 +2,18 @@
 
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 
+/**
+ * Factory for creating RabbitMQ decorators with centralized configuration.
+ * Uses environment variables directly since decorators are evaluated at compile time.
+ * This approach maintains consistency with RabbitMQConfigService defaults.
+ */
 export class RabbitMQDecoratorFactory {
   private static getExchangeName(): string {
     return process.env.RABBITMQ_EXCHANGE_NAME || 'tx';
+  }
+
+  private static getExchangeType(): string {
+    return process.env.RABBITMQ_EXCHANGE_TYPE || 'topic';
   }
 
   private static getHederaQueueName(): string {

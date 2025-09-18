@@ -4,9 +4,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
 
 import { EthereumTransactionPort } from './EthereumTransactionPort';
-import { SendSignedTransactionCommand } from '../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
-import { SignedTransactionMessage } from '../../domain/model/SignedTransactionMessage';
-import { RabbitMQDecoratorFactory } from '../../config/RabbitMQDecoratorFactory';
+import { SendSignedTransactionCommand } from '../../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
+import { SignedTransactionMessage } from '../../../domain/model/SignedTransactionMessage';
+import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFactory';
 
 /**
  * RabbitMQ adapter for processing Ethereum signed transactions.

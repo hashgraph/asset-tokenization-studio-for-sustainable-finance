@@ -4,9 +4,9 @@ import { CommandBus } from '@nestjs/cqrs';
 import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
 
 import { HederaTransactionPort } from './HederaTransactionPort';
-import { SendSignedTransactionCommand } from '../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
-import { SignedTransactionMessage } from '../../domain/model/SignedTransactionMessage';
-import { RabbitMQDecoratorFactory } from '../../config/RabbitMQDecoratorFactory';
+import { SendSignedTransactionCommand } from '../../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
+import { SignedTransactionMessage } from '../../../domain/model/SignedTransactionMessage';
+import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFactory';
 
 /**
  * RabbitMQ adapter for processing Hedera signed transactions.

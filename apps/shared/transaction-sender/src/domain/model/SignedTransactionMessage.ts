@@ -17,7 +17,7 @@ export class SignedTransactionMessage {
   payload: string;
 
   @ValidateNested()
-  @Type(() => TransactionMetadata)
   @IsOptional()
+  @Type(() => TransactionMetadata)
   metadata?: TransactionMetadata;
 }

@@ -4,9 +4,8 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigModule } from '@nestjs/config';
-import { HederaTransactionRabbitAdapter } from './port.adapter/hedera/HederaTransactionRabbitAdapter';
-import { EthereumTransactionRabbitAdapter } from './port.adapter/ethereum/EthereumTransactionRabbitAdapter';
-import { RabbitMQConfigService } from './config/RabbitMQConfigService';
+import { HederaTransactionRabbitAdapter } from './port.adapter/hedera/sendsignedtransaction/HederaTransactionRabbitAdapter';
+import { EthereumTransactionRabbitAdapter } from './port.adapter/ethereum/sendsignedtransaction/EthereumTransactionRabbitAdapter';
 
 @Module({
   imports: [
@@ -18,7 +17,7 @@ import { RabbitMQConfigService } from './config/RabbitMQConfigService';
       exchanges: [
         {
           name: process.env.RABBITMQ_EXCHANGE_NAME || 'tx',
-          type: 'topic',
+          type: process.env.RABBITMQ_EXCHANGE_TYPE || 'topic',
         },
       ],
       uri: process.env.RABBITMQ_URI || 'amqp://localhost:5672',
@@ -28,10 +27,6 @@ import { RabbitMQConfigService } from './config/RabbitMQConfigService';
     }),
   ],
   controllers: [],
-  providers: [
-    HederaTransactionRabbitAdapter,
-    EthereumTransactionRabbitAdapter,
-    RabbitMQConfigService,
-  ],
+  providers: [HederaTransactionRabbitAdapter, EthereumTransactionRabbitAdapter],
 })
 export class AppModule {}

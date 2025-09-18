@@ -3,11 +3,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CommandBus } from '@nestjs/cqrs';
 import { AppModule } from '../../src/AppModule';
-import { HederaTransactionRabbitAdapter } from '../../src/port.adapter/hedera/HederaTransactionRabbitAdapter';
-import { EthereumTransactionRabbitAdapter } from '../../src/port.adapter/ethereum/EthereumTransactionRabbitAdapter';
+import { HederaTransactionRabbitAdapter } from '../../src/port.adapter/hedera/sendsignedtransaction/HederaTransactionRabbitAdapter';
+
 import { SignedTransactionMessage } from '../../src/domain/model/SignedTransactionMessage';
 import { TransactionMetadata } from '../../src/domain/model/TransactionMetadata';
 import { SendSignedTransactionCommand } from '../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand';
+import { EthereumTransactionRabbitAdapter } from '../../src/port.adapter/ethereum/sendsignedtransaction/EthereumTransactionRabbitAdapter';
 
 const mockLogger = {
   log: jest.fn(),
