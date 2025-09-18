@@ -1,12 +1,11 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { Logger } from "@hashgraph/green-bonds-shared-core";
+import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
 import { ConfigService } from "@nestjs/config"
 import EventListenerPort from "@port/adapter/listener/EventListenerPort";
-import type EventFetcherPort from "@port/adapter/blockchain/EventFetcherPort";
+import EventFetcherAdapter from "@port/adapter/blockchain/EventFetcherAdapter";
 
-@Injectable()
-export default class BlockchainEventListenerAdapter implements EventListenerPort {
-  private readonly logger = new Logger(BlockchainEventListenerAdapter.name);
+@Singleton()
+export default class EventListenerAdapter implements EventListenerPort {
+  private readonly logger = new Logger(EventListenerAdapter.name);
   private intervalId: NodeJS.Timeout;
   private readonly network: "testnet" | "previewnet" | "mainnet";
   private readonly blockNumber: number;
@@ -16,8 +15,7 @@ export default class BlockchainEventListenerAdapter implements EventListenerPort
 
   constructor(
     private readonly configService: ConfigService,
-    @Inject("EventFetcherPort")
-    private readonly eventFetcher: EventFetcherPort
+    private readonly eventFetcher: EventFetcherAdapter
   ) {
     this.network = configService.get("BLOCKCHAIN_LISTENER_NETWORK") ?? "testnet";
     this.blockNumber = configService.get("BLOCKCHAIN_LISTENER_BLOCK_NUMBER") ?? 0;

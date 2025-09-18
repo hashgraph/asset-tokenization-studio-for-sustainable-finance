@@ -1,6 +1,6 @@
 import { Inject, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
-import type EventListenerPort from "@port/adapter/listener/EventListenerPort";
+import EventListenerAdapter from "@port/adapter/listener/EventListenerAdapter";
 
 @Singleton()
 export default class BlockchainEventListenerAppService
@@ -9,8 +9,7 @@ export default class BlockchainEventListenerAppService
   private readonly logger = new Logger(BlockchainEventListenerAppService.name);
 
   constructor(
-    @Inject("EventListenerPort")
-    private readonly eventListener: EventListenerPort
+    private readonly eventListener: EventListenerAdapter
   ) {}
 
   async onModuleInit() {

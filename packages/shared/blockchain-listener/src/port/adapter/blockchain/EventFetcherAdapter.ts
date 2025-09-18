@@ -1,11 +1,10 @@
-import { Injectable } from "@nestjs/common";
-import { Logger } from "@hashgraph/green-bonds-shared-core";
+import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
 import BlockchainEvent from '@domain/event/BlockchainEvent';
 import EventFetcherPort from '@port/adapter/blockchain/EventFetcherPort';
 
-@Injectable()
-export default class BlockchainEventFetcherAdapter implements EventFetcherPort {
-    private readonly logger = new Logger(BlockchainEventFetcherAdapter.name);
+@Singleton()
+export default class EventFetcherAdapter implements EventFetcherPort {
+    private readonly logger = new Logger(EventFetcherAdapter.name);
 
     async fetchEvents(
       network: "testnet" | "previewnet" | "mainnet",
