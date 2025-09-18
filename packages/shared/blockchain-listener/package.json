@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "1.0.0",
+    "@hashgraph/sdk": "2.66.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -38,6 +39,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
+    "axios": "^0.21.1",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
