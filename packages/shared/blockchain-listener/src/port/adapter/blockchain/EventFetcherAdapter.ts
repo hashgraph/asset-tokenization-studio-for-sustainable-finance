@@ -8,6 +8,7 @@ import BlockchainEvent from '@domain/blockchain/BlockchainEvent';
 import EventFetcherPort from '@port/adapter/blockchain/EventFetcherPort';
 import axios from "axios"
 import { utils } from "ethers";
+import { Interface } from "ethers/lib/utils"
 import { AccountId, EvmAddress } from "@hashgraph/sdk"
 
 interface MirrorNodeResponse {
@@ -19,16 +20,37 @@ interface BlockMirrorNodeResponse {
 }
 
 interface MirrorNodeContractsResultsResponse {
-  results?: MirrorNodeContractsAddressesResultsResponse[]
+  results?: MirrorNodeContractResultResponse[],
+  links?: MirrorNodeContractsResultsResponseLinks
 }
 
-interface MirrorNodeContractsAddressesResultsResponse {
+interface MirrorNodeContractsResultsResponseLinks {
+  next?: string
+}
+
+interface MirrorNodeContractResultResponse {
+  hash?: string,
   address?: string,
+  contract_id?: string,
   to?: string
 }
 
+interface MirrorNodeContractResultLogsResponse {
+  timestamp?: string,
+  logs?: MirrorNodeContractResultLogResponse[]
+}
+
+interface MirrorNodeContractResultLogResponse {
+  address?: string,
+  bloom?: string,
+  data?: string,
+  index: number,
+  topics?: string[]
+}
+
 interface AccountMirrorNodeResponse {
-  account: string
+  account: string,
+  evm_address: string
 }
 
 @Singleton()
@@ -37,8 +59,9 @@ export default class EventFetcherAdapter implements EventFetcherPort {
   private readonly network: "testnet" | "previewnet" | "mainnet"
   private readonly maxRetries: number
   private readonly blockNumber: number
-  private readonly contracts: string[]
+  private readonly contracts_hedera_id: string[]
   private readonly events: string[]
+  private contracts_evm_address: string[]
   private mirrorNodeBaseUrl: string
 
   constructor(
@@ -48,26 +71,32 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     this.mirrorNodeBaseUrl = this.getMirrorNodeBaseUrl(this.network)
     this.maxRetries = configService.get("BLOCKCHAIN_LISTENER_MAX_RETRIES") ?? 1
     this.blockNumber = configService.get("BLOCKCHAIN_LISTENER_BLOCK_NUMBER") ?? 0
-    this.contracts = this.getArrayFromConfig("BLOCKCHAIN_LISTENER_CONTRACTS")
+    this.contracts_hedera_id = this.getArrayFromConfig("BLOCKCHAIN_LISTENER_CONTRACTS")
     this.events = this.getArrayFromConfig("BLOCKCHAIN_LISTENER_EVENTS")
   }
 
   async fetchEvents(
   ): Promise<Event[]> {
       this.logger.log(`Polling started for ${this.network} and block ${this.blockNumber}`);
+      const events: Event[] = []
+
+      if (this.contracts_hedera_id && !this.contracts_evm_address) {
+        this.contracts_evm_address = await Promise.all(
+          this.contracts_hedera_id.map(id => this.getEvmAddressFromHederaId(id))
+        );
+      }
+
       try {
         if (await this.blockContainsTrackedEvents()) {
-          const transactionsIds = await this.getTransactionsIdsContainingTrackedEvents()
-
           this.logger.debug(`Block ${this.blockNumber} contains tracked events`)
-          const events: Event[] = []
-          /*for (const log of logs) {
-            const event = this.decodeLog(log)
-            if (event) {
-              events.push(event)
-            }
-          }*/
-          this.logger.debug(`Fetched blockchain events ${events.length} for block: ${this.blockNumber}`)
+
+          const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents()
+          for (const hash of contractsResultsHashes) {
+            const contractResults = await this.getContractResult(hash)
+            /*events.push(
+              ...await Promise.all(contractResults.logs.map(log => this.decodeLog(log, contractResults.timestamp)))
+            )*/
+          }
           return events
         } else {
           this.logger.debug(`No tracked events where found in block ${this.blockNumber}`)
@@ -75,23 +104,11 @@ export default class EventFetcherAdapter implements EventFetcherPort {
         }
       } catch (error) {
         console.log("ERROR");
-        //throw new BlockchainEventListenerError("Error listening events", error)
       }
   }
 
-  async getEvmAddressFromHedera(hederaAddress: string): Promise<string> {
-    const input = hederaAddress.trim().toLowerCase()
-    const id = AccountId.fromString(input)
-    return `0x${id.toSolidityAddress()}`
-  }
-
-  async getHederaAddressFromEvm(evmAddress: string): Promise<string> {
-    const input = evmAddress.trim().toLowerCase()
-    const evmAddressWithPrefix = input.startsWith("0x") ? input : `0x${input}`
-    if (this.isLongZeroAddress(evmAddressWithPrefix)) {
-      return AccountId.fromEvmAddress(0, 0, evmAddressWithPrefix).toString()
-    }
-    return ((await this.fetchData(`accounts/${evmAddressWithPrefix}`)) as AccountMirrorNodeResponse).account
+  async getEvmAddressFromHederaId(hederaId: string): Promise<string> {
+    return ((await this.fetchData(`accounts/${hederaId}`)) as AccountMirrorNodeResponse).evm_address
   }
 
   private getArrayFromConfig(key: string): string[] {
@@ -113,25 +130,12 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
   private async blockContainsTrackedEvents() : Promise<boolean> {
     const blockLogsBloom = ((await this.fetchData(`blocks/${this.blockNumber}`)) as BlockMirrorNodeResponse).logs_bloom
-    //const blockLogsBloom = await this.retrieveBlockLogsBloomInfoFromMirrorNode()
     //return this.anyAddrInBloom(blockLogsBloom) && this.anyLogInBloom(blockLogsBloom)
     return true;
   }
 
-  /*private async retrieveBlockLogsBloomInfoFromMirrorNode(): Promise<string> {
-    try {
-      const url = `${this.mirrorNodeBaseUrl}/api/v1/blocks/${this.blockNumber}`
-      this.logger.verbose(`Retrieving block info from Mirror Node: "${url}"`)
-      const { data }: { data: MirrorNodeBlockResponse } = await axios.get(url)
-      return data.logs_bloom || null
-    } catch (error) {
-      console.log("ERROR");
-      return null;
-    }
-  }*/
-
   private async anyAddrInBloom(bloomHex: string) : Promise<boolean> {
-    for (const contract of this.contracts) {
+    for (const contract of this.contracts_hedera_id) {
       const contractAddress = "0xa2aa501b19aff244d90cc15a4cf739d2725b5729"
       if (this.isInBloom(bloomHex, contractAddress)) {
         return true
@@ -150,24 +154,41 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     return false
   }
 
-  private async getTransactionsIdsContainingTrackedEvents(): Promise<string[]> {
-    return await this.retrieveContractsResultsByBlockNumberFromMirrorNode()
+  private async getContractsResultsHashesContainingTrackedEvents(): Promise<string[]> {
+    const contractsResultsHashesList: string[] = []
+    const query = this.blockNumber ? `?block.number=${this.blockNumber}&limit=100&order=asc` : ""
+    const mirrorNodeContractsResultsResponse = ((await this.fetchData(`contracts/results${query}`)) as MirrorNodeContractsResultsResponse)
+
+    const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(mirrorNodeContractsResultsResponse.results)
+    contractsResultsHashesList.push(...contractResultsHashes)
+
+    if (mirrorNodeContractsResultsResponse.links) {
+       while (mirrorNodeContractsResultsResponse.links.next) {
+         const nextUrl = new URL(mirrorNodeContractsResultsResponse.links.next);
+         const relativePath = nextUrl.pathname + nextUrl.search;
+         const stripped = relativePath.replace(/^\/api\/v1\//, "");
+         const mirrorNodeNextContractsResultsResponse = ((await this.fetchData(`${stripped}`)) as MirrorNodeContractsResultsResponse)
+         const nextContractResultsHashes = this.getContractsResultsHashesFilteredByContract(mirrorNodeNextContractsResultsResponse.results)
+         contractsResultsHashesList.push(...nextContractResultsHashes)
+
+         mirrorNodeContractsResultsResponse.links = mirrorNodeNextContractsResultsResponse.links
+       }
+    }
+
+    return contractsResultsHashesList
   }
 
-  private async retrieveContractsResultsByBlockNumberFromMirrorNode(): Promise<string[]> {
-    try {
-      const query = this.blockNumber ? `?block.number=${this.blockNumber}limit=100&order=asc` : ""
-      const url = `${this.mirrorNodeBaseUrl}/api/v1/contracts/results${query}`
-      this.logger.verbose(`Retrieving contracts results from Mirror Node: "${url}"`)
-      const { data }: { data: MirrorNodeContractsResultsResponse } = await axios.get(url)
+  private getContractsResultsHashesFilteredByContract(results: MirrorNodeContractResultResponse[]): string[] {
+    return results.filter(
+      (res) =>
+        (res.address && this.contracts_evm_address.includes(res.address)) ||
+        (res.to && this.contracts_evm_address.includes(res.to)) ||
+        (res.contract_id && this.contracts_hedera_id.includes(res.contract_id)),
+      ).map((res) => res.hash!).filter((hash): hash is string => Boolean(hash))
+  }
 
-      return data.results?.flatMap(r =>
-        [r.address, r.to].filter((v): v is string => !!v)
-      ) ?? [];
-    } catch (error) {
-      console.log("ERROR");
-      return null;
-    }
+  private async getContractResult(hash: string): Promise<MirrorNodeContractResultLogsResponse> {
+    return ((await this.fetchData(`contracts/results/${hash}`)) as MirrorNodeContractResultLogsResponse)
   }
 
   private isInBloom(bloomHex: string, value: string, isTopic = false): boolean {
@@ -199,9 +220,6 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     return true;
   }
 
-  /**
-   * Fetches data from Mirror Node with retry logic and timeout
-   */
   private async fetchData<T>(path: string): Promise<T> {
     const url = `${this.mirrorNodeBaseUrl}/api/v1/${path}`
 
