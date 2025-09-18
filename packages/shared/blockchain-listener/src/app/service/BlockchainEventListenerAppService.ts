@@ -1,4 +1,4 @@
-import { Inject, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { OnModuleInit, OnModuleDestroy } from "@nestjs/common";
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
 import EventListenerAdapter from "@port/adapter/listener/EventListenerAdapter";
 
