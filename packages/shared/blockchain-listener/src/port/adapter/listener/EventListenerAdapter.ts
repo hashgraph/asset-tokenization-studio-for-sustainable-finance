@@ -1,5 +1,5 @@
 import { Injectable, Inject } from "@nestjs/common";
-import { Logger } from "@nestjs/common";
+import { Logger } from "@hashgraph/green-bonds-shared-core";
 import { ConfigService } from "@nestjs/config"
 import EventListenerPort from "@port/adapter/listener/EventListenerPort";
 import type EventFetcherPort from "@port/adapter/blockchain/EventFetcherPort";

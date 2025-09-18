@@ -1,5 +1,5 @@
-import { Inject, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
-import { Singleton } from "@hashgraph/green-bonds-shared-core";
+import { Inject, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
 import type EventListenerPort from "@port/adapter/listener/EventListenerPort";
 
 @Singleton()
