@@ -7,7 +7,6 @@ import {
   ValidateNested,
   IsOptional,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { TransactionMetadata } from './TransactionMetadata';
 
 export class SignedTransactionMessage {
@@ -18,6 +17,5 @@ export class SignedTransactionMessage {
 
   @ValidateNested()
   @IsOptional()
-  @Type(() => TransactionMetadata)
   metadata?: TransactionMetadata;
 }
