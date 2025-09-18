@@ -3,11 +3,12 @@
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { ProxyMiddleware } from "./config/ProxyMiddleware"
+import { PROVIDERS } from "./Components"
 
 @Module({
   imports: [SharedModule],
   controllers: [],
-  providers: [],
+  providers: PROVIDERS,
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
