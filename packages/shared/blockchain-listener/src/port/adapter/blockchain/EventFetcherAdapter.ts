@@ -227,7 +227,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
       try {
         this.logger.debug(`Fetching data from: ${url} (attempt ${attempt})`)
 
-        const { data } = await axios.get(url, { timeout: 5000 })
+        const { data } = await axios.get(url, { timeout: 9000 })
 
         this.logger.debug(`Successfully fetched data for ${url}`)
         return data
