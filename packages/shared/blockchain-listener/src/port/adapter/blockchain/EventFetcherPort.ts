@@ -3,8 +3,7 @@
 import Event from "@domain/event/Event.js";
 
 export default interface EventFetcherPort {
-  fetchEvents(network: "testnet" | "previewnet" | "mainnet",
-              blockNumber: number,
-              contracts: string,
-              events: string): Promise<Event[]>;
+  fetchEvents(): Promise<Event[]>
+  getEvmAddressFromHedera(hederaAddress: string): Promise<string>
+  getHederaAddressFromEvm(evmAddress: string): Promise<string>
 }
