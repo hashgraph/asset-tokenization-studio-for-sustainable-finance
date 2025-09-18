@@ -7,7 +7,7 @@ import { SignedTransactionMessage } from '../../../domain/model/SignedTransactio
  * Defines the contract for handling Hedera-specific transaction messages.
  * This port is infrastructure-agnostic and focuses on Hedera business capabilities.
  */
-export interface HederaTransactionPort {
+export interface SendHederaSignedTransactionPort {
   /**
    * Processes an incoming Hedera format transaction message.
    * @param message - The signed transaction message with Hedera format payload

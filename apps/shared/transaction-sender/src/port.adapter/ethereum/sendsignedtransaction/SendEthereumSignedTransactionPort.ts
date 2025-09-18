@@ -7,7 +7,7 @@ import { SignedTransactionMessage } from 'src/domain/model/SignedTransactionMess
  * Defines the contract for handling Ethereum-specific transaction messages.
  * This port is infrastructure-agnostic and focuses on Ethereum business capabilities.
  */
-export interface EthereumTransactionPort {
+export interface SendEthereumSignedTransactionPort {
   /**
    * Processes an incoming Ethereum format transaction message.
    * @param message - The signed transaction message with Ethereum format payload

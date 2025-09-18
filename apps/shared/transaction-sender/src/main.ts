@@ -2,13 +2,18 @@
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './AppModule';
+import { LogLevel, LOG_LEVELS } from '@nestjs/common';
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3000);
+function getLogLevels(minLogLevel: LogLevel): LogLevel[] {
+  const logLevels: LogLevel[] = LOG_LEVELS;
+  const logLevelIndex = logLevels.indexOf(minLogLevel);
+  return logLevels.slice(logLevelIndex);
 }
 
-bootstrap().catch((error) => {
-  console.error('Failed to start application:', error);
-  process.exit(1);
-});
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    logger: getLogLevels((process.env.LOG_LEVEL as LogLevel) || 'log'),
+  });
+  await app.listen(process.env.PORT ?? 3000);
+}
+bootstrap();

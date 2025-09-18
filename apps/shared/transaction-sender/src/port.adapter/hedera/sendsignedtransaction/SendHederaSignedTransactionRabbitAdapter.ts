@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { CommandBus } from '@nestjs/cqrs';
-import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
+import {
+  Singleton,
+  Logger,
+  NestJSCommandBus,
+} from '@hashgraph/green-bonds-shared-core';
 
-import { HederaTransactionPort } from './HederaTransactionPort';
+import { SendHederaSignedTransactionPort } from './SendHederaSignedTransactionPort';
 import { SendSignedTransactionCommand } from '../../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
 import { SignedTransactionMessage } from '../../../domain/model/SignedTransactionMessage';
 import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFactory';
@@ -18,10 +21,14 @@ import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFacto
  * - Handling Hedera-specific error scenarios
  */
 @Singleton()
-export class HederaTransactionRabbitAdapter implements HederaTransactionPort {
-  private readonly logger = new Logger(HederaTransactionRabbitAdapter.name);
+export class SendHederaSignedTransactionRabbitAdapter
+  implements SendHederaSignedTransactionPort
+{
+  private readonly logger = new Logger(
+    SendHederaSignedTransactionRabbitAdapter.name,
+  );
 
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly commandBus: NestJSCommandBus) {}
 
   @RabbitMQDecoratorFactory.createHederaSubscribe()
   async onHederaMessage(msg: SignedTransactionMessage): Promise<void> {

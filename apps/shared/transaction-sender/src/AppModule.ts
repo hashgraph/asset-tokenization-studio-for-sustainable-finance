@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Module } from '@nestjs/common';
-import { CqrsModule } from '@nestjs/cqrs';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { ConfigModule } from '@nestjs/config';
-import { HederaTransactionRabbitAdapter } from './port.adapter/hedera/sendsignedtransaction/HederaTransactionRabbitAdapter';
-import { EthereumTransactionRabbitAdapter } from './port.adapter/ethereum/sendsignedtransaction/EthereumTransactionRabbitAdapter';
+import { SharedModule } from '@hashgraph/green-bonds-shared-core';
+import { SendHederaSignedTransactionRabbitAdapter } from './port.adapter/hedera/sendsignedtransaction/SendHederaSignedTransactionRabbitAdapter';
+import { SendEthereumSignedTransactionRabbitAdapter } from './port.adapter/ethereum/sendsignedtransaction/SendEthereumSignedTransactionRabbitAdapter';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CqrsModule,
+    SharedModule,
     RabbitMQModule.forRoot({
       exchanges: [
         {
@@ -27,6 +27,9 @@ import { EthereumTransactionRabbitAdapter } from './port.adapter/ethereum/sendsi
     }),
   ],
   controllers: [],
-  providers: [HederaTransactionRabbitAdapter, EthereumTransactionRabbitAdapter],
+  providers: [
+    SendHederaSignedTransactionRabbitAdapter,
+    SendEthereumSignedTransactionRabbitAdapter,
+  ],
 })
 export class AppModule {}

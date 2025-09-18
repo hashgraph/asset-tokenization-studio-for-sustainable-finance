@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { CommandBus } from '@nestjs/cqrs';
-import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
+import {
+  Singleton,
+  Logger,
+  NestJSCommandBus,
+} from '@hashgraph/green-bonds-shared-core';
 
-import { EthereumTransactionPort } from './EthereumTransactionPort';
+import { SendEthereumSignedTransactionPort } from './SendEthereumSignedTransactionPort';
 import { SendSignedTransactionCommand } from '../../../app/command/sendsignedtransaction/SendSignedTransactionCommand';
 import { SignedTransactionMessage } from '../../../domain/model/SignedTransactionMessage';
 import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFactory';
@@ -18,12 +21,14 @@ import { RabbitMQDecoratorFactory } from '../../../config/RabbitMQDecoratorFacto
  * - Handling Ethereum-specific error scenarios
  */
 @Singleton()
-export class EthereumTransactionRabbitAdapter
-  implements EthereumTransactionPort
+export class SendEthereumSignedTransactionRabbitAdapter
+  implements SendEthereumSignedTransactionPort
 {
-  private readonly logger = new Logger(EthereumTransactionRabbitAdapter.name);
+  private readonly logger = new Logger(
+    SendEthereumSignedTransactionRabbitAdapter.name,
+  );
 
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(private readonly commandBus: NestJSCommandBus) {}
 
   @RabbitMQDecoratorFactory.createEthereumSubscribe()
   async onEthereumMessage(msg: SignedTransactionMessage): Promise<void> {
