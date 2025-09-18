@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { RabbitMQModule } from '@golevelup/nestjs-rabbitmq';
 import { TransactionService } from './app/service/TransactionService';
-import { RabbitMQIncomingAdapter } from './port.adapter/in/RabbitMQIncomingAdapter';
+import { SendSignedTransactionRabbitAdapter } from './port.adapter/sendsignedtransaction/SendSignedTransactionRabbitAdapter';
 
 @Module({
   imports: [
@@ -19,6 +19,6 @@ import { RabbitMQIncomingAdapter } from './port.adapter/in/RabbitMQIncomingAdapt
     }),
   ],
   controllers: [],
-  providers: [TransactionService, RabbitMQIncomingAdapter],
+  providers: [TransactionService, SendSignedTransactionRabbitAdapter],
 })
 export class AppModule {}

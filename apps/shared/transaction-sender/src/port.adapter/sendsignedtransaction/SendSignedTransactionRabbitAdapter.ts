@@ -1,13 +1,15 @@
 import { RabbitSubscribe } from '@golevelup/nestjs-rabbitmq';
 import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
 
-import { RabbitMQIncomingPort } from './RabbitMQIncomingPort';
+import { SendSignedTransactionPort } from './SendSignedTransactionPort';
 import { TransactionService } from '../../app/service/TransactionService';
 import { SignedTransactionMessage } from '../../domain/model/SignedTransactionMessage';
 
 @Singleton()
-export class RabbitMQIncomingAdapter implements RabbitMQIncomingPort {
-  private readonly logger = new Logger(RabbitMQIncomingAdapter.name);
+export class SendSignedTransactionRabbitAdapter
+  implements SendSignedTransactionPort
+{
+  private readonly logger = new Logger(SendSignedTransactionRabbitAdapter.name);
 
   constructor(private readonly transactionService: TransactionService) {}
 

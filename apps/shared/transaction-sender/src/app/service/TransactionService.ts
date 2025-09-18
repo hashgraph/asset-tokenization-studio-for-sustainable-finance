@@ -1,5 +1,5 @@
 import { CommandBus } from '@nestjs/cqrs';
-import { SendSignedTransactionCommand } from '../command/send-signed-transaction/SendSignedTransactionCommand';
+import { SendSignedTransactionCommand } from '../command/sendsignedtransaction/SendSignedTransactionCommand';
 import { Singleton, Logger } from '@hashgraph/green-bonds-shared-core';
 
 interface TransactionMetadata {
