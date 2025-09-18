@@ -1,7 +1,8 @@
-import { Injectable, Inject, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { Inject, Logger, OnModuleInit, OnModuleDestroy } from "@nestjs/common";
+import { singleton } from 'tsyringe';
 import type EventListenerPort from "@port/adapter/listener/EventListenerPort";
 
-@Injectable()
+@singleton()
 export default class BlockchainEventListenerAppService
   implements OnModuleInit, OnModuleDestroy
 {
