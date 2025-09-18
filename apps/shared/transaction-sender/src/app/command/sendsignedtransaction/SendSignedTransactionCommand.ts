@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { IsNotEmpty, IsString, IsIn, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TransactionMetadata } from '../../../domain/model/TransactionMetadata';

@@ -13,6 +13,7 @@ port.adapter/
 ├── in/
 │   ├── RabbitMQIncomingAdapter.ts   # Main queue subscriber (simplified)
 │   └── RabbitMQIncomingPort.ts      # Port interface
+└── listener/                        # Additional listeners
 
 app/
 ├── service/
@@ -57,11 +58,16 @@ All required dependencies are installed:
 
 ### Environment Variables
 - `RABBITMQ_URI`: RabbitMQ connection string (default: `amqp://localhost:5672`)
+- `RABBITMQ_EXCHANGE_NAME`: Exchange name (default: `tx`)
+- `RABBITMQ_EXCHANGE_TYPE`: Exchange type (default: `topic`)
+- `RABBITMQ_HEDERA_QUEUE_NAME`: Hedera queue name (default: `hederaFormat.incoming`)
+- `RABBITMQ_HEDERA_ROUTING_KEY`: Hedera routing key (default: `hederaFormat.incoming`)
+- `RABBITMQ_ETHEREUM_QUEUE_NAME`: Ethereum queue name (default: `ethereumFormat.incoming`)
+- `RABBITMQ_ETHEREUM_ROUTING_KEY`: Ethereum routing key (default: `ethereumFormat.incoming`)
+- `RABBITMQ_CONNECTION_WAIT`: Wait for connection (default: `false`)
 
 ### Queue Configuration
-- **Exchange**: `tx` (topic type)
-- **Hedera Queue**: `hederaFormat.incoming`
-- **Ethereum Queue**: `ethereumFormat.incoming`
+All queue and exchange configurations are now parametrizable through environment variables with sensible defaults.
 
 ## Message Format
 
