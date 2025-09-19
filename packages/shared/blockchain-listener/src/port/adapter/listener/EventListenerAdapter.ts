@@ -1,46 +1,42 @@
-import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core";
+// SPDX-License-Identifier: Apache-2.0
+import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
 import { ConfigService } from "@nestjs/config"
-import EventListenerPort from "@port/adapter/listener/EventListenerPort";
-import EventFetcherAdapter from "@port/adapter/blockchain/EventFetcherAdapter";
+import EventListenerPort from "@port/adapter/listener/EventListenerPort"
+import EventFetcherAdapter from "@port/adapter/blockchain/EventFetcherAdapter"
 
 @Singleton()
 export default class EventListenerAdapter implements EventListenerPort {
-  private readonly logger = new Logger(EventListenerAdapter.name);
-  private intervalId: NodeJS.Timeout;
-  private readonly network: "testnet" | "previewnet" | "mainnet";
-  private readonly blockNumber: number;
-  private readonly contracts: string;
-  private readonly events: string;
-  private readonly pollTimeout: number;
+  private readonly logger = new Logger(EventListenerAdapter.name)
+  private intervalId: NodeJS.Timeout
+  private readonly network: "testnet" | "previewnet" | "mainnet"
+  private readonly blockNumber: number
+  private readonly contracts: string
+  private readonly events: string
+  private readonly pollTimeout: number
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly eventFetcher: EventFetcherAdapter
+    private readonly eventFetcher: EventFetcherAdapter,
   ) {
-    this.network = configService.get("BLOCKCHAIN_LISTENER_NETWORK") ?? "testnet";
-    this.blockNumber = configService.get("BLOCKCHAIN_LISTENER_BLOCK_NUMBER") ?? 0;
-    this.contracts = configService.get("BLOCKCHAIN_LISTENER_CONTRACTS");
-    this.events = configService.get("BLOCKCHAIN_LISTENER_EVENTS");
-    this.pollTimeout = configService.get("BLOCKCHAIN_LISTENER_POLL_TIMEOUT");
+    this.network = configService.get("BLOCKCHAIN_LISTENER_NETWORK") ?? "testnet"
+    this.blockNumber = configService.get("BLOCKCHAIN_LISTENER_BLOCK_NUMBER") ?? 0
+    this.contracts = configService.get("BLOCKCHAIN_LISTENER_CONTRACTS")
+    this.events = configService.get("BLOCKCHAIN_LISTENER_EVENTS")
+    this.pollTimeout = configService.get("BLOCKCHAIN_LISTENER_POLL_TIMEOUT")
   }
 
-  subscribe(
-    listener: (event: any) => void,
-  ): void {
-    if (this.intervalId) return;
+  subscribe(listener: (event: any) => void): void {
+    if (this.intervalId) return
 
     this.intervalId = setInterval(async () => {
-      const events = await this.eventFetcher.fetchEvents(
-        this.network, this.blockNumber, this.contracts, this.events
-      );
+      const events = await this.eventFetcher.fetchEvents(this.network, this.blockNumber, this.contracts, this.events)
       for (const event of events) {
-        listener(event);
+        listener(event)
       }
-    }, this.pollTimeout);
+    }, this.pollTimeout)
   }
 
-  async unsubscribe(
-  ): Promise<void> {
+  async unsubscribe(): Promise<void> {
     if (this.intervalId) {
       clearInterval(this.intervalId)
       this.intervalId = null
