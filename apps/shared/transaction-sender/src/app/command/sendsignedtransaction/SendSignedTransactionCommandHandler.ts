@@ -1,0 +1,35 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { CommandHandler, Handler, NestJSEventBus, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { SendSignedTransactionCommand } from "./SendSignedTransactionCommand"
+import { SignedTransactionMessage } from "../../../domain/model/SignedTransactionMessage"
+import { SignedTransactionSentEvent } from "../../../domain/event/SignedTransactionSentEvent"
+import { BlockchainTransactionSenderAdapter } from "../../../port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
+
+@Singleton()
+@Handler(SendSignedTransactionCommand)
+export class SendSignedTransactionCommandHandler implements CommandHandler<SendSignedTransactionCommand, void> {
+  constructor(
+    private readonly eventBus: NestJSEventBus,
+    private readonly blockchainTransactionSender: BlockchainTransactionSenderAdapter,
+  ) {}
+
+  @Validate()
+  async execute(command: SendSignedTransactionCommand): Promise<void> {
+    const signedTransaction = new SignedTransactionMessage()
+    signedTransaction.payload = command.payload
+    signedTransaction.metadata = command.metadata
+    signedTransaction.format = command.format
+
+    const transactionHash = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
+
+    const event = new SignedTransactionSentEvent(
+      command.payload,
+      signedTransaction.metadata,
+      command.format,
+      transactionHash,
+    )
+
+    this.eventBus.publish(event)
+  }
+}

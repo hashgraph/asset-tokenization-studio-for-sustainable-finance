@@ -1,8 +1,9 @@
 import type { NestJSCommandBus } from "@hashgraph/green-bonds-shared-core"
-import { SendHederaSignedTransactionRabbitAdapter } from "../../../src/port.adapter/hedera/sendsignedtransaction/SendHederaSignedTransactionRabbitAdapter"
+
 import { SendSignedTransactionCommand } from "../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
 import { SignedTransactionMessage } from "../../../src/domain/model/SignedTransactionMessage"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
+import { SendHederaSignedTransactionRabbitAdapter } from "../../../src/port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
 
 describe("SendHederaSignedTransactionRabbitAdapter", () => {
   let adapter: SendHederaSignedTransactionRabbitAdapter
@@ -31,6 +32,7 @@ describe("SendHederaSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
+        format: "hedera",
       }
 
       mockCommandBus.execute.mockResolvedValue(undefined)
@@ -58,6 +60,7 @@ describe("SendHederaSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
+        format: "hedera",
       }
 
       const error = new Error("Command execution failed")
@@ -78,6 +81,7 @@ describe("SendHederaSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0xabcdef1234567890",
         metadata: mockMetadata,
+        format: "hedera",
       }
 
       mockCommandBus.execute.mockResolvedValue(undefined)

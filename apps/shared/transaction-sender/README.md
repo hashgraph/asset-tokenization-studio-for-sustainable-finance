@@ -25,8 +25,7 @@ app/
 
 domain/
 ├── model/
-│   ├── SignedTransactionMessage.ts      # Base domain model
-│   ├── SignedTransactionWithFormat.ts   # Format-specific model
+│   ├── SignedTransactionMessage.ts      # Domain model with format
 │   └── TransactionMetadata.ts           # Metadata model
 └── service/                             # Domain services
 ```

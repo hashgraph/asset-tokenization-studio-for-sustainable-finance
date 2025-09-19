@@ -3,11 +3,11 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { NestJSCommandBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
-import { SendHederaSignedTransactionRabbitAdapter } from "../../src/port.adapter/hedera/sendsignedtransaction/SendHederaSignedTransactionRabbitAdapter"
-import { SendEthereumSignedTransactionRabbitAdapter } from "../../src/port.adapter/ethereum/sendsignedtransaction/SendEthereumSignedTransactionRabbitAdapter"
 import { SignedTransactionMessage } from "../../src/domain/model/SignedTransactionMessage"
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
 import { SendSignedTransactionCommand } from "../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
+import { SendEthereumSignedTransactionRabbitAdapter } from "../../src/port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
+import { SendHederaSignedTransactionRabbitAdapter } from "../../src/port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
 
 const mockLogger = {
   log: jest.fn(),
@@ -79,6 +79,7 @@ describe.skip("Transaction Flow E2E", () => {
           origin: "hedera-service",
           description: "Hedera token transfer transaction",
         },
+        format: "hedera",
       }
 
       const executeMethod = jest.fn().mockResolvedValue(undefined)
@@ -112,7 +113,6 @@ describe.skip("Transaction Flow E2E", () => {
     })
 
     it("should handle Hedera transaction processing errors gracefully", async () => {
-      // Arrange
       const hederaMessage: SignedTransactionMessage = {
         payload: "0x1234567890abcdef1234567890abcdef",
         metadata: {
@@ -120,6 +120,7 @@ describe.skip("Transaction Flow E2E", () => {
           origin: "hedera-service",
           description: "Hedera transaction that will fail",
         },
+        format: "hedera",
       }
 
       const processingError = new Error("Command processing failed")
@@ -155,6 +156,7 @@ describe.skip("Transaction Flow E2E", () => {
           origin: "ethereum-service",
           description: "Ethereum ERC-20 token transfer",
         },
+        format: "ethereum",
       }
 
       const executeMethod = jest.fn().mockResolvedValue(undefined)
@@ -195,6 +197,7 @@ describe.skip("Transaction Flow E2E", () => {
           origin: "ethereum-service",
           description: "Ethereum transaction that will fail",
         },
+        format: "ethereum",
       }
 
       const processingError = new Error("Ethereum processing failed")
@@ -249,6 +252,7 @@ describe.skip("Transaction Flow E2E", () => {
     it("should handle missing metadata gracefully", async () => {
       const messageWithoutMetadata: SignedTransactionMessage = {
         payload: "0x1234567890abcdef1234567890abcdef",
+        format: "hedera",
       }
 
       const executeMethod = jest.fn().mockResolvedValue(undefined)
