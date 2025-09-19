@@ -1,3 +1,157 @@
+# Transaction Sender - RabbitMQ Message Processing
+
+## Overview
+
+This implementation provides a clean, efficient RabbitMQ message processing system that subscribes to blockchain transaction queues and forwards messages to the `TransactionService` for processing. The architecture follows Hexagonal Architecture and DDD principles with automatic validation and minimal boilerplate.
+
+## Architecture
+
+The implementation follows Hexagonal Architecture and DDD principles:
+
+```
+port.adapter/
+├── in/
+│   ├── RabbitMQIncomingAdapter.ts   # Main queue subscriber (simplified)
+│   └── RabbitMQIncomingPort.ts      # Port interface
+└── listener/                        # Additional listeners
+
+app/
+├── service/
+│   └── TransactionService.ts        # Application coordination (streamlined)
+├── command/
+│   └── send-signed-transaction/     # Command handlers
+└── event/
+    └── publish-transaction-result/  # Event handlers
+
+domain/
+├── model/
+│   ├── SignedTransactionMessage.ts      # Base domain model
+│   ├── SignedTransactionWithFormat.ts   # Format-specific model
+│   └── TransactionMetadata.ts           # Metadata model
+└── service/                             # Domain services
+```
+
+## Core Features
+
+### ✅ RabbitMQIncomingAdapter (Optimized)
+- **Queue Subscriptions**: Listens to `hederaFormat.incoming` and `ethereumFormat.incoming`
+- **Automatic Validation**: NestJS + class-validator handles validation automatically
+- **Clean Architecture**: Simplified code with single responsibility
+- **Basic Logging**: Logs incoming messages with requestId correlation
+- **Error Handling**: Leverages NestJS built-in error handling
+
+### ✅ Automatic Message Validation
+- **Input Validation**: Automatic validation via class-validator decorators
+- **Format Validation**: Built-in validation for different blockchain formats
+- **Type Safety**: Strong TypeScript typing throughout the pipeline
+- **No Redundancy**: Single point of validation at message entry
+
+## Dependencies
+
+All required dependencies are installed:
+
+- `@golevelup/nestjs-rabbitmq` - RabbitMQ integration for NestJS
+- `@nestjs/cqrs` - CQRS module for command and query handling
+- `class-transformer` & `class-validator` - Data validation and transformation
+
+## Configuration
+
+### Environment Variables
+- `RABBITMQ_URI`: RabbitMQ connection string (default: `amqp://localhost:5672`)
+- `RABBITMQ_EXCHANGE_NAME`: Exchange name (default: `tx`)
+- `RABBITMQ_EXCHANGE_TYPE`: Exchange type (default: `topic`)
+- `RABBITMQ_HEDERA_QUEUE_NAME`: Hedera queue name (default: `hederaFormat.incoming`)
+- `RABBITMQ_HEDERA_ROUTING_KEY`: Hedera routing key (default: `hederaFormat.incoming`)
+- `RABBITMQ_ETHEREUM_QUEUE_NAME`: Ethereum queue name (default: `ethereumFormat.incoming`)
+- `RABBITMQ_ETHEREUM_ROUTING_KEY`: Ethereum routing key (default: `ethereumFormat.incoming`)
+- `RABBITMQ_CONNECTION_WAIT`: Wait for connection (default: `false`)
+
+### Queue Configuration
+All queue and exchange configurations are now parametrizable through environment variables with sensible defaults.
+
+## Message Format
+
+### Incoming Message
+```json
+{
+  "payload": "0x0abc123...",
+  "metadata": {
+    "origin": "evercity",
+    "description": "Bond creation",
+    "requestId": "abc123-def456"
+  },
+  "format": "hedera"
+}
+```
+
+### Validation Rules (Automatic)
+1. **payload**: Must be a non-empty string (validated by `@IsNotEmpty()`)
+2. **metadata**: Must be a valid TransactionMetadata object
+3. **requestId**: Required for correlation and logging (validated by `@IsString()`)
+4. **format**: Must be either 'hedera' or 'ethereum' (validated by `@IsIn(['hedera', 'ethereum'])`)
+
+### Supported Formats
+- **hedera**: For Hedera Hashgraph transactions
+- **ethereum**: For Ethereum-compatible transactions
+
+> **Note**: All validation is handled automatically by NestJS + class-validator at the message entry point. No manual validation needed in business logic.
+
+## Usage
+
+Once dependencies are installed, uncomment the imports in `AppModule.ts`:
+
+```typescript
+@Module({
+  imports: [
+    CqrsModule,
+    RabbitMQModule.forRoot(RabbitMQModule, {
+      exchanges: [{ name: 'tx', type: 'topic' }],
+      uri: process.env.RABBITMQ_URI || 'amqp://localhost:5672',
+    }),
+  ],
+  // ... rest of configuration
+})
+```
+
+## Testing
+
+The streamlined implementation can be tested with:
+
+1. **Valid Messages**: Send properly formatted messages to verify automatic processing
+2. **Invalid Formats**: Test automatic validation with invalid format values
+3. **Missing Fields**: Test class-validator automatic rejection of incomplete messages
+4. **Error Scenarios**: Verify NestJS built-in error handling and logging
+
+## Benefits of Current Architecture
+
+### ✅ **Simplified & Clean**
+- Removed redundant validation code
+- Single responsibility per class
+- Leverages NestJS built-in features
+
+### ✅ **Better Performance**
+- No duplicate validation
+- Automatic serialization/deserialization
+- Optimized message processing
+
+### ✅ **Maintainable**
+- Less code to maintain
+- Standard NestJS patterns
+- Clear separation of concerns
+
+### ✅ **Type Safe**
+- Strong TypeScript typing
+- Compile-time error detection
+- IDE support and autocomplete
+
+## Next Steps
+
+1. **Environment Setup**: Configure RabbitMQ connection string in environment variables
+2. **RabbitMQ Broker**: Set up RabbitMQ server and create the required exchanges/queues
+3. **Integration Testing**: Test with actual RabbitMQ broker and message flows
+4. **Monitoring**: Add metrics and health checks for production readiness
+5. **Business Logic**: Implement actual transaction processing logic in TransactionService
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
