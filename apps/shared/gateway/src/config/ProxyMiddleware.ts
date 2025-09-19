@@ -4,12 +4,14 @@ import { NestMiddleware } from "@nestjs/common"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import { Logger, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { NotFoundException } from "@nestjs/common/exceptions/not-found.exception"
+import { AuthService } from "./auth/AuthService"
 
 @Singleton()
 export class ProxyMiddleware implements NestMiddleware {
   private static readonly PATH_ROUTE_SEPARATOR: string = ","
   private readonly logger = new Logger(ProxyMiddleware.name)
   private readonly routerMap: object
+  private readonly authService: AuthService
   private readonly proxy = createProxyMiddleware({
     changeOrigin: true,
     router: (req) => {
@@ -22,12 +24,14 @@ export class ProxyMiddleware implements NestMiddleware {
     },
   })
 
-  constructor() {
+  constructor(authService: AuthService) {
+    this.authService = authService
     this.routerMap = this.buildRouterMap()
     this.logger.log("Router Map:", this.routerMap)
   }
 
   use(req: any, res: any, next: (error?: any) => void) {
+    this.authService.signIn(req.header(process.env.API_KEY_HEADER_NAME))
     this.proxy(req, res, next)
   }
 
