@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
 import EventFetcherPort from "@port/adapter/blockchain/EventFetcherPort"

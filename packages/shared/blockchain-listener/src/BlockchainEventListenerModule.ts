@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
+
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
-import EventListenerAdapter from "@port/adapter/listener/EventListenerAdapter"
-import EventListenerNestAdapter from "@port/adapter/EventListenerNestAdapter"
-import EventFetcherAdapter from "@port/adapter/blockchain/EventFetcherAdapter"
-import BlockchainEventListenerAppService from "@app/service/BlockchainEventListenerAppService"
+import { PROVIDERS } from "./Components"
 
 @Module({
   imports: [
@@ -12,7 +10,7 @@ import BlockchainEventListenerAppService from "@app/service/BlockchainEventListe
       isGlobal: true,
     }),
   ],
-  providers: [EventFetcherAdapter, EventListenerAdapter, EventListenerNestAdapter, BlockchainEventListenerAppService],
-  exports: [EventFetcherAdapter, EventListenerAdapter, EventListenerNestAdapter],
+  providers: PROVIDERS,
+  exports: PROVIDERS,
 })
 export class BlockchainEventListenerModule {}
