@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsString, IsNotEmpty } from 'class-validator';
+import { IsString, IsNotEmpty } from "class-validator"
 
 export class TransactionMetadata {
   @IsString()
   @IsNotEmpty()
-  origin: string;
+  origin: string
 
   @IsString()
   @IsNotEmpty()
-  description: string;
+  description: string
 
   @IsString()
   @IsNotEmpty()
-  requestId: string;
+  requestId: string
 }

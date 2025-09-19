@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransactionMessage } from '../../../domain/model/SignedTransactionMessage';
+import { SignedTransactionMessage } from "../../../domain/model/SignedTransactionMessage"
 
 /**
  * Port interface for processing Hedera signed transactions.
@@ -13,5 +13,5 @@ export interface SendHederaSignedTransactionPort {
    * @param message - The signed transaction message with Hedera format payload
    * @throws {Error} When transaction processing fails
    */
-  onHederaMessage(message: SignedTransactionMessage): Promise<void>;
+  onHederaMessage(message: SignedTransactionMessage): Promise<void>
 }
