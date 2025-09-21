@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 export { SharedModule } from "./SharedModule"
 
 export { Command } from "./command/Command"
@@ -12,6 +14,7 @@ export { Handler } from "./decorators/Handler"
 export { RestController } from "./decorators/RestController"
 export { Singleton } from "./decorators/Singleton"
 export { Validate } from "./decorators/Validate"
+export { Inject } from "./decorators/Inject"
 
 export { ConstraintsValidationError } from "./errors/ConstraintsValidationError"
 export { CustomError } from "./errors/CustomError"
