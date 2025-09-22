@@ -7,6 +7,8 @@ import { SendHederaSignedTransactionRabbitAdapter } from "./port.adapter/transac
 import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
 import { SendSignedTransactionCommandHandler } from "./app/command/sendsignedtransaction/SendSignedTransactionCommandHandler"
 import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
+import { PublishTransactionResultHandler } from "./app/event/publishtransactionresult/PublishTransactionResultHandler"
+import { PublishTransactionResultRabbitAdapter } from "./port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
 @Module({
   imports: [
     SharedModule,
@@ -29,9 +31,15 @@ import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionse
     SendEthereumSignedTransactionRabbitAdapter,
     SendSignedTransactionCommandHandler,
     BlockchainTransactionSenderAdapter,
+    PublishTransactionResultHandler,
+    PublishTransactionResultRabbitAdapter,
     {
       provide: "BlockchainTransactionSender",
       useClass: BlockchainTransactionSenderAdapter,
+    },
+    {
+      provide: "PublishTransactionResult",
+      useClass: PublishTransactionResultRabbitAdapter,
     },
   ],
 })
