@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { EventListener, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { EventsHandler } from "@nestjs/cqrs"
 import { SignedTransactionSentEvent } from "../../../domain/events/SignedTransactionSentEvent"
 import type { PublishTransactionResultPort } from "../../../port.adapter/publishtransactionresult/PublishTransactionResultPort"
 
+@EventsHandler(SignedTransactionSentEvent)
 @Singleton()
 export class PublishTransactionResultHandler implements EventListener<SignedTransactionSentEvent> {
   constructor(@Inject() private readonly publishTransactionResult: PublishTransactionResultPort) {}
