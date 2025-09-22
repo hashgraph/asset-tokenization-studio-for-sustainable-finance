@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { Test, TestingModule } from "@nestjs/testing"
 import {
   BadRequestException,
@@ -35,6 +37,7 @@ describe("ProxyMiddleware", () => {
     process.env.ROUTES = `http://localhost:${port}/exclude`
     process.env.API_KEY_HEADER_NAME = apiKeyHeaderName
     process.env.API_KEYS = apikey
+    process.env.TIMEOUT = 2000
   })
 
   afterEach(() => {
@@ -89,6 +92,18 @@ describe("ProxyMiddleware", () => {
       statusCode: HttpStatus.UNAUTHORIZED,
     })
   })
+
+  it("should return 504 HTTP error when proxied request does not response in configured timeout", async () => {
+    const response = await request(app.getHttpServer())
+      .get("/api/v1/treasury/timeout")
+      .expect(HttpStatus.GATEWAY_TIMEOUT)
+      .set(apiKeyHeaderName, apikey)
+
+    expect(response.body).toEqual({
+      message: "Gateway Timeout",
+      statusCode: HttpStatus.GATEWAY_TIMEOUT,
+    })
+  })
 })
 
 @Controller("/exclude/api/v1/treasury")
@@ -103,6 +118,15 @@ class TestController {
   @Get("error")
   error() {
     throw new BadRequestException("test error")
+  }
+
+  @Get("timeout")
+  async timeout(): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve()
+      }, 3000)
+    })
   }
 }
 
