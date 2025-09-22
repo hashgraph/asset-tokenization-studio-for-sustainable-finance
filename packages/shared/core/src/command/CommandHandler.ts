@@ -3,5 +3,5 @@
 import { Command } from "./Command"
 
 export interface CommandHandler<C extends Command<R>, R> {
-  execute(command: C): R
+  execute(command: C): Promise<R>
 }

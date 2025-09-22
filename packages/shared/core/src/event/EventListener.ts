@@ -3,5 +3,5 @@
 import { Event } from "./Event"
 
 export interface EventListener<E extends Event> {
-  handle(event: E): void
+  handle(event: E)
 }
