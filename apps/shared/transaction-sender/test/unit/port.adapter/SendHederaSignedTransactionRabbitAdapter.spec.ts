@@ -1,4 +1,4 @@
-import type { NestJSCommandBus } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 
 import { SendSignedTransactionCommand } from "../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
 import { SignedTransactionMessage } from "../../../src/domain/model/SignedTransactionMessage"
@@ -7,12 +7,12 @@ import { SendHederaSignedTransactionRabbitAdapter } from "../../../src/port.adap
 
 describe("SendHederaSignedTransactionRabbitAdapter", () => {
   let adapter: SendHederaSignedTransactionRabbitAdapter
-  let mockCommandBus: jest.Mocked<NestJSCommandBus>
+  let mockCommandBus: jest.Mocked<CommandBus>
 
   beforeEach(() => {
     mockCommandBus = {
       execute: jest.fn(),
-    } as unknown as jest.Mocked<NestJSCommandBus>
+    } as jest.Mocked<CommandBus>
 
     adapter = new SendHederaSignedTransactionRabbitAdapter(mockCommandBus)
   })

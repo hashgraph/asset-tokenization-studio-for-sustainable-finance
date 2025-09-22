@@ -3,18 +3,18 @@ import { SendSignedTransactionCommand } from "../../../../src/app/command/sendsi
 import { SignedTransactionSentEvent } from "../../../../src/domain/event/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 
-import { NestJSEventBus } from "@hashgraph/green-bonds-shared-core"
+import { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { BlockchainTransactionSenderAdapter } from "src/port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 
 describe("SendSignedTransactionCommandHandler", () => {
   let handler: SendSignedTransactionCommandHandler
-  let mockEventBus: jest.Mocked<NestJSEventBus>
+  let mockEventBus: jest.Mocked<EventBus>
   let mockBlockchainSender: jest.Mocked<BlockchainTransactionSenderAdapter>
 
   beforeEach(() => {
     mockEventBus = {
       publish: jest.fn(),
-    } as unknown as jest.Mocked<NestJSEventBus>
+    } as jest.Mocked<EventBus>
 
     mockBlockchainSender = {
       sendTransaction: jest.fn(),

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { NestJSCommandBus, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { SendEthereumSignedTransactionPort } from "../../sendsignedtransaction/ethereum/SendEthereumSignedTransactionPort"
 import { SendSignedTransactionCommand } from "../../../../../app/command/sendsignedtransaction/SendSignedTransactionCommand"
 import { SignedTransactionMessage } from "../../../../../domain/model/SignedTransactionMessage"
@@ -8,7 +9,7 @@ import { RabbitMQDecoratorFactory } from "../../../../../config/RabbitMQDecorato
 
 @Singleton()
 export class SendEthereumSignedTransactionRabbitAdapter implements SendEthereumSignedTransactionPort {
-  constructor(private readonly commandBus: NestJSCommandBus) {}
+  constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @RabbitMQDecoratorFactory.createEthereumSubscribe()
   async onEthereumMessage(msg: SignedTransactionMessage): Promise<void> {
