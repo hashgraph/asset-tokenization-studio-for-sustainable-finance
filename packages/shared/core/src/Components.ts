@@ -7,14 +7,14 @@ import { NestJSEventBus } from "./event/NestJSEventBus"
 export const PROVIDERS = [
   {
     provide: "CommandBus",
-    useValue: NestJSCommandBus,
+    useClass: NestJSCommandBus,
   },
   {
     provide: "QueryBus",
-    useValue: NestJSQueryBus,
+    useClass: NestJSQueryBus,
   },
   {
     provide: "EventBus",
-    useValue: NestJSEventBus,
+    useClass: NestJSEventBus,
   },
 ]
