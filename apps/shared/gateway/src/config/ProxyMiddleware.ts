@@ -1,10 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { NestMiddleware } from "@nestjs/common"
+import {
+  BadGatewayException,
+  GatewayTimeoutException,
+  HttpStatus,
+  InternalServerErrorException,
+  NestMiddleware,
+} from "@nestjs/common"
 import { createProxyMiddleware } from "http-proxy-middleware"
 import { Logger, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { NotFoundException } from "@nestjs/common/exceptions/not-found.exception"
 import { AuthService } from "./auth/AuthService"
+import { getStatusCode } from "http-proxy-middleware/dist/status-code"
+import * as http from "http"
 
 @Singleton()
 export class ProxyMiddleware implements NestMiddleware {
@@ -14,8 +22,30 @@ export class ProxyMiddleware implements NestMiddleware {
   private readonly authService: AuthService
   private readonly proxy = createProxyMiddleware({
     changeOrigin: true,
+    proxyTimeout: +(process.env.TIMEOUT ?? 30000),
+    on: {
+      error: (err, req, res: http.ServerResponse) => {
+        const statusCode = "code" in err ? getStatusCode((err as any).code) : +HttpStatus.INTERNAL_SERVER_ERROR
+        let httpException
+        switch (statusCode) {
+          case +HttpStatus.BAD_GATEWAY:
+            httpException = new BadGatewayException()
+            break
+          case +HttpStatus.GATEWAY_TIMEOUT:
+            httpException = new GatewayTimeoutException()
+            break
+          default:
+            httpException = new InternalServerErrorException()
+            break
+        }
+        if (!res.headersSent) {
+          res.setHeader("Content-Type", "application/json").writeHead(statusCode)
+        }
+        res.end(JSON.stringify(httpException.response))
+      },
+    },
     router: (req) => {
-      const path = req["baseUrl"]
+      const path = (req as any).baseUrl
       const routePath = Object.keys(this.routerMap).find((routerPath) => path.startsWith(routerPath))
       if (routePath !== undefined && this.routerMap[routePath] !== undefined) {
         return this.routerMap[routePath] + path
