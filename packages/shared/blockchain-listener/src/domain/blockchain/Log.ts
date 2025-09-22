@@ -2,6 +2,7 @@
 
 export default interface Log {
   timestamp: string
+  transactionHash: string
   data: string
   topics: string[]
 }

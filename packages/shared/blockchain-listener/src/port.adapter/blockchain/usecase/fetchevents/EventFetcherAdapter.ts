@@ -80,6 +80,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
               .map(log =>
                 this.decodeEvent.decode({
                   ...log,
+                  transactionHash: hash,
                   timestamp: contractResults.timestamp,
                 }),
               )

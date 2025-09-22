@@ -33,6 +33,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
 
       const eventObj: BlockchainEvent = {
         timestamp: log.timestamp,
+        transactionHash: log.transactionHash,
         name,
         signature: eventSignature
       };
