@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Logger, Inject } from "@hashgraph/green-bonds-shared-core"
-import EventFetcherPort from "@port/adapter/blockchain/usecase/fetchevents/EventFetcherPort"
-import type MirrorNodePort from "@port/adapter/blockchain/usecase/querymirrornode/MirrorNodePort"
-import type DecodeEventPort from "@port/adapter/blockchain/usecase/decodeevent/DecodeEventPort"
+import EventFetcherPort from "./EventFetcherPort"
+import type MirrorNodePort from "@port/blockchain/usecase/querymirrornode/MirrorNodePort"
+import type DecodeEventPort from "@port/blockchain/usecase/decodeevent/DecodeEventPort"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
 import {
   isBloom,

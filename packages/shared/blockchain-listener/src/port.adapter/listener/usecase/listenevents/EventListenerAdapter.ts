@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Singleton, Logger, Inject } from "@hashgraph/green-bonds-shared-core"
-import EventListenerPort from "@port/adapter/listener/usecase/listenevents/EventListenerPort"
-import type EventFetcherPort from "@port/adapter/blockchain/usecase/fetchevents/EventFetcherPort"
+import EventListenerPort from "./EventListenerPort"
+import type EventFetcherPort from "@port/blockchain/usecase/fetchevents/EventFetcherPort"
 
 @Singleton()
 export default class EventListenerAdapter implements EventListenerPort {
