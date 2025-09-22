@@ -4,4 +4,6 @@ import { Event } from "./Event"
 
 export interface EventBus {
   publish<E extends Event>(event: E): void
+
+  publishSync<E extends Event>(event: E): Promise<void>
 }
