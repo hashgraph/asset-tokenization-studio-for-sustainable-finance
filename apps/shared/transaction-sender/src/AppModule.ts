@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Module } from "@nestjs/common"
-import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { SendHederaSignedTransactionRabbitAdapter } from "./port.adapter/hedera/sendsignedtransaction/SendHederaSignedTransactionRabbitAdapter"
-import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/ethereum/sendsignedtransaction/SendEthereumSignedTransactionRabbitAdapter"
-
+import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq"
+import { SendHederaSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
+import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
+import { SendSignedTransactionCommandHandler } from "./app/command/sendsignedtransaction/SendSignedTransactionCommandHandler"
+import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 @Module({
   imports: [
     SharedModule,
@@ -23,6 +24,15 @@ import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/ether
     }),
   ],
   controllers: [],
-  providers: [SendHederaSignedTransactionRabbitAdapter, SendEthereumSignedTransactionRabbitAdapter],
+  providers: [
+    SendHederaSignedTransactionRabbitAdapter,
+    SendEthereumSignedTransactionRabbitAdapter,
+    SendSignedTransactionCommandHandler,
+    BlockchainTransactionSenderAdapter,
+    {
+      provide: "BlockchainTransactionSender",
+      useClass: BlockchainTransactionSenderAdapter,
+    },
+  ],
 })
 export class AppModule {}

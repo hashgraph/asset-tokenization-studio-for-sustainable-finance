@@ -1,17 +1,17 @@
-import type { NestJSCommandBus } from "@hashgraph/green-bonds-shared-core"
-import { SendEthereumSignedTransactionRabbitAdapter } from "../../../src/port.adapter/ethereum/sendsignedtransaction/SendEthereumSignedTransactionRabbitAdapter"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { SendSignedTransactionCommand } from "../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
 import { SignedTransactionMessage } from "../../../src/domain/model/SignedTransactionMessage"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
+import { SendEthereumSignedTransactionRabbitAdapter } from "../../../src/port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
 
 describe("SendEthereumSignedTransactionRabbitAdapter", () => {
   let adapter: SendEthereumSignedTransactionRabbitAdapter
-  let mockCommandBus: jest.Mocked<NestJSCommandBus>
+  let mockCommandBus: jest.Mocked<CommandBus>
 
   beforeEach(() => {
     mockCommandBus = {
       execute: jest.fn(),
-    } as unknown as jest.Mocked<NestJSCommandBus>
+    } as jest.Mocked<CommandBus>
 
     adapter = new SendEthereumSignedTransactionRabbitAdapter(mockCommandBus)
   })
@@ -31,6 +31,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
+        format: "ethereum",
       }
 
       mockCommandBus.execute.mockResolvedValue(undefined)
@@ -58,6 +59,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
+        format: "ethereum",
       }
 
       const error = new Error("Command execution failed")
@@ -78,6 +80,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
       const mockMessage: SignedTransactionMessage = {
         payload: "0xabcdef1234567890",
         metadata: mockMetadata,
+        format: "ethereum",
       }
 
       mockCommandBus.execute.mockResolvedValue(undefined)
