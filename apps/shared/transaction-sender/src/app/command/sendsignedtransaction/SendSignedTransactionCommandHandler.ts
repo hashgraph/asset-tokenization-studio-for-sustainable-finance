@@ -22,13 +22,14 @@ export class SendSignedTransactionCommandHandler implements CommandHandler<SendS
     signedTransaction.metadata = command.metadata
     signedTransaction.format = command.format
 
-    const transactionHash = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
+    const transactionResult = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
 
     const event = new SignedTransactionSentEvent(
       command.payload,
       signedTransaction.metadata,
       command.format,
-      transactionHash,
+      transactionResult.transactionId,
+      transactionResult.status,
     )
 
     this.eventBus.publish(event)

@@ -50,6 +50,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         metadata: metadata,
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
+        status: "success",
       }
 
       await adapter.publishResult(result)
@@ -59,16 +60,13 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         "tx",
         "hederaFormat.outgoing",
         {
-          transactionHash: "0.0.123@1234567890.123456789",
-          originalPayload: "0x0a640a200a0c08b6a6c4a60610c0843d1a0c08b6a6c4a60610c0843d22020878",
+          status: "success",
+          txId: "0.0.123@1234567890.123456789",
           metadata: {
-            requestId: "hedera-test-123",
             origin: "hedera-service",
             description: "Test Hedera transaction",
-            processedAt: expect.any(String),
+            requestId: "hedera-test-123",
           },
-          format: "hedera",
-          status: "success",
         },
         {
           persistent: true,
@@ -92,6 +90,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         metadata: metadata,
         format: "ethereum",
         transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        status: "success",
       }
 
       await adapter.publishResult(result)
@@ -101,16 +100,13 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         "tx",
         "ethereumFormat.outgoing",
         {
-          transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-          originalPayload: "0xf86c808504a817c800825208943535353535353535353535353535353535353535",
+          status: "success",
+          txId: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           metadata: {
-            requestId: "ethereum-test-456",
             origin: "ethereum-service",
             description: "Test Ethereum transaction",
-            processedAt: expect.any(String),
+            requestId: "ethereum-test-456",
           },
-          format: "ethereum",
-          status: "success",
         },
         {
           persistent: true,
@@ -133,7 +129,8 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         payload: "0xinvalidpayload",
         metadata: metadata,
         format: "hedera",
-        transactionHash: undefined,
+        transactionHash: "0.0.123@1234567890.123456789",
+        status: "failed",
       }
 
       await adapter.publishResult(result)
@@ -155,35 +152,11 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         metadata: metadata,
         format: "bitcoin",
         transactionHash: "0xhash",
+        status: "success",
       }
 
       await expect(adapter.publishResult(result)).rejects.toThrow("Unsupported transaction format: bitcoin")
       expect(mockPublish).not.toHaveBeenCalled()
-    })
-
-    it("should include processedAt timestamp in message", async () => {
-      const metadata = new TransactionMetadata()
-      metadata.requestId = "timestamp-test"
-      metadata.origin = "test-service"
-
-      const result: TransactionResult = {
-        payload: "0xtest",
-        metadata: metadata,
-        format: "hedera",
-        transactionHash: "0.0.123@1234567890.123456789",
-      }
-
-      const beforeTime = new Date().toISOString()
-
-      await adapter.publishResult(result)
-
-      const publishCall = mockPublish.mock.calls[0]
-      const message = publishCall[2]
-      const processedAt = message.metadata.processedAt
-
-      expect(processedAt).toBeDefined()
-      expect(typeof processedAt).toBe("string")
-      expect(new Date(processedAt).getTime()).toBeGreaterThanOrEqual(new Date(beforeTime).getTime())
     })
 
     it("should handle metadata with undefined fields gracefully", async () => {
@@ -195,6 +168,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         metadata: metadata,
         format: "ethereum",
         transactionHash: "0xhash",
+        status: "success",
       }
 
       await adapter.publishResult(result)
@@ -216,10 +190,11 @@ describe("PublishTransactionResultRabbitAdapter", () => {
       metadata.requestId = "error-test"
 
       const result: TransactionResult = {
-        payload: "0xtest",
+        payload: "0x1234567890abcdef",
         metadata: metadata,
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
+        status: "success",
       }
 
       const error = new Error("AMQP connection failed")

@@ -5,10 +5,11 @@ import { Client, Transaction } from "@hashgraph/sdk"
 import { ethers } from "ethers"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
 import { SignedTransactionMessage } from "../../domain/model/SignedTransactionMessage"
+import { TransactionResult } from "../../domain/model/TransactionResult"
 
 @Injectable()
 export class BlockchainTransactionSenderAdapter implements BlockchainTransactionSenderPort {
-  async sendTransaction(signedTransaction: SignedTransactionMessage): Promise<string> {
+  async sendTransaction(signedTransaction: SignedTransactionMessage): Promise<TransactionResult> {
     if (signedTransaction.format === "hedera") {
       return await this.sendHederaTransaction(signedTransaction)
     } else {
@@ -16,23 +17,32 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     }
   }
 
-  private async sendHederaTransaction(signedTransaction: SignedTransactionMessage): Promise<string> {
+  private async sendHederaTransaction(signedTransaction: SignedTransactionMessage): Promise<TransactionResult> {
     const client = Client.forTestnet()
 
     try {
       const transactionBytes = Buffer.from(signedTransaction.payload.replace("0x", ""), "hex")
       const transaction = Transaction.fromBytes(transactionBytes)
-
       const response = await transaction.execute(client)
-      await response.getReceipt(client)
 
-      return response.transactionId.toString()
+      try {
+        await response.getReceipt(client)
+        return {
+          transactionId: response.transactionId.toString(),
+          status: "success",
+        }
+      } catch {
+        return {
+          transactionId: response.transactionId.toString(),
+          status: "failed",
+        }
+      }
     } finally {
       client.close()
     }
   }
 
-  private async sendEthereumTransaction(signedTransaction: SignedTransactionMessage): Promise<string> {
+  private async sendEthereumTransaction(signedTransaction: SignedTransactionMessage): Promise<TransactionResult> {
     const provider = new ethers.providers.JsonRpcProvider(
       process.env.ETHEREUM_RPC_URL || "https://testnet.hashio.io/api",
     )
@@ -40,6 +50,9 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     const txResponse = await provider.sendTransaction(signedTransaction.payload)
     const receipt = await txResponse.wait()
 
-    return receipt.transactionHash
+    return {
+      transactionId: receipt.transactionHash,
+      status: receipt.status === 1 ? "success" : "failed",
+    }
   }
 }

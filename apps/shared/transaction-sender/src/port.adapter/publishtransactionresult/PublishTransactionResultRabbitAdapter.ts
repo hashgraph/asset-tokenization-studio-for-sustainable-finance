@@ -25,16 +25,13 @@ export class PublishTransactionResultRabbitAdapter implements PublishTransaction
 
   private createOutgoingMessage(result: TransactionResult) {
     return {
-      transactionHash: result.transactionHash,
-      originalPayload: result.payload,
+      status: result.status,
+      txId: result.transactionHash,
       metadata: {
-        requestId: result.metadata.requestId,
         origin: result.metadata.origin,
         description: result.metadata.description,
-        processedAt: new Date().toISOString(),
+        requestId: result.metadata.requestId,
       },
-      format: result.format,
-      status: result.transactionHash ? "success" : "failed",
     }
   }
 

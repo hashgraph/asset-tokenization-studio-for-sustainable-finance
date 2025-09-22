@@ -78,8 +78,10 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
 
       const result = await adapter.sendTransaction(signedTransaction)
 
-      expect(result).toMatch(/^0\.0\.\d+@\d+\.\d+$/)
-      expect(typeof result).toBe("string")
+      expect(result).toHaveProperty("transactionId")
+      expect(result).toHaveProperty("status")
+      expect(result.transactionId).toMatch(/^0\.0\.\d+@\d+\.\d+$/)
+      expect(result.status).toBe("success")
     })
 
     it("should handle error when Hedera payload is invalid", async () => {
@@ -108,8 +110,10 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
 
       const result = await adapter.sendTransaction(signedTransaction)
 
-      expect(result).toMatch(/^0x[a-fA-F0-9]{64}$/)
-      expect(typeof result).toBe("string")
+      expect(result).toHaveProperty("transactionId")
+      expect(result).toHaveProperty("status")
+      expect(result.transactionId).toMatch(/^0x[a-fA-F0-9]{64}$/)
+      expect(result.status).toBe("success")
     })
 
     it("should handle error when Ethereum payload is invalid", async () => {
@@ -145,11 +149,13 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
 
       expect(results).toHaveLength(5)
       results.forEach((result, i) => {
-        expect(typeof result).toBe("string")
+        expect(result).toHaveProperty("transactionId")
+        expect(result).toHaveProperty("status")
+        expect(result.status).toBe("success")
         if (i % 2 === 0) {
-          expect(result).toMatch(/^0\.0\.\d+@\d+\.\d+$/)
+          expect(result.transactionId).toMatch(/^0\.0\.\d+@\d+\.\d+$/)
         } else {
-          expect(result).toMatch(/^0x[a-fA-F0-9]{64}$/)
+          expect(result.transactionId).toMatch(/^0x[a-fA-F0-9]{64}$/)
         }
       })
     })

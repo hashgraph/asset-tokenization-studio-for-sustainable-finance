@@ -33,8 +33,8 @@ describe("SendSignedTransactionCommandHandler", () => {
 
       const command = new SendSignedTransactionCommand("0x1234567890abcdef", metadata, "hedera")
 
-      const expectedTransactionHash = "hedera_hash_123"
-      const mockSendTransaction = jest.fn().mockResolvedValue(expectedTransactionHash)
+      const expectedTransactionResult = { transactionId: "hedera_hash_123", status: "success" as const }
+      const mockSendTransaction = jest.fn().mockResolvedValue(expectedTransactionResult)
       mockBlockchainSender.sendTransaction = mockSendTransaction
 
       const mockPublish = jest.fn()
@@ -58,7 +58,8 @@ describe("SendSignedTransactionCommandHandler", () => {
       expect(publishedEvent.payload).toBe("0x1234567890abcdef")
       expect(publishedEvent.metadata).toBe(metadata)
       expect(publishedEvent.format).toBe("hedera")
-      expect(publishedEvent.transactionHash).toBe(expectedTransactionHash)
+      expect(publishedEvent.transactionHash).toBe(expectedTransactionResult.transactionId)
+      expect(publishedEvent.status).toBe(expectedTransactionResult.status)
     })
 
     it("should execute command for Ethereum transaction and publish event", async () => {
@@ -70,8 +71,8 @@ describe("SendSignedTransactionCommandHandler", () => {
 
       const command = new SendSignedTransactionCommand("0xabcdef1234567890", metadata, "ethereum")
 
-      const expectedTransactionHash = "ethereum_hash_456"
-      const mockSendTransaction = jest.fn().mockResolvedValue(expectedTransactionHash)
+      const expectedTransactionResult = { transactionId: "ethereum_hash_456", status: "success" as const }
+      const mockSendTransaction = jest.fn().mockResolvedValue(expectedTransactionResult)
       mockBlockchainSender.sendTransaction = mockSendTransaction
 
       const mockPublish = jest.fn()
@@ -95,7 +96,8 @@ describe("SendSignedTransactionCommandHandler", () => {
       expect(publishedEvent.payload).toBe("0xabcdef1234567890")
       expect(publishedEvent.metadata).toBe(metadata)
       expect(publishedEvent.format).toBe("ethereum")
-      expect(publishedEvent.transactionHash).toBe(expectedTransactionHash)
+      expect(publishedEvent.transactionHash).toBe(expectedTransactionResult.transactionId)
+      expect(publishedEvent.status).toBe(expectedTransactionResult.status)
     })
 
     it("should handle blockchain sender errors", async () => {
@@ -138,7 +140,7 @@ describe("SendSignedTransactionCommandHandler", () => {
 
       const command = new SendSignedTransactionCommand("test_payload", metadata, "hedera")
 
-      const mockSendTransaction = jest.fn().mockResolvedValue("hash789")
+      const mockSendTransaction = jest.fn().mockResolvedValue({ transactionId: "hash789", status: "success" as const })
       mockBlockchainSender.sendTransaction = mockSendTransaction
 
       const mockPublish = jest.fn()
@@ -154,6 +156,7 @@ describe("SendSignedTransactionCommandHandler", () => {
           metadata: metadata,
           format: "hedera",
           transactionHash: "hash789",
+          status: "success",
         }),
       )
     })

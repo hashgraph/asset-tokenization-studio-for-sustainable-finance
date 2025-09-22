@@ -35,6 +35,7 @@ describe("PublishTransactionResultHandler", () => {
         metadata,
         "hedera",
         "0.0.123@1234567890.123456789",
+        "success",
       )
 
       await handler.handle(event)
@@ -45,6 +46,7 @@ describe("PublishTransactionResultHandler", () => {
         metadata,
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
+        status: "success",
       })
     })
 
@@ -59,6 +61,7 @@ describe("PublishTransactionResultHandler", () => {
         metadata,
         "ethereum",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "success",
       )
 
       await handler.handle(event)
@@ -69,6 +72,7 @@ describe("PublishTransactionResultHandler", () => {
         metadata,
         format: "ethereum",
         transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        status: "success",
       })
     })
 
@@ -78,7 +82,13 @@ describe("PublishTransactionResultHandler", () => {
       metadata.origin = "test-service"
       metadata.description = "Failed transaction test"
 
-      const event = new SignedTransactionSentEvent("0xinvalidpayload", metadata, "hedera", undefined)
+      const event = new SignedTransactionSentEvent(
+        "0xinvalidpayload",
+        metadata,
+        "hedera",
+        "0.0.123@1234567890.123456789",
+        "failed",
+      )
 
       await handler.handle(event)
 
@@ -87,7 +97,8 @@ describe("PublishTransactionResultHandler", () => {
         payload: "0xinvalidpayload",
         metadata,
         format: "hedera",
-        transactionHash: undefined,
+        transactionHash: "0.0.123@1234567890.123456789",
+        status: "failed",
       })
     })
 
@@ -96,7 +107,13 @@ describe("PublishTransactionResultHandler", () => {
       metadata.requestId = "error-test-999"
       metadata.origin = "error-service"
 
-      const event = new SignedTransactionSentEvent("0xtest", metadata, "hedera", "0.0.123@1234567890.123456789")
+      const event = new SignedTransactionSentEvent(
+        "0xtest",
+        metadata,
+        "hedera",
+        "0.0.123@1234567890.123456789",
+        "success",
+      )
 
       const error = new Error("Publishing failed")
       mockPublishResult.mockRejectedValue(error)
@@ -109,7 +126,7 @@ describe("PublishTransactionResultHandler", () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "minimal-test"
 
-      const event = new SignedTransactionSentEvent("0xminimal", metadata, "ethereum", "0xhash")
+      const event = new SignedTransactionSentEvent("0xminimal", metadata, "ethereum", "0xhash", "success")
 
       await handler.handle(event)
 
@@ -119,6 +136,7 @@ describe("PublishTransactionResultHandler", () => {
         metadata,
         format: "ethereum",
         transactionHash: "0xhash",
+        status: "success",
       })
     })
   })

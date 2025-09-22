@@ -15,5 +15,6 @@ export interface TransactionResult {
   payload: string
   metadata: TransactionMetadata
   format: string
-  transactionHash?: string
+  transactionHash: string
+  status: "success" | "failed"
 }

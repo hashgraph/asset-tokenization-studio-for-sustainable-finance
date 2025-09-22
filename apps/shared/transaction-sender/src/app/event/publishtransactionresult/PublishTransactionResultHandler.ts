@@ -16,6 +16,7 @@ export class PublishTransactionResultHandler implements EventListener<SignedTran
       metadata: event.metadata,
       format: event.format,
       transactionHash: event.transactionHash,
+      status: event.status,
     })
   }
 }

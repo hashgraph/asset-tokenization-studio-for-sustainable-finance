@@ -29,6 +29,7 @@ jest.mock("ethers", () => ({
         sendTransaction: jest.fn().mockResolvedValue({
           wait: jest.fn().mockResolvedValue({
             transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+            status: 1,
           }),
         }),
       })),
@@ -57,12 +58,18 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.format = "hedera"
 
       const sendHederaSpy = jest.spyOn(adapter as any, "sendHederaTransaction")
-      sendHederaSpy.mockResolvedValue("mocked_hedera_hash")
+      sendHederaSpy.mockResolvedValue({
+        transactionId: "0.0.123@1234567890.123456789",
+        status: "success",
+      })
 
       const result = await adapter.sendTransaction(signedTransaction)
 
       expect(sendHederaSpy).toHaveBeenCalledWith(signedTransaction)
-      expect(result).toBe("mocked_hedera_hash")
+      expect(result).toEqual({
+        transactionId: "0.0.123@1234567890.123456789",
+        status: "success",
+      })
     })
 
     it("should route Ethereum transactions to sendEthereumTransaction", async () => {
@@ -77,12 +84,18 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.format = "ethereum"
 
       const sendEthereumSpy = jest.spyOn(adapter as any, "sendEthereumTransaction")
-      sendEthereumSpy.mockResolvedValue("mocked_ethereum_hash")
+      sendEthereumSpy.mockResolvedValue({
+        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
+        status: "success",
+      })
 
       const result = await adapter.sendTransaction(signedTransaction)
 
       expect(sendEthereumSpy).toHaveBeenCalledWith(signedTransaction)
-      expect(result).toBe("mocked_ethereum_hash")
+      expect(result).toEqual({
+        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
+        status: "success",
+      })
     })
 
     it("should successfully send Hedera transaction and return transaction ID", async () => {
@@ -98,7 +111,10 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       const result = await adapter.sendTransaction(signedTransaction)
 
-      expect(result).toBe("0.0.123@1234567890.123456789")
+      expect(result).toEqual({
+        transactionId: "0.0.123@1234567890.123456789",
+        status: "success",
+      })
     })
 
     it("should successfully send Ethereum transaction and return transaction hash", async () => {
@@ -114,7 +130,10 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       const result = await adapter.sendTransaction(signedTransaction)
 
-      expect(result).toBe("0x1234567890abcdef1234567890abcdef12345678")
+      expect(result).toEqual({
+        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
+        status: "success",
+      })
     })
 
     it("should handle transactions with minimal metadata", async () => {
@@ -124,10 +143,13 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       const result = await adapter.sendTransaction(signedTransaction)
 
-      expect(result).toBe("0.0.123@1234567890.123456789")
+      expect(result).toEqual({
+        transactionId: "0.0.123@1234567890.123456789",
+        status: "success",
+      })
     })
 
-    it("should return Promise<string> for both blockchain types", async () => {
+    it("should return Promise<TransactionResult> for both blockchain types", async () => {
       const hederaTransaction = new SignedTransactionMessage()
       hederaTransaction.payload = "0x1234567890abcdef"
       hederaTransaction.format = "hedera"
@@ -145,8 +167,10 @@ describe("BlockchainTransactionSenderAdapter", () => {
       const hederaResult = await hederaPromise
       const ethereumResult = await ethereumPromise
 
-      expect(typeof hederaResult).toBe("string")
-      expect(typeof ethereumResult).toBe("string")
+      expect(hederaResult).toHaveProperty("transactionId")
+      expect(hederaResult).toHaveProperty("status")
+      expect(ethereumResult).toHaveProperty("transactionId")
+      expect(ethereumResult).toHaveProperty("status")
     })
   })
 })
