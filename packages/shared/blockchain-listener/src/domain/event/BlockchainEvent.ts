@@ -1,4 +1,4 @@
-export default interface Event {
+export default interface BlockchainEvent {
   timestamp: string
   name: string
   signature: string

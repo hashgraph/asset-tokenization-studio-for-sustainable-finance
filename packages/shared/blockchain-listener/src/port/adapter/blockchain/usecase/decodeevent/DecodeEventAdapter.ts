@@ -2,7 +2,7 @@
 
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
 import DecodeEventPort from "./DecodeEventPort"
-import Event from "@domain/event/Event.js"
+import BlockchainEvent from "@domain/event/BlockchainEvent.js"
 import Log from "@domain/blockchain/Log.js"
 import { utils } from "ethers";
 
@@ -19,7 +19,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
     );
   }
 
-  decode(log: Log): Event {
+  decode(log: Log): BlockchainEvent {
     try {
       if (!log.data || log.data === "0x") {
         return
@@ -31,7 +31,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
       const {name, types} = this.parseEventSignature(eventSignature)
       const decodedValues = utils.defaultAbiCoder.decode(types, log.data)
 
-      const eventObj: Event = {
+      const eventObj: BlockchainEvent = {
         timestamp: log.timestamp,
         name,
         signature: eventSignature

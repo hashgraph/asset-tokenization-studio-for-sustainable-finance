@@ -4,7 +4,7 @@ import { Singleton, Logger, Inject } from "@hashgraph/green-bonds-shared-core"
 import EventFetcherPort from "@port/adapter/blockchain/usecase/fetchevents/EventFetcherPort"
 import type MirrorNodePort from "@port/adapter/blockchain/usecase/querymirrornode/MirrorNodePort"
 import type DecodeEventPort from "@port/adapter/blockchain/usecase/decodeevent/DecodeEventPort"
-import Event from "@domain/event/Event"
+import BlockchainEvent from "@domain/event/BlockchainEvent"
 import {
   isBloom,
   isContractAddressInBloom,
@@ -61,11 +61,11 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     this.blockNumber = +process.env.BLOCKCHAIN_LISTENER_BLOCK_NUMBER
   }
 
-  async fetchEvents(): Promise<Event[]> {
+  async fetchEvents(): Promise<BlockchainEvent[]> {
     this.logger.log(
       `Polling started for ${process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet"} and block ${this.blockNumber}`
     )
-    const events: Event[] = []
+    const events: BlockchainEvent[] = []
 
     const contracts_hedera_id = (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "").split(",")
     try {
@@ -83,7 +83,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
                   timestamp: contractResults.timestamp,
                 }),
               )
-              .filter((decoded): decoded is Event => decoded != null)
+              .filter((decoded): decoded is BlockchainEvent => decoded != null)
           )
         }
         ++this.blockNumber

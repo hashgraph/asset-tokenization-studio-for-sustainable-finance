@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import Event from "@domain/event/Event.js"
+import BlockchainEvent from "@domain/event/BlockchainEvent.js"
 
 export default interface EventFetcherPort {
-  fetchEvents(): Promise<Event[]>
+  fetchEvents(): Promise<BlockchainEvent[]>
 }
