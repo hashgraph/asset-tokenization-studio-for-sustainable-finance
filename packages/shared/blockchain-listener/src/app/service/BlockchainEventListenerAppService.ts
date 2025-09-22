@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
-import EventListenerAdapter from "@port/adapter/listener/usecase/listenevents/EventListenerAdapter"
+import { Singleton, Logger, Inject } from "@hashgraph/green-bonds-shared-core"
+import type EventListenerPort from "@port/adapter/listener/usecase/listenevents/EventListenerPort"
 
 @Singleton()
 export default class BlockchainEventListenerAppService {
   private readonly logger = new Logger(BlockchainEventListenerAppService.name)
 
-  constructor(private readonly eventListener: EventListenerAdapter) {}
+  constructor(@Inject() private readonly eventListener: EventListenerPort) {}
 
   async start() {
     this.logger.log("Starting blockchain event listener...")

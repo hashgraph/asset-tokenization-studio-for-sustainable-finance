@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Logger, Inject } from "@hashgraph/green-bonds-shared-core"
 import EventFetcherPort from "@port/adapter/blockchain/usecase/fetchevents/EventFetcherPort"
-import MirrorNodeQueryAdapter from "@port/adapter/blockchain/usecase/querymirrornode/MirrorNodeQueryAdapter"
-import DecodeEventAdapter from "@port/adapter/blockchain/usecase/decodeevent/DecodeEventAdapter"
+import type MirrorNodePort from "@port/adapter/blockchain/usecase/querymirrornode/MirrorNodePort"
+import type DecodeEventPort from "@port/adapter/blockchain/usecase/decodeevent/DecodeEventPort"
 import Event from "@domain/event/Event"
 import {
   isBloom,
@@ -55,8 +55,8 @@ export default class EventFetcherAdapter implements EventFetcherPort {
   private blockNumber: number
 
   constructor(
-    private readonly mirrorNode: MirrorNodeQueryAdapter,
-    private readonly decodeEvent: DecodeEventAdapter
+    @Inject() private readonly mirrorNode: MirrorNodePort,
+    @Inject() private readonly decodeEvent: DecodeEventPort
   ) {
     this.blockNumber = +process.env.BLOCKCHAIN_LISTENER_BLOCK_NUMBER
   }
@@ -100,7 +100,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
   private async blockContainsTrackedEvents(): Promise<boolean> {
     const blockLogsBloom = (
-      await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`) as BlockMirrorNodeResponse
+      await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1) as BlockMirrorNodeResponse
     ).logs_bloom
     //return anyAddrInBloom(blockLogsBloom) && anyLogInBloom(blockLogsBloom)
 
@@ -132,7 +132,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
     try {
       const mirrorNodeContractsResultsResponse = ((
-        await this.mirrorNode.fetchData(`contracts/results${query}`)) as MirrorNodeContractsResultsResponse
+        await this.mirrorNode.fetchData(`contracts/results${query}`, 1)) as MirrorNodeContractsResultsResponse
       )
 
       const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(
@@ -146,7 +146,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
           const relativePath = nextUrl.pathname + nextUrl.search
           const stripped = relativePath.replace(/^\/api\/v1\//, "")
           const mirrorNodeNextContractsResultsResponse = ((
-            await this.mirrorNode.fetchData(`${stripped}`))as MirrorNodeContractsResultsResponse
+            await this.mirrorNode.fetchData(`${stripped}`, 1))as MirrorNodeContractsResultsResponse
           )
           const nextContractResultsHashes = this.getContractsResultsHashesFilteredByContract(
             mirrorNodeNextContractsResultsResponse.results
@@ -177,7 +177,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
   private async getContractResult(hash: string): Promise<MirrorNodeContractResultLogsResponse> {
     try {
-      return await this.mirrorNode.fetchData(`contracts/results/${hash}`)
+      return await this.mirrorNode.fetchData(`contracts/results/${hash}`, 1)
     } catch (error) {
       this.logger.error(`Error getting logs from block ${this.blockNumber}`)
     }
