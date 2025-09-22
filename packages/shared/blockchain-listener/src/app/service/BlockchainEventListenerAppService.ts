@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
-import EventListenerAdapter from "@port/adapter/listener/EventListenerAdapter"
+import EventListenerAdapter from "@port/adapter/listener/usecase/listenevents/EventListenerAdapter"
 
 @Singleton()
 export default class BlockchainEventListenerAppService {
