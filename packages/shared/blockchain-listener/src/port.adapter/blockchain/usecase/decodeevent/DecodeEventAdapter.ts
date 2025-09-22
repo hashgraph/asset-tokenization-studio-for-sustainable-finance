@@ -5,17 +5,20 @@ import DecodeEventPort from "./DecodeEventPort"
 import BlockchainEvent from "@domain/event/BlockchainEvent.js"
 import Log from "@domain/blockchain/Log.js"
 import { utils } from "ethers";
+import { Interface } from "ethers/lib/utils"
 
 @Singleton()
 export default class DecodeEventAdapter implements DecodeEventPort {
   private readonly logger = new Logger(DecodeEventAdapter.name)
+
+  private readonly INDEXED_PARAMS_PATTERN = /\s*indexed\s*/g
 
   private readonly eventSignatureHashes
 
   constructor() {
     this.eventSignatureHashes = new Map<string, string>(
       this.splitFunctions(process.env.BLOCKCHAIN_LISTENER_EVENTS ?? "")
-      .map(eventSignature => [utils.id(eventSignature), eventSignature])
+      .map(eventSignature => [utils.id(eventSignature.replace(this.INDEXED_PARAMS_PATTERN, "")), eventSignature])
     );
   }
 
@@ -29,7 +32,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
       if (!eventSignature) return null;
 
       const {name, types} = this.parseEventSignature(eventSignature)
-      const decodedValues = utils.defaultAbiCoder.decode(types, log.data)
+      const decodedValues = this.decodeEventParams(eventSignature, log)
 
       const eventObj: BlockchainEvent = {
         timestamp: log.timestamp,
@@ -47,6 +50,15 @@ export default class DecodeEventAdapter implements DecodeEventPort {
     } catch (error) {
       throw new Error(`Error decoding log.\n${JSON.stringify(log, null, 2)}`, error)
     }
+  }
+
+  private decodeEventParams(eventSignature: string, log: Log) {
+    const iface = new Interface([`event ${eventSignature}`])
+    const parsed = iface.parseLog({
+      data: log.data,
+      topics: log.topics,
+    })
+    return parsed.args
   }
 
   private splitFunctions(input: string): string[] {

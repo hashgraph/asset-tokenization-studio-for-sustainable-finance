@@ -139,6 +139,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
       const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(
         mirrorNodeContractsResultsResponse.results
       )
+
       contractsResultsHashesList.push(...contractResultsHashes)
 
       if (mirrorNodeContractsResultsResponse.links) {
