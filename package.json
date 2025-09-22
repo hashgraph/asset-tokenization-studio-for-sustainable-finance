@@ -7,6 +7,9 @@
     "packages/shared/*",
     "packages/treasury/*",
     "apps/shared/*",
-    "apps/treasury/*"
+    "apps/treasury/*",
+    "packages/primary-market/*",
+    "apps/ats/*",
+    "apps/primary-market/*"
   ]
 }
