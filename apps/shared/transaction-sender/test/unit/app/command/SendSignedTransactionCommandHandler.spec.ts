@@ -1,6 +1,6 @@
 import { SendSignedTransactionCommandHandler } from "../../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommandHandler"
 import { SendSignedTransactionCommand } from "../../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
-import { SignedTransactionSentEvent } from "../../../../src/domain/event/SignedTransactionSentEvent"
+import { SignedTransactionSentEvent } from "../../../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 
 import { EventBus } from "@hashgraph/green-bonds-shared-core"
