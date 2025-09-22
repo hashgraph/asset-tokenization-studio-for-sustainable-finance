@@ -29,6 +29,10 @@ import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionse
     SendEthereumSignedTransactionRabbitAdapter,
     SendSignedTransactionCommandHandler,
     BlockchainTransactionSenderAdapter,
+    {
+      provide: "BlockchainTransactionSender",
+      useClass: BlockchainTransactionSenderAdapter,
+    },
   ],
 })
 export class AppModule {}
