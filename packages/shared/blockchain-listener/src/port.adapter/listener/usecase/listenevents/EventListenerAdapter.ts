@@ -13,6 +13,7 @@ export default class EventListenerAdapter implements EventListenerPort {
   subscribe(listener: (event: any) => void): void {
     if (this.intervalId) return
 
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.intervalId = setInterval(async () => {
       const events = await this.eventFetcher.fetchEvents()
       if (events) {
@@ -23,6 +24,7 @@ export default class EventListenerAdapter implements EventListenerPort {
     }, +process.env.BLOCKCHAIN_LISTENER_POLL_TIMEOUT)
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-misused-promises
   async unsubscribe(): Promise<void> {
     if (this.intervalId) {
       clearInterval(this.intervalId)

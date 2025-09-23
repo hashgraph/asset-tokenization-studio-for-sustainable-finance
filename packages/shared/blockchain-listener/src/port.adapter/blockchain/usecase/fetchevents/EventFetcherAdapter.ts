@@ -5,8 +5,8 @@ import EventFetcherPort from "./EventFetcherPort"
 import type MirrorNodePort from "@port/blockchain/usecase/querymirrornode/MirrorNodePort"
 import type DecodeEventPort from "@port/blockchain/usecase/decodeevent/DecodeEventPort"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
-import { isBloom, isContractAddressInBloom } from "ethereum-bloom-filters"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface MirrorNodeResponse {
   logs_bloom?: string
 }
@@ -41,6 +41,7 @@ interface MirrorNodeContractResultLogResponse {
   topics: string[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface AccountMirrorNodeResponse {
   account: string
   evm_address: string
@@ -64,7 +65,6 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     )
     const events: BlockchainEvent[] = []
 
-    const contracts_hedera_id = (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "").split(",")
     try {
       if (await this.blockContainsTrackedEvents()) {
         this.logger.debug(`Block ${this.blockNumber} contains tracked events`)
@@ -92,20 +92,21 @@ export default class EventFetcherAdapter implements EventFetcherPort {
         return []
       }
     } catch (error) {
-      this.logger.error(`Error fetching events from block ${this.blockNumber}`)
+      this.logger.error(`Error fetching events from block ${this.blockNumber}: ${error}`)
     }
   }
 
   private async blockContainsTrackedEvents(): Promise<boolean> {
-    const blockLogsBloom = (
-      (await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1)) as BlockMirrorNodeResponse
-    ).logs_bloom
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const blockLogsBloom =
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      ((await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1)) as BlockMirrorNodeResponse).logs_bloom
     //return anyAddrInBloom(blockLogsBloom) && anyLogInBloom(blockLogsBloom)
 
     return true
   }
 
-  private async anyAddrInBloom(bloomHex: string): Promise<boolean> {
+  /*private async anyAddrInBloom(bloomHex: string): Promise<boolean> {
     const contracts = (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "")
       .split(",")
       .map((c) => c.trim())
@@ -114,7 +115,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     return contracts.some((contract) => isContractAddressInBloom(bloomHex, contract))
   }
 
-  /*private async anyLogInBloom(bloomHex: string): Promise<boolean> {
+  private async anyLogInBloom(bloomHex: string): Promise<boolean> {
     for (const event of (process.env.BLOCKCHAIN_LISTENER_EVENTS ?? "").split(",")) {
       const eventSignature = "Transfer(address,address,uint256)"
       if (this.isInBloom(bloomHex, eventSignature, true)) {
@@ -129,6 +130,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     const query = this.blockNumber ? `?block.number=${this.blockNumber}&limit=100&order=asc` : ""
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       const mirrorNodeContractsResultsResponse = (await this.mirrorNode.fetchData(
         `contracts/results${query}`,
         1,
@@ -145,6 +147,8 @@ export default class EventFetcherAdapter implements EventFetcherPort {
           const nextUrl = new URL(mirrorNodeContractsResultsResponse.links.next)
           const relativePath = nextUrl.pathname + nextUrl.search
           const stripped = relativePath.replace(/^\/api\/v1\//, "")
+
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
           const mirrorNodeNextContractsResultsResponse = (await this.mirrorNode.fetchData(
             `${stripped}`,
             1,
@@ -160,7 +164,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
       return contractsResultsHashesList
     } catch (error) {
-      this.logger.error("Error getting contracts results hashes")
+      this.logger.error(`Error getting contracts results hashes: ${error}`)
     }
   }
 
@@ -179,7 +183,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     try {
       return await this.mirrorNode.fetchData(`contracts/results/${hash}`, 1)
     } catch (error) {
-      this.logger.error(`Error getting logs from block ${this.blockNumber}`)
+      this.logger.error(`Error getting logs from block ${this.blockNumber}: ${error}`)
     }
   }
 }

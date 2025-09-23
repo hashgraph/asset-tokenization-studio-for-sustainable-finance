@@ -9,6 +9,7 @@ export default class BlockchainEventListenerAppService {
 
   constructor(@Inject() private readonly eventListener: EventListenerPort) {}
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async start() {
     this.logger.log("Starting blockchain event listener...")
     this.eventListener.subscribe((event) => {
@@ -17,6 +18,7 @@ export default class BlockchainEventListenerAppService {
     })
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async stop() {
     this.logger.log("Stopping blockchain event listener...")
     this.eventListener.unsubscribe?.()

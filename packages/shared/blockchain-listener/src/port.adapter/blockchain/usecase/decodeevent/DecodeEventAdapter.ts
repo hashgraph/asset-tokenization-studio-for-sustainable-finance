@@ -30,7 +30,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
         return
       }
 
-      const eventSignature = this.eventSignatureHashes.get(log.topics[0])
+      const eventSignature: string = this.eventSignatureHashes.get(log.topics[0])
       if (!eventSignature) return null
 
       const { name, types } = this.parseEventSignature(eventSignature)
@@ -49,7 +49,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
 
       return eventObj
     } catch (error) {
-      throw new Error(`Error decoding log.\n${JSON.stringify(log, null, 2)}`, error)
+      throw new Error(`Error decoding log.\n${JSON.stringify(log, null, 2)}`, { cause: error })
     }
   }
 
