@@ -66,6 +66,11 @@
     "testEnvironment": "node",
     "setupFilesAfterEnv": [
       "<rootDir>/test/setup.ts"
-    ]
+    ],
+    "moduleNameMapper": {
+      "^@app/(.*)$": "<rootDir>/src/app/$1",
+      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
+      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1"
+    }
   }
 }

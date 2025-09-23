@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable } from "@nestjs/common"
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq"
 import { PublishTransactionResultPort, TransactionResult } from "./PublishTransactionResultPort"
 import { RabbitMQDecoratorFactory } from "../../config/RabbitMQDecoratorFactory"
+import { Singleton } from "@hashgraph/green-bonds-shared-core"
 
-@Injectable()
+@Singleton()
 export class PublishTransactionResultRabbitAdapter implements PublishTransactionResultPort {
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
@@ -32,6 +32,7 @@ export class PublishTransactionResultRabbitAdapter implements PublishTransaction
         description: result.metadata.description,
         requestId: result.metadata.requestId,
       },
+      errorCode: result.errorCode,
     }
   }
 

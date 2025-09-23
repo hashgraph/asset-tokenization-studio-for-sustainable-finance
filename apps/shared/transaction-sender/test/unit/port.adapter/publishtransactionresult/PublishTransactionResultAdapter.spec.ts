@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PublishTransactionResultHandler } from "../../../../src/app/event/publishtransactionresult/PublishTransactionResultHandler"
+import { PublishTransactionResultAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultAdapter"
 import { SignedTransactionSentEvent } from "../../../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 import type { PublishTransactionResultPort } from "../../../../src/port.adapter/publishtransactionresult/PublishTransactionResultPort"
 
-describe("PublishTransactionResultHandler", () => {
-  let handler: PublishTransactionResultHandler
+describe("PublishTransactionResultAdapter", () => {
+  let handler: PublishTransactionResultAdapter
   let mockPublishPort: jest.Mocked<PublishTransactionResultPort>
   let mockPublishResult: jest.MockedFunction<PublishTransactionResultPort["publishResult"]>
 
@@ -16,7 +16,7 @@ describe("PublishTransactionResultHandler", () => {
       publishResult: mockPublishResult,
     } as jest.Mocked<PublishTransactionResultPort>
 
-    handler = new PublishTransactionResultHandler(mockPublishPort)
+    handler = new PublishTransactionResultAdapter(mockPublishPort)
   })
 
   it("should be defined", () => {
@@ -36,6 +36,7 @@ describe("PublishTransactionResultHandler", () => {
         "hedera",
         "0.0.123@1234567890.123456789",
         "success",
+        undefined,
       )
 
       await handler.handle(event)
@@ -47,6 +48,7 @@ describe("PublishTransactionResultHandler", () => {
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
         status: "success",
+        errorCode: undefined,
       })
     })
 
@@ -62,6 +64,7 @@ describe("PublishTransactionResultHandler", () => {
         "ethereum",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "success",
+        undefined,
       )
 
       await handler.handle(event)
@@ -73,6 +76,7 @@ describe("PublishTransactionResultHandler", () => {
         format: "ethereum",
         transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         status: "success",
+        errorCode: undefined,
       })
     })
 
@@ -88,6 +92,7 @@ describe("PublishTransactionResultHandler", () => {
         "hedera",
         "0.0.123@1234567890.123456789",
         "failed",
+        "INVALID_TRANSACTION",
       )
 
       await handler.handle(event)
@@ -99,6 +104,7 @@ describe("PublishTransactionResultHandler", () => {
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
         status: "failed",
+        errorCode: "INVALID_TRANSACTION",
       })
     })
 
@@ -113,6 +119,7 @@ describe("PublishTransactionResultHandler", () => {
         "hedera",
         "0.0.123@1234567890.123456789",
         "success",
+        undefined,
       )
 
       const error = new Error("Publishing failed")
@@ -126,7 +133,7 @@ describe("PublishTransactionResultHandler", () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "minimal-test"
 
-      const event = new SignedTransactionSentEvent("0xminimal", metadata, "ethereum", "0xhash", "success")
+      const event = new SignedTransactionSentEvent("0xminimal", metadata, "ethereum", "0xhash", "success", undefined)
 
       await handler.handle(event)
 
@@ -137,6 +144,35 @@ describe("PublishTransactionResultHandler", () => {
         format: "ethereum",
         transactionHash: "0xhash",
         status: "success",
+        errorCode: undefined,
+      })
+    })
+
+    it("should propagate errorCode when transaction fails", async () => {
+      const metadata = new TransactionMetadata()
+      metadata.requestId = "error-code-test"
+      metadata.origin = "error-service"
+      metadata.description = "Test error code propagation"
+
+      const event = new SignedTransactionSentEvent(
+        "0xerrorpayload",
+        metadata,
+        "hedera",
+        "EXECUTION_FAILED",
+        "failed",
+        "INSUFFICIENT_ACCOUNT_BALANCE",
+      )
+
+      await handler.handle(event)
+
+      expect(mockPublishResult).toHaveBeenCalledTimes(1)
+      expect(mockPublishResult).toHaveBeenCalledWith({
+        payload: "0xerrorpayload",
+        metadata,
+        format: "hedera",
+        transactionHash: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
       })
     })
   })

@@ -89,7 +89,11 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       signedTransaction.payload = "0xinvalid"
       signedTransaction.format = "hedera"
 
-      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow("Invalid transaction bytes")
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toHaveProperty("status", "failed")
+      expect(result).toHaveProperty("errorCode")
+      expect(result.errorCode).toBeDefined()
     })
   })
 
@@ -121,7 +125,11 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       signedTransaction.payload = "invalid-no-hex"
       signedTransaction.format = "ethereum"
 
-      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow("Invalid transaction format")
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toHaveProperty("status", "failed")
+      expect(result).toHaveProperty("errorCode")
+      expect(result.errorCode).toBeDefined()
     })
   })
 

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransactionMessage } from "src/domain/model/SignedTransactionMessage"
+import { SignedTransactionMessage } from "@domain/model/SignedTransactionMessage"
 
 /**
  * Port interface for processing Ethereum signed transactions.

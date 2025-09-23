@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { TransactionMetadata } from "../../domain/model/TransactionMetadata"
+import { TransactionMetadata } from "@domain/model/TransactionMetadata"
 
 /**
  * Port interface for publishing transaction results to outgoing queues.
@@ -17,4 +17,5 @@ export interface TransactionResult {
   format: string
   transactionHash: string
   status: "success" | "failed"
+  errorCode?: string
 }

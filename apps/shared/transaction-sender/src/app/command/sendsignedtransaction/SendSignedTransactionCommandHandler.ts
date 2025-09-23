@@ -3,9 +3,9 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { SendSignedTransactionCommand } from "./SendSignedTransactionCommand"
-import { SignedTransactionMessage } from "../../../domain/model/SignedTransactionMessage"
-import { SignedTransactionSentEvent } from "../../../domain/events/SignedTransactionSentEvent"
-import type { BlockchainTransactionSenderPort } from "../../../port.adapter/transactionsender/BlockchainTransactionSenderPort"
+import { SignedTransactionMessage } from "@domain/model/SignedTransactionMessage"
+import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSentEvent"
+import type { BlockchainTransactionSenderPort } from "@port/transactionsender/BlockchainTransactionSenderPort"
 
 @Singleton()
 @Handler(SendSignedTransactionCommand)
@@ -30,6 +30,7 @@ export class SendSignedTransactionCommandHandler implements CommandHandler<SendS
       command.format,
       transactionResult.transactionId,
       transactionResult.status,
+      transactionResult.errorCode,
     )
 
     this.eventBus.publish(event)

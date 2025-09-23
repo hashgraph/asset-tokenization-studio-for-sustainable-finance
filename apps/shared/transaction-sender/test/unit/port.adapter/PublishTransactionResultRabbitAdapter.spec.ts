@@ -51,6 +51,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
         status: "success",
+        errorCode: undefined,
       }
 
       await adapter.publishResult(result)
@@ -67,6 +68,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
             description: "Test Hedera transaction",
             requestId: "hedera-test-123",
           },
+          errorCode: undefined,
         },
         {
           persistent: true,
@@ -91,6 +93,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "ethereum",
         transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         status: "success",
+        errorCode: undefined,
       }
 
       await adapter.publishResult(result)
@@ -107,6 +110,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
             description: "Test Ethereum transaction",
             requestId: "ethereum-test-456",
           },
+          errorCode: undefined,
         },
         {
           persistent: true,
@@ -131,6 +135,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
         status: "failed",
+        errorCode: "INVALID_TRANSACTION",
       }
 
       await adapter.publishResult(result)
@@ -153,6 +158,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "bitcoin",
         transactionHash: "0xhash",
         status: "success",
+        errorCode: undefined,
       }
 
       await expect(adapter.publishResult(result)).rejects.toThrow("Unsupported transaction format: bitcoin")
@@ -169,6 +175,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "ethereum",
         transactionHash: "0xhash",
         status: "success",
+        errorCode: undefined,
       }
 
       await adapter.publishResult(result)
@@ -195,12 +202,55 @@ describe("PublishTransactionResultRabbitAdapter", () => {
         format: "hedera",
         transactionHash: "0.0.123@1234567890.123456789",
         status: "success",
+        errorCode: undefined,
       }
 
       const error = new Error("AMQP connection failed")
       mockPublish.mockRejectedValue(error)
 
       await expect(adapter.publishResult(result)).rejects.toThrow("AMQP connection failed")
+    })
+
+    it("should propagate errorCode when transaction fails", async () => {
+      const metadata = new TransactionMetadata()
+      metadata.requestId = "error-code-test"
+      metadata.origin = "error-service"
+      metadata.description = "Test error code propagation"
+
+      const result: TransactionResult = {
+        payload: "0xerrorpayload",
+        metadata: metadata,
+        format: "hedera",
+        transactionHash: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
+      }
+
+      await adapter.publishResult(result)
+
+      expect(mockPublish).toHaveBeenCalledTimes(1)
+      expect(mockPublish).toHaveBeenCalledWith(
+        "tx",
+        "hederaFormat.outgoing",
+        {
+          status: "failed",
+          txId: "EXECUTION_FAILED",
+          metadata: {
+            origin: "error-service",
+            description: "Test error code propagation",
+            requestId: "error-code-test",
+          },
+          errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
+        },
+        {
+          persistent: true,
+          headers: {
+            format: "hedera",
+            requestId: "error-code-test",
+            origin: "error-service",
+          },
+        },
+      )
     })
   })
 })

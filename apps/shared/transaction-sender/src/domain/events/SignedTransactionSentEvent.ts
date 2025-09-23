@@ -10,6 +10,7 @@ export class SignedTransactionSentEvent extends Event {
     public readonly format: string,
     public readonly transactionHash: string,
     public readonly status: "success" | "failed",
+    public readonly errorCode?: string,
   ) {
     super()
   }

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable } from "@nestjs/common"
-import { Client, Transaction } from "@hashgraph/sdk"
+import { Client, Transaction, Status } from "@hashgraph/sdk"
 import { ethers } from "ethers"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
-import { SignedTransactionMessage } from "../../domain/model/SignedTransactionMessage"
-import { TransactionResult } from "../../domain/model/TransactionResult"
+import { SignedTransactionMessage } from "@domain/model/SignedTransactionMessage"
+import { TransactionResult } from "@domain/model/TransactionResult"
+import { Singleton } from "@hashgraph/green-bonds-shared-core"
 
-@Injectable()
+@Singleton()
 export class BlockchainTransactionSenderAdapter implements BlockchainTransactionSenderPort {
   async sendTransaction(signedTransaction: SignedTransactionMessage): Promise<TransactionResult> {
     if (signedTransaction.format === "hedera") {
@@ -31,11 +31,24 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
           transactionId: response.transactionId.toString(),
           status: "success",
         }
-      } catch {
+      } catch (receiptError: any) {
+        const errorCode = receiptError.status
+          ? Status[receiptError.status] || receiptError.status.toString()
+          : "UNKNOWN_ERROR"
         return {
           transactionId: response.transactionId.toString(),
           status: "failed",
+          errorCode: errorCode,
         }
+      }
+    } catch (executionError: any) {
+      const errorCode = executionError.status
+        ? Status[executionError.status] || executionError.status.toString()
+        : "EXECUTION_ERROR"
+      return {
+        transactionId: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: errorCode,
       }
     } finally {
       client.close()
@@ -47,12 +60,29 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       process.env.ETHEREUM_RPC_URL || "https://testnet.hashio.io/api",
     )
 
-    const txResponse = await provider.sendTransaction(signedTransaction.payload)
-    const receipt = await txResponse.wait()
+    try {
+      const txResponse = await provider.sendTransaction(signedTransaction.payload)
+      const receipt = await txResponse.wait()
 
-    return {
-      transactionId: receipt.transactionHash,
-      status: receipt.status === 1 ? "success" : "failed",
+      if (receipt.status === 1) {
+        return {
+          transactionId: receipt.transactionHash,
+          status: "success",
+        }
+      } else {
+        return {
+          transactionId: receipt.transactionHash,
+          status: "failed",
+          errorCode: "CALL_EXCEPTION",
+        }
+      }
+    } catch (error: any) {
+      const errorCode = error.code || "UNKNOWN_ERROR"
+      return {
+        transactionId: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: errorCode,
+      }
     }
   }
 }

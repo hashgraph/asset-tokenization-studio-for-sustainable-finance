@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsString, IsNotEmpty, IsHexadecimal, ValidateNested, IsOptional, IsIn } from "class-validator"
+import { IsString, IsNotEmpty, IsHexadecimal, ValidateNested, IsIn } from "class-validator"
 import { TransactionMetadata } from "./TransactionMetadata"
 
 export class SignedTransactionMessage {
@@ -10,8 +10,7 @@ export class SignedTransactionMessage {
   payload: string
 
   @ValidateNested()
-  @IsOptional()
-  metadata?: TransactionMetadata
+  metadata: TransactionMetadata
 
   @IsIn(["hedera", "ethereum"])
   format: string

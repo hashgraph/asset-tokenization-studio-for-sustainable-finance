@@ -20,6 +20,10 @@ jest.mock("@hashgraph/sdk", () => ({
       }),
     }),
   },
+  Status: {
+    INSUFFICIENT_ACCOUNT_BALANCE: "INSUFFICIENT_ACCOUNT_BALANCE",
+    INVALID_TRANSACTION: "INVALID_TRANSACTION",
+  },
 }))
 
 jest.mock("ethers", () => ({
@@ -171,6 +175,108 @@ describe("BlockchainTransactionSenderAdapter", () => {
       expect(hederaResult).toHaveProperty("status")
       expect(ethereumResult).toHaveProperty("transactionId")
       expect(ethereumResult).toHaveProperty("status")
+    })
+
+    it("should handle Hedera transaction receipt errors with error details", async () => {
+      const { Transaction } = jest.requireMock("@hashgraph/sdk")
+      const mockError = {
+        status: "INSUFFICIENT_ACCOUNT_BALANCE",
+      }
+
+      Transaction.fromBytes.mockReturnValueOnce({
+        execute: jest.fn().mockResolvedValue({
+          transactionId: {
+            toString: jest.fn().mockReturnValue("0.0.123@1234567890.123456789"),
+          },
+          getReceipt: jest.fn().mockRejectedValue(mockError),
+        }),
+      })
+
+      const signedTransaction = new SignedTransactionMessage()
+      signedTransaction.payload = "0x1234567890abcdef"
+      signedTransaction.format = "hedera"
+
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toEqual({
+        transactionId: "0.0.123@1234567890.123456789",
+        status: "failed",
+        errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
+      })
+    })
+
+    it("should handle Hedera transaction execution errors with error details", async () => {
+      const { Transaction } = jest.requireMock("@hashgraph/sdk")
+      const mockError = {
+        status: "INVALID_TRANSACTION",
+      }
+
+      Transaction.fromBytes.mockReturnValueOnce({
+        execute: jest.fn().mockRejectedValue(mockError),
+      })
+
+      const signedTransaction = new SignedTransactionMessage()
+      signedTransaction.payload = "0x1234567890abcdef"
+      signedTransaction.format = "hedera"
+
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toEqual({
+        transactionId: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: "INVALID_TRANSACTION",
+      })
+    })
+
+    it("should handle Ethereum transaction reverted with error details", async () => {
+      const { ethers } = jest.requireMock("ethers")
+      const mockProvider = {
+        sendTransaction: jest.fn().mockResolvedValue({
+          wait: jest.fn().mockResolvedValue({
+            transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+            status: 0, // Transaction reverted
+          }),
+        }),
+      }
+
+      ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
+
+      const signedTransaction = new SignedTransactionMessage()
+      signedTransaction.payload = "0xabcdef1234567890"
+      signedTransaction.format = "ethereum"
+
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toEqual({
+        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
+        status: "failed",
+        errorCode: "CALL_EXCEPTION",
+      })
+    })
+
+    it("should handle Ethereum transaction execution errors with error details", async () => {
+      const { ethers } = jest.requireMock("ethers")
+      const mockError = {
+        code: "INSUFFICIENT_FUNDS",
+      }
+
+      const mockProvider = {
+        sendTransaction: jest.fn().mockRejectedValue(mockError),
+      }
+
+      ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
+
+      const signedTransaction = new SignedTransactionMessage()
+      signedTransaction.payload = "0xabcdef1234567890"
+      signedTransaction.format = "ethereum"
+
+      const result = await adapter.sendTransaction(signedTransaction)
+
+      expect(result).toEqual({
+        transactionId: "EXECUTION_FAILED",
+        status: "failed",
+        errorCode: "INSUFFICIENT_FUNDS",
+      })
     })
   })
 })

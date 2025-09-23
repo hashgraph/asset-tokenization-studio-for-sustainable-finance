@@ -3,4 +3,5 @@
 export interface TransactionResult {
   transactionId: string
   status: "success" | "failed"
+  errorCode?: string
 }
