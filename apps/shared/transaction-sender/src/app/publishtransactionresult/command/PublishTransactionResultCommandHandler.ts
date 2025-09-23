@@ -3,20 +3,32 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { PublishTransactionResultCommand } from "./PublishTransactionResultCommand"
-import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSentEvent"
-import type { PublishTransactionResultPort } from "@port/publishtransactionresult/PublishTransactionResultPort"
+import { TransactionResultPublishedEvent } from "@domain/events/TransactionResultPublishedEvent"
+import type { PublishTransactionResultRabbitPort } from "@port/publishtransactionresult/PublishTransactionResultRabbitPort"
+import type { TransactionResult } from "@domain/model/TransactionResult"
 
 @Singleton()
 @Handler(PublishTransactionResultCommand)
 export class PublishTransactionResultCommandHandler implements CommandHandler<PublishTransactionResultCommand, void> {
   constructor(
     @Inject() private readonly eventBus: EventBus,
-    @Inject() private readonly publishTransactionResultPort: PublishTransactionResultPort,
+    @Inject() private readonly publishTransactionResult: PublishTransactionResultRabbitPort,
   ) {}
 
   @Validate()
   async execute(command: PublishTransactionResultCommand): Promise<void> {
-    const event = new SignedTransactionSentEvent(
+    const transactionResult: TransactionResult = {
+      payload: command.payload,
+      metadata: command.metadata,
+      format: command.format,
+      transactionHash: command.transactionHash,
+      status: command.status,
+      errorCode: command.errorCode,
+    }
+
+    await this.publishTransactionResult.publishResult(transactionResult)
+
+    const event = new TransactionResultPublishedEvent(
       command.payload,
       command.metadata,
       command.format,
@@ -26,14 +38,5 @@ export class PublishTransactionResultCommandHandler implements CommandHandler<Pu
     )
 
     this.eventBus.publish(event)
-
-    await this.publishTransactionResultPort.publishResult({
-      payload: command.payload,
-      metadata: command.metadata,
-      format: command.format,
-      transactionHash: command.transactionHash,
-      status: command.status,
-      errorCode: command.errorCode,
-    })
   }
 }

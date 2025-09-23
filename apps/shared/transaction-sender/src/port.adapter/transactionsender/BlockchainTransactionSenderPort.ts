@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
 import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
-import { TransactionResponse } from "@domain/model/TransactionResponse"
 
 export interface BlockchainTransactionSenderPort {
-  sendTransaction(signedTransaction: SignedTransactionRequest): Promise<TransactionResponse>
+  sendTransaction(signedTransaction: SignedTransactionRequest): Promise<BlockchainTransactionResponse>
 }

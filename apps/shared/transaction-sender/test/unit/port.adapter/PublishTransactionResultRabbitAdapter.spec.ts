@@ -3,7 +3,7 @@
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq"
 import { PublishTransactionResultRabbitAdapter } from "../../../src/port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
-import type { TransactionResult } from "../../../src/port.adapter/publishtransactionresult/PublishTransactionResultPort"
+import type { TransactionResult } from "../../../src/domain/model/TransactionResult"
 
 jest.mock("../../../src/config/RabbitMQDecoratorFactory", () => ({
   RabbitMQDecoratorFactory: {

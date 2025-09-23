@@ -4,11 +4,11 @@ import { EventListener, Inject, Singleton, Handler } from "@hashgraph/green-bond
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSentEvent"
 import { PublishTransactionResultCommand } from "@app/publishtransactionresult/command/PublishTransactionResultCommand"
-import { PublicTransactionResultPort } from "./PublicTransactionResultPort"
+import { PublishTransactionResultNestJSPort } from "./PublishTransactionResultNestJSPort"
 
 @Singleton()
 export class PublishTransactionResultNestJSAdapter
-  implements EventListener<SignedTransactionSentEvent>, PublicTransactionResultPort
+  implements EventListener<SignedTransactionSentEvent>, PublishTransactionResultNestJSPort
 {
   constructor(@Inject() private readonly commandBus: CommandBus) {}
 

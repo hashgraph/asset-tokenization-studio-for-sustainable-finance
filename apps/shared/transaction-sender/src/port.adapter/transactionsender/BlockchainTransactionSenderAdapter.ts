@@ -4,12 +4,12 @@ import { Client, Transaction, Status } from "@hashgraph/sdk"
 import { ethers } from "ethers"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
 import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
-import { TransactionResponse as TransactionResponse } from "@domain/model/TransactionResponse"
+import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
 import { Singleton } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class BlockchainTransactionSenderAdapter implements BlockchainTransactionSenderPort {
-  async sendTransaction(signedTransaction: SignedTransactionRequest): Promise<TransactionResponse> {
+  async sendTransaction(signedTransaction: SignedTransactionRequest): Promise<BlockchainTransactionResponse> {
     if (signedTransaction.format === "hedera") {
       return await this.sendHederaTransaction(signedTransaction)
     } else {
@@ -17,7 +17,9 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     }
   }
 
-  private async sendHederaTransaction(signedTransaction: SignedTransactionRequest): Promise<TransactionResponse> {
+  private async sendHederaTransaction(
+    signedTransaction: SignedTransactionRequest,
+  ): Promise<BlockchainTransactionResponse> {
     const client = Client.forTestnet()
 
     try {
@@ -55,7 +57,9 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     }
   }
 
-  private async sendEthereumTransaction(signedTransaction: SignedTransactionRequest): Promise<TransactionResponse> {
+  private async sendEthereumTransaction(
+    signedTransaction: SignedTransactionRequest,
+  ): Promise<BlockchainTransactionResponse> {
     const provider = new ethers.providers.JsonRpcProvider(
       process.env.ETHEREUM_RPC_URL || "https://testnet.hashio.io/api",
     )
