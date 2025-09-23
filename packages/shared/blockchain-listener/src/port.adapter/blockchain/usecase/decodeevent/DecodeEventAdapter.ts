@@ -11,14 +11,16 @@ import { Interface } from "ethers/lib/utils"
 export default class DecodeEventAdapter implements DecodeEventPort {
   private readonly logger = new Logger(DecodeEventAdapter.name)
 
-  private readonly INDEXED_PARAMS_PATTERN = /\s*indexed\s*/g
+  private readonly INDEXED_PARAMS_PATTERN = /\s*indexed*/g
 
   private readonly eventSignatureHashes
 
   constructor() {
+    const a = this.normalizeEventSignature("Transfer(address indexed from,address indexed to,uint256 value)")
+    console.log(a)
     this.eventSignatureHashes = new Map<string, string>(
       this.splitFunctions(process.env.BLOCKCHAIN_LISTENER_EVENTS ?? "").map((eventSignature) => [
-        utils.id(eventSignature.replace(this.INDEXED_PARAMS_PATTERN, "")),
+        utils.id(this.normalizeEventSignature(eventSignature)),
         eventSignature,
       ]),
     )
@@ -32,19 +34,22 @@ export default class DecodeEventAdapter implements DecodeEventPort {
 
       const eventSignature: string = this.eventSignatureHashes.get(log.topics[0])
       if (!eventSignature) return null
-
-      const { name, types } = this.parseEventSignature(eventSignature)
+      const eventName: string = this.getEventName(eventSignature)
       const decodedValues = this.decodeEventParams(eventSignature, log)
+
+      const result = Object.keys(decodedValues)
+        .filter((key) => isNaN(Number(key)))
+        .map((key) => ({ name: key, value: decodedValues[key] }))
 
       const eventObj: BlockchainEvent = {
         timestamp: log.timestamp,
         transactionHash: log.transactionHash,
-        name,
+        name: eventName,
         signature: eventSignature,
       }
 
-      types.forEach((type, idx) => {
-        eventObj[`param${idx}`] = decodedValues[idx]
+      result.forEach((param) => {
+        eventObj[param.name] = param.value.toString()
       })
 
       return eventObj
@@ -60,6 +65,17 @@ export default class DecodeEventAdapter implements DecodeEventPort {
       topics: log.topics,
     })
     return parsed.args
+  }
+
+  private normalizeEventSignature(signature: string): string {
+    const [name, params] = signature.split("(")
+    const types = params
+      .replace(")", "")
+      .split(",")
+      .map((p) => p.trim())
+      .map((p) => p.replace(this.INDEXED_PARAMS_PATTERN, ""))
+      .map((p) => p.split(" ")[0])
+    return `${name}(${types.join(",")})`
   }
 
   private splitFunctions(input: string): string[] {
@@ -89,50 +105,11 @@ export default class DecodeEventAdapter implements DecodeEventPort {
     return result
   }
 
-  private parseEventSignature(eventSignature: string): { name: string; types: string[] } {
+  private getEventName(eventSignature: string): string {
     const match = eventSignature.match(/^([^(]+)\((.*)\)$/)
     if (!match) {
       throw new Error("Invalid event signature: " + eventSignature)
     }
-
-    const [, name, params] = match
-
-    function parseParams(paramStr: string): string[] {
-      const types: string[] = []
-      let current = ""
-      let depth = 0
-
-      for (const char of paramStr) {
-        if (char === "(") {
-          if (depth > 0) current += char
-          depth++
-        } else if (char === ")") {
-          depth--
-          if (depth > 0) {
-            current += char
-          } else {
-            types.push(...parseParams(current))
-            current = ""
-          }
-        } else if (char === "," && depth === 0) {
-          if (current.trim().length > 0) {
-            types.push(current.trim())
-          }
-          current = ""
-        } else {
-          current += char
-        }
-      }
-
-      if (current.trim().length > 0) {
-        types.push(current.trim())
-      }
-
-      return types
-    }
-
-    const types = params.trim() ? parseParams(params) : []
-
-    return { name, types }
+    return match[1]
   }
 }
