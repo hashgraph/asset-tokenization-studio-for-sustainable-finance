@@ -13,5 +13,5 @@ export const PROVIDERS = [
   EventFetcherAdapter,
   DecodeEventAdapter,
   MirrorNodeQueryAdapter,
-  BlockchainEventListenerAppService
+  BlockchainEventListenerAppService,
 ]

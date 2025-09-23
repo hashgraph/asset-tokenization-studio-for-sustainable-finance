@@ -32,7 +32,7 @@ import MirrorNodeQueryAdapter from "./port.adapter/blockchain/usecase/querymirro
     {
       provide: "EventFetcher",
       useClass: EventFetcherAdapter,
-    }
+    },
   ],
   exports: PROVIDERS,
 })

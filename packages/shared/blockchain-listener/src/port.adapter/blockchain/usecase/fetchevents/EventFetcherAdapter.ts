@@ -5,10 +5,7 @@ import EventFetcherPort from "./EventFetcherPort"
 import type MirrorNodePort from "@port/blockchain/usecase/querymirrornode/MirrorNodePort"
 import type DecodeEventPort from "@port/blockchain/usecase/decodeevent/DecodeEventPort"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
-import {
-  isBloom,
-  isContractAddressInBloom,
-} from 'ethereum-bloom-filters';
+import { isBloom, isContractAddressInBloom } from "ethereum-bloom-filters"
 
 interface MirrorNodeResponse {
   logs_bloom?: string
@@ -56,14 +53,14 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
   constructor(
     @Inject() private readonly mirrorNode: MirrorNodePort,
-    @Inject() private readonly decodeEvent: DecodeEventPort
+    @Inject() private readonly decodeEvent: DecodeEventPort,
   ) {
     this.blockNumber = +process.env.BLOCKCHAIN_LISTENER_BLOCK_NUMBER
   }
 
   async fetchEvents(): Promise<BlockchainEvent[]> {
     this.logger.log(
-      `Polling started for ${process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet"} and block ${this.blockNumber}`
+      `Polling started for ${process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet"} and block ${this.blockNumber}`,
     )
     const events: BlockchainEvent[] = []
 
@@ -77,14 +74,14 @@ export default class EventFetcherAdapter implements EventFetcherPort {
           const contractResults = await this.getContractResult(hash)
           events.push(
             ...contractResults.logs
-              .map(log =>
+              .map((log) =>
                 this.decodeEvent.decode({
                   ...log,
                   transactionHash: hash,
                   timestamp: contractResults.timestamp,
                 }),
               )
-              .filter((decoded): decoded is BlockchainEvent => decoded != null)
+              .filter((decoded): decoded is BlockchainEvent => decoded != null),
           )
         }
         ++this.blockNumber
@@ -101,7 +98,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
   private async blockContainsTrackedEvents(): Promise<boolean> {
     const blockLogsBloom = (
-      await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1) as BlockMirrorNodeResponse
+      (await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1)) as BlockMirrorNodeResponse
     ).logs_bloom
     //return anyAddrInBloom(blockLogsBloom) && anyLogInBloom(blockLogsBloom)
 
@@ -111,10 +108,10 @@ export default class EventFetcherAdapter implements EventFetcherPort {
   private async anyAddrInBloom(bloomHex: string): Promise<boolean> {
     const contracts = (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "")
       .split(",")
-      .map(c => c.trim())
-      .filter(Boolean);
+      .map((c) => c.trim())
+      .filter(Boolean)
 
-    return contracts.some(contract => isContractAddressInBloom(bloomHex, contract));
+    return contracts.some((contract) => isContractAddressInBloom(bloomHex, contract))
   }
 
   /*private async anyLogInBloom(bloomHex: string): Promise<boolean> {
@@ -132,12 +129,13 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     const query = this.blockNumber ? `?block.number=${this.blockNumber}&limit=100&order=asc` : ""
 
     try {
-      const mirrorNodeContractsResultsResponse = ((
-        await this.mirrorNode.fetchData(`contracts/results${query}`, 1)) as MirrorNodeContractsResultsResponse
-      )
+      const mirrorNodeContractsResultsResponse = (await this.mirrorNode.fetchData(
+        `contracts/results${query}`,
+        1,
+      )) as MirrorNodeContractsResultsResponse
 
       const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(
-        mirrorNodeContractsResultsResponse.results
+        mirrorNodeContractsResultsResponse.results,
       )
 
       contractsResultsHashesList.push(...contractResultsHashes)
@@ -147,11 +145,12 @@ export default class EventFetcherAdapter implements EventFetcherPort {
           const nextUrl = new URL(mirrorNodeContractsResultsResponse.links.next)
           const relativePath = nextUrl.pathname + nextUrl.search
           const stripped = relativePath.replace(/^\/api\/v1\//, "")
-          const mirrorNodeNextContractsResultsResponse = ((
-            await this.mirrorNode.fetchData(`${stripped}`, 1))as MirrorNodeContractsResultsResponse
-          )
+          const mirrorNodeNextContractsResultsResponse = (await this.mirrorNode.fetchData(
+            `${stripped}`,
+            1,
+          )) as MirrorNodeContractsResultsResponse
           const nextContractResultsHashes = this.getContractsResultsHashesFilteredByContract(
-            mirrorNodeNextContractsResultsResponse.results
+            mirrorNodeNextContractsResultsResponse.results,
           )
           contractsResultsHashesList.push(...nextContractResultsHashes)
 
@@ -160,7 +159,6 @@ export default class EventFetcherAdapter implements EventFetcherPort {
       }
 
       return contractsResultsHashesList
-
     } catch (error) {
       this.logger.error("Error getting contracts results hashes")
     }
@@ -171,7 +169,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
       .filter(
         (res) =>
           (res.address && (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "").split(",").includes(res.address)) ||
-          (res.to && (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "").split(",").includes(res.to))
+          (res.to && (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "").split(",").includes(res.to)),
       )
       .map((res) => res.hash)
       .filter((hash): hash is string => Boolean(hash))
