@@ -18,7 +18,10 @@
   },
   "dependencies": {
     "@golevelup/nestjs-rabbitmq": "^6.0.2",
-    "@hashgraph/green-bonds-shared-core": "*"
+    "@hashgraph/green-bonds-shared-core": "*",
+    "@hashgraph/sdk": "^2.73.1",
+    "amqplib": "^0.10.9",
+    "ethers": "^5.8.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -61,6 +64,13 @@
     ],
     "coverageDirectory": "coverage",
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.ts"
+    ],
+    "moduleNameMapper": {
+      "^@app/(.*)$": "<rootDir>/src/app/$1",
+      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
+      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1"
+    }
   }
 }

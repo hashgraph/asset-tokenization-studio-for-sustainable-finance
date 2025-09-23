@@ -32,6 +32,22 @@ export class RabbitMQDecoratorFactory {
     return process.env.RABBITMQ_ETHEREUM_ROUTING_KEY || "ethereumFormat.incoming"
   }
 
+  private static getHederaOutgoingQueueName(): string {
+    return process.env.RABBITMQ_HEDERA_OUTGOING_QUEUE_NAME || "hederaFormat.outgoing"
+  }
+
+  private static getHederaOutgoingRoutingKey(): string {
+    return process.env.RABBITMQ_HEDERA_OUTGOING_ROUTING_KEY || "hederaFormat.outgoing"
+  }
+
+  private static getEthereumOutgoingQueueName(): string {
+    return process.env.RABBITMQ_ETHEREUM_OUTGOING_QUEUE_NAME || "ethereumFormat.outgoing"
+  }
+
+  private static getEthereumOutgoingRoutingKey(): string {
+    return process.env.RABBITMQ_ETHEREUM_OUTGOING_ROUTING_KEY || "ethereumFormat.outgoing"
+  }
+
   static createHederaSubscribe() {
     return RabbitSubscribe({
       exchange: this.getExchangeName(),
@@ -46,5 +62,21 @@ export class RabbitMQDecoratorFactory {
       routingKey: this.getEthereumRoutingKey(),
       queue: this.getEthereumQueueName(),
     })
+  }
+
+  static getHederaOutgoingConfig() {
+    return {
+      exchange: this.getExchangeName(),
+      routingKey: this.getHederaOutgoingRoutingKey(),
+      queue: this.getHederaOutgoingQueueName(),
+    }
+  }
+
+  static getEthereumOutgoingConfig() {
+    return {
+      exchange: this.getExchangeName(),
+      routingKey: this.getEthereumOutgoingRoutingKey(),
+      queue: this.getEthereumOutgoingQueueName(),
+    }
   }
 }

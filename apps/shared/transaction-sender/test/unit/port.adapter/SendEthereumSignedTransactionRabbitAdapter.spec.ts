@@ -1,6 +1,6 @@
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
-import { SendSignedTransactionCommand } from "../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
-import { SignedTransactionMessage } from "../../../src/domain/model/SignedTransactionMessage"
+import { SendSignedTransactionCommand } from "../../../src/app/sendsignedtransaction/command/SendSignedTransactionCommand"
+import { SignedTransactionRequest } from "../../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
 import { SendEthereumSignedTransactionRabbitAdapter } from "../../../src/port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
 
@@ -28,7 +28,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
         description: "test-description",
       }
 
-      const mockMessage: SignedTransactionMessage = {
+      const mockMessage: SignedTransactionRequest = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
         format: "ethereum",
@@ -56,7 +56,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
         description: "test-description",
       }
 
-      const mockMessage: SignedTransactionMessage = {
+      const mockMessage: SignedTransactionRequest = {
         payload: "0x1234567890abcdef",
         metadata: mockMetadata,
         format: "ethereum",
@@ -77,7 +77,7 @@ describe("SendEthereumSignedTransactionRabbitAdapter", () => {
         description: "test-description",
       }
 
-      const mockMessage: SignedTransactionMessage = {
+      const mockMessage: SignedTransactionRequest = {
         payload: "0xabcdef1234567890",
         metadata: mockMetadata,
         format: "ethereum",

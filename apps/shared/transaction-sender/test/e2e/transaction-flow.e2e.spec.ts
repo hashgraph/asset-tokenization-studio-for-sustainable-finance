@@ -3,9 +3,9 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { NestJSCommandBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
-import { SignedTransactionMessage } from "../../src/domain/model/SignedTransactionMessage"
+import { SignedTransactionRequest } from "../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
-import { SendSignedTransactionCommand } from "../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
+import { SendSignedTransactionCommand } from "../../src/app/sendsignedtransaction/command/SendSignedTransactionCommand"
 import { SendEthereumSignedTransactionRabbitAdapter } from "../../src/port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
 import { SendHederaSignedTransactionRabbitAdapter } from "../../src/port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
 
@@ -72,7 +72,7 @@ describe.skip("Transaction Flow E2E", () => {
 
   describe("Hedera Transaction Flow", () => {
     it("should process complete Hedera transaction flow successfully", async () => {
-      const hederaMessage: SignedTransactionMessage = {
+      const hederaMessage: SignedTransactionRequest = {
         payload: "0x1234567890abcdef1234567890abcdef",
         metadata: {
           requestId: "hedera-req-123",
@@ -113,7 +113,7 @@ describe.skip("Transaction Flow E2E", () => {
     })
 
     it("should handle Hedera transaction processing errors gracefully", async () => {
-      const hederaMessage: SignedTransactionMessage = {
+      const hederaMessage: SignedTransactionRequest = {
         payload: "0x1234567890abcdef1234567890abcdef",
         metadata: {
           requestId: "hedera-req-error",
@@ -149,7 +149,7 @@ describe.skip("Transaction Flow E2E", () => {
 
   describe("Ethereum Transaction Flow", () => {
     it("should process complete Ethereum transaction flow successfully", async () => {
-      const ethereumMessage: SignedTransactionMessage = {
+      const ethereumMessage: SignedTransactionRequest = {
         payload: "0xabcdef1234567890abcdef1234567890",
         metadata: {
           requestId: "ethereum-req-456",
@@ -190,7 +190,7 @@ describe.skip("Transaction Flow E2E", () => {
     })
 
     it("should handle Ethereum transaction processing errors gracefully", async () => {
-      const ethereumMessage: SignedTransactionMessage = {
+      const ethereumMessage: SignedTransactionRequest = {
         payload: "0xabcdef1234567890abcdef1234567890",
         metadata: {
           requestId: "ethereum-req-error",
@@ -250,7 +250,7 @@ describe.skip("Transaction Flow E2E", () => {
     })
 
     it("should handle missing metadata gracefully", async () => {
-      const messageWithoutMetadata: SignedTransactionMessage = {
+      const messageWithoutMetadata: SignedTransactionRequest = {
         payload: "0x1234567890abcdef1234567890abcdef",
         format: "hedera",
       }

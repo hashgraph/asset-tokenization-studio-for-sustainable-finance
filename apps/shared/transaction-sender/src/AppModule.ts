@@ -5,8 +5,12 @@ import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq"
 import { SendHederaSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
 import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
-import { SendSignedTransactionCommandHandler } from "./app/command/sendsignedtransaction/SendSignedTransactionCommandHandler"
+import { SendSignedTransactionCommandHandler } from "@app/sendsignedtransaction/command/SendSignedTransactionCommandHandler"
+import { PublishTransactionResultCommandHandler } from "@app/publishtransactionresult/command/PublishTransactionResultCommandHandler"
 import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
+
+import { PublishTransactionResultRabbitAdapter } from "./port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
+import { SignedTransactionEventHandlerNestJSAdapter } from "@port/transaction/usecase/signedtransactioneventhandle/SignedTransactionEventHandlerNestJSAdapter"
 @Module({
   imports: [
     SharedModule,
@@ -28,10 +32,17 @@ import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionse
     SendHederaSignedTransactionRabbitAdapter,
     SendEthereumSignedTransactionRabbitAdapter,
     SendSignedTransactionCommandHandler,
+    PublishTransactionResultCommandHandler,
     BlockchainTransactionSenderAdapter,
+    SignedTransactionEventHandlerNestJSAdapter,
+    PublishTransactionResultRabbitAdapter,
     {
       provide: "BlockchainTransactionSender",
       useClass: BlockchainTransactionSenderAdapter,
+    },
+    {
+      provide: "PublishTransactionResult",
+      useClass: PublishTransactionResultRabbitAdapter,
     },
   ],
 })

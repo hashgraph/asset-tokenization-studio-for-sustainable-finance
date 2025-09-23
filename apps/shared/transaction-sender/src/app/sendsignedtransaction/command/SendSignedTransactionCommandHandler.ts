@@ -3,9 +3,9 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { SendSignedTransactionCommand } from "./SendSignedTransactionCommand"
-import { SignedTransactionMessage } from "../../../domain/model/SignedTransactionMessage"
-import { SignedTransactionSentEvent } from "../../../domain/events/SignedTransactionSentEvent"
-import type { BlockchainTransactionSenderPort } from "../../../port.adapter/transactionsender/BlockchainTransactionSenderPort"
+import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
+import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSentEvent"
+import type { BlockchainTransactionSenderPort } from "@port/transactionsender/BlockchainTransactionSenderPort"
 
 @Singleton()
 @Handler(SendSignedTransactionCommand)
@@ -17,18 +17,20 @@ export class SendSignedTransactionCommandHandler implements CommandHandler<SendS
 
   @Validate()
   async execute(command: SendSignedTransactionCommand): Promise<void> {
-    const signedTransaction = new SignedTransactionMessage()
+    const signedTransaction = new SignedTransactionRequest()
     signedTransaction.payload = command.payload
     signedTransaction.metadata = command.metadata
     signedTransaction.format = command.format
 
-    const transactionHash = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
+    const transactionResponse = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
 
     const event = new SignedTransactionSentEvent(
       command.payload,
       signedTransaction.metadata,
       command.format,
-      transactionHash,
+      transactionResponse.transactionId,
+      transactionResponse.status,
+      transactionResponse.errorCode,
     )
 
     this.eventBus.publish(event)
