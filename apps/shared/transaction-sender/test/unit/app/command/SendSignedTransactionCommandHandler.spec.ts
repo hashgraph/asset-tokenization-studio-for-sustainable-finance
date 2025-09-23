@@ -1,5 +1,5 @@
-import { SendSignedTransactionCommandHandler } from "../../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommandHandler"
-import { SendSignedTransactionCommand } from "../../../../src/app/command/sendsignedtransaction/SendSignedTransactionCommand"
+import { SendSignedTransactionCommandHandler } from "../../../../src/app/sendsignedtransaction/command/SendSignedTransactionCommandHandler"
+import { SendSignedTransactionCommand } from "../../../../src/app/sendsignedtransaction/command/SendSignedTransactionCommand"
 import { SignedTransactionSentEvent } from "../../../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 
@@ -14,7 +14,7 @@ describe("SendSignedTransactionCommandHandler", () => {
   beforeEach(() => {
     mockEventBus = {
       publish: jest.fn(),
-    } as jest.Mocked<EventBus>
+    } as unknown as jest.Mocked<EventBus>
 
     mockBlockchainSender = {
       sendTransaction: jest.fn(),

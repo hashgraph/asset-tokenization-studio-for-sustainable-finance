@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PublishTransactionResultAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultAdapter"
+import { PublishTransactionResultNestJSAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSAdapter"
 import { SignedTransactionSentEvent } from "../../../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
-import type { PublishTransactionResultPort } from "../../../../src/port.adapter/publishtransactionresult/PublishTransactionResultPort"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 
 describe("PublishTransactionResultAdapter", () => {
-  let handler: PublishTransactionResultAdapter
-  let mockPublishPort: jest.Mocked<PublishTransactionResultPort>
-  let mockPublishResult: jest.MockedFunction<PublishTransactionResultPort["publishResult"]>
+  let handler: PublishTransactionResultNestJSAdapter
+  let mockCommandBus: jest.Mocked<CommandBus>
+  let mockExecute: jest.MockedFunction<CommandBus["execute"]>
 
   beforeEach(() => {
-    mockPublishResult = jest.fn()
-    mockPublishPort = {
-      publishResult: mockPublishResult,
-    } as jest.Mocked<PublishTransactionResultPort>
+    mockExecute = jest.fn()
+    mockCommandBus = {
+      execute: mockExecute,
+    } as jest.Mocked<CommandBus>
 
-    handler = new PublishTransactionResultAdapter(mockPublishPort)
+    handler = new PublishTransactionResultNestJSAdapter(mockCommandBus)
   })
 
   it("should be defined", () => {
@@ -24,7 +24,7 @@ describe("PublishTransactionResultAdapter", () => {
   })
 
   describe("handle", () => {
-    it("should publish transaction result for Hedera transaction", async () => {
+    it("should execute command for Hedera transaction", async () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "hedera-test-123"
       metadata.origin = "hedera-service"
@@ -41,18 +41,20 @@ describe("PublishTransactionResultAdapter", () => {
 
       await handler.handle(event)
 
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
-      expect(mockPublishResult).toHaveBeenCalledWith({
-        payload: "0x0a640a200a0c08b6a6c4a60610c0843d1a0c08b6a6c4a60610c0843d22020878",
-        metadata,
-        format: "hedera",
-        transactionHash: "0.0.123@1234567890.123456789",
-        status: "success",
-        errorCode: undefined,
-      })
+      expect(mockExecute).toHaveBeenCalledTimes(1)
+      expect(mockExecute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: "0x0a640a200a0c08b6a6c4a60610c0843d1a0c08b6a6c4a60610c0843d22020878",
+          metadata,
+          format: "hedera",
+          transactionHash: "0.0.123@1234567890.123456789",
+          status: "success",
+          errorCode: undefined,
+        }),
+      )
     })
 
-    it("should publish transaction result for Ethereum transaction", async () => {
+    it("should execute command for Ethereum transaction", async () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "ethereum-test-456"
       metadata.origin = "ethereum-service"
@@ -69,18 +71,20 @@ describe("PublishTransactionResultAdapter", () => {
 
       await handler.handle(event)
 
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
-      expect(mockPublishResult).toHaveBeenCalledWith({
-        payload: "0xf86c808504a817c800825208943535353535353535353535353535353535353535",
-        metadata,
-        format: "ethereum",
-        transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-        status: "success",
-        errorCode: undefined,
-      })
+      expect(mockExecute).toHaveBeenCalledTimes(1)
+      expect(mockExecute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: "0xf86c808504a817c800825208943535353535353535353535353535353535353535",
+          metadata,
+          format: "ethereum",
+          transactionHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+          status: "success",
+          errorCode: undefined,
+        }),
+      )
     })
 
-    it("should handle transaction without hash (failed transaction)", async () => {
+    it("should handle failed transaction with error code", async () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "failed-test-789"
       metadata.origin = "test-service"
@@ -97,18 +101,20 @@ describe("PublishTransactionResultAdapter", () => {
 
       await handler.handle(event)
 
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
-      expect(mockPublishResult).toHaveBeenCalledWith({
-        payload: "0xinvalidpayload",
-        metadata,
-        format: "hedera",
-        transactionHash: "0.0.123@1234567890.123456789",
-        status: "failed",
-        errorCode: "INVALID_TRANSACTION",
-      })
+      expect(mockExecute).toHaveBeenCalledTimes(1)
+      expect(mockExecute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: "0xinvalidpayload",
+          metadata,
+          format: "hedera",
+          transactionHash: "0.0.123@1234567890.123456789",
+          status: "failed",
+          errorCode: "INVALID_TRANSACTION",
+        }),
+      )
     })
 
-    it("should propagate errors from publish port", async () => {
+    it("should propagate errors from command bus", async () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "error-test-999"
       metadata.origin = "error-service"
@@ -122,11 +128,11 @@ describe("PublishTransactionResultAdapter", () => {
         undefined,
       )
 
-      const error = new Error("Publishing failed")
-      mockPublishResult.mockRejectedValue(error)
+      const error = new Error("Command execution failed")
+      mockExecute.mockRejectedValue(error)
 
-      await expect(handler.handle(event)).rejects.toThrow("Publishing failed")
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
+      await expect(handler.handle(event)).rejects.toThrow("Command execution failed")
+      expect(mockExecute).toHaveBeenCalledTimes(1)
     })
 
     it("should handle events with minimal metadata", async () => {
@@ -137,15 +143,17 @@ describe("PublishTransactionResultAdapter", () => {
 
       await handler.handle(event)
 
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
-      expect(mockPublishResult).toHaveBeenCalledWith({
-        payload: "0xminimal",
-        metadata,
-        format: "ethereum",
-        transactionHash: "0xhash",
-        status: "success",
-        errorCode: undefined,
-      })
+      expect(mockExecute).toHaveBeenCalledTimes(1)
+      expect(mockExecute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: "0xminimal",
+          metadata,
+          format: "ethereum",
+          transactionHash: "0xhash",
+          status: "success",
+          errorCode: undefined,
+        }),
+      )
     })
 
     it("should propagate errorCode when transaction fails", async () => {
@@ -165,15 +173,17 @@ describe("PublishTransactionResultAdapter", () => {
 
       await handler.handle(event)
 
-      expect(mockPublishResult).toHaveBeenCalledTimes(1)
-      expect(mockPublishResult).toHaveBeenCalledWith({
-        payload: "0xerrorpayload",
-        metadata,
-        format: "hedera",
-        transactionHash: "EXECUTION_FAILED",
-        status: "failed",
-        errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
-      })
+      expect(mockExecute).toHaveBeenCalledTimes(1)
+      expect(mockExecute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          payload: "0xerrorpayload",
+          metadata,
+          format: "hedera",
+          transactionHash: "EXECUTION_FAILED",
+          status: "failed",
+          errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
+        }),
+      )
     })
   })
 })

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransactionMessage } from "@domain/model/SignedTransactionMessage"
+import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 
 /**
  * Port interface for processing Ethereum signed transactions.
@@ -13,5 +13,5 @@ export interface SendEthereumSignedTransactionPort {
    * @param message - The signed transaction message with Ethereum format payload
    * @throws {Error} When transaction processing fails
    */
-  onEthereumMessage(message: SignedTransactionMessage): Promise<void>
+  onEthereumMessage(message: SignedTransactionRequest): Promise<void>
 }

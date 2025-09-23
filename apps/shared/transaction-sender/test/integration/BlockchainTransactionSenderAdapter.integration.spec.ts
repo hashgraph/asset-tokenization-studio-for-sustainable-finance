@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BlockchainTransactionSenderAdapter } from "../../src/port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
-import { SignedTransactionMessage } from "../../src/domain/model/SignedTransactionMessage"
+import { SignedTransactionRequest } from "../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
 
 jest.mock("@hashgraph/sdk", () => ({
@@ -69,7 +69,7 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       metadata.requestId = "hedera-integration-test-001"
       metadata.origin = "treasury-service"
       metadata.description = "Bond issuance transaction"
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload =
         "0x0a640a200a0c08b6a6c4a60610c0843d1a0c08b6a6c4a60610c0843d22020878320072240a220a0f0a09" +
         "08051205746f6b656e120508051203666565180112090a0708051205746f6b656e"
@@ -85,7 +85,7 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
     })
 
     it("should handle error when Hedera payload is invalid", async () => {
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xinvalid"
       signedTransaction.format = "hedera"
 
@@ -104,7 +104,7 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       metadata.origin = "treasury-service"
       metadata.description = "ERC-20 token transfer"
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload =
         "0xf86c808504a817c800825208943535353535353535353535353535353535353535880de0b6b3a764000080" +
         "25a028ef61340bd939bc2195fe537567866003e1a15d3c71ff63e1590620aa636276a067cbe9d8997f761a" +
@@ -121,7 +121,7 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
     })
 
     it("should handle error when Ethereum payload is invalid", async () => {
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "invalid-no-hex"
       signedTransaction.format = "ethereum"
 
@@ -140,7 +140,7 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
         metadata.requestId = `concurrent-test-${i}`
         metadata.origin = "load-test"
 
-        const signedTransaction = new SignedTransactionMessage()
+        const signedTransaction = new SignedTransactionRequest()
         signedTransaction.payload =
           i % 2 === 0
             ? "0x0a640a200a0c08b6a6c4a60610c0843d1a0c08b6a6c4a60610c0843d22020878320072240a220a0f0a09" +

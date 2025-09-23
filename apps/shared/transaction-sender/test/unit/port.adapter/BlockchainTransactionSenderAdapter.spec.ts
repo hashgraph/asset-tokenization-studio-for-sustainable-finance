@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BlockchainTransactionSenderAdapter } from "../../../src/port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
-import { SignedTransactionMessage } from "../../../src/domain/model/SignedTransactionMessage"
+import { SignedTransactionRequest } from "../../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
 
 jest.mock("@hashgraph/sdk", () => ({
@@ -56,7 +56,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       metadata.origin = "test-origin"
       metadata.description = "Test transaction"
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.metadata = metadata
       signedTransaction.format = "hedera"
@@ -82,7 +82,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       metadata.origin = "test-origin"
       metadata.description = "Test Ethereum transaction"
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.metadata = metadata
       signedTransaction.format = "ethereum"
@@ -108,7 +108,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       metadata.origin = "test-origin"
       metadata.description = "Test Hedera transaction"
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.metadata = metadata
       signedTransaction.format = "hedera"
@@ -127,7 +127,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       metadata.origin = "test-origin"
       metadata.description = "Test Ethereum transaction"
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.metadata = metadata
       signedTransaction.format = "ethereum"
@@ -141,7 +141,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
     })
 
     it("should handle transactions with minimal metadata", async () => {
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
@@ -154,11 +154,11 @@ describe("BlockchainTransactionSenderAdapter", () => {
     })
 
     it("should return Promise<TransactionResult> for both blockchain types", async () => {
-      const hederaTransaction = new SignedTransactionMessage()
+      const hederaTransaction = new SignedTransactionRequest()
       hederaTransaction.payload = "0x1234567890abcdef"
       hederaTransaction.format = "hedera"
 
-      const ethereumTransaction = new SignedTransactionMessage()
+      const ethereumTransaction = new SignedTransactionRequest()
       ethereumTransaction.payload = "0xabcdef1234567890"
       ethereumTransaction.format = "ethereum"
 
@@ -192,7 +192,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
         }),
       })
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
@@ -215,7 +215,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
         execute: jest.fn().mockRejectedValue(mockError),
       })
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
@@ -241,7 +241,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
 
@@ -266,7 +266,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
 
-      const signedTransaction = new SignedTransactionMessage()
+      const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
 
