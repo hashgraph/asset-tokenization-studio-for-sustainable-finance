@@ -4,7 +4,7 @@ import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { PublishTransactionResultCommand } from "./PublishTransactionResultCommand"
 import { TransactionResultPublishedEvent } from "@domain/events/TransactionResultPublishedEvent"
-import type { PublishTransactionResultRabbitPort } from "@port/publishtransactionresult/PublishTransactionResultRabbitPort"
+import type { PublishTransactionResultPort } from "@port/publishtransactionresult/PublishTransactionResultPort"
 import type { TransactionResult } from "@domain/model/TransactionResult"
 
 @Singleton()
@@ -12,7 +12,7 @@ import type { TransactionResult } from "@domain/model/TransactionResult"
 export class PublishTransactionResultCommandHandler implements CommandHandler<PublishTransactionResultCommand, void> {
   constructor(
     @Inject() private readonly eventBus: EventBus,
-    @Inject() private readonly publishTransactionResult: PublishTransactionResultRabbitPort,
+    @Inject() private readonly publishTransactionResult: PublishTransactionResultPort,
   ) {}
 
   @Validate()

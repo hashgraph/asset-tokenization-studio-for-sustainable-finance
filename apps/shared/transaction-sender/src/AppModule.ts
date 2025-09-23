@@ -10,7 +10,7 @@ import { PublishTransactionResultCommandHandler } from "@app/publishtransactionr
 import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 
 import { PublishTransactionResultRabbitAdapter } from "./port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
-import { PublishTransactionResultNestJSAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSAdapter"
+import { SignedTransactionEventHandlerNestJSAdapter } from "@port/transaction/usecase/signedtransactioneventhandle/SignedTransactionEventHandlerNestJSAdapter"
 @Module({
   imports: [
     SharedModule,
@@ -34,7 +34,7 @@ import { PublishTransactionResultNestJSAdapter } from "@port/transaction/usecase
     SendSignedTransactionCommandHandler,
     PublishTransactionResultCommandHandler,
     BlockchainTransactionSenderAdapter,
-    PublishTransactionResultNestJSAdapter,
+    SignedTransactionEventHandlerNestJSAdapter,
     PublishTransactionResultRabbitAdapter,
     {
       provide: "BlockchainTransactionSender",

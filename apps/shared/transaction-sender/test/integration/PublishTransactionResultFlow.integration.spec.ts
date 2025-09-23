@@ -5,16 +5,16 @@ import { EventEmitter2 } from "@nestjs/event-emitter"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 
 import { PublishTransactionResultCommandHandler } from "../../src/app/publishtransactionresult/command/PublishTransactionResultCommandHandler"
-import { PublishTransactionResultNestJSAdapter } from "../../src/port.adapter/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSAdapter"
+import { SignedTransactionEventHandlerNestJSAdapter } from "../../src/port.adapter/transaction/usecase/signedtransactioneventhandle/SignedTransactionEventHandlerNestJSAdapter"
 import { SignedTransactionSentEvent } from "../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionResultPublishedEvent } from "../../src/domain/events/TransactionResultPublishedEvent"
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
-import type { PublishTransactionResultRabbitPort } from "../../src/port.adapter/publishtransactionresult/PublishTransactionResultRabbitPort"
+import type { PublishTransactionResultPort } from "../../src/port.adapter/publishtransactionresult/PublishTransactionResultPort"
 
 describe("PublishTransactionResult Flow Integration", () => {
   let app: TestingModule
-  let adapter: PublishTransactionResultNestJSAdapter
-  let mockRabbitPort: jest.Mocked<PublishTransactionResultRabbitPort>
+  let adapter: SignedTransactionEventHandlerNestJSAdapter
+  let mockRabbitPort: jest.Mocked<PublishTransactionResultPort>
   let eventEmitter: EventEmitter2
 
   beforeEach(async () => {
@@ -26,7 +26,7 @@ describe("PublishTransactionResult Flow Integration", () => {
       imports: [SharedModule],
       providers: [
         PublishTransactionResultCommandHandler,
-        PublishTransactionResultNestJSAdapter,
+        SignedTransactionEventHandlerNestJSAdapter,
         {
           provide: "PublishTransactionResult",
           useValue: mockRabbitPort,
@@ -34,7 +34,7 @@ describe("PublishTransactionResult Flow Integration", () => {
       ],
     }).compile()
 
-    adapter = app.get<PublishTransactionResultNestJSAdapter>(PublishTransactionResultNestJSAdapter)
+    adapter = app.get<SignedTransactionEventHandlerNestJSAdapter>(SignedTransactionEventHandlerNestJSAdapter)
     eventEmitter = app.get<EventEmitter2>(EventEmitter2)
 
     await app.init()

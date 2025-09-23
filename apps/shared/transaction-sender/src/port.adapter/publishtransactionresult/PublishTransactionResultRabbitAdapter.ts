@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq"
-import { PublishTransactionResultRabbitPort } from "./PublishTransactionResultRabbitPort"
+import { PublishTransactionResultPort } from "./PublishTransactionResultPort"
 import { TransactionResult } from "@domain/model/TransactionResult"
 import { RabbitMQDecoratorFactory } from "../../config/RabbitMQDecoratorFactory"
 import { Singleton } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
-export class PublishTransactionResultRabbitAdapter implements PublishTransactionResultRabbitPort {
+export class PublishTransactionResultRabbitAdapter implements PublishTransactionResultPort {
   constructor(private readonly amqpConnection: AmqpConnection) {}
 
   async publishResult(result: TransactionResult): Promise<void> {

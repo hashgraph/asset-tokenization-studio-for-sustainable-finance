@@ -7,6 +7,6 @@ import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSent
  * This port defines the contract for adapters that listen to transaction events
  * and handle the publication of transaction results
  */
-export interface PublishTransactionResultNestJSPort {
+export interface SignedTransactionEventHandlerPort {
   handle(event: SignedTransactionSentEvent): Promise<void>
 }
