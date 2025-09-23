@@ -1,0 +1,71 @@
+{
+    "name": "@hashgraph/asset-tokenization-contracts",
+    "version": "1.0.0",
+    "type": "commonjs",
+    "main": "./build/typechain-types/index.js",
+    "files": [
+        "build/",
+        "contracts/"
+    ],
+    "exports": {
+        ".": {
+            "import": "./build/typechain-types/index.js",
+            "require": "./build/typechain-types/index.js",
+            "default": "./build/typechain-types/index.js"
+        },
+        "./typechain-types/index.js": "./build/typechain-types/index.js"
+    },
+    "keywords": [
+        "hedera",
+        "smart-contracts",
+        "tokenization",
+        "hardhat"
+    ],
+    "author": "",
+    "license": "Apache-2.0",
+    "scripts": {
+        "clean": "npx hardhat clean",
+        "compile": "npx hardhat compile",
+        "compile:force": "npm run clean && npm run compile",
+        "test": "npx hardhat test",
+        "lint": "npx eslint .  && solhint 'contracts/**/*.sol'",
+        "lint:fix": "npx eslint . --fix && solhint 'contracts/**/*.sol' --fix --noPrompt",
+        "format": "prettier --check \"**/*.{ts,js,sol}\"",
+        "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
+        "fix": "npm run format:fix; npm run lint:fix",
+        "coverage": "npx hardhat coverage"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.24.0",
+        "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
+        "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+        "@openzeppelin/contracts": "^4.9.6",
+        "@openzeppelin/contracts-upgradeable": "^4.9.6",
+        "@openzeppelin/hardhat-upgrades": "^1.22.1",
+        "@primitivefi/hardhat-dodoc": "^0.2.3",
+        "@typechain/ethers-v5": "^10.1.0",
+        "@typechain/hardhat": "^6.1.2",
+        "blob": "^0.1.0",
+        "chai": "^4.4.0",
+        "dotenv": "^16.0.3",
+        "eslint": "^9.24.0",
+        "ethers": "^5.8.0",
+        "glob": "^11.0.3",
+        "globals": "^16.4.0",
+        "hardhat": "^2.22.19",
+        "hardhat-abi-exporter": "^2.11.0",
+        "hardhat-contract-sizer": "^2.10.0",
+        "hardhat-dependency-compiler": "^1.2.1",
+        "hardhat-gas-reporter": "^1.0.8",
+        "jiti": "^2.6.0",
+        "prettier": "3.6.2",
+        "prettier-plugin-solidity": "^2.1.0",
+        "rimraf": "^6.0.1",
+        "solhint": "^5.0.3",
+        "solidity-coverage": "^0.8.14",
+        "ts-node": "^10.9.1",
+        "tsconfig-paths": "^4.2.0",
+        "typescript": "^5.8.2",
+        "typescript-eslint": "^8.44.0"
+    }
+}
