@@ -6,15 +6,6 @@ import type MirrorNodePort from "@port/blockchain/usecase/querymirrornode/Mirror
 import type DecodeEventPort from "@port/blockchain/usecase/decodeevent/DecodeEventPort"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface MirrorNodeResponse {
-  logs_bloom?: string
-}
-
-interface BlockMirrorNodeResponse {
-  logs_bloom?: string
-}
-
 interface MirrorNodeContractsResultsResponse {
   results?: MirrorNodeContractResultResponse[]
   links?: MirrorNodeContractsResultsResponseLinks
@@ -41,12 +32,6 @@ interface MirrorNodeContractResultLogResponse {
   topics: string[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface AccountMirrorNodeResponse {
-  account: string
-  evm_address: string
-}
-
 @Singleton()
 export default class EventFetcherAdapter implements EventFetcherPort {
   private readonly logger = new Logger(EventFetcherAdapter.name)
@@ -66,64 +51,27 @@ export default class EventFetcherAdapter implements EventFetcherPort {
     const events: BlockchainEvent[] = []
 
     try {
-      if (await this.blockContainsTrackedEvents()) {
-        this.logger.debug(`Block ${this.blockNumber} contains tracked events`)
-
-        const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents()
-        for (const hash of contractsResultsHashes) {
-          const contractResults = await this.getContractResult(hash)
-          events.push(
-            ...contractResults.logs
-              .map((log) =>
-                this.decodeEvent.decode({
-                  ...log,
-                  transactionHash: hash,
-                  timestamp: contractResults.timestamp,
-                }),
-              )
-              .filter((decoded): decoded is BlockchainEvent => decoded != null),
-          )
-        }
-        ++this.blockNumber
-        return events
-      } else {
-        this.logger.debug(`No tracked events where found in block ${this.blockNumber}`)
-        ++this.blockNumber
-        return []
+      const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents()
+      for (const hash of contractsResultsHashes) {
+        const contractResults = await this.getContractResult(hash)
+        events.push(
+          ...contractResults.logs
+            .map((log) =>
+              this.decodeEvent.decode({
+                ...log,
+                transactionHash: hash,
+                timestamp: contractResults.timestamp,
+              }),
+            )
+            .filter((decoded): decoded is BlockchainEvent => decoded != null),
+        )
       }
+      ++this.blockNumber
+      return events
     } catch (error) {
       this.logger.error(`Error fetching events from block ${this.blockNumber}: ${error}`)
     }
   }
-
-  private async blockContainsTrackedEvents(): Promise<boolean> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const blockLogsBloom =
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-      ((await this.mirrorNode.fetchData(`blocks/${this.blockNumber}`, 1)) as BlockMirrorNodeResponse).logs_bloom
-    //return anyAddrInBloom(blockLogsBloom) && anyLogInBloom(blockLogsBloom)
-
-    return true
-  }
-
-  /*private async anyAddrInBloom(bloomHex: string): Promise<boolean> {
-    const contracts = (process.env.BLOCKCHAIN_LISTENER_CONTRACTS ?? "")
-      .split(",")
-      .map((c) => c.trim())
-      .filter(Boolean)
-
-    return contracts.some((contract) => isContractAddressInBloom(bloomHex, contract))
-  }
-
-  private async anyLogInBloom(bloomHex: string): Promise<boolean> {
-    for (const event of (process.env.BLOCKCHAIN_LISTENER_EVENTS ?? "").split(",")) {
-      const eventSignature = "Transfer(address,address,uint256)"
-      if (this.isInBloom(bloomHex, eventSignature, true)) {
-        return true
-      }
-    }
-    return false
-  }*/
 
   private async getContractsResultsHashesContainingTrackedEvents(): Promise<string[]> {
     const contractsResultsHashesList: string[] = []
