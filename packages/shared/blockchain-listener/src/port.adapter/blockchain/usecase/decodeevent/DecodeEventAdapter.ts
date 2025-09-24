@@ -42,11 +42,11 @@ export default class DecodeEventAdapter implements DecodeEventPort {
         .map((key) => ({ name: key, value: decodedValues[key] }))
 
       const eventObj: BlockchainEvent = {
-        timestamp: log.timestamp,
+        logTimestamp: log.timestamp,
         transactionHash: log.transactionHash,
         name: eventName,
         signature: eventSignature,
-      }
+      } as BlockchainEvent
 
       result.forEach((param) => {
         eventObj[param.name] = param.value.toString()

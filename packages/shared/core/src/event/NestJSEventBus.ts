@@ -18,8 +18,8 @@ export class NestJSEventBus implements EventBus {
     this.logger.log(`Event ${eventName} published successfully:`, event)
   }
 
-  async publishSync<E extends Event>(event: E): Promise<void> {
-    await this.eventEmitter.emitAsync(event.constructor.name, event)
+  async publishSync<E extends Event>(event: E, eventName?: string): Promise<void> {
+    await this.eventEmitter.emitAsync(eventName ?? event.constructor.name, event)
     return new Promise((resolve) => resolve())
   }
 }

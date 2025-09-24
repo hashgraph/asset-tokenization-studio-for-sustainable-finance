@@ -5,5 +5,5 @@ import { Event } from "./Event"
 export interface EventBus {
   publish<E extends Event>(event: E): void
 
-  publishSync<E extends Event>(event: E): Promise<void>
+  publishSync<E extends Event>(event: E, eventName?: string): Promise<void>
 }
