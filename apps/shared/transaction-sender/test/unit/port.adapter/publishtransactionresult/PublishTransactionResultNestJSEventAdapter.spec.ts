@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { SignedTransactionEventHandlerNestJSAdapter } from "@port/transaction/usecase/signedtransactioneventhandle/SignedTransactionEventHandlerNestJSAdapter"
+import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSEventAdapter"
 import { SignedTransactionSentEvent } from "../../../../src/domain/events/SignedTransactionSentEvent"
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 
-describe("PublishTransactionResultAdapter", () => {
-  let handler: SignedTransactionEventHandlerNestJSAdapter
+describe("PublishTransactionResultNestJSEventAdapter", () => {
+  let handler: PublishTransactionResultNestJSEventAdapter
   let mockCommandBus: jest.Mocked<CommandBus>
   let mockExecute: jest.MockedFunction<CommandBus["execute"]>
 
@@ -16,7 +16,7 @@ describe("PublishTransactionResultAdapter", () => {
       execute: mockExecute,
     } as jest.Mocked<CommandBus>
 
-    handler = new SignedTransactionEventHandlerNestJSAdapter(mockCommandBus)
+    handler = new PublishTransactionResultNestJSEventAdapter(mockCommandBus)
   })
 
   it("should be defined", () => {

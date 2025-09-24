@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AmqpConnection } from "@golevelup/nestjs-rabbitmq"
-import { PublishTransactionResultRabbitAdapter } from "../../../src/port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
+import { TransactionResultPublisherRabbitAdapter } from "../../../src/port.adapter/transactionresultpublisher/TransactionResultPublisherRabbitAdapter"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
 import type { TransactionResult } from "../../../src/domain/model/TransactionResult"
 
@@ -20,8 +20,8 @@ jest.mock("../../../src/config/RabbitMQDecoratorFactory", () => ({
   },
 }))
 
-describe("PublishTransactionResultRabbitAdapter", () => {
-  let adapter: PublishTransactionResultRabbitAdapter
+describe("TransactionResultPublisherRabbitAdapter", () => {
+  let adapter: TransactionResultPublisherRabbitAdapter
   let mockAmqpConnection: jest.Mocked<AmqpConnection>
   let mockPublish: jest.MockedFunction<AmqpConnection["publish"]>
 
@@ -31,7 +31,7 @@ describe("PublishTransactionResultRabbitAdapter", () => {
       publish: mockPublish,
     } as unknown as jest.Mocked<AmqpConnection>
 
-    adapter = new PublishTransactionResultRabbitAdapter(mockAmqpConnection)
+    adapter = new TransactionResultPublisherRabbitAdapter(mockAmqpConnection)
   })
 
   it("should be defined", () => {

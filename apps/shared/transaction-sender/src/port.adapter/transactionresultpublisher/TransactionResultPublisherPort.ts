@@ -7,6 +7,6 @@ import { TransactionResult } from "@domain/model/TransactionResult"
  * This port abstracts the infrastructure details of message publishing
  * and focuses on the business capability of notifying about transaction results.
  */
-export interface PublishTransactionResultPort {
+export interface TransactionResultPublisherPort {
   publishResult(result: TransactionResult): Promise<void>
 }

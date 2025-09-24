@@ -6,13 +6,13 @@ import { TransactionResultPublishedEvent } from "../../../../src/domain/events/T
 import { TransactionMetadata } from "../../../../src/domain/model/TransactionMetadata"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 
-import type { PublishTransactionResultPort } from "../../../../src/port.adapter/publishtransactionresult/PublishTransactionResultPort"
+import type { TransactionResultPublisherPort } from "../../../../src/port.adapter/transactionresultpublisher/TransactionResultPublisherPort"
 
 describe("PublishTransactionResultCommandHandler", () => {
   let handler: PublishTransactionResultCommandHandler
-  let mockPublishTransactionResultPort: jest.Mocked<PublishTransactionResultPort>
+  let mockPublishTransactionResultPort: jest.Mocked<TransactionResultPublisherPort>
   let mockEventBus: jest.Mocked<EventBus>
-  let publishResultSpy: jest.MockedFunction<PublishTransactionResultPort["publishResult"]>
+  let publishResultSpy: jest.MockedFunction<TransactionResultPublisherPort["publishResult"]>
   let eventBusPublishSpy: jest.MockedFunction<EventBus["publish"]>
 
   beforeEach(() => {
