@@ -9,8 +9,8 @@ import { SendSignedTransactionCommandHandler } from "@app/sendsignedtransaction/
 import { PublishTransactionResultCommandHandler } from "@app/publishtransactionresult/command/PublishTransactionResultCommandHandler"
 import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 
-import { PublishTransactionResultRabbitAdapter } from "./port.adapter/publishtransactionresult/PublishTransactionResultRabbitAdapter"
-import { SignedTransactionEventHandlerNestJSAdapter } from "@port/transaction/usecase/signedtransactioneventhandle/SignedTransactionEventHandlerNestJSAdapter"
+import { TransactionResultPublisherRabbitAdapter } from "./port.adapter/transactionresultpublisher/TransactionResultPublisherRabbitAdapter"
+import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSEventAdapter"
 @Module({
   imports: [
     SharedModule,
@@ -34,15 +34,15 @@ import { SignedTransactionEventHandlerNestJSAdapter } from "@port/transaction/us
     SendSignedTransactionCommandHandler,
     PublishTransactionResultCommandHandler,
     BlockchainTransactionSenderAdapter,
-    SignedTransactionEventHandlerNestJSAdapter,
-    PublishTransactionResultRabbitAdapter,
+    PublishTransactionResultNestJSEventAdapter,
+    TransactionResultPublisherRabbitAdapter,
     {
       provide: "BlockchainTransactionSender",
       useClass: BlockchainTransactionSenderAdapter,
     },
     {
       provide: "PublishTransactionResult",
-      useClass: PublishTransactionResultRabbitAdapter,
+      useClass: TransactionResultPublisherRabbitAdapter,
     },
   ],
 })
