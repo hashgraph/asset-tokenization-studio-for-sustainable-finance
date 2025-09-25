@@ -5,7 +5,6 @@ import BlockchainEventListenerAppService from "@app/service/BlockchainEventListe
 import { ProcessEventDomainService } from "@domain/eventstore/services/ProcessEventDomainService"
 import { ProcessEventCommandHandler } from "@app/eventstore/processevent/command/ProcessEventCommandHandler"
 import SetSyncStateCommandHandler from "@app/syncstate/setsyncstate/command/SetSyncStateCommandHandler"
-import GetSyncStateQueryHandler from "@app/syncstate/getsyncstate/query/GetSyncStateQueryHandler"
 import EventListenerAdapter from "@port/listener/usecase/listenevents/EventListenerAdapter"
 import DecodeEventAdapter from "@port/blockchain/usecase/decodeevent/DecodeEventAdapter"
 import MirrorNodeQueryAdapter from "@port/blockchain/usecase/querymirrornode/MirrorNodeQueryAdapter"
@@ -41,7 +40,6 @@ export const PROVIDERS = [
   AddEventFiltersCommandHandler,
   AddEventFiltersDomainService,
   SetSyncStateCommandHandler,
-  GetSyncStateQueryHandler,
   {
     provide: "EventListener",
     useClass: EventListenerAdapter,
