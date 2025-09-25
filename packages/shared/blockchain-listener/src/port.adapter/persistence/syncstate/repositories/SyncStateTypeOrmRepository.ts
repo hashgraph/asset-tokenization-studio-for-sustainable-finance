@@ -20,10 +20,10 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
     return persistence as SyncState
   }
 
-  async update(syncState: SyncState): Promise<SyncState> {
+  async update(id: string, syncState: SyncState): Promise<SyncState> {
     let persistence: SyncStatePersistence
     try {
-      const persistence = await this.syncStateRepository.update(syncState.id, syncState as SyncStatePersistence)
+      const persistence = await this.syncStateRepository.update(id, syncState as SyncStatePersistence)
     } catch (error) {
       throw new SyncStateNotFoundError(syncState.id)
     }

@@ -5,7 +5,7 @@ import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
 import { ENTITIES, PostgresModule } from "../../../../shared/PostgresModule"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
-import { Repository } from "typeorm"
+import { Repository, Not, IsNull } from "typeorm"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import {
@@ -48,7 +48,7 @@ describe("SetSyncStateCommandHandler", () => {
     await internalSyncStateRepository.deleteAll()
   })
 
-  it("should save sync state and publish SyncStateSet event", async () => {
+  it("should save sync state and publish SyncStateSet event when no SyncState exists", async () => {
     const lastBlockNumber = 25252469
     const command = new SetSyncStateCommand(lastBlockNumber)
 
@@ -67,6 +67,55 @@ describe("SetSyncStateCommandHandler", () => {
     expect(publishedEvent).toEqual(
       expect.objectContaining({
         lastBlockNumber: lastBlockNumber
+      })
+    )
+  })
+
+  it("should save sync state and publish SyncStateSet event when SyncState already exists", async () => {
+    const lastBlockNumber = 25252469
+    let command = new SetSyncStateCommand(lastBlockNumber)
+
+    let publishedEvent
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+    await commandBus.execute(command)
+
+    let syncState = await internalSyncStateRepository.findOneBy({ lastBlockNumber: lastBlockNumber })
+    const syncStateId = syncState.id
+    expect(syncState).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: lastBlockNumber,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    })
+
+    expect(publishedEvent).toEqual(
+      expect.objectContaining({
+        lastBlockNumber: lastBlockNumber
+      })
+    )
+
+    const newLastBlockNumber = 25252470
+    command = new SetSyncStateCommand(newLastBlockNumber)
+
+    let newPublishedEvent
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => (newPublishedEvent = event))
+    await commandBus.execute(command)
+
+    syncState = await internalSyncStateRepository.findOne({
+      where: {
+        lastBlockNumber: Not(IsNull()),
+      }
+    })
+    expect(syncState).toEqual({
+      id: syncStateId,
+      lastBlockNumber: newLastBlockNumber,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+    })
+
+    expect(newPublishedEvent).toEqual(
+      expect.objectContaining({
+        lastBlockNumber: newLastBlockNumber
       })
     )
   })

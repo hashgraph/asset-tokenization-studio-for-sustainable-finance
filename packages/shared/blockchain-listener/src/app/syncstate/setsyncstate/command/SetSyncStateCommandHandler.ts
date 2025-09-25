@@ -19,10 +19,11 @@ export default class SetSyncStateCommandHandler implements CommandHandler<SetSyn
     const syncState = new SyncState()
     syncState.lastBlockNumber = command.lastBlockNumber
 
-    if (await this.syncStateRepository.get() === undefined) {
+    const persistedSyncState = await this.syncStateRepository.get()
+    if (persistedSyncState === undefined) {
       await this.syncStateRepository.save(syncState)
     } else {
-      await this.syncStateRepository.update(syncState)
+      await this.syncStateRepository.update(persistedSyncState.id, syncState)
     }
 
     const event = new SyncStateSetEvent(
