@@ -16,18 +16,14 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
   ) {}
 
   async save(syncState: SyncState): Promise<SyncState> {
-    const persistence = await this.syncStateRepository.save(syncState as SyncStatePersistence)
-    return persistence as SyncState
+    return await this.syncStateRepository.save(syncState as SyncStatePersistence) as SyncState
   }
 
   async update(id: string, syncState: SyncState): Promise<SyncState> {
-    let persistence: SyncStatePersistence
-    try {
-      const persistence = await this.syncStateRepository.update(id, syncState as SyncStatePersistence)
-    } catch (error) {
-      throw new SyncStateNotFoundError(syncState.id)
-    }
-    return persistence as SyncState
+    return await this.syncStateRepository.save({
+      ...syncState,
+      id,
+    }) as SyncState;
   }
 
   async get(): Promise<SyncState | undefined> {
