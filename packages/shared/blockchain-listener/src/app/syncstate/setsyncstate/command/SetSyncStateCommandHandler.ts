@@ -18,7 +18,6 @@ export default class SetSyncStateCommandHandler implements CommandHandler<SetSyn
   async execute(command: SetSyncStateCommand): Promise<void> {
     const syncState = new SyncState()
     syncState.lastBlockNumber = command.lastBlockNumber
-    syncState.lastTimestamp = command.lastTimestamp
 
     if (await this.syncStateRepository.get() === undefined) {
       await this.syncStateRepository.save(syncState)
@@ -27,8 +26,7 @@ export default class SetSyncStateCommandHandler implements CommandHandler<SetSyn
     }
 
     const event = new SyncStateSetEvent(
-      command.lastBlockNumber,
-      command.lastTimestamp
+      command.lastBlockNumber
     )
 
     this.eventBus.publish(event)

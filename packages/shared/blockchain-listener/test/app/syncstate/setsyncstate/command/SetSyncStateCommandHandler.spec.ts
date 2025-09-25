@@ -3,21 +3,18 @@
 import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
-import { ENTITIES, PostgresModule } from "../shared/PostgresModule"
-import { PostgreSqlContainer } from "../shared/containers/PostgresqlContainer"
+import { ENTITIES, PostgresModule } from "../../../../shared/PostgresModule"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { Repository } from "typeorm"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import {
   CommandBus,
   EventBus,
-  EventListener,
-  Handler,
-  SharedModule,
-  Singleton,
+  SharedModule
 } from "@hashgraph/green-bonds-shared-core"
-import { PROVIDERS } from "../../src/Components"
-import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
+import { SetSyncStateCommand } from "@app/syncstate/setsyncstate/command/SetSyncStateCommand"
+import { PROVIDERS } from "../../../../../src/Components"
 
 describe("SetSyncStateCommandHandler", () => {
   let app: INestApplication<App>
@@ -52,28 +49,25 @@ describe("SetSyncStateCommandHandler", () => {
   })
 
   it("should save sync state and publish SyncStateSet event", async () => {
-    const syncState = {
-      lastBlockNumber: 25252469,
-      lastTimestamp: "1758750263"
-    }
-    const command = new SetSyncStateCommand(syncState)
+    const lastBlockNumber = 25252469
+    const command = new SetSyncStateCommand(lastBlockNumber)
 
     let publishedEvent
     jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
     await commandBus.execute(command)
 
-    const syncState = await internalSyncStateRepository.findOneBy({ lastBlockNumber: syncState.lastBlockNumber })
+    const syncState = await internalSyncStateRepository.findOneBy({ lastBlockNumber: lastBlockNumber })
     expect(syncState).toEqual({
-      lastBlockNumber: syncState.lastBlockNumber,
-      lastTimestamp: syncState.lastTimestamp,
+      id: expect.any(String),
+      lastBlockNumber: lastBlockNumber,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     })
 
-    expect(publishedEvent).toEqual({
-      lastBlockNumber: syncState.lastBlockNumber,
-      lastTimestamp: syncState.lastTimestamp,
-      timestamp: expect.any(Number),
-    })
+    expect(publishedEvent).toEqual(
+      expect.objectContaining({
+        lastBlockNumber: lastBlockNumber
+      })
+    )
   })
 })

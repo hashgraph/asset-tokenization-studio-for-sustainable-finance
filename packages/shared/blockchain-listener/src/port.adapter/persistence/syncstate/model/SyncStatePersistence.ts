@@ -8,7 +8,4 @@ export class SyncStatePersistence extends BaseEntityPersistence {
 
   @Column()
   lastBlockNumber: number
-
-  @Column()
-  lastTimestamp: string
 }

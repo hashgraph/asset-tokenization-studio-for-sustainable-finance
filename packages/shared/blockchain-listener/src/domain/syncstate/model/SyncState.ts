@@ -7,8 +7,4 @@ export class SyncState extends BaseEntity {
   @IsNumber()
   @IsNotEmpty()
   lastBlockNumber: number
-
-  @IsString()
-  @IsNotEmpty()
-  lastTimestamp: string
 }

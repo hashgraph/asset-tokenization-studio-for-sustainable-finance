@@ -7,7 +7,7 @@ import  type { SyncStateRepository } from "@domain/syncstate/repositories/SyncSt
 
 @Singleton()
 @Handler(GetSyncStateQuery)
-export default class GetSyncStateQueryHandler implements QueryHandler<GetSyncStateQuery, void> {
+export default class GetSyncStateQueryHandler implements QueryHandler<GetSyncStateQuery, SyncState> {
   constructor(
     @Inject() private readonly syncStateRepository: SyncStateRepository
   ) {}
