@@ -6,20 +6,27 @@ import type EventFetcherPort from "@port/blockchain/usecase/fetchevents/EventFet
 @Singleton()
 export default class EventListenerAdapter implements EventListenerPort {
   private readonly logger = new Logger(EventListenerAdapter.name)
+  private blockNumber: number
   private intervalId: NodeJS.Timeout
 
-  constructor(@Inject() private readonly eventFetcher: EventFetcherPort) {}
+  constructor(@Inject() private readonly eventFetcher: EventFetcherPort) {
+    this.blockNumber = +process.env.BLOCKCHAIN_LISTENER_BLOCK_NUMBER
+  }
 
   subscribe(listener: (event: any) => void): void {
     if (this.intervalId) return
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     this.intervalId = setInterval(async () => {
-      const events = await this.eventFetcher.fetchEvents()
-      if (events) {
-        for (const event of events) {
-          listener(event)
+      const blockNumberCurrentlyBeingProcessed = this.eventFetcher.getBlockNumberCurrentlyBeingProcessed()
+      if (!blockNumberCurrentlyBeingProcessed || this.blockNumber > blockNumberCurrentlyBeingProcessed) {
+        const events = await this.eventFetcher.fetchEventsFromBlock(this.blockNumber)
+        if (events) {
+          for (const event of events) {
+            listener(event)
+          }
         }
+        ++this.blockNumber
       }
     }, +process.env.BLOCKCHAIN_LISTENER_POLL_TIMEOUT)
   }
