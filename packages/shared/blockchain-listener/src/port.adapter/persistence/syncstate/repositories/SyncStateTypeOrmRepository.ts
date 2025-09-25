@@ -14,7 +14,7 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
     private readonly syncStateRepository: Repository<SyncStatePersistence>,
   ) {}
 
-  async create(syncState: SyncState): Promise<SyncState> {
+  async save(syncState: SyncState): Promise<SyncState> {
     return (await this.syncStateRepository.save(syncState as SyncStatePersistence)) as SyncState
   }
 
