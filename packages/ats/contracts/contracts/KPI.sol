@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.0 <0.9.0;
 
 import {ArraysUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/ArraysUpgradeable.sol';
 import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
@@ -51,10 +51,17 @@ contract KPI is IKPI, Initializable, OwnableUpgradeable, PausableUpgradeable {
     function addKPIData(
         uint256 _date,
         uint256 _kpiValue
-    ) external override validDate(_date) validValue(_kpiValue) whenNotPaused onlyOwner {
+    )
+        external
+        override
+        validDate(_date)
+        validValue(_kpiValue)
+        whenNotPaused
+        onlyOwner
+    {
         KPIStorage storage kpiStorage = _getKPIStorage();
 
-        kpiStorage.kpiData[_date] = KPIData({value: _kpiValue, exists: true});
+        kpiStorage.kpiData[_date] = KPIEntry({value: _kpiValue, exists: true});
 
         emit KPIDataAdded(_date, _kpiValue);
     }

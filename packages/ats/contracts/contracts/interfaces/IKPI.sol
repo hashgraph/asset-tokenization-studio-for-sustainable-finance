@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity ^0.8.0;
+pragma solidity >=0.8.0 <0.9.0;
 
 /**
  * @title IKPI Interface
@@ -9,23 +9,22 @@ pragma solidity ^0.8.0;
  */
 interface IKPI {
     /**
-     * @notice Struct containing KPI data for a specific date
-     * @param date Timestamp representing the date of the KPI measurement
+     * @notice Struct containing KPI entry for a specific date
      * @param value The KPI value for the given date
      * @param exists Boolean flag indicating if data exists for this date
      */
-    struct KPIData {
+    struct KPIEntry {
         uint256 value;
         bool exists;
     }
 
     /**
      * @notice Storage structure for KPI data using unstructured storage pattern
-     * @param kpiData Mapping from timestamp to KPIData struct
+     * @param kpiData Mapping from timestamp to KPIEntry struct
      * @param dates Array of timestamps with KPI data, maintained in sorted order for efficient queries
      */
     struct KPIStorage {
-        mapping(uint256 timestamp => KPIData) kpiData;
+        mapping(uint256 timestamp => KPIEntry) kpiData;
     }
 
     /**
