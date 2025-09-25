@@ -3,8 +3,8 @@
 import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
-import { ENTITIES, PostgresModule } from "../shared/PostgresModule"
-import { PostgreSqlContainer } from "../shared/containers/PostgresqlContainer"
+import { ENTITIES, PostgresModule } from "../../../../shared/PostgresModule"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { Repository } from "typeorm"
 import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
@@ -18,7 +18,7 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 import { ProcessEventCommand } from "@app/eventstore/processevent/command/ProcessEventCommand"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
-import { PROVIDERS } from "../../src/Components"
+import { PROVIDERS } from "../../../../../src/Components"
 import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
 
 let testDLTEvent: TestDLTEvent

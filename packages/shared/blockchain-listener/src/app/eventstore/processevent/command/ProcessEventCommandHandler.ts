@@ -3,7 +3,7 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { ProcessEventCommand } from "@app/eventstore/processevent/command/ProcessEventCommand"
-import { ProcessEventDomainService } from "@domain/eventstore/service/ProcessEventDomainService"
+import { ProcessEventDomainService } from "@domain/eventstore/services/ProcessEventDomainService"
 import { EventProcessedEvent } from "@domain/eventstore/events/EventProcessedEvent"
 
 @Singleton()

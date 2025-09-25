@@ -4,8 +4,9 @@ import { DynamicModule, Module } from "@nestjs/common"
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
 import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
 import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
+import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
 
-export const ENTITIES: EntityClassOrSchema[] = [EventStorePersistence]
+export const ENTITIES: EntityClassOrSchema[] = [EventStorePersistence, EventFilterPersistence]
 const ORM_TYPE: string = "postgres"
 
 @Module({})
