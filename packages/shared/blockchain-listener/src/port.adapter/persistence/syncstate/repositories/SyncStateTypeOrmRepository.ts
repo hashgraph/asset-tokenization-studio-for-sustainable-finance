@@ -19,11 +19,10 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
   }
 
   async get(): Promise<SyncState | undefined> {
-    const persistence = await this.syncStateRepository.findOne({
+    return (await this.syncStateRepository.findOne({
       where: {
         lastBlockNumber: Not(IsNull()),
       },
-    })
-    return persistence ? (persistence as SyncState) : null
+    })) as SyncState
   }
 }
