@@ -14,15 +14,8 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
     private readonly syncStateRepository: Repository<SyncStatePersistence>,
   ) {}
 
-  async save(syncState: SyncState): Promise<SyncState> {
+  async create(syncState: SyncState): Promise<SyncState> {
     return (await this.syncStateRepository.save(syncState as SyncStatePersistence)) as SyncState
-  }
-
-  async update(id: string, syncState: SyncState): Promise<SyncState> {
-    return (await this.syncStateRepository.save({
-      ...syncState,
-      id,
-    })) as SyncState
   }
 
   async get(): Promise<SyncState | undefined> {
@@ -31,6 +24,6 @@ export default class SyncStateTypeOrmRepository implements SyncStateRepository {
         lastBlockNumber: Not(IsNull()),
       },
     })
-    return persistence ? (persistence as SyncState) : undefined
+    return persistence ? (persistence as SyncState) : null
   }
 }

@@ -2,7 +2,6 @@
 import { SyncState } from "@domain/syncstate/model/SyncState"
 
 export interface SyncStateRepository {
-  save(item: SyncState): Promise<SyncState>
-  update(id: string, item: SyncState): Promise<SyncState>
+  create(item: SyncState): Promise<SyncState>
   get(): Promise<SyncState | undefined>
 }
