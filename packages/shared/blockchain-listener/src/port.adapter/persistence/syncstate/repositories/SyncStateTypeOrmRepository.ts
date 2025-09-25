@@ -6,7 +6,6 @@ import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStat
 import { InjectRepository } from "@nestjs/typeorm"
 import { SyncStateRepository } from "@domain/syncstate/repositories/SyncStateRepository"
 import { SyncState } from "@domain/syncstate/model/SyncState"
-import SyncStateNotFoundError from "@port/persistence/syncstate/repositories/error/SyncStateNotFoundError"
 
 @Singleton()
 export default class SyncStateTypeOrmRepository implements SyncStateRepository {
