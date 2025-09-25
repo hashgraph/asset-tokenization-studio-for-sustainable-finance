@@ -8,11 +8,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { Repository, Not, IsNull } from "typeorm"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import {
-  CommandBus,
-  EventBus,
-  SharedModule
-} from "@hashgraph/green-bonds-shared-core"
+import { CommandBus, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { SetSyncStateCommand } from "@app/syncstate/setsyncstate/command/SetSyncStateCommand"
 import { PROVIDERS } from "../../../../../src/Components"
 
@@ -66,8 +62,8 @@ describe("SetSyncStateCommandHandler", () => {
 
     expect(publishedEvent).toEqual(
       expect.objectContaining({
-        lastBlockNumber: lastBlockNumber
-      })
+        lastBlockNumber: lastBlockNumber,
+      }),
     )
   })
 
@@ -90,8 +86,8 @@ describe("SetSyncStateCommandHandler", () => {
 
     expect(publishedEvent).toEqual(
       expect.objectContaining({
-        lastBlockNumber: lastBlockNumber
-      })
+        lastBlockNumber: lastBlockNumber,
+      }),
     )
 
     const newLastBlockNumber = 25252470
@@ -104,7 +100,7 @@ describe("SetSyncStateCommandHandler", () => {
     syncState = await internalSyncStateRepository.findOne({
       where: {
         lastBlockNumber: Not(IsNull()),
-      }
+      },
     })
     expect(syncState).toEqual({
       id: syncStateId,
@@ -115,8 +111,8 @@ describe("SetSyncStateCommandHandler", () => {
 
     expect(newPublishedEvent).toEqual(
       expect.objectContaining({
-        lastBlockNumber: newLastBlockNumber
-      })
+        lastBlockNumber: newLastBlockNumber,
+      }),
     )
   })
 })

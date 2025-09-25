@@ -26,9 +26,7 @@ export default class SetSyncStateCommandHandler implements CommandHandler<SetSyn
       await this.syncStateRepository.update(persistedSyncState.id, syncState)
     }
 
-    const event = new SyncStateSetEvent(
-      command.lastBlockNumber
-    )
+    const event = new SyncStateSetEvent(command.lastBlockNumber)
 
     this.eventBus.publish(event)
   }
