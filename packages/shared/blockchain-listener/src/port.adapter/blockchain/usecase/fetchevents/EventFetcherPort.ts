@@ -3,5 +3,6 @@
 import BlockchainEvent from "@domain/event/BlockchainEvent.js"
 
 export default interface EventFetcherPort {
-  fetchEvents(): Promise<BlockchainEvent[]>
+  fetchEventsFromBlock(blockNumber: number): Promise<BlockchainEvent[]>
+  getBlockNumberCurrentlyBeingProcessed(): number
 }

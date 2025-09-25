@@ -4,11 +4,13 @@ import { Provider } from "@nestjs/common"
 import BlockchainEventListenerAppService from "@app/service/BlockchainEventListenerAppService"
 import { ProcessEventDomainService } from "@domain/eventstore/services/ProcessEventDomainService"
 import { ProcessEventCommandHandler } from "@app/eventstore/processevent/command/ProcessEventCommandHandler"
+import SetSyncStateCommandHandler from "@app/syncstate/setsyncstate/command/SetSyncStateCommandHandler"
 import EventListenerAdapter from "@port/listener/usecase/listenevents/EventListenerAdapter"
 import DecodeEventAdapter from "@port/blockchain/usecase/decodeevent/DecodeEventAdapter"
 import MirrorNodeQueryAdapter from "@port/blockchain/usecase/querymirrornode/MirrorNodeQueryAdapter"
 import EventFetcherAdapter from "@port/blockchain/usecase/fetchevents/EventFetcherAdapter"
 import { EventStoreTypeOrmRepository } from "@port/persistence/eventstore/repositories/EventStoreTypeOrmRepository"
+import SyncStateTypeOrmRepository from "@port/persistence/syncstate/repositories/SyncStateTypeOrmRepository"
 import BlockchainEventListenerNestAdapter from "@port/usecase/managenestlifecycle/NestLifeCycleAdapter"
 import { EventFilterTypeOrmRepository } from "@port/persistence/eventfilter/repositories/EventFilterTypeOrmRepository"
 import { AddEventFiltersCommandHandler } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommandHandler"
@@ -23,6 +25,10 @@ const REPOSITORIES: Provider[] = [
     provide: "EventFilterRepository",
     useClass: EventFilterTypeOrmRepository,
   },
+  {
+    provide: "SyncStateRepository",
+    useClass: SyncStateTypeOrmRepository,
+  },
 ]
 
 export const PROVIDERS = [
@@ -33,6 +39,7 @@ export const PROVIDERS = [
   ProcessEventCommandHandler,
   AddEventFiltersCommandHandler,
   AddEventFiltersDomainService,
+  SetSyncStateCommandHandler,
   {
     provide: "EventListener",
     useClass: EventListenerAdapter,

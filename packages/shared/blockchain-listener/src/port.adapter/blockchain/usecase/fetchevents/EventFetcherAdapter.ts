@@ -40,15 +40,18 @@ export default class EventFetcherAdapter implements EventFetcherPort {
   constructor(
     @Inject() private readonly mirrorNode: MirrorNodePort,
     @Inject() private readonly decodeEvent: DecodeEventPort,
-  ) {
-    this.blockNumber = +process.env.BLOCKCHAIN_LISTENER_BLOCK_NUMBER
+  ) {}
+
+  getBlockNumberCurrentlyBeingProcessed(): number {
+    return this.blockNumber
   }
 
-  async fetchEvents(): Promise<BlockchainEvent[]> {
+  async fetchEventsFromBlock(blockNumber: number): Promise<BlockchainEvent[]> {
     this.logger.log(
-      `Polling started for ${process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet"} and block ${this.blockNumber}`,
+      `Polling started for ${process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet"} and block ${blockNumber}`,
     )
     const events: BlockchainEvent[] = []
+    this.blockNumber = blockNumber
 
     try {
       const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents()
@@ -66,10 +69,9 @@ export default class EventFetcherAdapter implements EventFetcherPort {
             .filter((decoded): decoded is BlockchainEvent => decoded != null),
         )
       }
-      ++this.blockNumber
       return events
     } catch (error) {
-      this.logger.error(`Error fetching events from block ${this.blockNumber}: ${error}`)
+      this.logger.error(`Error fetching events from block ${blockNumber}: ${error}`)
     }
   }
 
