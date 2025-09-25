@@ -2,7 +2,7 @@
 
 import { EventFilter } from "@domain/eventfilter/model/EventFilter"
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import { EventFilterRepository } from "@domain/eventfilter/repositories/EventFilterRepository"
+import type { EventFilterRepository } from "@domain/eventfilter/repositories/EventFilterRepository"
 
 @Singleton()
 export class AddEventFiltersDomainService {

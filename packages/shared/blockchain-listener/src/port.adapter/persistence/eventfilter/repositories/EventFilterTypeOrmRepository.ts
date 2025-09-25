@@ -22,7 +22,7 @@ export class EventFilterTypeOrmRepository implements EventFilterRepository {
     return (
       await this.eventFilterRepository.find({
         order: {
-          createAt: "ASC",
+          createdAt: "ASC",
         },
       })
     ).map((persistence) => persistence as EventFilter)

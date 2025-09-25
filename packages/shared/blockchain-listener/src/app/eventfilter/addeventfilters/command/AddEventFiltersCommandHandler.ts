@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { CommandHandler, EventBus, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { CommandHandler, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
 import { AddEventFiltersDomainService } from "@domain/eventfilter/services/AddEventFiltersDomainService"
 import { EventFiltersAdded } from "@domain/eventfilter/events/EventFiltersAdded"
