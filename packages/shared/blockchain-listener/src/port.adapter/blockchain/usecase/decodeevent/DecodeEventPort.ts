@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import BlockchainEvent from "@domain/event/BlockchainEvent.js"
-import Log from "@domain/blockchain/Log.js"
+import DecodeLogRequest from "./requests/DecodeLogRequest"
+import DecodeLogResponse from "./responses/DecodeLogResponse"
 
 export default interface DecodeEventPort {
-  decode(log: Log): BlockchainEvent
+  decodeLog(request: DecodeLogRequest): DecodeLogResponse
 }

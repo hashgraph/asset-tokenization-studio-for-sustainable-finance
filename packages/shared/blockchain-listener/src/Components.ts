@@ -7,7 +7,7 @@ import { ProcessEventCommandHandler } from "@app/eventstore/processevent/command
 import SetSyncStateCommandHandler from "@app/syncstate/setsyncstate/command/SetSyncStateCommandHandler"
 import EventListenerAdapter from "@port/listener/usecase/listenevents/EventListenerAdapter"
 import DecodeEventAdapter from "@port/blockchain/usecase/decodeevent/DecodeEventAdapter"
-import MirrorNodeQueryAdapter from "@port/blockchain/usecase/querymirrornode/MirrorNodeQueryAdapter"
+import BlockchainEventsAdapter from "@port/blockchain/usecase/blockchainevents/BlockchainEventsAdapter"
 import EventFetcherAdapter from "@port/blockchain/usecase/fetchevents/EventFetcherAdapter"
 import { EventStoreTypeOrmRepository } from "@port/persistence/eventstore/repositories/EventStoreTypeOrmRepository"
 import SyncStateTypeOrmRepository from "@port/persistence/syncstate/repositories/SyncStateTypeOrmRepository"
@@ -49,8 +49,8 @@ export const PROVIDERS = [
     useClass: DecodeEventAdapter,
   },
   {
-    provide: "MirrorNode",
-    useClass: MirrorNodeQueryAdapter,
+    provide: "BlockchainEvents",
+    useClass: BlockchainEventsAdapter,
   },
   {
     provide: "EventFetcher",

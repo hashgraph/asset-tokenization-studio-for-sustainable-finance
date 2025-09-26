@@ -2,8 +2,8 @@
 
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
 import DecodeEventPort from "./DecodeEventPort"
-import BlockchainEvent from "@domain/event/BlockchainEvent.js"
-import Log from "@domain/blockchain/Log.js"
+import DecodeLogRequest from "./requests/DecodeLogRequest"
+import DecodeLogResponse from "./responses/DecodeLogResponse"
 import { utils } from "ethers"
 import { Interface } from "ethers/lib/utils"
 
@@ -12,12 +12,11 @@ export default class DecodeEventAdapter implements DecodeEventPort {
   private readonly logger = new Logger(DecodeEventAdapter.name)
 
   private readonly INDEXED_PARAMS_PATTERN = /\s*indexed*/g
+  private readonly EVENT_NAME_PATTERN = /^([^(]+)\((.*)\)$/
 
   private readonly eventSignatureHashes
 
   constructor() {
-    const a = this.normalizeEventSignature("Transfer(address indexed from,address indexed to,uint256 value)")
-    console.log(a)
     this.eventSignatureHashes = new Map<string, string>(
       this.splitFunctions(process.env.BLOCKCHAIN_LISTENER_EVENTS ?? "").map((eventSignature) => [
         utils.id(this.normalizeEventSignature(eventSignature)),
@@ -26,43 +25,44 @@ export default class DecodeEventAdapter implements DecodeEventPort {
     )
   }
 
-  decode(log: Log): BlockchainEvent {
+  decodeLog(request: DecodeLogRequest): DecodeLogResponse {
     try {
-      if (!log.data || log.data === "0x") {
+      if (!request.data || request.data === "0x") {
         return
       }
 
-      const eventSignature: string = this.eventSignatureHashes.get(log.topics[0])
+      const eventSignature: string = this.eventSignatureHashes.get(request.topics[0])
       if (!eventSignature) return null
       const eventName: string = this.getEventName(eventSignature)
-      const decodedValues = this.decodeEventParams(eventSignature, log)
+      const decodedValues = this.decodeEventParams(eventSignature, request.data, request.topics)
 
       const result = Object.keys(decodedValues)
         .filter((key) => isNaN(Number(key)))
         .map((key) => ({ name: key, value: decodedValues[key] }))
 
-      const eventObj: BlockchainEvent = {
-        logTimestamp: log.timestamp,
-        transactionHash: log.transactionHash,
+      const eventObj: DecodeLogResponse = {
+        logTimestamp: request.timestamp,
+        transactionHash: request.transactionHash,
         name: eventName,
         signature: eventSignature,
-      } as BlockchainEvent
+      } as DecodeLogResponse
 
       result.forEach((param) => {
         eventObj[param.name] = param.value.toString()
       })
 
       return eventObj
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      throw new Error(`Error decoding log.\n${JSON.stringify(log, null, 2)}`, { cause: error })
+      throw new Error(`Error decoding log.\n${JSON.stringify(request, null, 2)}`)
     }
   }
 
-  private decodeEventParams(eventSignature: string, log: Log) {
+  private decodeEventParams(eventSignature: string, data: string, topics: string[]) {
     const iface = new Interface([`event ${eventSignature}`])
     const parsed = iface.parseLog({
-      data: log.data,
-      topics: log.topics,
+      data: data,
+      topics: topics,
     })
     return parsed.args
   }
@@ -106,7 +106,7 @@ export default class DecodeEventAdapter implements DecodeEventPort {
   }
 
   private getEventName(eventSignature: string): string {
-    const match = eventSignature.match(/^([^(]+)\((.*)\)$/)
+    const match = eventSignature.match(this.EVENT_NAME_PATTERN)
     if (!match) {
       throw new Error("Invalid event signature: " + eventSignature)
     }
