@@ -19,4 +19,5 @@ export default interface BlockchainEventsPort {
   getContractsResultsByBlockHash(
     request: GetContractsResultsByBlockHashRequest,
   ): Promise<GetContractsResultsByBlockHashResponse>
+  getLastBlockNumber(): Promise<number>
 }

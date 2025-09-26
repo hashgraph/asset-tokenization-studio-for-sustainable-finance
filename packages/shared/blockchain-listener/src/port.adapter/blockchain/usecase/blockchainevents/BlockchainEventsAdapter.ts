@@ -10,6 +10,7 @@ import GetNextContractsResultsByBlockNumberRequest from "./requests/GetNextContr
 import GetNextContractsResultsByBlockNumberResponse from "./responses/GetNextContractsResultsByBlockNumberResponse"
 import GetContractsResultsByBlockHashRequest from "./requests/GetContractsResultsByBlockHashRequest"
 import GetContractsResultsByBlockHashResponse from "./responses/GetContractsResultsByBlockHashResponse"
+import GetLastBlockResponse from "./responses/GetLastBlockResponse"
 
 @Singleton()
 export default class BlockchainEventsAdapter implements BlockchainEventsPort {
@@ -56,6 +57,16 @@ export default class BlockchainEventsAdapter implements BlockchainEventsPort {
       return await this.fetchData(`contracts/results/${request.blockHash}`, 1)
     } catch (error) {
       this.logger.error(`Error getting contracts results from block hash ${request.blockHash}: ${error}`)
+    }
+  }
+
+  async getLastBlockNumber(): Promise<number> {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      const getLastBlockResponse = (await this.fetchData(`blocks?limit=1&order=desc`, 1)) as GetLastBlockResponse
+      return getLastBlockResponse.blocks.length == 1 ? getLastBlockResponse.blocks[0].number : null
+    } catch (error) {
+      this.logger.error(`Error getting last block from the blockchain: ${error}`)
     }
   }
 
