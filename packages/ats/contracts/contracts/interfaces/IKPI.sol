@@ -25,6 +25,7 @@ interface IKPI {
      */
     struct KPIStorage {
         mapping(uint256 timestamp => KPIEntry) kpiData;
+        bool initialized;
     }
 
     /**

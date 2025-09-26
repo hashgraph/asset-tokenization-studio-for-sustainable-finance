@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-// TODO: Check import paths
-import {IBusinessLogicResolver} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/IBusinessLogicResolver.sol';
-import {
-    BondData,
-    FactoryRegulationData
-} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
+// solhint-disable max-line-length
+import { IBusinessLogicResolver } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/IBusinessLogicResolver.sol';
+import { IResolverProxy } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol';
+import { IFactory as IAtsFactory } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
+import { FactoryRegulationData as AtsFactoryRegulationData } from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol';
+// solhint-enable max-line-length
 
 /**
  * @title IFactorySuite
@@ -26,7 +26,7 @@ interface IFactorySuite {
      */
     struct TreasuryData {
         IBusinessLogicResolver resolver;
-        ResolverProxyConfiguration resolverProxyConfiguration;
+        IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration;
         IResolverProxy.Rbac[] rbacs;
         address paymentToken;
         address[] erc721s;
@@ -37,10 +37,34 @@ interface IFactorySuite {
      * @param admin Proxy admin's admin address
      * @param rbacs Role-based access control configurations for KPI operations
      */
-    struct KPIData {
+    struct KpiData {
         address admin;
         IResolverProxy.Rbac[] rbacs;
     }
+
+    // ============ EVENTS ============
+
+    /**
+     * @dev Emitted when a complete bond suite is deployed
+     * @param operator Address that initiated the deployment (must have DEPLOYER role)
+     * @param bondAddress Address of the deployed Bond contract
+     * @param treasuryAddress Address of the deployed Treasury contract
+     * @param kpiAddress Address of the deployed KPI contract
+     * @param bondData Bond configuration data used for deployment
+     * @param factoryRegulationData Regulation data for the bond
+     * @param treasuryData Treasury configuration data used for deployment
+     * @param kpiData KPI configuration data used for deployment
+     */
+    event BondSuiteDeployed(
+        address indexed operator,
+        address indexed bondAddress,
+        address indexed treasuryAddress,
+        address kpiAddress,
+        IAtsFactory.BondData bondData,
+        AtsFactoryRegulationData factoryRegulationData,
+        TreasuryData treasuryData,
+        KpiData kpiData
+    );
 
     // ============ ERRORS ============
 
@@ -57,62 +81,52 @@ interface IFactorySuite {
     /**
      * @dev Thrown when KPI contract deployment fails
      */
-    error KPIDeploymentFailed();
-
-    // ============ EVENTS ============
+    error KpiDeploymentFailed();
 
     /**
-     * @dev Emitted when a complete bond suite is deployed
-     * @param operator Address that initiated the deployment (must have DEPLOYER role)
-     * @param bondAddress Address of the deployed Bond contract
-     * @param treasuryAddress Address of the deployed Treasury contract
-     * @param KPIAddress Address of the deployed KPI contract
-     * @param bondData Bond configuration data used for deployment
-     * @param factoryRegulationData Regulation data for the bond
-     * @param treasuryData Treasury configuration data used for deployment
-     * @param kpiData KPI configuration data used for deployment
+     * @dev Thrown when invalid treasury data is provided
      */
-    event BondSuiteDeployed(
-        address indexed operator,
-        address bondAddress,
-        address treasuryAddress,
-        address KPIAddress,
-        BondData bondData,
-        FactoryRegulationData factoryRegulationData,
-        TreasuryData treasuryData,
-        KPIData kpiData
-    );
+    error InvalidTreasuryData();
+
+    /**
+     * @dev Thrown when invalid KPI data is provided
+     */
+    error InvalidKpiData();
+
+    /**
+     * @dev Thrown when empty array is provided where non-empty is required
+     */
+    error EmptyArrayNotAllowed();
 
     // ============ FUNCTIONS ============
 
     /**
      * @dev Deploys a complete bond suite (Bond + Treasury + KPI) atomically
-     * @param _bondData Configuration data for the Bond contract
-     * @param _factoryRegulationData Regulation data for compliance
-     * @param _treasuryData Configuration data for the Treasury contract
-     * @param _kpiData Configuration data for the KPI contract
-     * @return bondAddress_ Address of the deployed Bond contract
-     * @return treasuryAddress_ Address of the deployed Treasury contract
-     * @return KPIAddress_ Address of the deployed KPI contract
+     * @param bondFactoryAddress Address of the ATS Bond Factory contract
+     * @param bondData Configuration data for the Bond contract
+     * @param factoryRegulationData Regulation data for compliance
+     * @param treasuryData Configuration data for the Treasury contract
+     * @param kpiData Configuration data for the KPI contract
+     * @return bondAddress Address of the deployed Bond contract
+     * @return treasuryAddress Address of the deployed Treasury contract
+     * @return kpiAddress Address of the deployed KPI contract
      *
      * Requirements:
      * - Caller must have DEPLOYER role
      * - Contract must not be paused
-     * - All configuration data must be valid
+     * - Bond factory address must not be zero
+     * - Treasury data must be valid (non-zero resolver, payment token, admin)
+     * - KPI data must be valid (non-zero admin)
      * - All three contracts must deploy successfully (atomicity)
+     * - All addresses in configuration must be non-zero contracts
      *
      * Emits: BondSuiteDeployed
      */
     function deployBondSuite(
-        BondData calldata _bondData,
-        FactoryRegulationData calldata _factoryRegulationData,
-        TreasuryData calldata _treasuryData,
-        KPIData calldata _kpiData
-    )
-        external
-        returns (
-            address bondAddress_,
-            address treasuryAddress_,
-            address KPIAddress_
-        );
+        address bondFactoryAddress,
+        IAtsFactory.BondData calldata bondData,
+        AtsFactoryRegulationData calldata factoryRegulationData,
+        TreasuryData calldata treasuryData,
+        KpiData calldata kpiData
+    ) external returns (address bondAddress, address treasuryAddress, address kpiAddress);
 }

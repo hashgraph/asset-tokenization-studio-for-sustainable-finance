@@ -1,23 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import {ArraysUpgradeable} from '@openzeppelin/contracts-upgradeable/utils/ArraysUpgradeable.sol';
-import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
-import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import {PausableUpgradeable} from '@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol';
+import { ArraysUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ArraysUpgradeable.sol";
+import { AccessControl } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol";
+import { Pause } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol";
+import {
+    _KPI_DATA_MANAGER_ROLE,
+    _MAIN_STORAGE_LOCATION
+} from "./constants/roles.sol";
+import "./interfaces/IKPI.sol";
+import { _PAUSER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
 
-import './interfaces/IKPI.sol';
-
-contract KPI is IKPI, Initializable, OwnableUpgradeable, PausableUpgradeable {
+contract KPI is IKPI, AccessControl, Pause {
     using ArraysUpgradeable for uint256[];
 
-    // keccak256(abi.encode(uint256(keccak256("kpi.storage.main")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant MAIN_STORAGE_LOCATION =
-        0x7951b57d34492147b02ce280f4a5a3e267a90c41bb73a92f7e5957582ef3b4cc;
-
-    function initialize() external initializer {
-        __Ownable_init();
-        __Pausable_init();
+    function initialize()
+        public
+        onlyUninitialized(_getKPIStorage().initialized)
+    {
+        KPIStorage storage kpiStorage = _getKPIStorage();
+        kpiStorage.initialized = true;
+        _grantRole(_KPI_DATA_MANAGER_ROLE, msg.sender);
+        _grantRole(_PAUSER_ROLE, msg.sender);
     }
 
     function _getKPIStorage()
@@ -26,7 +30,7 @@ contract KPI is IKPI, Initializable, OwnableUpgradeable, PausableUpgradeable {
         returns (KPIStorage storage kpiStorage)
     {
         assembly {
-            kpiStorage.slot := MAIN_STORAGE_LOCATION
+            kpiStorage.slot := _MAIN_STORAGE_LOCATION
         }
     }
 
@@ -40,14 +44,6 @@ contract KPI is IKPI, Initializable, OwnableUpgradeable, PausableUpgradeable {
         _;
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
-    }
-
     function addKPIData(
         uint256 _date,
         uint256 _kpiValue
@@ -56,12 +52,15 @@ contract KPI is IKPI, Initializable, OwnableUpgradeable, PausableUpgradeable {
         override
         validDate(_date)
         validValue(_kpiValue)
-        whenNotPaused
-        onlyOwner
+        onlyUnpaused
+        onlyRole(_KPI_DATA_MANAGER_ROLE)
     {
         KPIStorage storage kpiStorage = _getKPIStorage();
 
-        kpiStorage.kpiData[_date] = KPIEntry({value: _kpiValue, exists: true});
+        kpiStorage.kpiData[_date] = KPIEntry({
+            value: _kpiValue,
+            exists: true
+        });
 
         emit KPIDataAdded(_date, _kpiValue);
     }

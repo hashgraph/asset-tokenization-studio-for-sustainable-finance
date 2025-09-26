@@ -1,14 +1,14 @@
-import { KPI } from '@contracts/contracts'
-import { ProxyAdmin } from '@contracts/index'
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers'
-import { deployKPI, upgradeKPIProxy } from '@scripts/deploy/kpiDeploy'
-import { deployProxyAdmin } from '@scripts/proxy/deployProxy'
-import { getImplementationAddress } from '@scripts/utils'
-import { expect } from 'chai'
-import { Signer } from 'ethers'
-import { ethers } from 'hardhat'
+import { KPI } from "@contracts/contracts"
+import { ProxyAdmin } from "@contracts/index"
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers"
+import { deployKPI, upgradeKPIProxy } from "@scripts/deploy/kpiDeploy"
+import { deployProxyAdmin } from "@scripts/proxy/deployProxy"
+import { getImplementationAddress } from "@scripts/utils"
+import { expect } from "chai"
+import { Signer } from "ethers"
+import { ethers } from "hardhat"
 
-describe('KPI', () => {
+describe("KPI", () => {
     let kpi: KPI
     let proxyAdmin: ProxyAdmin
     let unknownSigner: Signer
@@ -26,136 +26,139 @@ describe('KPI', () => {
         await loadFixture(deployFixture)
     })
 
-    describe('initialize', () => {
-        it('cant initialize twice', async () => {
-            await expect(kpi.initialize()).to.be.revertedWith(
-                'Initializable: contract is already initialized'
+    describe("initialize", () => {
+        it("cant initialize twice", async () => {
+            await expect(kpi.initialize()).to.be.revertedWithCustomError(
+                kpi,
+                "AlreadyInitialized"
             )
         })
     })
 
-    describe('addKPIData', () => {
-        it('successfully adds KPI data emit KPIDataAdded', async () => {
+    describe("addKPIData", () => {
+        it("successfully adds KPI data emit KPIDataAdded", async () => {
             await expect(kpi.addKPIData(1, 100))
-                .to.emit(kpi, 'KPIDataAdded')
+                .to.emit(kpi, "KPIDataAdded")
                 .withArgs(1, 100)
         })
-        it('reverts with InvalidDate if date is 0', async () => {
+        it("reverts with InvalidDate if date is 0", async () => {
             await expect(kpi.addKPIData(0, 100)).to.be.revertedWithCustomError(
                 kpi,
-                'InvalidDate'
+                "InvalidDate"
             )
         })
 
-        it('reverts with InvalidKPIValue if value is 0', async () => {
+        it("reverts with InvalidKPIValue if value is 0", async () => {
             await expect(kpi.addKPIData(1, 0)).to.be.revertedWithCustomError(
                 kpi,
-                'InvalidKPIValue'
+                "InvalidKPIValue"
             )
         })
-        it('reverts if not owner', async () => {
+        it("reverts if not owner", async () => {
             await expect(
                 kpi.connect(unknownSigner).addKPIData(1, 100)
-            ).to.be.revertedWith('Ownable: caller is not the owner')
+            ).to.be.revertedWithCustomError(kpi, "AccountHasNoRole")
         })
 
-        it('reverts if paused', async () => {
+        it("reverts if paused", async () => {
             await kpi.pause()
-            await expect(kpi.addKPIData(1, 100)).to.be.revertedWith(
-                'Pausable: paused'
+            await expect(kpi.addKPIData(1, 100)).to.be.revertedWithCustomError(
+                kpi,
+                "TokenIsPaused"
             )
         })
 
-        it('allows after unpause', async () => {
+        it("allows after unpause", async () => {
             await kpi.pause()
             await kpi.unpause()
             await expect(kpi.addKPIData(2, 200))
-                .to.emit(kpi, 'KPIDataAdded')
+                .to.emit(kpi, "KPIDataAdded")
                 .withArgs(2, 200)
         })
     })
-    describe('pause/unpause', () => {
-        it('only owner can pause', async () => {
-            await expect(kpi.connect(unknownSigner).pause()).to.be.revertedWith(
-                'Ownable: caller is not the owner'
-            )
-            await expect(kpi.pause()).to.emit(kpi, 'Paused')
+    describe("pause/unpause", () => {
+        it("only owner can pause", async () => {
+            await expect(
+                kpi.connect(unknownSigner).pause()
+            ).to.be.revertedWithCustomError(kpi, "AccountHasNoRole")
+            await expect(kpi.pause()).to.emit(kpi, "TokenPaused")
         })
 
-        it('only owner can unpause', async () => {
+        it("only owner can unpause", async () => {
             await kpi.pause()
             await expect(
                 kpi.connect(unknownSigner).unpause()
-            ).to.be.revertedWith('Ownable: caller is not the owner')
-            await expect(kpi.unpause()).to.emit(kpi, 'Unpaused')
+            ).to.be.revertedWithCustomError(kpi, "AccountHasNoRole")
+            await expect(kpi.unpause()).to.emit(kpi, "TokenUnpaused")
         })
 
-        it('pause disables addKPIData', async () => {
+        it("pause disables addKPIData", async () => {
             await kpi.pause()
-            await expect(kpi.addKPIData(1, 100)).to.be.revertedWith(
-                'Pausable: paused'
+            await expect(kpi.addKPIData(1, 100)).to.be.revertedWithCustomError(
+                kpi,
+                "TokenIsPaused"
             )
         })
 
-        it('unpause enables addKPIData', async () => {
+        it("unpause enables addKPIData", async () => {
             await kpi.pause()
             await kpi.unpause()
-            await expect(kpi.addKPIData(1, 100)).to.emit(kpi, 'KPIDataAdded')
+            await expect(kpi.addKPIData(1, 100)).to.emit(kpi, "KPIDataAdded")
         })
     })
-    describe('getKPIData', () => {
+    describe("getKPIData", () => {
         async function addTestData() {
             await kpi.addKPIData(10, 100)
             await kpi.addKPIData(20, 200)
             await kpi.addKPIData(30, 300)
         }
 
-        it('returns the aggregated value in range', async () => {
+        it("returns the aggregated value in range", async () => {
             await addTestData()
             const agg = await kpi.getKPIData(10, 30)
             expect(agg.kpiAggregatedValue_).to.equal(600)
         })
 
-        it('returns 0 if no data in range', async () => {
+        it("returns 0 if no data in range", async () => {
             await addTestData()
             const agg = await kpi.getKPIData(40, 50)
             expect(agg.kpiAggregatedValue_).to.equal(0)
         })
-        it('returns 0 if there are no KPI records', async () => {
+        it("returns 0 if there are no KPI records", async () => {
             const agg = await kpi.getKPIData(1, 100)
             expect(agg.kpiAggregatedValue_).to.equal(0)
         })
 
-        it('returns the aggregated value in range when the toDate is not the last', async () => {
+        it("returns the aggregated value in range when the toDate is not the last", async () => {
             await addTestData()
             const agg = await kpi.getKPIData(10, 20)
             expect(agg.kpiAggregatedValue_).to.equal(300)
         })
 
-        it('reverts with InvalidDate if fromDate is 0', async () => {
+        it("reverts with InvalidDate if fromDate is 0", async () => {
             await expect(kpi.getKPIData(0, 30)).to.be.revertedWithCustomError(
                 kpi,
-                'InvalidDate'
+                "InvalidDate"
             )
         })
 
-        it('reverts with InvalidDate if toDate is 0', async () => {
+        it("reverts with InvalidDate if toDate is 0", async () => {
             await expect(kpi.getKPIData(10, 0)).to.be.revertedWithCustomError(
                 kpi,
-                'InvalidDate'
+                "InvalidDate"
             )
         })
 
-        it('reverts with InvalidDateRange if fromDate > toDate', async () => {
+        it("reverts with InvalidDateRange if fromDate > toDate", async () => {
             await expect(kpi.getKPIData(30, 10)).to.be.revertedWithCustomError(
                 kpi,
-                'InvalidDateRange'
+                "InvalidDateRange"
             )
         })
     })
 
-    describe('upgradability', () => {
-        it('upgrades the implementation and preserves storage', async () => {
+    describe("upgradability", () => {
+        it("upgrades the implementation and preserves storage", async () => {
             await kpi.addKPIData(1, 123)
             const before = await kpi.getKPIData(1, 1)
             expect(before.kpiAggregatedValue_).to.equal(123)

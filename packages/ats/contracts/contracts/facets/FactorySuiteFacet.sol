@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma solidity >=0.8.0 <0.9.0;
+
+// solhint-disable max-line-length
+import { IStaticFunctionSelectors } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol';
+import { FACTORY_SUITE_RESOLVER_KEY } from '../constants/resolverKeys.sol';
+import { IFactorySuite } from '../interfaces/IFactorySuite.sol';
+import { FactorySuite } from '../FactorySuite.sol';
+// solhint-enable max-line-length
+
+contract FactorySuiteFacet is IStaticFunctionSelectors, FactorySuite {
+    constructor() {
+        // solhint-disable-previous-line no-empty-blocks
+    }
+
+    function getStaticResolverKey() external pure returns (bytes32 staticResolverKey) {
+        staticResolverKey = FACTORY_SUITE_RESOLVER_KEY;
+    }
+
+    function getStaticFunctionSelectors() external pure returns (bytes4[] memory staticFunctionSelectors) {
+        staticFunctionSelectors = new bytes4[](1);
+        uint256 selectorIndex = 0;
+
+        staticFunctionSelectors[selectorIndex++] = this.deployBondSuite.selector;
+    }
+
+    function getStaticInterfaceIds() external pure returns (bytes4[] memory staticInterfaceIds) {
+        staticInterfaceIds = new bytes4[](1);
+        staticInterfaceIds[0] = type(IFactorySuite).interfaceId;
+    }
+}
