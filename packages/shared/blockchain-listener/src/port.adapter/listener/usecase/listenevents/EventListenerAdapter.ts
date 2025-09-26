@@ -27,6 +27,8 @@ export default class EventListenerAdapter implements EventListenerPort {
           }
         }
         ++this.blockNumber
+      } else {
+        this.logger.log("Another process is not started since the previous block is still being processed...")
       }
     }, +process.env.BLOCKCHAIN_LISTENER_POLL_TIMEOUT)
   }
