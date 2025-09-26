@@ -30,7 +30,7 @@ export default class EventFetcherAdapter implements EventFetcherPort {
 
     try {
       const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents()
-console.log(contractsResultsHashes)
+
       for (const blockHash of contractsResultsHashes) {
         const contractResults = await this.blockchainEvents.getContractsResultsByBlockHash({
           blockHash,
