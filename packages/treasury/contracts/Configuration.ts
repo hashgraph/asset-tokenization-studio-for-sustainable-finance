@@ -220,6 +220,17 @@ export type Network = (typeof NETWORKS)[number]
 export const DEPLOY_TYPES = ['proxy', 'direct'] as const
 export type DeployType = (typeof DEPLOY_TYPES)[number]
 
+export const CONTRACT_NAMES = [
+    'TransparentUpgradeableProxy',
+    'ProxyAdmin',
+    'Factory',
+    'BusinessLogicResolver',
+    'AccessControlFacet',
+    'PauseFacet',
+    'TimeTravel',
+] as const
+export type ContractName = (typeof CONTRACT_NAMES)[number]
+
 export interface Endpoints {
     jsonRpc: string
     mirror: string

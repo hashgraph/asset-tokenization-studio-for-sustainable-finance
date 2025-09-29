@@ -208,11 +208,14 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-// keccak256('lifecycle.cash.flow.storage');
-bytes32 constant _LIFECYCLE_CASH_FLOW_STORAGE_POSITION = 0x854679a93cebfd89e2d5a20fdc0f646e935c518a098cea2e09fbcd5137772703;
+// keccak256('green.bonds.treasury.lifecycle.cash.flow.storage');
+bytes32 constant _LIFECYCLE_CASH_FLOW_STORAGE_POSITION = 0xe15ee914a959cee7cb82984510070d5d84b7c2d913e9c61399890aa2606bb93f;
 
-// keccak256('lifecycle.cash.flow.accesscontrol.storage');
-bytes32 constant _ACCESS_CONTROL_STORAGE_POSITION = 0x422144e60d6916d7116986641316acf5b07c8a007e5a31fe5a571b026e5f04d3;
+// keccak256('green.bonds.treasury.accesscontrol.storage');
+bytes32 constant _ACCESS_CONTROL_STORAGE_POSITION = 0xdb31260d536201b29f2e72b79dbac30bc45913392728a6810e9fd4d8811f7b10;
 
-// keccak256('lifecycle.cash.flow.pause.storage');
-bytes32 constant _PAUSE_STORAGE_POSITION = 0xb081b1163ca80efeda396e62f23e3319ab0c855e76b218f9e523ea300d7b5421;
+// keccak256('green.bonds.treasury.pause.storage');
+bytes32 constant _PAUSE_STORAGE_POSITION = 0x85a26da5d5b0c55cf46810a62c8d4ecbb7faba5306c3f235ea327af8d5cf242d;
+
+// keccak256('green.bonds.treasury.resolverProxy.storage');
+bytes32 constant _RESOLVER_PROXY_STORAGE_POSITION = 0xc8b34c234c6dfd18b34840aa7e7dd002281c33226acf0cf56675f56c39ac46a2;

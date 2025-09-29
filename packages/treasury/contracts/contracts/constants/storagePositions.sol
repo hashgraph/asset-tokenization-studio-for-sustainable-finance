@@ -213,6 +213,3 @@ bytes32 constant _BUSINESS_LOGIC_RESOLVER_STORAGE_POSITION = 0x0ff87fb31a0af0460
 
 // keccak256('green.bonds.treasury.diamond.cut.manager.storage');
 bytes32 constant _DIAMOND_CUT_MANAGER_STORAGE_POSITION = 0x2213f4aec56c91290c24f2816f8acb9eea88a483a2f165c524071246e8fa4744;
-
-// keccak256('green.bonds.treasury.resolverProxy.storage');
-bytes32 constant _RESOLVER_PROXY_STORAGE_POSITION = 0xc8b34c234c6dfd18b34840aa7e7dd002281c33226acf0cf56675f56c39ac46a2;

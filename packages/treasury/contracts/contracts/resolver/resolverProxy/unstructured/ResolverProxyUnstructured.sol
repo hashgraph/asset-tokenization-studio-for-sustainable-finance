@@ -223,7 +223,7 @@ import {
 } from "../../../layer_0/core/pause/PauseStorageWrapper.sol";
 import {
     _RESOLVER_PROXY_STORAGE_POSITION
-} from '../../../constants/storagePositions.sol';
+} from '../../../layer_0/constants/storagePositions.sol';
 
 // Remember to add the loupe functions from DiamondLoupeFacet.sol.sol to the resolverProxy.
 // The loupe functions are required by the EIP2535 ResolverProxys standard

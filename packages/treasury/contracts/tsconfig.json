@@ -14,6 +14,7 @@
     "resolveJsonModule": true,
     "paths": {
       "@configuration": ["./Configuration"],
+      "@scripts": ["./scripts/index"],
       "@test/*": ["./test/*"],
       "@typechain": ["./typechain-types/*", "./typechain-types/index.ts"]
     }
