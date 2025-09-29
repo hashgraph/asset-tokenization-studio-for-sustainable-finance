@@ -2,10 +2,10 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 // solhint-disable max-line-length
-import { IBusinessLogicResolver } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/IBusinessLogicResolver.sol';
-import { IResolverProxy } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol';
-import { IFactory as IAtsFactory } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
-import { FactoryRegulationData as AtsFactoryRegulationData } from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol';
+import {IBusinessLogicResolver} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/IBusinessLogicResolver.sol';
+import {IResolverProxy} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol';
+import {IFactory as IAtsFactory} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
+import {FactoryRegulationData as AtsFactoryRegulationData} from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol';
 // solhint-enable max-line-length
 
 /**
@@ -128,5 +128,11 @@ interface IFactorySuite {
         AtsFactoryRegulationData calldata factoryRegulationData,
         TreasuryData calldata treasuryData,
         KpiData calldata kpiData
-    ) external returns (address bondAddress, address treasuryAddress, address kpiAddress);
+    )
+        external
+        returns (
+            address bondAddress,
+            address treasuryAddress,
+            address kpiAddress
+        );
 }

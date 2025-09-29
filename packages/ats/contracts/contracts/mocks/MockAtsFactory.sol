@@ -2,8 +2,8 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 // solhint-disable max-line-length
-import { IFactory as IAtsFactory } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
-import { FactoryRegulationData as AtsFactoryRegulationData } from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol';
+import {IFactory as IAtsFactory} from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol';
+import {FactoryRegulationData as AtsFactoryRegulationData} from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol';
 // solhint-enable max-line-length
 
 /**
@@ -15,7 +15,11 @@ contract MockAtsFactory {
     bool public shouldReturnZeroAddress;
     address public nextBondAddress;
 
-    event MockBondDeployed(address bondAddress, IAtsFactory.BondData bondData, AtsFactoryRegulationData regulationData);
+    event MockBondDeployed(
+        address bondAddress,
+        IAtsFactory.BondData bondData,
+        AtsFactoryRegulationData regulationData
+    );
 
     constructor() {
         shouldRevert = false;
