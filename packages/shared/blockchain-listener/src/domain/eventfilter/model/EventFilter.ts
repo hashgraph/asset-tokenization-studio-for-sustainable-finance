@@ -13,4 +13,8 @@ export class EventFilter extends BaseEntity {
 
   @IsNotEmpty()
   eventSignature: string
+
+  static extractEventNameFromSignature(eventSignature: string): string {
+    return eventSignature.substring(0, eventSignature.indexOf("("))
+  }
 }

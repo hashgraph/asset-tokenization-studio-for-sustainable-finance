@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Provider } from "@nestjs/common"
-import BlockchainEventListenerAppService from "@app/service/BlockchainEventListenerAppService"
 import { ProcessEventDomainService } from "@domain/eventstore/services/ProcessEventDomainService"
 import { ProcessEventCommandHandler } from "@app/eventstore/processevent/command/ProcessEventCommandHandler"
 import SetSyncStateCommandHandler from "@app/syncstate/setsyncstate/command/SetSyncStateCommandHandler"
-import EventListenerAdapter from "@port/listener/usecase/listenevents/EventListenerAdapter"
-import DecodeEventAdapter from "@port/blockchain/usecase/decodeevent/DecodeEventAdapter"
-import BlockchainEventsAdapter from "@port/blockchain/usecase/blockchainevents/BlockchainEventsAdapter"
-import EventFetcherAdapter from "@port/blockchain/usecase/fetchevents/EventFetcherAdapter"
 import { EventStoreTypeOrmRepository } from "@port/persistence/eventstore/repositories/EventStoreTypeOrmRepository"
 import SyncStateTypeOrmRepository from "@port/persistence/syncstate/repositories/SyncStateTypeOrmRepository"
-import BlockchainEventListenerNestAdapter from "@port/usecase/managenestlifecycle/NestLifeCycleAdapter"
 import { EventFilterTypeOrmRepository } from "@port/persistence/eventfilter/repositories/EventFilterTypeOrmRepository"
 import { AddEventFiltersCommandHandler } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommandHandler"
 import { AddEventFiltersDomainService } from "@domain/eventfilter/services/AddEventFiltersDomainService"
+import { ProcessBlocksAppService } from "@app/block/processblock/service/ProcessBlocksAppService"
+import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
+import { NestJSConfigService } from "@port/config/NestJSConfigService"
+import { HederaMirrorNodeAdapter } from "@port/blockchain/HederaMirrorNodeAdapter"
+import { GetBlockToProcessQueryHandler } from "@app/block/getblocktoprocess/query/GetBlockToProcessQueryHandler"
+import { GetEventFiltersQueryHandler } from "@app/eventfilter/geteventfilters/query/GetEventFiltersQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -33,27 +33,21 @@ const REPOSITORIES: Provider[] = [
 
 export const PROVIDERS = [
   ...REPOSITORIES,
-  BlockchainEventListenerNestAdapter,
-  BlockchainEventListenerAppService,
   ProcessEventDomainService,
   ProcessEventCommandHandler,
   AddEventFiltersCommandHandler,
   AddEventFiltersDomainService,
   SetSyncStateCommandHandler,
+  GetBlockToProcessQueryHandler,
+  GetEventFiltersQueryHandler,
+  ProcessBlocksAppService,
+  EventListenerNestJSOnApplicationBootstrap,
   {
-    provide: "EventListener",
-    useClass: EventListenerAdapter,
+    provide: "ConfigService",
+    useClass: NestJSConfigService,
   },
   {
-    provide: "DecodeEvent",
-    useClass: DecodeEventAdapter,
-  },
-  {
-    provide: "BlockchainEvents",
-    useClass: BlockchainEventsAdapter,
-  },
-  {
-    provide: "EventFetcher",
-    useClass: EventFetcherAdapter,
+    provide: "HederaPort",
+    useClass: HederaMirrorNodeAdapter,
   },
 ]

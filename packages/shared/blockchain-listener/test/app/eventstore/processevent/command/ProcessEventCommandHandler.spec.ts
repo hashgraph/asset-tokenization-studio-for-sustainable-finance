@@ -10,6 +10,7 @@ import { EventStorePersistence } from "@port/persistence/eventstore/model/EventS
 import { getRepositoryToken } from "@nestjs/typeorm"
 import {
   CommandBus,
+  Event,
   EventBus,
   EventListener,
   Handler,
@@ -64,7 +65,7 @@ describe("ProcessEventCommandHandler", () => {
       signature: "Test(address)",
       field: "testField",
     } as BlockchainEvent
-    const command = new ProcessEventCommand(blockchainEvent)
+    const command = new ProcessEventCommand(blockchainEvent as Event)
 
     let publishedEvent
     jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
@@ -104,7 +105,7 @@ describe("ProcessEventCommandHandler", () => {
       signature: "Test(address)",
       field: "testField",
     } as BlockchainEvent
-    const command = new ProcessEventCommand(blockchainEvent)
+    const command = new ProcessEventCommand(blockchainEvent as Event)
 
     let publishedEvent
     jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
