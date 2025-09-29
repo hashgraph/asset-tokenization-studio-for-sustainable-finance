@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
-import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import BlockchainEvent from "@domain/event/BlockchainEvent"
+import { Event, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { EventStore } from "@domain/eventstore/model/EventStore"
 import type { EventStoreRepository } from "@domain/eventstore/repositories/EventStoreRepository"
 
@@ -13,14 +12,14 @@ export class ProcessEventDomainService {
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
-  async execute(blockchainEvent: BlockchainEvent): Promise<EventStore> {
+  async execute(blockchainEvent: Event): Promise<EventStore> {
     const eventStore = new EventStore()
-    eventStore.eventName = blockchainEvent.name
+    eventStore.eventName = (blockchainEvent as any).name
     eventStore.data = JSON.stringify(blockchainEvent)
 
     // Process event
     try {
-      await this.eventBus.publishSync(blockchainEvent, blockchainEvent.name + "DLTEvent")
+      await this.eventBus.publishSync(blockchainEvent, eventStore.eventName + "DLTEvent")
       eventStore.process()
     } catch (error) {
       // Transit to failed with error reason

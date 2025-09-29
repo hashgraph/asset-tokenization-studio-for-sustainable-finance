@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Command } from "@hashgraph/green-bonds-shared-core"
+import { Command, Event } from "@hashgraph/green-bonds-shared-core"
 import { IsDefined } from "class-validator"
-import BlockchainEvent from "@domain/event/BlockchainEvent"
+import { EventStoreCommandResponse } from "@app/eventstore/processevent/command/EventStoreCommandResponse"
 
-export class ProcessEventCommand extends Command<void> {
+export class ProcessEventCommand extends Command<EventStoreCommandResponse> {
   @IsDefined()
-  readonly event: BlockchainEvent
+  readonly event: Event
 
-  constructor(event: BlockchainEvent) {
+  constructor(event: Event) {
     super()
     this.event = event
   }

@@ -12,14 +12,10 @@ export class AddEventFiltersDomainService {
     const eventFilters = eventSignatures.map((eventSignature) => {
       return {
         contractAddress,
-        eventName: AddEventFiltersDomainService.extractEventNameFromSignature(eventSignature),
+        eventName: EventFilter.extractEventNameFromSignature(eventSignature),
         eventSignature: eventSignature,
       } as EventFilter
     })
     await this.eventFilterRepository.saveAll(eventFilters)
-  }
-
-  private static extractEventNameFromSignature(eventSignature: string): string {
-    return eventSignature.substring(0, eventSignature.indexOf("("))
   }
 }

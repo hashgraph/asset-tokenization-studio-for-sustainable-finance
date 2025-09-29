@@ -1,0 +1,311 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { HederaPort } from "@port/blockchain/HederaPort"
+import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
+import axios, { HttpStatusCode } from "axios"
+import { FetchEventsRequest } from "@port/blockchain/model/FetchEventsRequest"
+import { EventSignatureRequest } from "@port/blockchain/model/EventSignatureRequest"
+import { isContractAddressInBloom, isTopicInBloom } from "ethereum-bloom-filters"
+import { utils } from "ethers"
+import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
+import { Interface } from "ethers/lib/utils"
+import DecodeLogRequest from "@port/blockchain/model/DecodeLogRequest"
+import { GetBlockRequest } from "@port/blockchain/model/GetBlockRequest"
+
+@Singleton()
+export class HederaMirrorNodeAdapter implements HederaPort {
+  private readonly INDEXED_PARAMS_PATTERN = /\s*indexed*/g
+  private readonly EVENT_NAME_PATTERN = /^([^(]+)\((.*)\)$/
+
+  private readonly mirrorNodeURL: string
+
+  constructor() {
+    this.mirrorNodeURL = this.getMirrorNodeURL(process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet")
+  }
+
+  @Validate()
+  async getBlock(getBlockRequest: GetBlockRequest): Promise<GetBlockResponse> {
+    try {
+      const block = await this.fetchData(`blocks/${getBlockRequest.blockNumber}`)
+      const logsBloom = (block as any)?.logs_bloom
+      if (logsBloom) {
+        return {
+          logsBloom,
+        } as GetBlockResponse
+      }
+    } catch (error) {
+      if (error?.status !== HttpStatusCode.NotFound) {
+        throw error
+      }
+    }
+    return null // Block not found
+  }
+
+  async getLastBlockNumber(): Promise<number> {
+    const getLastBlockResponse: GetLastBlocksResponse = await this.fetchData("blocks?limit=1&order=desc")
+    return getLastBlockResponse.blocks.length == 1 ? getLastBlockResponse.blocks[0].number : null
+  }
+
+  @Validate()
+  async fetchEvents(request: FetchEventsRequest): Promise<BlockchainEvent[]> {
+    const events: BlockchainEvent[] = []
+
+    if (request.logsBloom === "0x") {
+      return events
+    }
+
+    const eventSignatures = this.getEventSignaturesIncludedInBlock(request)
+    if (!eventSignatures) {
+      return events
+    }
+    const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents(
+      request.blockNumber,
+      eventSignatures,
+    )
+
+    for (const blockHash of contractsResultsHashes) {
+      const contractResults = await this.getContractsResultsByBlockHash({
+        blockHash,
+      })
+      events.push(
+        ...contractResults.logs
+          .map((log) =>
+            this.decodeLog({
+              ...log,
+              transactionHash: blockHash,
+              timestamp: contractResults.timestamp,
+              eventSignatures,
+            }),
+          )
+          .filter((decoded): decoded is BlockchainEvent => decoded != null),
+      )
+    }
+    return events
+  }
+
+  private getMirrorNodeURL(network: string): string {
+    switch (network) {
+      case "mainnet":
+        return "https://mainnet-public.mirrornode.hedera.com"
+      case "previewnet":
+        return "https://previewnet.mirrornode.hedera.com"
+      case "testnet":
+        return "https://testnet.mirrornode.hedera.com"
+      default:
+        throw new Error(`Unsupported network: ${network}`)
+    }
+  }
+
+  private getEventSignaturesIncludedInBlock(request: FetchEventsRequest): EventSignatureRequest[] {
+    const eventSignatures: EventSignatureRequest[] = []
+    request.contractEvents.forEach((contractEvent) => {
+      const normalizedEventSignatureHash = utils.id(this.normalizeEventSignature(contractEvent.eventSignature))
+      if (
+        isContractAddressInBloom(request.logsBloom, contractEvent.contractAddress) &&
+        isTopicInBloom(request.logsBloom, normalizedEventSignatureHash)
+      ) {
+        eventSignatures.push({
+          contractAddress: contractEvent.contractAddress,
+          eventSignature: contractEvent.eventSignature,
+          normalizedEventSignatureHash,
+        } as EventSignatureRequest)
+      }
+    })
+    return eventSignatures
+  }
+
+  private async fetchData<T>(path: string): Promise<T> {
+    const url = `${this.mirrorNodeURL}/api/v1/${path}`
+    const { data } = await axios.get(url, { timeout: 9000 })
+
+    return data
+  }
+
+  private async getContractsResultsHashesContainingTrackedEvents(
+    blockNumber: number,
+    eventSignatures: EventSignatureRequest[],
+  ): Promise<string[]> {
+    const contractsResultsHashesList: string[] = []
+
+    const contractsResultsByBlockNumber = await this.getContractsResultsByBlockNumber({
+      blockNumber,
+    })
+
+    const contractAddresses = eventSignatures.map((eventSignature) => eventSignature.contractAddress)
+    const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(
+      contractsResultsByBlockNumber.results,
+      contractAddresses,
+    )
+
+    contractsResultsHashesList.push(...contractResultsHashes)
+
+    if (contractsResultsByBlockNumber.links) {
+      while (contractsResultsByBlockNumber.links.next) {
+        const nextUrl = new URL(contractsResultsByBlockNumber.links.next)
+        const relativePath = nextUrl.pathname + nextUrl.search
+        const query = relativePath.replace(/^\/api\/v1\//, "")
+
+        const contractsResultsByNextBlockNumber = await this.getNextContractsResultsByBlockNumber({
+          query,
+        })
+        const nextContractResultsHashes = this.getContractsResultsHashesFilteredByContract(
+          contractsResultsByNextBlockNumber.results,
+          contractAddresses,
+        )
+        contractsResultsHashesList.push(...nextContractResultsHashes)
+
+        contractsResultsByBlockNumber.links = contractsResultsByNextBlockNumber.links
+      }
+    }
+
+    return contractsResultsHashesList
+  }
+
+  private getContractsResultsHashesFilteredByContract(
+    results: GetContractsResultsResultsByBlockNumberResponse[],
+    contractAddresses: string[],
+  ): string[] {
+    return results
+      .filter(
+        (res) =>
+          (res.address && contractAddresses.includes(res.address)) || (res.to && contractAddresses.includes(res.to)),
+      )
+      .map((res) => res.hash)
+      .filter((hash): hash is string => Boolean(hash))
+  }
+
+  private async getContractsResultsByBlockHash(
+    request: GetContractsResultsByBlockHashRequest,
+  ): Promise<GetContractsResultsByBlockHashResponse> {
+    return await this.fetchData(`contracts/results/${request.blockHash}`)
+  }
+
+  private async getContractsResultsByBlockNumber(
+    request: GetContractsResultsByBlockNumberRequest,
+  ): Promise<GetContractsResultsByBlockNumberResponse> {
+    const query = `?block.number=${request.blockNumber}&limit=100&order=asc`
+    return await this.fetchData(`contracts/results${query}`)
+  }
+
+  private async getNextContractsResultsByBlockNumber(
+    request: GetNextContractsResultsByBlockNumberRequest,
+  ): Promise<GetNextContractsResultsByBlockNumberResponse> {
+    return await this.fetchData(`contracts/results${request.query}`)
+  }
+
+  private normalizeEventSignature(signature: string): string {
+    const [name, params] = signature.split("(")
+    const types = params
+      .replace(")", "")
+      .split(",")
+      .map((p) => p.trim())
+      .map((p) => p.replace(this.INDEXED_PARAMS_PATTERN, ""))
+      .map((p) => p.split(" ")[0])
+    return `${name}(${types.join(",")})`
+  }
+
+  private decodeLog(request: DecodeLogRequest): BlockchainEvent {
+    try {
+      if (!request.data || request.data === "0x") {
+        return null
+      }
+
+      const eventSignature: string = request.eventSignatures.find(
+        (eventSignature) => eventSignature.normalizedEventSignatureHash === request.topics[0],
+      )?.eventSignature
+      if (!eventSignature) {
+        return null
+      }
+      const eventName: string = this.getEventName(eventSignature)
+      const decodedValues = this.decodeEventParams(eventSignature, request.data, request.topics)
+
+      const result = Object.keys(decodedValues)
+        .filter((key) => isNaN(Number(key)))
+        .map((key) => ({ name: key, value: decodedValues[key] }))
+
+      const eventObj: BlockchainEvent = {
+        logTimestamp: request.timestamp,
+        transactionHash: request.transactionHash,
+        name: eventName,
+        signature: eventSignature,
+      } as BlockchainEvent
+
+      result.forEach((param) => {
+        eventObj[param.name] = param.value.toString()
+      })
+
+      return eventObj
+    } catch (error) {
+      throw new Error(`Error decoding log ${error?.message}.\n${JSON.stringify(request, null, 2)}`)
+    }
+  }
+
+  private decodeEventParams(eventSignature: string, data: string, topics: string[]) {
+    const iface = new Interface([`event ${eventSignature}`])
+    const parsed = iface.parseLog({
+      data: data,
+      topics: topics,
+    })
+    return parsed.args
+  }
+
+  private getEventName(eventSignature: string): string {
+    const match = eventSignature.match(this.EVENT_NAME_PATTERN)
+    if (!match) {
+      throw new Error("Invalid event signature: " + eventSignature)
+    }
+    return match[1]
+  }
+}
+
+interface GetLastBlocksResponse {
+  readonly blocks: GetLastBlockResponse[]
+}
+
+interface GetLastBlockResponse {
+  readonly number: number
+}
+
+export interface GetContractsResultsByBlockHashResponse {
+  readonly timestamp: string
+  readonly logs: GetContractsResultsLogsByBlockHashResponse[]
+}
+
+interface GetContractsResultsLogsByBlockHashResponse {
+  readonly data: string
+  readonly topics: string[]
+}
+
+interface GetContractsResultsByBlockHashRequest {
+  readonly blockHash: string
+}
+
+interface GetContractsResultsByBlockNumberResponse {
+  readonly results: GetContractsResultsResultsByBlockNumberResponse[]
+  links: GetContractsResultsLinksByBlockNumberResponse
+}
+
+interface GetContractsResultsLinksByBlockNumberResponse {
+  readonly next: string
+}
+
+interface GetContractsResultsResultsByBlockNumberResponse {
+  readonly hash: string
+  readonly address: string
+  readonly contract_id: string
+  readonly to: string
+}
+
+interface GetContractsResultsByBlockNumberRequest {
+  readonly blockNumber: number
+}
+
+interface GetNextContractsResultsByBlockNumberRequest {
+  readonly query: string
+}
+
+interface GetNextContractsResultsByBlockNumberResponse {
+  readonly results: GetContractsResultsResultsByBlockNumberResponse[]
+  readonly links: GetContractsResultsLinksByBlockNumberResponse
+}

@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config"
 export abstract class BaseConfigService {
   protected constructor(private readonly configService: ConfigService) {}
 
-  protected getProperty(key: string): string | number | boolean {
+  protected getProperty(key: string | symbol): string | number | boolean {
     return this.configService.get(key)
   }
 }
