@@ -28,7 +28,7 @@
     "@nestjs/typeorm": "^11.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
-    "p-retry": "^6.2.1",
+    "p-retry": "^7.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -59,23 +59,12 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
+    "preset": "../../../jest.base.config.js",
     "roots": ["<rootDir>/src", "<rootDir>/test"],
     "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "transformIgnorePatterns": [
-      "node_modules/(?!(p-retry|is-network-error|retry|delay)/)"
-    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "coverageDirectory": "../coverage"
   }
 }
