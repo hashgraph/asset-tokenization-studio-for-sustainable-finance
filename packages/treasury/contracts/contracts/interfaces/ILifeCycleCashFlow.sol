@@ -3,9 +3,9 @@ pragma solidity 0.8.18;
 
 interface ILifeCycleCashFlow {
     /*
-     * @dev Emitted when a coupon/dividend by page is executed
+     * @dev Emitted when a coupon by page is executed
      *
-     * @param distributionID The coupon/dividend identifier
+     * @param distributionID The coupon identifier
      * @param pageIndex The page index
      * @param pageLength The page length
      * @param failed Holders addresses whose payments failed
@@ -22,7 +22,7 @@ interface ILifeCycleCashFlow {
     );
 
     /*
-     * @dev Emitted when a coupon/dividend by addresses is executed
+     * @dev Emitted when a coupon by addresses is executed
      *
      * @param distributionID The coupon/dividend identifier
      * @param holders The holders addresses
@@ -75,10 +75,10 @@ interface ILifeCycleCashFlow {
     function initialize_LifeCycleCashFlow(address _asset) external;
 
     /*
-     * @dev Pay a coupon or dividend to a page of holders
+     * @dev Pay a coupon to a page of holders
      *
-     * @param asset The address of the asset that the coupon/dividend belongs to
-     * @param distributionID The coupon/dividend identifier
+     * @param asset The address of the asset that the coupon belongs to
+     * @param distributionID The coupon identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
      *
@@ -97,10 +97,10 @@ interface ILifeCycleCashFlow {
         returns (address[] memory, address[] memory, uint256[] memory, bool);
 
     /*
-     * @dev Retry the payment of a coupon or dividend to a list of holders
+     * @dev Retry the payment of a coupon to a list of holders
      *
-     * @param asset The address of the asset that the coupon/dividend belongs to
-     * @param distributionID The coupon/dividend identifier
+     * @param asset The address of the asset that the coupon belongs to
+     * @param distributionID The coupon identifier
      * @param holders The array of holders addresses who will be paid
      *
      * @return The array of the holders addresses whose payment were not successful
