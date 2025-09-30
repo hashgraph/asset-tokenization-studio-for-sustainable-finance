@@ -4,4 +4,4 @@ export { BlockchainEventListenerModule } from "./BlockchainEventListenerModule"
 
 export { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
 
-export { EVENT_LISTENER_ENTITIES } from "./Components"
+export { EVENT_LISTENER_ENTITIES, EVENT_LISTENER_MIGRATIONS } from "./Components"
