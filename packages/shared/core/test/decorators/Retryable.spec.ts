@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Retryable } from "../../src/decorators/Retryable"
-import { RetryExecutor } from "../../src/retry/RetryExecutor"
+import { RetryPRetryAdapter } from "../../src/retry/RetryPRetryAdapter"
 
-jest.mock("../../src/retry/RetryExecutor")
+jest.mock("../../src/retry/RetryPRetryAdapter")
 
-describe("@Retryable Decorator", () => {
-  let mockExecutor: jest.Mocked<RetryExecutor>
+describe("@Retryable", () => {
+  let mockService: jest.Mocked<RetryPRetryAdapter>
   let mockExecute: jest.Mock
 
   beforeEach(() => {
     mockExecute = jest.fn()
-    mockExecutor = {
+    mockService = {
       execute: mockExecute,
     } as any
-    ;(RetryExecutor as jest.MockedClass<typeof RetryExecutor>).mockImplementation(() => mockExecutor)
+    ;(RetryPRetryAdapter as jest.MockedClass<typeof RetryPRetryAdapter>).mockImplementation(() => mockService)
   })
 
   afterEach(() => {
@@ -22,7 +22,7 @@ describe("@Retryable Decorator", () => {
   })
 
   describe("decorator application", () => {
-    it("should apply to async methods and delegate to RetryExecutor", async () => {
+    it("should apply to async methods and delegate to RetryPRetryAdapter", async () => {
       mockExecute.mockResolvedValue("success")
 
       class TestClass {
@@ -36,7 +36,7 @@ describe("@Retryable Decorator", () => {
       const result = await instance.testMethod()
 
       expect(result).toBe("success")
-      expect(RetryExecutor).toHaveBeenCalledWith("TestClass")
+      expect(RetryPRetryAdapter).toHaveBeenCalled()
       expect(mockExecute).toHaveBeenCalledWith(
         expect.any(Function),
         { retries: 2, minTimeout: 10 },
@@ -44,7 +44,7 @@ describe("@Retryable Decorator", () => {
       )
     })
 
-    it("should apply to sync methods and delegate to RetryExecutor", async () => {
+    it("should apply to sync methods and delegate to RetryPRetryAdapter", async () => {
       mockExecute.mockResolvedValue("success")
 
       class TestClass {
@@ -58,7 +58,7 @@ describe("@Retryable Decorator", () => {
       const result = await (instance.testMethod as any)()
 
       expect(result).toBe("success")
-      expect(RetryExecutor).toHaveBeenCalledWith("TestClass")
+      expect(RetryPRetryAdapter).toHaveBeenCalled()
       expect(mockExecute).toHaveBeenCalledWith(
         expect.any(Function),
         { retries: 1, minTimeout: 10 },
@@ -66,7 +66,7 @@ describe("@Retryable Decorator", () => {
       )
     })
 
-    it("should create RetryExecutor with correct logger context", async () => {
+    it("should create RetryPRetryAdapter instance", async () => {
       mockExecute.mockResolvedValue("success")
 
       class MyCustomClass {
@@ -79,7 +79,7 @@ describe("@Retryable Decorator", () => {
       const instance = new MyCustomClass()
       await instance.myMethod()
 
-      expect(RetryExecutor).toHaveBeenCalledWith("MyCustomClass")
+      expect(RetryPRetryAdapter).toHaveBeenCalled()
       expect(mockExecute).toHaveBeenCalledWith(expect.any(Function), { retries: 1 }, "MyCustomClass.myMethod")
     })
   })
@@ -150,7 +150,7 @@ describe("@Retryable Decorator", () => {
   })
 
   describe("options handling", () => {
-    it("should pass options to RetryExecutor execute method", async () => {
+    it("should pass options to RetryPRetryAdapter execute method", async () => {
       mockExecute.mockResolvedValue("success")
 
       const customOptions = {
@@ -171,7 +171,7 @@ describe("@Retryable Decorator", () => {
       const instance = new TestClass()
       await instance.testMethod()
 
-      expect(RetryExecutor).toHaveBeenCalledWith("TestClass")
+      expect(RetryPRetryAdapter).toHaveBeenCalled()
       expect(mockExecute).toHaveBeenCalledWith(expect.any(Function), customOptions, "TestClass.testMethod")
     })
 
@@ -179,7 +179,7 @@ describe("@Retryable Decorator", () => {
       mockExecute.mockResolvedValue("success")
 
       class TestClass {
-        @Retryable({})
+        @Retryable()
         async testMethod(): Promise<string> {
           return Promise.resolve("test")
         }
@@ -188,7 +188,7 @@ describe("@Retryable Decorator", () => {
       const instance = new TestClass()
       await instance.testMethod()
 
-      expect(RetryExecutor).toHaveBeenCalledWith("TestClass")
+      expect(RetryPRetryAdapter).toHaveBeenCalled()
       expect(mockExecute).toHaveBeenCalledWith(expect.any(Function), {}, "TestClass.testMethod")
     })
   })
@@ -224,7 +224,7 @@ describe("@Retryable Decorator", () => {
       expect(result).toBeNull()
     })
 
-    it("should propagate errors from RetryExecutor", async () => {
+    it("should propagate errors from RetryPRetryAdapter", async () => {
       const error = new Error("Retry failed")
       mockExecute.mockRejectedValue(error)
 

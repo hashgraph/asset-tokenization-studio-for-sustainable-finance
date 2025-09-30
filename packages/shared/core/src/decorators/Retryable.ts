@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { RetryOptions } from "../retry/RetryOptions"
-import { RetryExecutor } from "../retry/RetryExecutor"
+import { RetryPRetryAdapter } from "../retry/RetryPRetryAdapter"
 
 export function Retryable(options: RetryOptions = {}) {
   return function (target: any, propertyKey: string | symbol, descriptor: PropertyDescriptor) {
@@ -13,9 +13,9 @@ export function Retryable(options: RetryOptions = {}) {
 
     descriptor.value = async function (...args: any[]) {
       const methodName = `${target.constructor.name}.${String(propertyKey)}`
-      const retryExecutor = new RetryExecutor(target.constructor.name)
+      const retryService = new RetryPRetryAdapter()
 
-      return retryExecutor.execute(() => originalMethod.apply(this, args), options, methodName)
+      return retryService.execute(() => originalMethod.apply(this, args), options, methodName)
     }
 
     Object.defineProperty(descriptor.value, "name", {

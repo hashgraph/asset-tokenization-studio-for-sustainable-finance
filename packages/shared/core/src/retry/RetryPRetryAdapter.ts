@@ -3,13 +3,15 @@
 import pRetry, { AbortError } from "p-retry"
 import { Logger } from "../logger/Logger"
 import { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./RetryOptions"
-import { RetryExecutorPort } from "./ports/RetryExecutorPort"
+import { RetryPort } from "./RetryPort"
+import { Singleton } from "../decorators/Singleton"
 
-export class RetryExecutor implements RetryExecutorPort {
+@Singleton()
+export class RetryPRetryAdapter implements RetryPort {
   private readonly logger: Logger
 
-  constructor(loggerContext: string) {
-    this.logger = new Logger(loggerContext)
+  constructor() {
+    this.logger = new Logger(RetryPRetryAdapter.name)
   }
 
   async execute<T>(fn: () => T | Promise<T>, options: RetryOptions = {}, operationName?: string): Promise<T> {
@@ -73,7 +75,6 @@ export class RetryExecutor implements RetryExecutorPort {
     return {
       ...DEFAULT_RETRY_OPTIONS,
       ...options,
-      // Si el usuario no especifica shouldNotRetry, usar el valor por defecto
       shouldNotRetry: options.shouldNotRetry || DEFAULT_RETRY_OPTIONS.shouldNotRetry,
     }
   }

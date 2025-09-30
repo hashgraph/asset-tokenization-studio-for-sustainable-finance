@@ -3,7 +3,7 @@
 import { NestJSCommandBus } from "./command/NestJSCommandBus"
 import { NestJSQueryBus } from "./query/NestJSQueryBus"
 import { NestJSEventBus } from "./event/NestJSEventBus"
-import { RetryService } from "./retry/RetryService"
+import { RetryPRetryAdapter } from "./retry/RetryPRetryAdapter"
 
 export const PROVIDERS = [
   {
@@ -18,5 +18,5 @@ export const PROVIDERS = [
     provide: "EventBus",
     useClass: NestJSEventBus,
   },
-  RetryService,
+  RetryPRetryAdapter,
 ]

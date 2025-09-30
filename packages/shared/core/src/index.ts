@@ -40,5 +40,5 @@ export { Query } from "./query/Query"
 export { QueryBus } from "./query/QueryBus"
 export { QueryHandler } from "./query/QueryHandler"
 
-export { RetryService } from "./retry/RetryService"
+export { RetryPRetryAdapter } from "./retry/RetryPRetryAdapter"
 export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
