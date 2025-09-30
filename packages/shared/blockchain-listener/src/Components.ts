@@ -15,6 +15,10 @@ import { NestJSConfigService } from "@port/config/NestJSConfigService"
 import { HederaMirrorNodeAdapter } from "@port/blockchain/HederaMirrorNodeAdapter"
 import { GetBlockToProcessQueryHandler } from "@app/block/getblocktoprocess/query/GetBlockToProcessQueryHandler"
 import { GetEventFiltersQueryHandler } from "@app/eventfilter/geteventfilters/query/GetEventFiltersQueryHandler"
+import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
+import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
+import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
+import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -50,4 +54,10 @@ export const PROVIDERS = [
     provide: "HederaPort",
     useClass: HederaMirrorNodeAdapter,
   },
+]
+
+export const EVENT_LISTENER_ENTITIES: EntityClassOrSchema[] = [
+  EventStorePersistence,
+  EventFilterPersistence,
+  SyncStatePersistence,
 ]

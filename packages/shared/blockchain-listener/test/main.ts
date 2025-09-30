@@ -3,7 +3,7 @@ import { NestFactory } from "@nestjs/core"
 import { DynamicModule } from "@nestjs/common"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "./shared/containers/PostgresqlContainer"
-import { ENTITIES, PostgresModule } from "./shared/PostgresModule"
+import { PostgresModule } from "./shared/PostgresModule"
 import { PROVIDERS } from "../src/Components"
 
 class TestBlockchainEventListenerModule {
@@ -12,7 +12,7 @@ class TestBlockchainEventListenerModule {
 
     return {
       module: TestBlockchainEventListenerModule,
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig(), ENTITIES)],
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       providers: [...PROVIDERS],
       exports: [],
     }

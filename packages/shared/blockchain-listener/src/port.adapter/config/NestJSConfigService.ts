@@ -14,18 +14,22 @@ export class NestJSConfigService extends BaseConfigService implements ConfigServ
   }
 
   getBlockNumber(): number {
-    return +this.getProperty(ConfigKeys.BLOCK_NUMBER)
+    const blockNumber = this.getProperty(ConfigKeys.BLOCK_NUMBER)
+    return blockNumber ? +blockNumber : null
   }
 
   getContracts(): string[] {
-    return (<string>this.getProperty(ConfigKeys.CONTRACTS)).split(NestJSConfigService.SEPARATOR)
+    const contracts = <string>this.getProperty(ConfigKeys.CONTRACTS)
+    return contracts ? contracts.split(NestJSConfigService.SEPARATOR) : []
   }
 
   getEvents(): string[] {
-    return (<string>this.getProperty(ConfigKeys.EVENTS)).split(NestJSConfigService.SEPARATOR)
+    const events = <string>this.getProperty(ConfigKeys.EVENTS)
+    return events ? events.split(NestJSConfigService.SEPARATOR) : []
   }
 
   getPollInternal(): number {
-    return +this.getProperty(ConfigKeys.POLL_INTERVAL)
+    const pollInternal = this.getProperty(ConfigKeys.POLL_INTERVAL)
+    return pollInternal ? +pollInternal : null
   }
 }

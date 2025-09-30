@@ -3,17 +3,16 @@
 import { DynamicModule, Module } from "@nestjs/common"
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
 import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
-import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
-import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
-import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
-
-export const ENTITIES: EntityClassOrSchema[] = [EventStorePersistence, EventFilterPersistence, SyncStatePersistence]
+import { EVENT_LISTENER_ENTITIES } from "../../src/Components"
 
 const ORM_TYPE: string = "postgres"
 
 @Module({})
 export class PostgresModule {
-  static forRoot(typeOrmOptions?: TypeOrmModuleOptions, entities: EntityClassOrSchema[] = ENTITIES): DynamicModule {
+  static forRoot(
+    typeOrmOptions?: TypeOrmModuleOptions,
+    entities: EntityClassOrSchema[] = EVENT_LISTENER_ENTITIES,
+  ): DynamicModule {
     return {
       module: PostgresModule,
       imports: [
