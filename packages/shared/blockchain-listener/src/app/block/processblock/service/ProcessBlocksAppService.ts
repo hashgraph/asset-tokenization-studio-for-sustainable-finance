@@ -31,8 +31,7 @@ export class ProcessBlocksAppService {
     try {
       await this.processBlocks()
     } catch (error) {
-      this.logger.error("Error processing blocks. Block processing stopped. Please check error and restart.")
-      throw error
+      this.logger.error("Error processing blocks. Block processing stopped. Please check error and restart.", error)
     }
   }
 
@@ -43,7 +42,12 @@ export class ProcessBlocksAppService {
   private async processBlocks() {
     const blockToProcess: GetBlockToProcessQueryResponse = await this.queryBus.execute(new GetBlockToProcessQuery())
     const eventFilters: GetEventFiltersQueryResponse[] = await this.queryBus.execute(new GetEventFiltersQuery())
-    const contractEvents = eventFilters.map((eventFilter) => plainToInstance(ContractEventRequest, eventFilter))
+    const contractEvents = eventFilters.map((eventFilter) => {
+      return {
+        contractAddress: eventFilter.contractAddress,
+        eventSignature: eventFilter.eventSignature,
+      } as ContractEventRequest
+    })
     let blockNumber = blockToProcess.blockNumber
     this.logger.log(`Starting block processing from block ${blockNumber}`)
     while (true) {

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HederaPort } from "@port/blockchain/HederaPort"
-import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Retryable, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
 import axios, { HttpStatusCode } from "axios"
 import { FetchEventsRequest } from "@port/blockchain/model/FetchEventsRequest"
@@ -42,6 +42,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     return null // Block not found
   }
 
+  @Retryable()
   async getLastBlockNumber(): Promise<number> {
     const getLastBlockResponse: GetLastBlocksResponse = await this.fetchData("blocks?limit=1&order=desc")
     return getLastBlockResponse.blocks.length == 1 ? getLastBlockResponse.blocks[0].number : null
@@ -175,12 +176,14 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       .filter((hash): hash is string => Boolean(hash))
   }
 
+  @Retryable()
   private async getContractsResultsByBlockHash(
     request: GetContractsResultsByBlockHashRequest,
   ): Promise<GetContractsResultsByBlockHashResponse> {
     return await this.fetchData(`contracts/results/${request.blockHash}`)
   }
 
+  @Retryable()
   private async getContractsResultsByBlockNumber(
     request: GetContractsResultsByBlockNumberRequest,
   ): Promise<GetContractsResultsByBlockNumberResponse> {
@@ -188,6 +191,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     return await this.fetchData(`contracts/results${query}`)
   }
 
+  @Retryable()
   private async getNextContractsResultsByBlockNumber(
     request: GetNextContractsResultsByBlockNumberRequest,
   ): Promise<GetNextContractsResultsByBlockNumberResponse> {

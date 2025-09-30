@@ -3,7 +3,6 @@
 import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
-import { ENTITIES, PostgresModule } from "../../../../shared/PostgresModule"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { Repository } from "typeorm"
 import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
@@ -21,6 +20,8 @@ import { ProcessEventCommand } from "@app/eventstore/processevent/command/Proces
 import BlockchainEvent from "@domain/event/BlockchainEvent"
 import { PROVIDERS } from "../../../../../src/Components"
 import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
+import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
+import { PostgresModule } from "../../../../shared/PostgresModule"
 
 let testDLTEvent: TestDLTEvent
 let errorOnDLTEventListener: boolean
@@ -31,14 +32,15 @@ describe("ProcessEventCommandHandler", () => {
   let commandBus: CommandBus
   let eventBus: EventBus
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     container = await PostgreSqlContainer.create()
   })
 
   beforeEach(async () => {
+    const providers = PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig(), ENTITIES)],
-      providers: [...PROVIDERS, TestDLTEventListener],
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      providers: [...providers, TestDLTEventListener],
     }).compile()
 
     app = moduleFixture.createNestApplication()

@@ -1,6 +1,8 @@
 {
   "name": "@hashgraph/green-bonds-blockchain-listener",
   "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "license": "Apache-2.0",
   "scripts": {
     "build": "nest build",
@@ -20,16 +22,8 @@
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
     "@hashgraph/sdk": "2.66.0",
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/config": "^4.0.2",
-    "@nestjs/core": "^11.0.1",
-    "@nestjs/cqrs": "^11.0.3",
-    "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/typeorm": "^11.0.0",
     "ethereum-bloom-filters": "^1.2.0",
     "pg": "8.16.0",
-    "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
     "typeorm": "^0.3.27"
   },
   "devDependencies": {
@@ -61,25 +55,11 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
+    "preset": "../../../jest.base.config.js",
     "moduleNameMapper": {
       "@domain(.*)$": "<rootDir>/src/domain/$1",
       "@app(.*)$": "<rootDir>/src/app/$1",
       "@port(.*)$": "<rootDir>/src/port.adapter/$1"
-    },
-    "testEnvironment": "node"
+    }
   }
 }

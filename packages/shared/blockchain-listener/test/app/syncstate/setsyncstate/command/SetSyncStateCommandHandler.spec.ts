@@ -3,7 +3,6 @@
 import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
-import { ENTITIES, PostgresModule } from "../../../../shared/PostgresModule"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { Repository, Not, IsNull } from "typeorm"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
@@ -11,6 +10,8 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 import { CommandBus, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { SetSyncStateCommand } from "@app/syncstate/setsyncstate/command/SetSyncStateCommand"
 import { PROVIDERS } from "../../../../../src/Components"
+import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
+import { PostgresModule } from "../../../../shared/PostgresModule"
 
 describe("SetSyncStateCommandHandler", () => {
   let app: INestApplication<App>
@@ -19,14 +20,15 @@ describe("SetSyncStateCommandHandler", () => {
   let commandBus: CommandBus
   let eventBus: EventBus
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     container = await PostgreSqlContainer.create()
   })
 
   beforeEach(async () => {
+    const providers = PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig(), ENTITIES)],
-      providers: [...PROVIDERS],
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      providers,
     }).compile()
 
     app = moduleFixture.createNestApplication()
