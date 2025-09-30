@@ -206,8 +206,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.18;
 
-import { LocalContext } from "../../../layer_0/context/LocalContext.sol";
-import { ITimeTravel } from "../interfaces/ITimeTravel.sol";
+import {
+    LocalContext
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_0/context/LocalContext.sol';
+import {ITimeTravel} from '../interfaces/ITimeTravel.sol';
 
 abstract contract TimeTravel is ITimeTravel, LocalContext {
     uint256 internal _timestamp;
@@ -227,7 +229,13 @@ abstract contract TimeTravel is ITimeTravel, LocalContext {
         emit SystemTimestampReset();
     }
 
-    function _blockTimestamp() internal view virtual override returns (uint256) {
+    function _blockTimestamp()
+        internal
+        view
+        virtual
+        override
+        returns (uint256)
+    {
         return _timestamp == 0 ? block.timestamp : _timestamp;
     }
 }

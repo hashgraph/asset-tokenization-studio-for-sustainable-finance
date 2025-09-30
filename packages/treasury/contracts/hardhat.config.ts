@@ -213,13 +213,13 @@ import 'hardhat-gas-reporter'
 import 'solidity-coverage'
 import Configuration from '@configuration'
 
-import 'hardhat/types/config';
+import 'hardhat/types/config'
 
 declare module 'hardhat/types/config' {
-  interface HardhatNetworkUserConfig {
-    assetAddresses?: string[];
-    usdcAddress?: string;
-  }
+    interface HardhatNetworkUserConfig {
+        assetAddresses?: string[]
+        usdcAddress?: string
+    }
 }
 
 const config: HardhatUserConfig = {
@@ -244,29 +244,29 @@ const config: HardhatUserConfig = {
         hardhat: {
             chainId: 1337,
             blockGasLimit: 30_000_000,
-            hardfork: 'london'
+            hardfork: 'london',
         },
         local: {
             url: Configuration.endpoints.local.jsonRpc,
             accounts: Configuration.privateKeys.local,
-            timeout: 60_000
+            timeout: 60_000,
         },
         previewnet: {
             url: Configuration.endpoints.previewnet.jsonRpc,
             accounts: Configuration.privateKeys.previewnet,
-            timeout: 120_000
+            timeout: 120_000,
         },
         testnet: {
             url: Configuration.endpoints.testnet.jsonRpc,
             accounts: Configuration.privateKeys.testnet,
             assetAddresses: Configuration.assetAddresses.testnet,
             usdcAddress: Configuration.usdcAddresses.testnet,
-            timeout: 120_000
+            timeout: 120_000,
         },
         mainnet: {
             url: Configuration.endpoints.mainnet.jsonRpc,
             accounts: Configuration.privateKeys.mainnet,
-            timeout: 120_000
+            timeout: 120_000,
         },
     },
     contractSizer: {

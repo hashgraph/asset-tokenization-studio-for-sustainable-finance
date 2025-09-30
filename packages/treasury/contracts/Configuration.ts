@@ -323,7 +323,7 @@ export default class Configuration {
             (result, network) => {
                 result[network] = Configuration._getEnvironmentVariable({
                     name: `${network.toUpperCase()}_USDC_ADDRESS`,
-                    defaultValue: ''
+                    defaultValue: '',
                 })
                 return result
             },
@@ -335,7 +335,7 @@ export default class Configuration {
         return NETWORKS.reduce(
             (result, network) => {
                 result[network] = Configuration._getEnvironmentVariableList({
-                    name: `${network.toUpperCase()}_ASSET_ADDRESS_#`
+                    name: `${network.toUpperCase()}_ASSET_ADDRESS_#`,
                 })
                 return result
             },
