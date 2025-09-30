@@ -14,7 +14,6 @@ import {FactoryRegulationData as AtsFactoryRegulationData} from '@hashgraph/asse
  * @notice Central deployment mechanism for atomic Bond + Treasury + KPI contract creation
  */
 interface IFactorySuite {
-    // ============ STRUCTS ============
 
     /**
      * @dev Configuration data for Treasury contract deployment as per ADR
@@ -42,8 +41,6 @@ interface IFactorySuite {
         IResolverProxy.Rbac[] rbacs;
     }
 
-    // ============ EVENTS ============
-
     /**
      * @dev Emitted when a complete bond suite is deployed
      * @param operator Address that initiated the deployment (must have DEPLOYER role)
@@ -65,8 +62,6 @@ interface IFactorySuite {
         TreasuryData treasuryData,
         KpiData kpiData
     );
-
-    // ============ ERRORS ============
 
     /**
      * @dev Thrown when Bond contract deployment fails
@@ -98,7 +93,11 @@ interface IFactorySuite {
      */
     error EmptyArrayNotAllowed();
 
-    // ============ FUNCTIONS ============
+    /**
+     * @dev Thrown when an address is not a valid contract
+     * @param provided The address that was provided but is not a contract
+     */
+    error InvalidContractAddress(address provided);
 
     /**
      * @dev Deploys a complete bond suite (Bond + Treasury + KPI) atomically

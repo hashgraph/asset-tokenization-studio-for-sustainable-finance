@@ -23,7 +23,7 @@ abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGua
      */
     modifier validContractAddress(address addr) {
         if (addr == address(0)) revert ZeroAddressNotAllowed();
-        if (!addr.isContract()) revert InvalidTreasuryData();
+        if (!addr.isContract()) revert InvalidContractAddress(addr);
         _;
     }
 
