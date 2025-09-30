@@ -229,6 +229,7 @@ describe("RetryExecutor", () => {
         minTimeout: expect.any(Number),
         maxTimeout: expect.any(Number),
         factor: expect.any(Number),
+        shouldNotRetry: expect.any(Function),
       })
     })
 
