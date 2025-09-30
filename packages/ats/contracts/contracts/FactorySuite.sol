@@ -4,29 +4,19 @@ pragma solidity >=0.8.0 <0.9.0;
 // solhint-disable max-line-length
 import {Address} from '@openzeppelin/contracts/utils/Address.sol';
 import {ReentrancyGuard} from '@openzeppelin/contracts/security/ReentrancyGuard.sol';
-import {ProxyAdmin} from '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol';
-import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
 import {Common as AtsCommon} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
-import {ResolverProxy} from '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol';
-import {
-    IFactorySuite,
-    IResolverProxy,
-    IAtsFactory,
-    AtsFactoryRegulationData
-} from './interfaces/IFactorySuite.sol';
+import {IAtsFactory, AtsFactoryRegulationData} from './interfaces/IFactorySuite.sol';
 import {DEPLOYER_ROLE} from './constants/roles.sol';
-import {Kpi} from './Kpi.sol';
-import {IKpi} from './interfaces/IKpi.sol';
+import {FactorySuiteInternal} from './FactorySuiteInternal.sol';
 // solhint-enable max-line-length
 
 /**
  * @title FactorySuite
  * @notice Deploys an atomic suite of Bond, Treasury, and Kpi contracts with pre-flight validation
  */
-abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
+abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGuard {
     using Address for address;
 
-    // ============ MODIFIERS ============
     /**
      * @dev Validates that an address is not zero and is a contract
      * @param addr The address to validate
@@ -65,8 +55,6 @@ abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
         _;
     }
 
-    // ============ External Functions ============
-
     function deployBondSuite(
         address bondFactoryAddress,
         IAtsFactory.BondData calldata bondData,
@@ -87,20 +75,17 @@ abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
             address KpiAddress
         )
     {
-        // STEP 1: Deploy Bond using existing ATS Bond Factory
+        KpiAddress = _deployKpiContract(kpiData);
+
+        // TODO: Pass KPI address to Bond when interest/coupon system is implemented
         bondAddress = _deployBondContract(
             bondFactoryAddress,
             bondData,
             factoryRegulationData
         );
-        // STEP 2: Deploy Treasury contract
+
+        // TODO: Pass Bond address to Treasury initialization
         treasuryAddress = _deployTreasuryContract(treasuryData);
-
-        // STEP 3: Deploy Kpi contract with TUP+PA pattern
-        KpiAddress = _deployKpiContract(kpiData);
-
-        // Final validation of all deployments
-        _validateDeployments(bondAddress, treasuryAddress, KpiAddress);
 
         emit BondSuiteDeployed(
             msg.sender,
@@ -112,140 +97,5 @@ abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
             treasuryData,
             kpiData
         );
-
-        return (bondAddress, treasuryAddress, KpiAddress);
-    }
-
-    /**
-     * @notice Deploys the Kpi contract using the Transparent Upgradeable Proxy pattern
-     * @param kpiData Kpi configuration data containing admin and RBAC settings
-     * @return KpiAddress Address of the deployed Kpi proxy contract
-     */
-    function _deployKpiContract(
-        KpiData calldata kpiData
-    ) internal returns (address KpiAddress) {
-        // Deploy Kpi logic contract
-        Kpi KpiLogic = new Kpi();
-
-        // Deploy ProxyAdmin with specified admin
-        ProxyAdmin proxyAdmin = new ProxyAdmin();
-        proxyAdmin.transferOwnership(kpiData.admin);
-
-        // Deploy TransparentUpgradeableProxy with initialize call
-        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
-            address(KpiLogic),
-            address(proxyAdmin),
-            abi.encodeWithSelector(IKpi.initialize.selector, kpiData.rbacs)
-        );
-
-        KpiAddress = address(proxy);
-
-        // Configure RBAC roles on the deployed Kpi contract
-        _configureKpiRoles(KpiAddress, kpiData.rbacs);
-    }
-
-    // ============ INTERNAL DEPLOYMENT METHODS ============
-
-    /**
-     * @notice Deploys the Bond contract using the ATS Bond Factory implementation
-     * @param bondFactoryAddress Address of the ATS Bond Factory contract
-     * @param bondData Bond configuration data
-     * @param factoryRegulationData Regulation data for compliance
-     * @return bondAddress Address of the deployed Bond contract
-     */
-    function _deployBondContract(
-        address bondFactoryAddress,
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata factoryRegulationData
-    ) internal returns (address bondAddress) {
-        IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
-        try bondFactory.deployBond(bondData, factoryRegulationData) returns (
-            address deployedBondAddress
-        ) {
-            bondAddress = deployedBondAddress;
-        } catch {
-            revert BondDeploymentFailed();
-        }
-    }
-
-    /**
-     * @notice Deploys the Treasury contract using ResolverProxy pattern
-     * @param treasuryData Treasury configuration data
-     * @return treasuryAddress Address of the deployed Treasury contract
-     */
-    function _deployTreasuryContract(
-        TreasuryData calldata treasuryData
-    ) internal returns (address treasuryAddress) {
-        // Deploy Treasury contract using ResolverProxy pattern (similar to ATS Factory)
-        // TODO: check if can be extracted to shared/contracts-core
-        ResolverProxy treasuryProxy = new ResolverProxy(
-            treasuryData.resolver,
-            treasuryData.resolverProxyConfiguration.key,
-            treasuryData.resolverProxyConfiguration.version,
-            treasuryData.rbacs
-        );
-
-        treasuryAddress = address(treasuryProxy);
-
-        // Configure Treasury with payment token and environmental assets portfolio
-        _configureTreasuryContract(treasuryAddress, treasuryData);
-    }
-
-    /**
-     * @notice Configures the Treasury contract with payment token and environmental assets
-     * @param treasuryAddress Address of the deployed Treasury contract
-     * @param treasuryData Treasury configuration data
-     */
-    function _configureTreasuryContract(
-        address treasuryAddress,
-        TreasuryData calldata treasuryData
-    ) private {
-        // solhint-disable-next-line no-empty-blocks
-        // TODO: Implement Treasury configuration when Treasury contract interface is available
-        // Configuration would include:
-        // - Setting payment token for coupon/redemption distributions
-        // - Configuring ERC721 portfolio for environmental assets
-        // - Setting up fund allocation capabilities
-        // - Configuring lifecycle obligation management
-    }
-
-    /**
-     * @notice Configures RBAC roles for the deployed Kpi contract (validation only until integration)
-     * @param KpiAddress Address of the deployed Kpi contract
-     * @param rbacs Array of RBAC configurations to apply
-     */
-    function _configureKpiRoles(
-        address KpiAddress,
-        IResolverProxy.Rbac[] calldata rbacs
-    ) private {
-        if (KpiAddress == address(0)) revert KpiDeploymentFailed();
-
-        if (rbacs.length == 0) {
-            return;
-        }
-
-        // TODO: Implement RBAC configuration when Kpi contract interface is standardized
-    }
-
-    /**
-     * @notice Validates that all contract deployments were successful
-     * @param bondAddress Address of the deployed Bond contract
-     * @param treasuryAddress Address of the deployed Treasury contract
-     * @param KpiAddress Address of the deployed Kpi contract
-     */
-    function _validateDeployments(
-        address bondAddress,
-        address treasuryAddress,
-        address KpiAddress
-    ) private view {
-        if (bondAddress == address(0) || !bondAddress.isContract()) {
-            revert BondDeploymentFailed();
-        }
-        if (treasuryAddress == address(0) || !treasuryAddress.isContract()) {
-            revert TreasuryDeploymentFailed();
-        }
-        if (KpiAddress == address(0) || !KpiAddress.isContract()) {
-            revert KpiDeploymentFailed();
-        }
     }
 }
