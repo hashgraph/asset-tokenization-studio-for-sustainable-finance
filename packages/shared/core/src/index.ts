@@ -42,3 +42,4 @@ export { QueryHandler } from "./query/QueryHandler"
 
 export { RetryPRetryAdapter } from "./retry/RetryPRetryAdapter"
 export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
+export { RetryPort } from "./retry/RetryPort"

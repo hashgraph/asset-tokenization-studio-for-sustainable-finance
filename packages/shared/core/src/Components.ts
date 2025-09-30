@@ -18,5 +18,8 @@ export const PROVIDERS = [
     provide: "EventBus",
     useClass: NestJSEventBus,
   },
-  RetryPRetryAdapter,
+  {
+    provide: "RetryPort",
+    useClass: RetryPRetryAdapter,
+  },
 ]
