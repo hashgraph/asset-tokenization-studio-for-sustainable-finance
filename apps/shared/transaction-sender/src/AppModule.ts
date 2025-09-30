@@ -2,7 +2,7 @@
 
 import { Module } from "@nestjs/common"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { RabbitMQModule } from "@golevelup/nestjs-rabbitmq"
+import { RabbitMQModule, MessageHandlerErrorBehavior } from "@golevelup/nestjs-rabbitmq"
 import { SendHederaSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/hedera/SendHederaSignedTransactionRabbitAdapter"
 import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
 import { SendSignedTransactionCommandHandler } from "@app/sendsignedtransaction/command/SendSignedTransactionCommandHandler"
@@ -25,6 +25,7 @@ import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/us
       connectionInitOptions: {
         wait: process.env.RABBITMQ_CONNECTION_WAIT === "true" || false,
       },
+      defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK,
     }),
   ],
   controllers: [],
