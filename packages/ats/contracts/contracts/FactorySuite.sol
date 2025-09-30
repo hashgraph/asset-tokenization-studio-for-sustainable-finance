@@ -7,6 +7,7 @@ import {ReentrancyGuard} from '@openzeppelin/contracts/security/ReentrancyGuard.
 import {ProxyAdmin} from '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol';
 import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
 import {Common as AtsCommon} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
+import {ResolverProxy} from '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol';
 import {
     IFactorySuite,
     IResolverProxy,
@@ -168,29 +169,44 @@ abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
     }
 
     /**
-     * @notice Deploys the Treasury contract (placeholder implementation until factory is available)
+     * @notice Deploys the Treasury contract using ResolverProxy pattern
      * @param treasuryData Treasury configuration data
      * @return treasuryAddress Address of the deployed Treasury contract
      */
     function _deployTreasuryContract(
         TreasuryData calldata treasuryData
     ) internal returns (address treasuryAddress) {
-        // TODO: Replace with actual Treasury Factory deployment
-        // For now, create deterministic address based on input data
-        treasuryAddress = address(
-            uint160(
-                uint256(
-                    keccak256(
-                        abi.encodePacked(
-                            'treasury',
-                            address(treasuryData.resolver),
-                            treasuryData.paymentToken,
-                            block.timestamp
-                        )
-                    )
-                )
-            )
+        // Deploy Treasury contract using ResolverProxy pattern (similar to ATS Factory)
+        // TODO: check if can be extracted to shared/contracts-core
+        ResolverProxy treasuryProxy = new ResolverProxy(
+            treasuryData.resolver,
+            treasuryData.resolverProxyConfiguration.key,
+            treasuryData.resolverProxyConfiguration.version,
+            treasuryData.rbacs
         );
+
+        treasuryAddress = address(treasuryProxy);
+
+        // Configure Treasury with payment token and environmental assets portfolio
+        _configureTreasuryContract(treasuryAddress, treasuryData);
+    }
+
+    /**
+     * @notice Configures the Treasury contract with payment token and environmental assets
+     * @param treasuryAddress Address of the deployed Treasury contract
+     * @param treasuryData Treasury configuration data
+     */
+    function _configureTreasuryContract(
+        address treasuryAddress,
+        TreasuryData calldata treasuryData
+    ) private {
+        // solhint-disable-next-line no-empty-blocks
+        // TODO: Implement Treasury configuration when Treasury contract interface is available
+        // Configuration would include:
+        // - Setting payment token for coupon/redemption distributions
+        // - Configuring ERC721 portfolio for environmental assets
+        // - Setting up fund allocation capabilities
+        // - Configuring lifecycle obligation management
     }
 
     /**
@@ -225,7 +241,7 @@ abstract contract FactorySuite is IFactorySuite, AtsCommon, ReentrancyGuard {
         if (bondAddress == address(0) || !bondAddress.isContract()) {
             revert BondDeploymentFailed();
         }
-        if (treasuryAddress == address(0)) {
+        if (treasuryAddress == address(0) || !treasuryAddress.isContract()) {
             revert TreasuryDeploymentFailed();
         }
         if (KpiAddress == address(0) || !KpiAddress.isContract()) {
