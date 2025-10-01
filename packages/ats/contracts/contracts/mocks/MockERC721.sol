@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import {ERC721} from '@openzeppelin/contracts/token/ERC721/ERC721.sol';
+import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 
 /**
  * @title MockERC721

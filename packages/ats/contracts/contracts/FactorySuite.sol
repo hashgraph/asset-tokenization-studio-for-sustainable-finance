@@ -2,12 +2,12 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 // solhint-disable max-line-length
-import {Address} from '@openzeppelin/contracts/utils/Address.sol';
-import {ReentrancyGuard} from '@openzeppelin/contracts/security/ReentrancyGuard.sol';
-import {Common as AtsCommon} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
-import {IAtsFactory, AtsFactoryRegulationData} from './interfaces/IFactorySuite.sol';
-import {DEPLOYER_ROLE} from './constants/roles.sol';
-import {FactorySuiteInternal} from './FactorySuiteInternal.sol';
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { IAtsFactory, AtsFactoryRegulationData } from "./interfaces/IFactorySuite.sol";
+import { DEPLOYER_ROLE } from "./constants/roles.sol";
+import { FactorySuiteInternal } from "./FactorySuiteInternal.sol";
 // solhint-enable max-line-length
 
 /**
@@ -32,16 +32,13 @@ abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGua
      * @param treasuryData Treasury configuration to validate
      */
     modifier validTreasuryData(TreasuryData calldata treasuryData) {
-        if (address(treasuryData.resolver) == address(0))
-            revert InvalidTreasuryData();
-        if (treasuryData.paymentToken == address(0))
-            revert InvalidTreasuryData();
+        if (address(treasuryData.resolver) == address(0)) revert InvalidTreasuryData();
+        if (treasuryData.paymentToken == address(0)) revert InvalidTreasuryData();
         if (treasuryData.erc721s.length == 0) revert EmptyArrayNotAllowed();
 
         // Validate all ERC721 addresses are non-zero
         for (uint256 i = 0; i < treasuryData.erc721s.length; ++i) {
-            if (treasuryData.erc721s[i] == address(0))
-                revert InvalidTreasuryData();
+            if (treasuryData.erc721s[i] == address(0)) revert InvalidTreasuryData();
         }
         _;
     }
@@ -69,20 +66,12 @@ abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGua
         validContractAddress(bondFactoryAddress)
         validTreasuryData(treasuryData)
         validKpiData(kpiData)
-        returns (
-            address bondAddress,
-            address treasuryAddress,
-            address KpiAddress
-        )
+        returns (address bondAddress, address treasuryAddress, address KpiAddress)
     {
         KpiAddress = _deployKpiContract(kpiData);
 
         // TODO: Pass KPI address to Bond when interest/coupon system is implemented
-        bondAddress = _deployBondContract(
-            bondFactoryAddress,
-            bondData,
-            factoryRegulationData
-        );
+        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData);
 
         // TODO: Pass Bond address to Treasury initialization
         treasuryAddress = _deployTreasuryContract(treasuryData);

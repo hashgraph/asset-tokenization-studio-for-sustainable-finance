@@ -2,17 +2,12 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 // solhint-disable max-line-length
-import {ProxyAdmin} from '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol';
-import {TransparentUpgradeableProxy} from '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol';
-import {ResolverProxy} from '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol';
-import {
-    IFactorySuite,
-    IResolverProxy,
-    IAtsFactory,
-    AtsFactoryRegulationData
-} from './interfaces/IFactorySuite.sol';
-import {Kpi} from './Kpi.sol';
-import {IKpi} from './interfaces/IKpi.sol';
+import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
+import { IFactorySuite, IResolverProxy, IAtsFactory, AtsFactoryRegulationData } from "./interfaces/IFactorySuite.sol";
+import { Kpi } from "./Kpi.sol";
+import { IKpi } from "./interfaces/IKpi.sol";
 // solhint-enable max-line-length
 
 /**
@@ -20,7 +15,6 @@ import {IKpi} from './interfaces/IKpi.sol';
  * @notice Internal deployment and configuration logic for FactorySuite
  */
 abstract contract FactorySuiteInternal is IFactorySuite {
-
     /**
      * @notice Deploys the Bond contract using the ATS Bond Factory implementation
      * @dev TODO: When interest/coupon system is implemented, this function will need to receive
@@ -37,9 +31,7 @@ abstract contract FactorySuiteInternal is IFactorySuite {
         AtsFactoryRegulationData calldata factoryRegulationData
     ) internal returns (address bondAddress) {
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
-        try bondFactory.deployBond(bondData, factoryRegulationData) returns (
-            address deployedBondAddress
-        ) {
+        try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
         } catch {
             revert BondDeploymentFailed();
@@ -54,9 +46,7 @@ abstract contract FactorySuiteInternal is IFactorySuite {
      * @param treasuryData Treasury configuration data
      * @return treasuryAddress Address of the deployed Treasury contract
      */
-    function _deployTreasuryContract(
-        TreasuryData calldata treasuryData
-    ) internal returns (address treasuryAddress) {
+    function _deployTreasuryContract(TreasuryData calldata treasuryData) internal returns (address treasuryAddress) {
         // Deploy Treasury contract using ResolverProxy pattern (similar to ATS Factory)
         // TODO: check if can be extracted to shared/contracts-core
         ResolverProxy treasuryProxy = new ResolverProxy(
@@ -77,9 +67,7 @@ abstract contract FactorySuiteInternal is IFactorySuite {
      * @param kpiData Kpi configuration data containing admin and RBAC settings
      * @return KpiAddress Address of the deployed Kpi proxy contract
      */
-    function _deployKpiContract(
-        KpiData calldata kpiData
-    ) internal returns (address KpiAddress) {
+    function _deployKpiContract(KpiData calldata kpiData) internal returns (address KpiAddress) {
         // Deploy Kpi logic contract
         Kpi KpiLogic = new Kpi();
 
@@ -103,10 +91,7 @@ abstract contract FactorySuiteInternal is IFactorySuite {
      * @param treasuryAddress Address of the deployed Treasury contract
      * @param treasuryData Treasury configuration data
      */
-    function _configureTreasuryContract(
-        address treasuryAddress,
-        TreasuryData calldata treasuryData
-    ) internal {
+    function _configureTreasuryContract(address treasuryAddress, TreasuryData calldata treasuryData) internal {
         // solhint-disable-next-line no-empty-blocks
         // TODO: Implement Treasury configuration when Treasury contract interface is available
         // Configuration will include:
