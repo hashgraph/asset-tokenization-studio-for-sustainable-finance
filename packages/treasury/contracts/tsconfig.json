@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "declaration": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "importHelpers": true,
+    "outDir": "./build",
+    "resolveJsonModule": true,
+    "paths": {
+      "@configuration": ["./Configuration"],
+      "@scripts": ["./scripts/index"],
+      "@test/*": ["./test/*"],
+      "@typechain": ["./typechain-types/*", "./typechain-types/index.ts"]
+    }
+  }
+}
+
+
+
