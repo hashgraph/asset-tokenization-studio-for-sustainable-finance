@@ -10,7 +10,7 @@ import { expect } from "chai";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
 
-describe("Kpi", () => {
+describe.only("Kpi", () => {
   let kpi: Kpi;
   let proxyAdmin: ProxyAdmin;
   let unknownSigner: Signer;
@@ -130,23 +130,23 @@ describe("Kpi", () => {
     it("returns the aggregated value in range", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(10, 30);
-      expect(agg.kpiAggregatedValue_).to.equal(600);
+      expect(agg.kpiAggregatedValue).to.equal(600);
     });
 
     it("returns 0 if no data in range", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(40, 50);
-      expect(agg.kpiAggregatedValue_).to.equal(0);
+      expect(agg.kpiAggregatedValue).to.equal(0);
     });
     it("returns 0 if there are no Kpi records", async () => {
       const agg = await kpi.getKpiData(1, 100);
-      expect(agg.kpiAggregatedValue_).to.equal(0);
+      expect(agg.kpiAggregatedValue).to.equal(0);
     });
 
     it("returns the aggregated value in range when the toDate is not the last", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(10, 20);
-      expect(agg.kpiAggregatedValue_).to.equal(300);
+      expect(agg.kpiAggregatedValue).to.equal(300);
     });
 
     it("reverts with InvalidDate if fromDate is 0", async () => {
@@ -175,7 +175,7 @@ describe("Kpi", () => {
     it("upgrades the implementation and preserves storage", async () => {
       await kpi.addKpiData(1, 123);
       const before = await kpi.getKpiData(1, 1);
-      expect(before.kpiAggregatedValue_).to.equal(123);
+      expect(before.kpiAggregatedValue).to.equal(123);
       const originalImplementationAddress = await getImplementationAddress(
         kpi.address,
       );
@@ -191,11 +191,11 @@ describe("Kpi", () => {
       );
 
       const after = await kpi.getKpiData(1, 1);
-      expect(after.kpiAggregatedValue_).to.equal(123);
+      expect(after.kpiAggregatedValue).to.equal(123);
 
       await kpi.addKpiData(2, 200);
       const agg = await kpi.getKpiData(1, 2);
-      expect(agg.kpiAggregatedValue_).to.equal(323);
+      expect(agg.kpiAggregatedValue).to.equal(323);
     });
   });
 });

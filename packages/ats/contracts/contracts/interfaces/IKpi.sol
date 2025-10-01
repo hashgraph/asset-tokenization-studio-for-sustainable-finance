@@ -56,26 +56,26 @@ interface IKpi {
      */
     event KpiDataAdded(uint256 indexed date, uint256 value);
 
-    function initialize(IResolverProxy.Rbac[] memory _rbacs) external;
+    function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 
     /**
      * @notice Adds Kpi data for a specific date
      * @dev If data already exists for the given date, it will be overwritten
-     * @param _date The timestamp representing the date of the Kpi measurement (must be > 0)
-     * @param _kpiValue The Kpi value to store (must be > 0)
+     * @param date The timestamp representing the date of the Kpi measurement (must be > 0)
+     * @param kpiValue The Kpi value to store (must be > 0)
      */
-    function addKpiData(uint256 _date, uint256 _kpiValue) external;
+    function addKpiData(uint256 date, uint256 kpiValue) external;
 
     /**
      * @notice Retrieves aggregated Kpi data for a date range
      * @dev Uses binary search for efficient range queries. Returns the sum of all Kpi values
      *      within the specified date range (inclusive on both ends)
-     * @param _fromDate The start date of the range (inclusive, must be > 0)
-     * @param _toDate The end date of the range (inclusive, must be > 0 and >= _fromDate)
-     * @return kpiAggregatedValue_ The sum of all Kpi values in the specified date range
+     * @param fromDate The start date of the range (inclusive, must be > 0)
+     * @param toDate The end date of the range (inclusive, must be > 0 and >= fromDate)
+     * @return kpiAggregatedValue The sum of all Kpi values in the specified date range
      */
     function getKpiData(
-        uint256 _fromDate,
-        uint256 _toDate
-    ) external view returns (uint256 kpiAggregatedValue_, bool exists_);
+        uint256 fromDate,
+        uint256 toDate
+    ) external view returns (uint256 kpiAggregatedValue, bool exists);
 }

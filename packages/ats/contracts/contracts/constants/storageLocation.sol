@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-// keccak256(abi.encode(uint256(keccak256("kpi.storage.main")) - 1)) & ~bytes32(uint256(0xff))
-bytes32 constant MAIN_STORAGE_LOCATION = 0x7951b57d34492147b02ce280f4a5a3e267a90c41bb73a92f7e5957582ef3b4cc;
+// keccak256('green.bonds.platform.kpi.storage.main')
+bytes32 constant KPI_STORAGE_LOCATION = 0xbfae3ae21aade598139f4a72699e4808ee0f7043f51f32ae29b2f571fa3eb27d;
