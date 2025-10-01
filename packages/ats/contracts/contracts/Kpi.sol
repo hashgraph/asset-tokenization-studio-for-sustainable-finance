@@ -39,27 +39,21 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     function getKpiData(
         uint256 fromDate,
         uint256 toDate
-    )
-        external
-        view
-        override
-        validDate(fromDate)
-        validDate(toDate)
-        returns (uint256 kpiAggregatedValue, bool exists)
-    {
+    ) external view override validDate(fromDate) validDate(toDate) returns (uint256 kpiAggregatedValue, bool exists) {
         if (fromDate > toDate) revert InvalidDateRange(fromDate, toDate);
 
         KpiStorage storage kpiStorage = _getKpiStorage();
 
         for (uint256 date = fromDate; date <= toDate; ) {
-            if (kpiStorage.kpiData[date].exists) {
-                kpiAggregatedValue += kpiStorage.kpiData[date].value;
-                if (!exists) {
-                    exists = true;
-                }
+            IKpi.KpiEntry storage kpiData = kpiStorage.kpiData[date];
+
+            if (kpiData.exists) {
+                kpiAggregatedValue += kpiData.value;
+                exists = true;
             }
+
             unchecked {
-                date = date + 1 seconds;
+                ++date;
             }
         }
         return (kpiAggregatedValue, exists);
