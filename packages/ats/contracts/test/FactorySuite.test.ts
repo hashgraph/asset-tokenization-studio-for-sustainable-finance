@@ -205,7 +205,7 @@ describe("FactorySuite", () => {
   });
 
   describe("deployBondSuite - Input Validation", () => {
-    it("should revert with ZeroAddressNotAllowed for zero bond factory address", async () => {
+    it("should revert with InvalidContractAddress for zero bond factory address", async () => {
       const {
         validBondData,
         validFactoryRegulationData,
@@ -225,7 +225,7 @@ describe("FactorySuite", () => {
           ),
       ).to.be.revertedWithCustomError(
         fixture.factorySuiteFacet,
-        "ZeroAddressNotAllowed",
+        "InvalidContractAddress",
       );
     });
 
@@ -279,7 +279,7 @@ describe("FactorySuite", () => {
       );
     });
 
-    it("should revert with EmptyArrayNotAllowed for empty ERC721 array", async () => {
+    it("should allow empty ERC721 array in treasury data", async () => {
       const { mockAtsFactory, mockResolver, paymentToken } = fixture;
       const { validBondData, validFactoryRegulationData, validKpiData } =
         testData;
@@ -292,9 +292,10 @@ describe("FactorySuite", () => {
         },
         rbacs: [],
         paymentToken: paymentToken.address,
-        erc721s: [], // Empty array
+        erc721s: [], // Empty array is now allowed
       };
 
+      // This should NOT revert - empty arrays are permitted
       await expect(
         fixture.factorySuiteFacet
           .connect(fixture.admin)
@@ -305,10 +306,7 @@ describe("FactorySuite", () => {
             treasuryDataWithEmptyArray,
             validKpiData,
           ),
-      ).to.be.revertedWithCustomError(
-        fixture.factorySuiteFacet,
-        "EmptyArrayNotAllowed",
-      );
+      ).to.not.be.reverted;
     });
 
     it("should revert with InvalidTreasuryData for zero address in ERC721 array", async () => {

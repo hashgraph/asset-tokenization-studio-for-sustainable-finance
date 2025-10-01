@@ -145,7 +145,7 @@ export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
     },
     rbacs: [],
     paymentToken: ethers.constants.AddressZero, // Invalid - zero address
-    erc721s: [], // Invalid - empty array
+    erc721s: [], // Empty array is now valid
   };
 
   const invalidKpiData = {

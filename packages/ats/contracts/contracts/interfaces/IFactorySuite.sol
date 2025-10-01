@@ -88,11 +88,6 @@ interface IFactorySuite {
     error InvalidKpiData();
 
     /**
-     * @dev Thrown when empty array is provided where non-empty is required
-     */
-    error EmptyArrayNotAllowed();
-
-    /**
      * @dev Thrown when an address is not a valid contract
      * @param provided The address that was provided but is not a contract
      */

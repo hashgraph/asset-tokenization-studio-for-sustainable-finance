@@ -24,7 +24,7 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should implement IFactorySuite interface", async () => {
-      const IFactorySuiteInterface = "0xa0712d68"; // Calculate actual interface ID
+      const _IFactorySuiteInterface = "0xa0712d68"; // Calculate actual interface ID
       // Note: This would need the actual calculated interface ID for IFactorySuite
       const supportedInterfaces =
         await fixture.factorySuiteFacet.getStaticInterfaceIds();
@@ -53,7 +53,7 @@ describe("FactorySuiteFacet", () => {
         await fixture.factorySuiteFacet.getStaticFunctionSelectors();
 
       // Calculate expected selector for deployBondSuite function
-      const deployBondSuiteSelector = ethers.utils
+      const _deployBondSuiteSelector = ethers.utils
         .id(
           "deployBondSuite(address,(string,string,string,uint8,uint256,(uint256,uint256,uint8,uint256)),(bool,bool,bool,bool),(address,(address,uint256),(bytes32,address)[],address,address[])((address,(bytes32,address)[])",
         )

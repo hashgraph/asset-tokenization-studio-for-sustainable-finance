@@ -7,22 +7,21 @@ import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuar
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { IAtsFactory, AtsFactoryRegulationData } from "./interfaces/IFactorySuite.sol";
 import { DEPLOYER_ROLE } from "./constants/roles.sol";
-import { FactorySuiteInternal } from "./FactorySuiteInternal.sol";
+import { FactorySuiteStorageWrapper } from "./FactorySuiteStorageWrapper.sol";
 // solhint-enable max-line-length
 
 /**
  * @title FactorySuite
  * @notice Deploys an atomic suite of Bond, Treasury, and Kpi contracts with pre-flight validation
  */
-abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGuard {
+abstract contract FactorySuite is FactorySuiteStorageWrapper, AtsCommon, ReentrancyGuard {
     using Address for address;
 
     /**
-     * @dev Validates that an address is not zero and is a contract
+     * @dev Validates that an address is a contract
      * @param addr The address to validate
      */
     modifier validContractAddress(address addr) {
-        if (addr == address(0)) revert ZeroAddressNotAllowed();
         if (!addr.isContract()) revert InvalidContractAddress(addr);
         _;
     }
@@ -34,9 +33,8 @@ abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGua
     modifier validTreasuryData(TreasuryData calldata treasuryData) {
         if (address(treasuryData.resolver) == address(0)) revert InvalidTreasuryData();
         if (treasuryData.paymentToken == address(0)) revert InvalidTreasuryData();
-        if (treasuryData.erc721s.length == 0) revert EmptyArrayNotAllowed();
 
-        // Validate all ERC721 addresses are non-zero
+        // Validate all ERC721 addresses are non-zero (empty array is allowed)
         for (uint256 i = 0; i < treasuryData.erc721s.length; ++i) {
             if (treasuryData.erc721s[i] == address(0)) revert InvalidTreasuryData();
         }
@@ -70,11 +68,9 @@ abstract contract FactorySuite is FactorySuiteInternal, AtsCommon, ReentrancyGua
     {
         KpiAddress = _deployKpiContract(kpiData);
 
-        // TODO: Pass KPI address to Bond when interest/coupon system is implemented
-        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData);
+        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData, KpiAddress);
 
-        // TODO: Pass Bond address to Treasury initialization
-        treasuryAddress = _deployTreasuryContract(treasuryData);
+        treasuryAddress = _deployTreasuryContract(treasuryData, bondAddress);
 
         emit BondSuiteDeployed(
             msg.sender,
