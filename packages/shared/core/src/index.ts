@@ -44,6 +44,9 @@ export { RetryPRetryAdapter } from "./retry/RetryPRetryAdapter"
 export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
 export { RetryPort } from "./retry/RetryPort"
 
+export { BaseTransactionBuilder } from "./transaction/BaseTransactionBuilder"
+export { Environment } from "./transaction/Environment"
+
 export { BaseTransactionRequest } from "./transaction/model/BaseTransactionRequest"
 export { TransactionResponse } from "./transaction/model/TransactionResponse"
 export { BaseBuildTransactionRequest } from "./transaction/model/BaseBuildTransactionRequest"
