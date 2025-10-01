@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumber, IsUUID } from "class-validator"
+import { IsHexadecimal, IsNotEmpty, IsPositive } from "class-validator"
 
 export class FundBeneficiaryTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
-  @IsUUID()
+  @IsHexadecimal()
   @IsNotEmpty()
   readonly address: string
 
-  @IsNumber()
-  @IsNotEmpty()
+  @IsPositive()
   readonly amount: number
 
   constructor(address: string, amount: number, format: string) {

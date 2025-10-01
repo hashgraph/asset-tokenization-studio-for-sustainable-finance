@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Body, Controller, Post } from "@nestjs/common"
-import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import { Body, Post } from "@nestjs/common"
+import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { FundBeneficiaryTransactionRequest } from "./model/FundBeneficiaryTransactionRequest"
 import { FundBeneficiaryTransactionAppService } from "../../../../app/transaction/fundbeneficiarytransaction/service/FundBeneficiaryTransactionAppService"
 import { FundBeneficiaryTransactionAppServiceRequest } from "../../../../app/transaction/fundbeneficiarytransaction/service/model/FundBeneficiaryTransactionAppServiceRequest"
 
-@Controller("beneficiaries")
+@RestController("beneficiaries")
 export class FundBeneficiaryTransactionHttpAdapter {
   constructor(private readonly fundBeneficiaryTransactionAppService: FundBeneficiaryTransactionAppService) {}
 

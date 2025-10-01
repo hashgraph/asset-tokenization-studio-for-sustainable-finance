@@ -1,113 +1,141 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Test, TestingModule } from "@nestjs/testing"
-import { FundBeneficiaryTransactionHttpAdapter } from "../../../../../src/port.adapter/transaction/usecase/fundbeneficiarytransaction/FundBeneficiaryTransactionHttpAdapter"
-import { FundBeneficiaryTransactionAppService } from "../../../../../src/app/transaction/fundbeneficiarytransaction/service/FundBeneficiaryTransactionAppService"
-import { FundBeneficiaryTransactionRequest } from "../../../../../src/port.adapter/transaction/usecase/fundbeneficiarytransaction/model/FundBeneficiaryTransactionRequest"
-import { FundBeneficiaryTransactionAppServiceRequest } from "../../../../../src/app/transaction/fundbeneficiarytransaction/service/model/FundBeneficiaryTransactionAppServiceRequest"
-import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import { INestApplication } from "@nestjs/common"
+import request from "supertest"
+import { AppModule } from "../../../../../src/AppModule"
+import { BuildTransactionResponse } from "@hashgraph/green-bonds-shared-core"
 
-describe("FundBeneficiaryTransactionHttpAdapter", () => {
-  let adapter: FundBeneficiaryTransactionHttpAdapter
-  let mockAppService: jest.Mocked<FundBeneficiaryTransactionAppService>
+describe("FundBeneficiaryTransaction API Integration", () => {
+  let app: INestApplication
 
   beforeEach(async () => {
-    mockAppService = {
-      execute: jest.fn(),
-    } as any
+    // Mock only the external dependency that's not implemented yet
+    const mockTransactionBuilderAdapter = {
+      fundBeneficiary: jest.fn().mockReturnValue(new BuildTransactionResponse("mocked-serialized-transaction")),
+    }
 
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [FundBeneficiaryTransactionHttpAdapter],
-      providers: [
-        {
-          provide: FundBeneficiaryTransactionAppService,
-          useValue: mockAppService,
-        },
-      ],
-    }).compile()
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider("TransactionBuilderPort")
+      .useValue(mockTransactionBuilderAdapter)
+      .compile()
 
-    adapter = module.get<FundBeneficiaryTransactionHttpAdapter>(FundBeneficiaryTransactionHttpAdapter)
+    app = moduleFixture.createNestApplication()
+    await app.init()
   })
 
-  it("should be defined", () => {
-    expect(adapter).toBeDefined()
+  afterEach(async () => {
+    await app.close()
   })
 
-  describe("fundBeneficiary", () => {
-    it("should call appService.execute with correct AppServiceRequest", () => {
-      const httpRequest = new FundBeneficiaryTransactionRequest("0x1234567890abcdef", 1000, "json")
-      const expectedResponse = new TransactionResponse("serialized-tx")
-      mockAppService.execute.mockReturnValue(expectedResponse)
+  describe("POST /beneficiaries/fund", () => {
+    it("should fund beneficiary with valid hexadecimal address and positive amount", async () => {
+      const fundRequest = {
+        address: "0x1234567890abcdef",
+        amount: 1000,
+        format: "hedera",
+      }
 
-      const result = adapter.fundBeneficiary(httpRequest)
+      const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
-      const executeMock = mockAppService.execute as jest.MockedFunction<typeof mockAppService.execute>
-      expect(executeMock).toHaveBeenCalledWith(expect.any(FundBeneficiaryTransactionAppServiceRequest))
-
-      const calledWith = mockAppService.execute.mock.calls[0][0]
-      expect(calledWith.address).toBe(httpRequest.address)
-      expect(calledWith.amount).toBe(httpRequest.amount)
-      expect(calledWith.format).toBe(httpRequest.format)
-      expect(result).toBe(expectedResponse)
+      expect(response.body).toHaveProperty("unsignedTx")
+      expect(typeof response.body.unsignedTx).toBe("string")
     })
 
-    it("should return the response from appService", () => {
-      const httpRequest = new FundBeneficiaryTransactionRequest("0xabcdef1234567890", 2000, "hex")
-      const expectedResponse = new TransactionResponse("another-serialized-tx")
-      mockAppService.execute.mockReturnValue(expectedResponse)
+    it("should handle different valid hexadecimal addresses", async () => {
+      const addresses = ["0x1234567890abcdef", "0xABCDEF1234567890", "0xdeadbeefcafebabe"]
 
-      const result = adapter.fundBeneficiary(httpRequest)
+      for (const address of addresses) {
+        const fundRequest = {
+          address,
+          amount: 500,
+          format: "hedera",
+        }
 
-      expect(result).toEqual(expectedResponse)
+        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
+
+        expect(response.body).toHaveProperty("unsignedTx")
+      }
     })
 
-    it("should handle different address formats", () => {
-      const addresses = ["0x1234567890abcdef", "0xABCDEF1234567890", "some-other-address-format"]
-
-      addresses.forEach((address) => {
-        const httpRequest = new FundBeneficiaryTransactionRequest(address, 1000, "json")
-        const expectedResponse = new TransactionResponse("serialized-tx")
-        mockAppService.execute.mockReturnValue(expectedResponse)
-
-        const result = adapter.fundBeneficiary(httpRequest)
-
-        const calledWith = mockAppService.execute.mock.calls[mockAppService.execute.mock.calls.length - 1][0]
-        expect(calledWith.address).toBe(address)
-        expect(result).toBe(expectedResponse)
-      })
-    })
-
-    it("should handle different amount values", () => {
+    it("should handle different positive amounts", async () => {
       const amounts = [1, 100, 1000, 999999]
 
-      amounts.forEach((amount) => {
-        const httpRequest = new FundBeneficiaryTransactionRequest("0x1234567890abcdef", amount, "json")
-        const expectedResponse = new TransactionResponse("serialized-tx")
-        mockAppService.execute.mockReturnValue(expectedResponse)
+      for (const amount of amounts) {
+        const fundRequest = {
+          address: "0x1234567890abcdef",
+          amount,
+          format: "hedera",
+        }
 
-        const result = adapter.fundBeneficiary(httpRequest)
+        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
 
-        const calledWith = mockAppService.execute.mock.calls[mockAppService.execute.mock.calls.length - 1][0]
-        expect(calledWith.amount).toBe(amount)
-        expect(result).toBe(expectedResponse)
-      })
+        expect(response.body).toHaveProperty("unsignedTx")
+      }
     })
 
-    it("should handle different format values", () => {
-      const formats = ["json", "hex", "base64"]
+    it("should handle different valid format values", async () => {
+      const formats = ["hedera", "ethereum"]
 
-      formats.forEach((format) => {
-        const httpRequest = new FundBeneficiaryTransactionRequest("0x1234567890abcdef", 1000, format)
-        const expectedResponse = new TransactionResponse("serialized-tx")
-        mockAppService.execute.mockReturnValue(expectedResponse)
+      for (const format of formats) {
+        const fundRequest = {
+          address: "0x1234567890abcdef",
+          amount: 1000,
+          format,
+        }
 
-        const result = adapter.fundBeneficiary(httpRequest)
+        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
 
-        const calledWith = mockAppService.execute.mock.calls[mockAppService.execute.mock.calls.length - 1][0]
-        expect(calledWith.format).toBe(format)
-        expect(result).toBe(expectedResponse)
-      })
+        expect(response.body).toHaveProperty("unsignedTx")
+      }
+    })
+
+    it("should reject invalid hexadecimal address", async () => {
+      const fundRequest = {
+        address: "invalid-address",
+        amount: 1000,
+        format: "hedera",
+      }
+
+      await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+    })
+
+    it("should return 400 for invalid format values", async () => {
+      const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
+
+      for (const format of invalidFormats) {
+        const fundRequest = {
+          address: "0x1234567890abcdef",
+          amount: 1000,
+          format,
+        }
+
+        await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+      }
+    })
+
+    it("should reject non-positive amounts", async () => {
+      const invalidAmounts = [0, -1, -100]
+
+      for (const amount of invalidAmounts) {
+        const fundRequest = {
+          address: "0x1234567890abcdef",
+          amount,
+          format: "hedera",
+        }
+
+        await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+      }
+    })
+
+    it("should return 400 for missing required fields", async () => {
+      const invalidRequests = [{}, { address: "0x1234567890abcdef" }, { amount: 1000 }, { format: "hedera" }]
+
+      for (const invalidRequest of invalidRequests) {
+        await request(app.getHttpServer()).post("/beneficiaries/fund").send(invalidRequest).expect(400)
+      }
     })
   })
 })
