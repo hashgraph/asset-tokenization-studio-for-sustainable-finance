@@ -1,7 +1,7 @@
 {
   "name": "@hashgraph/green-bonds-treasury-api",
   "version": "1.0.0",
-  "license": "Apache 2.0",
+  "license": "Apache-2.0",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -45,24 +45,7 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": "test/.*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "src/**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "setupFilesAfterEnv": [
-      "<rootDir>/test/setup.ts"
-    ],
+    "preset": "../../../jest.base.config.js",
     "moduleNameMapper": {
       "^@app/(.*)$": "<rootDir>/src/app/$1",
       "^@domain/(.*)$": "<rootDir>/src/domain/$1",
