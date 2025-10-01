@@ -50,7 +50,8 @@ export async function deployProxyAdmin(): Promise<ProxyAdmin> {
 async function processAddressableArgs(arg: unknown): Promise<unknown> {
     if (Array.isArray(arg)) {
         return Promise.all(arg.map(processAddressableArgs))
-    } else if ( // ethers v6 ethers => ethers.isAddressable(arg)
+    } else if (
+        // ethers v6 ethers => ethers.isAddressable(arg)
         arg &&
         typeof arg === 'object' &&
         'getAddress' in arg &&

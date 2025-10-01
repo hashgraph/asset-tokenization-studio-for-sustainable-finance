@@ -4,12 +4,45 @@
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [
-    "packages/shared/*",
-    "packages/treasury/*",
     "apps/shared/*",
-    "apps/treasury/*",
-    "packages/primary-market/*",
     "apps/ats/*",
-    "apps/primary-market/*"
-  ]
+    "apps/treasury/*",
+    "apps/primary-market/*",
+    "packages/shared/*",
+    "packages/ats/*",
+    "packages/treasury/*",
+    "packages/primary-market/*"
+  ],
+  "scripts": {
+    "clean": "npm run ats:contracts:clean; node -e \"const fs=require('fs'); fs.rmSync('node_modules', {recursive:true, force:true})\"",
+    "clean:force": "npm run clean; node -e \"const fs=require('fs'); fs.rmSync('package-lock.json', {force:true})\"",
+    "format": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:sol": "solhint 'packages/*/contracts/contracts/**/*.sol'",
+    "lint:sol:fix": "solhint 'packages/*/contracts/contracts/**/*.sol' --fix --noPrompt",
+    "ats:contracts:clean": "npm run clean --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:compile": "npm run compile --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:build": "npm run compile --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:format": "npm run format --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:format:fix": "npm run format:fix --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:lint": "npm run lint --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:lint:fix": "npm run lint:fix --workspace=@hashgraph/green-bonds-platform-ats-contracts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "eslint": "^9.36.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "globals": "^15.14.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-solidity": "^2.1.0"
+  },
+  "overrides": {
+    "@typechain/ethers-v5": "^11.1.2",
+    "ws": "^8.15.0"
+  }
 }

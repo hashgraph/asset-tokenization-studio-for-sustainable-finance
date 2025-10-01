@@ -117,6 +117,7 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+.github/
 
 # Mac files
 .DS_Store
@@ -128,13 +129,14 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-*.iml
+asset-tokenization-studio.iml
 
 # IntelliJ Idea
 /.idea/
 
 # AI files
 .kiro/
+.claude/
 CLAUDE.md
 
 # Extracted methods from contracts
