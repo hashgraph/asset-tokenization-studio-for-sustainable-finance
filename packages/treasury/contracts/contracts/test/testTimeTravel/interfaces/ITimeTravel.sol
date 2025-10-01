@@ -37,7 +37,7 @@ interface ITimeTravel {
      *
      * @param newSystemTime The new system timestamp
      */
-    function changeSystemTimestamp(uint256 _newSystemTime) external;
+    function changeSystemTimestamp(uint256 newSystemTime) external;
 
     /*
      * @dev Reset the system timestamp

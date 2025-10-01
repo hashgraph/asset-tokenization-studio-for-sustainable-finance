@@ -4,8 +4,8 @@ pragma solidity 0.8.18;
 // solhint-disable max-line-length
 
 import {
-    ILifeCycleCashFlowStorageWrapper
-} from './interfaces/ILifeCycleCashFlowStorageWrapper.sol';
+    ILifeCycleCashFlow
+} from './interfaces/ILifeCycleCashFlow.sol';
 import {
     Common as AtsCommon
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
@@ -27,13 +27,13 @@ import {
 import {
     ISecurity
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol';
-import {_DEFAULT_PARTITION} from './constants/values.sol';
+import {_DEFAULT_PARTITION} from '@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/values.sol';
 import {
-    _LIFECYCLE_CASH_FLOW_STORAGE_POSITION
+    LIFECYCLE_CASH_FLOW_STORAGE_POSITION
 } from './constants/storagePositions.sol';
 
 abstract contract LifeCycleCashFlowStorageWrapper is
-    ILifeCycleCashFlowStorageWrapper,
+    ILifeCycleCashFlow,
     HederaTokenService,
     AtsCommon
 {
@@ -45,18 +45,18 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         bool initialized;
     }
 
-    modifier isAsset(address _asset) {
-        _checkAsset(_asset);
+    modifier isAsset(address asset) {
+        _checkAsset(asset);
         _;
     }
 
-    modifier onlyOnDistributionDate(address _asset, uint256 _distributionID) {
-        _checkDistributionDate(_asset, _distributionID);
+    modifier onlyOnDistributionDate(address asset, uint256 distributionID) {
+        _checkDistributionDate(asset, distributionID);
         _;
     }
 
-    modifier onlyOnMaturityDate(address _bond) {
-        _checkMaturityDate(_bond);
+    modifier onlyOnMaturityDate(address bond) {
+        _checkMaturityDate(bond);
         _;
     }
 
@@ -71,33 +71,33 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistribution(
-        address _asset,
-        uint256 _distributionID,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address asset,
+        uint256 distributionID,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         internal
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_,
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount,
             bool
         )
     {
         address[] memory holders = _getHolders(
-            _asset,
-            _distributionID,
-            _pageIndex,
-            _pageLength
+            asset,
+            distributionID,
+            pageIndex,
+            pageLength
         );
         if (holders.length == 0)
-            return (failed_, succeeded_, paidAmount_, false);
-        (failed_, succeeded_, paidAmount_) = _executeDistributionByAddresses(
-            _asset,
-            _distributionID,
+            return (failed, succeeded, paidAmount, false);
+        (failed, succeeded, paidAmount) = _executeDistributionByAddresses(
+            asset,
+            distributionID,
             holders
         );
-        return (failed_, succeeded_, paidAmount_, true);
+        return (failed, succeeded, paidAmount, true);
     }
 
     /*
@@ -110,21 +110,21 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistributionByAddresses(
-        address _asset,
-        uint256 _distributionID,
-        address[] memory _holders
+        address asset,
+        uint256 distributionID,
+        address[] memory holders
     )
         internal
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount
         )
     {
-        (failed_, succeeded_, paidAmount_) = _payHoldersDistribution(
-            _asset,
-            _distributionID,
-            _holders
+        (failed, succeeded, paidAmount) = _payHoldersDistribution(
+            asset,
+            distributionID,
+            holders
         );
     }
 
@@ -139,30 +139,30 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return True if ATS returns holders for their bonds to be cashed out, and false otherwise
      */
     function _executeBondCashOut(
-        address _bond,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address bond,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         internal
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_,
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount,
             bool
         )
     {
-        address[] memory holders = ISecurity(_bond).getSecurityHolders(
-            _pageIndex,
-            _pageLength
+        address[] memory holders = ISecurity(bond).getSecurityHolders(
+            pageIndex,
+            pageLength
         );
 
         if (holders.length == 0)
-            return (failed_, succeeded_, paidAmount_, false);
-        (failed_, succeeded_, paidAmount_) = _executeBondCashOutByAddresses(
-            _bond,
+            return (failed, succeeded, paidAmount, false);
+        (failed, succeeded, paidAmount) = _executeBondCashOutByAddresses(
+            bond,
             holders
         );
-        return (failed_, succeeded_, paidAmount_, true);
+        return (failed, succeeded, paidAmount, true);
     }
 
     /*
@@ -174,19 +174,19 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose cash outs were not successful
      */
     function _executeBondCashOutByAddresses(
-        address _bond,
-        address[] memory _holders
+        address bond,
+        address[] memory holders
     )
         internal
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount
         )
     {
-        (failed_, succeeded_, paidAmount_) = _payHoldersCashOut(
-            _bond,
-            _holders
+        (failed, succeeded, paidAmount) = _payHoldersCashOut(
+            bond,
+            holders
         );
     }
 
@@ -195,21 +195,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @param asset The asset to be set
      */
-    function _setAsset(address _asset) internal {
-        _lifeCycleCashFlowStorage().asset = _asset;
-    }
-
-    /*
-     * @dev Associate with payment token to the contract
-     *
-     * @param token The address of the token we want to associate with the contract
-     */
-    function _associateToken(address _token) internal virtual {
-        if (HederaTokenService.associateToken(address(this), _token) != 22) {
-            revert AssociateTokenFailed();
-        }
-
-        emit TokenAssociated(_token);
+    function _setAsset(address asset) internal {
+        _lifeCycleCashFlowStorage().asset = asset;
     }
 
     /*
@@ -217,7 +204,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @param asset The asset to be set
      */
-    function _getAsset() internal view returns (address asset_) {
+    function _getAsset() internal view returns (address) {
         return _lifeCycleCashFlowStorage().asset;
     }
 
@@ -230,13 +217,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return True if the distribution was already paid to the holder, false otherwise
      */
     function _isDistributionHolderPaid(
-        uint256 _distributionID,
-        address _holder
+        uint256 distributionID,
+        address holder
     ) internal view returns (bool) {
         return
             _lifeCycleCashFlowStorage().paidAddressesByDistribution[
-                _distributionID
-            ][_holder];
+                distributionID
+            ][holder];
     }
 
     /*
@@ -249,7 +236,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         pure
         returns (LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage_)
     {
-        bytes32 position = _LIFECYCLE_CASH_FLOW_STORAGE_POSITION;
+        bytes32 position = LIFECYCLE_CASH_FLOW_STORAGE_POSITION;
         // solhint-disable-next-line no-inline-assembly
         assembly {
             lifeCycleCashFlowStorage_.slot := position
@@ -257,18 +244,20 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Sets a payment to a holder for a distribution
+     * @dev Sets a payment to an array of holders for a distribution
      *
      * @param distributionID The distribution paid to a holder
-     * @param holder The holder who was paid
+     * @param holders The array of holders who were paid
      */
-    function _setDistributionHolderPaid(
+    function _setDistributionHoldersPaid(
         uint256 distributionID,
-        address holder
+        address[] memory holders
     ) private {
-        _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionID][
-            holder
-        ] = true;
+        for (uint256 index; index < holders.length; ) {
+            _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionID][
+                holders[index]
+            ] = true;
+        }
     }
 
     /*
@@ -290,50 +279,82 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful for the distribution
      */
     function _payHoldersDistribution(
-        address _asset,
-        uint256 _distributionID,
-        address[] memory _holders
+        address asset,
+        uint256 distributionID,
+        address[] memory holders
     )
         private
         returns (
-            address[] memory failedAddresses_,
-            address[] memory succeededAddresses_,
-            uint256[] memory paidAmount_
+            address[] memory failedAddresses,
+            address[] memory succeededAddresses,
+            uint256[] memory paidAmount
         )
     {
-        failedAddresses_ = new address[](_holders.length);
-        succeededAddresses_ = new address[](_holders.length);
-        paidAmount_ = new uint256[](_holders.length);
+        failedAddresses = new address[](holders.length);
+        succeededAddresses = new address[](holders.length);
+        paidAmount = new uint256[](holders.length);
         OZ_IERC20 paymentToken = _lifeCycleCashFlowStorage().paymentToken;
 
-        uint256 failedIndex;
+        uint256 nominalValue = IBond(asset).getBondDetails().nominalValue;
+        uint256[] memory calculatedAmount = new uint256[](holders.length);
+        for (uint256 index; index < holders.length; ) {
+            (bool success, uint256 amount) = _getCouponAmount(
+                asset,
+                distributionID,
+                holders[index],
+                nominalValue
+            );
+
+            calculatedAmount[index] = amount;
+            unchecked {
+                ++index;
+            }
+        }
+
+        //checkear que hay saldo suficiente
+        //
+
+
+        // Todo ha ido bien
+        if () {
+            succeededAddresses = holders;
+            _setDistributionHoldersPaid(distributionID, holders);
+            paidAmount = calculatedAmount;
+        } else {
+            failedAddresses = holders;
+        }
+
+        return (failedAddresses, succeededAddresses, paidAmount);
+
+
+        /*uint256 failedIndex;
         uint256 succeededIndex;
 
-        uint256 nominalValue = IBond(_asset).getBondDetails().nominalValue;
-        for (uint256 index; index < _holders.length; ) {
+        uint256 nominalValue = IBond(asset).getBondDetails().nominalValue;
+        for (uint256 index; index < holders.length; ) {
             (bool success, uint256 amount) = _getCouponAmount(
-                _asset,
-                _distributionID,
-                _holders[index],
+                asset,
+                distributionID,
+                holders[index],
                 nominalValue
             );
 
             if (
                 !success ||
                 !_payHolderDistribution(
-                    _distributionID,
-                    _holders[index],
+                    distributionID,
+                    holders[index],
                     amount,
                     paymentToken
                 )
             ) {
-                failedAddresses_[failedIndex] = _holders[index];
+                failedAddresses[failedIndex] = holders[index];
                 unchecked {
                     ++failedIndex;
                 }
             } else {
-                succeededAddresses_[succeededIndex] = _holders[index];
-                paidAmount_[succeededIndex] = amount;
+                succeededAddresses[succeededIndex] = holders[index];
+                paidAmount[succeededIndex] = amount;
                 unchecked {
                     ++succeededIndex;
                 }
@@ -343,7 +364,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 ++index;
             }
         }
-        return (failedAddresses_, succeededAddresses_, paidAmount_);
+        return (failedAddresses, succeededAddresses, paidAmount);*/
     }
 
     /*
@@ -355,40 +376,40 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses whose payment were not successful for the cash out
      */
     function _payHoldersCashOut(
-        address _bond,
-        address[] memory _holders
+        address bond,
+        address[] memory holders
     )
         private
         returns (
-            address[] memory failedAddresses_,
-            address[] memory succeededAddresses_,
-            uint256[] memory paidAmount_
+            address[] memory failedAddresses,
+            address[] memory succeededAddresses,
+            uint256[] memory paidAmount
         )
     {
-        failedAddresses_ = new address[](_holders.length);
-        succeededAddresses_ = new address[](_holders.length);
-        paidAmount_ = new uint256[](_holders.length);
+        failedAddresses = new address[](holders.length);
+        succeededAddresses = new address[](holders.length);
+        paidAmount = new uint256[](holders.length);
         OZ_IERC20 paymentToken = _lifeCycleCashFlowStorage().paymentToken;
 
         uint256 failedIndex;
         uint256 succeededIndex;
-        for (uint256 index; index < _holders.length; ) {
-            uint256 cashAmount = _getCashOutAmount(_bond, _holders[index]);
+        for (uint256 index; index < holders.length; ) {
+            uint256 tokensAmount = _getTokensAmount(bond, holders[index]);
+            uint256 cashAmount = _getCashOutAmount(bond, tokensAmount);
 
-            if (!_payHolderCashOut(_holders[index], cashAmount, paymentToken)) {
-                failedAddresses_[failedIndex] = _holders[index];
+            if (!_payHolderCashOut(holders[index], cashAmount, paymentToken)) {
+                failedAddresses[failedIndex] = holders[index];
                 unchecked {
                     ++failedIndex;
                 }
             } else {
-                uint256 tokensAmount = _getTokensAmount(_bond, _holders[index]);
-                IBond(_bond).redeemAtMaturityByPartition(
-                    _holders[index],
+                IBond(bond).redeemAtMaturityByPartition(
+                    holders[index],
                     _DEFAULT_PARTITION,
                     tokensAmount
                 );
-                succeededAddresses_[succeededIndex] = _holders[index];
-                paidAmount_[succeededIndex] = cashAmount;
+                succeededAddresses[succeededIndex] = holders[index];
+                paidAmount[succeededIndex] = cashAmount;
                 unchecked {
                     ++succeededIndex;
                 }
@@ -410,30 +431,30 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return True if the payment succeeded, false otherwise
      */
-    function _payHolderDistribution(
-        uint256 _distributionID,
-        address _holder,
-        uint256 _amount,
+    /*function _payHolderDistribution(
+        uint256 distributionID,
+        address holder,
+        uint256 amount,
         OZ_IERC20 _paymentToken
     ) private returns (bool) {
-        if (_isDistributionHolderPaid(_distributionID, _holder)) {
+        if (_isDistributionHolderPaid(distributionID, holder)) {
             return false;
         }
 
-        if (_paymentToken.balanceOf(address(this)) < _amount) {
+        if (_paymentToken.balanceOf(address(this)) < amount) {
             return false;
         }
 
-        try _paymentToken.transfer(_holder, _amount) returns (bool result) {
+        try _paymentToken.transfer(holder, amount) returns (bool result) {
             // If the transfer was successful, we set the holder as paid
             if (result) {
-                _setDistributionHolderPaid(_distributionID, _holder);
+                _setDistributionHolderPaid(distributionID, holder);
             }
             return result;
         } catch {
             return false;
         }
-    }
+    }*/
 
     /*
      * @dev Pay an amount of payment tokens to a holder
@@ -444,28 +465,28 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return True if the payment succeeded, false otherwise
      */
-    function _payHolderCashOut(
-        address _holder,
-        uint256 _amount,
-        OZ_IERC20 _paymentToken
+    /*function _payHolderCashOut(
+        address holder,
+        uint256 amount,
+        OZ_IERC20 paymentToken
     ) private returns (bool) {
-        if (_isHolderCashOutPaid(_holder)) {
+        if (_isHolderCashOutPaid(holder)) {
             return false;
         }
 
-        if (_paymentToken.balanceOf(address(this)) < _amount) {
+        if (paymentToken.balanceOf(address(this)) < amount) {
             return false;
         }
 
-        try _paymentToken.transfer(_holder, _amount) returns (bool result) {
+        try paymentToken.transfer(holder, amount) returns (bool result) {
             if (result) {
-                _setHolderCashOutPaid(_holder);
+                _setHolderCashOutPaid(holder);
             }
             return result;
         } catch {
             return false;
         }
-    }
+    }*/
 
     /*
      * @dev Get a list of holders of a coupon by page
@@ -478,16 +499,16 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The array of the holders addresses
      */
     function _getHolders(
-        address _asset,
-        uint256 _distributionID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) private view returns (address[] memory holders_) {
+        address asset,
+        uint256 distributionID,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) private view returns (address[] memory) {
         return
-            IBond(_asset).getCouponHolders(
-                _distributionID,
-                _pageIndex,
-                _pageLength
+            IBond(asset).getCouponHolders(
+                distributionID,
+                pageIndex,
+                pageLength
             );
     }
 
@@ -496,9 +517,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @param assetAddress The address of the asset to check
      */
-    function _checkAsset(address _assetAddress) private view {
-        if (_assetAddress != _lifeCycleCashFlowStorage().asset) {
-            revert InvalidAsset(_assetAddress);
+    function _checkAsset(address assetAddress) private view {
+        if (assetAddress != _lifeCycleCashFlowStorage().asset) {
+            revert InvalidAsset(assetAddress);
         }
     }
 
@@ -511,7 +532,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _isHolderCashOutPaid(
         address holder
-    ) private view returns (bool paid) {
+    ) private view returns (bool) {
         return _lifeCycleCashFlowStorage().cashOutPaidAddresses[holder];
     }
 
@@ -522,12 +543,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param distributionId The coupon identifier
      */
     function _checkDistributionDate(
-        address _asset,
-        uint256 _distributionID
+        address asset,
+        uint256 distributionID
     ) private view {
         uint256 executionDateInit = _getDistributionExecutionDate(
-            _asset,
-            _distributionID
+            asset,
+            distributionID
         );
         _checkPaymentDate(executionDateInit, _blockTimestamp());
     }
@@ -537,8 +558,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @param bond The bond address
      */
-    function _checkMaturityDate(address _bond) private view {
-        uint256 maturityDateInit = IBond(_bond).getBondDetails().maturityDate;
+    function _checkMaturityDate(address bond) private view {
+        uint256 maturityDateInit = _getMaturityDate(bond);
         _checkPaymentDate(maturityDateInit, _blockTimestamp());
     }
 
@@ -551,10 +572,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The amount of tokens
      */
     function _getTokensAmount(
-        address _asset,
-        address _holder
+        address asset,
+        address holder
     ) private view returns (uint256) {
-        return IERC1410(_asset).balanceOf(_holder);
+        return IERC1410(asset).balanceOf(holder);
     }
 
     /*
@@ -569,16 +590,16 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The amount to be paid
      */
     function _getCouponAmount(
-        address _asset,
-        uint256 _couponID,
-        address _holder,
-        uint256 _nominalValue
+        address asset,
+        uint256 couponID,
+        address holder,
+        uint256 nominalValue
     ) private view returns (bool success, uint256 amount) {
-        try IBond(_asset).getCouponFor(_couponID, _holder) returns (
+        try IBond(asset).getCouponFor(couponID, holder) returns (
             IBond.CouponFor memory couponFor
         ) {
             amount = ((couponFor.tokenBalance *
-                _nominalValue *
+                nominalValue *
                 (couponFor.executionDate - /*couponFor.fromDate*/ 0) * // TO BE FIXEDDDDDDDDDDDDDD
                 couponFor.rate) /
                 100 /
@@ -599,13 +620,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The amount to be paid
      */
     function _getCashOutAmount(
-        address _asset,
-        address _holder
+        address asset,
+        uint256 tokensAmount
     ) private view returns (uint256) {
-        IBond.BondDetailsData memory bondDetailsData = IBond(_asset)
+        IBond.BondDetailsData memory bondDetailsData = IBond(asset)
             .getBondDetails();
-        uint8 bondDecimals = ERC20(_asset).getERC20Metadata().info.decimals;
-        return ((IERC1410(_asset).balanceOf(_holder) *
+        uint8 bondDecimals = ERC20(asset).getERC20Metadata().info.decimals;
+        return ((tokensAmount *
             bondDetailsData.nominalValue) / 10 ** bondDecimals);
     }
 
@@ -618,10 +639,23 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @returns The coupon execution date
      */
     function _getDistributionExecutionDate(
-        address _asset,
-        uint256 _distributionID
+        address asset,
+        uint256 distributionID
     ) private view returns (uint256) {
-        return IBond(_asset).getCoupon(_distributionID).coupon.executionDate;
+        return IBond(asset).getCoupon(distributionID).coupon.executionDate;
+    }
+
+    /*
+     * @dev Get the bond maturity date
+     *
+     * @param bond The bond its maturity date is requested
+     *
+     * @returns The bond maturity date
+     */
+    function _getMaturityDate(
+        address bond
+    ) private view returns (uint256) {
+        return IBond(bond).getBondDetails().maturityDate;
     }
 
     /*
@@ -634,11 +668,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @returns The payment ending date
      */
     function _checkPaymentDate(
-        uint256 _initialDate,
-        uint256 _currentDate
+        uint256 initialDate,
+        uint256 currentDate
     ) private pure {
-        if (_currentDate < _initialDate) {
-            revert NotPaymentDate(_initialDate, _currentDate);
+        if (currentDate < initialDate) {
+            revert NotPaymentDate(initialDate, currentDate);
         }
     }
 }

@@ -6,7 +6,7 @@ pragma solidity 0.8.18;
 import {LifeCycleCashFlow} from '../LifeCycleCashFlow.sol';
 import {ILifeCycleCashFlow} from '../interfaces/ILifeCycleCashFlow.sol';
 import {
-    _LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY
+    LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY
 } from '../constants/resolverKeys.sol';
 import {
     IStaticFunctionSelectors
@@ -19,41 +19,44 @@ contract LifeCycleCashFlowFacet is LifeCycleCashFlow, IStaticFunctionSelectors {
         override
         returns (bytes32 staticResolverKey_)
     {
-        staticResolverKey_ = _LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY;
+        staticResolverKey_ = LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY;
     }
 
     function getStaticFunctionSelectors()
         external
         pure
         override
-        returns (bytes4[] memory staticFunctionSelectors_)
+        returns (bytes4[] memory staticFunctionSelectors)
     {
         uint256 selectorIndex;
-        staticFunctionSelectors_ = new bytes4[](5);
-        staticFunctionSelectors_[selectorIndex++] = this
+        staticFunctionSelectors = new bytes4[](6);
+        staticFunctionSelectors[selectorIndex++] = this
+            .initialize_LifeCycleCashFlow
+            .selector;
+        staticFunctionSelectors[selectorIndex++] = this
             .executeDistribution
             .selector;
-        staticFunctionSelectors_[selectorIndex++] = this
+        staticFunctionSelectors[selectorIndex++] = this
             .executeDistributionByAddresses
             .selector;
-        staticFunctionSelectors_[selectorIndex++] = this
+        staticFunctionSelectors[selectorIndex++] = this
             .executeBondCashOut
             .selector;
-        staticFunctionSelectors_[selectorIndex++] = this
+        staticFunctionSelectors[selectorIndex++] = this
             .executeBondCashOutByAddresses
             .selector;
-        staticFunctionSelectors_[selectorIndex++] = this.getAsset.selector;
+        staticFunctionSelectors[selectorIndex++] = this.getAsset.selector;
     }
 
     function getStaticInterfaceIds()
         external
         pure
         override
-        returns (bytes4[] memory staticInterfaceIds_)
+        returns (bytes4[] memory staticInterfaceIds)
     {
-        staticInterfaceIds_ = new bytes4[](1);
+        staticInterfaceIds = new bytes4[](1);
         uint256 selectorsIndex;
-        staticInterfaceIds_[selectorsIndex++] = type(ILifeCycleCashFlow)
+        staticInterfaceIds[selectorsIndex++] = type(ILifeCycleCashFlow)
             .interfaceId;
     }
 }

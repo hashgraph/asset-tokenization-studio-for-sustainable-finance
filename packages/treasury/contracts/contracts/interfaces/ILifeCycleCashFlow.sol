@@ -70,9 +70,30 @@ interface ILifeCycleCashFlow {
         uint256[] paidAmount
     );
 
+    /*
+     * @dev Emitted when a token is associated with an account
+     *
+     * @param token The token the account is associated with
+     */
+    event TokenAssociated(address token);
+
+    /**
+     * @notice Error thrown when attempting to execute a payment for an asset not managed by the contract
+     *
+     * @param asset The address of the asset that is being tried to operate with
+     */
+    error InvalidAsset(address asset);
+
+    /**
+     * @notice Error thrown when attempting to execute a payment a date does not corresponds to the payment date
+     * @param paymentDateInit The initial execution date
+     * @param requestedDate The date a certain operation is requested to be made
+     */
+    error NotPaymentDate(uint256 paymentDateInit, uint256 requestedDate);
+
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_LifeCycleCashFlow(address _asset) external;
+    function initialize_LifeCycleCashFlow(address asset) external;
 
     /*
      * @dev Pay a coupon to a page of holders
@@ -88,10 +109,10 @@ interface ILifeCycleCashFlow {
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address _asset,
-        uint256 _distributionID,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address asset,
+        uint256 distributionID,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         external
         returns (address[] memory, address[] memory, uint256[] memory, bool);
@@ -108,9 +129,9 @@ interface ILifeCycleCashFlow {
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address _asset,
-        uint256 _distributionID,
-        address[] calldata _holders
+        address asset,
+        uint256 distributionID,
+        address[] calldata holders
     ) external returns (address[] memory, address[] memory, uint256[] memory);
 
     /*
@@ -126,9 +147,9 @@ interface ILifeCycleCashFlow {
      * @return True if ATS returns holders for their bonds to be cashed out, and false otherwise
      */
     function executeBondCashOut(
-        address _bond,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address bond,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         external
         returns (address[] memory, address[] memory, uint256[] memory, bool);
@@ -144,8 +165,8 @@ interface ILifeCycleCashFlow {
      * @return The array of the amounts paid to holders
      */
     function executeBondCashOutByAddresses(
-        address _bond,
-        address[] calldata _holders
+        address bond,
+        address[] calldata holders
     ) external returns (address[] memory, address[] memory, uint256[] memory);
 
     /*
@@ -153,5 +174,5 @@ interface ILifeCycleCashFlow {
      *
      * @return The asset address
      */
-    function getAsset() external returns (address asset_);
+    function getAsset() external returns (address asset);
 }

@@ -3,24 +3,22 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
 import {
-    _DEFAULT_ADMIN_ROLE,
-    _PAUSER_ROLE,
-    _PAYOUT_ROLE,
-    _CASHOUT_ROLE
+    DEFAULT_ADMIN_ROLE,
+    PAUSER_ROLE,
+    PAYOUT_ROLE,
+    CASHOUT_ROLE
 } from './constants/roles.sol';
 
 abstract contract LifeCycleCashFlow is
-    ILifeCycleCashFlow,
     LifeCycleCashFlowStorageWrapper
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
-        address _asset
+        address asset
     )
         external
         override
@@ -28,11 +26,7 @@ abstract contract LifeCycleCashFlow is
     {
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
-        _grantRole(_DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(_PAUSER_ROLE, _msgSender());
-        _grantRole(_PAYOUT_ROLE, _msgSender());
-        _grantRole(_CASHOUT_ROLE, _msgSender());
-        _setAsset(_asset);
+        _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
     }
 
@@ -50,38 +44,38 @@ abstract contract LifeCycleCashFlow is
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address _asset,
-        uint256 _distributionID,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address asset,
+        uint256 distributionID,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         external
         override
         onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        onlyOnDistributionDate(_asset, _distributionID)
+        onlyRole(PAYOUT_ROLE)
+        isAsset(asset)
+        onlyOnDistributionDate(asset, distributionID)
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_,
-            bool executed_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount,
+            bool executed
         )
     {
-        (failed_, succeeded_, paidAmount_, executed_) = _executeDistribution(
+        (failed, succeeded, paidAmount, executed) = _executeDistribution(
             _lifeCycleCashFlowStorage().asset,
-            _distributionID,
-            _pageIndex,
-            _pageLength
+            distributionID,
+            pageIndex,
+            pageLength
         );
 
         emit DistributionExecuted(
-            _distributionID,
-            _pageIndex,
-            _pageLength,
-            failed_,
-            succeeded_,
-            paidAmount_
+            distributionID,
+            pageIndex,
+            pageLength,
+            failed,
+            succeeded,
+            paidAmount
         );
     }
 
@@ -97,34 +91,34 @@ abstract contract LifeCycleCashFlow is
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address _asset,
-        uint256 _distributionID,
-        address[] calldata _holders
+        address asset,
+        uint256 distributionID,
+        address[] calldata holders
     )
         external
         override
         onlyUnpaused
-        onlyRole(_PAYOUT_ROLE)
-        isAsset(_asset)
-        onlyOnDistributionDate(_asset, _distributionID)
+        onlyRole(PAYOUT_ROLE)
+        isAsset(asset)
+        onlyOnDistributionDate(asset, distributionID)
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount
         )
     {
-        (failed_, succeeded_, paidAmount_) = _executeDistributionByAddresses(
+        (failed, succeeded, paidAmount) = _executeDistributionByAddresses(
             _lifeCycleCashFlowStorage().asset,
-            _distributionID,
-            _holders
+            distributionID,
+            holders
         );
 
         emit DistributionByAddressesExecuted(
-            _distributionID,
-            _holders,
-            failed_,
-            succeeded_,
-            paidAmount_
+            distributionID,
+            holders,
+            failed,
+            succeeded,
+            paidAmount
         );
     }
 
@@ -141,35 +135,35 @@ abstract contract LifeCycleCashFlow is
      * @return True if ATS returns holders for their bonds to be cashed out, and false otherwise
      */
     function executeBondCashOut(
-        address _bond,
-        uint256 _pageIndex,
-        uint256 _pageLength
+        address bond,
+        uint256 pageIndex,
+        uint256 pageLength
     )
         external
         override
         onlyUnpaused
-        onlyRole(_CASHOUT_ROLE)
-        isAsset(_bond)
-        onlyOnMaturityDate(_bond)
+        onlyRole(CASHOUT_ROLE)
+        isAsset(bond)
+        onlyOnMaturityDate(bond)
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_,
-            bool executed_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount,
+            bool executed
         )
     {
-        (failed_, succeeded_, paidAmount_, executed_) = _executeBondCashOut(
+        (failed, succeeded, paidAmount, executed) = _executeBondCashOut(
             _lifeCycleCashFlowStorage().asset,
-            _pageIndex,
-            _pageLength
+            pageIndex,
+            pageLength
         );
 
         emit CashOutExecuted(
-            _pageIndex,
-            _pageLength,
-            failed_,
-            succeeded_,
-            paidAmount_
+            pageIndex,
+            pageLength,
+            failed,
+            succeeded,
+            paidAmount
         );
     }
 
@@ -184,31 +178,31 @@ abstract contract LifeCycleCashFlow is
      * @return The array of the amounts paid to holders
      */
     function executeBondCashOutByAddresses(
-        address _bond,
-        address[] calldata _holders
+        address bond,
+        address[] calldata holders
     )
         external
         override
         onlyUnpaused
-        onlyRole(_CASHOUT_ROLE)
-        isAsset(_bond)
-        onlyOnMaturityDate(_bond)
+        onlyRole(CASHOUT_ROLE)
+        isAsset(bond)
+        onlyOnMaturityDate(bond)
         returns (
-            address[] memory failed_,
-            address[] memory succeeded_,
-            uint256[] memory paidAmount_
+            address[] memory failed,
+            address[] memory succeeded,
+            uint256[] memory paidAmount
         )
     {
-        (failed_, succeeded_, paidAmount_) = _executeBondCashOutByAddresses(
-            _bond,
-            _holders
+        (failed, succeeded, paidAmount) = _executeBondCashOutByAddresses(
+            bond,
+            holders
         );
 
         emit CashOutByAddressesExecuted(
-            _holders,
-            failed_,
-            succeeded_,
-            paidAmount_
+            holders,
+            failed,
+            succeeded,
+            paidAmount
         );
     }
 
@@ -217,7 +211,7 @@ abstract contract LifeCycleCashFlow is
      *
      * @return The asset address
      */
-    function getAsset() external view returns (address asset_) {
+    function getAsset() external view returns (address) {
         return _getAsset();
     }
 }

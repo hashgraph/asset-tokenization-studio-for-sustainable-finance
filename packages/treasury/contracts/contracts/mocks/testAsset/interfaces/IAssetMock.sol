@@ -134,12 +134,12 @@ interface IAssetMock {
     function initialize_ERC20(ERC20Metadata calldata erc1594Metadata) external;
 
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_ERC1410_Basic(bool _multiPartition) external;
+    function initialize_ERC1410_Basic(bool multiPartition) external;
 
     function transferByPartition(
-        bytes32 _partition,
-        BasicTransferInfo calldata _basicTransferInfo,
-        bytes calldata _data
+        bytes32 partition,
+        BasicTransferInfo calldata basicTransferInfo,
+        bytes calldata data
     ) external returns (bytes32);
 
     function getERC20Metadata()
@@ -147,15 +147,15 @@ interface IAssetMock {
         view
         returns (ERC20Metadata memory erc20Metadata_);
 
-    function balanceOf(address _tokenHolder) external view returns (uint256);
+    function balanceOf(address tokenHolder) external view returns (uint256);
 
     function balanceOfByPartition(
-        bytes32 _partition,
-        address _tokenHolder
+        bytes32 partition,
+        address tokenHolder
     ) external view returns (uint256);
 
     function partitionsOf(
-        address _tokenHolder
+        address tokenHolder
     ) external view returns (bytes32[] memory);
 
     function totalSupply() external view returns (uint256);
@@ -163,188 +163,188 @@ interface IAssetMock {
     function isMultiPartition() external view returns (bool);
 
     function totalSupplyByPartition(
-        bytes32 _partition
+        bytes32 partition
     ) external view returns (uint256);
 
     function getCouponHolders(
-        uint256 _couponID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view returns (address[] memory holders_);
+        uint256 couponID,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external view returns (address[] memory holders);
 
     function getSecurityHolders(
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view returns (address[] memory holders_);
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external view returns (address[] memory holders);
 
     function getDividendHolders(
-        uint256 _dividendID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view returns (address[] memory holders_);
+        uint256 dividendID,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external view returns (address[] memory holders);
 
     function getTokenHoldersAtSnapshot(
-        uint256 _snapshotID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view returns (address[] memory holders_);
+        uint256 snapshotID,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external view returns (address[] memory holders);
 
     function redeemAtMaturityByPartition(
-        address _tokenHolder,
-        bytes32 _partition,
-        uint256 _amount
+        address tokenHolder,
+        bytes32 partition,
+        uint256 amount
     ) external pure;
 
     function setCoupon(
-        Coupon calldata _newCoupon
-    ) external pure returns (bool success_, uint256 couponID_);
+        Coupon calldata newCoupon
+    ) external pure returns (bool success, uint256 couponID);
 
     function updateMaturityDate(
         uint256 _maturityDate
-    ) external pure returns (bool success_);
+    ) external pure returns (bool success);
 
     function getBondDetails()
         external
         pure
-        returns (BondDetailsData memory bondDetailsData_);
+        returns (BondDetailsData memory bondDetailsData);
 
     function getCouponDetails()
         external
         pure
-        returns (CouponDetailsData memory couponDetails_);
+        returns (CouponDetailsData memory couponDetails);
 
     function getCoupon(
-        uint256 _couponID
-    ) external pure returns (RegisteredCoupon memory registeredCoupon_);
+        uint256 couponID
+    ) external pure returns (RegisteredCoupon memory registeredCoupon);
 
     function getCouponFor(
-        uint256 _couponID,
-        address _account
-    ) external pure returns (CouponFor memory couponFor_);
+        uint256 couponID,
+        address account
+    ) external pure returns (CouponFor memory couponFor);
 
-    function getCouponCount() external pure returns (uint256 couponCount_);
+    function getCouponCount() external pure returns (uint256 couponCount);
 
     function getTotalCouponHolders(
-        uint256 _couponID
+        uint256 couponID
     ) external pure returns (uint256);
 
     function getSecurityRegulationData()
         external
         pure
-        returns (SecurityRegulationData memory securityRegulationData_);
+        returns (SecurityRegulationData memory securityRegulationData);
 
     function getTotalSecurityHolders() external pure returns (uint256);
 
     function setDividends(
-        Dividend calldata _newDividend
-    ) external pure returns (bool success_, uint256 dividendID_);
+        Dividend calldata newDividend
+    ) external pure returns (bool success, uint256 dividendID);
 
     function setVoting(
-        Voting calldata _newVoting
-    ) external pure returns (bool success_, uint256 voteID_);
+        Voting calldata newVoting
+    ) external pure returns (bool success, uint256 voteID);
 
     function setScheduledBalanceAdjustment(
-        ScheduledBalanceAdjustment calldata _newBalanceAdjustment
-    ) external pure returns (bool success_, uint256 balanceAdjustmentID_);
+        ScheduledBalanceAdjustment calldata newBalanceAdjustment
+    ) external pure returns (bool success, uint256 balanceAdjustmentID);
 
     function getEquityDetails()
         external
         pure
-        returns (EquityDetailsData memory equityDetailsData_);
+        returns (EquityDetailsData memory equityDetailsData);
 
     function getDividends(
-        uint256 _dividendID
-    ) external pure returns (RegisteredDividend memory registeredDividend_);
+        uint256 dividendID
+    ) external pure returns (RegisteredDividend memory registeredDividend);
 
     function getDividendsFor(
-        uint256 _dividendID,
-        address _account
-    ) external pure returns (DividendFor memory dividendFor_);
+        uint256 dividendID,
+        address account
+    ) external pure returns (DividendFor memory dividendFor);
 
-    function getDividendsCount() external pure returns (uint256 dividendCount_);
+    function getDividendsCount() external pure returns (uint256 dividendCount);
 
     function getTotalDividendHolders(
-        uint256 _dividendID
+        uint256 dividendID
     ) external pure returns (uint256);
 
     function getVoting(
-        uint256 _voteID
-    ) external pure returns (RegisteredVoting memory registeredVoting_);
+        uint256 voteID
+    ) external pure returns (RegisteredVoting memory registeredVoting);
 
     function getVotingFor(
-        uint256 _voteID,
-        address _account
-    ) external pure returns (VotingFor memory votingFor_);
+        uint256 voteID,
+        address account
+    ) external pure returns (VotingFor memory votingFor);
 
-    function getVotingCount() external pure returns (uint256 votingCount_);
+    function getVotingCount() external pure returns (uint256 votingCount);
 
     function getVotingHolders(
-        uint256 _voteID,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external pure returns (address[] memory holders_);
+        uint256 voteID,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external pure returns (address[] memory holders);
 
     function getTotalVotingHolders(
-        uint256 _voteID
+        uint256 voteID
     ) external pure returns (uint256);
 
     function getScheduledBalanceAdjustment(
-        uint256 _balanceAdjustmentID
+        uint256 balanceAdjustmentID
     )
         external
         pure
-        returns (ScheduledBalanceAdjustment memory balanceAdjustment_);
+        returns (ScheduledBalanceAdjustment memory balanceAdjustment);
 
     function getScheduledBalanceAdjustmentCount()
         external
         pure
-        returns (uint256 balanceAdjustmentCount_);
+        returns (uint256 balanceAdjustmentCount);
 
-    function takeSnapshot() external pure returns (uint256 snapshotID_);
+    function takeSnapshot() external pure returns (uint256 snapshotID);
 
     function balanceOfAtSnapshotByPartition(
-        bytes32 _partition,
-        uint256 _snapshotID,
-        address _tokenHolder
-    ) external pure returns (uint256 balance_);
+        bytes32 partition,
+        uint256 snapshotID,
+        address tokenHolder
+    ) external pure returns (uint256 balance);
 
     function partitionsOfAtSnapshot(
-        uint256 _snapshotID,
-        address _tokenHolder
+        uint256 snapshotID,
+        address tokenHolder
     ) external pure returns (bytes32[] memory);
 
     function totalSupplyAtSnapshotByPartition(
-        bytes32 _partition,
-        uint256 _snapshotID
-    ) external pure returns (uint256 totalSupply_);
+        bytes32 partition,
+        uint256 snapshotID
+    ) external pure returns (uint256 totalSupply);
 
     function lockedBalanceOfAtSnapshot(
-        uint256 _snapshotID,
-        address _tokenHolder
-    ) external pure returns (uint256 balance_);
+        uint256 snapshotID,
+        address tokenHolder
+    ) external pure returns (uint256 balance);
 
     function lockedBalanceOfAtSnapshotByPartition(
-        bytes32 _partition,
-        uint256 _snapshotID,
-        address _tokenHolder
-    ) external pure returns (uint256 balance_);
+        bytes32 partition,
+        uint256 snapshotID,
+        address tokenHolder
+    ) external pure returns (uint256 balance);
 
     function getTotalTokenHoldersAtSnapshot(
-        uint256 _snapshotID
+        uint256 snapshotID
     ) external pure returns (uint256);
 
     function balanceOfAtSnapshot(
-        uint256 _snapshotID,
-        address _tokenHolder
-    ) external pure returns (uint256 balance_);
+        uint256 snapshotID,
+        address tokenHolder
+    ) external pure returns (uint256 balance);
 
     function decimalsAtSnapshot(
-        uint256 _snapshotID
-    ) external pure returns (uint8 decimals_);
+        uint256 snapshotID
+    ) external pure returns (uint8 decimals);
 
     function totalSupplyAtSnapshot(
-        uint256 _snapshotID
-    ) external pure returns (uint256 totalSupply_);
+        uint256 snapshotID
+    ) external pure returns (uint256 totalSupply);
 
     function transfer(address to, uint256 amount) external pure returns (bool);
 
@@ -370,5 +370,5 @@ interface IAssetMock {
         address spender
     ) external pure returns (uint256);
 
-    function decimalsAt(uint256 _timestamp) external pure returns (uint8);
+    function decimalsAt(uint256 timestamp) external pure returns (uint8);
 }

@@ -9,14 +9,14 @@ import {ITimeTravel} from '../interfaces/ITimeTravel.sol';
 abstract contract TimeTravel is ITimeTravel, LocalContext {
     uint256 internal _timestamp;
 
-    function changeSystemTimestamp(uint256 _newSystemTime) external {
-        if (_newSystemTime == 0) {
-            revert InvalidTimestamp(_newSystemTime);
+    function changeSystemTimestamp(uint256 newSystemTime) external {
+        if (newSystemTime == 0) {
+            revert InvalidTimestamp(newSystemTime);
         }
 
-        emit SystemTimestampChanged(_timestamp, _newSystemTime);
+        emit SystemTimestampChanged(_timestamp, newSystemTime);
 
-        _timestamp = _newSystemTime;
+        _timestamp = newSystemTime;
     }
 
     function resetSystemTimestamp() external {
