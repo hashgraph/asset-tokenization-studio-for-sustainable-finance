@@ -17,7 +17,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@hashgraph/green-bonds-shared-core": "*"
+    "@hashgraph/green-bonds-shared-core": "*",
+    "@hashgraph/green-bonds-blockchain-listener": "*",
+    "pg": "^8.16.3",
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -49,7 +52,8 @@
     "moduleNameMapper": {
       "^@app/(.*)$": "<rootDir>/src/app/$1",
       "^@domain/(.*)$": "<rootDir>/src/domain/$1",
-      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1"
+      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1",
+      "^@config/(.*)$": "<rootDir>/src/config/$1"
     }
   }
 }

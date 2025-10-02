@@ -24,7 +24,8 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@domain/*": ["src/domain/*"],
-      "@port/*": ["src/port.adapter/*"]
+      "@port/*": ["src/port.adapter/*"],
+      "@config/*": ["src/config/*"]
     }
   }
 }
