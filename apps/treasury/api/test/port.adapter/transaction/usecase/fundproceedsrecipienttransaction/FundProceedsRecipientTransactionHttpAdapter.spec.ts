@@ -38,7 +38,10 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
         format: "hedera",
       }
 
-      const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
+      const response = await request(app.getHttpServer())
+        .post("/proceeds-recipients/fund")
+        .send(fundRequest)
+        .expect(201)
 
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof response.body.unsignedTx).toBe("string")
@@ -54,7 +57,10 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           format: "hedera",
         }
 
-        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer())
+          .post("/proceeds-recipients/fund")
+          .send(fundRequest)
+          .expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -70,7 +76,10 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           format: "hedera",
         }
 
-        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer())
+          .post("/proceeds-recipients/fund")
+          .send(fundRequest)
+          .expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -86,7 +95,10 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           format,
         }
 
-        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer())
+          .post("/proceeds-recipients/fund")
+          .send(fundRequest)
+          .expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
