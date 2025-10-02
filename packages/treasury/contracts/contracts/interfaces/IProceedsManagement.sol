@@ -21,12 +21,12 @@ interface IProceedsManagement {
     event ERC721TokenTransferred(address erc721, address to, uint256 tokenId);
 
     /*
-     * @dev Emitted when a beneficiary was funded with an amount
+     * @dev Emitted when a proceeds beneficiary was funded with an amount
      *
-     * @param beneficiary The address of the beneficiary that was funded
-     * @param token The amount the beneficiary was funded with
+     * @param proceedsBeneficiary The address of the proceeds beneficiary that was funded
+     * @param token The amount the proceeds beneficiary was funded with
      */
-    event BeneficiaryFunded(address beneficiary, uint256 amount);
+    event ProceedsBeneficiaryFunded(address proceedsBeneficiary, uint256 amount);
 
     /**
      * @notice Error thrown when something fails while attempting to transfer payment tokens
@@ -62,11 +62,11 @@ interface IProceedsManagement {
     error NotTokenIdOwner(address erc721, address to, uint256 tokenId);
 
     /**
-     * @notice Error thrown when funding an account that is not an asset beneficiary
+     * @notice Error thrown when funding an account that is not an asset proceeds beneficiary
      *
-     * @param beneficiary The address of the beneficiary that is funded
+     * @param proceedsBeneficiary The address of the proceeds beneficiary that is funded
      */
-    error WrongBeneficiary(address beneficiary);
+    error WrongProceedsBeneficiary(address proceedsBeneficiary);
 
     /*
      * @dev Transfers an amount of payment tokens to an address
@@ -86,10 +86,10 @@ interface IProceedsManagement {
     function transferERC721Token(address _erc721, address _to, uint256 _tokenId) external;
 
     /*
-     * @dev Funds a beneficiary with an amount of tokens
+     * @dev Funds a proceeds beneficiary with an amount of tokens
      *
-     * @param beneficiary The address of the beneficiary that is funded
-     * @param token The amount the beneficiary is funded with
+     * @param beneficiary The address of the proceeds beneficiary that is funded
+     * @param token The amount the proceeds beneficiary is funded with
      */
-    function fundBeneficiary(address _beneficiary, uint256 _amount) external;
+    function fundProceedsBeneficiary(address _beneficiary, uint256 _amount) external;
 }
