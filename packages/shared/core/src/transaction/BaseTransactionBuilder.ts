@@ -4,11 +4,28 @@ import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Time
 import { BaseContract } from "ethers"
 import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment"
 import { parseEther, serializeTransaction } from "ethers/lib/utils"
-import { TransactionParams } from "./model/TransactionParams"
+import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
 
 export abstract class BaseTransactionBuilder {
-  protected buildTransaction<
+  private readonly formatSerializers: Record<
+    TransactionFormat,
+    (context: {
+      tx: ContractExecuteTransaction
+      environment: Environment
+      account: string
+      contractEvmAddress: string
+    }) => TransactionResponse
+  > = {
+    hedera: ({ tx, environment, account }) => {
+      return this.serializeHederaTransaction(tx, environment, account)
+    },
+    ethereum: ({ tx, environment, contractEvmAddress }) => {
+      return this.serializeEvmTransaction(tx, environment, contractEvmAddress)
+    },
+  }
+
+  protected buildAndSerializeTransaction<
     C extends BaseContract,
     F extends {
       [K in keyof C]: C[K] extends (...args: any[]) => Promise<any> ? K : never
@@ -19,28 +36,33 @@ export abstract class BaseTransactionBuilder {
     functionName,
     contractId,
     gas,
+    environment,
+    account,
+    contractEvmAddress,
+    format,
     args,
   }: TransactionParams<C> & {
     functionName: F
     args: Parameters<C[F] extends (...args: infer P) => any ? (...args: P) => any : never>
-  }): ContractExecuteTransaction {
+    format: TransactionFormat
+  }): TransactionResponse {
     try {
       const encodedHex = contractInstance.interface.encodeFunctionData(functionName, args)
       const encoded = new Uint8Array(Buffer.from(encodedHex.slice(2), "hex"))
 
       const tx = new ContractExecuteTransaction().setContractId(contractId).setGas(gas).setFunctionParameters(encoded)
 
-      return tx
+      const serializer = this.formatSerializers[format]
+      if (!serializer) {
+        throw new Error(`Unsupported format: ${String(format)}`)
+      }
+      return serializer({ tx, environment, account, contractEvmAddress })
     } catch (error) {
-      throw new Error(`Failed to build transaction: ${(error as Error).message}`)
+      throw new Error(`Failed to build and serialize transaction: ${(error as Error).message}`)
     }
   }
 
-  protected serializeHederaTransaction(
-    tx: Transaction,
-    environment: Environment,
-    account: string,
-  ): TransactionResponse {
+  private serializeHederaTransaction(tx: Transaction, environment: Environment, account: string): TransactionResponse {
     try {
       const accountId = AccountId.fromString(account)
       const txId = TransactionId.withValidStart(accountId, Timestamp.fromDate(new Date()))
@@ -56,7 +78,7 @@ export abstract class BaseTransactionBuilder {
     }
   }
 
-  protected serializeEvmTransaction(
+  private serializeEvmTransaction(
     tx: ContractExecuteTransaction,
     environment: Environment,
     contractEvmAddress: string,
