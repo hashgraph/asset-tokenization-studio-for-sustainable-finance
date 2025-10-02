@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: Apache-2.0
+pragma solidity >=0.8.0 <0.9.0;
+
+import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
+
+/**
+ * @title IKpi Interface
+ * @author Green Bonds Platform Team
+ * @notice Interface for managing Key Performance Indicator (Kpi) data in green bonds platform
+ * @dev This interface defines the standard for storing and retrieving Kpi data with optimized queries
+ */
+interface IKpi {
+    /**
+     * @notice Struct containing Kpi entry for a specific date
+     * @param value The Kpi value for the given date
+     * @param exists Boolean flag indicating if data exists for this date
+     */
+    struct KpiEntry {
+        uint256 value;
+        bool exists;
+    }
+
+    /**
+     * @notice Storage structure for Kpi data using unstructured storage pattern
+     * @param KpiData Mapping from timestamp to KpiEntry struct
+     * @param dates Array of timestamps with Kpi data, maintained in sorted order for efficient queries
+     */
+    struct KpiStorage {
+        mapping(uint256 timestamp => KpiEntry) kpiData;
+        bool initialized;
+    }
+
+    /**
+     * @notice Thrown when an invalid date (zero or negative) is provided
+     * @param providedDate The invalid date that was provided
+     */
+    error InvalidDate(uint256 providedDate);
+
+    /**
+     * @notice Thrown when an invalid date range is provided (fromDate > toDate)
+     * @param fromDate The start date of the invalid range
+     * @param toDate The end date of the invalid range
+     */
+    error InvalidDateRange(uint256 fromDate, uint256 toDate);
+
+    /**
+     * @notice Thrown when trying to access Kpi data that doesn't exist
+     * @param requestedDate The date for which no Kpi data exists
+     */
+    error KpiDataNotFound(uint256 requestedDate);
+
+    /**
+     * @notice Emitted when new Kpi data is added
+     * @param date The timestamp for which Kpi data was added
+     * @param value The Kpi value that was recorded
+     */
+    event KpiDataAdded(uint256 indexed date, uint256 value);
+
+    function initialize(IResolverProxy.Rbac[] memory rbacs) external;
+
+    /**
+     * @notice Adds Kpi data for a specific date
+     * @dev If data already exists for the given date, it will be overwritten
+     * @param date The timestamp representing the date of the Kpi measurement (must be > 0)
+     * @param kpiValue The Kpi value to store (must be > 0)
+     */
+    function addKpiData(uint256 date, uint256 kpiValue) external;
+
+    /**
+     * @notice Retrieves aggregated Kpi data for a date range
+     * @dev Uses binary search for efficient range queries. Returns the sum of all Kpi values
+     *      within the specified date range (inclusive on both ends)
+     * @param fromDate The start date of the range (inclusive, must be > 0)
+     * @param toDate The end date of the range (inclusive, must be > 0 and >= fromDate)
+     * @return kpiAggregatedValue The sum of all Kpi values in the specified date range
+     */
+    function getKpiData(
+        uint256 fromDate,
+        uint256 toDate
+    ) external view returns (uint256 kpiAggregatedValue, bool exists);
+}
