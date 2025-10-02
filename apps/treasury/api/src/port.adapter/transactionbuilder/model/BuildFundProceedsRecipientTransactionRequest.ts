@@ -2,7 +2,7 @@
 
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
-export class BuildFundBeneficiaryTransactionRequest extends BaseBuildTransactionRequest {
+export class BuildFundProceedsRecipientTransactionRequest extends BaseBuildTransactionRequest {
   address: string
   amount: number
 }

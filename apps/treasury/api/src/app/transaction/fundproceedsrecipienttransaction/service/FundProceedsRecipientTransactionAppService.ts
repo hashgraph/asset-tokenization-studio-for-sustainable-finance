@@ -2,13 +2,13 @@
 
 import { Inject, Singleton, TransactionAppServiceResponse } from "@hashgraph/green-bonds-shared-core"
 import type { TransactionBuilderPort } from "../../../../port.adapter/transactionbuilder/TransactionBuilderPort"
-import { FundBeneficiaryTransactionAppServiceRequest } from "./model/FundBeneficiaryTransactionAppServiceRequest"
+import { FundProceedsRecipientTransactionAppServiceRequest } from "./model/FundProceedsRecipientTransactionAppServiceRequest"
 
 @Singleton()
-export class FundBeneficiaryTransactionAppService {
+export class FundProceedsRecipientTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: FundBeneficiaryTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.fundBeneficiary(request)
+  execute(request: FundProceedsRecipientTransactionAppServiceRequest): TransactionAppServiceResponse {
+    return this.transactionBuilderPort.fundProceedsRecipient(request)
   }
 }

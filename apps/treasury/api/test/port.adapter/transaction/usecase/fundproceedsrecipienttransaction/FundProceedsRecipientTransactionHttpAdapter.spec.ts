@@ -6,13 +6,13 @@ import request from "supertest"
 import { AppModule } from "../../../../../src/AppModule"
 import { BuildTransactionResponse } from "@hashgraph/green-bonds-shared-core"
 
-describe("FundBeneficiaryTransaction API Integration", () => {
+describe("FundProceedsRecipientTransaction API Integration", () => {
   let app: INestApplication
 
   beforeEach(async () => {
     // Mock only the external dependency that's not implemented yet
     const mockTransactionBuilderAdapter = {
-      fundBeneficiary: jest.fn().mockReturnValue(new BuildTransactionResponse("mocked-serialized-transaction")),
+      fundProceedsRecipient: jest.fn().mockReturnValue(new BuildTransactionResponse("mocked-serialized-transaction")),
     }
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -30,15 +30,15 @@ describe("FundBeneficiaryTransaction API Integration", () => {
     await app.close()
   })
 
-  describe("POST /beneficiaries/fund", () => {
-    it("should fund beneficiary with valid hexadecimal address and positive amount", async () => {
+  describe("POST /proceeds-recipients/fund", () => {
+    it("should fund proceeds recipient with valid hexadecimal address and positive amount", async () => {
       const fundRequest = {
         address: "0x1234567890abcdef",
         amount: 1000,
         format: "hedera",
       }
 
-      const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
+      const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
 
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof response.body.unsignedTx).toBe("string")
@@ -54,7 +54,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
           format: "hedera",
         }
 
-        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -70,7 +70,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
           format: "hedera",
         }
 
-        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -86,7 +86,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
           format,
         }
 
-        const response = await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -99,7 +99,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
         format: "hedera",
       }
 
-      await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+      await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
     })
 
     it("should return 400 for invalid format values", async () => {
@@ -112,7 +112,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
           format,
         }
 
-        await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
       }
     })
 
@@ -126,7 +126,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
           format: "hedera",
         }
 
-        await request(app.getHttpServer()).post("/beneficiaries/fund").send(fundRequest).expect(400)
+        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
       }
     })
 
@@ -134,7 +134,7 @@ describe("FundBeneficiaryTransaction API Integration", () => {
       const invalidRequests = [{}, { address: "0x1234567890abcdef" }, { amount: 1000 }, { format: "hedera" }]
 
       for (const invalidRequest of invalidRequests) {
-        await request(app.getHttpServer()).post("/beneficiaries/fund").send(invalidRequest).expect(400)
+        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(invalidRequest).expect(400)
       }
     })
   })

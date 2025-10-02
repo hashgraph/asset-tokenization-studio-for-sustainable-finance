@@ -3,7 +3,7 @@
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
 import { IsHexadecimal, IsNotEmpty, IsPositive } from "class-validator"
 
-export class FundBeneficiaryTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
+export class FundProceedsRecipientTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsHexadecimal()
   @IsNotEmpty()
   readonly address: string

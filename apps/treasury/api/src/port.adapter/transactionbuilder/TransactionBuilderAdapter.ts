@@ -2,12 +2,12 @@
 
 import { BaseTransactionBuilder, BuildTransactionResponse, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
-import { BuildFundBeneficiaryTransactionRequest } from "./model/BuildFundBeneficiaryTransactionRequest"
+import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  fundBeneficiary(request: BuildFundBeneficiaryTransactionRequest): BuildTransactionResponse {
+  fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse {
     // TODO: Replace with actual Treasury contract when available
     // For now, we'll prepare the structure for when the contract is ready
 
