@@ -4,9 +4,10 @@ import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { Module } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "./Components"
 import { PostgresModule } from "@config/PostgresModule"
+import { BlockchainEventListenerModule } from "@hashgraph/green-bonds-blockchain-listener"
 
 @Module({
-  imports: [SharedModule, PostgresModule.forRoot()],
+  imports: [SharedModule, PostgresModule.forRoot(), BlockchainEventListenerModule],
   controllers: CONTROLLERS,
   providers: PROVIDERS,
 })
