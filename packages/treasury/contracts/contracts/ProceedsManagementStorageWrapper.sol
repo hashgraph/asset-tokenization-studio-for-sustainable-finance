@@ -47,7 +47,7 @@ abstract contract ProceedsManagementStorageWrapper is
         address to,
         uint256 tokenId
     ) internal {
-        // TODO: Se debe obtener el environmentalToken del storage de la faceta portfolio
+        // TODO: The environmentalToken must be obtained from portfolio facet
         IERC721 environmentalToken; // = _lifeCycleCashFlowStorage().paymentToken;
         try
             environmentalToken.transferFrom(address(this), to, tokenId)
@@ -82,7 +82,7 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param distributionId The coupon identifier
      */
     function _checkOwnedErc721(uint256 tokenId) private view {
-        // TODO: Hay que comprobar que el tokenId pertenece al contrato treasury Los tokens erc721 se añaden en la faceta porfolio, por lo que será en el storage de portfolio donde se alamcenen esos tokens
+        // TODO: Check in the porfolio facet where erc721 tokens are stored
         /*if () {
             revert NotTokenIdOwner(tokenId);
         }*/
