@@ -15,12 +15,8 @@ export class FundProceedsRecipientTransactionHttpAdapter {
 
   @Post("fund")
   fundProceedsRecipient(@Body() request: FundProceedsRecipientTransactionRequest): TransactionResponse {
-    const appServiceRequest = new FundProceedsRecipientTransactionAppServiceRequest(
-      request.address,
-      request.amount,
-      request.format,
+    return this.fundProceedsRecipientTransactionAppService.execute(
+      request as FundProceedsRecipientTransactionAppServiceRequest,
     )
-
-    return this.fundProceedsRecipientTransactionAppService.execute(appServiceRequest)
   }
 }

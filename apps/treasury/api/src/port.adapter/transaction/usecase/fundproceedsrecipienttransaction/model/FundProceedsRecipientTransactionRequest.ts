@@ -11,8 +11,15 @@ export class FundProceedsRecipientTransactionRequest extends BaseTransactionRequ
   @IsPositive()
   readonly amount: number
 
-  constructor(address: string, amount: number, format: string) {
-    super(format)
+  constructor(
+    address: string,
+    amount: number,
+    format: string,
+    accountId: string,
+    contractId: string,
+    contractAddress: string,
+  ) {
+    super(format, accountId, contractId, contractAddress)
     this.address = address
     this.amount = amount
   }

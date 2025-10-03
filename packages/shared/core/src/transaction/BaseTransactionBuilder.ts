@@ -3,7 +3,7 @@
 import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Timestamp } from "@hashgraph/sdk"
 import { BaseContract } from "ethers"
 import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment"
-import { parseEther, serializeTransaction } from "ethers/lib/utils"
+import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
 
@@ -26,13 +26,12 @@ export abstract class BaseTransactionBuilder {
   }
 
   protected buildAndSerializeTransaction<
-    C extends BaseContract,
+    I extends Interface,
     F extends {
-      [K in keyof C]: C[K] extends (...args: any[]) => Promise<any> ? K : never
-    }[keyof C] &
-      string,
+      [K in keyof I]: I[K] extends (...args: any[]) => Promise<any> ? K : never
+    }[keyof I],
   >({
-    contractInstance,
+    contractInterface,
     functionName,
     contractId,
     gas,
@@ -41,13 +40,13 @@ export abstract class BaseTransactionBuilder {
     contractEvmAddress,
     format,
     args,
-  }: TransactionParams<C> & {
+  }: TransactionParams<I> & {
     functionName: F
-    args: Parameters<C[F] extends (...args: infer P) => any ? (...args: P) => any : never>
+    args: Parameters<I[F] extends (...args: infer P) => any ? (...args: P) => any : never>
     format: TransactionFormat
   }): TransactionResponse {
     try {
-      const encodedHex = contractInstance.interface.encodeFunctionData(functionName, args)
+      const encodedHex = contractInterface.encodeFunctionData(functionName, args)
       const encoded = new Uint8Array(Buffer.from(encodedHex.slice(2), "hex"))
 
       const tx = new ContractExecuteTransaction().setContractId(contractId).setGas(gas).setFunctionParameters(encoded)

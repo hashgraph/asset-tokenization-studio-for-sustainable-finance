@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
+  "types": "build/typechain-types/index.d.ts",
   "files": [
     "build/",
     "contracts/"
@@ -24,6 +25,7 @@
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
+    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",

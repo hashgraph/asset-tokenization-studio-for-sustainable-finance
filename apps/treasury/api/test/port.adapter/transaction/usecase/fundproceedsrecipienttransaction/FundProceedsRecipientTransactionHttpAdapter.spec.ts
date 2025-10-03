@@ -3,43 +3,53 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { AppModule } from "../../../../../src/AppModule"
-import { BuildTransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgresModule } from "@config/PostgresModule"
 
 describe("FundProceedsRecipientTransaction API Integration", () => {
   let app: INestApplication
+  let container: PostgreSqlContainer
+
+  beforeAll(async () => {
+    container = await PostgreSqlContainer.create()
+  })
 
   beforeEach(async () => {
-    // Mock only the external dependency that's not implemented yet
-    const mockTransactionBuilderAdapter = {
-      fundProceedsRecipient: jest.fn().mockReturnValue(new BuildTransactionResponse("mocked-serialized-transaction")),
-    }
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider("TransactionBuilderPort")
-      .useValue(mockTransactionBuilderAdapter)
-      .compile()
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      controllers: CONTROLLERS,
+      providers: PROVIDERS,
+    }).compile()
 
     app = moduleFixture.createNestApplication()
+    app.setGlobalPrefix("api/v1/treasury")
     await app.init()
   })
 
+  afterAll(async () => {
+    await container.stop()
+  })
+
   afterEach(async () => {
-    await app.close()
+    if (app) {
+      await app.close()
+    }
   })
 
   describe("POST /proceeds-recipients/fund", () => {
     it("should fund proceeds recipient with valid hexadecimal address and positive amount", async () => {
       const fundRequest = {
-        address: "0x1234567890abcdef",
+        address: "0x1234567890abcdef1234567890abcdef12345678",
         amount: 1000,
         format: "hedera",
+        accountId: "0.0.123456789",
+        contractId: "0.0.123456789",
       }
 
       const response = await request(app.getHttpServer())
-        .post("/proceeds-recipients/fund")
+        .post("/api/v1/treasury/proceeds-recipients/fund")
         .send(fundRequest)
         .expect(201)
 
@@ -48,17 +58,23 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     })
 
     it("should handle different valid hexadecimal addresses", async () => {
-      const addresses = ["0x1234567890abcdef", "0xABCDEF1234567890", "0xdeadbeefcafebabe"]
+      const addresses = [
+        "0x1234567890abcdef1234567890abcdef12345678",
+        "0xABCDEF12345678901234567890ABCDEF12345678",
+        "0xdeadbeefcafebabe1234567890abcdef12345678",
+      ]
 
       for (const address of addresses) {
         const fundRequest = {
           address,
           amount: 500,
           format: "hedera",
+          accountId: "0.0.123456789",
+          contractId: "0.0.123456789",
         }
 
         const response = await request(app.getHttpServer())
-          .post("/proceeds-recipients/fund")
+          .post("/api/v1/treasury/proceeds-recipients/fund")
           .send(fundRequest)
           .expect(201)
 
@@ -71,13 +87,15 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const amount of amounts) {
         const fundRequest = {
-          address: "0x1234567890abcdef",
+          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount,
           format: "hedera",
+          accountId: "0.0.123456789",
+          contractId: "0.0.123456789",
         }
 
         const response = await request(app.getHttpServer())
-          .post("/proceeds-recipients/fund")
+          .post("/api/v1/treasury/proceeds-recipients/fund")
           .send(fundRequest)
           .expect(201)
 
@@ -90,13 +108,16 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of formats) {
         const fundRequest = {
-          address: "0x1234567890abcdef",
+          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount: 1000,
           format,
+          accountId: "0.0.123456789",
+          contractId: "0.0.123456789",
+          contractAddress: "0x1234567890abcdef1234567890abcdef12345678",
         }
 
         const response = await request(app.getHttpServer())
-          .post("/proceeds-recipients/fund")
+          .post("/api/v1/treasury/proceeds-recipients/fund")
           .send(fundRequest)
           .expect(201)
 
@@ -109,9 +130,11 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
         address: "invalid-address",
         amount: 1000,
         format: "hedera",
+        accountId: "0.0.123456789",
+        contractId: "0.0.123456789",
       }
 
-      await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
+      await request(app.getHttpServer()).post("/api/v1/treasury/proceeds-recipients/fund").send(fundRequest).expect(400)
     })
 
     it("should return 400 for invalid format values", async () => {
@@ -119,12 +142,17 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of invalidFormats) {
         const fundRequest = {
-          address: "0x1234567890abcdef",
+          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount: 1000,
           format,
+          accountId: "0.0.123456789",
+          contractId: "0.0.123456789",
         }
 
-        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
+        await request(app.getHttpServer())
+          .post("/api/v1/treasury/proceeds-recipients/fund")
+          .send(fundRequest)
+          .expect(400)
       }
     })
 
@@ -133,20 +161,35 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const amount of invalidAmounts) {
         const fundRequest = {
-          address: "0x1234567890abcdef",
+          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount,
           format: "hedera",
+          accountId: "0.0.123456789",
+          contractId: "0.0.123456789",
         }
 
-        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(fundRequest).expect(400)
+        await request(app.getHttpServer())
+          .post("/api/v1/treasury/proceeds-recipients/fund")
+          .send(fundRequest)
+          .expect(400)
       }
     })
 
     it("should return 400 for missing required fields", async () => {
-      const invalidRequests = [{}, { address: "0x1234567890abcdef" }, { amount: 1000 }, { format: "hedera" }]
+      const invalidRequests = [
+        {},
+        { address: "0x1234567890abcdef1234567890abcdef12345678" },
+        { amount: 1000 },
+        { format: "hedera" },
+        { accountId: "0.0.123456789" },
+        { contractId: "0.0.123456789" },
+      ]
 
       for (const invalidRequest of invalidRequests) {
-        await request(app.getHttpServer()).post("/proceeds-recipients/fund").send(invalidRequest).expect(400)
+        await request(app.getHttpServer())
+          .post("/api/v1/treasury/proceeds-recipients/fund")
+          .send(invalidRequest)
+          .expect(400)
       }
     })
   })

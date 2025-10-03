@@ -1,45 +1,47 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseTransactionBuilder, BuildTransactionResponse, Singleton } from "@hashgraph/green-bonds-shared-core"
+import {
+  BaseTransactionBuilder,
+  BuildTransactionResponse,
+  Environment,
+  Singleton,
+} from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
+import { ConfigService } from "@nestjs/config"
+import { ConfigKeys } from "@config/ConfigKeys"
+import { IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private readonly GAS = 30_000_000
+
+  constructor(private readonly configService: ConfigService) {
+    super()
+  }
+
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse {
-    // TODO: Replace with actual Treasury contract when available
-    // For now, we'll prepare the structure for when the contract is ready
+    const contractInterface = IProceedsManagement__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
 
-    try {
-      // Example structure for when Treasury contract is available:
-      // const treasuryContract = new TreasuryContract(contractAddress, provider)
-      // const contractId = "0.0.123456" // Treasury contract ID on Hedera
-      // const contractEvmAddress = "0x1234567890abcdef..." // EVM address of the contract
-      // const gas = 300000
-      // const environment: Environment = "testnet" // Should come from config
-      // const operatorAccount = "0.0.123" // operator account
+    /**
+     * Type assertion is necessary here due to complex generic type inference in ethers.js
+     * The BaseTransactionBuilder expects specific generic constraints that cannot be
+     * automatically inferred from the IProceedsManagement interface.
+     * This is a known limitation when working with dynamically generated contract interfaces.
+     */
+    const transactionResponse = this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "fundProceedsBeneficiary" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      contractEvmAddress: request.contractAddress,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.address, request.amount],
+    } as any)
 
-      // const tx = this.buildTransaction({
-      //   contractInstance: treasuryContract,
-      //   functionName: "fundBeneficiary",
-      //   contractId,
-      //   gas,
-      //   args: [beneficiaryId, amount]
-      // })
-
-      // TODO:
-      // Based on format parameter, choose serialization method:
-      // if (format === "hedera") {
-      //   return this.serializeHederaTransaction(tx, environment, operatorAccount)
-      // } else if (format === "ethereum") {
-      //   return this.serializeEvmTransaction(tx, contractEvmAddress)
-      // }
-
-      // Temporary implementation until Treasury contract is available
-      throw new Error(`Fund beneficiary transaction not yet implemented. Waiting for Treasury contract.`)
-    } catch (error) {
-      throw new Error(`Failed to build and serialize transaction: ${(error as Error).message}`)
-    }
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
 }
