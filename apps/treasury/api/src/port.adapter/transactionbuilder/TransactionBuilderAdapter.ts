@@ -22,7 +22,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse {
     const contractInterface = IProceedsManagement__factory.createInterface()
-    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_ENVIRONMENT) || "testnet"
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
 
     /**
      * Type assertion is necessary here due to complex generic type inference in ethers.js
