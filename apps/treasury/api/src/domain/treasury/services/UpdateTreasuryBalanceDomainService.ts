@@ -7,18 +7,18 @@ import { Treasury } from "@domain/treasury/model/Treasury"
 export class UpdateTreasuryBalanceDomainService {
   constructor(@Inject() private readonly treasuryRepository: TreasuryRepository) {}
 
-  async execute(fromAddress: string, toAddress: string, amount: number): Promise<Treasury> {
-    let amountToUpdateBalance = amount
+  async execute(fromAddress: string, toAddress: string, amount: string): Promise<Treasury> {
+    let amountToUpdateBalance = BigInt(amount)
     let treasury = await this.treasuryRepository.findByContractAddress(fromAddress)
     if (treasury) {
-      amountToUpdateBalance = amountToUpdateBalance * -1
+      amountToUpdateBalance = amountToUpdateBalance * -1n
     } else {
       treasury = await this.treasuryRepository.findByContractAddress(toAddress)
     }
     if (!treasury) {
-      throw new TreasuryNotFoundError([fromAddress, toAddress])
+      throw TreasuryNotFoundError.addressesError([fromAddress, toAddress])
     }
-    treasury.balance = treasury.balance + amountToUpdateBalance
+    treasury.balance = (BigInt(treasury.balance) + amountToUpdateBalance).toString()
     return await this.treasuryRepository.save(treasury)
   }
 }

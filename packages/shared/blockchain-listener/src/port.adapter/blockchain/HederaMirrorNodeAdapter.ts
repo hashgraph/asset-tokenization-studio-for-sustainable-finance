@@ -21,7 +21,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   private readonly mirrorNodeURL: string
 
   constructor() {
-    this.mirrorNodeURL = this.getMirrorNodeURL(process.env.BLOCKCHAIN_LISTENER_NETWORK ?? "testnet")
+    this.mirrorNodeURL = this.getMirrorNodeURL(process.env.HEDERA_NETWORK ?? "testnet")
   }
 
   @Validate()

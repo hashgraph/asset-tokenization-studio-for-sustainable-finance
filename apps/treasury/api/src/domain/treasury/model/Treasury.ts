@@ -1,5 +1,5 @@
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNumber, IsHexadecimal, IsNotEmpty, Min } from "class-validator"
+import { IsHexadecimal, IsNotEmpty } from "class-validator"
 
 export class Treasury extends BaseEntity {
   @IsNotEmpty()
@@ -10,7 +10,6 @@ export class Treasury extends BaseEntity {
   @IsHexadecimal()
   bondContractAddress: string
 
-  @Min(0)
-  @IsNumber()
-  balance: number
+  @IsNotEmpty()
+  balance: string
 }

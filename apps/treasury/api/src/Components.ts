@@ -10,6 +10,9 @@ import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPe
 import { UpdateTreasuryBalanceCommandHandler } from "@app/treasury/updatetreasurybalance/command/UpdateTreasuryBalanceCommandHandler"
 import { UpdateTreasuryBalanceDomainService } from "@domain/treasury/services/UpdateTreasuryBalanceDomainService"
 import { UpdateTreasuryBalanceNestJSEventAdapter } from "@port/treasury/usecase/updatetreasurybalance/UpdateTreasuryBalanceNestJSEventAdapter"
+import { GetTreasuryPositionsHttpAdapter } from "@port/treasury/usecase/gettreasurypositions/GetTreasuryPositionsHttpAdapter"
+import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { GetTreasuryPositionsQueryHandler } from "@app/treasury/gettreasurypositions/query/GetTreasuryPositionsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -20,7 +23,7 @@ const REPOSITORIES: Provider[] = [
 
 export const ENTITIES = [...EVENT_LISTENER_ENTITIES, TreasuryPersistence]
 
-export const CONTROLLERS = [FundProceedsRecipientTransactionHttpAdapter]
+export const CONTROLLERS = [FundProceedsRecipientTransactionHttpAdapter, GetTreasuryPositionsHttpAdapter]
 
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -28,6 +31,8 @@ export const PROVIDERS = [
   UpdateTreasuryBalanceDomainService,
   UpdateTreasuryBalanceCommandHandler,
   UpdateTreasuryBalanceNestJSEventAdapter,
+  CheckTreasuryExistsDomainService,
+  GetTreasuryPositionsQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

@@ -1,5 +1,5 @@
 import { Command } from "@hashgraph/green-bonds-shared-core"
-import { IsHexadecimal, IsNotEmpty, IsNumber, IsPositive } from "class-validator"
+import { IsHexadecimal, IsNotEmpty } from "class-validator"
 
 export class UpdateTreasuryBalanceCommand extends Command<void> {
   @IsNotEmpty()
@@ -10,11 +10,10 @@ export class UpdateTreasuryBalanceCommand extends Command<void> {
   @IsHexadecimal()
   readonly toAddress: string
 
-  @IsNumber()
-  @IsPositive()
-  readonly amount: number
+  @IsNotEmpty()
+  readonly amount: string
 
-  constructor(fromAddress: string, toAddress: string, amount: number) {
+  constructor(fromAddress: string, toAddress: string, amount: string) {
     super()
     this.fromAddress = fromAddress
     this.toAddress = toAddress

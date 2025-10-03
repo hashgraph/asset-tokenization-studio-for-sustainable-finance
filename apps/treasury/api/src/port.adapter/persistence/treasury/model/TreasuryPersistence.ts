@@ -10,5 +10,5 @@ export class TreasuryPersistence extends BaseEntityPersistence {
   bondContractAddress: string
 
   @Column()
-  balance: number
+  balance: string
 }
