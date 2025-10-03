@@ -32,7 +32,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
      */
     const transactionResponse = this.buildAndSerializeTransaction({
       contractInterface,
-      functionName: "fundProceedsBeneficiary" as any,
+      functionName: "fundProceedsRecipient" as any,
       contractId: request.contractId,
       gas: this.GAS,
       environment,
