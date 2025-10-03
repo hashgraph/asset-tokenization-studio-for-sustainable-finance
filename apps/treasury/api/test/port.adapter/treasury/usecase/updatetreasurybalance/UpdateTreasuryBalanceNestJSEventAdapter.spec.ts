@@ -46,10 +46,10 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
   describe("UpdateTreasuryBalanceNestJSEventAdapter", () => {
     it("should throw TreasuryNotFoundError when treasury is not found", async () => {
-      const event = new TransferDLTEvent("0x001", "0x002", 100000)
+      const event = new TransferDLTEvent("0x001", "0x002", "100000")
 
       await expect(eventBus.publishSync(event, TransferDLTEvent.name)).rejects.toThrow(
-        new TreasuryNotFoundError([event.from, event.to]),
+        TreasuryNotFoundError.addressesError([event.from, event.to]),
       )
     })
 
@@ -57,12 +57,12 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       let treasury = await internalTreasuryRepository.save({
         contractAddress: "0x002",
         bondContractAddress: "0x003",
-        balance: 0,
+        balance: "0",
       })
 
       let publishedEvent
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new TransferDLTEvent("0x001", treasury.contractAddress, 100000)
+      const event = new TransferDLTEvent("0x001", treasury.contractAddress, "100000")
       await eventBus.publishSync(event, TransferDLTEvent.name)
 
       treasury = await internalTreasuryRepository.findOneBy({ id: treasury.id })
@@ -81,16 +81,16 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       let treasury = await internalTreasuryRepository.save({
         contractAddress: "0x002",
         bondContractAddress: "0x003",
-        balance: 200000,
+        balance: "200000",
       })
 
       let publishedEvent
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new TransferDLTEvent(treasury.contractAddress, "0x001", 100000)
+      const event = new TransferDLTEvent(treasury.contractAddress, "0x001", "100000")
       await eventBus.publishSync(event, TransferDLTEvent.name)
 
       treasury = await internalTreasuryRepository.findOneBy({ id: treasury.id })
-      expect(treasury.balance).toEqual(100000)
+      expect(treasury.balance).toEqual("100000")
 
       expect(publishedEvent).toEqual({
         contractAddress: treasury.contractAddress,

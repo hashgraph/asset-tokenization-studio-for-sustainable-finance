@@ -11,16 +11,20 @@ import { Treasury } from "@domain/treasury/model/Treasury"
 export class TreasuryTypeOrmRepository implements TreasuryRepository {
   constructor(
     @InjectRepository(TreasuryPersistence)
-    private readonly beneficiaryRepository: Repository<TreasuryPersistence>,
+    private readonly treasuryRepository: Repository<TreasuryPersistence>,
   ) {}
 
   @Validate()
   async save(treasury: Treasury): Promise<Treasury> {
-    const persistence = await this.beneficiaryRepository.save(treasury as TreasuryPersistence)
+    const persistence = await this.treasuryRepository.save(treasury as TreasuryPersistence)
     return persistence as Treasury
   }
 
   async findByContractAddress(contractAddress: string): Promise<Treasury> {
-    return (await this.beneficiaryRepository.findOneBy({ contractAddress })) as Treasury
+    return (await this.treasuryRepository.findOneBy({ contractAddress })) as Treasury
+  }
+
+  async findByBondContractAddress(bondContractAddress: string): Promise<Treasury> {
+    return (await this.treasuryRepository.findOneBy({ bondContractAddress })) as Treasury
   }
 }
