@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable } from "@nestjs/common"
-import { BaseTransactionBuilder, BuildTransactionResponse, Environment } from "@hashgraph/green-bonds-shared-core"
+import {
+  BaseTransactionBuilder,
+  BuildTransactionResponse,
+  Environment,
+  Singleton,
+} from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
 
-@Injectable()
+@Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly GAS = 30_000_000
 
