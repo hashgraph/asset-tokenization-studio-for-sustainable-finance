@@ -35,7 +35,7 @@ contract ProceeesManagementFacet is ProceedsManagement, IStaticFunctionSelectors
             .transferERC721Token
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .fundProceedsBeneficiary
+            .fundProceedsRecipient
             .selector;
     }
 

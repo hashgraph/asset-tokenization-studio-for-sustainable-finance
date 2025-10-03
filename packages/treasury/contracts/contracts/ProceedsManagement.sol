@@ -6,6 +6,7 @@ pragma solidity 0.8.18;
 import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';
+import {FUNDS_MANAGER_ROLE} from './constants/roles.sol';
 
 abstract contract ProceedsManagement is ProceedsManagementStorageWrapper {
 
@@ -33,13 +34,22 @@ abstract contract ProceedsManagement is ProceedsManagementStorageWrapper {
     }
 
      /*
-      * @dev Funds a proceeds beneficiary with an amount of tokens
+      * @dev Funds a proceeds recipient with an amount of tokens
       *
-      * @param beneficiary The address of the proceeds beneficiary that is funded
-      * @param token The amount the proceeds beneficiary is funded with
+      * @param recipient The address of the proceeds recipient that is funded
+      * @param token The amount the proceeds recipient is funded with
       */
-    function fundProceedsBeneficiary(address proceedsBeneficiary, uint256 amount) external {
-        _fundProceedsBeneficiary(proceedsBeneficiary, amount);
-        emit ProceedsBeneficiaryFunded(proceedsBeneficiary, amount);
+    function fundProceedsRecipient(
+        address proceedsRecipient,
+        uint256 amount
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(FUNDS_MANAGER_ROLE)
+        onlyForBonsProceedsRecipients(proceedsRecipient)
+    {
+        _fundProceedsRecipient(proceedsRecipient, amount);
+        emit ProceedsRecipientFunded(proceedsRecipient, amount);
     }
 }
