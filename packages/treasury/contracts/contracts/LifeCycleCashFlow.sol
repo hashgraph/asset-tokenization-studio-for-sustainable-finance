@@ -3,12 +3,20 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
+/*import {
+    LifeCycleCashFlowStorageWrapper
+} from './LifeCycleCashFlowStorageWrapper.sol';*/
+import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
 import {PAYOUT_ROLE, CASHOUT_ROLE} from './constants/roles.sol';
 
-abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
+//abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
+abstract contract LifeCycleCashFlow is
+    ILifeCycleCashFlow,
+    LifeCycleCashFlowStorageWrapper
+{
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset
@@ -48,10 +56,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         onlyRole(PAYOUT_ROLE)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (
-            PaymentResult memory result,
-            bool executed
-        )
+        returns (PaymentResult memory result, bool executed)
     {
         (result, executed) = _executeDistribution(
             _lifeCycleCashFlowStorage().asset,
@@ -90,9 +95,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         onlyRole(PAYOUT_ROLE)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (
-            PaymentResult memory result
-        )
+        returns (PaymentResult memory result)
     {
         result = _executeDistributionByAddresses(
             _lifeCycleCashFlowStorage().asset,
@@ -100,11 +103,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
             holders
         );
 
-        emit DistributionByAddressesExecuted(
-            distributionId,
-            holders,
-            result
-        );
+        emit DistributionByAddressesExecuted(distributionId, holders, result);
     }
 
     /*
@@ -130,10 +129,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         onlyRole(CASHOUT_ROLE)
         isAsset(bond)
         onlyOnMaturityDate(bond)
-        returns (
-            PaymentResult memory result,
-            bool executed
-        )
+        returns (PaymentResult memory result, bool executed)
     {
         (result, executed) = _executeBondCashOut(
             _lifeCycleCashFlowStorage().asset,
@@ -141,11 +137,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
             pageLength
         );
 
-        emit CashOutExecuted(
-            pageIndex,
-            pageLength,
-            result
-        );
+        emit CashOutExecuted(pageIndex, pageLength, result);
     }
 
     /*
@@ -168,14 +160,9 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         onlyRole(CASHOUT_ROLE)
         isAsset(bond)
         onlyOnMaturityDate(bond)
-        returns (
-            PaymentResult memory result
-        )
+        returns (PaymentResult memory result)
     {
-        result = _executeBondCashOutByAddresses(
-            bond,
-            holders
-        );
+        result = _executeBondCashOutByAddresses(bond, holders);
 
         emit CashOutByAddressesExecuted(holders, result);
     }

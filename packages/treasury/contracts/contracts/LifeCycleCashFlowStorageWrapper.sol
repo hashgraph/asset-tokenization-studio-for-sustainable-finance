@@ -3,7 +3,9 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
+import {
+    ILifeCycleCashFlowStorageWrapper
+} from './interfaces/ILifeCycleCashFlowStorageWrapper.sol';
 import {
     Common as AtsCommon
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
@@ -33,7 +35,7 @@ import {
 } from './constants/storagePositions.sol';
 
 abstract contract LifeCycleCashFlowStorageWrapper is
-    ILifeCycleCashFlow,
+    ILifeCycleCashFlowStorageWrapper,
     HederaTokenService,
     AtsCommon
 {
@@ -75,13 +77,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    )
-        internal
-        returns (
-            PaymentResult memory result,
-            bool
-        )
-    {
+    ) internal returns (PaymentResult memory result, bool) {
         address[] memory holders = _getHolders(
             asset,
             distributionId,
@@ -110,17 +106,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         uint256 distributionId,
         address[] memory holders
-    )
-        internal
-        returns (
-            PaymentResult memory result
-        )
-    {
-        (result) = _payHoldersDistribution(
-            asset,
-            distributionId,
-            holders
-        );
+    ) internal returns (PaymentResult memory result) {
+        (result) = _payHoldersDistribution(asset, distributionId, holders);
     }
 
     /*
@@ -137,23 +124,14 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    )
-        internal
-        returns (
-            PaymentResult memory result,
-            bool
-        )
-    {
+    ) internal returns (PaymentResult memory result, bool) {
         address[] memory holders = ISecurity(bond).getSecurityHolders(
             pageIndex,
             pageLength
         );
 
         if (holders.length == 0) return (result, false);
-        (result) = _executeBondCashOutByAddresses(
-            bond,
-            holders
-        );
+        (result) = _executeBondCashOutByAddresses(bond, holders);
         return (result, true);
     }
 
@@ -168,12 +146,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _executeBondCashOutByAddresses(
         address bond,
         address[] memory holders
-    )
-        internal
-        returns (
-            PaymentResult memory result
-        )
-    {
+    ) internal returns (PaymentResult memory result) {
         result = _payHoldersCashOut(bond, holders);
     }
 
@@ -306,12 +279,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         uint256 distributionId,
         address[] memory holders
-    )
-        private
-        returns (
-            PaymentResult memory result
-        )
-    {
+    ) private returns (PaymentResult memory result) {
         result.failedAddresses = new address[](holders.length);
         result.succeededAddresses = new address[](holders.length);
         result.paidAmounts = new uint256[](holders.length);
@@ -326,9 +294,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
         for (uint256 index; index < holders.length; ) {
             if (_isHolderCashOutPaid(holders[index])) {
-                uint256 indexToAdd = _firstZeroAddressIndex(result.failedAddresses);
+                uint256 indexToAdd = _firstZeroAddressIndex(
+                    result.failedAddresses
+                );
                 result.failedAddresses[indexToAdd] = holders[index];
-                unchecked { ++index; }
+                unchecked {
+                    ++index;
+                }
                 continue;
             }
 
@@ -340,9 +312,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             );
 
             if (!success) {
-                uint256 indexToAdd = _firstZeroAddressIndex(result.failedAddresses);
+                uint256 indexToAdd = _firstZeroAddressIndex(
+                    result.failedAddresses
+                );
                 result.failedAddresses[indexToAdd] = holders[index];
-                unchecked { ++index; }
+                unchecked {
+                    ++index;
+                }
                 continue;
             }
 
@@ -431,17 +407,15 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         int64 totalAmount,
         OZ_IERC20 paymentToken,
         PaymentResult memory resultParams
-    ) private returns (
-        PaymentResult memory result
-    ) {
+    ) private returns (PaymentResult memory result) {
         if (
             !_payBatchHoldersDistribution(
-            distributionId,
-            holders,
-            amounts,
-            totalAmount,
-            paymentToken
-        )
+                distributionId,
+                holders,
+                amounts,
+                totalAmount,
+                paymentToken
+            )
         ) {
             result.failedAddresses = _populateSourceArrayFromDataArray(
                 resultParams.failedAddresses,
@@ -473,12 +447,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _payHoldersCashOut(
         address bond,
         address[] memory holders
-    )
-        private
-        returns (
-            PaymentResult memory result
-        )
-    {
+    ) private returns (PaymentResult memory result) {
         result.failedAddresses = new address[](holders.length);
         result.succeededAddresses = new address[](holders.length);
         result.paidAmounts = new uint256[](holders.length);
@@ -496,7 +465,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 result.failedAddresses[
                     _firstZeroAddressIndex(result.failedAddresses)
                 ] = holders[index];
-                unchecked { ++index; }
+                unchecked {
+                    ++index;
+                }
                 continue;
             }
 
@@ -591,19 +562,16 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         int64 totalAmount,
         OZ_IERC20 paymentToken,
         PaymentResult memory resultParams
-    ) private returns (
-        bool successfulPayment,
-        PaymentResult memory result
-    ) {
+    ) private returns (bool successfulPayment, PaymentResult memory result) {
         result = resultParams;
 
         if (
             !_payBatchHoldersCashOut(
-            holders,
-            amounts,
-            totalAmount,
-            paymentToken
-        )
+                holders,
+                amounts,
+                totalAmount,
+                paymentToken
+            )
         ) {
             result.failedAddresses = _populateSourceArrayFromDataArray(
                 result.failedAddresses,

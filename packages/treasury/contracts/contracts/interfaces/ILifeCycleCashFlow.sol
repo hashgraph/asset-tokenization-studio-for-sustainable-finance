@@ -1,14 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.18;
 
-interface ILifeCycleCashFlow {
+import {
+    ILifeCycleCashFlowStorageWrapper
+} from './ILifeCycleCashFlowStorageWrapper.sol';
 
-    struct PaymentResult {
-        address[] failedAddresses;
-        address[] succeededAddresses;
-        uint256[] paidAmounts;
-    }
-
+interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
     /*
      * @dev Emitted when a coupon by page is executed
      *
@@ -64,10 +61,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event CashOutByAddressesExecuted(
-        address[] holders,
-        PaymentResult result
-    );
+    event CashOutByAddressesExecuted(address[] holders, PaymentResult result);
 
     /*
      * @dev Emitted when a token is associated with an account
@@ -75,20 +69,6 @@ interface ILifeCycleCashFlow {
      * @param token The token the account is associated with
      */
     event TokenAssociated(address token);
-
-    /**
-     * @notice Error thrown when attempting to execute a payment for an asset not managed by the contract
-     *
-     * @param asset The address of the asset that is being tried to operate with
-     */
-    error InvalidAsset(address asset);
-
-    /**
-     * @notice Error thrown when attempting to execute a payment a date does not corresponds to the payment date
-     * @param paymentDateInit The initial execution date
-     * @param requestedDate The date a certain operation is requested to be made
-     */
-    error NotPaymentDate(uint256 paymentDateInit, uint256 requestedDate);
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
@@ -112,9 +92,7 @@ interface ILifeCycleCashFlow {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
-    )
-        external
-        returns (PaymentResult memory result, bool);
+    ) external returns (PaymentResult memory result, bool);
 
     /*
      * @dev Retry the payment of a coupon to a list of holders
@@ -149,9 +127,7 @@ interface ILifeCycleCashFlow {
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    )
-        external
-        returns (PaymentResult memory result, bool);
+    ) external returns (PaymentResult memory result, bool);
 
     /*
      * @dev Perform a bond cash out to a list of holders
