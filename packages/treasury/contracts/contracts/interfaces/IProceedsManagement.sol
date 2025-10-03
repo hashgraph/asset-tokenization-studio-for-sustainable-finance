@@ -21,12 +21,12 @@ interface IProceedsManagement {
     event ERC721TokenTransferred(address erc721, address to, uint256 tokenId);
 
     /*
-     * @dev Emitted when a proceeds beneficiary was funded with an amount
+     * @dev Emitted when a proceeds recipient was funded with an amount
      *
-     * @param proceedsBeneficiary The address of the proceeds beneficiary that was funded
-     * @param token The amount the proceeds beneficiary was funded with
+     * @param proceedsRecipient The address of the proceeds recipient that was funded
+     * @param token The amount the proceeds recipient was funded with
      */
-    event ProceedsBeneficiaryFunded(address proceedsBeneficiary, uint256 amount);
+    event ProceedsRecipientFunded(address proceedsRecipient, uint256 amount);
 
     /**
      * @notice Error thrown when something fails while attempting to transfer payment tokens
@@ -62,11 +62,11 @@ interface IProceedsManagement {
     error NotTokenIdOwner(address erc721, address to, uint256 tokenId);
 
     /**
-     * @notice Error thrown when funding an account that is not an asset proceeds beneficiary
+     * @notice Error thrown when funding an account that is not an asset proceeds recipient
      *
-     * @param proceedsBeneficiary The address of the proceeds beneficiary that is funded
+     * @param proceedsRecipient The address of the proceeds recipient that is funded
      */
-    error WrongProceedsBeneficiary(address proceedsBeneficiary);
+    error WrongProceedsRecipient(address proceedsRecipient);
 
     /*
      * @dev Transfers an amount of payment tokens to an address
@@ -74,7 +74,7 @@ interface IProceedsManagement {
      * @param to The address the payment tokens are transferred to
      * @param amount The amount of payment tokens to transfer
      */
-    function transferPaymentToken(address _to, uint256 _amount) external;
+    function transferPaymentToken(address to, uint256 amount) external;
 
     /*
      * @dev Transfers an ERC721 token to an address
@@ -83,13 +83,13 @@ interface IProceedsManagement {
      * @param to The address the payment tokens are transferred to
      * @param tokenId The tokenId of the erc721 token
      */
-    function transferERC721Token(address _erc721, address _to, uint256 _tokenId) external;
+    function transferERC721Token(address erc721, address to, uint256 tokenId) external;
 
     /*
-     * @dev Funds a proceeds beneficiary with an amount of tokens
+     * @dev Funds a proceeds recipient with an amount of tokens
      *
-     * @param beneficiary The address of the proceeds beneficiary that is funded
-     * @param token The amount the proceeds beneficiary is funded with
+     * @param recipient The address of the proceeds recipient that is funded
+     * @param token The amount the proceeds recipient is funded with
      */
-    function fundProceedsBeneficiary(address _beneficiary, uint256 _amount) external;
+    function fundProceedsRecipient(address recipient, uint256 amount) external;
 }
