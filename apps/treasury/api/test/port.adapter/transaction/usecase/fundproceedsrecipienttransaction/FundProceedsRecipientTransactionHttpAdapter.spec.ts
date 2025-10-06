@@ -24,7 +24,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/v1/treasury")
+    app.setGlobalPrefix("api/treasuries")
     await app.init()
   })
 
@@ -38,45 +38,54 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     }
   })
 
-  describe("POST /proceeds-recipients/fund", () => {
-    it("should fund proceeds recipient with valid hexadecimal address and positive amount", async () => {
+  describe("POST /treasuries/{treasuryId}/proceeds-recipients/{recipientId}/transfer", () => {
+    const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+    const recipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
+    const baseUrl = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
+
+    it("should fund proceeds recipient with valid data", async () => {
       const fundRequest = {
-        address: "0x1234567890abcdef1234567890abcdef12345678",
         amount: 1000,
         format: "hedera",
         accountId: "0.0.123456789",
-        contractId: "0.0.123456789",
       }
 
-      const response = await request(app.getHttpServer())
-        .post("/api/v1/treasury/proceeds-recipients/fund")
-        .send(fundRequest)
-        .expect(201)
+      const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest)
 
+      if (response.status !== 201) {
+        console.log("Error response:", response.status, response.body)
+      }
+
+      expect(response.status).toBe(201)
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof response.body.unsignedTx).toBe("string")
     })
 
-    it("should handle different valid hexadecimal addresses", async () => {
-      const addresses = [
-        "0x1234567890abcdef1234567890abcdef12345678",
-        "0xABCDEF12345678901234567890ABCDEF12345678",
-        "0xdeadbeefcafebabe1234567890abcdef12345678",
+    it("should handle different valid hexadecimal treasuryIds and recipientIds", async () => {
+      const testCases = [
+        {
+          treasuryId: "0x1234567890abcdef1234567890abcdef12345678",
+          recipientId: "0xabcdef1234567890abcdef1234567890abcdef12",
+        },
+        {
+          treasuryId: "0xABCDEF12345678901234567890ABCDEF12345678",
+          recipientId: "0x1234567890ABCDEF1234567890ABCDEF12345678",
+        },
+        {
+          treasuryId: "0xdeadbeefcafebabe1234567890abcdef12345678",
+          recipientId: "0xcafebabe1234567890abcdef1234567890abcdef",
+        },
       ]
 
-      for (const address of addresses) {
+      for (const { treasuryId, recipientId } of testCases) {
         const fundRequest = {
-          address,
           amount: 500,
           format: "hedera",
           accountId: "0.0.123456789",
-          contractId: "0.0.123456789",
         }
 
-        const response = await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(fundRequest)
-          .expect(201)
+        const url = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
+        const response = await request(app.getHttpServer()).post(url).send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -94,10 +103,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           contractId: "0.0.123456789",
         }
 
-        const response = await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(fundRequest)
-          .expect(201)
+        const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -108,33 +114,41 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of formats) {
         const fundRequest = {
-          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount: 1000,
           format,
           accountId: "0.0.123456789",
-          contractId: "0.0.123456789",
-          contractAddress: "0x1234567890abcdef1234567890abcdef12345678",
         }
 
-        const response = await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(fundRequest)
-          .expect(201)
+        const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
     })
 
-    it("should reject invalid hexadecimal address", async () => {
+    it("should return 400 for invalid hexadecimal treasuryId", async () => {
+      const invalidTreasuryId = "invalid-treasury-id"
+      const validRecipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
       const fundRequest = {
-        address: "invalid-address",
         amount: 1000,
         format: "hedera",
         accountId: "0.0.123456789",
-        contractId: "0.0.123456789",
       }
 
-      await request(app.getHttpServer()).post("/api/v1/treasury/proceeds-recipients/fund").send(fundRequest).expect(400)
+      const url = `/api/treasuries/${invalidTreasuryId}/proceeds-recipients/${validRecipientId}/transfer`
+      await request(app.getHttpServer()).post(url).send(fundRequest).expect(400)
+    })
+
+    it("should return 400 for invalid hexadecimal recipientId", async () => {
+      const validTreasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+      const invalidRecipientId = "invalid-recipient-id"
+      const fundRequest = {
+        amount: 1000,
+        format: "hedera",
+        accountId: "0.0.123456789",
+      }
+
+      const url = `/api/treasuries/${validTreasuryId}/proceeds-recipients/${invalidRecipientId}/transfer`
+      await request(app.getHttpServer()).post(url).send(fundRequest).expect(400)
     })
 
     it("should return 400 for invalid format values", async () => {
@@ -142,54 +156,40 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of invalidFormats) {
         const fundRequest = {
-          address: "0x1234567890abcdef1234567890abcdef12345678",
           amount: 1000,
           format,
           accountId: "0.0.123456789",
-          contractId: "0.0.123456789",
         }
 
-        await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(fundRequest)
-          .expect(400)
+        await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(400)
       }
     })
 
-    it("should reject non-positive amounts", async () => {
-      const invalidAmounts = [0, -1, -100]
-
-      for (const amount of invalidAmounts) {
-        const fundRequest = {
-          address: "0x1234567890abcdef1234567890abcdef12345678",
-          amount,
-          format: "hedera",
-          accountId: "0.0.123456789",
-          contractId: "0.0.123456789",
-        }
-
-        await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(fundRequest)
-          .expect(400)
+    it("should return 400 for negative amount", async () => {
+      const fundRequest = {
+        amount: -100,
+        format: "hedera",
+        accountId: "0.0.123456789",
       }
+
+      await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(400)
+    })
+
+    it("should return 400 for zero amount", async () => {
+      const fundRequest = {
+        amount: 0,
+        format: "hedera",
+        accountId: "0.0.123456789",
+      }
+
+      await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(400)
     })
 
     it("should return 400 for missing required fields", async () => {
-      const invalidRequests = [
-        {},
-        { address: "0x1234567890abcdef1234567890abcdef12345678" },
-        { amount: 1000 },
-        { format: "hedera" },
-        { accountId: "0.0.123456789" },
-        { contractId: "0.0.123456789" },
-      ]
+      const invalidRequests = [{}, { amount: 1000 }, { format: "hedera" }, { accountId: "0.0.123456789" }]
 
       for (const invalidRequest of invalidRequests) {
-        await request(app.getHttpServer())
-          .post("/api/v1/treasury/proceeds-recipients/fund")
-          .send(invalidRequest)
-          .expect(400)
+        await request(app.getHttpServer()).post(baseUrl).send(invalidRequest).expect(400)
       }
     })
   })
