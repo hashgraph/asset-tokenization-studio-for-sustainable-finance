@@ -61,6 +61,12 @@ export abstract class BaseTransactionBuilder {
     }
   }
 
+  protected getEvmAddressFromHedera(hederaAddress: string): string {
+      const input = hederaAddress.trim().toLowerCase()
+      const id = AccountId.fromString(input)
+      return `0x${id.toEvmAddress()}`
+  }
+
   private serializeHederaTransaction(tx: Transaction, environment: Environment, account: string): TransactionResponse {
     try {
       const accountId = AccountId.fromString(account)
