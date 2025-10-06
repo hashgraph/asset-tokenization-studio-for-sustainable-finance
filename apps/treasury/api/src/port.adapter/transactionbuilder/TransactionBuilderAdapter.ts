@@ -8,10 +8,11 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
+import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEnvironmentalAssetTransactionRequest"
+import { BuildRemoveEnvironmentalAssetTransactionRequest } from "./model/BuildRemoveEnvironmentalAssetTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
-import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEnvironmentalAssetTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -47,6 +48,24 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
+    return this.buildEnvironmentalAssetTransaction(request, "addERC721Token")
+  }
+
+  removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
+    return this.buildEnvironmentalAssetTransaction(request, "removeERC721Token")
+  }
+
+  /**
+   * Builds a transaction for environmental asset operations (add/remove)
+   * @param request The transaction request containing assetId, contractId, accountId, and format
+   * @param functionName The contract function name to call ("addERC721Token" or "removeERC721Token")
+   * @returns BuildTransactionResponse containing the serialized unsigned transaction
+   * @private
+   */
+  private buildEnvironmentalAssetTransaction(
+    request: BuildAddEnvironmentalAssetTransactionRequest | BuildRemoveEnvironmentalAssetTransactionRequest,
+    functionName: "addERC721Token" | "removeERC721Token",
+  ): BuildTransactionResponse {
     const contractInterface = IProceedsManagement__factory.createInterface()
     const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
 
@@ -58,7 +77,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
      */
     const transactionResponse = this.buildAndSerializeTransaction({
       contractInterface,
-      functionName: "addERC721Token" as any,
+      functionName: functionName as any,
       contractId: request.contractId,
       gas: this.GAS,
       environment,

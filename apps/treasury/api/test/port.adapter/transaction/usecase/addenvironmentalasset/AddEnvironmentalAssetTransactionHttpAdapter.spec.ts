@@ -39,9 +39,9 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
   })
 
   describe("POST /:treasuryId/environmental-assets/:assetId", () => {
-    it("should add environmental asset with valid hexadecimal treasuryId and assetId", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+    it("should add environmental asset with valid treasuryId and assetId", async () => {
+      const treasuryId = "0.0.123456"
+      const assetId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
@@ -56,19 +56,19 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       expect(typeof response.body.unsignedTx).toBe("string")
     })
 
-    it("should handle different valid hexadecimal treasuryIds and assetIds", async () => {
+    it("should handle different valid treasuryIds and assetIds", async () => {
       const testCases = [
         {
-          treasuryId: "0x1234567890abcdef1234567890abcdef12345678",
-          assetId: "0xabcdef1234567890abcdef1234567890abcdef12",
+          treasuryId: "0.0.123456",
+          assetId: "0.0.789012",
         },
         {
-          treasuryId: "0xABCDEF12345678901234567890ABCDEF12345678",
-          assetId: "0x1234567890ABCDEF1234567890ABCDEF12345678",
+          treasuryId: "0.0.654321",
+          assetId: "0.0.210987",
         },
         {
-          treasuryId: "0xdeadbeefcafebabe1234567890abcdef12345678",
-          assetId: "0xcafebabe1234567890abcdef1234567890abcdef",
+          treasuryId: "0.0.999999",
+          assetId: "0.0.111111",
         },
       ]
 
@@ -88,8 +88,8 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should handle different valid format values", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const treasuryId = "0.0.123456"
+      const assetId = "0.0.789012"
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
@@ -107,9 +107,9 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
     })
 
-    it("should reject invalid hexadecimal treasuryId", async () => {
+    it("should reject invalid treasuryId format", async () => {
       const invalidTreasuryId = "invalid-treasury-id"
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const assetId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
@@ -121,8 +121,8 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         .expect(400)
     })
 
-    it("should reject invalid hexadecimal assetId", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+    it("should reject invalid assetId format", async () => {
+      const treasuryId = "0.0.123456"
       const invalidAssetId = "not-a-valid-asset-id"
       const addRequest = {
         format: "hedera",
@@ -136,8 +136,8 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should return 400 for invalid format values", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const treasuryId = "0.0.123456"
+      const assetId = "0.0.789012"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
@@ -154,8 +154,8 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should return 400 for missing required fields in body", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const treasuryId = "0.0.123456"
+      const assetId = "0.0.789012"
       const invalidRequests = [{}, { format: "hedera" }, { accountId: "0.0.123456789" }]
 
       for (const invalidRequest of invalidRequests) {
@@ -167,7 +167,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should handle missing treasuryId in path", async () => {
-      const assetId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const assetId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
@@ -180,7 +180,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should handle missing assetId in path", async () => {
-      const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+      const treasuryId = "0.0.123456"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
