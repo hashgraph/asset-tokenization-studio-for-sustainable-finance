@@ -11,18 +11,8 @@ export abstract class BaseTransactionRequest {
   @ValidateIf((object) => object?.format === "hedera")
   accountId?: string
 
-  @IsNotEmpty()
-  @ValidateIf((object) => object?.format === "hedera")
-  contractId?: string
-
-  @IsNotEmpty()
-  @ValidateIf((object) => object?.format === "ethereum")
-  contractAddress?: string
-
-  constructor(format: string, accountId: string, contractId: string, contractAddress: string) {
+  protected constructor(format: string, accountId: string) {
     this.format = format
     this.accountId = accountId
-    this.contractId = contractId
-    this.contractAddress = contractAddress
   }
 }

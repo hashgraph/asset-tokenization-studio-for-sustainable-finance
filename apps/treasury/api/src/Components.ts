@@ -2,6 +2,8 @@
 
 import { FundProceedsRecipientTransactionHttpAdapter } from "@port/transaction/usecase/fundproceedsrecipienttransaction/FundProceedsRecipientTransactionHttpAdapter"
 import { FundProceedsRecipientTransactionAppService } from "@app/transaction/fundproceedsrecipienttransaction/service/FundProceedsRecipientTransactionAppService"
+import { AddEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/addenvironmentalasset/AddEnvironmentalAssetTransactionHttpAdapter"
+import { AddEnvironmentalAssetTransactionAppService } from "@app/transaction/addenvironmentalasset/service/AddEnvironmentalAssetTransactionAppService"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { Provider } from "@nestjs/common"
 import { TreasuryTypeOrmRepository } from "@port/persistence/treasury/repositories/TreasuryTypeOrmRepository"
@@ -23,11 +25,16 @@ const REPOSITORIES: Provider[] = [
 
 export const ENTITIES = [...EVENT_LISTENER_ENTITIES, TreasuryPersistence]
 
-export const CONTROLLERS = [FundProceedsRecipientTransactionHttpAdapter, GetTreasuryPositionsHttpAdapter]
+export const CONTROLLERS = [
+  FundProceedsRecipientTransactionHttpAdapter,
+  AddEnvironmentalAssetTransactionHttpAdapter,
+  GetTreasuryPositionsHttpAdapter,
+]
 
 export const PROVIDERS = [
   ...REPOSITORIES,
   FundProceedsRecipientTransactionAppService,
+  AddEnvironmentalAssetTransactionAppService,
   UpdateTreasuryBalanceDomainService,
   UpdateTreasuryBalanceCommandHandler,
   UpdateTreasuryBalanceNestJSEventAdapter,
