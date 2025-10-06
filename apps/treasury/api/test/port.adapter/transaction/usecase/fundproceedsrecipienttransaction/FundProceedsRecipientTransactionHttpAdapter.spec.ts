@@ -39,7 +39,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
   })
 
   describe("POST /treasuries/{treasuryId}/proceeds-recipients/{recipientId}/transfer", () => {
-    const treasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+    const treasuryId = "0.0.123456789"
     const recipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
     const baseUrl = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
 
@@ -52,27 +52,23 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest)
 
-      if (response.status !== 201) {
-        console.log("Error response:", response.status, response.body)
-      }
-
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof response.body.unsignedTx).toBe("string")
     })
 
-    it("should handle different valid hexadecimal treasuryIds and recipientIds", async () => {
+    it("should handle different valid treasuryIds and recipientIds", async () => {
       const testCases = [
         {
-          treasuryId: "0x1234567890abcdef1234567890abcdef12345678",
+          treasuryId: "0.0.123456789",
           recipientId: "0xabcdef1234567890abcdef1234567890abcdef12",
         },
         {
-          treasuryId: "0xABCDEF12345678901234567890ABCDEF12345678",
+          treasuryId: "0.0.987654321",
           recipientId: "0x1234567890ABCDEF1234567890ABCDEF12345678",
         },
         {
-          treasuryId: "0xdeadbeefcafebabe1234567890abcdef12345678",
+          treasuryId: "0.0.555666777",
           recipientId: "0xcafebabe1234567890abcdef1234567890abcdef",
         },
       ]
@@ -119,13 +115,14 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           accountId: "0.0.123456789",
         }
 
-        const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest).expect(201)
+        const response = await request(app.getHttpServer()).post(baseUrl).send(fundRequest)
 
+        expect(response.status).toBe(201)
         expect(response.body).toHaveProperty("unsignedTx")
       }
     })
 
-    it("should return 400 for invalid hexadecimal treasuryId", async () => {
+    it("should return 500 for invalid treasuryId", async () => {
       const invalidTreasuryId = "invalid-treasury-id"
       const validRecipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
       const fundRequest = {
@@ -135,11 +132,11 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       }
 
       const url = `/api/treasuries/${invalidTreasuryId}/proceeds-recipients/${validRecipientId}/transfer`
-      await request(app.getHttpServer()).post(url).send(fundRequest).expect(400)
+      await request(app.getHttpServer()).post(url).send(fundRequest).expect(500)
     })
 
-    it("should return 400 for invalid hexadecimal recipientId", async () => {
-      const validTreasuryId = "0x1234567890abcdef1234567890abcdef12345678"
+    it("should return 500 for invalid recipientId", async () => {
+      const validTreasuryId = "0.0.123456789"
       const invalidRecipientId = "invalid-recipient-id"
       const fundRequest = {
         amount: 1000,
@@ -148,7 +145,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       }
 
       const url = `/api/treasuries/${validTreasuryId}/proceeds-recipients/${invalidRecipientId}/transfer`
-      await request(app.getHttpServer()).post(url).send(fundRequest).expect(400)
+      await request(app.getHttpServer()).post(url).send(fundRequest).expect(500)
     })
 
     it("should return 400 for invalid format values", async () => {

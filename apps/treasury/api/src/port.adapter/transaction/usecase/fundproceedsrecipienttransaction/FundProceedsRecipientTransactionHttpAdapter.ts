@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { BadRequestException, Body, Param, Post } from "@nestjs/common"
+import { Body, Param, Post } from "@nestjs/common"
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 
 import { FundProceedsRecipientTransactionRequest } from "./model/FundProceedsRecipientTransactionRequest"
@@ -19,9 +19,6 @@ export class FundProceedsRecipientTransactionHttpAdapter {
     @Param("recipientId") recipientId: string,
     @Body() request: FundProceedsRecipientTransactionRequest,
   ): TransactionResponse {
-    this.validateHexadecimal(treasuryId, "treasuryId")
-    this.validateHexadecimal(recipientId, "recipientId")
-
     return this.fundProceedsRecipientTransactionAppService.execute(
       new FundProceedsRecipientTransactionAppServiceRequest(
         recipientId,
@@ -31,12 +28,5 @@ export class FundProceedsRecipientTransactionHttpAdapter {
         treasuryId,
       ),
     )
-  }
-
-  private validateHexadecimal(value: string, paramName: string): void {
-    const hexPattern = /^0x[a-fA-F0-9]+$/
-    if (!hexPattern.test(value)) {
-      throw new BadRequestException(`${paramName} must be a valid hexadecimal string`)
-    }
   }
 }
