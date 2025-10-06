@@ -15,15 +15,21 @@ import { UpdateTreasuryBalanceNestJSEventAdapter } from "@port/treasury/usecase/
 import { GetTreasuryPositionsHttpAdapter } from "@port/treasury/usecase/gettreasurypositions/GetTreasuryPositionsHttpAdapter"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { GetTreasuryPositionsQueryHandler } from "@app/treasury/gettreasurypositions/query/GetTreasuryPositionsQueryHandler"
+import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
+import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
 
 const REPOSITORIES: Provider[] = [
   {
     provide: "TreasuryRepository",
     useClass: TreasuryTypeOrmRepository,
   },
+  {
+    provide: "EnvironmentalAssetRepository",
+    useClass: EnvironmentalAssetTypeOrmRepository,
+  },
 ]
 
-export const ENTITIES = [...EVENT_LISTENER_ENTITIES, TreasuryPersistence]
+export const ENTITIES = [...EVENT_LISTENER_ENTITIES, TreasuryPersistence, EnvironmentalAssetPersistence]
 
 export const CONTROLLERS = [
   FundProceedsRecipientTransactionHttpAdapter,
