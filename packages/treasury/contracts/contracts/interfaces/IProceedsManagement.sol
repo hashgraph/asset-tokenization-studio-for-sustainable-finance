@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 interface IProceedsManagement {
-
     /*
      * @dev Emitted when the payment tokens were transferred to an address
      *
@@ -43,7 +42,11 @@ interface IProceedsManagement {
      * @param to The address the payment tokens are transferred to
      * @param tokenId The tokenId of the erc721 token
      */
-    error TransferERC721TokenFailed(address erc721, address to, uint256 tokenId);
+    error TransferERC721TokenFailed(
+        address erc721,
+        address to,
+        uint256 tokenId
+    );
 
     /**
      * @notice Error thrown when attempting to transfer an amount of payment tokens larger than the Treasury's balance
@@ -83,7 +86,11 @@ interface IProceedsManagement {
      * @param to The address the payment tokens are transferred to
      * @param tokenId The tokenId of the erc721 token
      */
-    function transferERC721Token(address erc721, address to, uint256 tokenId) external;
+    function transferERC721Token(
+        address erc721,
+        address to,
+        uint256 tokenId
+    ) external;
 
     /*
      * @dev Funds a proceeds recipient with an amount of tokens

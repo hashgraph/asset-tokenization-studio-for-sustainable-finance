@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 interface IProceedsManagement {
-
     /**
      * @dev Emitted when a new ERC721 token is added to the treasury
      *
@@ -32,19 +31,22 @@ interface IProceedsManagement {
      * @param operator The operator who call the function to update the payment token
      * @param newPaymentToken The new payment token
      */
-    event PaymentTokenUpdated(address indexed operator, address newPaymentToken);
+    event PaymentTokenUpdated(
+        address indexed operator,
+        address newPaymentToken
+    );
 
     /**
      * @dev Error thrown when the association of an ERC721 token or a payment token to the treasury failed
      *
-     * @oaran token The ERC721 token or the payment token that was tried to associate to the treasury
+     * @param token The ERC721 token or the payment token that was tried to associate to the treasury
      */
     error AssociateTokenFailed(address token);
 
     /**
      * @dev Error thrown when the dissociation of an ERC721 token or a payment token from the treasury failed
      *
-     * @oaran token The ERC721 token or the payment token that was tried to dissociate from the treasury
+     * @param token The ERC721 token or the payment token that was tried to dissociate from the treasury
      */
     error DissociateTokenFailed(address token);
 
@@ -54,7 +56,11 @@ interface IProceedsManagement {
      * @param paymentToken The address of the payment token to associate to the treasury
      * @param erc721 The list of ERC721 tokens contracts to associate to the treasury
      */
-    function initialize_Portfolio(address paymentToken, address[] erc721) external;
+    // solhint-disable-next-line func-name-mixedcase
+    function initialize_Portfolio(
+        address paymentToken,
+        address[] memory erc721
+    ) external;
 
     /**
      * @dev Add a new ERC721 token contract to the treasury
@@ -80,17 +86,16 @@ interface IProceedsManagement {
     /**
      * @dev Dissociate an ERC721 token or a payment token from the treasury
      *
-     * @param The address of the token to be dissociated
+     * @param token The address of the token to be dissociated
      */
     function dissociateToken(address token) external;
 
     /**
      * @dev Get the total amount of ERC721 tokens associated to the treasury
      *
-     * @return The total amount of ERC721 tokens associated to the treasury
+     * @return total The total amount of ERC721 tokens associated to the treasury
      */
-    function getTotalERC721Tokens() external view returns(uint256 total);
-
+    function getTotalERC721Tokens() external view returns (uint256 total);
 
     /**
      * @dev Get a page list of ERC721 tokens associated to the treasury
@@ -98,15 +103,18 @@ interface IProceedsManagement {
      * @param pageIndex The page index of ERC721 tokens associated to the treasury
      * @param pageLength The page length of ER721 tokens associated to the treasury
      *
-     * @return The page list of ERC721 tokens associated to the treasury
+     * @return erc721 The page list of ERC721 tokens associated to the treasury
      */
 
-    function getERC721Tokens(uint256 pageIndex, uint256 pageLength) external view returns (address[] erc721s);
+    function getERC721Tokens(
+        uint256 pageIndex,
+        uint256 pageLength
+    ) external view returns (address[] memory erc721);
 
     /**
      * @dev Get the payment token associated to the treasury
      *
-     * @return The payment token associated to the treasury
+     * @return paymentToken The payment token associated to the treasury
      */
     function getPaymentToken() external view returns (address paymentToken);
 }
