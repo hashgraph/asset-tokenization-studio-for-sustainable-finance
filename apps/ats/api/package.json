@@ -20,9 +20,12 @@
   },
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
+    "@hashgraph/asset-tokenization-contracts": "1.15.2",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/typeorm": "^11.0.0",
     "nestjs-paginate": "^12.8.3",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "typeorm": "^0.3.27"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -50,23 +53,12 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": ".",
-    "testRegex": "test/.*\\.spec\\.ts$",
-    "testPathIgnorePatterns": [
-      "test/e2e/"
-    ],
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "preset": "../../../jest.base.config.js",
+    "moduleNameMapper": {
+      "^@app/(.*)$": "<rootDir>/src/app/$1",
+      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
+      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1",
+      "^@config/(.*)$": "<rootDir>/src/config/$1"
+    }
   }
 }
