@@ -4,6 +4,7 @@ import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryR
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
+import { AddEnvironmentalAssetServiceResponse } from "@domain/environmentalasset/services/AddEnvironmentalAssetServiceResponse"
 
 @Singleton()
 export class AddEnvironmentalAssetDomainService {
@@ -13,7 +14,7 @@ export class AddEnvironmentalAssetDomainService {
     private readonly checkEnvironmentalAssetNotExists: CheckEnvironmentalAssetNotExistsDomainService,
   ) {}
 
-  async execute(operatorAddress: string, erc721: string): Promise<EnvironmentalAsset> {
+  async execute(operatorAddress: string, erc721: string): Promise<AddEnvironmentalAssetServiceResponse> {
     const treasury = await this.treasuryRepository.findByContractAddress(operatorAddress)
     if (!treasury) {
       throw TreasuryNotFoundError.addressesError([operatorAddress])
@@ -32,6 +33,6 @@ export class AddEnvironmentalAssetDomainService {
 
     await this.environmentalAssetRepository.save(environmentalAsset)
 
-    return environmentalAsset
+    return new AddEnvironmentalAssetServiceResponse(environmentalAsset, treasury)
   }
 }
