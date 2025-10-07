@@ -12,7 +12,7 @@ import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEn
 import { BuildRemoveEnvironmentalAssetTransactionRequest } from "./model/BuildRemoveEnvironmentalAssetTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
-import { IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
+import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -66,7 +66,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     request: BuildAddEnvironmentalAssetTransactionRequest | BuildRemoveEnvironmentalAssetTransactionRequest,
     functionName: "addERC721Token" | "removeERC721Token",
   ): BuildTransactionResponse {
-    const contractInterface = IProceedsManagement__factory.createInterface()
+    const iPortfolioInterface = IPortfolio__factory.createInterface()
     const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
 
     /**
@@ -76,7 +76,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
      * This is a known limitation when working with dynamically generated contract interfaces.
      */
     const transactionResponse = this.buildAndSerializeTransaction({
-      contractInterface,
+      contractInterface: iPortfolioInterface,
       functionName: functionName as any,
       contractId: request.contractId,
       gas: this.GAS,
