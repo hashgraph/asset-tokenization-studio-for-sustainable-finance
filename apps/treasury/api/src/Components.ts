@@ -16,9 +16,17 @@ import { UpdateTreasuryBalanceDomainService } from "@domain/treasury/services/Up
 import { UpdateTreasuryBalanceNestJSEventAdapter } from "@port/treasury/usecase/updatetreasurybalance/UpdateTreasuryBalanceNestJSEventAdapter"
 import { GetTreasuryPositionsHttpAdapter } from "@port/treasury/usecase/gettreasurypositions/GetTreasuryPositionsHttpAdapter"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
+import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
+import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
+import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { GetTreasuryPositionsQueryHandler } from "@app/treasury/gettreasurypositions/query/GetTreasuryPositionsQueryHandler"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
+import { AddEnvironmentalAssetCommandHandler } from "@app/environmentalasset/addenvironmentalasset/command/AddEnvironmentalAssetCommandHandler"
+import { RemoveEnvironmentalAssetCommandHandler } from "@app/environmentalasset/removeenvironmentalasset/command/RemoveEnvironmentalAssetCommandHandler"
+import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalasset/AddEnvironmentalAssetNestJSEventAdapter"
+import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -49,7 +57,15 @@ export const PROVIDERS = [
   UpdateTreasuryBalanceCommandHandler,
   UpdateTreasuryBalanceNestJSEventAdapter,
   CheckTreasuryExistsDomainService,
+  CheckEnvironmentalAssetExistsDomainService,
+  CheckEnvironmentalAssetNotExistsDomainService,
+  AddEnvironmentalAssetDomainService,
+  RemoveEnvironmentalAssetDomainService,
   GetTreasuryPositionsQueryHandler,
+  AddEnvironmentalAssetCommandHandler,
+  RemoveEnvironmentalAssetCommandHandler,
+  AddEnvironmentalAssetNestJSEventAdapter,
+  RemoveEnvironmentalAssetNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

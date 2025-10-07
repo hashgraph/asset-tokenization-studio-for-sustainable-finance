@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm"
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+  UpdateDateColumn,
+} from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 
 @Entity("EnvironmentalAsset")
@@ -18,4 +27,7 @@ export class EnvironmentalAssetPersistence {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @DeleteDateColumn()
+  deletedAt?: Date
 }

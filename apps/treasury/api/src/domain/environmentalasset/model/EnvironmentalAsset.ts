@@ -4,4 +4,6 @@ import { IsNotEmpty } from "class-validator"
 export class EnvironmentalAsset extends BaseEntity {
   @IsNotEmpty()
   treasury: string
+
+  deletedAt?: Date
 }
