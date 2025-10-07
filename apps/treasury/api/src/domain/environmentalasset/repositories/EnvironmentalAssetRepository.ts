@@ -2,4 +2,5 @@ import { EnvironmentalAsset } from "@domain/environmentalasset/model/Environment
 
 export interface EnvironmentalAssetRepository {
   save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset>
+  softDelete(id: string): Promise<void>
 }

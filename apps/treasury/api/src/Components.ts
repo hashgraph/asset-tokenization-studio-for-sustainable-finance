@@ -19,6 +19,10 @@ import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/Chec
 import { GetTreasuryPositionsQueryHandler } from "@app/treasury/gettreasurypositions/query/GetTreasuryPositionsQueryHandler"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
+import { AddEnvironmentalAssetCommandHandler } from "@app/environmentalasset/addenvironmentalasset/command/AddEnvironmentalAssetCommandHandler"
+import { RemoveEnvironmentalAssetCommandHandler } from "@app/environmentalasset/removeenvironmentalasset/command/RemoveEnvironmentalAssetCommandHandler"
+import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalasset/AddEnvironmentalAssetNestJSEventAdapter"
+import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -50,6 +54,10 @@ export const PROVIDERS = [
   UpdateTreasuryBalanceNestJSEventAdapter,
   CheckTreasuryExistsDomainService,
   GetTreasuryPositionsQueryHandler,
+  AddEnvironmentalAssetCommandHandler,
+  RemoveEnvironmentalAssetCommandHandler,
+  AddEnvironmentalAssetNestJSEventAdapter,
+  RemoveEnvironmentalAssetNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
