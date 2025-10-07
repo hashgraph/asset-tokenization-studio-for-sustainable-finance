@@ -75,6 +75,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         contractAddress: treasury.contractAddress,
         bondContractAddress: treasury.bondContractAddress,
         erc721Address: event.erc721,
+        deletedAt: expect.any(Date),
         timestamp: expect.any(Number),
       })
     })
@@ -112,6 +113,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         contractAddress: treasury.contractAddress,
         bondContractAddress: treasury.bondContractAddress,
         erc721Address: event.erc721,
+        deletedAt: expect.any(Date),
         timestamp: expect.any(Number),
       })
     })

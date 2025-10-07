@@ -1,0 +1,37 @@
+import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
+import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
+import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
+import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
+import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
+
+@Singleton()
+export class AddEnvironmentalAssetDomainService {
+  constructor(
+    @Inject("EnvironmentalAssetRepository") private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
+    @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
+    private readonly checkEnvironmentalAssetNotExists: CheckEnvironmentalAssetNotExistsDomainService,
+  ) {}
+
+  async execute(operatorAddress: string, erc721: string): Promise<EnvironmentalAsset> {
+    const treasury = await this.treasuryRepository.findByContractAddress(operatorAddress)
+    if (!treasury) {
+      throw TreasuryNotFoundError.addressesError([operatorAddress])
+    }
+
+    await this.checkEnvironmentalAssetNotExists.execute(erc721)
+
+    const environmentalAsset = new EnvironmentalAsset()
+    Object.defineProperty(environmentalAsset, "id", {
+      value: erc721,
+      writable: false,
+      enumerable: true,
+      configurable: false,
+    })
+    environmentalAsset.treasury = treasury.id
+
+    await this.environmentalAssetRepository.save(environmentalAsset)
+
+    return environmentalAsset
+  }
+}

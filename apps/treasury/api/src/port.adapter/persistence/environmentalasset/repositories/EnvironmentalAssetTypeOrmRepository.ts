@@ -13,14 +13,13 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   ) {}
 
   @Validate()
-  async save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset> {
+  async save(environmentalAsset: EnvironmentalAsset): Promise<void> {
     const persistenceData: Partial<EnvironmentalAssetPersistence> = {
       id: environmentalAsset.id,
       treasuryId: environmentalAsset.treasury,
       deletedAt: environmentalAsset.deletedAt,
     }
-    const persistence = await this.repository.save(persistenceData)
-    return { ...persistence, treasury: persistence.treasuryId } as EnvironmentalAsset
+    await this.repository.save(persistenceData)
   }
 
   async findById(id: string): Promise<EnvironmentalAsset | null> {
@@ -32,8 +31,8 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   }
 
   async softDelete(id: string): Promise<EnvironmentalAsset> {
-    const persistence = await this.repository.findOne({ where: { id } })
     await this.repository.softDelete({ id })
+    const persistence = await this.repository.findOne({ where: { id }, withDeleted: true })
     return { ...persistence!, treasury: persistence!.treasuryId } as EnvironmentalAsset
   }
 }

@@ -2,20 +2,18 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { RemoveEnvironmentalAssetCommand } from "./RemoveEnvironmentalAssetCommand"
-import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetRemovedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetRemovedEvent"
-import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
+import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 
 @Singleton()
 @Handler(RemoveEnvironmentalAssetCommand)
 export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<RemoveEnvironmentalAssetCommand, void> {
   constructor(
-    @Inject("EnvironmentalAssetRepository") private readonly repository: EnvironmentalAssetRepository,
     @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly eventBus: EventBus,
-    private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
+    private readonly removeEnvironmentalAssetDomainService: RemoveEnvironmentalAssetDomainService,
   ) {}
 
   @Validate()
@@ -25,12 +23,15 @@ export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<Re
       throw TreasuryNotFoundError.addressesError([command.operator])
     }
 
-    await this.checkEnvironmentalAssetExists.execute(command.erc721)
-
-    await this.repository.softDelete(command.erc721)
+    const deletedAsset = await this.removeEnvironmentalAssetDomainService.execute(command.operator, command.erc721)
 
     this.eventBus.publish(
-      new EnvironmentalAssetRemovedEvent(treasury.contractAddress, treasury.bondContractAddress, command.erc721),
+      new EnvironmentalAssetRemovedEvent(
+        treasury.contractAddress,
+        treasury.bondContractAddress,
+        command.erc721,
+        deletedAsset.deletedAt!,
+      ),
     )
   }
 }
