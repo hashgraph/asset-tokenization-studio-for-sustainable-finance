@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity 0.8.18;
 
-interface IProceedsManagement {
+interface IPortfolio {
     /**
      * @dev Emitted when a new ERC721 token is added to the treasury
      *
