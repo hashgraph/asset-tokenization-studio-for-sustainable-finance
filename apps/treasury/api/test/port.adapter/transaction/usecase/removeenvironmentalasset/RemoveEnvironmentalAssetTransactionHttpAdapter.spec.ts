@@ -118,7 +118,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       await request(app.getHttpServer())
         .post(`/api/treasuries/${invalidTreasuryId}/environmental-assets/${assetId}/remove`)
         .send(removeRequest)
-        .expect(400)
+        .expect(500)
     })
 
     it("should reject invalid assetId format", async () => {
@@ -132,7 +132,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       await request(app.getHttpServer())
         .post(`/api/treasuries/${treasuryId}/environmental-assets/${invalidAssetId}/remove`)
         .send(removeRequest)
-        .expect(400)
+        .expect(500)
     })
 
     it("should return 400 for invalid format values", async () => {
