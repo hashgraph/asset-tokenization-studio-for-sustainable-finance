@@ -10,6 +10,7 @@ import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalas
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { ERC721AddedDLTEvent } from "@port/environmentalasset/usecase/addenvironmentalasset/model/ERC721AddedDLTEvent"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
+import { EnvironmentalAssetAlreadyExistsError } from "@domain/environmentalasset/errors/EnvironmentalAssetAlreadyExistsError"
 
 describe("AddEnvironmentalAsset API Integration", () => {
   let app: INestApplication
@@ -58,14 +59,12 @@ describe("AddEnvironmentalAsset API Integration", () => {
       const event = new ERC721AddedDLTEvent(treasury.contractAddress, "0x002")
       await eventBus.publishSync(event, ERC721AddedDLTEvent.name)
 
-      // Verify that the environmental asset was created
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
       })
       expect(environmentalAssets).toHaveLength(1)
       expect(environmentalAssets[0].treasuryId).toBe(treasury.id)
 
-      // Verify that the event was published
       expect(publishedEvent).toEqual({
         contractAddress: treasury.contractAddress,
         bondContractAddress: treasury.bondContractAddress,
@@ -86,7 +85,6 @@ describe("AddEnvironmentalAsset API Integration", () => {
       const event = new ERC721AddedDLTEvent(treasury.contractAddress, "0x999")
       await eventBus.publishSync(event, ERC721AddedDLTEvent.name)
 
-      // Verify that the environmental asset was created
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
       })
@@ -98,6 +96,29 @@ describe("AddEnvironmentalAsset API Integration", () => {
         erc721Address: event.erc721,
         timestamp: expect.any(Number),
       })
+    })
+
+    it("should throw EnvironmentalAssetAlreadyExistsError when trying to add an existing token", async () => {
+      const treasury = await internalTreasuryRepository.save({
+        contractAddress: "0x001",
+        bondContractAddress: "0x003",
+        balance: "100000",
+      })
+
+      await environmentalAssetRepository.save({
+        id: "0x002",
+        treasuryId: treasury.id,
+      })
+
+      const event = new ERC721AddedDLTEvent(treasury.contractAddress, "0x002")
+      await expect(eventBus.publishSync(event, ERC721AddedDLTEvent.name)).rejects.toThrow(
+        EnvironmentalAssetAlreadyExistsError.idError("0x002"),
+      )
+
+      const environmentalAssets = await environmentalAssetRepository.find({
+        where: { treasuryId: treasury.id },
+      })
+      expect(environmentalAssets).toHaveLength(1)
     })
   })
 

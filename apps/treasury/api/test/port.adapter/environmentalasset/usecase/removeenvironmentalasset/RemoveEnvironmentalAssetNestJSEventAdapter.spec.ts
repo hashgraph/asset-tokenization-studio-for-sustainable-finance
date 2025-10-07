@@ -10,6 +10,7 @@ import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalas
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { ERC721RemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/ERC721RemovedDLTEvent"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
+import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 
 describe("RemoveEnvironmentalAsset API Integration", () => {
   let app: INestApplication
@@ -53,7 +54,6 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         balance: "100000",
       })
 
-      // Create an environmental asset first
       await environmentalAssetRepository.save({
         id: "0x002",
         treasuryId: treasury.id,
@@ -64,13 +64,11 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x002")
       await eventBus.publishSync(event, ERC721RemovedDLTEvent.name)
 
-      // Verify that the environmental asset was removed
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
       })
       expect(environmentalAssets).toHaveLength(0)
 
-      // Verify that the event was published
       expect(publishedEvent).toEqual({
         contractAddress: treasury.contractAddress,
         bondContractAddress: treasury.bondContractAddress,
@@ -87,7 +85,6 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         balance: "100000",
       })
 
-      // Create environmental assets with different addresses
       await environmentalAssetRepository.save({
         id: "0x002",
         treasuryId: treasury.id,
@@ -102,7 +99,6 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x999")
       await eventBus.publishSync(event, ERC721RemovedDLTEvent.name)
 
-      // Verify that only the specific environmental asset was removed
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
       })
@@ -116,6 +112,24 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         deletedAt: expect.any(Date),
         timestamp: expect.any(Number),
       })
+    })
+
+    it("should throw EnvironmentalAssetNotFoundError when trying to remove a non-existing token", async () => {
+      const treasury = await internalTreasuryRepository.save({
+        contractAddress: "0x001",
+        bondContractAddress: "0x003",
+        balance: "100000",
+      })
+
+      const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x999")
+      await expect(eventBus.publishSync(event, ERC721RemovedDLTEvent.name)).rejects.toThrow(
+        EnvironmentalAssetNotFoundError.idError("0x999"),
+      )
+
+      const environmentalAssets = await environmentalAssetRepository.find({
+        where: { treasuryId: treasury.id },
+      })
+      expect(environmentalAssets).toHaveLength(0)
     })
   })
 
