@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Module } from '@nestjs/common'
-import { AppController } from './AppController'
-import { AppService } from './AppService'
-import { BondModule } from './config/bond/BondModule'
+import { CONTROLLERS, PROVIDERS } from './Components'
 
 @Module({
-  imports: [BondModule],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: CONTROLLERS,
+  providers: PROVIDERS,
 })
 export class AppModule {}
