@@ -7,6 +7,7 @@ import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/re
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetAddedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetAddedEvent"
+import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
 
 @Singleton()
 @Handler(AddEnvironmentalAssetCommand)
@@ -15,6 +16,7 @@ export class AddEnvironmentalAssetCommandHandler implements CommandHandler<AddEn
     @Inject("EnvironmentalAssetRepository") private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
     @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly eventBus: EventBus,
+    private readonly checkEnvironmentalAssetNotExists: CheckEnvironmentalAssetNotExistsDomainService,
   ) {}
 
   @Validate()
@@ -23,6 +25,8 @@ export class AddEnvironmentalAssetCommandHandler implements CommandHandler<AddEn
     if (!treasury) {
       throw TreasuryNotFoundError.addressesError([command.operator])
     }
+
+    await this.checkEnvironmentalAssetNotExists.execute(command.erc721)
 
     const environmentalAsset = new EnvironmentalAsset()
     Object.defineProperty(environmentalAsset, "id", {

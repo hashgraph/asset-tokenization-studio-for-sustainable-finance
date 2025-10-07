@@ -6,6 +6,7 @@ import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/re
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetRemovedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetRemovedEvent"
+import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
 
 @Singleton()
 @Handler(RemoveEnvironmentalAssetCommand)
@@ -14,6 +15,7 @@ export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<Re
     @Inject("EnvironmentalAssetRepository") private readonly repository: EnvironmentalAssetRepository,
     @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly eventBus: EventBus,
+    private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
   ) {}
 
   @Validate()
@@ -22,6 +24,8 @@ export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<Re
     if (!treasury) {
       throw TreasuryNotFoundError.addressesError([command.operator])
     }
+
+    await this.checkEnvironmentalAssetExists.execute(command.erc721)
 
     await this.repository.softDelete(command.erc721)
 

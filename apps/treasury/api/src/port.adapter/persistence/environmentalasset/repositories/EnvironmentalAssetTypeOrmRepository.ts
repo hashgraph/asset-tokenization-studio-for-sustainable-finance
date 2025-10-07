@@ -23,7 +23,17 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return { ...persistence, treasury: persistence.treasuryId } as EnvironmentalAsset
   }
 
-  async softDelete(id: string): Promise<void> {
-    await this.repository.update({ id }, { deletedAt: new Date() })
+  async findById(id: string): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.repository.findOne({ where: { id } })
+    if (!persistence) {
+      return null
+    }
+    return { ...persistence, treasury: persistence.treasuryId } as EnvironmentalAsset
+  }
+
+  async softDelete(id: string): Promise<EnvironmentalAsset> {
+    const persistence = await this.repository.findOne({ where: { id } })
+    await this.repository.softDelete({ id })
+    return { ...persistence!, treasury: persistence!.treasuryId } as EnvironmentalAsset
   }
 }
