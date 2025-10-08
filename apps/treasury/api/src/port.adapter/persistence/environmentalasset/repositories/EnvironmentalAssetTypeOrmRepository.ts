@@ -1,10 +1,10 @@
 import { Repository, IsNull } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
-import { EnvironmentalAsset } from "../../../../domain/environmentalasset/model/EnvironmentalAsset"
-import { EnvironmentalAssetRepository } from "../../../../domain/environmentalasset/repositories/EnvironmentalAssetRepository"
+import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
+import { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import { EnvironmentalAssetPersistence } from "../model/EnvironmentalAssetPersistence"
 import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { EnvironmentalAssetNotFoundError } from "../../../../domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
+import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 
 @Singleton()
 export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRepository {
@@ -19,16 +19,16 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return this.toDomain(savedPersistence)
   }
 
-  async findByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset | null> {
-    const persistence = await this.findActivePersistence(contractId, treasuryId)
+  async findByAssetIdAndTreasuryId(assetId: string, treasuryId: string): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.findActivePersistence(assetId, treasuryId)
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async softDeleteByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset> {
-    const persistence = await this.findActivePersistence(contractId, treasuryId)
+  async softDeleteByAssetIdAndTreasuryId(assetId: string, treasuryId: string): Promise<EnvironmentalAsset> {
+    const persistence = await this.findActivePersistence(assetId, treasuryId)
 
     if (!persistence) {
-      throw EnvironmentalAssetNotFoundError.idError(contractId)
+      throw EnvironmentalAssetNotFoundError.idError(assetId)
     }
 
     persistence.deletedAt = new Date()
@@ -37,12 +37,12 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   }
 
   private async findActivePersistence(
-    contractId: string,
+    assetId: string,
     treasuryId: string,
   ): Promise<EnvironmentalAssetPersistence | null> {
     return this.repository.findOne({
       where: {
-        contractId,
+        assetId: assetId,
         treasuryId,
         deletedAt: IsNull(),
       },
