@@ -5,15 +5,18 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 
 @Entity("EnvironmentalAsset")
 export class EnvironmentalAssetPersistence {
-  @PrimaryColumn({ type: "varchar" })
+  @PrimaryGeneratedColumn("uuid")
   id: string
+
+  @Column()
+  contractId: string
 
   @Column()
   treasuryId: string

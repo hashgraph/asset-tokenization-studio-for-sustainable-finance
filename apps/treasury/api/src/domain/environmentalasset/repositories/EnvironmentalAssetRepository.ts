@@ -2,6 +2,6 @@ import { EnvironmentalAsset } from "@domain/environmentalasset/model/Environment
 
 export interface EnvironmentalAssetRepository {
   save(environmentalAsset: EnvironmentalAsset): Promise<void>
-  findById(id: string): Promise<EnvironmentalAsset | null>
-  softDelete(id: string): Promise<EnvironmentalAsset>
+  findByContractId(contractId: string): Promise<EnvironmentalAsset | null>
+  softDeleteByContractId(contractId: string): Promise<EnvironmentalAsset>
 }

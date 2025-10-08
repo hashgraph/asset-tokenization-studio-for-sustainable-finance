@@ -23,12 +23,7 @@ export class AddEnvironmentalAssetDomainService {
     await this.checkEnvironmentalAssetNotExists.execute(erc721)
 
     const environmentalAsset = new EnvironmentalAsset()
-    Object.defineProperty(environmentalAsset, "id", {
-      value: erc721,
-      writable: false,
-      enumerable: true,
-      configurable: false,
-    })
+    environmentalAsset.contractId = erc721
     environmentalAsset.treasury = treasury.id
 
     await this.environmentalAssetRepository.save(environmentalAsset)

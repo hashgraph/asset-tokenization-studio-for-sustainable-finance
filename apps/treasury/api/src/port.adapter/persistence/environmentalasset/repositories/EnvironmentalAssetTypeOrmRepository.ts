@@ -16,23 +16,24 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   async save(environmentalAsset: EnvironmentalAsset): Promise<void> {
     const persistenceData: Partial<EnvironmentalAssetPersistence> = {
       id: environmentalAsset.id,
+      contractId: environmentalAsset.contractId,
       treasuryId: environmentalAsset.treasury,
       deletedAt: environmentalAsset.deletedAt,
     }
     await this.repository.save(persistenceData)
   }
 
-  async findById(id: string): Promise<EnvironmentalAsset | null> {
-    const persistence = await this.repository.findOne({ where: { id } })
+  async findByContractId(contractId: string): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.repository.findOne({ where: { contractId } })
     if (!persistence) {
       return null
     }
     return { ...persistence, treasury: persistence.treasuryId } as EnvironmentalAsset
   }
 
-  async softDelete(id: string): Promise<EnvironmentalAsset> {
-    await this.repository.softDelete({ id })
-    const persistence = await this.repository.findOne({ where: { id }, withDeleted: true })
+  async softDeleteByContractId(contractId: string): Promise<EnvironmentalAsset> {
+    await this.repository.softDelete({ contractId })
+    const persistence = await this.repository.findOne({ where: { contractId }, withDeleted: true })
     return { ...persistence!, treasury: persistence!.treasuryId } as EnvironmentalAsset
   }
 }
