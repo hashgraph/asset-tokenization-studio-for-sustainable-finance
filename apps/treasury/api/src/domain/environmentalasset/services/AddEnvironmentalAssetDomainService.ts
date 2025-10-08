@@ -20,16 +20,11 @@ export class AddEnvironmentalAssetDomainService {
       throw TreasuryNotFoundError.addressesError([operatorAddress])
     }
 
-    await this.checkEnvironmentalAssetNotExists.execute(erc721)
+    await this.checkEnvironmentalAssetNotExists.execute(erc721, treasury.id)
 
     const environmentalAsset = new EnvironmentalAsset()
-    Object.defineProperty(environmentalAsset, "id", {
-      value: erc721,
-      writable: false,
-      enumerable: true,
-      configurable: false,
-    })
-    environmentalAsset.treasury = treasury.id
+    environmentalAsset.contractId = erc721
+    environmentalAsset.treasuryId = treasury.id
 
     await this.environmentalAssetRepository.save(environmentalAsset)
 

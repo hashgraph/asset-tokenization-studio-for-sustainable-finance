@@ -3,7 +3,10 @@ import { IsNotEmpty } from "class-validator"
 
 export class EnvironmentalAsset extends BaseEntity {
   @IsNotEmpty()
-  treasury: string
+  contractId: string
+
+  @IsNotEmpty()
+  treasuryId: string
 
   deletedAt?: Date
 }

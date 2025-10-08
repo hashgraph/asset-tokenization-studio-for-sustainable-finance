@@ -1,19 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  DeleteDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-  UpdateDateColumn,
-} from "typeorm"
+import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
+import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 
 @Entity("EnvironmentalAsset")
-export class EnvironmentalAssetPersistence {
-  @PrimaryColumn({ type: "varchar" })
-  id: string
+export class EnvironmentalAssetPersistence extends BaseEntityPersistence {
+  @Column()
+  contractId: string
 
   @Column()
   treasuryId: string
@@ -21,12 +13,6 @@ export class EnvironmentalAssetPersistence {
   @ManyToOne(() => TreasuryPersistence, { onDelete: "CASCADE" })
   @JoinColumn()
   treasury: TreasuryPersistence
-
-  @CreateDateColumn()
-  createdAt: Date
-
-  @UpdateDateColumn()
-  updatedAt: Date
 
   @DeleteDateColumn()
   deletedAt?: Date
