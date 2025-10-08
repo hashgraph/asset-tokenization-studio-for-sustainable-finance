@@ -8,4 +8,5 @@ export default interface DecodeLogRequest {
   readonly data: string
   readonly topics: string[]
   readonly eventSignatures: EventSignatureRequest[]
+  readonly contractId: string
 }

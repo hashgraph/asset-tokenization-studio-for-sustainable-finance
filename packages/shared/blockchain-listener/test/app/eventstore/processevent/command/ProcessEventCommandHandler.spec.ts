@@ -66,6 +66,7 @@ describe("ProcessEventCommandHandler", () => {
       name: "Test",
       signature: "Test(address)",
       field: "testField",
+      contractId: "0.0.123",
     } as BlockchainEvent
     const command = new ProcessEventCommand(blockchainEvent as Event)
 
@@ -106,6 +107,7 @@ describe("ProcessEventCommandHandler", () => {
       name: "Test",
       signature: "Test(address)",
       field: "testField",
+      contractId: "0.0.123",
     } as BlockchainEvent
     const command = new ProcessEventCommand(blockchainEvent as Event)
 
