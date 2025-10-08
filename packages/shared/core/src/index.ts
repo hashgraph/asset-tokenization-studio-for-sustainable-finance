@@ -26,6 +26,7 @@ export { UnsupportedOperationError } from "./errors/UnsupportedOperationError"
 export { ValidationError } from "./errors/ValidationError"
 
 export { Event } from "./event/Event"
+export { DLTEvent } from "./event/DLTEvent"
 export { EventBus } from "./event/EventBus"
 export { EventListener } from "./event/EventListener"
 export { NestJSEventBus } from "./event/NestJSEventBus"

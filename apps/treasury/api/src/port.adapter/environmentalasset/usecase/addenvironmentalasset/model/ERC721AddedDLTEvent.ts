@@ -1,6 +1,6 @@
-import { Event } from "@hashgraph/green-bonds-shared-core"
+import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class ERC721AddedDLTEvent extends Event {
+export class ERC721AddedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly erc721: string
 
