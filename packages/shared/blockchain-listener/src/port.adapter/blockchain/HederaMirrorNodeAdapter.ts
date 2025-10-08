@@ -60,6 +60,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     if (!eventSignatures) {
       return events
     }
+
     const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents(
       request.blockNumber,
       eventSignatures,
@@ -69,6 +70,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       const contractResults = await this.getContractsResultsByBlockHash({
         blockHash,
       })
+
       events.push(
         ...contractResults.logs
           .map((log) =>
@@ -133,7 +135,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       blockNumber,
     })
 
-    const contractAddresses = eventSignatures.map((eventSignature) => eventSignature.contractAddress)
+    const contractAddresses = eventSignatures.map((eventSignature) => eventSignature.contractAddress.toLowerCase())
     const contractResultsHashes = this.getContractsResultsHashesFilteredByContract(
       contractsResultsByBlockNumber.results,
       contractAddresses,
@@ -199,14 +201,26 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   }
 
   private normalizeEventSignature(signature: string): string {
-    const [name, params] = signature.split("(")
+    const name = signature.substring(0, signature.indexOf("("))
+    const params = signature.substring(signature.indexOf("(") + 1, signature.length - 1)
     const types = params
-      .replace(")", "")
       .split(",")
       .map((p) => p.trim())
       .map((p) => p.replace(this.INDEXED_PARAMS_PATTERN, ""))
-      .map((p) => p.split(" ")[0])
+      .map((p) => this.removeParamsNames(p))
     return `${name}(${types.join(",")})`
+  }
+
+  private removeParamsNames(p: string): string {
+    const param = p.split(" ")
+    let result = param[0]
+    for (let index = 1; index < param.length; index++) {
+      if (param[index].indexOf(")") > -1) {
+        const paramPossibleRest = param[1].substring(param[1].indexOf(")"))
+        result = result + paramPossibleRest
+      }
+    }
+    return result
   }
 
   private decodeLog(request: DecodeLogRequest): BlockchainEvent {
