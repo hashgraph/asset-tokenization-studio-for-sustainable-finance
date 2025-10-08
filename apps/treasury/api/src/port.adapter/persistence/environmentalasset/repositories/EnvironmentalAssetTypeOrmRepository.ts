@@ -17,7 +17,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     const persistenceData: Partial<EnvironmentalAssetPersistence> = {
       id: environmentalAsset.id,
       contractId: environmentalAsset.contractId,
-      treasuryId: environmentalAsset.treasury,
+      treasuryId: environmentalAsset.treasuryId,
       deletedAt: environmentalAsset.deletedAt,
     }
     await this.repository.save(persistenceData)

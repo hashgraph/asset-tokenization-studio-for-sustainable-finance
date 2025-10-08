@@ -6,7 +6,7 @@ export class EnvironmentalAsset extends BaseEntity {
   contractId: string
 
   @IsNotEmpty()
-  treasury: string
+  treasuryId: string
 
   deletedAt?: Date
 }
