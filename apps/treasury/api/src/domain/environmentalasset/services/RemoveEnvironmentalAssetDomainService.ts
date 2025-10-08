@@ -21,10 +21,7 @@ export class RemoveEnvironmentalAssetDomainService {
 
     await this.checkEnvironmentalAssetExists.execute(erc721, treasury.id)
 
-    const deletedAsset = await this.environmentalAssetRepository.softDeleteByContractIdAndTreasuryId(
-      erc721,
-      treasury.id,
-    )
+    const deletedAsset = await this.environmentalAssetRepository.softDeleteByAssetIdAndTreasuryId(erc721, treasury.id)
 
     return new RemoveEnvironmentalAssetServiceResponse(deletedAsset, treasury)
   }

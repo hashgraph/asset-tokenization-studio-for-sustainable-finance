@@ -106,7 +106,7 @@ describe("AddEnvironmentalAsset API Integration", () => {
       })
 
       await environmentalAssetRepository.save({
-        contractId: "0x002",
+        assetId: "0x002",
         treasuryId: treasury.id,
       })
 
