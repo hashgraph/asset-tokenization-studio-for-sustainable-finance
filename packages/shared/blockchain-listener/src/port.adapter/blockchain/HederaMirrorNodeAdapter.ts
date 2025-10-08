@@ -6,7 +6,7 @@ import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
 import axios, { HttpStatusCode } from "axios"
 import { FetchEventsRequest } from "@port/blockchain/model/FetchEventsRequest"
 import { EventSignatureRequest } from "@port/blockchain/model/EventSignatureRequest"
-import { isContractAddressInBloom, isTopicInBloom } from "ethereum-bloom-filters"
+import { isTopicInBloom } from "ethereum-bloom-filters"
 import { utils } from "ethers"
 import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
 import { Interface } from "ethers/lib/utils"
@@ -103,7 +103,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     request.contractEvents.forEach((contractEvent) => {
       const normalizedEventSignatureHash = utils.id(this.normalizeEventSignature(contractEvent.eventSignature))
       if (
-        isContractAddressInBloom(request.logsBloom, contractEvent.contractAddress) &&
+        //isContractAddressInBloom(request.logsBloom, contractEvent.contractAddress) &&
         isTopicInBloom(request.logsBloom, normalizedEventSignatureHash)
       ) {
         eventSignatures.push({
