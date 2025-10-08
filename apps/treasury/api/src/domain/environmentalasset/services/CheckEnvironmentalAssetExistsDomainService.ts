@@ -9,8 +9,8 @@ import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/erro
 export class CheckEnvironmentalAssetExistsDomainService {
   constructor(@Inject("EnvironmentalAssetRepository") private readonly repository: EnvironmentalAssetRepository) {}
 
-  async execute(contractId: string): Promise<EnvironmentalAsset> {
-    const environmentalAsset = await this.repository.findByContractId(contractId)
+  async execute(contractId: string, treasuryId: string): Promise<EnvironmentalAsset> {
+    const environmentalAsset = await this.repository.findByContractIdAndTreasuryId(contractId, treasuryId)
     if (!environmentalAsset) {
       throw EnvironmentalAssetNotFoundError.idError(contractId)
     }

@@ -19,9 +19,12 @@ export class RemoveEnvironmentalAssetDomainService {
       throw TreasuryNotFoundError.addressesError([operatorAddress])
     }
 
-    await this.checkEnvironmentalAssetExists.execute(erc721)
+    await this.checkEnvironmentalAssetExists.execute(erc721, treasury.id)
 
-    const deletedAsset = await this.environmentalAssetRepository.softDeleteByContractId(erc721)
+    const deletedAsset = await this.environmentalAssetRepository.softDeleteByContractIdAndTreasuryId(
+      erc721,
+      treasury.id,
+    )
 
     return new RemoveEnvironmentalAssetServiceResponse(deletedAsset, treasury)
   }
