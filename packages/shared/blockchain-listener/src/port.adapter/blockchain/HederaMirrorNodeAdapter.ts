@@ -79,6 +79,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
               transactionHash: blockHash,
               timestamp: contractResults.timestamp,
               eventSignatures,
+              contractId: log.contract_id,
             }),
           )
           .filter((decoded): decoded is BlockchainEvent => decoded != null),
@@ -247,6 +248,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
         transactionHash: request.transactionHash,
         name: eventName,
         signature: eventSignature,
+        contractId: request.contractId,
       } as BlockchainEvent
 
       result.forEach((param) => {
@@ -293,6 +295,7 @@ export interface GetContractsResultsByBlockHashResponse {
 interface GetContractsResultsLogsByBlockHashResponse {
   readonly data: string
   readonly topics: string[]
+  readonly contract_id: string
 }
 
 interface GetContractsResultsByBlockHashRequest {

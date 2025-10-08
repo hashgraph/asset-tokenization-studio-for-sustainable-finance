@@ -6,6 +6,7 @@ export class BlockchainEvent extends Event {
   logTimestamp: string
   transactionHash: string
   name: string
-  signature: string;
+  signature: string
+  contractId: string;
   [key: string]: any
 }
