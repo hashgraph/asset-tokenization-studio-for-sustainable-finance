@@ -4,7 +4,7 @@ import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryR
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
-import { AddEnvironmentalAssetServiceResponse } from "@domain/environmentalasset/services/AddEnvironmentalAssetServiceResponse"
+import { AddEnvironmentalAssetDomainServiceResponse } from "@domain/environmentalasset/services/model/AddEnvironmentalAssetDomainServiceResponse"
 
 @Singleton()
 export class AddEnvironmentalAssetDomainService {
@@ -14,20 +14,23 @@ export class AddEnvironmentalAssetDomainService {
     private readonly checkEnvironmentalAssetNotExists: CheckEnvironmentalAssetNotExistsDomainService,
   ) {}
 
-  async execute(operatorAddress: string, erc721: string): Promise<AddEnvironmentalAssetServiceResponse> {
-    const treasury = await this.treasuryRepository.findByContractAddress(operatorAddress)
+  async execute(
+    treasuryContractId: string,
+    assetContractId: string,
+  ): Promise<AddEnvironmentalAssetDomainServiceResponse> {
+    const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
     if (!treasury) {
-      throw TreasuryNotFoundError.addressesError([operatorAddress])
+      throw TreasuryNotFoundError.contractIdsError([treasuryContractId])
     }
 
-    await this.checkEnvironmentalAssetNotExists.execute(erc721, treasury.id)
+    await this.checkEnvironmentalAssetNotExists.execute(assetContractId, treasury.id)
 
     const environmentalAsset = new EnvironmentalAsset()
-    environmentalAsset.contractId = erc721
+    environmentalAsset.contractId = assetContractId
     environmentalAsset.treasuryId = treasury.id
 
     await this.environmentalAssetRepository.save(environmentalAsset)
 
-    return new AddEnvironmentalAssetServiceResponse(environmentalAsset, treasury)
+    return new AddEnvironmentalAssetDomainServiceResponse(environmentalAsset, treasury)
   }
 }

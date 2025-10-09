@@ -4,8 +4,8 @@ export class ERC721RemovedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly erc721: string
 
-  constructor(operator: string, erc721: string) {
-    super()
+  constructor(contractId: string, transactionHash: string, operator: string, erc721: string) {
+    super(contractId, transactionHash)
     this.operator = operator
     this.erc721 = erc721
   }

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
@@ -49,81 +49,56 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
   describe("when treasury and environmental asset exist", () => {
     it("should remove environmental asset from treasury", async () => {
       const treasury = await internalTreasuryRepository.save({
-        contractAddress: "0x001",
-        bondContractAddress: "0x003",
-        balance: "100000",
+        contractId: "0.0.222",
+        bondContractId: "0.0.500",
       })
 
-      await environmentalAssetRepository.save({
-        contractId: "0x002",
+      const environmentalAsset = await environmentalAssetRepository.save({
+        contractId: "0.0.7777",
         treasuryId: treasury.id,
       })
 
       let publishedEvent
+      jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(environmentalAsset.contractId)
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x002")
-      await eventBus.publishSync(event, ERC721RemovedDLTEvent.name)
-
-      const environmentalAssets = await environmentalAssetRepository.find({
-        where: { treasuryId: treasury.id },
-      })
-      expect(environmentalAssets).toHaveLength(0)
-
-      expect(publishedEvent).toEqual({
-        contractAddress: treasury.contractAddress,
-        bondContractAddress: treasury.bondContractAddress,
-        erc721Address: event.erc721,
-        deletedAt: expect.any(Date),
-        timestamp: expect.any(Number),
-      })
-    })
-
-    it("should handle different ERC721 addresses", async () => {
-      const treasury = await internalTreasuryRepository.save({
-        contractAddress: "0x001",
-        bondContractAddress: "0x003",
-        balance: "100000",
-      })
-
-      await environmentalAssetRepository.save({
-        contractId: "0x002",
-        treasuryId: treasury.id,
-      })
-      await environmentalAssetRepository.save({
-        contractId: "0x999",
-        treasuryId: treasury.id,
-      })
-
-      let publishedEvent
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x999")
+      const event = new ERC721RemovedDLTEvent(
+        treasury.contractId,
+        "testTransactionHash",
+        "testOperator",
+        "0x16E6eD454447935176fC5095a8C4231306E38b2b",
+      )
       await eventBus.publishSync(event, ERC721RemovedDLTEvent.name)
 
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
       })
       expect(environmentalAssets).toHaveLength(1)
-      expect(environmentalAssets[0].contractId).toBe("0x002")
+      expect(environmentalAssets[0].validityDate).toEqual(expect.any(Date))
 
       expect(publishedEvent).toEqual({
-        contractAddress: treasury.contractAddress,
-        bondContractAddress: treasury.bondContractAddress,
-        erc721Address: event.erc721,
-        deletedAt: expect.any(Date),
+        treasuryContractId: treasury.contractId,
+        bondContractId: treasury.bondContractId,
+        assetContractId: environmentalAsset.contractId,
         timestamp: expect.any(Number),
       })
     })
 
     it("should throw EnvironmentalAssetNotFoundError when trying to remove a non-existing token", async () => {
       const treasury = await internalTreasuryRepository.save({
-        contractAddress: "0x001",
-        bondContractAddress: "0x003",
-        balance: "100000",
+        contractId: "0.0.222",
+        bondContractId: "0.0.500",
       })
 
-      const event = new ERC721RemovedDLTEvent(treasury.contractAddress, "0x999")
+      const assetContractId = "0.0.44432"
+      jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(assetContractId)
+      const event = new ERC721RemovedDLTEvent(
+        treasury.contractId,
+        "testTransactionHash",
+        "testOperator",
+        "0x16E6eD454447935176fC5095a8C4231306E38b2b",
+      )
       await expect(eventBus.publishSync(event, ERC721RemovedDLTEvent.name)).rejects.toThrow(
-        EnvironmentalAssetNotFoundError.idError("0x999"),
+        EnvironmentalAssetNotFoundError.idError(assetContractId),
       )
 
       const environmentalAssets = await environmentalAssetRepository.find({
@@ -135,9 +110,15 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
 
   describe("when treasury does not exist", () => {
     it("should throw TreasuryNotFoundError", async () => {
-      const event = new ERC721RemovedDLTEvent("0x999", "0x002")
+      const treasuryContractId = "0.0.88890"
+      const event = new ERC721RemovedDLTEvent(
+        treasuryContractId,
+        "testTransactionHash",
+        "testOperator",
+        "0x16E6eD454447935176fC5095a8C4231306E38b2b",
+      )
       await expect(eventBus.publishSync(event, ERC721RemovedDLTEvent.name)).rejects.toThrow(
-        TreasuryNotFoundError.addressesError(["0x999"]),
+        TreasuryNotFoundError.contractIdsError([treasuryContractId]),
       )
     })
   })

@@ -1,4 +1,4 @@
-import { Column, DeleteDateColumn, Entity, JoinColumn, ManyToOne } from "typeorm"
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 
@@ -14,6 +14,6 @@ export class EnvironmentalAssetPersistence extends BaseEntityPersistence {
   @JoinColumn()
   treasury: TreasuryPersistence
 
-  @DeleteDateColumn()
-  deletedAt?: Date
+  @Column({ nullable: true })
+  validityDate?: Date
 }

@@ -1,7 +1,7 @@
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { Treasury } from "@domain/treasury/model/Treasury"
 
-export class RemoveEnvironmentalAssetServiceResponse {
+export class AddEnvironmentalAssetDomainServiceResponse {
   readonly environmentalAsset: EnvironmentalAsset
   readonly treasury: Treasury
 
