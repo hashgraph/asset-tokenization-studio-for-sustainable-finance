@@ -14,14 +14,19 @@ export class RemoveEnvironmentalAssetTransactionHttpAdapter implements RemoveEnv
     private readonly removeEnvironmentalAssetTransactionAppService: RemoveEnvironmentalAssetTransactionAppService,
   ) {}
 
-  @Post(":treasuryId/environmental-assets/:assetId/remove")
+  @Post(":treasuryContractId/environmental-assets/:assetContractId/remove")
   removeEnvironmentalAsset(
-    @Param("treasuryId") treasuryId: string,
-    @Param("assetId") assetId: string,
+    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("assetContractId") assetContractId: string,
     @Body() request: RemoveEnvironmentalAssetTransactionRequest,
   ): TransactionResponse {
     return this.removeEnvironmentalAssetTransactionAppService.execute(
-      new RemoveEnvironmentalAssetTransactionAppServiceRequest(assetId, request.format, request.accountId!, treasuryId),
+      new RemoveEnvironmentalAssetTransactionAppServiceRequest(
+        assetContractId,
+        request.format,
+        request.accountId!,
+        treasuryContractId,
+      ),
     )
   }
 }

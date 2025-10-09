@@ -5,10 +5,10 @@ import { IsNotEmpty } from "class-validator"
 
 export class RemoveEnvironmentalAssetTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
-  readonly assetId: string
+  readonly assetContractId: string
 
-  constructor(assetId: string, format: string, accountId: string, contractId: string) {
+  constructor(assetContractId: string, format: string, accountId: string, contractId: string) {
     super(format, accountId, contractId)
-    this.assetId = assetId
+    this.assetContractId = assetContractId
   }
 }

@@ -3,7 +3,7 @@ import { IsNotEmpty } from "class-validator"
 
 export class EnvironmentalAsset extends BaseEntity {
   @IsNotEmpty()
-  assetId: string
+  contractId: string
 
   @IsNotEmpty()
   treasuryId: string

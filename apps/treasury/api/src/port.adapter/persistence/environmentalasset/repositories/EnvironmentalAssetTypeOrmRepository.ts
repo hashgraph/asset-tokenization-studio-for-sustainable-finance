@@ -19,16 +19,16 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return this.toDomain(savedPersistence)
   }
 
-  async findByAssetIdAndTreasuryId(assetId: string, treasuryId: string): Promise<EnvironmentalAsset | null> {
-    const persistence = await this.findActivePersistence(assetId, treasuryId)
+  async findByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.findActivePersistence(contractId, treasuryId)
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async softDeleteByAssetIdAndTreasuryId(assetId: string, treasuryId: string): Promise<EnvironmentalAsset> {
-    const persistence = await this.findActivePersistence(assetId, treasuryId)
+  async softDeleteByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset> {
+    const persistence = await this.findActivePersistence(contractId, treasuryId)
 
     if (!persistence) {
-      throw EnvironmentalAssetNotFoundError.idError(assetId)
+      throw EnvironmentalAssetNotFoundError.idError(contractId)
     }
 
     persistence.deletedAt = new Date()
@@ -37,13 +37,13 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   }
 
   private async findActivePersistence(
-    assetId: string,
+    contractId: string,
     treasuryId: string,
   ): Promise<EnvironmentalAssetPersistence | null> {
     return this.repository.findOne({
       where: {
-        assetId: assetId,
-        treasuryId,
+        contractId: contractId,
+        treasuryId: treasuryId,
         deletedAt: IsNull(),
       },
     })

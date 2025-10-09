@@ -55,7 +55,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       })
 
       await environmentalAssetRepository.save({
-        assetId: "0x002",
+        contractId: "0x002",
         treasuryId: treasury.id,
       })
 
@@ -86,11 +86,11 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       })
 
       await environmentalAssetRepository.save({
-        assetId: "0x002",
+        contractId: "0x002",
         treasuryId: treasury.id,
       })
       await environmentalAssetRepository.save({
-        assetId: "0x999",
+        contractId: "0x999",
         treasuryId: treasury.id,
       })
 
@@ -103,7 +103,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         where: { treasuryId: treasury.id },
       })
       expect(environmentalAssets).toHaveLength(1)
-      expect(environmentalAssets[0].assetId).toBe("0x002")
+      expect(environmentalAssets[0].contractId).toBe("0x002")
 
       expect(publishedEvent).toEqual({
         contractAddress: treasury.contractAddress,

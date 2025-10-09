@@ -23,7 +23,7 @@ export class AddEnvironmentalAssetDomainService {
     await this.checkEnvironmentalAssetNotExists.execute(erc721, treasury.id)
 
     const environmentalAsset = new EnvironmentalAsset()
-    environmentalAsset.assetId = erc721
+    environmentalAsset.contractId = erc721
     environmentalAsset.treasuryId = treasury.id
 
     await this.environmentalAssetRepository.save(environmentalAsset)

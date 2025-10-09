@@ -3,5 +3,5 @@
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
 export class BuildRemoveEnvironmentalAssetTransactionRequest extends BaseBuildTransactionRequest {
-  assetId: string
+  assetContractId: string
 }

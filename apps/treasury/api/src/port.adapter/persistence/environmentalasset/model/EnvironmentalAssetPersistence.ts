@@ -5,7 +5,7 @@ import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 @Entity("EnvironmentalAsset")
 export class EnvironmentalAssetPersistence extends BaseEntityPersistence {
   @Column()
-  assetId: string
+  contractId: string
 
   @Column()
   treasuryId: string
