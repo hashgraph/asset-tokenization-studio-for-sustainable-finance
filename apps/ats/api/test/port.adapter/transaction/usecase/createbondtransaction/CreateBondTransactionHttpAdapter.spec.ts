@@ -3,43 +3,48 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
 import request from 'supertest'
-import { AppModule } from '../../../../../src/AppModule'
-import { BuildTransactionResponse } from '@hashgraph/green-bonds-shared-core'
+import { BuildTransactionResponse, SharedModule } from '@hashgraph/green-bonds-shared-core'
+import { PostgresModule } from '@config/PostgresModule'
+import { CONTROLLERS, PROVIDERS } from '@components'
+import { PostgreSqlContainer } from '@test/shared/containers/PostgresqlContainer'
 
 describe('CreateBondTransaction API Integration', () => {
   let app: INestApplication
+  let container: PostgreSqlContainer
+
+  beforeAll(async () => {
+    container = await PostgreSqlContainer.create()
+  })
 
   beforeEach(async () => {
-    // Mock only the external dependency that's not implemented yet
-    const mockTransactionBuilderAdapter = {
-      createBondTransaction: jest.fn().mockReturnValue(new BuildTransactionResponse('mocked-serialized-transaction')),
-    }
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    })
-      .overrideProvider('TransactionBuilderPort')
-      .useValue(mockTransactionBuilderAdapter)
-      .compile()
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      controllers: CONTROLLERS,
+      providers: [...PROVIDERS],
+    }).compile()
 
     app = moduleFixture.createNestApplication()
-
-    // Suppress error logs during testing to clean up test output
+    app.setGlobalPrefix('api/v1/ats')
     app.useLogger(false)
-
     await app.init()
   })
 
-  afterEach(async () => {
-    await app.close()
+  afterAll(async () => {
+    await container.stop()
   })
 
-  describe('POST /bonds/factories/:factoryId/bond-transactions', () => {
+  afterEach(async () => {
+    if (app) {
+      await app.close()
+    }
+  })
+
+  describe('POST /bonds/factories/:factoryContractId/bond-transactions', () => {
     it('should create bond with valid request data', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const createBondRequest = {
         format: 'hedera',
-        accountId: '0.0.12345',
+        accountId: '0.0.5466269',
         securityTokenToCreate: {
           name: 'Green Energy Bond',
           symbol: 'GEB',
@@ -52,22 +57,22 @@ describe('CreateBondTransaction API Integration', () => {
           isMultiPartition: false,
           clearingActive: true,
           internalKycActivated: true,
-          currency: 'USD',
+          currency: '0x858368',
           numberOfUnits: '1000000',
           nominalValue: '100',
           startingDate: '1640995200000',
           maturityDate: '1672531200000',
-          configId: 'config-001',
+          configId: '0x0000000000000000000000000000000000000000000000000000000000000002',
           configVersion: 1,
-          resolver: '0x0987654321098765432109876543210987654321',
-          externalPausesIds: ['pause-001'],
-          externalControlListsIds: ['control-001'],
-          externalKycListsIds: ['kyc-001'],
-          diamondOwnerAccount: '0.0.54321',
-          complianceId: 'compliance-001',
-          identityRegistryId: 'identity-001',
-          proceedRecipientIds: ['recipient-001'],
-          proceedRecipientsData: ['recipient-data-001'],
+          resolver: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          externalPausesIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+          externalControlListsIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+          externalKycListsIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+          diamondOwnerAccount: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          complianceId: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          identityRegistryId: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          proceedRecipientIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+          proceedRecipientsData: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
         },
         factoryRegulationData: {
           regulationType: 1,
@@ -79,7 +84,7 @@ describe('CreateBondTransaction API Integration', () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/bonds/factories/${factoryId}/bond-transactions`)
+        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
         .send(createBondRequest)
         .expect(201)
 
@@ -88,16 +93,16 @@ describe('CreateBondTransaction API Integration', () => {
     })
 
     it('should handle different valid format values', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const formats = ['hedera', 'ethereum']
 
       for (const format of formats) {
         const createBondRequest = {
-          format,
-          accountId: '0.0.12345',
+          format: format,
+          accountId: '0.0.5466269',
           securityTokenToCreate: {
-            name: 'Test Bond',
-            symbol: 'TB',
+            name: 'Green Energy Bond',
+            symbol: 'GEB',
             isin: 'US1234567890',
             decimals: 2,
             isWhiteList: true,
@@ -107,34 +112,34 @@ describe('CreateBondTransaction API Integration', () => {
             isMultiPartition: false,
             clearingActive: true,
             internalKycActivated: true,
-            currency: 'USD',
+            currency: '0x858368',
             numberOfUnits: '1000000',
             nominalValue: '100',
             startingDate: '1640995200000',
             maturityDate: '1672531200000',
-            configId: 'config-001',
+            configId: '0x0000000000000000000000000000000000000000000000000000000000000002',
             configVersion: 1,
-            resolver: '0x0987654321098765432109876543210987654321',
-            externalPausesIds: ['pause-001'],
-            externalControlListsIds: ['control-001'],
-            externalKycListsIds: ['kyc-001'],
-            diamondOwnerAccount: '0.0.54321',
-            complianceId: 'compliance-001',
-            identityRegistryId: 'identity-001',
-            proceedRecipientIds: ['recipient-001'],
-            proceedRecipientsData: ['recipient-data-001'],
+            resolver: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+            externalPausesIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+            externalControlListsIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+            externalKycListsIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+            diamondOwnerAccount: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+            complianceId: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+            identityRegistryId: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+            proceedRecipientIds: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
+            proceedRecipientsData: ['0x48ca774f6942166bf37e178ccc1e861947ead8c7'],
           },
           factoryRegulationData: {
             regulationType: 1,
             regulationSubType: 1,
             isCountryControlListWhiteList: true,
             countries: 'US,CA',
-            info: 'Test bond for different formats',
+            info: 'Green bond for renewable energy projects',
           },
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/bonds/factories/${factoryId}/bond-transactions`)
+          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
           .send(createBondRequest)
           .expect(201)
 
@@ -143,7 +148,7 @@ describe('CreateBondTransaction API Integration', () => {
     })
 
     it('should return 400 for invalid format values', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const invalidFormats = ['json', 'hex', 'base64', 'xml', 'invalid']
 
       for (const format of invalidFormats) {
@@ -189,26 +194,26 @@ describe('CreateBondTransaction API Integration', () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/bonds/factories/${factoryId}/bond-transactions`)
+          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
           .send(createBondRequest)
           .expect(400)
       }
     })
 
     it('should return 400 for missing required fields', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const invalidRequests = [{}, { format: 'hedera' }, { name: 'Test Bond' }, { format: 'hedera', name: 'Test Bond' }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/bonds/factories/${factoryId}/bond-transactions`)
+          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
           .send(invalidRequest)
           .expect(400)
       }
     })
 
     it('should reject invalid decimals value', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const createBondRequest = {
         format: 'hedera',
         accountId: '0.0.12345',
@@ -251,13 +256,13 @@ describe('CreateBondTransaction API Integration', () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/bonds/factories/${factoryId}/bond-transactions`)
+        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
         .send(createBondRequest)
         .expect(400)
     })
 
     it('should reject invalid coupon rate value', async () => {
-      const factoryId = '0.0.67890'
+      const factoryContractId = '0.0.67890'
       const createBondRequest = {
         format: 'hedera',
         accountId: '0.0.12345',
@@ -300,7 +305,7 @@ describe('CreateBondTransaction API Integration', () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/bonds/factories/${factoryId}/bond-transactions`)
+        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
         .send(createBondRequest)
         .expect(400)
     })
