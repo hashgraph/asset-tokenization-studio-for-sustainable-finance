@@ -256,12 +256,10 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
   private getEventParmsObject(input: any): any {
     if (Array.isArray(input)) {
-      // Detect hybrid ABI-style arrays (both numeric + named keys)
       const keys = Object.keys(input)
       const hasNamedKeys = keys.some(k => isNaN(Number(k)))
 
       if (hasNamedKeys) {
-        // Convert the hybrid array into an object of named props
         const namedProps: any = {}
         for (const key of keys) {
           if (isNaN(Number(key))) {
@@ -274,11 +272,10 @@ export class HederaMirrorNodeAdapter implements HederaPort {
         }
         return namedProps
       } else {
-        // Normal array: recursively map values
-        return input.map(v =>
-          typeof v === "object" && v !== null
-            ? this.getEventParmsObject(v)
-            : v
+        return input.map(normalArrayValue =>
+          typeof normalArrayValue === "object" && normalArrayValue !== null
+            ? this.getEventParmsObject(normalArrayValue)
+            : normalArrayValue
         )
       }
     } else if (typeof input === "object" && input !== null) {
