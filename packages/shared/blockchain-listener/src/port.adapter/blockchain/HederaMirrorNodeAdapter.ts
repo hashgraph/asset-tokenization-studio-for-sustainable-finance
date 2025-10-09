@@ -238,27 +238,57 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       }
       const eventName: string = this.getEventName(eventSignature)
       const decodedValues = this.decodeEventParams(eventSignature, request.data, request.topics)
-
-      const result = Object.keys(decodedValues)
-        .filter((key) => isNaN(Number(key)))
-        .map((key) => ({ name: key, value: decodedValues[key] }))
-
+      const eventParamsObj = this.getEventParmsObject(decodedValues)
       const eventObj: BlockchainEvent = {
         logTimestamp: request.timestamp,
         transactionHash: request.transactionHash,
         name: eventName,
         signature: eventSignature,
-        contractId: request.contractId,
+        contractId: request.contractId
       } as BlockchainEvent
 
-      result.forEach((param) => {
-        eventObj[param.name] = param.value.toString()
-      })
+      return { ...eventObj, ...eventParamsObj }
 
-      return eventObj
     } catch (error) {
       throw new Error(`Error decoding log ${error?.message}.\n${JSON.stringify(request, null, 2)}`)
     }
+  }
+
+  private getEventParmsObject(input: any): any {
+    if (Array.isArray(input)) {
+      const keys = Object.keys(input)
+      const hasNamedKeys = keys.some(k => isNaN(Number(k)))
+
+      if (hasNamedKeys) {
+        const namedProps: any = {}
+        for (const key of keys) {
+          if (isNaN(Number(key))) {
+            const value = input[key]
+            namedProps[key] =
+              typeof value === "object" && value !== null
+                ? this.getEventParmsObject(value)
+                : value
+          }
+        }
+        return namedProps
+      } else {
+        return input.map(normalArrayValue =>
+          typeof normalArrayValue === "object" && normalArrayValue !== null
+            ? this.getEventParmsObject(normalArrayValue)
+            : normalArrayValue
+        )
+      }
+    } else if (typeof input === "object" && input !== null) {
+      const cleaned: any = {}
+      for (const [key, value] of Object.entries(input)) {
+        cleaned[key] =
+          typeof value === "object" && value !== null
+            ? this.getEventParmsObject(value)
+            : value
+      }
+      return cleaned
+    }
+    return input
   }
 
   private decodeEventParams(eventSignature: string, data: string, topics: string[]) {
