@@ -1,9 +1,15 @@
-import { BaseTransactionBuilder, BuildTransactionResponse, Environment } from '@hashgraph/green-bonds-shared-core'
+import {
+  BaseTransactionBuilder,
+  BuildTransactionResponse,
+  Environment,
+  Singleton,
+} from '@hashgraph/green-bonds-shared-core'
 import { IFactory__factory } from '@hashgraph/asset-tokenization-contracts'
 import { ConfigService } from '@nestjs/config'
 import { BuildCreateBondTransactionRequest } from './model/BuildCreateBondTransactionRequest'
 import { TransactionBuilderPort } from './TransactionBuilderPort'
 
+@Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly GAS = 15_000_000
   private readonly EVM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
@@ -91,7 +97,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.GAS,
       environment,
       account: req.accountId,
-      contractEvmAddress: this.getEvmAddressFromHedera(req.contractId),
       format: req.format as 'hedera' | 'ethereum',
       args: [securityTokenToCreate, factoryRegulationData],
     } as any)

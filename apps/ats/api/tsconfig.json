@@ -25,7 +25,9 @@
       "@app/*": ["src/app/*"],
       "@config/*": ["src/config/*"],
       "@domain/*": ["src/domain/*"],
-      "@port/*": ["src/port.adapter/*"]
+      "@port/*": ["src/port.adapter/*"],
+      "@test/*": ["test/*"],
+      "@components": ["src/Components"]
     }
   }
 }

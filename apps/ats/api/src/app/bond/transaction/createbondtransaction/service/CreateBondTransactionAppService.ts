@@ -1,5 +1,5 @@
 import { Inject, Singleton, TransactionAppServiceResponse } from '@hashgraph/green-bonds-shared-core'
-import { CreateBondTransactionAppServiceRequest } from '@app/bond/transaction/createbondtransaction/model/CreateBondTransactionAppServiceRequest'
+import { CreateBondTransactionAppServiceRequest } from '@app/bond/transaction/createbondtransaction/service/model/CreateBondTransactionAppServiceRequest'
 import type { TransactionBuilderPort } from '@port/transactionbuilder/TransactionBuilderPort'
 
 @Singleton()
