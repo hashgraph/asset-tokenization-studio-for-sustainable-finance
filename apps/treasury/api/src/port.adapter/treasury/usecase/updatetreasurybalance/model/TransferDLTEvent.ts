@@ -1,6 +1,6 @@
-import { Event } from "@hashgraph/green-bonds-shared-core"
+import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class TransferDLTEvent extends Event {
+export class TransferDLTEvent extends DLTEvent {
   readonly from: string
   readonly to: string
   readonly value: string

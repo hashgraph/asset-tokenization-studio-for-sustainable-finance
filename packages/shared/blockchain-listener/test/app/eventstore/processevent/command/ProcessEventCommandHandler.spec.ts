@@ -17,11 +17,12 @@ import {
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import { ProcessEventCommand } from "@app/eventstore/processevent/command/ProcessEventCommand"
-import BlockchainEvent from "@domain/event/BlockchainEvent"
+
 import { PROVIDERS } from "../../../../../src/Components"
 import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
 import { PostgresModule } from "../../../../shared/PostgresModule"
+import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
 
 let testDLTEvent: TestDLTEvent
 let errorOnDLTEventListener: boolean
@@ -67,6 +68,8 @@ describe("ProcessEventCommandHandler", () => {
       signature: "Test(address)",
       field: "testField",
       contractId: "0.0.123",
+      logTimestamp: "1234567890",
+      timestamp: 1234567890,
     } as BlockchainEvent
     const command = new ProcessEventCommand(blockchainEvent as Event)
 
@@ -108,6 +111,8 @@ describe("ProcessEventCommandHandler", () => {
       signature: "Test(address)",
       field: "testField",
       contractId: "0.0.123",
+      logTimestamp: "1234567890",
+      timestamp: 1234567890,
     } as BlockchainEvent
     const command = new ProcessEventCommand(blockchainEvent as Event)
 
