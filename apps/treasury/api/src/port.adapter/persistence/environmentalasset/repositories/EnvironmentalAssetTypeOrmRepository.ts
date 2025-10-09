@@ -4,7 +4,6 @@ import { EnvironmentalAsset } from "@domain/environmentalasset/model/Environment
 import { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import { EnvironmentalAssetPersistence } from "../model/EnvironmentalAssetPersistence"
 import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 
 @Singleton()
 export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRepository {
@@ -24,18 +23,6 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async softDeleteByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset> {
-    const persistence = await this.findActivePersistence(contractId, treasuryId)
-
-    if (!persistence) {
-      throw EnvironmentalAssetNotFoundError.idError(contractId)
-    }
-
-    persistence.deletedAt = new Date()
-    const updatedPersistence = await this.repository.save(persistence)
-    return this.toDomain(updatedPersistence)
-  }
-
   private async findActivePersistence(
     contractId: string,
     treasuryId: string,
@@ -44,7 +31,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
       where: {
         contractId: contractId,
         treasuryId: treasuryId,
-        deletedAt: IsNull(),
+        validityDate: IsNull(),
       },
     })
   }

@@ -1,5 +1,5 @@
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
-import { EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { RemoveEnvironmentalAssetCommand } from "@app/environmentalasset/removeenvironmentalasset/command/RemoveEnvironmentalAssetCommand"
 import { ERC721RemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/ERC721RemovedDLTEvent"
 import { RemoveEnvironmentalAssetPort } from "./RemoveEnvironmentalAssetPort"
@@ -12,6 +12,8 @@ export class RemoveEnvironmentalAssetNestJSEventAdapter
 
   @Handler(ERC721RemovedDLTEvent)
   async handle(event: ERC721RemovedDLTEvent): Promise<void> {
-    await this.commandBus.execute(new RemoveEnvironmentalAssetCommand(event.operator, event.erc721))
+    await this.commandBus.execute(
+      new RemoveEnvironmentalAssetCommand(event.contractId, await ConverterUtils.getHederaAddressFromEvm(event.erc721)),
+    )
   }
 }

@@ -1,14 +1,16 @@
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
-import { Column, Entity } from "typeorm"
+import { Column, Entity, JoinColumn, OneToOne } from "typeorm"
+import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 
 @Entity("Treasury")
 export class TreasuryPersistence extends BaseEntityPersistence {
   @Column()
-  contractAddress: string
+  contractId: string
 
   @Column()
-  bondContractAddress: string
+  bondContractId: string
 
-  @Column()
-  balance: string
+  @OneToOne(() => PaymentTokenPersistence, { eager: true, cascade: true })
+  @JoinColumn()
+  paymentToken: PaymentTokenPersistence
 }

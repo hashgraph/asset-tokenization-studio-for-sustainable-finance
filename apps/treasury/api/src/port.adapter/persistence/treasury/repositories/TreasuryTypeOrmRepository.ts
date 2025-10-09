@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { Treasury } from "@domain/treasury/model/Treasury"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class TreasuryTypeOrmRepository implements TreasuryRepository {
@@ -20,11 +21,15 @@ export class TreasuryTypeOrmRepository implements TreasuryRepository {
     return persistence as Treasury
   }
 
-  async findByContractAddress(contractAddress: string): Promise<Treasury> {
-    return (await this.treasuryRepository.findOneBy({ contractAddress })) as Treasury
+  async findByContractId(contractId: string): Promise<Treasury | null> {
+    return this.toDomain(await this.treasuryRepository.findOneBy({ contractId }))
   }
 
-  async findByBondContractAddress(bondContractAddress: string): Promise<Treasury> {
-    return (await this.treasuryRepository.findOneBy({ bondContractAddress })) as Treasury
+  async findByBondContractId(bondContractId: string): Promise<Treasury | null> {
+    return this.toDomain(await this.treasuryRepository.findOneBy({ bondContractId }))
+  }
+
+  private toDomain(persistence: TreasuryPersistence | null): Treasury | null {
+    return persistence ? plainToInstance(Treasury, persistence) : null
   }
 }

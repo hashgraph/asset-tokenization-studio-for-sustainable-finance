@@ -15,14 +15,16 @@ export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<Re
 
   @Validate()
   async execute(command: RemoveEnvironmentalAssetCommand): Promise<void> {
-    const result = await this.removeEnvironmentalAssetDomainService.execute(command.operator, command.erc721)
+    const result = await this.removeEnvironmentalAssetDomainService.execute(
+      command.treasuryContractId,
+      command.assetContractId,
+    )
 
     this.eventBus.publish(
       new EnvironmentalAssetRemovedEvent(
-        result.treasury.contractAddress,
-        result.treasury.bondContractAddress,
-        command.erc721,
-        result.environmentalAsset.deletedAt!,
+        result.treasury.contractId,
+        result.treasury.bondContractId,
+        command.assetContractId,
       ),
     )
   }

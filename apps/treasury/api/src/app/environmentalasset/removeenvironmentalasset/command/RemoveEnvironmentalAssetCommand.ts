@@ -5,15 +5,15 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class RemoveEnvironmentalAssetCommand extends Command<void> {
   @IsString()
   @IsNotEmpty()
-  operator: string
+  treasuryContractId: string
 
   @IsString()
   @IsNotEmpty()
-  erc721: string
+  assetContractId: string
 
-  constructor(operator: string, erc721: string) {
+  constructor(treasuryContractId: string, assetContractId: string) {
     super()
-    this.operator = operator
-    this.erc721 = erc721
+    this.treasuryContractId = treasuryContractId
+    this.assetContractId = assetContractId
   }
 }

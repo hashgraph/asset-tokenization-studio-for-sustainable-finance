@@ -8,5 +8,5 @@ export class EnvironmentalAsset extends BaseEntity {
   @IsNotEmpty()
   treasuryId: string
 
-  deletedAt?: Date
+  validityDate?: Date
 }

@@ -1,15 +1,16 @@
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsHexadecimal, IsNotEmpty } from "class-validator"
+import { IsNotEmpty, ValidateNested } from "class-validator"
+import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
+import { Type } from "class-transformer"
 
 export class Treasury extends BaseEntity {
   @IsNotEmpty()
-  @IsHexadecimal()
-  contractAddress: string
+  contractId: string
 
   @IsNotEmpty()
-  @IsHexadecimal()
-  bondContractAddress: string
+  bondContractId: string
 
-  @IsNotEmpty()
-  balance: string
+  @ValidateNested()
+  @Type(() => PaymentToken)
+  paymentToken: PaymentToken
 }

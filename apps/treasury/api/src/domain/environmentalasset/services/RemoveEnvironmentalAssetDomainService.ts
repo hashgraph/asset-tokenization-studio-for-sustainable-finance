@@ -3,7 +3,7 @@ import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/re
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
-import { RemoveEnvironmentalAssetServiceResponse } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetServiceResponse"
+import { RemoveEnvironmentalAssetDomainServiceResponse } from "@domain/environmentalasset/services/model/RemoveEnvironmentalAssetDomainServiceResponse"
 
 @Singleton()
 export class RemoveEnvironmentalAssetDomainService {
@@ -13,19 +13,20 @@ export class RemoveEnvironmentalAssetDomainService {
     private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
   ) {}
 
-  async execute(operatorAddress: string, erc721: string): Promise<RemoveEnvironmentalAssetServiceResponse> {
-    const treasury = await this.treasuryRepository.findByContractAddress(operatorAddress)
+  async execute(
+    treasuryContractId: string,
+    assetContractId: string,
+  ): Promise<RemoveEnvironmentalAssetDomainServiceResponse> {
+    const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
     if (!treasury) {
-      throw TreasuryNotFoundError.addressesError([operatorAddress])
+      throw TreasuryNotFoundError.contractIdsError([treasuryContractId])
     }
 
-    await this.checkEnvironmentalAssetExists.execute(erc721, treasury.id)
+    let environmentalAsset = await this.checkEnvironmentalAssetExists.execute(assetContractId, treasury.id)
+    environmentalAsset.validityDate = new Date()
 
-    const deletedAsset = await this.environmentalAssetRepository.softDeleteByContractIdAndTreasuryId(
-      erc721,
-      treasury.id,
-    )
+    environmentalAsset = await this.environmentalAssetRepository.save(environmentalAsset)
 
-    return new RemoveEnvironmentalAssetServiceResponse(deletedAsset, treasury)
+    return new RemoveEnvironmentalAssetDomainServiceResponse(environmentalAsset, treasury)
   }
 }

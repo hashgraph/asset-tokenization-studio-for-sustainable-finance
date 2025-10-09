@@ -15,13 +15,16 @@ export class AddEnvironmentalAssetCommandHandler implements CommandHandler<AddEn
 
   @Validate()
   async execute(command: AddEnvironmentalAssetCommand): Promise<void> {
-    const result = await this.addEnvironmentalAssetDomainService.execute(command.operator, command.erc721)
+    const result = await this.addEnvironmentalAssetDomainService.execute(
+      command.treasuryContractId,
+      command.assetContractId,
+    )
 
     this.eventBus.publish(
       new EnvironmentalAssetAddedEvent(
-        result.treasury.contractAddress,
-        result.treasury.bondContractAddress,
-        command.erc721,
+        result.treasury.contractId,
+        result.treasury.bondContractId,
+        command.assetContractId,
       ),
     )
   }
