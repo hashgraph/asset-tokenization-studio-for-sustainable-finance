@@ -4,5 +4,9 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { FundProceedsRecipientTransactionRequest } from "./model/FundProceedsRecipientTransactionRequest"
 
 export interface FundProceedsRecipientTransactionPort {
-  fundProceedsRecipient(request: FundProceedsRecipientTransactionRequest): Promise<TransactionResponse>
+  fundProceedsRecipient(
+    treasuryContractId: string,
+    recipientContractId: string,
+    request: FundProceedsRecipientTransactionRequest,
+  ): TransactionResponse
 }

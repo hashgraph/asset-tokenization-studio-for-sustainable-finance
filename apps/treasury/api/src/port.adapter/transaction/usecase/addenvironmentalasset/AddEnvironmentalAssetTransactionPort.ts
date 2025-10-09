@@ -5,8 +5,8 @@ import { AddEnvironmentalAssetTransactionRequest } from "./model/AddEnvironmenta
 
 export interface AddEnvironmentalAssetTransactionPort {
   addEnvironmentalAsset(
-    treasuryId: string,
-    assetId: string,
+    treasuryContractId: string,
+    assetContractId: string,
     request: AddEnvironmentalAssetTransactionRequest,
   ): TransactionResponse
 }

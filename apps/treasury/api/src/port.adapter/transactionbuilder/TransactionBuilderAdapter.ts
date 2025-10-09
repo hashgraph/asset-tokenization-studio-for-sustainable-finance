@@ -56,7 +56,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   /**
    * Builds a transaction for environmental asset operations (add/remove)
-   * @param request The transaction request containing assetId, contractId, accountId, and format
+   * @param request The transaction request containing assetContractId, contractId, accountId, and format
    * @param functionName The contract function name to call ("addERC721Token" or "removeERC721Token")
    * @returns BuildTransactionResponse containing the serialized unsigned transaction
    * @private
@@ -82,7 +82,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       environment,
       account: request.accountId,
       format: request.format as "hedera" | "ethereum",
-      args: [this.getEvmAddressFromHedera(request.assetId)],
+      args: [this.getEvmAddressFromHedera(request.assetContractId)],
     } as any)
 
     return new BuildTransactionResponse(transactionResponse.unsignedTx)

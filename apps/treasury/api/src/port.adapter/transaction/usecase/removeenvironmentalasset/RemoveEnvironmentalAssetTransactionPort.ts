@@ -5,8 +5,8 @@ import { RemoveEnvironmentalAssetTransactionRequest } from "./model/RemoveEnviro
 
 export interface RemoveEnvironmentalAssetTransactionPort {
   removeEnvironmentalAsset(
-    treasuryId: string,
-    assetId: string,
+    treasuryContractId: string,
+    assetContractId: string,
     request: RemoveEnvironmentalAssetTransactionRequest,
   ): TransactionResponse
 }

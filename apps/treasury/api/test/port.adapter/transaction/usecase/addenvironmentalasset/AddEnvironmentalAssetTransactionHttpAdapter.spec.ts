@@ -38,17 +38,17 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     }
   })
 
-  describe("POST /:treasuryId/environmental-assets/:assetId", () => {
-    it("should add environmental asset with valid treasuryId and assetId", async () => {
-      const treasuryId = "0.0.123456"
-      const assetId = "0.0.789012"
+  describe("POST /:treasuryContractId/environmental-assets/:assetContractId", () => {
+    it("should add environmental asset with valid treasuryContractId and assetContractId", async () => {
+      const treasuryContractId = "0.0.123456"
+      const assetContractId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryId}/environmental-assets/${assetId}`)
+        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(201)
 
@@ -56,30 +56,30 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       expect(typeof response.body.unsignedTx).toBe("string")
     })
 
-    it("should handle different valid treasuryIds and assetIds", async () => {
+    it("should handle different valid treasuryContractIds and assetContractIds", async () => {
       const testCases = [
         {
-          treasuryId: "0.0.123456",
-          assetId: "0.0.789012",
+          treasuryContractId: "0.0.123456",
+          assetContractId: "0.0.789012",
         },
         {
-          treasuryId: "0.0.654321",
-          assetId: "0.0.210987",
+          treasuryContractId: "0.0.654321",
+          assetContractId: "0.0.210987",
         },
         {
-          treasuryId: "0.0.999999",
-          assetId: "0.0.111111",
+          treasuryContractId: "0.0.999999",
+          assetContractId: "0.0.111111",
         },
       ]
 
-      for (const { treasuryId, assetId } of testCases) {
+      for (const { treasuryContractId, assetContractId } of testCases) {
         const addRequest = {
           format: "hedera",
           accountId: "0.0.123456789",
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryId}/environmental-assets/${assetId}`)
+          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(201)
 
@@ -88,8 +88,8 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     })
 
     it("should handle different valid format values", async () => {
-      const treasuryId = "0.0.123456"
-      const assetId = "0.0.789012"
+      const treasuryContractId = "0.0.123456"
+      const assetContractId = "0.0.789012"
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
@@ -99,7 +99,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryId}/environmental-assets/${assetId}`)
+          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(201)
 
@@ -107,37 +107,37 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
     })
 
-    it("should reject invalid treasuryId format", async () => {
-      const invalidTreasuryId = "invalid-treasury-id"
-      const assetId = "0.0.789012"
+    it("should reject invalid treasuryContractId format", async () => {
+      const invalidTreasuryContractId = "invalid-treasury-contract-id"
+      const assetContractId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${invalidTreasuryId}/environmental-assets/${assetId}`)
+        .post(`/api/treasuries/${invalidTreasuryContractId}/environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(500)
     })
 
-    it("should reject invalid assetId format", async () => {
-      const treasuryId = "0.0.123456"
-      const invalidAssetId = "not-a-valid-asset-id"
+    it("should reject invalid assetContractId format", async () => {
+      const treasuryContractId = "0.0.123456"
+      const invalidAssetContractId = "not-a-valid-asset-contract-id"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryId}/environmental-assets/${invalidAssetId}`)
+        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${invalidAssetContractId}`)
         .send(addRequest)
         .expect(500)
     })
 
     it("should return 400 for invalid format values", async () => {
-      const treasuryId = "0.0.123456"
-      const assetId = "0.0.789012"
+      const treasuryContractId = "0.0.123456"
+      const assetContractId = "0.0.789012"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
@@ -147,47 +147,47 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryId}/environmental-assets/${assetId}`)
+          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(400)
       }
     })
 
     it("should return 400 for missing required fields in body", async () => {
-      const treasuryId = "0.0.123456"
-      const assetId = "0.0.789012"
+      const treasuryContractId = "0.0.123456"
+      const assetContractId = "0.0.789012"
       const invalidRequests = [{}, { format: "hedera" }, { accountId: "0.0.123456789" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryId}/environmental-assets/${assetId}`)
+          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(invalidRequest)
           .expect(400)
       }
     })
 
-    it("should handle missing treasuryId in path", async () => {
-      const assetId = "0.0.789012"
+    it("should handle missing treasuryContractId in path", async () => {
+      const assetContractId = "0.0.789012"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries//environmental-assets/${assetId}`)
+        .post(`/api/treasuries//environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(404)
     })
 
-    it("should handle missing assetId in path", async () => {
-      const treasuryId = "0.0.123456"
+    it("should handle missing assetContractId in path", async () => {
+      const treasuryContractId = "0.0.123456"
       const addRequest = {
         format: "hedera",
         accountId: "0.0.123456789",
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryId}/environmental-assets/`)
+        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/`)
         .send(addRequest)
         .expect(404)
     })

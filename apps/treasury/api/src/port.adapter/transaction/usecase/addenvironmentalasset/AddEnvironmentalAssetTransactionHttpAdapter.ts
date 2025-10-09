@@ -14,14 +14,19 @@ export class AddEnvironmentalAssetTransactionHttpAdapter implements AddEnvironme
     private readonly addEnvironmentalAssetTransactionAppService: AddEnvironmentalAssetTransactionAppService,
   ) {}
 
-  @Post(":treasuryId/environmental-assets/:assetId")
+  @Post(":treasuryContractId/environmental-assets/:assetContractId")
   addEnvironmentalAsset(
-    @Param("treasuryId") treasuryId: string,
-    @Param("assetId") assetId: string,
+    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("assetContractId") assetContractId: string,
     @Body() request: AddEnvironmentalAssetTransactionRequest,
   ): TransactionResponse {
     return this.addEnvironmentalAssetTransactionAppService.execute(
-      new AddEnvironmentalAssetTransactionAppServiceRequest(assetId, request.format, request.accountId!, treasuryId),
+      new AddEnvironmentalAssetTransactionAppServiceRequest(
+        assetContractId,
+        request.format,
+        request.accountId!,
+        treasuryContractId,
+      ),
     )
   }
 }
