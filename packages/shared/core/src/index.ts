@@ -53,3 +53,5 @@ export { BaseBuildTransactionRequest } from "./transaction/model/BaseBuildTransa
 export { BuildTransactionResponse } from "./transaction/model/BuildTransactionResponse"
 export { BaseTransactionAppServiceRequest } from "./transaction/model/BaseTransactionAppServiceRequest"
 export { TransactionAppServiceResponse } from "./transaction/model/TransactionAppServiceResponse"
+
+export { ConverterUtils } from "./utils/ConverterUtils"
