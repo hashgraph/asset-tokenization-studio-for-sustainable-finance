@@ -39,7 +39,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.GAS,
       environment,
       account: request.accountId,
-      contractEvmAddress: this.getEvmAddressFromHedera(request.contractId),
       format: request.format as "hedera" | "ethereum",
       args: [request.address, request.amount],
     } as any)
@@ -82,7 +81,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.GAS,
       environment,
       account: request.accountId,
-      contractEvmAddress: this.getEvmAddressFromHedera(request.contractId),
       format: request.format as "hedera" | "ethereum",
       args: [this.getEvmAddressFromHedera(request.assetId)],
     } as any)

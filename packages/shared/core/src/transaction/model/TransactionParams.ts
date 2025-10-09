@@ -13,6 +13,5 @@ export interface TransactionParams<I extends Interface> {
   readonly args: any[]
   readonly environment: Environment
   readonly account?: string
-  readonly contractEvmAddress?: string
   readonly format: TransactionFormat
 }

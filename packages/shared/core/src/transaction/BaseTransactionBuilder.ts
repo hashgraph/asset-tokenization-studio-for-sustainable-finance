@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Timestamp } from "@hashgraph/sdk"
-import { BaseContract } from "ethers"
 import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment"
 import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
@@ -37,7 +36,6 @@ export abstract class BaseTransactionBuilder {
     gas,
     environment,
     account,
-    contractEvmAddress,
     format,
     args,
   }: TransactionParams<I> & {
@@ -50,6 +48,8 @@ export abstract class BaseTransactionBuilder {
       const encoded = new Uint8Array(Buffer.from(encodedHex.slice(2), "hex"))
 
       const tx = new ContractExecuteTransaction().setContractId(contractId).setGas(gas).setFunctionParameters(encoded)
+
+      const contractEvmAddress = format === "ethereum" ? this.getEvmAddressFromHedera(contractId) : ""
 
       const serializer = this.formatSerializers[format]
       if (!serializer) {
