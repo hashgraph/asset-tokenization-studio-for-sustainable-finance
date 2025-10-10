@@ -12,6 +12,7 @@ import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
 import { Interface } from "ethers/lib/utils"
 import DecodeLogRequest from "@port/blockchain/model/DecodeLogRequest"
 import { GetBlockRequest } from "@port/blockchain/model/GetBlockRequest"
+import { BigNumber } from "ethers"
 
 @Singleton()
 export class HederaMirrorNodeAdapter implements HederaPort {
@@ -239,16 +240,16 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       const eventName: string = this.getEventName(eventSignature)
       const decodedValues = this.decodeEventParams(eventSignature, request.data, request.topics)
       const eventParamsObj = this.getEventParmsObject(decodedValues)
+
       const eventObj: BlockchainEvent = {
         logTimestamp: request.timestamp,
         transactionHash: request.transactionHash,
         name: eventName,
         signature: eventSignature,
-        contractId: request.contractId
+        contractId: request.contractId,
       } as BlockchainEvent
 
       return { ...eventObj, ...eventParamsObj }
-
     } catch (error) {
       throw new Error(`Error decoding log ${error?.message}.\n${JSON.stringify(request, null, 2)}`)
     }
@@ -257,34 +258,31 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   private getEventParmsObject(input: any): any {
     if (Array.isArray(input)) {
       const keys = Object.keys(input)
-      const hasNamedKeys = keys.some(k => isNaN(Number(k)))
+      const hasNamedKeys = keys.some((k) => isNaN(Number(k)))
 
       if (hasNamedKeys) {
         const namedProps: any = {}
         for (const key of keys) {
           if (isNaN(Number(key))) {
             const value = input[key]
-            namedProps[key] =
-              typeof value === "object" && value !== null
-                ? this.getEventParmsObject(value)
-                : value
+            namedProps[key] = this.getEventParmsObject(value)
           }
         }
         return namedProps
       } else {
-        return input.map(normalArrayValue =>
-          typeof normalArrayValue === "object" && normalArrayValue !== null
-            ? this.getEventParmsObject(normalArrayValue)
-            : normalArrayValue
-        )
+        return input.map((value) => this.getEventParmsObject(value))
       }
     } else if (typeof input === "object" && input !== null) {
+      if (input.constructor.name == "BigNumber") {
+        return input.toString()
+      }
+      if (input._isBigNumber && input._hex) {
+        return BigNumber.from(input).toString()
+      }
+
       const cleaned: any = {}
       for (const [key, value] of Object.entries(input)) {
-        cleaned[key] =
-          typeof value === "object" && value !== null
-            ? this.getEventParmsObject(value)
-            : value
+        cleaned[key] = this.getEventParmsObject(value)
       }
       return cleaned
     }
