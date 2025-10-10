@@ -27,6 +27,9 @@ import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentala
 import { PaymentTokenTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTypeOrmRepository"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 
+import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
+import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
+
 const REPOSITORIES: Provider[] = [
   {
     provide: "TreasuryRepository",
@@ -54,6 +57,7 @@ export const CONTROLLERS = [
   AddEnvironmentalAssetTransactionHttpAdapter,
   RemoveEnvironmentalAssetTransactionHttpAdapter,
   TransferEnvironmentalAssetTransactionHttpAdapter,
+  GetEnvironmentalAssetsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -75,4 +79,5 @@ export const PROVIDERS = [
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
   },
+  GetEnvironmentalAssetsQueryHandler,
 ]

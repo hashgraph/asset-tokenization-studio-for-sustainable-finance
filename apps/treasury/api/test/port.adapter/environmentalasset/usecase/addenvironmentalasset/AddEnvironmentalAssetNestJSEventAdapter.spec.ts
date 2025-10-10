@@ -110,7 +110,12 @@ describe("AddEnvironmentalAsset API Integration", () => {
 
   describe("when treasury does not exist", () => {
     it("should throw TreasuryNotFoundError", async () => {
-      const event = new ERC721AddedDLTEvent("0x999", "0x002")
+      const event = new ERC721AddedDLTEvent(
+        "0x999",
+        "testTransactionHash",
+        "testOperator",
+        "0x16E6eD454447935176fC5095a8C4231306E38b2b",
+      )
       await expect(eventBus.publishSync(event, ERC721AddedDLTEvent.name)).rejects.toThrow(
         TreasuryNotFoundError.contractIdsError(["0x999"]),
       )
