@@ -9,10 +9,10 @@ import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundE
 export class CheckTreasuryExistsDomainService {
   constructor(@Inject() private readonly treasuryRepository: TreasuryRepository) {}
 
-  async execute(bondContractId: string): Promise<Treasury> {
-    const treasury = await this.treasuryRepository.findByBondContractId(bondContractId)
+  async execute(contractId: string): Promise<Treasury> {
+    const treasury = await this.treasuryRepository.findByContractId(contractId)
     if (!treasury) {
-      throw TreasuryNotFoundError.bondContractIdError(bondContractId)
+      throw TreasuryNotFoundError.contractIdError(contractId)
     }
     return treasury
   }

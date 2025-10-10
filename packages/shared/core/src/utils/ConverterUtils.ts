@@ -14,6 +14,11 @@ export class ConverterUtils {
     return ((await ConverterUtils.fetchData(`accounts/${evmAddressWithPrefix}`)) as any).account
   }
 
+  static formatNumber(value: string, decimals: number) {
+    const position = value.length - decimals
+    return `${value.slice(0, position)}.${value.slice(position).replace(/0+$/, "")}`
+  }
+
   private static isLongZeroAddress(address: string) {
     const addressBytes = EvmAddress.fromString(address).toBytes()
     for (let i = 0; i < 12; i++) {

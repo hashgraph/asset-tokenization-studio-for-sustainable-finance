@@ -13,4 +13,7 @@ export class TreasuryPersistence extends BaseEntityPersistence {
   @OneToOne(() => PaymentTokenPersistence, { eager: true, cascade: true })
   @JoinColumn()
   paymentToken: PaymentTokenPersistence
+
+  @Column()
+  paused: boolean = false
 }
