@@ -57,3 +57,5 @@ export { BaseTransactionAppServiceRequest } from "./transaction/model/BaseTransa
 export { TransactionAppServiceResponse } from "./transaction/model/TransactionAppServiceResponse"
 
 export { ConverterUtils } from "./utils/ConverterUtils"
+
+export * from "./pagination"
