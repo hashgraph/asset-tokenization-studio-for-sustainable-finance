@@ -64,12 +64,13 @@ describe("GetEnvironmentalAssets API Integration", () => {
         .get(`/api/treasuries/${treasury.contractId}/environmental-assets`)
         .expect(200)
 
-      expect(response.body).toHaveProperty("items")
-      expect(response.body.items).toEqual([])
-      expect(response.body).toHaveProperty("total")
-      expect(response.body).toHaveProperty("page")
-      expect(response.body).toHaveProperty("limit")
-      expect(response.body).toHaveProperty("totalPages")
+      expect(response.body).toHaveProperty("data")
+      expect(response.body.data).toHaveProperty("items")
+      expect(response.body.data.items).toEqual([])
+      expect(response.body.data).toHaveProperty("total")
+      expect(response.body.data).toHaveProperty("page")
+      expect(response.body.data).toHaveProperty("limit")
+      expect(response.body.data).toHaveProperty("totalPages")
     })
 
     it("should return environmental assets for existing treasury", async () => {
@@ -92,17 +93,18 @@ describe("GetEnvironmentalAssets API Integration", () => {
         .get(`/api/treasuries/${treasury.contractId}/environmental-assets`)
         .expect(200)
 
-      expect(response.body.total).toBe(2)
-      expect(response.body.page).toBe(1)
-      expect(response.body.limit).toBe(10)
-      expect(response.body.totalPages).toBe(1)
-      expect(response.body.items).toHaveLength(2)
+      console.log("Response body:", JSON.stringify(response.body, null, 2))
+      expect(response.body.data.total).toBe(2)
+      expect(response.body.data.page).toBe(1)
+      expect(response.body.data.limit).toBe(10)
+      expect(response.body.data.totalPages).toBe(1)
+      expect(response.body.data.items).toHaveLength(2)
 
-      const contractIds = response.body.items.map((item: any) => item.contractId)
+      const contractIds = response.body.data.items.map((item: any) => item.contractId)
       expect(contractIds).toContain(asset1.contractId)
       expect(contractIds).toContain(asset2.contractId)
 
-      response.body.items.forEach((item: any) => {
+      response.body.data.items.forEach((item: any) => {
         expect(item).toHaveProperty("contractId")
         expect(item).toHaveProperty("validityDate")
         expect(item.validityDate).toBeNull()
@@ -127,11 +129,11 @@ describe("GetEnvironmentalAssets API Integration", () => {
         .query({ page: 1, limit: 3 })
         .expect(200)
 
-      expect(response.body.total).toBe(5)
-      expect(response.body.page).toBe(1)
-      expect(response.body.limit).toBe(3)
-      expect(response.body.totalPages).toBe(2)
-      expect(response.body.items).toHaveLength(3)
+      expect(response.body.data.total).toBe(5)
+      expect(response.body.data.page).toBe(1)
+      expect(response.body.data.limit).toBe(3)
+      expect(response.body.data.totalPages).toBe(2)
+      expect(response.body.data.items).toHaveLength(3)
     })
 
     it("should handle ordering parameters", async () => {
@@ -157,9 +159,9 @@ describe("GetEnvironmentalAssets API Integration", () => {
         .query({ orderBy: "createdAt", order: "ASC" })
         .expect(200)
 
-      expect(response.body.items).toHaveLength(2)
-      expect(response.body.items[0].contractId).toBe(asset1.contractId)
-      expect(response.body.items[1].contractId).toBe(asset2.contractId)
+      expect(response.body.data.items).toHaveLength(2)
+      expect(response.body.data.items[0].contractId).toBe(asset1.contractId)
+      expect(response.body.data.items[1].contractId).toBe(asset2.contractId)
     })
 
     it("should return 404 when treasury does not exist", async () => {

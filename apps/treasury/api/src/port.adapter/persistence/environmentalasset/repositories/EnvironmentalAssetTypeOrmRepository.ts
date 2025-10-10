@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 import { Repository, IsNull } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
