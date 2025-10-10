@@ -6,6 +6,8 @@ import { AddEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/u
 import { AddEnvironmentalAssetTransactionAppService } from "@app/transaction/addenvironmentalasset/service/AddEnvironmentalAssetTransactionAppService"
 import { RemoveEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetTransactionHttpAdapter"
 import { RemoveEnvironmentalAssetTransactionAppService } from "@app/transaction/removeenvironmentalasset/service/RemoveEnvironmentalAssetTransactionAppService"
+import { TransferEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/transferenvironmentalasset/TransferEnvironmentalAssetTransactionHttpAdapter"
+import { TransferEnvironmentalAssetTransactionAppService } from "@app/transaction/transferenvironmentalasset/service/TransferEnvironmentalAssetTransactionAppService"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { Provider } from "@nestjs/common"
 import { TreasuryTypeOrmRepository } from "@port/persistence/treasury/repositories/TreasuryTypeOrmRepository"
@@ -51,6 +53,7 @@ export const CONTROLLERS = [
   FundProceedsRecipientTransactionHttpAdapter,
   AddEnvironmentalAssetTransactionHttpAdapter,
   RemoveEnvironmentalAssetTransactionHttpAdapter,
+  TransferEnvironmentalAssetTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -58,6 +61,7 @@ export const PROVIDERS = [
   FundProceedsRecipientTransactionAppService,
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,
+  TransferEnvironmentalAssetTransactionAppService,
   CheckTreasuryExistsDomainService,
   CheckEnvironmentalAssetExistsDomainService,
   CheckEnvironmentalAssetNotExistsDomainService,
