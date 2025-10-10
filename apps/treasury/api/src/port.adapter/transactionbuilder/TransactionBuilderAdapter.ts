@@ -10,6 +10,7 @@ import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
 import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEnvironmentalAssetTransactionRequest"
 import { BuildRemoveEnvironmentalAssetTransactionRequest } from "./model/BuildRemoveEnvironmentalAssetTransactionRequest"
+import { BuildTransferEnvironmentalAssetTransactionRequest } from "./model/BuildTransferEnvironmentalAssetTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
@@ -52,6 +53,34 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
     return this.buildEnvironmentalAssetTransaction(request, "removeERC721Token")
+  }
+
+  transferEnvironmentalAsset(request: BuildTransferEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
+    const contractInterface = IProceedsManagement__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    /**
+     * Type assertion is necessary here due to complex generic type inference in ethers.js
+     * The BaseTransactionBuilder expects specific generic constraints that cannot be
+     * automatically inferred from the IProceedsManagement interface.
+     * This is a known limitation when working with dynamically generated contract interfaces.
+     */
+    const transactionResponse = this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "transferERC721Token" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [
+        this.getEvmAddressFromHedera(request.assetContractId),
+        this.getEvmAddressFromHedera(request.to),
+        request.tokenId,
+      ],
+    } as any)
+
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
 
   /**
