@@ -1,8 +1,8 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from '@hashgraph/green-bonds-shared-core'
-import { CreateBondCommand } from './CreateBondCommand'
 import { CreateBondDomainService } from '@domain/bond/services/CreateBondDomainService'
 import type { EventBus } from '@hashgraph/green-bonds-shared-core'
 import { CreatedBondEvent } from '@domain/bond/events/CreatedBondEvent'
+import { CreateBondCommand } from './CreateBondCommand'
 
 @Singleton()
 @Handler(CreateBondCommand)
