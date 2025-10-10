@@ -5,6 +5,10 @@ export class TreasuryNotFoundError extends EntityNotFoundError {
     return new TreasuryNotFoundError(`Treasury not found for any of the contract ids: ${contractIds.join(", ")}.`)
   }
 
+  static contractIdError(contractId: string): TreasuryNotFoundError {
+    return new TreasuryNotFoundError(`Treasury not found for the contract id: ${contractId}.`)
+  }
+
   static bondContractIdError(bondContractId: string): TreasuryNotFoundError {
     return new TreasuryNotFoundError(`Treasury not found for bond contract id: ${bondContractId}.`)
   }

@@ -26,6 +26,10 @@ import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasse
 import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetNestJSEventAdapter"
 import { PaymentTokenTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTypeOrmRepository"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
+import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
+import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
+import { GetTreasuryAppService } from "@app/treasury/gettreasury/service/GetTreasuryAppService"
+import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTreasuryQueryHandler"
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
@@ -58,6 +62,7 @@ export const CONTROLLERS = [
   RemoveEnvironmentalAssetTransactionHttpAdapter,
   TransferEnvironmentalAssetTransactionHttpAdapter,
   GetEnvironmentalAssetsHttpAdapter,
+  GetTreasuryHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -75,9 +80,15 @@ export const PROVIDERS = [
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
   RemoveEnvironmentalAssetNestJSEventAdapter,
+  GetTreasuryAppService,
+  GetTreasuryQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
   },
   GetEnvironmentalAssetsQueryHandler,
+  {
+    provide: "HederaPort",
+    useClass: HederMirrorNodeAdapter,
+  },
 ]
