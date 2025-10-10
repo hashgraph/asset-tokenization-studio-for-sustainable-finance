@@ -8,8 +8,13 @@ import { BondPersistence } from '@port/bond/persistence/model/BondPersistence'
 import { CreateBondNestJSEventAdapter } from '@port/bond/usecase/createbond/CreateBondNestJSEventAdapter'
 import { CreateBondDomainService } from '@domain/bond/services/CreateBondDomainService'
 import { BondTypeOrmRepository } from '@port/bond/persistence/repositories/BondTypeOrmRepository'
-import { CreateBondCommandHandler } from '@app/bond/createbond/CreateBondCommandHandler'
 import { Provider } from '@nestjs/common'
+import { GetBondHttpAdapter } from '@port/bond/usecase/getbond/GetBondHttpAdapter'
+import { CheckBondExistsDomainService } from '@domain/bond/services/CheckBondExistsDomainService'
+import { GetBondsHttpAdapter } from '@port/bond/usecase/getbonds/GetBondsHttpAdapter'
+import { CreateBondCommandHandler } from '@app/bond/createbond/command/CreateBondCommandHandler'
+import { GetBondQueryHandler } from '@app/bond/getbond/query/GetBondQueryHandler'
+import { GetBondsQueryHandler } from '@app/bond/getbonds/query/GetBondsQueryHandler'
 
 const REPOSITORIES: Provider[] = [
   {
@@ -18,7 +23,7 @@ const REPOSITORIES: Provider[] = [
   },
 ]
 
-export const CONTROLLERS = [AppController, CreateBondTransactionHttpAdapter]
+export const CONTROLLERS = [AppController, CreateBondTransactionHttpAdapter, GetBondHttpAdapter, GetBondsHttpAdapter]
 export const PROVIDERS = [
   ...REPOSITORIES,
   AppService,
@@ -26,6 +31,9 @@ export const PROVIDERS = [
   CreateBondNestJSEventAdapter,
   CreateBondDomainService,
   CreateBondCommandHandler,
+  GetBondQueryHandler,
+  CheckBondExistsDomainService,
+  GetBondsQueryHandler,
   {
     provide: 'TransactionBuilderPort',
     useClass: TransactionBuilderAdapter,

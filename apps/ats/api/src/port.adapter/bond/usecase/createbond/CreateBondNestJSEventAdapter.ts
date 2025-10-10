@@ -1,7 +1,7 @@
 import { ConverterUtils, type CommandBus } from '@hashgraph/green-bonds-shared-core'
 import { EventListener, Handler, Inject, Singleton } from '@hashgraph/green-bonds-shared-core'
 import { BondDeployedDLTEvent } from '@port/bond/usecase/createbond/model/BondDeployedDLTEvent'
-import { CreateBondCommand } from '@app/bond/createbond/CreateBondCommand'
+import { CreateBondCommand } from '@app/bond/createbond/command/CreateBondCommand'
 import { CreateBondPort } from './CreateBondPort'
 
 @Singleton()
@@ -16,7 +16,7 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
         event.bondData.security.erc20MetadataInfo.name,
         event.bondData.security.erc20MetadataInfo.symbol,
         event.bondData.security.erc20MetadataInfo.decimals,
-        event.bondData.bondDetails.currency,
+        this.decodeCurrency(event.bondData.bondDetails.currency),
         event.bondData.bondDetails.nominalValue,
         new Date(Number(event.bondData.bondDetails.startingDate) * 1000),
         new Date(Number(event.bondData.bondDetails.maturityDate) * 1000),
@@ -24,5 +24,17 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
         event.bondData.security.erc20MetadataInfo.isin,
       ),
     )
+  }
+
+  private decodeCurrency(hexCurrency: string): string {
+    const hex = hexCurrency.slice(2)
+    let result = ''
+    for (let i = 0; i < hex.length; i += 2) {
+      const byte = parseInt(hex.slice(i, i + 2), 16)
+      if (!isNaN(byte) && byte > 0) {
+        result += String.fromCharCode(byte)
+      }
+    }
+    return result.replace(/\0/g, '').trim()
   }
 }

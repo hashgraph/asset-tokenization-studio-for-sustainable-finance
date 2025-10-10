@@ -6,8 +6,15 @@ export class BondDeployedDLTEvent extends DLTEvent {
   readonly bondData: BondData
   readonly regulationData: FactoryRegulationData
 
-  constructor(deployer: string, bondAddress: string, bondData: BondData, regulationData: FactoryRegulationData) {
-    super()
+  constructor(
+    contractId: string,
+    transactionHash: string,
+    deployer: string,
+    bondAddress: string,
+    bondData: BondData,
+    regulationData: FactoryRegulationData,
+  ) {
+    super(contractId, transactionHash)
     this.deployer = deployer
     this.bondAddress = bondAddress
     this.bondData = bondData
@@ -47,15 +54,15 @@ interface AdditionalSecurityData {
 }
 
 enum RegulationType {
-  NONE,
-  REG_S,
-  REG_D,
+  NONE = 0,
+  REG_S = 1,
+  REG_D = 2,
 }
 
 enum RegulationSubType {
-  NONE,
-  REG_D_506_B,
-  REG_D_506_C,
+  NONE = 0,
+  REG_D_506_B = 1,
+  REG_D_506_C = 2,
 }
 
 interface FactoryRegulationData {

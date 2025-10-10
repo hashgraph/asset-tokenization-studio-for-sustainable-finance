@@ -1,8 +1,8 @@
+import { Page, PageOptions } from '@hashgraph/green-bonds-shared-core'
 import { Bond } from '../model/Bond'
 
 export interface BondRepository {
   save(bond: Bond): Promise<Bond>
-  findById(id: string): Promise<Bond | null>
   findByContractId(contractId: string): Promise<Bond | null>
-  findAll(): Promise<Bond[]>
+  findAll(pageOptions: PageOptions): Promise<Page<Bond>>
 }

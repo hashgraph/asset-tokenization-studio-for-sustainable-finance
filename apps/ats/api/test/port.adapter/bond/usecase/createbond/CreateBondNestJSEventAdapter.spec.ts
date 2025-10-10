@@ -48,7 +48,7 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       ...overrides.security,
     },
     bondDetails: {
-      currency: 'USD',
+      currency: '0x555344',
       nominalValue: '100',
       startingDate: '1640995200',
       maturityDate: '1672531200',
@@ -100,6 +100,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       const regulationData = createValidRegulationData()
 
       const event = new BondDeployedDLTEvent(
+        '0.0.6974684',
+        '0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7',
         '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
         '0xb3533f32594B689F19A94C608490451478F7197b',
         bondData,
@@ -117,7 +119,7 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       expect(savedBond!.symbol).toBe(bondData.security.erc20MetadataInfo.symbol)
       expect(savedBond!.isin).toBe(bondData.security.erc20MetadataInfo.isin)
       expect(savedBond!.decimals).toBe(bondData.security.erc20MetadataInfo.decimals)
-      expect(savedBond!.currency).toBe(bondData.bondDetails.currency)
+      expect(savedBond!.currency).toBe('USD')
       expect(savedBond!.nominalValue).toBe(bondData.bondDetails.nominalValue)
       expect(savedBond!.maxSupply).toBe(bondData.security.maxSupply)
       expect(savedBond!.startingDate).toEqual(new Date(Number(bondData.bondDetails.startingDate) * 1000))
@@ -144,6 +146,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       const regulationData = createValidRegulationData()
 
       const event = new BondDeployedDLTEvent(
+        '0.0.6974684',
+        '0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7',
         '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
         '0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7',
         bondData,
@@ -169,6 +173,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
         const evmAddress = contractAddress.split(':')[0]
 
         const event = new BondDeployedDLTEvent(
+          '0.0.6974684',
+          '0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7',
           '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
           evmAddress,
           bondData,
@@ -197,6 +203,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       jest.spyOn(eventBus, 'publish').mockImplementation((event) => (publishedEvent = event))
 
       const event = new BondDeployedDLTEvent(
+        '0.0.6974684',
+        '0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7',
         '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
         '0xb3533f32594B689F19A94C608490451478F7197b',
         bondData,
@@ -212,7 +220,7 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
           symbol: bondData.security.erc20MetadataInfo.symbol,
           isin: bondData.security.erc20MetadataInfo.isin,
           decimals: bondData.security.erc20MetadataInfo.decimals,
-          currency: bondData.bondDetails.currency,
+          currency: 'USD',
           nominalValue: bondData.bondDetails.nominalValue,
           startingDate: new Date(Number(bondData.bondDetails.startingDate) * 1000),
           maturityDate: new Date(Number(bondData.bondDetails.maturityDate) * 1000),
