@@ -58,8 +58,4 @@ export { TransactionAppServiceResponse } from "./transaction/model/TransactionAp
 
 export { ConverterUtils } from "./utils/ConverterUtils"
 
-export { OrderPageOptions } from "./pagination/OrderPageOptions"
-export { PageOptions } from "./pagination/PageOptions"
-export { Page } from "./pagination/Page"
-export { PageOptionsRequest } from "./pagination/PageOptionsRequest"
-export { PageResponse } from "./pagination/PageResponse"
+export * from "./pagination"
