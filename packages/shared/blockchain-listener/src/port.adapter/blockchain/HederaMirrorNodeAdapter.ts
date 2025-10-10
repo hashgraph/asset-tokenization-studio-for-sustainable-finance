@@ -12,6 +12,7 @@ import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
 import { Interface } from "ethers/lib/utils"
 import DecodeLogRequest from "@port/blockchain/model/DecodeLogRequest"
 import { GetBlockRequest } from "@port/blockchain/model/GetBlockRequest"
+import { BigNumber } from "ethers";
 
 @Singleton()
 export class HederaMirrorNodeAdapter implements HederaPort {
@@ -239,6 +240,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       const eventName: string = this.getEventName(eventSignature)
       const decodedValues = this.decodeEventParams(eventSignature, request.data, request.topics)
       const eventParamsObj = this.getEventParmsObject(decodedValues)
+
       const eventObj: BlockchainEvent = {
         logTimestamp: request.timestamp,
         transactionHash: request.transactionHash,
@@ -256,39 +258,36 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
   private getEventParmsObject(input: any): any {
     if (Array.isArray(input)) {
-      const keys = Object.keys(input)
-      const hasNamedKeys = keys.some(k => isNaN(Number(k)))
+      const keys = Object.keys(input);
+      const hasNamedKeys = keys.some(k => isNaN(Number(k)));
 
       if (hasNamedKeys) {
-        const namedProps: any = {}
+        const namedProps: any = {};
         for (const key of keys) {
           if (isNaN(Number(key))) {
-            const value = input[key]
-            namedProps[key] =
-              typeof value === "object" && value !== null
-                ? this.getEventParmsObject(value)
-                : value
+            const value = input[key];
+            namedProps[key] = this.getEventParmsObject(value);
           }
         }
-        return namedProps
+        return namedProps;
       } else {
-        return input.map(normalArrayValue =>
-          typeof normalArrayValue === "object" && normalArrayValue !== null
-            ? this.getEventParmsObject(normalArrayValue)
-            : normalArrayValue
-        )
+        return input.map(value => this.getEventParmsObject(value));
       }
     } else if (typeof input === "object" && input !== null) {
-      const cleaned: any = {}
-      for (const [key, value] of Object.entries(input)) {
-        cleaned[key] =
-          typeof value === "object" && value !== null
-            ? this.getEventParmsObject(value)
-            : value
+      if (input.constructor.name == "BigNumber") {
+        return input.toString();
       }
-      return cleaned
+      if (input._isBigNumber && input._hex) {
+        return BigNumber.from(input).toString();
+      }
+
+      const cleaned: any = {};
+      for (const [key, value] of Object.entries(input)) {
+        cleaned[key] = this.getEventParmsObject(value);
+      }
+      return cleaned;
     }
-    return input
+    return input;
   }
 
   private decodeEventParams(eventSignature: string, data: string, topics: string[]) {
