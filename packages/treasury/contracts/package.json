@@ -30,6 +30,7 @@
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
+    "test:coverage": "npx hardhat coverage",
     "lint": "npx eslint .  && solhint 'contracts/**/*.sol'",
     "lint:fix": "npx eslint . --fix && solhint 'contracts/**/*.sol' --fix --noPrompt",
     "format": "prettier --check \"**/*.{ts,js,sol}\"",
