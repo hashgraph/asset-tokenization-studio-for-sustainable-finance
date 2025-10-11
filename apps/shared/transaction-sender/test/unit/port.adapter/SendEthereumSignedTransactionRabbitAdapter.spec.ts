@@ -1,0 +1,93 @@
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
+import { SendSignedTransactionCommand } from "../../../src/app/sendsignedtransaction/command/SendSignedTransactionCommand"
+import { SignedTransactionRequest } from "../../../src/domain/model/SignedTransactionRequest"
+import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
+import { SendEthereumSignedTransactionRabbitAdapter } from "../../../src/port.adapter/transaction/usecase/sendsignedtransaction/ethereum/SendEthereumSignedTransactionRabbitAdapter"
+
+describe("SendEthereumSignedTransactionRabbitAdapter", () => {
+  let adapter: SendEthereumSignedTransactionRabbitAdapter
+  let mockCommandBus: jest.Mocked<CommandBus>
+
+  beforeEach(() => {
+    mockCommandBus = {
+      execute: jest.fn(),
+    } as jest.Mocked<CommandBus>
+
+    adapter = new SendEthereumSignedTransactionRabbitAdapter(mockCommandBus)
+  })
+
+  it("should be defined", () => {
+    expect(adapter).toBeDefined()
+  })
+
+  describe("onEthereumMessage", () => {
+    it("should execute SendSignedTransactionCommand when receiving a valid message", async () => {
+      const mockMetadata: TransactionMetadata = {
+        requestId: "test-request-id",
+        origin: "test-origin",
+        description: "test-description",
+      }
+
+      const mockMessage: SignedTransactionRequest = {
+        payload: "0x1234567890abcdef",
+        metadata: mockMetadata,
+        format: "ethereum",
+      }
+
+      mockCommandBus.execute.mockResolvedValue(undefined)
+
+      await adapter.onEthereumMessage(mockMessage)
+
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
+
+      expect(mockCommandBus.execute).toHaveBeenCalledWith(expect.any(SendSignedTransactionCommand))
+
+      const executedCommand = mockCommandBus.execute.mock.calls[0][0] as SendSignedTransactionCommand
+      expect(executedCommand.payload).toBe(mockMessage.payload)
+      expect(executedCommand.metadata).toBe(mockMessage.metadata)
+      expect(executedCommand.format).toBe("ethereum")
+    })
+
+    it("should handle command execution errors gracefully", async () => {
+      const mockMetadata: TransactionMetadata = {
+        requestId: "test-request-id",
+        origin: "test-origin",
+        description: "test-description",
+      }
+
+      const mockMessage: SignedTransactionRequest = {
+        payload: "0x1234567890abcdef",
+        metadata: mockMetadata,
+        format: "ethereum",
+      }
+
+      const error = new Error("Command execution failed")
+      mockCommandBus.execute.mockRejectedValue(error)
+
+      await expect(adapter.onEthereumMessage(mockMessage)).rejects.toThrow(error)
+
+      expect(mockCommandBus.execute).toHaveBeenCalledTimes(1)
+    })
+
+    it("should create command with correct format", async () => {
+      const mockMetadata: TransactionMetadata = {
+        requestId: "test-request-id",
+        origin: "test-origin",
+        description: "test-description",
+      }
+
+      const mockMessage: SignedTransactionRequest = {
+        payload: "0xabcdef1234567890",
+        metadata: mockMetadata,
+        format: "ethereum",
+      }
+
+      mockCommandBus.execute.mockResolvedValue(undefined)
+
+      await adapter.onEthereumMessage(mockMessage)
+
+      const executedCommand = mockCommandBus.execute.mock.calls[0][0] as SendSignedTransactionCommand
+      expect(executedCommand.format).toBe("ethereum")
+    })
+  })
+})

@@ -1,0 +1,17 @@
+{
+  "name": "@hashgraph/green-bonds-scripts",
+  "version": "1.0.0",
+  "description": "Utility scripts for Evercity Green Bonds Platform",
+  "private": true,
+  "scripts": {
+    "sign": "node bin/transaction-signer.js",
+    "bond": "node bin/bond-simulator.js",
+    "sender": "node bin/transaction-sender.js",
+    "infra:start": "node bin/infra-setup.js start",
+    "infra:start:api": "node bin/infra-setup.js start api",
+    "infra:start:rabbitmq": "node bin/infra-setup.js start rabbitmq",
+    "infra:status": "node bin/infra-setup.js status",
+    "infra:stop": "node bin/infra-setup.js stop"
+  },
+  "license": "Apache-2.0"
+}
