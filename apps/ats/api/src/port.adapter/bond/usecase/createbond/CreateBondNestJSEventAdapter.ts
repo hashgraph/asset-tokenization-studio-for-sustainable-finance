@@ -1,8 +1,8 @@
-import { ConverterUtils, type CommandBus } from '@hashgraph/green-bonds-shared-core'
-import { EventListener, Handler, Inject, Singleton } from '@hashgraph/green-bonds-shared-core'
-import { BondDeployedDLTEvent } from '@port/bond/usecase/createbond/model/BondDeployedDLTEvent'
-import { CreateBondCommand } from '@app/bond/createbond/command/CreateBondCommand'
-import { CreateBondPort } from './CreateBondPort'
+import { ConverterUtils, type CommandBus } from "@hashgraph/green-bonds-shared-core"
+import { EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { BondDeployedDLTEvent } from "@port/bond/usecase/createbond/model/BondDeployedDLTEvent"
+import { CreateBondCommand } from "@app/bond/createbond/command/CreateBondCommand"
+import { CreateBondPort } from "./CreateBondPort"
 
 @Singleton()
 export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListener<BondDeployedDLTEvent> {
@@ -29,11 +29,11 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
   }
 
   private decodeCurrency(hexCurrency: string): string {
-    const hex = hexCurrency.startsWith('0x') ? hexCurrency.slice(2) : hexCurrency
+    const hex = hexCurrency.startsWith("0x") ? hexCurrency.slice(2) : hexCurrency
     const bytes = new Uint8Array(hex.match(/.{1,2}/g)!.map((b) => parseInt(b, 16)))
     return Array.from(bytes)
-      .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : ''))
-      .join('')
+      .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : ""))
+      .join("")
       .trim()
   }
 }

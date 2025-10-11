@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common'
-import { InjectRepository } from '@nestjs/typeorm'
-import { Repository } from 'typeorm'
-import { BondRepository } from '@domain/bond/repositories/BondRepository'
-import { Bond } from '@domain/bond/model/Bond'
-import { BondPersistence } from '../model/BondPersistence'
-import { Page, PageOptions } from '@hashgraph/green-bonds-shared-core'
+import { Injectable } from "@nestjs/common"
+import { InjectRepository } from "@nestjs/typeorm"
+import { Repository } from "typeorm"
+import { BondRepository } from "@domain/bond/repositories/BondRepository"
+import { Bond } from "@domain/bond/model/Bond"
+import { BondPersistence } from "../model/BondPersistence"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class BondTypeOrmRepository implements BondRepository {
@@ -22,7 +22,7 @@ export class BondTypeOrmRepository implements BondRepository {
   }
 
   async findAll(options: PageOptions): Promise<Page<Bond>> {
-    const orderDirection = options.order.order.toUpperCase() as 'ASC' | 'DESC'
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,

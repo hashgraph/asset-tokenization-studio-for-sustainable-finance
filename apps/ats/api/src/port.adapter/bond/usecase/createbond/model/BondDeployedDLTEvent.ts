@@ -1,4 +1,4 @@
-import { DLTEvent } from '@hashgraph/green-bonds-shared-core'
+import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
 export class BondDeployedDLTEvent extends DLTEvent {
   readonly deployer: string

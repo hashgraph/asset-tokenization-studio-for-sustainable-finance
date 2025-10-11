@@ -1,4 +1,4 @@
-import { EntityNotFoundError } from '@hashgraph/green-bonds-shared-core'
+import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class BondNotFoundError extends EntityNotFoundError {
   static contractIdError(contractId: string): BondNotFoundError {

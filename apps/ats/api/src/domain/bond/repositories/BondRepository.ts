@@ -1,5 +1,5 @@
-import { Page, PageOptions } from '@hashgraph/green-bonds-shared-core'
-import { Bond } from '../model/Bond'
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { Bond } from "../model/Bond"
 
 export interface BondRepository {
   save(bond: Bond): Promise<Bond>

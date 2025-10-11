@@ -1,9 +1,9 @@
-import { DynamicModule, Module } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
-import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
-import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type'
-import { ConfigKeys } from './ConfigKeys'
-import { ENTITIES } from '../Components'
+import { DynamicModule, Module } from "@nestjs/common"
+import { ConfigService } from "@nestjs/config"
+import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
+import { ConfigKeys } from "./ConfigKeys"
+import { ENTITIES } from "../Components"
 
 @Module({})
 export class PostgresModule {
@@ -29,7 +29,7 @@ export class PostgresModule {
 
   static getDefaultPostgreSqlConfig(configService: ConfigService): TypeOrmModuleOptions {
     return {
-      type: 'postgres',
+      type: "postgres",
       host: configService.get(ConfigKeys.POSTGRESQL_HOST),
       port: configService.get(ConfigKeys.POSTGRESQL_PORT),
       username: configService.get(ConfigKeys.POSTGRESQL_USER),

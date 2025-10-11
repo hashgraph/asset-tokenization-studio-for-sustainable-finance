@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { GetBondQueryResponse } from '@app/bond/getbond/query/GetBondQueryResponse'
+import { GetBondQueryResponse } from "@app/bond/getbond/query/GetBondQueryResponse"
 
 export class GetBondResponse {
   readonly id: string

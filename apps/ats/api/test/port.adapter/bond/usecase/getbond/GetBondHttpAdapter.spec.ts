@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Test, TestingModule } from '@nestjs/testing'
-import { HttpStatus, INestApplication } from '@nestjs/common'
-import request from 'supertest'
-import { CONTROLLERS, PROVIDERS } from '../../../../../src/Components'
-import { SharedModule } from '@hashgraph/green-bonds-shared-core'
-import { PostgreSqlContainer } from '../../../../shared/containers/PostgresqlContainer'
-import { PostgresModule } from '@config/PostgresModule'
-import { Repository } from 'typeorm'
-import { getRepositoryToken } from '@nestjs/typeorm'
-import { BondPersistence } from '@port/bond/persistence/model/BondPersistence'
+import { Test, TestingModule } from "@nestjs/testing"
+import { HttpStatus, INestApplication } from "@nestjs/common"
+import request from "supertest"
+import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgresModule } from "@config/PostgresModule"
+import { Repository } from "typeorm"
+import { getRepositoryToken } from "@nestjs/typeorm"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
-describe('GetBondHttpAdapter API Integration', () => {
+describe("GetBondHttpAdapter API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
   let internalBondRepository: Repository<BondPersistence>
@@ -28,7 +28,7 @@ describe('GetBondHttpAdapter API Integration', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix('api/v1/ats')
+    app.setGlobalPrefix("api/v1/ats")
     app.useLogger(false)
     await app.init()
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
@@ -44,30 +44,30 @@ describe('GetBondHttpAdapter API Integration', () => {
     }
   })
 
-  describe('GET /:bondContractId', () => {
-    it('should return 404 Http error when bond is not found', async () => {
-      const bondContractId = '0.0.1234567'
+  describe("GET /:bondContractId", () => {
+    it("should return 404 Http error when bond is not found", async () => {
+      const bondContractId = "0.0.1234567"
 
       await request(app.getHttpServer()).get(`/api/v1/ats/bonds/${bondContractId}`).send().expect(HttpStatus.NOT_FOUND)
     })
 
-    it('should return bond details', async () => {
-      const startingDate = new Date('2025-01-01')
-      const maturityDate = new Date('2030-01-01')
+    it("should return bond details", async () => {
+      const startingDate = new Date("2025-01-01")
+      const maturityDate = new Date("2030-01-01")
 
       const bond = await internalBondRepository.save({
-        contractId: '0.0.6823801',
-        treasuryId: '0.0.6823801',
-        kpiId: '0.0.6823801',
-        name: 'Green Bond',
-        symbol: 'GBND',
+        contractId: "0.0.6823801",
+        treasuryId: "0.0.6823801",
+        kpiId: "0.0.6823801",
+        name: "Green Bond",
+        symbol: "GBND",
         decimals: 18,
-        currency: 'USD',
-        nominalValue: '1000',
+        currency: "USD",
+        nominalValue: "1000",
         startingDate: startingDate,
         maturityDate: maturityDate,
-        maxSupply: '1000000',
-        isin: 'US1234567890',
+        maxSupply: "1000000",
+        isin: "US1234567890",
       })
 
       const response = await request(app.getHttpServer())

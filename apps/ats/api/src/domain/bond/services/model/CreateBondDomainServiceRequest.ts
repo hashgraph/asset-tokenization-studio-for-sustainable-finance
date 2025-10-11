@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, Min, IsDate } from 'class-validator'
-import { Type } from 'class-transformer'
+import { IsNotEmpty, IsString, IsNumber, Min, IsDate } from "class-validator"
+import { Type } from "class-transformer"
 
 export class CreateBondDomainServiceRequest {
   @IsString()

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Handler, QueryHandler, Singleton, Validate } from '@hashgraph/green-bonds-shared-core'
-import { CheckBondExistsDomainService } from '@domain/bond/services/CheckBondExistsDomainService'
-import { GetBondQuery } from './GetBondQuery'
-import { GetBondQueryResponse } from './GetBondQueryResponse'
+import { Handler, QueryHandler, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { CheckBondExistsDomainService } from "@domain/bond/services/CheckBondExistsDomainService"
+import { GetBondQuery } from "./GetBondQuery"
+import { GetBondQueryResponse } from "./GetBondQueryResponse"
 
 @Singleton()
 @Handler(GetBondQuery)

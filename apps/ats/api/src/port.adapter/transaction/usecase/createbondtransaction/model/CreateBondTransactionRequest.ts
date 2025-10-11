@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-import { BaseTransactionRequest } from '@hashgraph/green-bonds-shared-core'
-import { Type } from 'class-transformer'
-import { IsNotEmpty, ValidateNested } from 'class-validator'
-import { SecurityTokenCreationRequest } from '../../../../shared/model/SecurityTokenCreationRequest'
-import { FactoryRegulationRequest } from '../../../../shared/model/FactoryRegulationRequest'
-import { TreasuryRequest } from '@port/shared/model/TreasuryRequest'
-import { KpiRequest } from '@port/shared/model/KpiRequest'
+import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
+import { Type } from "class-transformer"
+import { IsNotEmpty, ValidateNested } from "class-validator"
+import { SecurityTokenCreationRequest } from "../../../../shared/model/SecurityTokenCreationRequest"
+import { FactoryRegulationRequest } from "../../../../shared/model/FactoryRegulationRequest"
+import { TreasuryRequest } from "@port/shared/model/TreasuryRequest"
+import { KpiRequest } from "@port/shared/model/KpiRequest"
 
 export class CreateBondTransactionRequest extends BaseTransactionRequest {
   @ValidateNested()

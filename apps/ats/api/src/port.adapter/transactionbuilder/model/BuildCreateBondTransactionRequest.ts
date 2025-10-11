@@ -1,10 +1,10 @@
-import { BaseBuildTransactionRequest } from '@hashgraph/green-bonds-shared-core'
-import { Type } from 'class-transformer'
-import { IsNotEmpty, ValidateNested } from 'class-validator'
-import { SecurityTokenCreationRequest } from '@port/shared/model/SecurityTokenCreationRequest'
-import { FactoryRegulationRequest } from '@port/shared/model/FactoryRegulationRequest'
-import { KpiRequest } from '@port/shared/model/KpiRequest'
-import { TreasuryRequest } from '@port/shared/model/TreasuryRequest'
+import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
+import { Type } from "class-transformer"
+import { IsNotEmpty, ValidateNested } from "class-validator"
+import { SecurityTokenCreationRequest } from "@port/shared/model/SecurityTokenCreationRequest"
+import { FactoryRegulationRequest } from "@port/shared/model/FactoryRegulationRequest"
+import { KpiRequest } from "@port/shared/model/KpiRequest"
+import { TreasuryRequest } from "@port/shared/model/TreasuryRequest"
 
 export class BuildCreateBondTransactionRequest extends BaseBuildTransactionRequest {
   @ValidateNested()

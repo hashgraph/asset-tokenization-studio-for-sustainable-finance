@@ -1,5 +1,5 @@
-import { BaseEntity } from '@hashgraph/green-bonds-shared-core'
-import { IsNotEmpty, IsString, IsNumber, IsDate } from 'class-validator'
+import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
+import { IsNotEmpty, IsString, IsNumber, IsDate } from "class-validator"
 
 export class Bond extends BaseEntity {
   @IsNotEmpty()
