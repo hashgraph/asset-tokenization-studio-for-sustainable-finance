@@ -21,6 +21,8 @@ export class CreateBondTransactionHttpAdapter implements CreateBondTransactionPo
       factoryContractId,
       request.securityTokenToCreate,
       request.factoryRegulationData,
+      request.treasuryData,
+      request.kpiData,
     )
 
     return this.createBondTransactionAppService.execute(appServiceRequest)

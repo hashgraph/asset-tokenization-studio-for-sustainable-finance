@@ -20,14 +20,16 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   createBondTransaction(req: BuildCreateBondTransactionRequest): BuildTransactionResponse {
+    //TODO change for the correct Suite Bond Factory when deployed
     const contractInterface = IFactory__factory.createInterface()
+
     const environment = this.configService.get<Environment>('HEDERA_NETWORK') || 'testnet'
 
     const securityTokenToCreate = {
       security: {
         arePartitionsProtected: req.securityTokenToCreate.arePartitionsProtected,
         isMultiPartition: req.securityTokenToCreate.isMultiPartition,
-        resolver: req.securityTokenToCreate.resolver,
+        resolver: req.securityTokenToCreate.resolverAddress,
         resolverProxyConfiguration: {
           key: req.securityTokenToCreate.configId,
           version: req.securityTokenToCreate.configVersion,
@@ -35,8 +37,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         rbacs: [
           {
             role: this.DEFAULT_ADMIN_ROLE,
-            members: req.securityTokenToCreate.diamondOwnerAccount
-              ? [req.securityTokenToCreate.diamondOwnerAccount]
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
           },
         ],
@@ -52,15 +54,16 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         },
         clearingActive: req.securityTokenToCreate.clearingActive,
         internalKycActivated: req.securityTokenToCreate.internalKycActivated,
-        externalPauses: req.securityTokenToCreate.externalPausesIds?.map((address) => address.toString()) ?? [],
+        externalPauses: req.securityTokenToCreate.externalPausesAddresses?.map((address) => address.toString()) ?? [],
         externalControlLists:
-          req.securityTokenToCreate.externalControlListsIds?.map((address) => address.toString()) ?? [],
-        externalKycLists: req.securityTokenToCreate.externalKycListsIds?.map((address) => address.toString()) ?? [],
-        compliance: req.securityTokenToCreate.complianceId
-          ? req.securityTokenToCreate.complianceId.toString()
+          req.securityTokenToCreate.externalControlListsAddresses?.map((address) => address.toString()) ?? [],
+        externalKycLists:
+          req.securityTokenToCreate.externalKycListsAddresses?.map((address) => address.toString()) ?? [],
+        compliance: req.securityTokenToCreate.complianceAddress
+          ? req.securityTokenToCreate.complianceAddress.toString()
           : this.EVM_ZERO_ADDRESS,
-        identityRegistry: req.securityTokenToCreate.identityRegistryId
-          ? req.securityTokenToCreate.identityRegistryId.toString()
+        identityRegistry: req.securityTokenToCreate.identityRegistryAddress
+          ? req.securityTokenToCreate.identityRegistryAddress.toString()
           : this.EVM_ZERO_ADDRESS,
       },
       bondDetails: {
@@ -75,7 +78,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         couponRate: '0',
         firstCouponDate: '0',
       },
-      proceedRecipients: req.securityTokenToCreate.proceedRecipientIds?.map((addr) => addr.toString()) ?? [],
+      proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
       proceedRecipientsData:
         req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === '' ? '0x' : data)) ?? [],
     }
@@ -88,6 +91,36 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         listOfCountries: req.factoryRegulationData.countries ?? '',
         info: req.factoryRegulationData.info ?? '',
       },
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const treasuryData = {
+      resolver: req.treasuryData.resolverAddress,
+      resolverProxyConfiguration: {
+        key: req.treasuryData.configId,
+        version: req.treasuryData.configVersion,
+      },
+      rbacs: [
+        {
+          role: this.DEFAULT_ADMIN_ROLE,
+          members: req.treasuryData.ownerAccountAddress
+            ? [req.treasuryData.ownerAccountAddress]
+            : [this.EVM_ZERO_ADDRESS],
+        },
+      ],
+      paymentToken: req.treasuryData.paymentTokenAddress,
+      erc721s: req.treasuryData.erc721Addresses,
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const kpiData = {
+      admin: req.kpiData.adminAddress,
+      rbacs: [
+        {
+          role: this.DEFAULT_ADMIN_ROLE,
+          members: req.kpiData.ownerAccountAddress ? [req.kpiData.ownerAccountAddress] : [this.EVM_ZERO_ADDRESS],
+        },
+      ],
     }
 
     const transactionResponse = this.buildAndSerializeTransaction({

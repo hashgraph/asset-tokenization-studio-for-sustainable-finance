@@ -13,6 +13,8 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
     await this.commandBus.execute(
       new CreateBondCommand(
         await ConverterUtils.getHederaAddressFromEvm(event.bondAddress),
+        await ConverterUtils.getHederaAddressFromEvm(event.bondAddress), // TODO: Replace with treasuryId when the Treasury contract is deployed
+        await ConverterUtils.getHederaAddressFromEvm(event.bondAddress), // TODO: Replace with kpiId when the KPI contract is deployed
         event.bondData.security.erc20MetadataInfo.name,
         event.bondData.security.erc20MetadataInfo.symbol,
         event.bondData.security.erc20MetadataInfo.decimals,
@@ -27,14 +29,11 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
   }
 
   private decodeCurrency(hexCurrency: string): string {
-    const hex = hexCurrency.slice(2)
-    let result = ''
-    for (let i = 0; i < hex.length; i += 2) {
-      const byte = parseInt(hex.slice(i, i + 2), 16)
-      if (!isNaN(byte) && byte > 0) {
-        result += String.fromCharCode(byte)
-      }
-    }
-    return result.replace(/\0/g, '').trim()
+    const hex = hexCurrency.startsWith('0x') ? hexCurrency.slice(2) : hexCurrency
+    const bytes = new Uint8Array(hex.match(/.{1,2}/g)!.map((b) => parseInt(b, 16)))
+    return Array.from(bytes)
+      .map((b) => (b >= 32 && b <= 126 ? String.fromCharCode(b) : ''))
+      .join('')
+      .trim()
   }
 }

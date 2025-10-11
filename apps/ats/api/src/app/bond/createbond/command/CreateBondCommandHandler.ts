@@ -18,6 +18,8 @@ export class CreateBondCommandHandler implements CommandHandler<CreateBondComman
     this.eventBus.publish(
       new CreatedBondEvent(
         bond.contractId,
+        bond.treasuryId,
+        bond.kpiId,
         bond.name,
         bond.symbol,
         bond.isin,

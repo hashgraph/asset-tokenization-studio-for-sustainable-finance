@@ -3,6 +3,8 @@ import { Type } from 'class-transformer'
 import { IsNotEmpty, ValidateNested } from 'class-validator'
 import { SecurityTokenCreationRequest } from '@port/shared/model/SecurityTokenCreationRequest'
 import { FactoryRegulationRequest } from '@port/shared/model/FactoryRegulationRequest'
+import { KpiRequest } from '@port/shared/model/KpiRequest'
+import { TreasuryRequest } from '@port/shared/model/TreasuryRequest'
 
 export class BuildCreateBondTransactionRequest extends BaseBuildTransactionRequest {
   @ValidateNested()
@@ -14,4 +16,14 @@ export class BuildCreateBondTransactionRequest extends BaseBuildTransactionReque
   @Type(() => FactoryRegulationRequest)
   @IsNotEmpty()
   factoryRegulationData: FactoryRegulationRequest
+
+  @ValidateNested()
+  @Type(() => TreasuryRequest)
+  @IsNotEmpty()
+  treasuryData: TreasuryRequest
+
+  @ValidateNested()
+  @Type(() => KpiRequest)
+  @IsNotEmpty()
+  kpiData: KpiRequest
 }
