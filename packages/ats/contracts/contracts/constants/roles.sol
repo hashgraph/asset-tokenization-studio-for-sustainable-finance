@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
+import { _PAUSER_ROLE as PAUSER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/roles.sol";
+
 /**
  * @title Roles Constants
  * @author Green Bonds Platform Team

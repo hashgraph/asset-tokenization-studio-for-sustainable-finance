@@ -17,20 +17,17 @@ import { IKpi } from "./interfaces/IKpi.sol";
 abstract contract FactorySuiteStorageWrapper is IFactorySuite {
     /**
      * @notice Deploys the Bond contract using the ATS Bond Factory implementation
-     * @dev KPI address parameter is included for future ATS Factory integration when
-     *      interest/coupon system links variable-rate bonds with their Oracle data source.
-     *      Current ATS Factory implementation does not yet support this parameter.
+     * @dev KPI address parameter is reserved for future ATS Factory integration
      * @param bondFactoryAddress Address of the ATS Bond Factory contract
      * @param bondData Bond configuration data
      * @param factoryRegulationData Regulation data for compliance
-     * @param kpiAddress Address of the deployed KPI contract (for future use)
      * @return bondAddress Address of the deployed Bond contract
      */
     function _deployBondContract(
         address bondFactoryAddress,
         IAtsFactory.BondData calldata bondData,
         AtsFactoryRegulationData calldata factoryRegulationData,
-        address kpiAddress
+        address // kpiAddress - reserved for future use
     ) internal returns (address bondAddress) {
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
         try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
@@ -93,23 +90,15 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
     }
 
     /**
-     * @notice Configures the Treasury contract with Bond, payment token and environmental assets
-     * @param treasuryAddress Address of the deployed Treasury contract
-     * @param treasuryData Treasury configuration data
-     * @param bondAddress Address of the Bond contract for lifecycle operations
+     * @notice Configures the Treasury contract - implementation pending Treasury interface
+     * @dev Parameters reserved for future Treasury configuration implementation
      */
     function _configureTreasuryContract(
-        address treasuryAddress,
-        TreasuryData calldata treasuryData,
-        address bondAddress
+        address, // treasuryAddress
+        TreasuryData calldata, // treasuryData
+        address // bondAddress
     ) internal {
         // solhint-disable-next-line no-empty-blocks
-        // TODO: Implement Treasury configuration when Treasury contract interface is available
-        // Configuration will include:
-        // - Setting the Bond contract address (provided via bondAddress parameter)
-        // - Setting payment token for coupon/redemption distributions
-        // - Configuring ERC721 portfolio for environmental assets
-        // - Setting up fund allocation capabilities
-        // - Configuring lifecycle obligation management
+        // TODO: Implement when Treasury contract interface is available
     }
 }

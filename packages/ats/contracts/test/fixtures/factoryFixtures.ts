@@ -1,13 +1,7 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Contract } from "ethers";
-import {
-  FactorySuiteFacet,
-  MockAtsFactory,
-  MockBusinessLogicResolver,
-  MockERC20,
-  MockERC721,
-} from "@contracts/index";
+import { FactorySuiteFacet, MockAtsFactory, MockBusinessLogicResolver, MockERC20, MockERC721 } from "@contracts/index";
 
 export interface FactoryFixtureAccounts {
   deployer: SignerWithAddress;
@@ -25,9 +19,7 @@ export interface FactoryFixtureContracts {
   erc721Token2: MockERC721;
 }
 
-export interface FactoryFixture
-  extends FactoryFixtureAccounts,
-    FactoryFixtureContracts {}
+export interface FactoryFixture extends FactoryFixtureAccounts, FactoryFixtureContracts {}
 
 export async function deployFactorySuiteFixture(): Promise<FactoryFixture> {
   const [deployer, admin, user, unauthorized] = await ethers.getSigners();
@@ -36,9 +28,7 @@ export async function deployFactorySuiteFixture(): Promise<FactoryFixture> {
   const MockAtsFactory = await ethers.getContractFactory("MockAtsFactory");
   const mockAtsFactory = await MockAtsFactory.deploy();
 
-  const MockBusinessLogicResolver = await ethers.getContractFactory(
-    "MockBusinessLogicResolver",
-  );
+  const MockBusinessLogicResolver = await ethers.getContractFactory("MockBusinessLogicResolver");
   const mockResolver = await MockBusinessLogicResolver.deploy();
 
   const MockERC20 = await ethers.getContractFactory("MockERC20");
@@ -49,15 +39,13 @@ export async function deployFactorySuiteFixture(): Promise<FactoryFixture> {
   const erc721Token2 = await MockERC721.deploy("Green Certificates", "GC");
 
   // Deploy FactorySuiteFacet
-  const FactorySuiteFacet =
-    await ethers.getContractFactory("FactorySuiteFacet");
+  const FactorySuiteFacet = await ethers.getContractFactory("FactorySuiteFacet");
   const factorySuiteFacet = await FactorySuiteFacet.deploy();
 
   await factorySuiteFacet.deployed();
 
   // Grant DEPLOYER role to admin
-  const DEPLOYER_ROLE =
-    "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283";
+  const DEPLOYER_ROLE = "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283";
   await factorySuiteFacet.grantRole(DEPLOYER_ROLE, admin.address);
 
   return {
@@ -84,8 +72,7 @@ export interface TestDataSets {
 }
 
 export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
-  const { mockResolver, paymentToken, erc721Token1, erc721Token2, admin } =
-    fixture;
+  const { mockResolver, paymentToken, erc721Token1, erc721Token2, admin } = fixture;
 
   const validBondData = {
     name: "Green Bond",
@@ -116,9 +103,7 @@ export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
     },
     rbacs: [
       {
-        role: ethers.utils.keccak256(
-          ethers.utils.toUtf8Bytes("TREASURY_ADMIN"),
-        ),
+        role: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("TREASURY_ADMIN")),
         account: admin.address,
       },
     ],

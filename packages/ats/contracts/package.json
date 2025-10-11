@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
+    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/asset-tokenization-studio/packages/ats/contracts",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
