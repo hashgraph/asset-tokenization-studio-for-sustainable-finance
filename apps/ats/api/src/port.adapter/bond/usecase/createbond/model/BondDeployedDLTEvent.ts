@@ -22,6 +22,56 @@ export class BondDeployedDLTEvent extends DLTEvent {
   }
 }
 
+//TODO: Uncomment and use when the Treasury and KPI contracts are deployed
+// export class BondDeployedDLTEvent extends DLTEvent {
+//   readonly operator: string
+//   readonly bondAddress: string
+//   readonly treasuryAddress: string
+//   readonly kpiAddress: string
+//   readonly bondData: BondData
+//   readonly regulationData: FactoryRegulationData
+//   readonly treasuryData: TreasuryData
+//   readonly kpiData: KpiData
+
+//   constructor(
+//     contractId: string,
+//     transactionHash: string,
+//     operator: string,
+//     bondAddress: string,
+//     treasuryAddress: string,
+//     kpiAddress: string,
+//     bondData: BondData,
+//     regulationData: FactoryRegulationData,
+//     treasuryData: TreasuryData,
+//     kpiData: KpiData,
+//   ) {
+//     super(contractId, transactionHash)
+//     this.operator = operator
+//     this.bondAddress = bondAddress
+//     this.treasuryAddress = treasuryAddress
+//     this.kpiAddress = kpiAddress
+//     this.bondData = bondData
+//     this.regulationData = regulationData
+//     this.treasuryData = treasuryData
+//     this.kpiData = kpiData
+//   }
+// }
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface TreasuryData {
+  resolver: string
+  resolverProxyConfiguration: ResolverProxyConfiguration
+  rbacs: Rbac[]
+  paymentToken: string
+  erc721s: string[]
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface KpiData {
+  admin: string
+  rbacs: Rbac[]
+}
+
 interface BondData {
   security: SecurityData
   bondDetails: BondDetailsData

@@ -7,6 +7,12 @@ export class CreateBondDomainServiceRequest {
   contractId: string
 
   @IsString()
+  treasuryId: string
+
+  @IsString()
+  kpiId: string
+
+  @IsString()
   @IsNotEmpty()
   name: string
 

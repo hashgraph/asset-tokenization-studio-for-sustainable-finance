@@ -69,6 +69,8 @@ describe('GetBondsHttpAdapter API Integration', () => {
 
       const bond = await internalBondRepository.save({
         contractId: '0.0.6823801',
+        treasuryId: '0.0.6823801',
+        kpiId: '0.0.6823801',
         name: 'Green Bond',
         symbol: 'GBND',
         decimals: 18,
@@ -95,6 +97,8 @@ describe('GetBondsHttpAdapter API Integration', () => {
       expect(bondResponse).toMatchObject({
         id: bond.id,
         contractId: bond.contractId,
+        treasuryId: bond.treasuryId,
+        kpiId: bond.kpiId,
         name: bond.name,
         symbol: bond.symbol,
         decimals: bond.decimals,
@@ -111,6 +115,8 @@ describe('GetBondsHttpAdapter API Integration', () => {
       for (let i = 1; i <= 3; i++) {
         await internalBondRepository.save({
           contractId: `0.0.${6824000 + i}`,
+          treasuryId: `0.0.${6824000 + i}`,
+          kpiId: `0.0.${6824000 + i}`,
           name: `Green Bond ${i}`,
           symbol: `GBND${i}`,
           decimals: 18,
@@ -141,6 +147,8 @@ describe('GetBondsHttpAdapter API Integration', () => {
 
       await internalBondRepository.save({
         contractId: '0.0.6825001',
+        treasuryId: '0.0.6825001',
+        kpiId: '0.0.6825001',
         name: 'Zebra Bond',
         symbol: 'ZBND',
         decimals: 18,
@@ -154,6 +162,8 @@ describe('GetBondsHttpAdapter API Integration', () => {
 
       await internalBondRepository.save({
         contractId: '0.0.6825002',
+        treasuryId: '0.0.6825002',
+        kpiId: '0.0.6825002',
         name: 'Alpha Bond',
         symbol: 'ABND',
         decimals: 18,

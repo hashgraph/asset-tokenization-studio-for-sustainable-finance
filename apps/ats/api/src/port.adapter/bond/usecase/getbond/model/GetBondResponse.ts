@@ -5,6 +5,8 @@ import { GetBondQueryResponse } from '@app/bond/getbond/query/GetBondQueryRespon
 export class GetBondResponse {
   readonly id: string
   readonly contractId: string
+  readonly treasuryId: string
+  readonly kpiId: string
   readonly name: string
   readonly symbol: string
   readonly decimals: number
@@ -20,6 +22,8 @@ export class GetBondResponse {
     Object.assign(response, {
       id: queryResponse.id,
       contractId: queryResponse.contractId,
+      treasuryId: queryResponse.treasuryId,
+      kpiId: queryResponse.kpiId,
       name: queryResponse.name,
       symbol: queryResponse.symbol,
       decimals: queryResponse.decimals,

@@ -6,6 +6,12 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: 'varchar', length: 255, unique: true })
   contractId: string
 
+  @Column({ type: 'varchar', length: 255, unique: true })
+  treasuryId: string
+
+  @Column({ type: 'varchar', length: 255, unique: true })
+  kpiId: string
+
   @Column({ type: 'varchar', length: 255 })
   name: string
 
@@ -18,7 +24,7 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: 'int' })
   decimals: number
 
-  @Column({ type: 'char', length: 3 })
+  @Column({ type: 'varchar', length: 50 })
   currency: string
 
   @Column({ type: 'numeric', precision: 78, scale: 0 })

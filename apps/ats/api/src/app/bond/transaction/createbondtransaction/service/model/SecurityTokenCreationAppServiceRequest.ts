@@ -42,27 +42,27 @@ export class SecurityTokenCreationAppServiceRequest {
 
   @IsOptional()
   @IsString({ each: true })
-  externalPausesIds?: string[]
+  externalPausesAddresses?: string[]
 
   @IsOptional()
   @IsString({ each: true })
-  externalControlListsIds?: string[]
+  externalControlListsAddresses?: string[]
 
   @IsOptional()
   @IsString({ each: true })
-  externalKycListsIds?: string[]
+  externalKycListsAddresses?: string[]
 
   @IsOptional()
   @IsString()
-  diamondOwnerAccount?: string
+  diamondOwnerAccountAddress?: string
 
   @IsOptional()
   @IsString()
-  complianceId?: string
+  complianceAddress?: string
 
   @IsOptional()
   @IsString()
-  identityRegistryId?: string
+  identityRegistryAddress?: string
 
   @IsString()
   @IsNotEmpty()
@@ -95,11 +95,11 @@ export class SecurityTokenCreationAppServiceRequest {
 
   @IsString()
   @IsNotEmpty()
-  resolver: string
+  resolverAddress: string
 
   @IsOptional()
   @IsString({ each: true })
-  proceedRecipientIds?: string[]
+  proceedRecipientAddresses?: string[]
 
   @IsOptional()
   @IsString({ each: true })

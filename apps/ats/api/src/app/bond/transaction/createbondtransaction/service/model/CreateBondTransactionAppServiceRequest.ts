@@ -3,6 +3,8 @@ import { Type } from 'class-transformer'
 import { IsNotEmpty, ValidateNested } from 'class-validator'
 import { SecurityTokenCreationAppServiceRequest } from './SecurityTokenCreationAppServiceRequest'
 import { FactoryRegulationAppServiceRequest } from './FactoryRegulationAppServiceRequest'
+import { TreasuryAppServiceRequest } from './TreasuryAppServiceRequest'
+import { KpiAppServiceRequest } from './KpiAppServiceRequest'
 
 export class CreateBondTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @ValidateNested()
@@ -15,15 +17,29 @@ export class CreateBondTransactionAppServiceRequest extends BaseTransactionAppSe
   @IsNotEmpty()
   factoryRegulationData: FactoryRegulationAppServiceRequest
 
+  @ValidateNested()
+  @Type(() => TreasuryAppServiceRequest)
+  @IsNotEmpty()
+  treasuryData: TreasuryAppServiceRequest
+
+  @ValidateNested()
+  @Type(() => KpiAppServiceRequest)
+  @IsNotEmpty()
+  kpiData: KpiAppServiceRequest
+
   constructor(
     format: string,
     accountId: string,
     contractId: string,
     securityTokenToCreate: SecurityTokenCreationAppServiceRequest,
     factoryRegulationData: FactoryRegulationAppServiceRequest,
+    treasuryData: TreasuryAppServiceRequest,
+    kpiData: KpiAppServiceRequest,
   ) {
     super(format, accountId, contractId)
     this.securityTokenToCreate = securityTokenToCreate
     this.factoryRegulationData = factoryRegulationData
+    this.treasuryData = treasuryData
+    this.kpiData = kpiData
   }
 }

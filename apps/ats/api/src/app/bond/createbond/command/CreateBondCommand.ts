@@ -8,6 +8,12 @@ export class CreateBondCommand extends Command<void> {
   contractId: string
 
   @IsString()
+  treasuryId: string
+
+  @IsString()
+  kpiId: string
+
+  @IsString()
   @IsNotEmpty()
   name: string
 
@@ -47,6 +53,8 @@ export class CreateBondCommand extends Command<void> {
 
   constructor(
     contractId: string,
+    treasuryId: string,
+    kpiId: string,
     name: string,
     symbol: string,
     decimals: number,
@@ -59,6 +67,8 @@ export class CreateBondCommand extends Command<void> {
   ) {
     super()
     this.contractId = contractId
+    this.treasuryId = treasuryId
+    this.kpiId = kpiId
     this.name = name
     this.symbol = symbol
     this.isin = isin

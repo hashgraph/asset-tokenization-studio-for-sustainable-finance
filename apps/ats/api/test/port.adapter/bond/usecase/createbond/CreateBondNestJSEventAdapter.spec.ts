@@ -115,6 +115,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       expect(savedBond).toBeDefined()
       expect(savedBond).not.toBeNull()
       expect(savedBond!.contractId).toBe('0.0.6974684')
+      expect(savedBond!.treasuryId).toBe('0.0.6974684')
+      expect(savedBond!.kpiId).toBe('0.0.6974684')
       expect(savedBond!.name).toBe(bondData.security.erc20MetadataInfo.name)
       expect(savedBond!.symbol).toBe(bondData.security.erc20MetadataInfo.symbol)
       expect(savedBond!.isin).toBe(bondData.security.erc20MetadataInfo.isin)
@@ -129,6 +131,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
     it('should throw BondFoundError when bond with same address already exists', async () => {
       const existingBond = {
         contractId: '0.0.6823801',
+        treasuryId: '0.0.6823801',
+        kpiId: '0.0.6823801',
         name: 'Existing Bond',
         symbol: 'EB',
         isin: 'US9876543210',
@@ -216,6 +220,8 @@ describe('CreateBondNestJSEventAdapter Integration', () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           contractId: '0.0.6974684',
+          treasuryId: '0.0.6974684',
+          kpiId: '0.0.6974684',
           name: bondData.security.erc20MetadataInfo.name,
           symbol: bondData.security.erc20MetadataInfo.symbol,
           isin: bondData.security.erc20MetadataInfo.isin,

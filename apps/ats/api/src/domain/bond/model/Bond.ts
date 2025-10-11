@@ -3,7 +3,16 @@ import { IsNotEmpty, IsString, IsNumber, IsDate } from 'class-validator'
 
 export class Bond extends BaseEntity {
   @IsNotEmpty()
+  @IsString()
   contractId: string
+
+  @IsNotEmpty()
+  @IsString()
+  treasuryId: string
+
+  @IsNotEmpty()
+  @IsString()
+  kpiId: string
 
   @IsNotEmpty()
   @IsString()
