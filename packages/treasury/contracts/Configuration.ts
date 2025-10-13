@@ -114,7 +114,7 @@ export default class Configuration {
         )
     }
 
-    public static get usdcAddresses(): Record<Network, string> {
+    public static get usdcAddress(): Record<Network, string> {
         return NETWORKS.reduce(
             (result, network) => {
                 result[network] = Configuration._getEnvironmentVariable({
@@ -124,18 +124,6 @@ export default class Configuration {
                 return result
             },
             {} as Record<Network, string>
-        )
-    }
-
-    public static get assetAddresses(): Record<Network, string[]> {
-        return NETWORKS.reduce(
-            (result, network) => {
-                result[network] = Configuration._getEnvironmentVariableList({
-                    name: `${network.toUpperCase()}_ASSET_ADDRESS_#`,
-                })
-                return result
-            },
-            {} as Record<Network, string[]>
         )
     }
 

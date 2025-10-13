@@ -13,10 +13,9 @@ import Configuration from '@configuration'
 import 'hardhat/types/config'
 
 declare module 'hardhat/types/config' {
-    interface HardhatNetworkUserConfig {
-        assetAddresses?: string[]
-        usdcAddress?: string
-    }
+  interface HardhatNetworkUserConfig {
+    usdcAddress?: string;
+  }
 }
 
 const config: HardhatUserConfig = {
@@ -36,12 +35,19 @@ const config: HardhatUserConfig = {
         cache: './cache',
         artifacts: './artifacts',
     },
-    defaultNetwork: 'hardhat',
+    defaultNetwork: 'testnet',
     networks: {
         hardhat: {
+            accounts: {
+              count: 2,
+              accountsBalance: "1000000000000000000000000", // 1,000,000 ETH per account
+            },
             chainId: 1337,
-            blockGasLimit: 30_000_000,
+            blockGasLimit: 2000000000000,
             hardfork: 'london',
+            forking: {
+              url: Configuration.endpoints.testnet.jsonRpc
+            },
         },
         local: {
             url: Configuration.endpoints.local.jsonRpc,
@@ -56,8 +62,7 @@ const config: HardhatUserConfig = {
         testnet: {
             url: Configuration.endpoints.testnet.jsonRpc,
             accounts: Configuration.privateKeys.testnet,
-            assetAddresses: Configuration.assetAddresses.testnet,
-            usdcAddress: Configuration.usdcAddresses.testnet,
+            usdcAddress: Configuration.usdcAddress.testnet,
             timeout: 120_000,
         },
         mainnet: {
@@ -65,6 +70,13 @@ const config: HardhatUserConfig = {
             accounts: Configuration.privateKeys.mainnet,
             timeout: 120_000,
         },
+    },
+    coverage: {
+      skipFiles: [
+        "test/",
+        "interfaces/",
+        "facets/"
+      ],
     },
     contractSizer: {
         alphaSort: true,

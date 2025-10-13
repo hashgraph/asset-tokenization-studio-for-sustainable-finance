@@ -3,28 +3,28 @@ pragma solidity 0.8.18;
 
 interface IPortfolio {
     /**
-     * @dev Emitted when a new ERC721 token is added to the treasury
+     * @dev Emitted when a new environmental asset token is added to the treasury
      *
-     * @param operator The operator who call the function to add the ERC721 token
-     * @param erc721 The added ERC721 token
+     * @param operator The operator who call the function to add the environmental asset token
+     * @param environmentalAsset The added environmental asset token
      */
-    event ERC721Added(address indexed operator, address erc721);
+    event EnvironmentalAssetAdded(address indexed operator, address environmentalAsset);
 
     /**
-     * @dev Emitted when an existing ERC721 token is removed from the treasury
+     * @dev Emitted when an existing environmental asset token is removed from the treasury
      *
-     * @param operator The operator who call the function to remove the ERC721 token
-     * @param erc721 The removed ERC721 token
+     * @param operator The operator who call the function to remove the environmental asset token
+     * @param environmentalAsset The removed environmental asset token
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    event ERC721Removed(
+    event EnvironmentalAssetRemoved(
         address indexed operator,
-        address erc721,
+        address environmentalAsset,
         int256 dissociationError
     );
 
     /**
-     * @dev Emitted when an ERC721 token or a payment token is associated to the treasury the treasury
+     * @dev Emitted when an environmental asset token or a payment token is associated to the treasury the treasury
      *
      * @param token The token that was associated to the treasury
      */
@@ -42,16 +42,16 @@ interface IPortfolio {
     );
 
     /**
-     * @dev Error thrown when the association of an ERC721 token or a payment token to the treasury failed
+     * @dev Error thrown when the association of an environmental asset token or a payment token to the treasury failed
      *
-     * @param token The ERC721 token or the payment token that was tried to associate to the treasury
+     * @param token The environmental asset token or the payment token that was tried to associate to the treasury
      */
     error AssociateTokenFailed(address token);
 
     /**
-     * @dev Error thrown when the dissociation of an ERC721 token or a payment token from the treasury failed
+     * @dev Error thrown when the dissociation of an environmental asset token or a payment token from the treasury failed
      *
-     * @param token The ERC721 token or the payment token that was tried to dissociate from the treasury
+     * @param token The environmental asset token or the payment token that was tried to dissociate from the treasury
      * @param dissociationError The error code
      */
     error DissociateTokenFailed(address token, int256 dissociationError);
@@ -60,31 +60,31 @@ interface IPortfolio {
      * @dev Initialize the portfolio facet
      *
      * @param paymentToken The address of the payment token to associate to the treasury
-     * @param erc721 The list of ERC721 tokens contracts to associate to the treasury
+     * @param environmentalAsset The list of environmental asset tokens contracts to associate to the treasury
      */
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
-        address[] memory erc721
+        address[] memory environmentalAsset
     ) external;
 
     /**
-     * @dev Add a new ERC721 token contract to the treasury
+     * @dev Add a new environmental asset token contract to the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to add to the treasury
+     * @param environmentalAsset The address of the environmental asset token contract to add to the treasury
      */
-    function addERC721Token(address erc721) external;
+    function addEnvironmentalAssetToken(address environmentalAsset) external;
 
     /**
-     * @dev Remove an existing ERC721 token contract from the treasury
+     * @dev Remove an existing environmental asset token contract from the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to remove from the treasury
+     * @param environmentalAsset The address of the environmental asset token contract to remove from the treasury
      *
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function removeERC721Token(
-        address erc721
-    ) external returns (int256 dissociationError);
+    function removeEnvironmentalAssetToken(
+        address environmentalAsset
+    ) external returns(int256 dissociationError);
 
     /**
      * @dev Update the payment token associated to the treasury
@@ -94,31 +94,31 @@ interface IPortfolio {
     function updatePaymentToken(address paymentToken) external;
 
     /**
-     * @dev Dissociate an ERC721 token or a payment token from the treasury
+     * @dev Dissociate an environmental asset token or a payment token from the treasury
      *
      * @param token The address of the token to be dissociated
      */
     function dissociateToken(address token) external;
 
     /**
-     * @dev Get the total amount of ERC721 tokens associated to the treasury
+     * @dev Get the total amount of environmental asset tokens associated to the treasury
      *
-     * @return total The total amount of ERC721 tokens associated to the treasury
+     * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalERC721Tokens() external view returns (uint256 total);
+    function getTotalEnvironmentalAssetTokens() external view returns (uint256 total);
 
     /**
-     * @dev Get a page list of ERC721 tokens associated to the treasury
+     * @dev Get a page list of environmental asset tokens associated to the treasury
      *
-     * @param pageIndex The page index of ERC721 tokens associated to the treasury
-     * @param pageLength The page length of ER721 tokens associated to the treasury
+     * @param pageIndex The page index of environmental asset tokens associated to the treasury
+     * @param pageLength The page length of environmental asset tokens associated to the treasury
      *
-     * @return erc721 The page list of ERC721 tokens associated to the treasury
+     * @return environmentalAsset The page list of environmental asset tokens associated to the treasury
      */
-    function getERC721Tokens(
+    function getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
-    ) external view returns (address[] memory erc721);
+    ) external view returns (address[] memory environmentalAsset);
 
     /**
      * @dev Get the payment token associated to the treasury

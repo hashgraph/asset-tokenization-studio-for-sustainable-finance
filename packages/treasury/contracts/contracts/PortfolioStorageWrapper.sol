@@ -24,20 +24,20 @@ abstract contract PortfolioStorageWrapper is
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct PortfolioStorage {
-        EnumerableSet.AddressSet erc721s;
+        EnumerableSet.AddressSet environmentalAssetss;
         address paymentToken;
         bool initialized;
     }
 
     /**
-     * @dev Add a new ERC721 token contract to the treasury
+     * @dev Add a new EnvironmentalAsset token contract to the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to add to the treasury
+     * @param environmentalAssets The address of the EnvironmentalAsset token contract to add to the treasury
      */
-    function _addERC721Token(address erc721) internal returns (bool) {
-        if (!_portfolioStorage().erc721s.contains(erc721)) {
-            if (_portfolioStorage().erc721s.add(erc721)) {
-                _associateToken(erc721);
+    function _addEnvironmentalAssetToken(address environmentalAssets) internal returns (bool) {
+        if (!_portfolioStorage().environmentalAssetss.contains(environmentalAssets)) {
+            if (_portfolioStorage().environmentalAssetss.add(environmentalAssets)) {
+                _associateToken(environmentalAssets);
                 return true;
             }
         }
@@ -45,27 +45,27 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /**
-     * @dev Remove an existing ERC721 token contract from the treasury
+     * @dev Remove an existing EnvironmentalAsset token contract from the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to remove from the treasury
+     * @param environmentalAssets The address of the EnvironmentalAsset token contract to remove from the treasury
      *
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function _removeERC721Token(
-        address erc721
+    function _removeEnvironmentalAssetToken(
+        address environmentalAssets
     ) internal returns (int256 dissociationError) {
-        _portfolioStorage().erc721s.remove(erc721);
-        dissociationError = _dissociateTokenAllowNotAssociated(erc721);
+        _portfolioStorage().environmentalAssetss.remove(environmentalAssets);
+        dissociationError = _dissociateTokenAllowNotAssociated(environmentalAssets);
     }
 
     /*
-     * @dev Set the ERC721 tokens list
+     * @dev Set the EnvironmentalAsset tokens list
      *
-     * @param erc721s The ERC721 tokens list to be set
+     * @param environmentalAssetss The EnvironmentalAsset tokens list to be set
      */
-    function _setErc721s(address[] memory erc721s) internal {
-        for (uint256 index; index < erc721s.length; ) {
-            _addERC721Token(erc721s[index]);
+    function _setEnvironmentalAssets(address[] memory environmentalAssetss) internal {
+        for (uint256 index; index < environmentalAssetss.length; ) {
+            _addEnvironmentalAssetToken(environmentalAssetss[index]);
             unchecked {
                 ++index;
             }
@@ -137,17 +137,26 @@ abstract contract PortfolioStorageWrapper is
         }
     }
 
-    /*
-     * @dev Get the list of ERC721 tokens
+    /**
+     * @dev Get the total amount of EnvironmentalAsset tokens associated to the treasury
      *
-     * @return erc721s The ERC721 tokens list
+     * @return total The total amount of EnvironmentalAsset tokens associated to the treasury
      */
-    function _getErc721s()
+    function _getTotalEnvironmentalAssetTokens() internal view returns (uint256 total) {
+        return _portfolioStorage().environmentalAssetss.length();
+    }
+
+    /*
+     * @dev Get the list of EnvironmentalAsset tokens
+     *
+     * @return environmentalAssetss The EnvironmentalAsset tokens list
+     */
+    function _getEnvironmentalAssets()
         internal
         view
-        returns (EnumerableSet.AddressSet storage erc721s)
+        returns (EnumerableSet.AddressSet storage environmentalAssetss)
     {
-        erc721s = _portfolioStorage().erc721s;
+        environmentalAssetss = _portfolioStorage().environmentalAssetss;
     }
 
     /*
