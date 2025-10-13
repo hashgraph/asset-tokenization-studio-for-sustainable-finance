@@ -5,8 +5,8 @@ pragma solidity 0.8.18;
 
 import {IProceedsManagement} from './interfaces/IProceedsManagement.sol';
 import {
-    LifeCycleCashFlowStorageWrapper
-} from './LifeCycleCashFlowStorageWrapper.sol';
+    PortfolioStorageWrapper
+} from './PortfolioStorageWrapper.sol';
 // TODO: Waiting, to uncomment, for breaking bonds team to deliver a new release of ATS contracts package
 /*import {
     IProceedRecipients
@@ -16,7 +16,7 @@ import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 abstract contract ProceedsManagementStorageWrapper is
     IProceedsManagement,
-    LifeCycleCashFlowStorageWrapper
+    PortfolioStorageWrapper
 {
     /**
      * @dev Check whether a proceeds recipient belongs to the bond
@@ -45,7 +45,7 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param amount The amount of payment tokens to be transferred
      */
     function _transferPaymentToken(address to, uint256 amount) internal {
-        IERC20 paymentToken = _lifeCycleCashFlowStorage().paymentToken;
+        IERC20 paymentToken = IERC20(_getPaymentToken());
         if (paymentToken.balanceOf(address(this)) < amount) {
             revert NotEnoughBalance(amount);
         }
