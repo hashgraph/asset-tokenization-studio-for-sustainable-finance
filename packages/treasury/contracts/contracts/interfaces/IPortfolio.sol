@@ -24,13 +24,6 @@ interface IPortfolio {
     );
 
     /**
-     * @dev Emitted when an environmental asset token or a payment token is associated to the treasury the treasury
-     *
-     * @param token The token that was associated to the treasury
-     */
-    event TokenAssociated(address token);
-
-    /**
      * @dev Emitted when the payment token is updated
      *
      * @param operator The operator who call the function to update the payment token
@@ -40,21 +33,6 @@ interface IPortfolio {
         address indexed operator,
         address newPaymentToken
     );
-
-    /**
-     * @dev Error thrown when the association of an environmental asset token or a payment token to the treasury failed
-     *
-     * @param token The environmental asset token or the payment token that was tried to associate to the treasury
-     */
-    error AssociateTokenFailed(address token);
-
-    /**
-     * @dev Error thrown when the dissociation of an environmental asset token or a payment token from the treasury failed
-     *
-     * @param token The environmental asset token or the payment token that was tried to dissociate from the treasury
-     * @param dissociationError The error code
-     */
-    error DissociateTokenFailed(address token, int256 dissociationError);
 
     /**
      * @dev Initialize the portfolio facet

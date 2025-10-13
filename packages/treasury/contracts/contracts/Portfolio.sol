@@ -3,6 +3,7 @@ pragma solidity 0.8.18;
 
 // solhint-disable no-empty-blocks
 
+import {IPortfolio} from './interfaces/IPortfolio.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     PORTFOLIO_MANAGER_ROLE,
@@ -12,7 +13,7 @@ import {
 import {Pause} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
 import {AccessControl} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
-abstract contract Portfolio is PortfolioStorageWrapper, Pause, AccessControl {
+abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper, Pause, AccessControl {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
