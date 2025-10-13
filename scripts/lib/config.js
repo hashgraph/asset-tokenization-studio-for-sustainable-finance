@@ -2,7 +2,8 @@ require('dotenv').config();
 
 // Configuration
 const config = {
-  ATS_API_URL: process.env.ATS_API_URL || 'http://localhost:3000',
+  GATEWAY_API_URL: process.env.GATEWAY_API_URL || 'http://localhost:3000',
+  API_KEY: process.env.API_KEY || 'demo-key-1',
   RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
   BLOCKCHAIN_FORMAT: process.env.BLOCKCHAIN_FORMAT || 'hedera',
   HEDERA_PRIVATE_KEY: process.env.HEDERA_PRIVATE_KEY,

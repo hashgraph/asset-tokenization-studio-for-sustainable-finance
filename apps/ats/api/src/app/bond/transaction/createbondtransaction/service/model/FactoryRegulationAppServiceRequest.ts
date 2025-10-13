@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from "class-validator"
+import { IsBoolean, IsNumber, IsOptional, IsString } from "class-validator"
 
 export class FactoryRegulationAppServiceRequest {
   @IsNumber()
@@ -12,11 +12,11 @@ export class FactoryRegulationAppServiceRequest {
   @IsBoolean()
   isCountryControlListWhiteList: boolean
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  countries: string
+  countries?: string
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  info: string
+  info?: string
 }

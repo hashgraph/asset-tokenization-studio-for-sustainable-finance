@@ -74,13 +74,13 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       },
       //TODO remove this when contracts are updated
       couponDetails: {
-        couponFrequency: "0",
-        couponRate: "0",
-        firstCouponDate: "0",
+        couponFrequency: "2592000",
+        couponRate: "1000",
+        firstCouponDate: "1761692400",
       },
-      proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
-      proceedRecipientsData:
-        req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
+      // proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
+      // proceedRecipientsData:
+      //   req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
     }
 
     const factoryRegulationData = {

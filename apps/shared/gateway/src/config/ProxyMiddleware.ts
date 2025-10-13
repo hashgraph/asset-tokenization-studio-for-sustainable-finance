@@ -23,7 +23,17 @@ export class ProxyMiddleware implements NestMiddleware {
   private readonly proxy = createProxyMiddleware({
     changeOrigin: true,
     proxyTimeout: +(process.env.TIMEOUT ?? 30000),
+    selfHandleResponse: false,
     on: {
+      proxyReq: (proxyReq, req) => {
+        if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+          const rawBody = (req as any).rawBody
+          if (rawBody) {
+            proxyReq.setHeader("Content-Length", rawBody.length)
+            proxyReq.write(rawBody)
+          }
+        }
+      },
       error: (err, req, res: http.ServerResponse) => {
         const statusCode = "code" in err ? getStatusCode((err as any).code) : +HttpStatus.INTERNAL_SERVER_ERROR
         let httpException
