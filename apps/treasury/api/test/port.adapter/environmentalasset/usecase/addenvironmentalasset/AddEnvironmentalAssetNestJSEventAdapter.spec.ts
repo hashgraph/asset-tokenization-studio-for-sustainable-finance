@@ -51,6 +51,7 @@ describe("AddEnvironmentalAsset API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.222",
         bondContractId: "0.0.500",
+        paused: false,
       })
 
       let publishedEvent
@@ -83,6 +84,7 @@ describe("AddEnvironmentalAsset API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.222",
         bondContractId: "0.0.500",
+        paused: false,
       })
 
       const environmentalAsset = await environmentalAssetRepository.save({
