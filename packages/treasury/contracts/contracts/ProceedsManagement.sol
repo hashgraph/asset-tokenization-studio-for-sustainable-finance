@@ -7,12 +7,34 @@ import {IProceedsManagement} from './interfaces/IProceedsManagement.sol';
 import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';
-import {PROCEEDS_FULL_MANAGER, FUNDS_MANAGER_ROLE} from './constants/roles.sol';
+import {
+    DEFAULT_ADMIN_ROLE,
+    PAUSER_ROLE,
+    PROCEEDS_FULL_MANAGER,
+    FUNDS_MANAGER_ROLE
+} from './constants/roles.sol';
+import {
+    Pause
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
+import {
+    AccessControl
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
 abstract contract ProceedsManagement is
     IProceedsManagement,
-    ProceedsManagementStorageWrapper
+    ProceedsManagementStorageWrapper,
+    Pause,
+    AccessControl
 {
+    // solhint-disable-next-line func-name-mixedcase
+    function initialize_ProceedsManagement(
+    ) external {
+        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _grantRole(PROCEEDS_FULL_MANAGER, _msgSender());
+        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
+        _grantRole(PAUSER_ROLE, _msgSender());
+    }
+
     /*
      * @dev Transfers an amount of payment tokens to an address
      *

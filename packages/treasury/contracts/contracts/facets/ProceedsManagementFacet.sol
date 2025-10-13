@@ -10,7 +10,7 @@ import {
     IStaticFunctionSelectors
 } from '@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol';
 
-contract ProceeesManagementFacet is
+contract ProceedsManagementFacet is
     ProceedsManagement,
     IStaticFunctionSelectors
 {
