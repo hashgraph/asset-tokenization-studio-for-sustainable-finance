@@ -2,10 +2,10 @@
 pragma solidity 0.8.18;
 // solhint-disable max-line-length
 
+bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
+
 // keccak256('green.bonds.treasury.role.portfolio.manager');
 bytes32 constant PORTFOLIO_MANAGER_ROLE = 0x8734926a1c1200d18e737f9b81dd7f424b59efc1eb35b9afb5fee0faa29e1077;
-
-bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
 
 // keccak256('green.bonds.treasury.role.pauser');
 bytes32 constant PAUSER_ROLE = 0xf023e2d8253f7bbe212713d70a1babc4fc8b7e771b9775af6ca3946d75ba0424;
