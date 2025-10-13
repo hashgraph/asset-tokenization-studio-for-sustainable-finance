@@ -2,7 +2,6 @@
 pragma solidity 0.8.18;
 
 interface IPortfolioStorageWrapper {
-
     /**
      * @dev Emitted when an environmental asset token or a payment token is associated to the treasury the treasury
      *

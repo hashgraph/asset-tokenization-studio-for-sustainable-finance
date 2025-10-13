@@ -3,7 +3,9 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import {IPortfolioStorageWrapper} from './interfaces/IPortfolioStorageWrapper.sol';
+import {
+    IPortfolioStorageWrapper
+} from './interfaces/IPortfolioStorageWrapper.sol';
 import {PORTFOLIO_STORAGE_POSITION} from './constants/storagePositions.sol';
 import {
     Common as AtsCommon
@@ -34,9 +36,19 @@ abstract contract PortfolioStorageWrapper is
      *
      * @param environmentalAssets The address of the EnvironmentalAsset token contract to add to the treasury
      */
-    function _addEnvironmentalAssetToken(address environmentalAssets) internal returns (bool) {
-        if (!_portfolioStorage().environmentalAssetss.contains(environmentalAssets)) {
-            if (_portfolioStorage().environmentalAssetss.add(environmentalAssets)) {
+    function _addEnvironmentalAssetToken(
+        address environmentalAssets
+    ) internal returns (bool) {
+        if (
+            !_portfolioStorage().environmentalAssetss.contains(
+                environmentalAssets
+            )
+        ) {
+            if (
+                _portfolioStorage().environmentalAssetss.add(
+                    environmentalAssets
+                )
+            ) {
                 _associateToken(environmentalAssets);
                 return true;
             }
@@ -55,7 +67,9 @@ abstract contract PortfolioStorageWrapper is
         address environmentalAssets
     ) internal returns (int256 dissociationError) {
         _portfolioStorage().environmentalAssetss.remove(environmentalAssets);
-        dissociationError = _dissociateTokenAllowNotAssociated(environmentalAssets);
+        dissociationError = _dissociateTokenAllowNotAssociated(
+            environmentalAssets
+        );
     }
 
     /*
@@ -63,7 +77,9 @@ abstract contract PortfolioStorageWrapper is
      *
      * @param environmentalAssetss The EnvironmentalAsset tokens list to be set
      */
-    function _setEnvironmentalAssets(address[] memory environmentalAssetss) internal {
+    function _setEnvironmentalAssets(
+        address[] memory environmentalAssetss
+    ) internal {
         for (uint256 index; index < environmentalAssetss.length; ) {
             _addEnvironmentalAssetToken(environmentalAssetss[index]);
             unchecked {
@@ -142,7 +158,11 @@ abstract contract PortfolioStorageWrapper is
      *
      * @return total The total amount of EnvironmentalAsset tokens associated to the treasury
      */
-    function _getTotalEnvironmentalAssetTokens() internal view returns (uint256 total) {
+    function _getTotalEnvironmentalAssetTokens()
+        internal
+        view
+        returns (uint256 total)
+    {
         return _portfolioStorage().environmentalAssetss.length();
     }
 

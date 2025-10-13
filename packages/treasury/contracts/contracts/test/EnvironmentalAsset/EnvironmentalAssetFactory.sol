@@ -9,7 +9,7 @@ import {
 import {
     IHederaTokenService
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
-import "@openzeppelin/contracts/utils/Strings.sol";
+import '@openzeppelin/contracts/utils/Strings.sol';
 import {
     ExpiryHelper
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol';
@@ -17,8 +17,11 @@ import {
     KeyHelper
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol';
 
-contract EnvironmentalAssetFactory is ExpiryHelper, KeyHelper, HederaTokenService {
-
+contract EnvironmentalAssetFactory is
+    ExpiryHelper,
+    KeyHelper,
+    HederaTokenService
+{
     event TokenCreated(address indexed tokenAddress);
 
     /*constructor() payable {
@@ -36,7 +39,8 @@ contract EnvironmentalAssetFactory is ExpiryHelper, KeyHelper, HederaTokenServic
         tokenData.tokenSupplyType = false;
         tokenData.maxSupply = 0;
         tokenData.freezeDefault = false;
-        IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
+        IHederaTokenService.TokenKey[]
+            memory keys = new IHederaTokenService.TokenKey[](1);
         keys[0] = IHederaTokenService.TokenKey({
             keyType: 16,
             key: IHederaTokenService.KeyValue({
@@ -54,7 +58,9 @@ contract EnvironmentalAssetFactory is ExpiryHelper, KeyHelper, HederaTokenServic
         expiryInfo.autoRenewPeriod = int64(30 days);
         tokenData.expiry = expiryInfo;
         (responseCode, tokenAddress) = createNonFungibleToken(tokenData); // For NFTs, supply args are ignored
-        require(responseCode == HederaResponseCodes.SUCCESS, Strings.toString(responseCode)
+        require(
+            responseCode == HederaResponseCodes.SUCCESS,
+            Strings.toString(responseCode)
         );
 
         emit TokenCreated(tokenAddress);

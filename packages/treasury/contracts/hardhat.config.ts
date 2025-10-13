@@ -13,9 +13,9 @@ import Configuration from '@configuration'
 import 'hardhat/types/config'
 
 declare module 'hardhat/types/config' {
-  interface HardhatNetworkUserConfig {
-    usdcAddress?: string;
-  }
+    interface HardhatNetworkUserConfig {
+        usdcAddress?: string
+    }
 }
 
 const config: HardhatUserConfig = {
@@ -39,14 +39,14 @@ const config: HardhatUserConfig = {
     networks: {
         hardhat: {
             accounts: {
-              count: 2,
-              accountsBalance: "1000000000000000000000000", // 1,000,000 ETH per account
+                count: 2,
+                accountsBalance: '1000000000000000000000000', // 1,000,000 ETH per account
             },
             chainId: 1337,
             blockGasLimit: 2000000000000,
             hardfork: 'london',
             forking: {
-              url: Configuration.endpoints.testnet.jsonRpc
+                url: Configuration.endpoints.testnet.jsonRpc,
             },
         },
         local: {
@@ -72,11 +72,7 @@ const config: HardhatUserConfig = {
         },
     },
     coverage: {
-      skipFiles: [
-        "test/",
-        "interfaces/",
-        "facets/"
-      ],
+        skipFiles: ['test/', 'interfaces/', 'facets/'],
     },
     contractSizer: {
         alphaSort: true,

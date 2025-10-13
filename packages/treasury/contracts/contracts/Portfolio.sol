@@ -10,10 +10,19 @@ import {
     DEFAULT_ADMIN_ROLE,
     PAUSER_ROLE
 } from './constants/roles.sol';
-import {Pause} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {AccessControl} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
+import {
+    Pause
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
+import {
+    AccessControl
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
-abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper, Pause, AccessControl {
+abstract contract Portfolio is
+    IPortfolio,
+    PortfolioStorageWrapper,
+    Pause,
+    AccessControl
+{
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
@@ -59,7 +68,11 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper, Pause, Acces
         returns (int256 dissociationError)
     {
         dissociationError = _removeEnvironmentalAssetToken(environmentalAsset);
-        emit EnvironmentalAssetRemoved(msg.sender, environmentalAsset, dissociationError);
+        emit EnvironmentalAssetRemoved(
+            msg.sender,
+            environmentalAsset,
+            dissociationError
+        );
     }
 
     /**
@@ -85,7 +98,11 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper, Pause, Acces
      *
      * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalEnvironmentalAssetTokens() external view returns (uint256 total) {
+    function getTotalEnvironmentalAssetTokens()
+        external
+        view
+        returns (uint256 total)
+    {
         return _getTotalEnvironmentalAssetTokens();
     }
 

@@ -8,7 +8,10 @@ interface IPortfolio {
      * @param operator The operator who call the function to add the environmental asset token
      * @param environmentalAsset The added environmental asset token
      */
-    event EnvironmentalAssetAdded(address indexed operator, address environmentalAsset);
+    event EnvironmentalAssetAdded(
+        address indexed operator,
+        address environmentalAsset
+    );
 
     /**
      * @dev Emitted when an existing environmental asset token is removed from the treasury
@@ -62,7 +65,7 @@ interface IPortfolio {
      */
     function removeEnvironmentalAssetToken(
         address environmentalAsset
-    ) external returns(int256 dissociationError);
+    ) external returns (int256 dissociationError);
 
     /**
      * @dev Update the payment token associated to the treasury
@@ -83,7 +86,10 @@ interface IPortfolio {
      *
      * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalEnvironmentalAssetTokens() external view returns (uint256 total);
+    function getTotalEnvironmentalAssetTokens()
+        external
+        view
+        returns (uint256 total);
 
     /**
      * @dev Get a page list of environmental asset tokens associated to the treasury

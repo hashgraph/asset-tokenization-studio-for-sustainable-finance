@@ -31,7 +31,9 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
         staticFunctionSelectors[selectorIndex++] = this
             .initialize_Portfolio
             .selector;
-        staticFunctionSelectors[selectorIndex++] = this.addEnvironmentalAssetToken.selector;
+        staticFunctionSelectors[selectorIndex++] = this
+            .addEnvironmentalAssetToken
+            .selector;
         staticFunctionSelectors[selectorIndex++] = this
             .removeEnvironmentalAssetToken
             .selector;
