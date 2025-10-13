@@ -3,10 +3,10 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
-import {IProceedsManagement} from './interfaces/IProceedsManagement.sol';
 import {
-    PortfolioStorageWrapper
-} from './PortfolioStorageWrapper.sol';
+    IProceedsManagementStorageWrapper
+} from './interfaces/IProceedsManagementStorageWrapper.sol';
+import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 // TODO: Waiting, to uncomment, for breaking bonds team to deliver a new release of ATS contracts package
 /*import {
     IProceedRecipients
@@ -15,7 +15,7 @@ import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
 
 abstract contract ProceedsManagementStorageWrapper is
-    IProceedsManagement,
+    IProceedsManagementStorageWrapper,
     PortfolioStorageWrapper
 {
     /**

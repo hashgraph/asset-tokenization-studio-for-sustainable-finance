@@ -3,12 +3,16 @@ pragma solidity 0.8.18;
 
 // solhint-disable max-line-length
 
+import {IProceedsManagement} from './interfaces/IProceedsManagement.sol';
 import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';
 import {PROCEEDS_FULL_MANAGER, FUNDS_MANAGER_ROLE} from './constants/roles.sol';
 
-abstract contract ProceedsManagement is ProceedsManagementStorageWrapper {
+abstract contract ProceedsManagement is
+    IProceedsManagement,
+    ProceedsManagementStorageWrapper
+{
     /*
      * @dev Transfers an amount of payment tokens to an address
      *
