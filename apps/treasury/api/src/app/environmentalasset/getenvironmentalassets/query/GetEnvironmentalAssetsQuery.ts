@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Query, PageOptions, Page } from "@hashgraph/green-bonds-shared-core"
-import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
+import { Query, QueryPageOptions } from "@hashgraph/green-bonds-shared-core"
+import { EnvironmentalAssetQueryResponse } from "./EnvironmentalAssetQueryResponse"
 
-export class GetEnvironmentalAssetsQuery extends Query<Page<EnvironmentalAsset>> {
+export class GetEnvironmentalAssetsQuery extends Query<EnvironmentalAssetQueryResponse> {
   constructor(
     public readonly treasuryContractId: string,
-    public readonly pageOptions: PageOptions = PageOptions.DEFAULT,
+    public readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
   ) {
     super()
   }
