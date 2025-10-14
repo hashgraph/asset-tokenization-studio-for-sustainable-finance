@@ -91,12 +91,6 @@ Scripts → API Gateway (Port 3000) → ATS API (Port 3001)
       Security Layer           Bond Management
 ```
 
-### **Available Endpoints Through Gateway**
-- `GET /api/v1/ats/bonds` - Get all bonds (paginated)
-- `GET /api/v1/ats/bonds/:id` - Get specific bond by ID
-- `POST /api/v1/ats/bonds` - Create new bond
-- `POST /api/v1/ats/factories/:id/bond-transactions` - Create bond transaction
-
 ### **Authentication Configuration**
 ```bash
 # In your .env file:
