@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Page } from "./Page"
+import { QueryPageResponse } from "src/query/QueryPageResponse"
 
 export class PageResponse<T> {
   items: T[]
@@ -9,7 +9,7 @@ export class PageResponse<T> {
   limit: number
   totalPages: number
 
-  static fromPage<T, R>(page: Page<T>, transform: (item: T) => R): PageResponse<R> {
+  static fromQueryPageResponse<T, R>(page: QueryPageResponse<T>, transform: (item: T) => R): PageResponse<R> {
     const response = new PageResponse<R>()
     response.items = page.items.map(transform)
     response.total = page.total

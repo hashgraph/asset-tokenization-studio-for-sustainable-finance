@@ -26,7 +26,7 @@ export class QueryPageRequest {
   @IsIn(["ASC", "DESC", "asc", "desc"])
   order: string = "DESC"
 
-  toPageOptions(): QueryPageOptions {
+  toQueryPageOptions(): QueryPageOptions {
     return new QueryPageOptions(
       this.page,
       this.limit,
