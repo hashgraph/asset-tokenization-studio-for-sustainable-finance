@@ -35,7 +35,7 @@ contract ProceedsManagementFacet is
             .transferPaymentToken
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .transferERC721Token
+            .transferEnvironmentalAssetToken
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
             .fundProceedsRecipient

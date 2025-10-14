@@ -11,8 +11,12 @@ import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 /*import {
     IProceedRecipients
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol';*/
-import {IERC20} from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import {IERC721} from '@openzeppelin/contracts/token/ERC721/IERC721.sol';
+import {
+    IHederaTokenService
+} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
+import {
+    HederaResponseCodes
+} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol';
 
 abstract contract ProceedsManagementStorageWrapper is
     IProceedsManagementStorageWrapper,
@@ -29,57 +33,74 @@ abstract contract ProceedsManagementStorageWrapper is
     }
 
     /**
-     * @dev Check whether a erc721 token is owned by the treasury
-     *
-     * @param tokenId The id of the token to be checked
-     */
-    modifier onlyOwnedErc721(uint256 tokenId) {
-        _checkOwnedErc721(tokenId);
-        _;
-    }
-
-    /**
      * @dev Transfer an amount of payment tokens to a certain account
      *
      * @param to The account the payment tokens are transferred to
      * @param amount The amount of payment tokens to be transferred
      */
     function _transferPaymentToken(address to, uint256 amount) internal {
-        IERC20 paymentToken = IERC20(_getPaymentToken());
-        if (paymentToken.balanceOf(address(this)) < amount) {
-            revert NotEnoughBalance(amount);
-        }
+        try
+            IHederaTokenService(address(this)).transferFrom(
+                _getPaymentToken(),
+                address(this),
+                to,
+                amount
+            )
+        returns (int64 responseCode) {
+            if (responseCode == HederaResponseCodes.SUCCESS) return;
 
-        try paymentToken.transfer(to, amount) returns (bool result) {
-            if (!result) {
-                revert TransferPaymentTokenFailed(to, amount);
+            if (
+                responseCode == HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE
+            ) {
+                revert NotEnoughBalance(amount);
             }
+
+            revert TransferPaymentTokenFailed(to, amount);
         } catch {
             revert TransferPaymentTokenFailed(to, amount);
         }
     }
 
     /**
-     * @dev Transfer a certain erc721 token id to an account
+     * @dev Transfer a certain environmental asset token id to an account
      *
-     * @param erc721 The contract that minted the erc721 token
-     * @param to The account the erc721 token is transferred to
-     * @param tokenId The id of the erc721 token being transferred
+     * @param environmentalAsset The contract that minted the environmental asset token
+     * @param to The account the environmental asset token is transferred to
+     * @param tokenId The id of the environmental asset token being transferred
      */
-    function _transferERC721Token(
-        address erc721,
+    function _transferEnvironmentalAssetToken(
+        address environmentalAsset,
         address to,
         uint256 tokenId
     ) internal {
-        // TODO: The environmentalToken must be obtained from portfolio facet storage
-        IERC721 environmentalToken; // = _getEnvironmentalToken(erc721, tokenId);
         try
-            environmentalToken.transferFrom(address(this), to, tokenId)
-        // solhint-disable-next-line no-empty-blocks
-        {
+            IHederaTokenService(address(this)).transferFromNFT(
+                environmentalAsset,
+                address(this),
+                to,
+                tokenId
+            )
+        returns (int64 responseCode) {
+            if (responseCode == HederaResponseCodes.SUCCESS) return;
 
+            if (
+                responseCode ==
+                HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
+            ) {
+                revert NotTokenIdOwner(tokenId);
+            }
+
+            revert TransferEnvironmentalAssetTokenFailed(
+                environmentalAsset,
+                to,
+                tokenId
+            );
         } catch {
-            revert TransferERC721TokenFailed(erc721, to, tokenId);
+            revert TransferEnvironmentalAssetTokenFailed(
+                environmentalAsset,
+                to,
+                tokenId
+            );
         }
     }
 
@@ -105,18 +126,6 @@ abstract contract ProceedsManagementStorageWrapper is
         // TODO: Waiting, to uncomment, for breaking bonds team to deliver a new release of ATS contracts package
         /*if (IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient)) {
             revert WrongProceedsRecipient(proceedsRecipient);
-        }*/
-    }
-
-    /*
-     * @dev Check whether a erc721 token is owned by the treasury
-     *
-     * @param tokenId The id of the token to be checked
-     */
-    function _checkOwnedErc721(uint256 tokenId) private view {
-        // TODO: Check in the porfolio facet where erc721 tokens are stored
-        /*if () {
-            revert NotTokenIdOwner(tokenId);
         }*/
     }
 }

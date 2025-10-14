@@ -8,7 +8,7 @@ bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
 bytes32 constant PORTFOLIO_MANAGER_ROLE = 0x8734926a1c1200d18e737f9b81dd7f424b59efc1eb35b9afb5fee0faa29e1077;
 
 // keccak256('green.bonds.treasury.role.pauser');
-bytes32 constant PAUSER_ROLE = 0xf023e2d8253f7bbe212713d70a1babc4fc8b7e771b9775af6ca3946d75ba0424;
+bytes32 constant PAUSER_ROLE = 0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb;
 
 // keccak256('green.bonds.treasury.role.funds.manager');
 bytes32 constant FUNDS_MANAGER_ROLE = 0x5deab80f7dc81e163521c79bbbfc24cfe00f75f4ff7006e53789aae4b66755d4;

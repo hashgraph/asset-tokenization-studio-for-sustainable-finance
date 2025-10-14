@@ -27,8 +27,7 @@ abstract contract ProceedsManagement is
     AccessControl
 {
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_ProceedsManagement(
-    ) external {
+    function initialize_ProceedsManagement() external {
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(PROCEEDS_FULL_MANAGER, _msgSender());
         _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
@@ -50,25 +49,23 @@ abstract contract ProceedsManagement is
     }
 
     /*
-     * @dev Transfers an ERC721 token to an address
+     * @dev Transfers an environmental asset token to an address
      *
-     * @param erc721 The address of the erc721 token contract
+     * @param environmentalAsset The address of the environmental asset contract
      * @param to The address the payment tokens are transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param tokenId The tokenId to be transferred
      */
-    function transferERC721Token(
-        address erc721,
+    function transferEnvironmentalAssetToken(
+        address environmentalAsset,
         address to,
         uint256 tokenId
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PROCEEDS_FULL_MANAGER)
-        onlyOwnedErc721(tokenId)
-    {
-        _transferERC721Token(erc721, to, tokenId);
-        emit ERC721TokenTransferred(erc721, to, tokenId);
+    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER) {
+        _transferEnvironmentalAssetToken(environmentalAsset, to, tokenId);
+        emit EnvironmentalAssetTokenTransferred(
+            environmentalAsset,
+            to,
+            tokenId
+        );
     }
 
     /*

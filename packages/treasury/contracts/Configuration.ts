@@ -16,39 +16,14 @@ export type Network = (typeof NETWORKS)[number]
 export const DEPLOY_TYPES = ['proxy', 'direct'] as const
 export type DeployType = (typeof DEPLOY_TYPES)[number]
 
-export const CONTRACT_NAMES = [
-    'TransparentUpgradeableProxy',
-    'ProxyAdmin',
-    'Factory',
-    'BusinessLogicResolver',
-    'AccessControlFacet',
-    'PauseFacet',
-    'TimeTravel',
-] as const
-export type ContractName = (typeof CONTRACT_NAMES)[number]
-
 export interface Endpoints {
     jsonRpc: string
     mirror: string
 }
 
-export interface DeployedContract {
-    address: string
-    proxyAddress?: string
-    proxyAdminAddress?: string
-}
-
-export interface ContractConfig {
-    name: string
-    factoryName: string
-    deployType: DeployType
-    addresses?: Record<Network, DeployedContract>
-}
-
 export default class Configuration {
     // private _privateKeys: Record<Network, string[]>;
     // private _endpoints: Record<Network, Endpoints>;
-    // private _contracts: Record<string, ContractConfig>;
     /**
      * Determines whether the contract sizer should run on compile.
      *
@@ -125,58 +100,6 @@ export default class Configuration {
             },
             {} as Record<Network, string>
         )
-    }
-
-    // * Private methods
-
-    /**
-     * Retrieves the deployed contract addresses for a given contract name across different networks.
-     *
-     * @param {Object} params - The parameters object.
-     * @param {string} params.contractName - The name of the contract to get deployed addresses for.
-     * @returns {Record<Network, DeployedContract>} An object mapping each network to its deployed contract details.
-     *
-     * The function iterates over all available networks and fetches the contract address, proxy address,
-     * and proxy admin address from environment variables. If the contract address is found, it adds the
-     * details to the returned object.
-     */
-    private static _getDeployedAddresses({
-        contractName,
-    }: {
-        contractName: string
-    }): Record<Network, DeployedContract> {
-        const deployedAddresses: Record<Network, DeployedContract> =
-            {} as Record<Network, DeployedContract>
-
-        NETWORKS.forEach((network) => {
-            const address = Configuration._getEnvironmentVariable({
-                name: `${network.toUpperCase()}_${contractName.toUpperCase()}`,
-                defaultValue: EMPTY_STRING,
-            })
-
-            if (address !== EMPTY_STRING) {
-                const proxyAddress = Configuration._getEnvironmentVariable({
-                    name: `${network.toUpperCase()}_${contractName}_PROXY`,
-                    defaultValue: EMPTY_STRING,
-                })
-                const proxyAdminAddress = Configuration._getEnvironmentVariable(
-                    {
-                        name: `${network.toUpperCase()}_${contractName}_PROXY_ADMIN`,
-                        defaultValue: EMPTY_STRING,
-                    }
-                )
-
-                deployedAddresses[network] = {
-                    address,
-                    ...(proxyAddress !== EMPTY_STRING && { proxyAddress }),
-                    ...(proxyAdminAddress !== EMPTY_STRING && {
-                        proxyAdminAddress,
-                    }),
-                }
-            }
-        })
-
-        return deployedAddresses
     }
 
     private static _getEnvironmentVariableList({

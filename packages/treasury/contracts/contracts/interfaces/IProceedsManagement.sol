@@ -11,13 +11,17 @@ interface IProceedsManagement {
     event PaymentTokenTransferred(address to, uint256 amount);
 
     /*
-     * @dev Emitted when an ERC721 token was transferred to an address
+     * @dev Emitted when an environmental asset token was transferred to an address
      *
-     * @param erc721 The address of the erc721 token
+     * @param environmentalAsset The address of the environmental asset token
      * @param to The address the payment tokens were transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param tokenId The tokenId of the environmental asset token
      */
-    event ERC721TokenTransferred(address erc721, address to, uint256 tokenId);
+    event EnvironmentalAssetTokenTransferred(
+        address environmentalAsset,
+        address to,
+        uint256 tokenId
+    );
 
     /*
      * @dev Emitted when a proceeds recipient was funded with an amount
@@ -26,20 +30,6 @@ interface IProceedsManagement {
      * @param token The amount the proceeds recipient was funded with
      */
     event ProceedsRecipientFunded(address proceedsRecipient, uint256 amount);
-
-    /**
-     * @notice Error thrown when transferring an ERC721 Token Id the Treasury does not own
-     *
-     * @param tokenId The tokenId of the erc721 token
-     */
-    error NotTokenIdOwner(uint256 tokenId);
-
-    /**
-     * @notice Error thrown when funding an account that is not an asset proceeds recipient
-     *
-     * @param proceedsRecipient The address of the proceeds recipient that is funded
-     */
-    error WrongProceedsRecipient(address proceedsRecipient);
 
     /*
      * @dev Transfers an amount of payment tokens to an address
@@ -50,14 +40,14 @@ interface IProceedsManagement {
     function transferPaymentToken(address to, uint256 amount) external;
 
     /*
-     * @dev Transfers an ERC721 token to an address
+     * @dev Transfers an environmental asset token to an address
      *
-     * @param erc721 The address of the erc721 token contract
-     * @param to The address the erc721 token is transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param environmentalAsset The address of the environmental asset token contract
+     * @param to The address the environmental asset token is transferred to
+     * @param tokenId The tokenId of the environmental asset token
      */
-    function transferERC721Token(
-        address erc721,
+    function transferEnvironmentalAssetToken(
+        address environmentalAsset,
         address to,
         uint256 tokenId
     ) external;

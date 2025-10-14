@@ -10,6 +10,13 @@ interface IProceedsManagementStorageWrapper {
     error NotEnoughBalance(uint256 amount);
 
     /**
+     * @notice Error thrown when transferring an environmental asset Token Id the Treasury does not own
+     *
+     * @param tokenId The tokenId of the environmental asset token
+     */
+    error NotTokenIdOwner(uint256 tokenId);
+
+    /**
      * @notice Error thrown when something fails while attempting to transfer payment tokens
      *
      * @param to The address the payment tokens are transferred to
@@ -18,15 +25,22 @@ interface IProceedsManagementStorageWrapper {
     error TransferPaymentTokenFailed(address to, uint256 amount);
 
     /**
-     * @notice Error thrown when something fails while attempting to transfer an ERC721 token
+     * @notice Error thrown when something fails while attempting to transfer an environmental asset token
      *
-     * @param erc721 The address of the erc721 token contract
+     * @param environmentalAsset The address of the environmental asset token contract
      * @param to The address the payment tokens are transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param tokenId The tokenId of the environmental asset token
      */
-    error TransferERC721TokenFailed(
-        address erc721,
+    error TransferEnvironmentalAssetTokenFailed(
+        address environmentalAsset,
         address to,
         uint256 tokenId
     );
+
+    /**
+     * @notice Error thrown when funding an account that is not an asset proceeds recipient
+     *
+     * @param proceedsRecipient The address of the proceeds recipient that is funded
+     */
+    error WrongProceedsRecipient(address proceedsRecipient);
 }

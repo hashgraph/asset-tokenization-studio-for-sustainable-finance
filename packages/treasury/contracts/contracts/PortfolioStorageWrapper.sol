@@ -189,9 +189,9 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /*
-     * @dev Get the LifeCycleCashFlow storage
+     * @dev Get the Portfolio storage
      *
-     * @returns The LifeCycleCashFlow storage
+     * @returns The Portfolio storage
      */
     function _portfolioStorage()
         internal

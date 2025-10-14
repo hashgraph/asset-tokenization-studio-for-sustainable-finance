@@ -22,10 +22,12 @@ contract EnvironmentalAssetFactory is
     KeyHelper,
     HederaTokenService
 {
-    event TokenCreated(address indexed tokenAddress);
+    bytes private constant DEFAULT_METADATA = hex"01";
 
-    /*constructor() payable {
-    }*/
+    event EnvironmentalAssetCreated(address indexed tokenAddress);
+    event NFTMinted(int64 indexed tokenId);
+
+    error EnvironmentalAssetTokenTransferError(address token, address to, int64 serialNumber);
 
     function createEnvironmentalAsset(
         string memory name,
@@ -63,6 +65,30 @@ contract EnvironmentalAssetFactory is
             Strings.toString(responseCode)
         );
 
-        emit TokenCreated(tokenAddress);
+        mintNFT(tokenAddress, DEFAULT_METADATA);
+
+        emit EnvironmentalAssetCreated(tokenAddress);
+    }
+
+    function transferEnvironmentalAssetToken(
+        address token,
+        address to,
+        int64 serialNumber
+    ) external {
+        int responseCode = transferNFT(token, address(this), to, serialNumber);
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert EnvironmentalAssetTokenTransferError(token, to, serialNumber);
+        }
+    }
+
+    function mintNFT(address token, bytes memory metadata) private {
+        bytes[] memory arr = new bytes[](1);
+        arr[0] = metadata;
+        (
+            int responseCode,
+            int64 newTotalSupply,
+            int64[] memory serialNumbers
+        ) = mintToken(token, 0, arr);
+        emit NFTMinted(serialNumbers[0]);
     }
 }

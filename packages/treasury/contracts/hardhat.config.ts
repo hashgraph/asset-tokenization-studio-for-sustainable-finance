@@ -35,12 +35,12 @@ const config: HardhatUserConfig = {
         cache: './cache',
         artifacts: './artifacts',
     },
-    defaultNetwork: 'testnet',
+    defaultNetwork: 'local',
     networks: {
         hardhat: {
             accounts: {
                 count: 2,
-                accountsBalance: '1000000000000000000000000', // 1,000,000 ETH per account
+                accountsBalance: '1000000000000000000000000',
             },
             chainId: 1337,
             blockGasLimit: 2000000000000,

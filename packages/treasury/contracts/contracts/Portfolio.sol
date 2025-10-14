@@ -125,5 +125,7 @@ abstract contract Portfolio is
      *
      * @return paymentToken The payment token associated to the treasury
      */
-    function getPaymentToken() external view returns (address paymentToken) {}
+    function getPaymentToken() external view returns (address paymentToken) {
+        paymentToken = _getPaymentToken();
+    }
 }
