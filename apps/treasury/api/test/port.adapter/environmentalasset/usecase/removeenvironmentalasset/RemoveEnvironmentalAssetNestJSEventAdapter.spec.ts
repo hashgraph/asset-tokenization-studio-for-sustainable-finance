@@ -51,6 +51,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.222",
         bondContractId: "0.0.500",
+        paused: false,
       })
 
       const environmentalAsset = await environmentalAssetRepository.save({
@@ -87,6 +88,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.222",
         bondContractId: "0.0.500",
+        paused: false,
       })
 
       const assetContractId = "0.0.44432"

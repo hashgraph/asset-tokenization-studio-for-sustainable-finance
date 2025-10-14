@@ -58,6 +58,7 @@ describe("GetEnvironmentalAssets API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
+        paused: false,
       })
 
       const response = await request(app.getHttpServer())
@@ -76,6 +77,7 @@ describe("GetEnvironmentalAssets API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
+        paused: false,
       })
 
       const asset1 = await environmentalAssetRepository.save({
@@ -114,6 +116,7 @@ describe("GetEnvironmentalAssets API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
+        paused: false,
       })
 
       for (let i = 1; i <= 5; i++) {
@@ -139,6 +142,7 @@ describe("GetEnvironmentalAssets API Integration", () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
+        paused: false,
       })
 
       const asset1 = await environmentalAssetRepository.save({
