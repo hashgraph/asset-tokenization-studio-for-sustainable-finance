@@ -1,53 +1,56 @@
 const { config } = require('../lib/config');
-const { log, logSuccess, logError, logWarning, logHeader, colors } = require('../lib/logger');
+const { log, logSuccess, logError, logHeader, colors } = require('../lib/logger');
 const { signTransaction, validateSigningConfig } = require('../lib/transaction-signer');
+const { publishSignedTransaction} = require('../lib/infrastructure');
 const { getUserInput } = require('../lib/input');
 
-async function signTransactionOnly() {
-  logHeader('🔐 Transaction Signing Service...');
-  
+async function runTransactionSenderTest() {
+  logHeader('🚀 Running Transaction Sender Test...');
+
   if (!validateSigningConfig()) {
     return;
   }
-    const transactionString = await getUserInput('Enter the transaction string: ');
-  
-  if (!transactionString || transactionString.trim() === '') {
-    logError('Transaction string is required');
-    return;
-  }
-  
+
+  const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
+  log(`🔧 Blockchain format: ${format.toUpperCase()}`, colors.blue);
+
   try {
-    const signedTx = await signTransaction(transactionString.trim());
-    
-    logSuccess(`${config.BLOCKCHAIN_FORMAT.toUpperCase()} transaction signed successfully!`);
-    
-    logHeader('📄 Signed Transaction:');
-    log(`${signedTx}`, colors.cyan);
-    
-    logWarning('You can copy the signed transaction above to use it in your application.');
-    
-    return signedTx;
-    
+    logHeader('📝 Requesting Raw Transaction...');
+    const rawTx = await getUserInput('Enter the raw transaction string: ');
+
+    if (!rawTx || rawTx.trim() === '') {
+      throw new Error('Raw transaction string is required');
+    }
+
+    logHeader('🔐 Signing Transaction...');
+    const signedTx = await signTransaction(rawTx.trim());
+    logSuccess(`✅ ${format.toUpperCase()} transaction signed successfully!`);
+
+    logHeader('📤 Publishing Transaction...');
+    await publishSignedTransaction(signedTx);
+    logSuccess('✅ Published signed transaction to message queue');
+
   } catch (error) {
-    logError(`Failed to sign transaction: ${error.message}`);
-    logWarning('Make sure:');
-    logWarning('   • Transaction string is valid hex');
-    logWarning('   • Private key in .env file is valid for the selected blockchain format');
-    logWarning('   • For Hedera: HEDERA_PRIVATE_KEY should be in DER format');
-    logWarning('   • For Ethereum: ETHEREUM_PRIVATE_KEY should be in hex format');
+    logError(`❌ Failed to process transaction: ${error.message}`);
+    throw error;
   }
 }
 
 async function main() {
   try {
-    logHeader('🔐 Evercity Transaction Signer');
-    log('===============================\n', colors.bright);
-    log(`📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
-    
-    await signTransactionOnly();
-    
+    logHeader('🏦 Green Bonds Platform - Transaction Sender');
+    log('=================================================\n', colors.bright);
+    log(`📅 Started at: ${new Date().toISOString()}`, colors.dim);
+
+    logHeader('🔍 Checking Infrastructure...');
+
+    await runTransactionSenderTest();
+
+    logHeader('✨ Transaction Sender Completed Successfully!');
+    log(`📅 Completed at: ${new Date().toISOString()}`, colors.dim);
+
   } catch (error) {
-    logError(`Transaction signing failed: ${error.message}`);
+    logError(`❌ Transaction sender failed: ${error.message}`);
     process.exit(1);
   }
 }
@@ -56,4 +59,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { signTransactionOnly };
+module.exports = { runTransactionSenderTest };
