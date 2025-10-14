@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PageOptions, Query, Page } from "@hashgraph/green-bonds-shared-core"
-import { Bond } from "@domain/bond/model/Bond"
+import { Query, QueryPageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BondQueryResponse } from "./BondQueryResponse"
 
-export class GetBondsQuery extends Query<Page<Bond>> {
-  constructor(public readonly pageOptions: PageOptions = PageOptions.DEFAULT) {
+export class GetBondsQuery extends Query<BondQueryResponse> {
+  constructor(public readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
     super()
   }
 }
