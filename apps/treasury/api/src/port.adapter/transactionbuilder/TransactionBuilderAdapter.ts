@@ -41,7 +41,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       environment,
       account: request.accountId,
       format: request.format as "hedera" | "ethereum",
-      args: [request.address, request.amount],
+      args: [this.getEvmAddressFromHedera(request.address), request.amount],
     } as any)
 
     return new BuildTransactionResponse(transactionResponse.unsignedTx)

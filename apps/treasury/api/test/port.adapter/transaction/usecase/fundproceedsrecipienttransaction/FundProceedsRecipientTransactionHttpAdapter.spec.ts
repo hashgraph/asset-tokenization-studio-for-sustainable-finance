@@ -40,12 +40,12 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
   describe("POST /treasuries/{treasuryId}/proceeds-recipients/{recipientId}/transfer", () => {
     const treasuryId = "0.0.123456789"
-    const recipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
+    const recipientId = "0.0.123456589"
     const baseUrl = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
 
     it("should fund proceeds recipient with valid data", async () => {
       const fundRequest = {
-        amount: 1000,
+        amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
       }
@@ -61,21 +61,21 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       const testCases = [
         {
           treasuryId: "0.0.123456789",
-          recipientId: "0xabcdef1234567890abcdef1234567890abcdef12",
+          recipientId: "0.0.123456589",
         },
         {
           treasuryId: "0.0.987654321",
-          recipientId: "0x1234567890ABCDEF1234567890ABCDEF12345678",
+          recipientId: "0.0.123456589",
         },
         {
           treasuryId: "0.0.555666777",
-          recipientId: "0xcafebabe1234567890abcdef1234567890abcdef",
+          recipientId: "0.0.123456589",
         },
       ]
 
       for (const { treasuryId, recipientId } of testCases) {
         const fundRequest = {
-          amount: 500,
+          amount: "500",
           format: "hedera",
           accountId: "0.0.123456789",
         }
@@ -88,11 +88,11 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     })
 
     it("should handle different positive amounts", async () => {
-      const amounts = [1, 100, 1000, 999999]
+      const amounts = ["1", "100", "1000", "999999"]
 
       for (const amount of amounts) {
         const fundRequest = {
-          address: "0x1234567890abcdef1234567890abcdef12345678",
+          address: "0.0.123456589",
           amount,
           format: "hedera",
           accountId: "0.0.123456789",
@@ -110,7 +110,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of formats) {
         const fundRequest = {
-          amount: 1000,
+          amount: "1000",
           format,
           accountId: "0.0.123456789",
         }
@@ -124,9 +124,9 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
     it("should return 500 for invalid treasuryId", async () => {
       const invalidTreasuryId = "invalid-treasury-id"
-      const validRecipientId = "0xabcdef1234567890abcdef1234567890abcdef12"
+      const validRecipientId = "0.0.123456589"
       const fundRequest = {
-        amount: 1000,
+        amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
       }
@@ -139,7 +139,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
       const validTreasuryId = "0.0.123456789"
       const invalidRecipientId = "invalid-recipient-id"
       const fundRequest = {
-        amount: 1000,
+        amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
       }
@@ -153,7 +153,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
       for (const format of invalidFormats) {
         const fundRequest = {
-          amount: 1000,
+          amount: "1000",
           format,
           accountId: "0.0.123456789",
         }
@@ -164,7 +164,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
     it("should return 400 for negative amount", async () => {
       const fundRequest = {
-        amount: -100,
+        amount: "-100",
         format: "hedera",
         accountId: "0.0.123456789",
       }
@@ -174,7 +174,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
 
     it("should return 400 for zero amount", async () => {
       const fundRequest = {
-        amount: 0,
+        amount: "0",
         format: "hedera",
         accountId: "0.0.123456789",
       }
@@ -183,7 +183,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     })
 
     it("should return 400 for missing required fields", async () => {
-      const invalidRequests = [{}, { amount: 1000 }, { format: "hedera" }, { accountId: "0.0.123456789" }]
+      const invalidRequests = [{}, { amount: "1000" }, { format: "hedera" }, { accountId: "0.0.123456789" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer()).post(baseUrl).send(invalidRequest).expect(400)
