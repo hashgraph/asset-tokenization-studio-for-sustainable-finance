@@ -13,6 +13,7 @@ function getLogLevels(minLogLevel: LogLevel): LogLevel[] {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: getLogLevels((process.env.LOG_LEVEL as LogLevel) || "log"),
+    rawBody: true,
   })
   await app.listen(process.env.PORT ?? 3000)
 }

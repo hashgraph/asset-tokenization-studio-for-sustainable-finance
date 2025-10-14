@@ -4,14 +4,16 @@
   "description": "Utility scripts for Evercity Green Bonds Platform",
   "private": true,
   "scripts": {
-    "sign": "node bin/transaction-signer.js",
-    "bond": "node bin/bond-simulator.js",
-    "sender": "node bin/transaction-sender.js",
-    "infra:start": "node bin/infra-setup.js start",
-    "infra:start:api": "node bin/infra-setup.js start api",
-    "infra:start:rabbitmq": "node bin/infra-setup.js start rabbitmq",
-    "infra:status": "node bin/infra-setup.js status",
-    "infra:stop": "node bin/infra-setup.js stop"
+  "sign": "node cli/transaction-signer.js",
+  "bond": "node cli/bond-simulator.js", 
+  "sender": "node cli/transaction-sender.js",
+  "all:start": "node cli/infra-setup.js start",
+  "all:stop": "node cli/infra-setup.js stop",
+  "all:status": "node cli/infra-setup.js status",
+  "docker:start": "node cli/infra-setup.js start docker",
+  "docker:stop": "node cli/infra-setup.js stop",
+  "apis:start": "node cli/infra-setup.js start apis",
+  "apis:stop": "node cli/infra-setup.js stop"
   },
   "license": "Apache-2.0"
 }

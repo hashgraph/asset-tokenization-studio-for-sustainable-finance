@@ -1,105 +1,249 @@
-# Evercity Green Bonds Scripts
+# Green Bonds Platform Scripts
 
-Modular utility scripts for the Evercity Green Bonds Platform. This refactored architecture provides focused, single-responsibility tools for transaction signing and bond creation workflows.
+Utility scripts and infrastructure management for the Green Bonds Platform.
 
 ## 🚀 **Quick Start**
 
-1. **For simple transaction signing**:
-   ```bash
-   cd scripts
-   npm run sign
-   ```
-
-2. **For transaction sender testing**:
-   ```bash
-   cd scripts
-   # First, start infrastructure
-   npm run infra:start
-   
-   # Then run transaction sender test
-   npm run sender
-   ```
-
-3. **For full bond creation simulation**:
-   ```bash
-   cd scripts
-   # First, start infrastructure
-   npm run infra:start
-   
-   # Then run bond simulation
-   npm run bond
-   ```
-
-## 📁 **Architecture**
-
-### **Main Scripts (`bin/`)**
-- **`bin/transaction-signer.js`** - Standalone transaction signing service (no infrastructure required)
-- **`bin/transaction-sender.js`** - Transaction sender test utility (requires infrastructure)
-- **`bin/bond-simulator.js`** - Full bond creation workflow with infrastructure
-- **`bin/infra-setup.js`** - Infrastructure management tool
-
-### **Shared Libraries (`lib/`)**
-- **`config.js`** - Environment variables and configuration
-- **`logger.js`** - Enhanced logging with colors and semantic functions  
-- **`transaction-signer.js`** - Transaction signing logic for Hedera & Ethereum
-- **`infrastructure.js`** - Pure infrastructure checks and messaging
-- **`bond-service.js`** - Bond creation business logic
-- **`input.js`** - User input utilities
-
-## ✨ **Benefits**
-- **Modularity**: Single responsibility principle with clear separation of concerns
-- **Direct Access**: `npm run sign`, `npm run sender`, or `npm run bond` - no menu navigation
-- **Environment-based**: Configured via `.env` file - no repetitive prompts
-- **Maintainable**: Small, focused files instead of monolithic scripts
-
-### infra-setup.js
-**Infrastructure management tool for starting/stopping required services.**
-
-**Usage:**
+### **Infrastructure Management**
 ```bash
-# From scripts folder
 cd scripts
-npm run infra:start          # Start all services
-npm run infra:start:api      # Start API only
-npm run infra:start:rabbitmq # Start RabbitMQ only
-npm run infra:status         # Check status
-npm run infra:stop           # Stop services
 
-# Or from project root
-node scripts/bin/infra-setup.js start
-node scripts/bin/infra-setup.js status
-node scripts/bin/infra-setup.js stop
+# Start everything (Docker services + Node.js APIs)
+npm run all:start
+
+# OR start services individually
+npm run docker:start              # Start Docker services only (PostgreSQL, RabbitMQ, PgAdmin)
+npm run apis:start                 # Start Node.js APIs only (ATS API, Transaction Sender)
+
+# Check status of all services
+npm run all:status
+
+# Stop services
+npm run apis:stop                  # Stop APIs only
+npm run all:stop                   # Stop everything (Docker + APIs)
 ```
 
-## Setup
+### **Utility Scripts**
+```bash
+# Transaction signing
+npm run sign
 
-1. **Install dependencies**:
+# Transaction sender testing (requires infrastructure)
+npm run sender  
+
+# Bond creation simulation (requires infrastructure)
+npm run bond
+```
+
+## 🏗️ **Infrastructure Architecture**
+
+### **Docker Services** 
+- **PostgreSQL** (Port 5432): Database for ATS API
+- **PgAdmin** (Port 5050): Web interface for database management - http://localhost:5050
+- **RabbitMQ** (Port 5672): Message broker for transaction processing
+- **RabbitMQ Management UI** (Port 15672): Web interface for RabbitMQ - http://localhost:15672
+
+### **Node.js Services**
+- **API Gateway** (Port 3000): Authenticated proxy to all services - http://localhost:3000 🔒
+- **ATS API** (Port 3001): Bond management service - http://localhost:3001/api/v1/ats (Direct)
+- **Transaction Sender** (Port 3005): Processes signed transactions from RabbitMQ
+
+### **API Access & Security**
+- **🔒 Recommended**: Use API Gateway (Port 3000) with authentication
+- **🔓 Direct**: Access ATS API directly (Port 3001) for development only  
+- **🔑 Authentication**: All gateway requests require `x-api-key` header
+- **🎯 Benefits**: Centralized security, request logging, rate limiting
+
+## 📋 **Available Commands**
+
+### **Infrastructure Management**
+- `npm run all:start` - Start complete infrastructure (Docker + APIs)
+- `npm run all:stop` - Stop all services
+- `npm run all:status` - Check status of all components
+- `npm run docker:start` - Start only Docker services
+- `npm run docker:stop` - Stop Docker services  
+- `npm run apis:start` - Start only Node.js APIs
+- `npm run apis:stop` - Stop Node.js APIs
+
+### **Utility Scripts**
+- `npm run sign` - Interactive transaction signing tool
+- `npm run sender` - Transaction sender testing utility
+- `npm run bond` - Bond creation simulation workflow
+
+## ⚙️ **Prerequisites**
+
+- **Docker and Docker Compose** - For infrastructure services
+- **Node.js and npm** - For workspace and API services
+
+**Note**: If you have system PostgreSQL running, stop it first to avoid port conflicts:
+```bash
+sudo systemctl stop postgresql
+```
+
+## � **API Gateway Integration**
+
+All scripts now use the API Gateway for secure, authenticated access to services.
+
+### **Architecture Flow**
+```
+Scripts → API Gateway (Port 3000) → ATS API (Port 3001)
+         ↓ (with x-api-key)      ↓ (authenticated)
+      Security Layer           Bond Management
+```
+
+### **Authentication Configuration**
+```bash
+# In your .env file:
+API_KEY=demo-key-1                    # Your API key
+ATS_API_URL=http://localhost:3000     # Gateway URL (default)
+
+# Available API keys:
+# - demo-key-1
+# - demo-key-2  
+# - your-secret-api-key
+```
+
+### **How Scripts Use Gateway**
+Your existing scripts work exactly the same, but now with security:
+
+```javascript
+// Before: Direct API access (insecure)
+axios.post('http://localhost:3001/api/v1/ats/bonds', data)
+
+// After: Gateway access (secure, automatic)
+gatewayClient.post('/api/v1/ats/bonds', data)
+```
+
+### **Testing Gateway Integration**
+```bash
+cd scripts/cli
+node test-gateway-integration.js     # Test gateway connection
+```
+
+### **Manual API Testing**
+```bash
+# Through Gateway (Recommended)
+curl -H "x-api-key: demo-key-1" \
+     -H "Content-Type: application/json" \
+     http://localhost:3000/api/v1/ats/bonds
+
+# Direct API (Development only)  
+curl http://localhost:3001/api/v1/ats/bonds
+```
+
+## �🛠️ **Setup Instructions**
+
+1. **Install workspace dependencies** (from project root):
    ```bash
-   npm ci
+   npm install
    ```
 
-2. **Configure environment variables**:
+2. **Navigate to scripts directory**:
+   ```bash
+   cd scripts
+   ```
+
+3. **Configure environment variables**:
    ```bash
    # Copy example env file
    cp .env.example .env
    
-   # Edit .env file with your blockchain format and private keys
-   # BLOCKCHAIN_FORMAT=hedera  # Choose 'hedera' or 'ethereum'
+   # Edit .env file with your configuration
+   # API_KEY=demo-key-1                              # Gateway authentication
+   # ATS_API_URL=http://localhost:3000               # Gateway URL
+   # BLOCKCHAIN_FORMAT=hedera                        # Choose 'hedera' or 'ethereum'
    # HEDERA_PRIVATE_KEY=your-hedera-private-key-in-der-format
-   # ACCOUNT_ID=your-hedera-account-id  # Required for Hedera (e.g., 0.0.123456)
+   # ACCOUNT_ID=your-hedera-account-id               # Required for Hedera (e.g., 0.0.123456)
    # ETHEREUM_PRIVATE_KEY=your-ethereum-private-key-in-hex-format
    ```
 
-   **💡 Testing Different Blockchain Formats:**
-   
-   You can test any blockchain flow by simply changing the `BLOCKCHAIN_FORMAT` in your `.env` file:
-   - Set `BLOCKCHAIN_FORMAT=hedera` to test Hedera transaction flows
-   - Set `BLOCKCHAIN_FORMAT=ethereum` to test Ethereum/EVM transaction flows
-   
-   All scripts (`npm run sign`, `npm run sender`, `npm run bond`) will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
+4. **Start the infrastructure**:
+   ```bash
+   npm run all:start
+   ```
 
-## Infrastructure Components
+## 💡 **Usage Examples**
 
-- **ATS API**: Bond management service (Port 3000)
-- **RabbitMQ**: Message broker for transaction processing (Port 5672, Management UI: 15672)
-- **Transaction Sender**: Service that processes signed transactions from RabbitMQ queues
+### **Complete Development Setup**
+```bash
+# Start everything for development
+npm run all:start
+
+# Check if all services are running
+npm run all:status
+
+# When done, stop everything
+npm run all:stop
+```
+
+### **Incremental Setup** 
+```bash
+# Start only Docker services first
+npm run docker:start
+
+# Then start APIs when ready
+npm run apis:start
+
+# Stop APIs but keep Docker running
+npm run apis:stop
+```
+
+### **Testing Blockchain Flows**
+You can test different blockchain formats by changing the `BLOCKCHAIN_FORMAT` in your `.env` file:
+- Set `BLOCKCHAIN_FORMAT=hedera` to test Hedera transaction flows
+- Set `BLOCKCHAIN_FORMAT=ethereum` to test Ethereum/EVM transaction flows
+
+All utility scripts (`npm run sign`, `npm run sender`, `npm run bond`) will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
+
+## 🚨 **Troubleshooting**
+
+### **Gateway Authentication Issues**
+```bash
+# Error: "Authentication failed"
+# Solution: Check your API key configuration
+echo $API_KEY                         # Should show your key
+grep API_KEY .env                     # Should show API_KEY=demo-key-1
+
+# Test authentication
+curl -H "x-api-key: demo-key-1" http://localhost:3000/api/v1/ats/bonds
+```
+
+### **Connection Issues**
+```bash
+# Error: "ECONNREFUSED"
+# Solution: Make sure infrastructure is running
+npm run all:status                    # Check service status
+npm run all:start                     # Start if needed
+
+# Check specific ports
+lsof -i :3000                        # Gateway should be running
+lsof -i :3001                        # ATS API should be running  
+```
+
+### **Service Health Check**
+```bash
+# Check all services
+npm run all:status
+
+# Manual health checks
+curl http://localhost:3000/api/v1/ats/bonds -H "x-api-key: demo-key-1"  # Gateway
+curl http://localhost:3001/health                                        # ATS API (direct)
+curl http://localhost:5050                                               # PgAdmin
+curl http://localhost:15672                                              # RabbitMQ
+```
+
+### **Gateway Configuration Issues**
+If the gateway isn't routing correctly, check the infra-setup.js configuration:
+```javascript
+// In scripts/cli/infra-setup.js - Gateway config should have:
+PATHS: '/api/v1/ats'                  // Routes to intercept
+ROUTES: 'http://localhost:3001'       // Target ATS API
+API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key'
+```
+
+## 🌐 **Service URLs**
+
+When running, you can access:
+- **ATS API**: http://localhost:3000/api
+- **PgAdmin**: http://localhost:5050 (admin@admin.com / admin)
+- **RabbitMQ Management**: http://localhost:15672 (guest / guest)
