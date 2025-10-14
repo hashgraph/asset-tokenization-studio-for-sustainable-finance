@@ -1,22 +1,22 @@
 const { config } = require('../lib/config');
 const { log, logSuccess, logError, logHeader, colors } = require('../lib/logger');
 const { signTransaction, validateSigningConfig } = require('../lib/transaction-signer');
-const { publishSignedTransaction} = require('../lib/infrastructure');
+const { publishSignedTransaction } = require('../lib/infrastructure');
 const { getUserInput } = require('../lib/input');
 
-async function runTransactionSenderTest() {
-  logHeader('🚀 Running Transaction Sender Test...');
+async function runTransactionSignAndSend() {
+  logHeader('🚀 Transaction Sign & Send Tool');
 
   if (!validateSigningConfig()) {
     return;
   }
 
   const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
-  log(`🔧 Blockchain format: ${format.toUpperCase()}`, colors.blue);
+  log(`🔧 Blockchain Format: ${format.toUpperCase()}`, colors.blue);
 
   try {
-    logHeader('📝 Requesting Raw Transaction...');
-    const rawTx = await getUserInput('Enter the raw transaction string: ');
+    logHeader('📝 Enter Raw Transaction');
+    const rawTx = await getUserInput('Enter the raw transaction (hex or base64): ');
 
     if (!rawTx || rawTx.trim() === '') {
       throw new Error('Raw transaction string is required');
@@ -26,31 +26,29 @@ async function runTransactionSenderTest() {
     const signedTx = await signTransaction(rawTx.trim());
     logSuccess(`✅ ${format.toUpperCase()} transaction signed successfully!`);
 
-    logHeader('📤 Publishing Transaction...');
+    logHeader('📤 Sending to Message Queue...');
     await publishSignedTransaction(signedTx);
-    logSuccess('✅ Published signed transaction to message queue');
+    logSuccess('✅ Signed transaction published to message queue');
 
   } catch (error) {
-    logError(`❌ Failed to process transaction: ${error.message}`);
+    logError(`❌ Failed to sign/send transaction: ${error.message}`);
     throw error;
   }
 }
 
 async function main() {
   try {
-    logHeader('🏦 Green Bonds Platform - Transaction Sender');
-    log('=================================================\n', colors.bright);
+    logHeader('🏦 Green Bonds Platform - Transaction Sign & Sender');
+    log(`=================================================`, colors.bright);
     log(`📅 Started at: ${new Date().toISOString()}`, colors.dim);
 
-    logHeader('🔍 Checking Infrastructure...');
+    await runTransactionSignAndSend();
 
-    await runTransactionSenderTest();
-
-    logHeader('✨ Transaction Sender Completed Successfully!');
+    logHeader('✨ Sign & Send Tool Completed Successfully!');
     log(`📅 Completed at: ${new Date().toISOString()}`, colors.dim);
 
   } catch (error) {
-    logError(`❌ Transaction sender failed: ${error.message}`);
+    logError(`❌ Sign & Send Tool failed: ${error.message}`);
     process.exit(1);
   }
 }
@@ -59,4 +57,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { runTransactionSenderTest };
+module.exports = { runTransactionSignAndSend };
