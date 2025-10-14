@@ -66,6 +66,5 @@ export { PageResponse } from "./pagination/PageResponse"
 
 export { QueryOrderPageOptions } from "./query/QueryOrderPageOptions"
 export { QueryPageOptions } from "./query/QueryPageOptions"
-export { QueryPageable } from "./query/QueryPageable"
 export { QueryPageRequest } from "./query/QueryPageRequest"
 export { QueryPageResponse } from "./query/QueryPageResponse"

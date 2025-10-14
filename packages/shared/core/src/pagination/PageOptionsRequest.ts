@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PageOptions } from "./PageOptions"
 import { Type } from "class-transformer"
 import { IsIn, IsInt, IsOptional, IsString, Min } from "class-validator"
+import { QueryOrderPageOptions } from "src/query/QueryOrderPageOptions"
+import { QueryPageOptions } from "src/query/QueryPageOptions"
 
 export class PageOptionsRequest {
   @IsOptional()
@@ -25,15 +26,11 @@ export class PageOptionsRequest {
   @IsIn(["ASC", "DESC", "asc", "desc"])
   order: string = "DESC"
 
-  toPageOptions(): PageOptions {
-    return {
-      page: this.page,
-      limit: this.limit,
-      order: {
-        orderBy: this.orderBy,
-        order: this.order as "asc" | "desc" | "ASC" | "DESC",
-      },
-    }
+  toQueryPageOptions(): QueryPageOptions {
+    return new QueryPageOptions(this.page, this.limit, {
+      order: this.order,
+      orderBy: this.orderBy,
+    } as QueryOrderPageOptions)
   }
 
   static readonly DEFAULT: PageOptionsRequest = (() => {

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { QueryPageable } from "./QueryPageable"
+import { Page } from "src/pagination/Page"
 
 export class QueryPageResponse<T> {
   items: T[]
@@ -9,7 +9,7 @@ export class QueryPageResponse<T> {
   limit: number
   totalPages: number
 
-  static fromPage<T, R>(page: QueryPageable<T>, transform: (item: T) => R): QueryPageResponse<R> {
+  static fromPage<T, R>(page: Page<T>, transform: (item: T) => R): QueryPageResponse<R> {
     const response = new QueryPageResponse<R>()
     response.items = page.items.map(transform)
     response.total = page.total

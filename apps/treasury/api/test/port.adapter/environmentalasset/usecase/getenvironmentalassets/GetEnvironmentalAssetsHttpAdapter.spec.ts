@@ -94,7 +94,6 @@ describe("GetEnvironmentalAssets API Integration", () => {
         .get(`/api/treasuries/${treasury.contractId}/environmental-assets`)
         .expect(200)
 
-      console.log("Response body:", JSON.stringify(response.body, null, 2))
       expect(response.body.total).toBe(2)
       expect(response.body.page).toBe(1)
       expect(response.body.limit).toBe(10)
