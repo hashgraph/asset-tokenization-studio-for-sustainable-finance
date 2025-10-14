@@ -33,6 +33,8 @@ import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTrea
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
+import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
+import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -63,6 +65,7 @@ export const CONTROLLERS = [
   TransferEnvironmentalAssetTransactionHttpAdapter,
   GetEnvironmentalAssetsHttpAdapter,
   GetTreasuryHttpAdapter,
+  GetEnvironmentalAssetHoldingsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -87,6 +90,7 @@ export const PROVIDERS = [
     useClass: TransactionBuilderAdapter,
   },
   GetEnvironmentalAssetsQueryHandler,
+  GetEnvironmentalAssetHoldingsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,

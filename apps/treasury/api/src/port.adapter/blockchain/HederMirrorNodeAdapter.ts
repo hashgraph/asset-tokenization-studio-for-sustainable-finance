@@ -1,6 +1,14 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { HederaPort } from "@port/blockchain/HederaPort"
 import axios from "axios"
-import { ConverterUtils, Retryable, Singleton } from "@hashgraph/green-bonds-shared-core"
+import {
+  ConverterUtils,
+  Retryable,
+  Singleton,
+  QueryPageRequest,
+  PageResponse,
+} from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class HederMirrorNodeAdapter implements HederaPort {
@@ -18,6 +26,32 @@ export class HederMirrorNodeAdapter implements HederaPort {
       return ConverterUtils.formatNumber(balance.toString(), decimals)
     }
     return "0"
+  }
+
+  @Retryable()
+  async getNFTs(tokenId: string, accountId: string, queryPageRequest: QueryPageRequest): Promise<PageResponse<any>> {
+    const limit = queryPageRequest.limit
+    const mirrorNodeOrder = queryPageRequest.order === "DESC" ? "desc" : "asc"
+
+    let path = `tokens/${tokenId}/nfts`
+    const queryParams: string[] = []
+
+    queryParams.push(`account.id=${accountId}`)
+    queryParams.push(`limit=${limit}`)
+    queryParams.push(`order=${mirrorNodeOrder}`)
+
+    path += `?${queryParams.join("&")}`
+
+    const response = await this.fetchData<any>(path)
+
+    const pageResponse = new PageResponse<any>()
+    pageResponse.items = response.nfts || []
+    pageResponse.total = response.nfts?.length || 0
+    pageResponse.page = queryPageRequest.page
+    pageResponse.limit = queryPageRequest.limit
+    pageResponse.totalPages = Math.ceil((response.nfts?.length || 0) / queryPageRequest.limit)
+
+    return pageResponse
   }
 
   private getMirrorNodeURL(network: string): string {
