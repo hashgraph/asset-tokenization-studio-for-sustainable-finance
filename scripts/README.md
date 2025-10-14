@@ -25,11 +25,11 @@ npm run all:stop                   # Stop everything (Docker + APIs)
 
 ### **Utility Scripts**
 ```bash
-# Transaction signing
+# Transaction signing only
 npm run sign
 
-# Transaction sender testing (requires infrastructure)
-npm run sender  
+# Transaction signing and sending (requires infrastructure)
+npm run sign-and-send  
 
 # Bond creation simulation (requires infrastructure)
 npm run bond
@@ -67,7 +67,7 @@ npm run bond
 
 ### **Utility Scripts**
 - `npm run sign` - Interactive transaction signing tool
-- `npm run sender` - Transaction sender testing utility
+- `npm run sign-and-send` - Transaction signing and sending utility
 - `npm run bond` - Bond creation simulation workflow
 
 ## ⚙️ **Prerequisites**
@@ -193,7 +193,7 @@ You can test different blockchain formats by changing the `BLOCKCHAIN_FORMAT` in
 - Set `BLOCKCHAIN_FORMAT=hedera` to test Hedera transaction flows
 - Set `BLOCKCHAIN_FORMAT=ethereum` to test Ethereum/EVM transaction flows
 
-All utility scripts (`npm run sign`, `npm run sender`, `npm run bond`) will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
+All utility scripts (`npm run sign`, `npm run sign-and-send`, `npm run bond`) will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
 
 ## 🚨 **Troubleshooting**
 
