@@ -13,9 +13,6 @@ export class EnvironmentalAssetTokenTransferPersistence extends BaseEntityPersis
   @Column()
   accountId: string
 
-  @Column()
-  amount: string
-
   @Column({
     type: "enum",
     enum: TransferType,

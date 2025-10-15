@@ -8,7 +8,6 @@ export class EnvironmentalAssetTokenTransferredEvent extends Event {
     public readonly serialNumber: string,
     public readonly fromAccountId: string,
     public readonly toAccountId: string,
-    public readonly amount: string,
   ) {
     super()
   }
