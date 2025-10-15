@@ -57,7 +57,7 @@ describe("GetTreasury API Integration", () => {
         contractId: "0.0.5703967",
         treasuryId: treasury.id,
         treasury: treasury,
-        validityDate: new Date(),
+        removalDate: new Date(),
       } as PaymentTokenPersistence
       treasury.paymentToken = paymentToken
       treasury = await internalTreasuryRepository.save(treasury)
@@ -74,7 +74,8 @@ describe("GetTreasury API Integration", () => {
         paused: treasury.paused,
         paymentToken: {
           contractId: paymentToken.contractId,
-          validityDate: paymentToken.validityDate.toISOString(),
+          additionDate: paymentToken.createdAt.toISOString(),
+          removalDate: paymentToken.removalDate.toISOString(),
           balance,
         },
       })
@@ -94,7 +95,6 @@ describe("GetTreasury API Integration", () => {
         contractId: treasury.contractId,
         bondContractId: treasury.bondContractId,
         paused: treasury.paused,
-        paymentToken: null,
       })
     })
 

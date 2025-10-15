@@ -25,10 +25,11 @@ export class GetTreasuryAppService {
       paymentToken: treasury.paymentToken
         ? {
             contractId: treasury.paymentToken.contractId,
-            validityDate: treasury.paymentToken.validityDate,
+            additionDate: treasury.paymentToken.additionDate,
+            removalDate: treasury.paymentToken.removalDate,
             balance: await this.hederaPort.getTokenBalance(treasury.paymentToken.contractId, treasury.contractId),
           }
-        : null,
+        : undefined,
     }
   }
 }

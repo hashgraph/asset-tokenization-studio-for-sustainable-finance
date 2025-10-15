@@ -15,5 +15,5 @@ export class EnvironmentalAssetPersistence extends BaseEntityPersistence {
   treasury: TreasuryPersistence
 
   @Column({ nullable: true })
-  validityDate?: Date
+  removalDate?: Date
 }

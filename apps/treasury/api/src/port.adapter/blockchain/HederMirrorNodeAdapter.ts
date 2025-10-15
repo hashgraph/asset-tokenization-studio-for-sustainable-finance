@@ -13,7 +13,7 @@ export class HederMirrorNodeAdapter implements HederaPort {
   @Retryable()
   async getTokenBalance(tokenId: string, accountId: string): Promise<string> {
     const balances = ((await this.fetchData(`tokens/${tokenId}/balances/?account.id=${accountId}`)) as any)?.balances
-    if (balances && balances[0].balance !== 0) {
+    if (balances && balances.length && balances[0].balance !== 0) {
       const { balance, decimals } = balances[0]
       return ConverterUtils.formatNumber(balance.toString(), decimals)
     }

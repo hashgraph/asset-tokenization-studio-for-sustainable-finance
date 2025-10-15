@@ -8,5 +8,5 @@ export class PaymentToken extends BaseEntity {
   @IsNotEmpty()
   treasuryId: string
 
-  validityDate?: Date
+  removalDate?: Date
 }

@@ -4,5 +4,5 @@ export class GetTreasuryAppServiceResponse {
   readonly contractId: string
   readonly bondContractId: string
   readonly paused: boolean
-  readonly paymentToken: GetTreasuryPaymentTokenAppServiceResponse | null
+  readonly paymentToken?: GetTreasuryPaymentTokenAppServiceResponse
 }

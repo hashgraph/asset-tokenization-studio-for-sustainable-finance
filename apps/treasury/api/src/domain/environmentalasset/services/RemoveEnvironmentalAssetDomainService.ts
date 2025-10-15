@@ -23,7 +23,7 @@ export class RemoveEnvironmentalAssetDomainService {
     }
 
     let environmentalAsset = await this.checkEnvironmentalAssetExists.execute(assetContractId, treasury.id)
-    environmentalAsset.validityDate = new Date()
+    environmentalAsset.removalDate = new Date()
 
     environmentalAsset = await this.environmentalAssetRepository.save(environmentalAsset)
 
