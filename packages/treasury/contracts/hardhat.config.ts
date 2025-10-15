@@ -52,6 +52,7 @@ const config: HardhatUserConfig = {
         local: {
             url: Configuration.endpoints.local.jsonRpc,
             accounts: Configuration.privateKeys.local,
+            usdcAddress: Configuration.usdcAddress.local,
             timeout: 60_000,
         },
         previewnet: {

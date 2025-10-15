@@ -26,6 +26,7 @@ describe('Portfolio operations', () => {
             signer_A,
             []
         )
+
         portfolio = await ethers.getContractAt(
             'PortfolioFacet',
             portfolioAddress
@@ -76,8 +77,11 @@ describe('Portfolio operations', () => {
 
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
-            const environmentalAssetAddress =
-                await deployEnvironmentalAsset(signer_A)
+            const [
+              environmentalAssetFactoryAddress,
+              environmentalAssetAddress,
+              tokenId,
+            ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)
 
@@ -94,13 +98,16 @@ describe('Portfolio operations', () => {
             )
         })
 
-        it('An account granted the PORTFOLIO_MANAGER_ROLE role cannot add the same environmental asset twice', async () => {
+        it('An account granted the PORTFOLIO_MANAGER_ROLE role cannot add an already existing environmental asset', async () => {
             portfolio = portfolio.connect(signer_A)
 
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
-            const environmentalAssetAddress =
-                await deployEnvironmentalAsset(signer_A)
+            const [
+              environmentalAssetFactoryAddress,
+              environmentalAssetAddress,
+              tokenId,
+            ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)
 
@@ -154,8 +161,11 @@ describe('Portfolio operations', () => {
 
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
-            const environmentalAssetAddress =
-                await deployEnvironmentalAsset(signer_A)
+            const [
+              environmentalAssetFactoryAddress,
+              environmentalAssetAddress,
+              tokenId,
+            ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)
 
