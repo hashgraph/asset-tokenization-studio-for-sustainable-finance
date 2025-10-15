@@ -11,7 +11,7 @@ export class EnvironmentalAssetTokenPersistence extends BaseEntityPersistence {
   environmentalAssetId: string
 
   @Column()
-  serialNumber: string
+  serialNumber: number
 
   @ManyToOne(() => EnvironmentalAssetPersistence, { onDelete: "CASCADE" })
   @JoinColumn()

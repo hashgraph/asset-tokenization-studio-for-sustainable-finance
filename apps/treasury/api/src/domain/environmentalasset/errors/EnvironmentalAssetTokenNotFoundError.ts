@@ -1,12 +1,9 @@
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class EnvironmentalAssetTokenNotFoundError extends EntityNotFoundError {
-  static forEnvironmentalAssetAndSerial(
-    environmentalAssetId: string,
-    serialNumber: string,
-  ): EnvironmentalAssetTokenNotFoundError {
+  static tokenError(environmentalAssetId: string, serialNumber: number): EnvironmentalAssetTokenNotFoundError {
     return new EnvironmentalAssetTokenNotFoundError(
-      `EnvironmentalAssetToken not found for environmentalAssetId: ${environmentalAssetId} ` +
+      `Environmental Asset Token not found with environmentalAssetId: ${environmentalAssetId} ` +
         `and serialNumber: ${serialNumber}.`,
     )
   }
