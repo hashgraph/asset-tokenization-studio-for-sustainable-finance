@@ -2,11 +2,10 @@
 
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
-export class EnvironmentalAssetTokenRemovedEvent extends Event {
+export class EnvironmentalAssetTokenAddedEvent extends Event {
   constructor(
     readonly environmentalAssetId: string,
-    readonly serialNumber: string,
-    readonly fromAccountId: string,
+    readonly tokenId: string,
   ) {
     super()
   }

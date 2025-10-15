@@ -5,15 +5,15 @@ import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalas
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 
 @Entity("EnvironmentalAssetToken")
-@Unique(["environmentalAssetId", "serialNumber"])
+@Unique(["environmentalAssetId", "tokenId"])
 export class EnvironmentalAssetTokenPersistence extends BaseEntityPersistence {
   @Column()
   environmentalAssetId: string
 
-  @Column()
-  serialNumber: number
-
   @ManyToOne(() => EnvironmentalAssetPersistence, { onDelete: "CASCADE" })
   @JoinColumn()
   environmentalAsset: EnvironmentalAssetPersistence
+
+  @Column()
+  tokenId: number
 }

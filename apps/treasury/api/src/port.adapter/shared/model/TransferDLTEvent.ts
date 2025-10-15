@@ -6,9 +6,9 @@ export class TransferDLTEvent extends DLTEvent {
   readonly from: string
   readonly to: string
   readonly value: string
-  readonly tokenId: string
+  readonly tokenId: number
 
-  constructor(contractId: string, transactionHash: string, from: string, to: string, value: string, tokenId: string) {
+  constructor(contractId: string, transactionHash: string, from: string, to: string, value: string, tokenId: number) {
     super(contractId, transactionHash)
     this.from = from
     this.to = to

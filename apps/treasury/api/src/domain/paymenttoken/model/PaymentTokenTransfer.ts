@@ -1,6 +1,6 @@
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
 import { IsEnum, IsNotEmpty, IsNumberString } from "class-validator"
-import { TransferType } from "./TransferType"
+import { TransferType } from "@domain/shared/model/TransferType"
 
 export class PaymentTokenTransfer extends BaseEntity {
   @IsNotEmpty()

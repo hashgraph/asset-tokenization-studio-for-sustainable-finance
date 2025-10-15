@@ -10,5 +10,5 @@ export class EnvironmentalAssetToken extends BaseEntity {
   @IsNotEmpty()
   @IsNumber()
   @Min(1)
-  serialNumber: number
+  tokenId: number
 }
