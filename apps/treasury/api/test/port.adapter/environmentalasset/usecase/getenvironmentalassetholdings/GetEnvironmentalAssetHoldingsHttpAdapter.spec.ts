@@ -144,7 +144,6 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      // Verify first holding
       expect(response.body.items[0]).toEqual({
         createdTimestamp: "2024-01-15T10:30:00.000Z",
         delegatingSpender: null,
@@ -155,7 +154,6 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
         spenderId: "0.0.555555",
       })
 
-      // Verify second holding
       expect(response.body.items[1]).toEqual({
         createdTimestamp: "2024-01-15T11:30:00.000Z",
         delegatingSpender: "0.0.666666",
@@ -227,6 +225,35 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       expect(response.body.limit).toBe(3)
       expect(response.body.totalPages).toBe(2)
       expect(response.body.items).toHaveLength(3)
+      expect(response.body.items).toEqual([
+        {
+          createdTimestamp: "2024-01-15T10:30:00.000Z",
+          delegatingSpender: null,
+          deleted: false,
+          metadata: "QmTestHash1",
+          modifiedTimestamp: "2024-01-15T10:30:00.000Z",
+          serialNumber: 1,
+          spenderId: "0.0.555555",
+        },
+        {
+          createdTimestamp: "2024-01-15T11:00:00.000Z",
+          delegatingSpender: null,
+          deleted: false,
+          metadata: "QmTestHash2",
+          modifiedTimestamp: "2024-01-15T11:00:00.000Z",
+          serialNumber: 2,
+          spenderId: "0.0.666666",
+        },
+        {
+          createdTimestamp: "2024-01-15T12:00:00.000Z",
+          delegatingSpender: null,
+          deleted: false,
+          metadata: "QmTestHash3",
+          modifiedTimestamp: "2024-01-15T12:00:00.000Z",
+          serialNumber: 3,
+          spenderId: "0.0.777777",
+        },
+      ])
     })
 
     it("should return 404 when treasury does not exist", async () => {
@@ -313,8 +340,26 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
         .expect(HttpStatus.OK)
 
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items[0].serialNumber).toBe(1)
-      expect(response.body.items[1].serialNumber).toBe(2)
+      expect(response.body.items).toEqual([
+        {
+          createdTimestamp: "2024-01-15T09:00:00.000Z",
+          delegatingSpender: null,
+          deleted: false,
+          metadata: "QmTestHash1",
+          modifiedTimestamp: "2024-01-15T09:00:00.000Z",
+          serialNumber: 1,
+          spenderId: "0.0.555555",
+        },
+        {
+          createdTimestamp: "2024-01-15T10:00:00.000Z",
+          delegatingSpender: null,
+          deleted: false,
+          metadata: "QmTestHash2",
+          modifiedTimestamp: "2024-01-15T10:00:00.000Z",
+          serialNumber: 2,
+          spenderId: "0.0.666666",
+        },
+      ])
     })
   })
 })

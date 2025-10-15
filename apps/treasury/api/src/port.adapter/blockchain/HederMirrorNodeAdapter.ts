@@ -6,8 +6,8 @@ import {
   ConverterUtils,
   Retryable,
   Singleton,
-  QueryPageRequest,
   PageResponse,
+  PageOptionsRequest,
 } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
@@ -29,9 +29,9 @@ export class HederMirrorNodeAdapter implements HederaPort {
   }
 
   @Retryable()
-  async getNFTs(tokenId: string, accountId: string, queryPageRequest: QueryPageRequest): Promise<PageResponse<any>> {
-    const limit = queryPageRequest.limit
-    const mirrorNodeOrder = queryPageRequest.order === "DESC" ? "desc" : "asc"
+  async getNFTs(tokenId: string, accountId: string, pageRequest: PageOptionsRequest): Promise<PageResponse<any>> {
+    const limit = pageRequest.limit
+    const mirrorNodeOrder = pageRequest.order === "DESC" ? "desc" : "asc"
 
     let path = `tokens/${tokenId}/nfts`
     const queryParams: string[] = []
@@ -47,9 +47,9 @@ export class HederMirrorNodeAdapter implements HederaPort {
     const pageResponse = new PageResponse<any>()
     pageResponse.items = response.nfts || []
     pageResponse.total = response.nfts?.length || 0
-    pageResponse.page = queryPageRequest.page
-    pageResponse.limit = queryPageRequest.limit
-    pageResponse.totalPages = Math.ceil((response.nfts?.length || 0) / queryPageRequest.limit)
+    pageResponse.page = pageRequest.page
+    pageResponse.limit = pageRequest.limit
+    pageResponse.totalPages = Math.ceil((response.nfts?.length || 0) / pageRequest.limit)
 
     return pageResponse
   }

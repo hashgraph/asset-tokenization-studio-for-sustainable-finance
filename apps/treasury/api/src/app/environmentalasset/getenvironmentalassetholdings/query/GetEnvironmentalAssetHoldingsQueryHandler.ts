@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { QueryHandler, QueryPageRequest, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
-import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
-import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
-import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
-import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
+import { QueryHandler, PageOptionsRequest, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import { GetEnvironmentalAssetHoldingsQuery } from "./GetEnvironmentalAssetHoldingsQuery"
 import { EnvironmentalAssetHoldingsQueryResponse } from "./EnvironmentalAssetHoldingsQueryResponse"
 import type { HederaPort } from "@port/blockchain/HederaPort"
+import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
+import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 
 @Singleton()
 @Handler(GetEnvironmentalAssetHoldingsQuery)
@@ -17,35 +15,25 @@ export class GetEnvironmentalAssetHoldingsQueryHandler
     QueryHandler<GetEnvironmentalAssetHoldingsQuery, QueryPageResponse<EnvironmentalAssetHoldingsQueryResponse>>
 {
   constructor(
-    @Inject("EnvironmentalAssetRepository") private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
-    @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
     @Inject("HederaPort") private readonly hederaPort: HederaPort,
+    private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
+    private readonly checkTreasuryExists: CheckTreasuryExistsDomainService,
   ) {}
 
   @Validate()
   async execute(
     query: GetEnvironmentalAssetHoldingsQuery,
   ): Promise<QueryPageResponse<EnvironmentalAssetHoldingsQueryResponse>> {
-    const treasury = await this.treasuryRepository.findByContractId(query.treasuryContractId)
-    if (!treasury) {
-      throw TreasuryNotFoundError.contractIdError(query.treasuryContractId)
-    }
+    const treasury = await this.checkTreasuryExists.execute(query.treasuryContractId)
+    const environmentalAsset = await this.checkEnvironmentalAssetExists.execute(query.assetContractId, treasury.id)
 
-    const environmentalAsset = await this.environmentalAssetRepository.findByContractIdAndTreasuryId(
-      query.assetContractId,
-      treasury.id,
-    )
-    if (!environmentalAsset) {
-      throw EnvironmentalAssetNotFoundError.idError(query.assetContractId)
-    }
+    const pageOptionsRequest = new PageOptionsRequest()
+    pageOptionsRequest.page = query.pageOptions.page
+    pageOptionsRequest.limit = query.pageOptions.limit
+    pageOptionsRequest.orderBy = query.pageOptions.order?.orderBy ?? "createdAt"
+    pageOptionsRequest.order = query.pageOptions.order?.order ?? "DESC"
 
-    const queryPageRequest = new QueryPageRequest()
-    queryPageRequest.page = query.pageOptions.page
-    queryPageRequest.limit = query.pageOptions.limit
-    queryPageRequest.orderBy = query.pageOptions.order?.orderBy ?? "createdAt"
-    queryPageRequest.order = query.pageOptions.order?.order ?? "DESC"
-
-    const page = await this.hederaPort.getNFTs(query.assetContractId, query.treasuryContractId, queryPageRequest)
+    const page = await this.hederaPort.getNFTs(environmentalAsset.id, query.treasuryContractId, pageOptionsRequest)
 
     return QueryPageResponse.fromPage(page, (nft: any) => ({
       createdTimestamp: nft.created_timestamp,
