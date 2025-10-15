@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
+import { CreateDateColumn, DeleteDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { BaseEntity } from "./BaseEntity"
 
 export abstract class BaseEntityPersistence {
@@ -12,6 +12,9 @@ export abstract class BaseEntityPersistence {
 
   @UpdateDateColumn()
   updatedAt: Date
+
+  @DeleteDateColumn()
+  deletedAt?: Date
 
   static fromEntity<T extends BaseEntity, P extends BaseEntityPersistence>(entity: T, entityPersistence: P): P {
     entityPersistence.id = entity.id
