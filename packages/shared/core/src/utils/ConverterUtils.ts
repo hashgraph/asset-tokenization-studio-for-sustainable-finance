@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { AccountId, EvmAddress } from "@hashgraph/sdk"
 import axios from "axios"
 import { Retryable } from "../decorators/Retryable"
@@ -16,7 +18,8 @@ export class ConverterUtils {
 
   static formatNumber(value: string, decimals: number) {
     const position = value.length - decimals
-    return `${value.slice(0, position)}.${value.slice(position).replace(/0+$/, "")}`
+    const decimalPart = value.slice(position).replace(/0+$/, "")
+    return `${value.slice(0, position)}${decimalPart ? "." + decimalPart : ""}`
   }
 
   private static isLongZeroAddress(address: string) {

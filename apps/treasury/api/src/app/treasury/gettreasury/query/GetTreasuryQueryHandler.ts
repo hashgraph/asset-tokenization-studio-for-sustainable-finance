@@ -10,6 +10,18 @@ export class GetTreasuryQueryHandler implements QueryHandler<GetTreasuryQuery, G
 
   @Validate()
   async execute(query: GetTreasuryQuery): Promise<GetTreasuryQueryResponse> {
-    return (await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)) as GetTreasuryQueryResponse
+    const treasury = await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)
+    return {
+      contractId: treasury.contractId,
+      bondContractId: treasury.bondContractId,
+      paused: treasury.paused,
+      paymentToken: treasury.paymentToken
+        ? {
+            contractId: treasury.paymentToken.contractId,
+            additionDate: treasury.paymentToken.createdAt,
+            removalDate: treasury.paymentToken.removalDate,
+          }
+        : undefined,
+    }
   }
 }

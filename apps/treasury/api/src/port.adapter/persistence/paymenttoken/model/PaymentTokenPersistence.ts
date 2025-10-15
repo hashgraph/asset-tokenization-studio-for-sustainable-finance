@@ -15,5 +15,5 @@ export class PaymentTokenPersistence extends BaseEntityPersistence {
   treasury: TreasuryPersistence
 
   @Column({ nullable: true })
-  validityDate?: Date
+  removalDate?: Date
 }

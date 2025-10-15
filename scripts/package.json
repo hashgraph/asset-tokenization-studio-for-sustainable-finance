@@ -6,7 +6,7 @@
   "scripts": {
   "sign": "node cli/transaction-signer.js",
   "bond": "node cli/bond-simulator.js", 
-  "sender": "node cli/transaction-sender.js",
+  "sign-and-send": "node cli/transaction-sign-and-send.js",
   "all:start": "node cli/infra-setup.js start",
   "all:stop": "node cli/infra-setup.js stop",
   "all:status": "node cli/infra-setup.js status",
