@@ -8,6 +8,8 @@ import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     PORTFOLIO_MANAGER_ROLE,
     DEFAULT_ADMIN_ROLE,
+    PROCEEDS_FULL_MANAGER,
+    FUNDS_MANAGER_ROLE,
     PAUSER_ROLE
 } from './constants/roles.sol';
 import {
@@ -33,6 +35,8 @@ abstract contract Portfolio is
         _setPaymentToken(paymentToken);
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(PORTFOLIO_MANAGER_ROLE, _msgSender());
+        _grantRole(PROCEEDS_FULL_MANAGER, _msgSender());
+        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
         _grantRole(PAUSER_ROLE, _msgSender());
         portfolioStorage.initialized = true;
     }

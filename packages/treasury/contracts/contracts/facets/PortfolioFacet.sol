@@ -27,7 +27,7 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
         returns (bytes4[] memory staticFunctionSelectors)
     {
         uint256 selectorIndex;
-        staticFunctionSelectors = new bytes4[](3);
+        staticFunctionSelectors = new bytes4[](8);
         staticFunctionSelectors[selectorIndex++] = this
             .initialize_Portfolio
             .selector;

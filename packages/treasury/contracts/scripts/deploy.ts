@@ -11,7 +11,9 @@ export async function deployContract(name, signer, args): Promise<string> {
     return contract.address
 }
 
-export async function deployEnvironmentalAsset(signer): Promise<string> {
+export async function deployEnvironmentalAsset(
+    signer
+): Promise<[string, string, string]> {
     const environmentalAssetFactoryAddress = await deployContract(
         'EnvironmentalAssetFactory',
         signer,
@@ -32,12 +34,12 @@ export async function deployEnvironmentalAsset(signer): Promise<string> {
     const EnvironmentalAssetCreatedEvent = receipt.events.find(
         (e) => e.event === 'EnvironmentalAssetCreated'
     )
-    const NFTMintedEvent = receipt.events.find(
-      (e) => e.event === 'NFTMinted'
-    )
-    return [environmentalAssetFactoryAddress,
-            EnvironmentalAssetCreatedEvent.args.tokenAddress,
-            NFTMintedEvent.args.tokenId]
+    const NFTMintedEvent = receipt.events.find((e) => e.event === 'NFTMinted')
+    return [
+        environmentalAssetFactoryAddress,
+        EnvironmentalAssetCreatedEvent.args.tokenAddress,
+        NFTMintedEvent.args.tokenId,
+    ]
 }
 
 export async function deployPaymentToken(

@@ -26,14 +26,6 @@ abstract contract ProceedsManagement is
     Pause,
     AccessControl
 {
-    // solhint-disable-next-line func-name-mixedcase
-    function initialize_ProceedsManagement() external {
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(PROCEEDS_FULL_MANAGER, _msgSender());
-        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
-        _grantRole(PAUSER_ROLE, _msgSender());
-    }
-
     /*
      * @dev Transfers an amount of payment tokens to an address
      *

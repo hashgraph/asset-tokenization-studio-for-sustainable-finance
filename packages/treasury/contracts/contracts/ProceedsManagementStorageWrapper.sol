@@ -39,26 +39,22 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param amount The amount of payment tokens to be transferred
      */
     function _transferPaymentToken(address to, uint256 amount) internal {
-        try
-            IHederaTokenService(address(this)).transferFrom(
-                _getPaymentToken(),
-                address(this),
-                to,
-                amount
-            )
-        returns (int64 responseCode) {
-            if (responseCode == HederaResponseCodes.SUCCESS) return;
-
-            if (
-                responseCode == HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE
-            ) {
-                revert NotEnoughBalance(amount);
-            }
-
-            revert TransferPaymentTokenFailed(to, amount);
-        } catch {
-            revert TransferPaymentTokenFailed(to, amount);
+        if (!_uint256FitsIntoInt64(amount)) {
+            revert NotAllowedAmount(amount);
         }
+
+        int64 transformedAmount = int64(int256(amount));
+        int256 responseCode = transferToken(
+            _getPaymentToken(),
+            address(this),
+            to,
+            transformedAmount
+        );
+        if (responseCode == HederaResponseCodes.SUCCESS) return;
+        if (responseCode == HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE) {
+            revert NotEnoughBalance(amount);
+        }
+        revert TransferPaymentTokenFailed(to, amount);
     }
 
     /**
@@ -66,42 +62,37 @@ abstract contract ProceedsManagementStorageWrapper is
      *
      * @param environmentalAsset The contract that minted the environmental asset token
      * @param to The account the environmental asset token is transferred to
-     * @param tokenId The id of the environmental asset token being transferred
+     * @param serialNumber The id of the environmental asset token being transferred
      */
     function _transferEnvironmentalAssetToken(
         address environmentalAsset,
         address to,
-        uint256 tokenId
+        uint256 serialNumber
     ) internal {
-        try
-            IHederaTokenService(address(this)).transferFromNFT(
-                environmentalAsset,
-                address(this),
-                to,
-                tokenId
-            )
-        returns (int64 responseCode) {
-            if (responseCode == HederaResponseCodes.SUCCESS) return;
-
-            if (
-                responseCode ==
-                HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
-            ) {
-                revert NotTokenIdOwner(tokenId);
-            }
-
-            revert TransferEnvironmentalAssetTokenFailed(
-                environmentalAsset,
-                to,
-                tokenId
-            );
-        } catch {
-            revert TransferEnvironmentalAssetTokenFailed(
-                environmentalAsset,
-                to,
-                tokenId
-            );
+        if (!_uint256FitsIntoInt64(serialNumber)) {
+            revert NotAllowedSerialNumber(serialNumber);
         }
+
+        int64 transformedSerialNumber = int64(int256(serialNumber));
+        int256 responseCode = transferNFT(
+            environmentalAsset,
+            address(this),
+            to,
+            transformedSerialNumber
+        );
+
+        if (responseCode == HederaResponseCodes.SUCCESS) return;
+        if (
+            responseCode ==
+            HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
+        ) {
+            revert NotTokenIdOwner(serialNumber);
+        }
+        revert TransferEnvironmentalAssetTokenFailed(
+            environmentalAsset,
+            to,
+            serialNumber
+        );
     }
 
     /**
@@ -127,5 +118,14 @@ abstract contract ProceedsManagementStorageWrapper is
         /*if (IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient)) {
             revert WrongProceedsRecipient(proceedsRecipient);
         }*/
+    }
+
+    /*
+     * @dev Check whether a value is greater thant the maximum int64
+     *
+     * @param value True if the value is not greater than the maximum int64, false otherwise
+     */
+    function _uint256FitsIntoInt64(uint256 value) private pure returns (bool) {
+        return value <= 9223372036854775807;
     }
 }

@@ -3,6 +3,20 @@ pragma solidity 0.8.18;
 
 interface IProceedsManagementStorageWrapper {
     /**
+     * @notice Error thrown when transferring an amount of payment tokens greater than the maximum int64
+     *
+     * @param amount The amount of payment tokens to be transferred
+     */
+    error NotAllowedAmount(uint256 amount);
+
+    /**
+     * @notice Error thrown when transferring a NFT with a serial number greater than the maximum int64
+     *
+     * @param serialNumber The serial number of the NFT to be transferred
+     */
+    error NotAllowedSerialNumber(uint256 serialNumber);
+
+    /**
      * @notice Error thrown when attempting to transfer an amount of payment tokens larger than the Treasury's balance
      *
      * @param amount The amount of payment tokens to transfer

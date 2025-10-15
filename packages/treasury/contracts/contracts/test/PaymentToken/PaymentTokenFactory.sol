@@ -18,7 +18,6 @@ import {
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol';
 
 contract PaymentTokenFactory is ExpiryHelper, KeyHelper, HederaTokenService {
-
     event PaymentTokenCreated(address indexed tokenAddress);
 
     error PaymentTokenTransferError(address token, address to, int64 amount);
