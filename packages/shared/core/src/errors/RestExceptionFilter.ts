@@ -82,7 +82,7 @@ export class RestExceptionFilter implements ExceptionFilter<Error> {
     message: string
     cause?: unknown
   } {
-    if (exc.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR) {
+    if (exc.getStatus() == <number>HttpStatus.INTERNAL_SERVER_ERROR) {
       return {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: "Internal server error",

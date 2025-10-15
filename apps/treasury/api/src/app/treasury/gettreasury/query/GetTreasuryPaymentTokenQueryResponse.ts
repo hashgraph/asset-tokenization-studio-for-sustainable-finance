@@ -1,4 +1,5 @@
 export class GetTreasuryPaymentTokenQueryResponse {
   readonly contractId: string
-  readonly validityDate: Date
+  readonly additionDate: Date
+  readonly removalDate?: Date
 }

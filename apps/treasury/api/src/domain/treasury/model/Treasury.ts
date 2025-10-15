@@ -12,7 +12,7 @@ export class Treasury extends BaseEntity {
 
   @ValidateNested()
   @Type(() => PaymentToken)
-  paymentToken: PaymentToken
+  paymentToken?: PaymentToken
 
   @IsDefined()
   paused: boolean = false
