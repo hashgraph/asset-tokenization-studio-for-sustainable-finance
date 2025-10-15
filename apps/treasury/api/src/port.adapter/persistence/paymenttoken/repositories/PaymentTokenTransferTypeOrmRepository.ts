@@ -26,7 +26,7 @@ export class PaymentTokenTransferTypeOrmRepository implements PaymentTokenTransf
     return await this.paymentTokenTransferRepository.findOne({ where: { id } })
   }
 
-  async findByContractId(contractId: string): Promise<PaymentTokenTransfer[]> {
-    return await this.paymentTokenTransferRepository.find({ where: { contractId } })
+  async findByAccountId(accountId: string): Promise<PaymentTokenTransfer[]> {
+    return await this.paymentTokenTransferRepository.find({ where: { accountId } })
   }
 }

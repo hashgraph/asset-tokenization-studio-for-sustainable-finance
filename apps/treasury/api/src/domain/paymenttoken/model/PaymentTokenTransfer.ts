@@ -4,7 +4,7 @@ import { TransferType } from "./TransferType"
 
 export class PaymentTokenTransfer extends BaseEntity {
   @IsNotEmpty()
-  contractId: string
+  accountId: string
 
   @IsNotEmpty()
   @IsNumberString({ no_symbols: true })

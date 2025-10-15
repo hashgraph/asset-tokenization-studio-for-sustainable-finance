@@ -5,5 +5,5 @@ export interface PaymentTokenTransferRepository {
 
   findById(id: string): Promise<PaymentTokenTransfer | null>
 
-  findByContractId(contractId: string): Promise<PaymentTokenTransfer[]>
+  findByAccountId(accountId: string): Promise<PaymentTokenTransfer[]>
 }

@@ -6,7 +6,7 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 @Entity("PaymentTokenTransfer")
 export class PaymentTokenTransferPersistence extends BaseEntityPersistence {
   @Column()
-  contractId: string
+  accountId: string
 
   @Column()
   amount: string
