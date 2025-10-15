@@ -7,8 +7,11 @@ export class PaymentTokenTransfer extends BaseEntity {
   contractId: string
 
   @IsNotEmpty()
-  @IsNumberString()
+  @IsNumberString({ no_symbols: true })
   amount: string
+
+  @IsNotEmpty()
+  paymentTokenId: string
 
   @IsNotEmpty()
   @IsEnum(TransferType)
