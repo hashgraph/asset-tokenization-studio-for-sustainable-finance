@@ -33,7 +33,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
       where: {
         contractId: contractId,
         treasuryId: treasuryId,
-        validityDate: IsNull(),
+        removalDate: IsNull(),
       },
     })
   }

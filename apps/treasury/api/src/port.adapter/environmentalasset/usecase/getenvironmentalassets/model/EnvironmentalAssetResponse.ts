@@ -2,5 +2,6 @@
 
 export class EnvironmentalAssetResponse {
   contractId: string
-  validityDate: Date | null
+  additionDate: Date
+  removalDate: Date | null
 }

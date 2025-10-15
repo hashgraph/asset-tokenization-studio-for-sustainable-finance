@@ -2,5 +2,6 @@
 
 export class EnvironmentalAssetQueryResponse {
   contractId: string
-  validityDate?: Date
+  additionDate: Date
+  removalDate?: Date
 }

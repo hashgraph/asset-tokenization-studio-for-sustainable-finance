@@ -74,7 +74,7 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
         where: { treasuryId: treasury.id },
       })
       expect(environmentalAssets).toHaveLength(1)
-      expect(environmentalAssets[0].validityDate).toEqual(expect.any(Date))
+      expect(environmentalAssets[0].removalDate).toEqual(expect.any(Date))
 
       expect(publishedEvent).toEqual({
         treasuryContractId: treasury.contractId,
