@@ -106,8 +106,9 @@ describe("GetEnvironmentalAssets API Integration", () => {
 
       response.body.items.forEach((item: any) => {
         expect(item).toHaveProperty("contractId")
-        expect(item).toHaveProperty("validityDate")
-        expect(item.validityDate).toBeNull()
+        expect(item).toHaveProperty("additionDate")
+        expect(item).toHaveProperty("removalDate")
+        expect(item.removalDate).toBeNull()
       })
     })
 
