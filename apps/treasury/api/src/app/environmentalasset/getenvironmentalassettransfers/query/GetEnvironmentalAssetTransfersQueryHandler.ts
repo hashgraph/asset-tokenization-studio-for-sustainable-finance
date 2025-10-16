@@ -3,8 +3,7 @@
 import { Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { QueryHandler, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
-import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
-import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
+import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
 import { GetEnvironmentalAssetTransfersQuery } from "./GetEnvironmentalAssetTransfersQuery"
 import { EnvironmentalAssetTransferQueryResponse } from "./EnvironmentalAssetTransferQueryResponse"
 import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
@@ -18,20 +17,16 @@ export class GetEnvironmentalAssetTransfersQueryHandler
   constructor(
     @Inject()
     private readonly environmentalAssetTransferRepository: EnvironmentalAssetTransferRepository,
-    @Inject()
-    private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
+    private readonly checkEnvironmentalAssetExistsDomainService: CheckEnvironmentalAssetExistsDomainService,
   ) {}
 
   @Validate()
   async execute(
     query: GetEnvironmentalAssetTransfersQuery,
   ): Promise<QueryPageResponse<EnvironmentalAssetTransferQueryResponse>> {
-    const environmentalAsset = await this.environmentalAssetRepository.findByContractId(
+    const environmentalAsset = await this.checkEnvironmentalAssetExistsDomainService.executeByContractId(
       query.environmentalAssetContractId,
     )
-    if (!environmentalAsset) {
-      throw EnvironmentalAssetNotFoundError.contractIdError(query.environmentalAssetContractId)
-    }
 
     const page = await this.environmentalAssetTransferRepository.findByEnvironmentalAssetId(
       environmentalAsset.id,
