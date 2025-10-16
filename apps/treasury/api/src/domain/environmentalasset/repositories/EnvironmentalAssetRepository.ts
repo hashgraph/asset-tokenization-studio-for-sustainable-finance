@@ -11,5 +11,5 @@ export interface EnvironmentalAssetRepository {
 
   findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<EnvironmentalAsset>>
 
-  existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractIds: string): Promise<boolean>
+  existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean>
 }

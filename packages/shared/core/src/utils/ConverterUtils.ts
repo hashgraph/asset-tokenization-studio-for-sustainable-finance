@@ -19,7 +19,7 @@ export class ConverterUtils {
   static formatNumber(value: string, decimals: number) {
     const position = value.length - decimals
     const decimalPart = value.slice(position).replace(/0+$/, "")
-    return `${value.slice(0, position)}${decimalPart ? "." + decimalPart : ""}`
+    return `${value.slice(0, position) || "0"}${decimalPart ? "." + decimalPart : ""}`
   }
 
   private static isLongZeroAddress(address: string) {
