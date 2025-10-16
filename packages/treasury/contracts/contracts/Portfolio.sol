@@ -3,53 +3,67 @@ pragma solidity 0.8.18;
 
 // solhint-disable no-empty-blocks
 
+import {IPortfolio} from './interfaces/IPortfolio.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     PORTFOLIO_MANAGER_ROLE,
     DEFAULT_ADMIN_ROLE,
+    PROCEEDS_FULL_MANAGER,
+    FUNDS_MANAGER_ROLE,
     PAUSER_ROLE
 } from './constants/roles.sol';
-import {Pause} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {AccessControl} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
+import {
+    Pause
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
+import {
+    AccessControl
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
-abstract contract Portfolio is PortfolioStorageWrapper, Pause, AccessControl {
+abstract contract Portfolio is
+    IPortfolio,
+    PortfolioStorageWrapper,
+    Pause,
+    AccessControl
+{
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
-        address[] memory erc721s
+        address[] memory environmentalAssets
     ) external override onlyUninitialized(_portfolioStorage().initialized) {
         PortfolioStorage storage portfolioStorage = _portfolioStorage();
-        _setErc721s(erc721s);
+        _setEnvironmentalAssets(environmentalAssets);
         _setPaymentToken(paymentToken);
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(PORTFOLIO_MANAGER_ROLE, _msgSender());
+        _grantRole(PROCEEDS_FULL_MANAGER, _msgSender());
+        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
         _grantRole(PAUSER_ROLE, _msgSender());
         portfolioStorage.initialized = true;
     }
 
     /**
-     * @dev Add a new ERC721 token contract to the treasury
+     * @dev Add a new environmental asset token contract to the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to add to the treasury
+     * @param environmentalAsset The address of the environmental asset token contract to add to the treasury
      */
-    function addERC721Token(
-        address erc721
+    function addEnvironmentalAssetToken(
+        address environmentalAsset
     ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) {
-        bool tokenAdded = _addERC721Token(erc721);
+        bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
-            emit ERC721Added(msg.sender, erc721);
+            emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
         }
     }
 
     /**
-     * @dev Remove an existing ERC721 token contract from the treasury
+     * @dev Remove an existing environmental asset token contract from the treasury
      *
-     * @param erc721 The address of the ERC721 token contract to remove from the treasury
+     * @param environmentalAsset The address of the environmental asset token contract to remove from the treasury
      *
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function removeERC721Token(
-        address erc721
+    function removeEnvironmentalAssetToken(
+        address environmentalAsset
     )
         external
         override
@@ -57,8 +71,12 @@ abstract contract Portfolio is PortfolioStorageWrapper, Pause, AccessControl {
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         returns (int256 dissociationError)
     {
-        dissociationError = _removeERC721Token(erc721);
-        emit ERC721Removed(msg.sender, erc721, dissociationError);
+        dissociationError = _removeEnvironmentalAssetToken(environmentalAsset);
+        emit EnvironmentalAssetRemoved(
+            msg.sender,
+            environmentalAsset,
+            dissociationError
+        );
     }
 
     /**
@@ -69,7 +87,7 @@ abstract contract Portfolio is PortfolioStorageWrapper, Pause, AccessControl {
     function updatePaymentToken(address paymentToken) external {}
 
     /**
-     * @dev Dissociate an ERC721 token or a payment token from the treasury
+     * @dev Dissociate an environmental asset token or a payment token from the treasury
      *
      * @param token The address of the token to be dissociated
      */
@@ -80,30 +98,38 @@ abstract contract Portfolio is PortfolioStorageWrapper, Pause, AccessControl {
     }
 
     /**
-     * @dev Get the total amount of ERC721 tokens associated to the treasury
+     * @dev Get the total amount of environmental asset tokens associated to the treasury
      *
-     * @return total The total amount of ERC721 tokens associated to the treasury
+     * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalERC721Tokens() external view returns (uint256 total) {}
+    function getTotalEnvironmentalAssetTokens()
+        external
+        view
+        returns (uint256 total)
+    {
+        return _getTotalEnvironmentalAssetTokens();
+    }
 
     /**
-     * @dev Get a page list of ERC721 tokens associated to the treasury
+     * @dev Get a page list of environmental asset tokens associated to the treasury
      *
-     * @param pageIndex The page index of ERC721 tokens associated to the treasury
+     * @param pageIndex The page index of environmental asset tokens associated to the treasury
      * @param pageLength The page length of ER721 tokens associated to the treasury
      *
-     * @return erc721 The page list of ERC721 tokens associated to the treasury
+     * @return environmentalAsset The page list of environmental asset tokens associated to the treasury
      */
 
-    function getERC721Tokens(
+    function getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
-    ) external view returns (address[] memory erc721) {}
+    ) external view returns (address[] memory environmentalAsset) {}
 
     /**
      * @dev Get the payment token associated to the treasury
      *
      * @return paymentToken The payment token associated to the treasury
      */
-    function getPaymentToken() external view returns (address paymentToken) {}
+    function getPaymentToken() external view returns (address paymentToken) {
+        paymentToken = _getPaymentToken();
+    }
 }
