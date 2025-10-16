@@ -33,6 +33,10 @@ import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTrea
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
+import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
+import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
+import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
+import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -44,6 +48,10 @@ const REPOSITORIES: Provider[] = [
     useClass: EnvironmentalAssetTypeOrmRepository,
   },
   {
+    provide: "EnvironmentalAssetTokenRepository",
+    useClass: EnvironmentalAssetTokenTypeOrmRepository,
+  },
+  {
     provide: "PaymentTokenRepository",
     useClass: PaymentTokenTypeOrmRepository,
   },
@@ -53,6 +61,7 @@ export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
+  EnvironmentalAssetTokenPersistence,
   PaymentTokenPersistence,
 ]
 
@@ -63,6 +72,7 @@ export const CONTROLLERS = [
   TransferEnvironmentalAssetTransactionHttpAdapter,
   GetEnvironmentalAssetsHttpAdapter,
   GetTreasuryHttpAdapter,
+  GetEnvironmentalAssetHoldingsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -87,6 +97,7 @@ export const PROVIDERS = [
     useClass: TransactionBuilderAdapter,
   },
   GetEnvironmentalAssetsQueryHandler,
+  GetEnvironmentalAssetHoldingsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
