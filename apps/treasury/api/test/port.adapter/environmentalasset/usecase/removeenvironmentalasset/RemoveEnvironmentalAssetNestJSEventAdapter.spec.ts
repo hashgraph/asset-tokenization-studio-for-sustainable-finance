@@ -8,7 +8,7 @@ import { Repository } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ERC721RemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/ERC721RemovedDLTEvent"
+import { EnvironmentalAssetRemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/ERC721RemovedDLTEvent"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 
@@ -62,13 +62,13 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
       let publishedEvent
       jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(environmentalAsset.contractId)
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new ERC721RemovedDLTEvent(
+      const event = new EnvironmentalAssetRemovedDLTEvent(
         treasury.contractId,
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await eventBus.publishSync(event, ERC721RemovedDLTEvent.name)
+      await eventBus.publishSync(event, EnvironmentalAssetRemovedDLTEvent.name)
 
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
@@ -93,13 +93,13 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
 
       const assetContractId = "0.0.44432"
       jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(assetContractId)
-      const event = new ERC721RemovedDLTEvent(
+      const event = new EnvironmentalAssetRemovedDLTEvent(
         treasury.contractId,
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await expect(eventBus.publishSync(event, ERC721RemovedDLTEvent.name)).rejects.toThrow(
+      await expect(eventBus.publishSync(event, EnvironmentalAssetRemovedDLTEvent.name)).rejects.toThrow(
         EnvironmentalAssetNotFoundError.idError(assetContractId),
       )
 
@@ -113,13 +113,13 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
   describe("when treasury does not exist", () => {
     it("should throw TreasuryNotFoundError", async () => {
       const treasuryContractId = "0.0.88890"
-      const event = new ERC721RemovedDLTEvent(
+      const event = new EnvironmentalAssetRemovedDLTEvent(
         treasuryContractId,
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await expect(eventBus.publishSync(event, ERC721RemovedDLTEvent.name)).rejects.toThrow(
+      await expect(eventBus.publishSync(event, EnvironmentalAssetRemovedDLTEvent.name)).rejects.toThrow(
         TreasuryNotFoundError.contractIdsError([treasuryContractId]),
       )
     })
