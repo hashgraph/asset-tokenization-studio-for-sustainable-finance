@@ -16,8 +16,7 @@ export class GetEnvironmentalAssetHoldingsQueryHandler
     QueryHandler<GetEnvironmentalAssetHoldingsQuery, QueryPageResponse<EnvironmentalAssetHoldingsQueryResponse>>
 {
   constructor(
-    @Inject("EnvironmentalAssetTokenRepository")
-    private readonly environmentalAssetTokenRepository: EnvironmentalAssetTokenRepository,
+    @Inject() private readonly environmentalAssetTokenRepository: EnvironmentalAssetTokenRepository,
     private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
     private readonly checkTreasuryExists: CheckTreasuryExistsDomainService,
   ) {}
@@ -36,7 +35,7 @@ export class GetEnvironmentalAssetHoldingsQueryHandler
 
     return QueryPageResponse.fromPage(page, (token: EnvironmentalAssetToken) => ({
       tokenId: token.tokenId,
-      additionDate: token.createdAt.toISOString(),
+      additionDate: token.createdAt,
     }))
   }
 }

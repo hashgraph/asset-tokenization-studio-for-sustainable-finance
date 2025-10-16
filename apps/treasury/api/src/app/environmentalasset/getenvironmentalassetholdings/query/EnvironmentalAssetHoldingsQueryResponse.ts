@@ -2,5 +2,5 @@
 
 export class EnvironmentalAssetHoldingsQueryResponse {
   readonly tokenId: number
-  readonly additionDate: string
+  readonly additionDate: Date
 }
