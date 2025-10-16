@@ -25,21 +25,26 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return persistence ? this.toDomain(persistence) : null
   }
 
+  async findByContractId(contractId: string): Promise<EnvironmentalAsset | null> {
+    return this.repository.findOne({
+      where: {
+        contractId,
+        removalDate: IsNull(),
+      },
+    })
+  }
+
   private async findActivePersistence(
     contractId: string,
     treasuryId: string,
   ): Promise<EnvironmentalAssetPersistence | null> {
     return this.repository.findOne({
       where: {
-        contractId: contractId,
-        treasuryId: treasuryId,
+        contractId,
+        treasuryId,
         removalDate: IsNull(),
       },
     })
-  }
-
-  private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {
-    return { ...persistence } as EnvironmentalAsset
   }
 
   async findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<EnvironmentalAsset>> {
@@ -61,5 +66,24 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
+
+  async existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean> {
+    return this.repository.exists({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: IsNull(),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+  }
+
+  private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {
+    return { ...persistence } as EnvironmentalAsset
   }
 }

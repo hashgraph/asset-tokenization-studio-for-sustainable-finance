@@ -4,12 +4,12 @@ import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
-import { EnvironmentalAssetTokenTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTokenTransferRepository"
+import { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
-export class EnvironmentalAssetTransferTypeOrmRepository implements EnvironmentalAssetTokenTransferRepository {
+export class EnvironmentalAssetTransferTypeOrmRepository implements EnvironmentalAssetTransferRepository {
   constructor(
     @InjectRepository(EnvironmentalAssetTransferPersistence)
     private readonly repository: Repository<EnvironmentalAssetTransferPersistence>,
