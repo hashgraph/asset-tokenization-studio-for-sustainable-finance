@@ -332,7 +332,6 @@ describe('Proceeds management operations', () => {
                     BigNumber.from('9223372036854775808')
                 )
             )
-
                 .to.be.revertedWithCustomError(treasury, 'NotAllowedAmount')
                 .withArgs(9223372036854775808n)
         })
