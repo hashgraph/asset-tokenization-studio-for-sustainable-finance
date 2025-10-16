@@ -11,13 +11,17 @@ interface IProceedsManagement {
     event PaymentTokenTransferred(address to, uint256 amount);
 
     /*
-     * @dev Emitted when an ERC721 token was transferred to an address
+     * @dev Emitted when an environmental asset token was transferred to an address
      *
-     * @param erc721 The address of the erc721 token
+     * @param environmentalAsset The address of the environmental asset token
      * @param to The address the payment tokens were transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param tokenId The tokenId of the environmental asset token
      */
-    event ERC721TokenTransferred(address erc721, address to, uint256 tokenId);
+    event EnvironmentalAssetTokenTransferred(
+        address environmentalAsset,
+        address to,
+        uint256 tokenId
+    );
 
     /*
      * @dev Emitted when a proceeds recipient was funded with an amount
@@ -27,67 +31,23 @@ interface IProceedsManagement {
      */
     event ProceedsRecipientFunded(address proceedsRecipient, uint256 amount);
 
-    /**
-     * @notice Error thrown when something fails while attempting to transfer payment tokens
-     *
-     * @param to The address the payment tokens are transferred to
-     * @param amount The amount of payment tokens to transfer
-     */
-    error TransferPaymentTokenFailed(address to, uint256 amount);
-
-    /**
-     * @notice Error thrown when something fails while attempting to transfer an ERC721 token
-     *
-     * @param erc721 The address of the erc721 token contract
-     * @param to The address the payment tokens are transferred to
-     * @param tokenId The tokenId of the erc721 token
-     */
-    error TransferERC721TokenFailed(
-        address erc721,
-        address to,
-        uint256 tokenId
-    );
-
-    /**
-     * @notice Error thrown when attempting to transfer an amount of payment tokens larger than the Treasury's balance
-     *
-     * @param amount The amount of payment tokens to transfer
-     */
-    error NotEnoughBalance(uint256 amount);
-
-    /**
-     * @notice Error thrown when attempting to transfer an ERC721 token the Treasury does not own
-     *
-     * @param erc721 The address of the erc721 token contract
-     * @param to The address the payment tokens are transferred to
-     * @param tokenId The tokenId of the erc721 token
-     */
-    error NotTokenIdOwner(address erc721, address to, uint256 tokenId);
-
-    /**
-     * @notice Error thrown when funding an account that is not an asset proceeds recipient
-     *
-     * @param proceedsRecipient The address of the proceeds recipient that is funded
-     */
-    error WrongProceedsRecipient(address proceedsRecipient);
-
     /*
      * @dev Transfers an amount of payment tokens to an address
      *
      * @param to The address the payment tokens are transferred to
-     * @param amount The amount of payment tokens to transfer
+     * @param amount The amount of payment tokens to be transferred
      */
     function transferPaymentToken(address to, uint256 amount) external;
 
     /*
-     * @dev Transfers an ERC721 token to an address
+     * @dev Transfers an environmental asset token to an address
      *
-     * @param erc721 The address of the erc721 token contract
-     * @param to The address the payment tokens are transferred to
-     * @param tokenId The tokenId of the erc721 token
+     * @param environmentalAsset The address of the environmental asset token contract
+     * @param to The address the environmental asset token is transferred to
+     * @param tokenId The tokenId of the environmental asset token
      */
-    function transferERC721Token(
-        address erc721,
+    function transferEnvironmentalAssetToken(
+        address environmentalAsset,
         address to,
         uint256 tokenId
     ) external;
@@ -98,5 +58,8 @@ interface IProceedsManagement {
      * @param recipient The address of the proceeds recipient that is funded
      * @param token The amount the proceeds recipient is funded with
      */
-    function fundProceedsRecipient(address recipient, uint256 amount) external;
+    function fundProceedsRecipient(
+        address proceedsRecipient,
+        uint256 amount
+    ) external;
 }
