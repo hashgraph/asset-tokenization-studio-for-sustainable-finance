@@ -7,12 +7,10 @@ import { EnvironmentalAssetTokenNotFoundError } from "@domain/environmentalasset
 
 @Singleton()
 export class CheckEnvironmentalAssetTokenExistsDomainService {
-  constructor(
-    @Inject("EnvironmentalAssetTokenRepository") private readonly repository: EnvironmentalAssetTokenRepository,
-  ) {}
+  constructor(@Inject() private readonly environmentalAssetTokenRepository: EnvironmentalAssetTokenRepository) {}
 
   async execute(environmentalAssetId: string, tokenId: number): Promise<EnvironmentalAssetToken> {
-    const environmentalAssetToken = await this.repository.findByEnvironmentalAssetIdAndTokenId(
+    const environmentalAssetToken = await this.environmentalAssetTokenRepository.findByEnvironmentalAssetIdAndTokenId(
       environmentalAssetId,
       tokenId,
     )

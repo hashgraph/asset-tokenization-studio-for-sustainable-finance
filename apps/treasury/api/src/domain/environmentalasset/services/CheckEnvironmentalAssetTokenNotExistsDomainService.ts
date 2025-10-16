@@ -6,12 +6,13 @@ import { EnvironmentalAssetTokenAlreadyExistsError } from "@domain/environmental
 
 @Singleton()
 export class CheckEnvironmentalAssetTokenNotExistsDomainService {
-  constructor(
-    @Inject("EnvironmentalAssetTokenRepository") private readonly repository: EnvironmentalAssetTokenRepository,
-  ) {}
+  constructor(@Inject() private readonly environmentalAssetTokenRepository: EnvironmentalAssetTokenRepository) {}
 
   async execute(environmentalAssetId: string, tokenId: number): Promise<void> {
-    const token = await this.repository.findByEnvironmentalAssetIdAndTokenId(environmentalAssetId, tokenId)
+    const token = await this.environmentalAssetTokenRepository.findByEnvironmentalAssetIdAndTokenId(
+      environmentalAssetId,
+      tokenId,
+    )
     if (token) {
       throw EnvironmentalAssetTokenAlreadyExistsError.create(environmentalAssetId, tokenId)
     }

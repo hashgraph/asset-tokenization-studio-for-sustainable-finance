@@ -10,7 +10,7 @@ import { AddEnvironmentalAssetTransferAppServiceRequest } from "@app/environment
 export class AddEnvironmentalAssetTransferNestJSEventAdapter implements AddEnvironmentalAssetTransferPort {
   constructor(private readonly addEnvironmentalAssetTransferAppService: AddEnvironmentalAssetTransferAppService) {}
 
-  //@Handler(TransferDLTEvent)
+  @Handler(TransferDLTEvent)
   async handle(event: TransferDLTEvent): Promise<void> {
     await this.addEnvironmentalAssetTransferAppService.execute({
       environmentalAssetContractId: event.contractId,
