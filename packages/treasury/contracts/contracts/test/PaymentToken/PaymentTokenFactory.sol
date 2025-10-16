@@ -2,6 +2,7 @@
 
 pragma solidity 0.8.18;
 
+import {IPaymentTokenFactory} from '../interfaces/IPaymentTokenFactory.sol';
 import {
     HederaTokenService,
     HederaResponseCodes
@@ -17,11 +18,22 @@ import {
     KeyHelper
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol';
 
-contract PaymentTokenFactory is ExpiryHelper, KeyHelper, HederaTokenService {
-    event PaymentTokenCreated(address indexed tokenAddress);
-
-    error PaymentTokenTransferError(address token, address to, int64 amount);
-
+contract PaymentTokenFactory is
+    IPaymentTokenFactory,
+    ExpiryHelper,
+    KeyHelper,
+    HederaTokenService
+{
+    /**
+     * @dev Create a payment token
+     *
+     * @param name The name of the payment token
+     * @param symbol The symbol of the payment token
+     * @param initialSupply The initial supply of the payment token
+     * @param decimals The decimals number of the payment token
+     *
+     * @return tokenAddress The payment token address
+     */
     function createPaymentToken(
         string memory name,
         string memory symbol,
@@ -59,14 +71,21 @@ contract PaymentTokenFactory is ExpiryHelper, KeyHelper, HederaTokenService {
             initialSupply,
             decimals
         );
-        require(
-            responseCode == HederaResponseCodes.SUCCESS,
-            Strings.toString(responseCode)
-        );
+
+        if (responseCode != HederaResponseCodes.SUCCESS) {
+            revert PaymentTokenCreateError(name, symbol, responseCode);
+        }
 
         emit PaymentTokenCreated(tokenAddress);
     }
 
+    /**
+     * @dev Transfer an amount of payment tokens
+     *
+     * @param token The address of the payment token to be transferred
+     * @param to The address of the payment token destination
+     * @param amount The amount of payment tokens to be transferred
+     */
     function transferPaymentToken(
         address token,
         address to,

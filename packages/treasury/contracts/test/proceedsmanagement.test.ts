@@ -4,16 +4,16 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { AddressZero } from '@ethersproject/constants'
-import { type PortfolioFacet, type ProceedsManagementFacet } from '@typechain'
+import { type TreasuryTestWrapper } from '@typechain'
 import { FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER } from '../scripts/constants'
 import {
-    deployContract,
+    deployTreasury,
     deployPaymentToken,
     deployEnvironmentalAsset,
 } from '../scripts/deploy.ts'
 
 let signer_A, signer_B
-let treasury: PortfolioProceedsManagementFacet
+let treasury: TreasuryTestWrapper
 let environmentalAssetFactoryAddress: string
 let environmentalAssetAddress: string
 let paymentTokenFactoryAddress: string
@@ -31,15 +31,7 @@ describe('Proceeds management operations', () => {
 
     beforeEach(async () => {
         ;[signer_A, signer_B] = await ethers.getSigners()
-        const treasuryAddress = await deployContract(
-            'PortfolioProceedsManagementFacet',
-            signer_A,
-            []
-        )
-        treasury = await ethers.getContractAt(
-            'PortfolioProceedsManagementFacet',
-            treasuryAddress
-        )
+        treasury = await deployTreasury(signer_A, [])
         ;[paymentTokenFactoryAddress, paymentTokenAddress] =
             await deployPaymentToken(signer_A, 100, 2)
         ;[

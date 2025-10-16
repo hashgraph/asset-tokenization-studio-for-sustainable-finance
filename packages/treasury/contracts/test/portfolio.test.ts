@@ -78,9 +78,9 @@ describe('Portfolio operations', () => {
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
-              environmentalAssetFactoryAddress,
-              environmentalAssetAddress,
-              tokenId,
+                environmentalAssetFactoryAddress,
+                environmentalAssetAddress,
+                tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)
@@ -104,9 +104,9 @@ describe('Portfolio operations', () => {
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
-              environmentalAssetFactoryAddress,
-              environmentalAssetAddress,
-              tokenId,
+                environmentalAssetFactoryAddress,
+                environmentalAssetAddress,
+                tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)
@@ -162,9 +162,9 @@ describe('Portfolio operations', () => {
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
-              environmentalAssetFactoryAddress,
-              environmentalAssetAddress,
-              tokenId,
+                environmentalAssetFactoryAddress,
+                environmentalAssetAddress,
+                tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
             portfolio = portfolio.connect(signer_B)

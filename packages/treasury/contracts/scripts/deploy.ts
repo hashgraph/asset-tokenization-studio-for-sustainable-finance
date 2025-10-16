@@ -11,6 +11,15 @@ export async function deployContract(name, signer, args): Promise<string> {
     return contract.address
 }
 
+export async function deployTreasury(signer, args): Promise<string> {
+    const treasuryAddress = await deployContract(
+        'TreasuryTestWrapper',
+        signer,
+        args
+    )
+    return await ethers.getContractAt('TreasuryTestWrapper', treasuryAddress)
+}
+
 export async function deployEnvironmentalAsset(
     signer
 ): Promise<[string, string, string]> {
