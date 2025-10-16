@@ -6,7 +6,7 @@ export class EnvironmentalAssetTransferAddedEvent extends Event {
   constructor(
     readonly environmentalAssetId: string,
     readonly tokenId: number,
-    readonly account: string,
+    readonly accountId: string,
     readonly type: string,
   ) {
     super()

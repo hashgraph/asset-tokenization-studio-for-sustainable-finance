@@ -37,6 +37,11 @@ import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalass
 import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
 import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
 import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
+import { EnvironmentalAssetTransferTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTransferTypeOrmRepository"
+import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
+import { AddEnvironmentalAssetTransferAppService } from "@app/environmentalasset/addenvironmentalassettransfer/service/AddEnvironmentalAssetTransferAppService"
+import { AddEnvironmentalAssetTransferCommandHandler } from "@app/environmentalasset/addenvironmentalassettransfer/command/AddEnvironmentalAssetTransferCommandHandler"
+import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -52,6 +57,10 @@ const REPOSITORIES: Provider[] = [
     useClass: EnvironmentalAssetTokenTypeOrmRepository,
   },
   {
+    provide: "EnvironmentalAssetTransferRepository",
+    useClass: EnvironmentalAssetTransferTypeOrmRepository,
+  },
+  {
     provide: "PaymentTokenRepository",
     useClass: PaymentTokenTypeOrmRepository,
   },
@@ -62,6 +71,7 @@ export const ENTITIES = [
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
   EnvironmentalAssetTokenPersistence,
+  EnvironmentalAssetTransferPersistence,
   PaymentTokenPersistence,
 ]
 
@@ -92,6 +102,9 @@ export const PROVIDERS = [
   RemoveEnvironmentalAssetNestJSEventAdapter,
   GetTreasuryAppService,
   GetTreasuryQueryHandler,
+  AddEnvironmentalAssetTransferAppService,
+  AddEnvironmentalAssetTransferCommandHandler,
+  AddEnvironmentalAssetTransferNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

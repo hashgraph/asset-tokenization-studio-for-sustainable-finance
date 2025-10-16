@@ -3,7 +3,7 @@
 import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
-export interface EnvironmentalAssetTokenTransferRepository {
+export interface EnvironmentalAssetTransferRepository {
   save(transfer: EnvironmentalAssetTransfer): Promise<EnvironmentalAssetTransfer>
 
   findByEnvironmentalAssetId(
