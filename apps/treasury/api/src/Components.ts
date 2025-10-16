@@ -33,6 +33,8 @@ import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTrea
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
+import { GetEnvironmentalAssetTransfersHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassettransfers/GetEnvironmentalAssetTransfersHttpAdapter"
+import { GetEnvironmentalAssetTransfersQueryHandler } from "@app/environmentalasset/getenvironmentalassettransfers/query/GetEnvironmentalAssetTransfersQueryHandler"
 import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
 import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
 import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
@@ -81,6 +83,7 @@ export const CONTROLLERS = [
   RemoveEnvironmentalAssetTransactionHttpAdapter,
   TransferEnvironmentalAssetTransactionHttpAdapter,
   GetEnvironmentalAssetsHttpAdapter,
+  GetEnvironmentalAssetTransfersHttpAdapter,
   GetTreasuryHttpAdapter,
   GetEnvironmentalAssetHoldingsHttpAdapter,
 ]
@@ -110,6 +113,7 @@ export const PROVIDERS = [
     useClass: TransactionBuilderAdapter,
   },
   GetEnvironmentalAssetsQueryHandler,
+  GetEnvironmentalAssetTransfersQueryHandler,
   GetEnvironmentalAssetHoldingsQueryHandler,
   {
     provide: "HederaPort",
