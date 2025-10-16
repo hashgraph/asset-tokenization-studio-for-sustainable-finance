@@ -10,7 +10,7 @@ import {
     deployTreasury,
     deployPaymentToken,
     deployEnvironmentalAsset,
-} from '../scripts/deploy.ts'
+} from '../scripts/deploy'
 
 let signer_A, signer_B
 let treasury: TreasuryTestWrapper
@@ -18,7 +18,7 @@ let environmentalAssetFactoryAddress: string
 let environmentalAssetAddress: string
 let paymentTokenFactoryAddress: string
 let paymentTokenAddress: string
-let tokenId: number
+let tokenId: string
 
 describe('Proceeds management operations', () => {
     before(() => {
@@ -104,7 +104,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(AddressZero, 100)
         })
 
-        it.skip('An account with the PROCEEDS_FULL_MANAGER role cannot transfer an amount of payment tokens exceeding 9223372036854775807', async () => {
+        it('An account with the PROCEEDS_FULL_MANAGER role cannot transfer an amount of payment tokens exceeding 9223372036854775807', async () => {
             treasury = treasury.connect(signer_A)
 
             await expect(
@@ -114,7 +114,7 @@ describe('Proceeds management operations', () => {
                 )
             )
                 .to.be.revertedWithCustomError(treasury, 'NotAllowedAmount')
-                .withArgs(9223372036854775808)
+                .withArgs(9223372036854775808n)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role can transfer payment tokens', async () => {
@@ -170,7 +170,7 @@ describe('Proceeds management operations', () => {
             ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER role cannot transfer a tokenId that does not own', async () => {
+        it('An account with the PROCEEDS_FULL_MANAGER role cannot transfer a environmental asset token that does not own', async () => {
             treasury = treasury.connect(signer_A)
 
             await expect(
@@ -201,7 +201,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(environmentalAssetAddress, signer_A.address, 346346)
         })
 
-        it.skip('An account with the PROCEEDS_FULL_MANAGER role cannot transfer an environmental asset with a serial number greater than 9223372036854775807', async () => {
+        it('An account with the PROCEEDS_FULL_MANAGER role cannot transfer an environmental asset with a serial number greater than 9223372036854775807', async () => {
             treasury = treasury.connect(signer_A)
 
             await expect(
@@ -215,7 +215,7 @@ describe('Proceeds management operations', () => {
                     treasury,
                     'NotAllowedSerialNumber'
                 )
-                .withArgs(9223372036854775808)
+                .withArgs(9223372036854775808n)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role can transfer an environmental asset token', async () => {
@@ -321,7 +321,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(AddressZero, 100)
         })
 
-        it.skip('An account with the PROCEEDS_FULL_MANAGER role cannot fund a proceeds recipient with an amount exceeding 9223372036854775807', async () => {
+        it('An account with the PROCEEDS_FULL_MANAGER role cannot fund a proceeds recipient with an amount exceeding 9223372036854775807', async () => {
             treasury = treasury.connect(signer_A)
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
@@ -332,8 +332,9 @@ describe('Proceeds management operations', () => {
                     BigNumber.from('9223372036854775808')
                 )
             )
+
                 .to.be.revertedWithCustomError(treasury, 'NotAllowedAmount')
-                .withArgs(9223372036854775808)
+                .withArgs(9223372036854775808n)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role can fund a proceeds recipient belonging to the bond', async () => {

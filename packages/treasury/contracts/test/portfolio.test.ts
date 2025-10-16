@@ -5,10 +5,16 @@ import { ethers } from 'hardhat'
 import { AddressZero } from '@ethersproject/constants'
 import { type PortfolioFacet } from '@typechain'
 import { PORTFOLIO_MANAGER_ROLE } from '../scripts/constants'
-import { deployContract, deployEnvironmentalAsset } from '../scripts/deploy.ts'
+import {
+    deployContract,
+    deployPaymentToken,
+    deployEnvironmentalAsset,
+} from '../scripts/deploy'
 
 let signer_A, signer_B
 let portfolio: PortfolioFacet
+let paymentTokenFactoryAddress: string
+let paymentTokenAddress: string
 
 describe('Portfolio operations', () => {
     before(() => {
@@ -27,19 +33,36 @@ describe('Portfolio operations', () => {
             []
         )
 
+        ;[paymentTokenFactoryAddress, paymentTokenAddress] =
+            await deployPaymentToken(signer_A, 100, 2)
+
         portfolio = await ethers.getContractAt(
             'PortfolioFacet',
             portfolioAddress
         )
         portfolio = portfolio.connect(signer_A)
-        await portfolio.initialize_Portfolio(hreConfig.usdcAddress, [])
+        await portfolio.initialize_Portfolio(paymentTokenAddress, [])
     })
 
     describe('initialize_Portfolio', () => {
         it('An account cannot initialize the Portfolio facet twice', async () => {
             await expect(
-                portfolio.initialize_Portfolio(hreConfig.usdcAddress, [])
+                portfolio.initialize_Portfolio(paymentTokenAddress, [])
             ).to.be.revertedWithCustomError(portfolio, 'AlreadyInitialized')
+        })
+
+        it('An account cannot initialize the Portfolio facet with the address zero as the payment token', async () => {
+            await expect(
+                portfolio.initialize_Portfolio(AddressZero, [])
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+        })
+
+        it('An account cannot initialize the Portfolio facet with an array of environmental assets containing a zero address', async () => {
+            await expect(
+                portfolio.initialize_Portfolio(paymentTokenAddress, [
+                    AddressZero,
+                ])
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
         })
     })
 
@@ -70,6 +93,13 @@ describe('Portfolio operations', () => {
             await expect(
                 portfolio.addEnvironmentalAssetToken(AddressZero)
             ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot add an environmental asset with zero address', async () => {
+            portfolio = portfolio.connect(signer_A)
+            await expect(
+                portfolio.addEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
         })
 
         it('An account granted the PORTFOLIO_MANAGER_ROLE role can add an environmental asset', async () => {
@@ -154,6 +184,13 @@ describe('Portfolio operations', () => {
             await expect(
                 portfolio.removeEnvironmentalAssetToken(AddressZero)
             ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot remove an environmental asset with zero address', async () => {
+            portfolio = portfolio.connect(signer_A)
+            await expect(
+                portfolio.removeEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
         })
 
         it('An account granted the PORTFOLIO_MANAGER_ROLE role can remove an environmental asset', async () => {

@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { ethers } from 'hardhat'
+import {
+    type TreasuryTestWrapper,
+    type PaymentTokenFactory,
+    type EnvironmentalAssetFactory,
+} from '@typechain'
 
-export async function deployContract(name, signer, args): Promise<string> {
-    const contractFactory: Awaited<
-        ReturnType<HardhatEthersHelpers['getContractFactory']>
-    > = await ethers.getContractFactory(name, signer)
+export async function deployContract(
+    name: string,
+    signer: any,
+    args: any[]
+): Promise<string> {
+    const contractFactory = await ethers.getContractFactory(name, signer)
     const contract = await contractFactory.deploy(...args)
-    const receipt = contract.deployTransaction.wait()
+    await contract.deployed()
     return contract.address
 }
 
-export async function deployTreasury(signer, args): Promise<string> {
+export async function deployTreasury(
+    signer,
+    args
+): Promise<TreasuryTestWrapper> {
     const treasuryAddress = await deployContract(
         'TreasuryTestWrapper',
         signer,

@@ -52,7 +52,6 @@ const config: HardhatUserConfig = {
         local: {
             url: Configuration.endpoints.local.jsonRpc,
             accounts: Configuration.privateKeys.local,
-            usdcAddress: Configuration.usdcAddress.local,
             timeout: 60_000,
         },
         previewnet: {
@@ -63,7 +62,6 @@ const config: HardhatUserConfig = {
         testnet: {
             url: Configuration.endpoints.testnet.jsonRpc,
             accounts: Configuration.privateKeys.testnet,
-            usdcAddress: Configuration.usdcAddress.testnet,
             timeout: 120_000,
         },
         mainnet: {
@@ -71,9 +69,6 @@ const config: HardhatUserConfig = {
             accounts: Configuration.privateKeys.mainnet,
             timeout: 120_000,
         },
-    },
-    coverage: {
-        skipFiles: ['test/', 'interfaces/', 'facets/'],
     },
     contractSizer: {
         alphaSort: true,
