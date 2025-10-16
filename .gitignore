@@ -1086,3 +1086,10 @@ hedera-state-validator/validator.log
 snyk-code.html
 snyk-code.json
 snyk/
+
+# AI files
+.kiro/
+.claude/
+.mcp.json
+CLAUDE.md
+AGENT.md
