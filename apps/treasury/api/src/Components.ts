@@ -52,7 +52,7 @@ const REPOSITORIES: Provider[] = [
     useClass: PaymentTokenTypeOrmRepository,
   },
   {
-    provide: "EnvironmentalAssetTokenTransferRepository",
+    provide: "EnvironmentalAssetTransferRepository",
     useClass: EnvironmentalAssetTransferTypeOrmRepository,
   },
 ]

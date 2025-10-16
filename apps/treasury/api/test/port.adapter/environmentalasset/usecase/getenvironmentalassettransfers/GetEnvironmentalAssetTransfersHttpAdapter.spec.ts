@@ -121,16 +121,21 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      const accountIds = response.body.items.map((item: any) => item.accountId)
-      expect(accountIds).toContain(transfer1.accountId)
-      expect(accountIds).toContain(transfer2.accountId)
+      const item1 = response.body.items.find((item: any) => item.accountId === transfer1.accountId)
+      const item2 = response.body.items.find((item: any) => item.accountId === transfer2.accountId)
 
-      response.body.items.forEach((item: any) => {
-        expect(item).toHaveProperty("accountId")
-        expect(item).toHaveProperty("tokenId")
-        expect(item).toHaveProperty("type")
-        expect(item).toHaveProperty("transferDate")
-        expect([TransferType.INFLOW, TransferType.OUTFLOW]).toContain(item.type)
+      expect(item1).toEqual({
+        accountId: transfer1.accountId,
+        tokenId: transfer1.tokenId,
+        type: transfer1.type,
+        transferDate: expect.any(String),
+      })
+
+      expect(item2).toEqual({
+        accountId: transfer2.accountId,
+        tokenId: transfer2.tokenId,
+        type: transfer2.type,
+        transferDate: expect.any(String),
       })
     })
 

@@ -6,5 +6,5 @@ export class EnvironmentalAssetTransferResponse {
   accountId: string
   tokenId: number
   type: TransferType
-  transferDate: Date
+  transferDate: string
 }

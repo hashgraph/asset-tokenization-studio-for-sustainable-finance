@@ -2,7 +2,7 @@
 
 import { Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { QueryHandler, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
-import type { EnvironmentalAssetTokenTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTokenTransferRepository"
+import type { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
 import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 import { GetEnvironmentalAssetTransfersQuery } from "./GetEnvironmentalAssetTransfersQuery"
@@ -16,9 +16,9 @@ export class GetEnvironmentalAssetTransfersQueryHandler
     QueryHandler<GetEnvironmentalAssetTransfersQuery, QueryPageResponse<EnvironmentalAssetTransferQueryResponse>>
 {
   constructor(
-    @Inject("EnvironmentalAssetTokenTransferRepository")
-    private readonly environmentalAssetTransferRepository: EnvironmentalAssetTokenTransferRepository,
-    @Inject("EnvironmentalAssetRepository")
+    @Inject()
+    private readonly environmentalAssetTransferRepository: EnvironmentalAssetTransferRepository,
+    @Inject()
     private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
   ) {}
 

@@ -5,6 +5,6 @@ import { TransferType } from "@domain/shared/model/TransferType"
 export class EnvironmentalAssetTransferQueryResponse {
   accountId: string
   tokenId: number
-  type: TransferType
+  type: string
   transferDate: Date
 }
