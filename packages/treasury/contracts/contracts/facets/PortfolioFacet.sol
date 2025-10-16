@@ -27,13 +27,15 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
         returns (bytes4[] memory staticFunctionSelectors)
     {
         uint256 selectorIndex;
-        staticFunctionSelectors = new bytes4[](3);
+        staticFunctionSelectors = new bytes4[](8);
         staticFunctionSelectors[selectorIndex++] = this
             .initialize_Portfolio
             .selector;
-        staticFunctionSelectors[selectorIndex++] = this.addERC721Token.selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .removeERC721Token
+            .addEnvironmentalAssetToken
+            .selector;
+        staticFunctionSelectors[selectorIndex++] = this
+            .removeEnvironmentalAssetToken
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
             .updatePaymentToken
@@ -42,10 +44,10 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
             .dissociateToken
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .getTotalERC721Tokens
+            .getTotalEnvironmentalAssetTokens
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .getERC721Tokens
+            .getEnvironmentalAssetTokens
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
             .getPaymentToken
