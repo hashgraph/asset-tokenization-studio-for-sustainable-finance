@@ -32,7 +32,7 @@
 							"apikey": [
 								{
 									"key": "value",
-									"value": "{{api_key}}",
+									"value": "{{apiKey}}",
 									"type": "string"
 								},
 								{
@@ -45,14 +45,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/treasuries/0.0.7055005",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
 								"treasuries",
-								"0.0.7055005"
+								"{{treasuryContractId}}"
 							]
 						}
 					},
@@ -71,7 +71,7 @@
 							"apikey": [
 								{
 									"key": "value",
-									"value": "{{api_key}}",
+									"value": "{{apiKey}}",
 									"type": "string"
 								},
 								{
@@ -85,7 +85,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"format\": \"hedera\",\n    \"accountId\": \"0.0.6548640\",\n    \"amount\": \"1000000\"\n}",
+							"raw": "{\n    \"format\": \"ethereum\",\n    \"accountId\": \"0.0.6548640\",\n    \"amount\": \"500000\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -93,14 +93,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/0.0.7055005/proceeds-recipients/0.0.6548643/transfer",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/proceeds-recipients/0.0.6548643/transfer",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
 								"treasuries",
-								"0.0.7055005",
+								"{{treasuryContractId}}",
 								"proceeds-recipients",
 								"0.0.6548643",
 								"transfer"
@@ -110,6 +110,10 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Environmental Asset",
+			"item": []
 		}
 	]
 }

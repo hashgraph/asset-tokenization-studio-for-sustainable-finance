@@ -26,7 +26,7 @@ export class ProxyMiddleware implements NestMiddleware {
     selfHandleResponse: false,
     on: {
       proxyReq: (proxyReq, req) => {
-        if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+        if (req.method === "POST" || req.method === "PUT" || req.method === "PATCH" || req.method === "DELETE") {
           const rawBody = (req as any).rawBody
           if (rawBody) {
             proxyReq.setHeader("Content-Length", rawBody.length)
