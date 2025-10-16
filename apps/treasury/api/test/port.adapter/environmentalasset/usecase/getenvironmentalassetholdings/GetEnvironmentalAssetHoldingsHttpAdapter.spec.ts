@@ -11,7 +11,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { PostgresModule } from "@config/PostgresModule"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
-import { HederaPort } from "@port/blockchain/HederaPort"
+import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/errors/EnvironmentalAssetNotFoundError"
 
@@ -20,7 +20,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
   let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let environmentalAssetRepository: Repository<EnvironmentalAssetPersistence>
-  let hederaPort: HederaPort
+  let environmentalAssetTokenRepository: Repository<EnvironmentalAssetTokenPersistence>
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -43,7 +43,9 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
     environmentalAssetRepository = moduleFixture.get<Repository<EnvironmentalAssetPersistence>>(
       getRepositoryToken(EnvironmentalAssetPersistence),
     )
-    hederaPort = app.get("HederaPort")
+    environmentalAssetTokenRepository = moduleFixture.get<Repository<EnvironmentalAssetTokenPersistence>>(
+      getRepositoryToken(EnvironmentalAssetTokenPersistence),
+    )
   })
 
   afterAll(async () => {
@@ -51,6 +53,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
   })
 
   afterEach(async () => {
+    await environmentalAssetTokenRepository.deleteAll()
     await environmentalAssetRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()
     if (app) {
@@ -58,202 +61,128 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
     }
   })
 
-  describe("GET /:treasuryContractId/environmental-assets/:assetContractId/holdings", () => {
-    it("should return empty list when asset has no holdings", async () => {
+  describe("GET /:treasuryContractId/environmental-assets/:environmentalAssetContractId/holdings", () => {
+    it("should return empty list when environmental asset has no holdings", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
       })
 
-      const asset = await environmentalAssetRepository.save({
-        contractId: "0.0.111111",
+      const environmentalAsset = await environmentalAssetRepository.save({
+        contractId: "0.0.7777",
         treasuryId: treasury.id,
       })
 
-      // Mock empty holdings from Hedera mirror
-      jest.spyOn(hederaPort, "getNFTs").mockResolvedValue({
-        items: [],
-        total: 0,
-        page: 1,
-        limit: 10,
-        totalPages: 0,
-      })
-
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${asset.contractId}/holdings`)
-        .expect(HttpStatus.OK)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
+        .expect(200)
 
       expect(response.body).toHaveProperty("items")
       expect(response.body.items).toEqual([])
-      expect(response.body).toHaveProperty("total", 0)
-      expect(response.body).toHaveProperty("page", 1)
-      expect(response.body).toHaveProperty("limit", 10)
-      expect(response.body).toHaveProperty("totalPages", 0)
+      expect(response.body).toHaveProperty("total")
+      expect(response.body).toHaveProperty("page")
+      expect(response.body).toHaveProperty("limit")
+      expect(response.body).toHaveProperty("totalPages")
     })
 
-    it("should return holdings for existing asset", async () => {
+    it("should return holdings for existing environmental asset", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
       })
 
-      const asset = await environmentalAssetRepository.save({
-        contractId: "0.0.111111",
+      const environmentalAsset = await environmentalAssetRepository.save({
+        contractId: "0.0.7777",
         treasuryId: treasury.id,
       })
 
-      const mockHoldings = {
-        items: [
-          {
-            created_timestamp: "2024-01-15T10:30:00.000Z",
-            delegating_spender: null,
-            deleted: false,
-            metadata: "QmTestHash1",
-            modified_timestamp: "2024-01-15T10:30:00.000Z",
-            serial_number: 1,
-            spender_id: "0.0.555555",
-          },
-          {
-            created_timestamp: "2024-01-15T11:30:00.000Z",
-            delegating_spender: "0.0.666666",
-            deleted: false,
-            metadata: "QmTestHash2",
-            modified_timestamp: "2024-01-15T11:30:00.000Z",
-            serial_number: 2,
-            spender_id: null,
-          },
-        ],
-        total: 2,
-        page: 1,
-        limit: 10,
-        totalPages: 1,
-      }
+      const token1 = await environmentalAssetTokenRepository.save({
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 1,
+      })
 
-      // Mock holdings from Hedera mirror
-      jest.spyOn(hederaPort, "getNFTs").mockResolvedValue(mockHoldings)
+      const token2 = await environmentalAssetTokenRepository.save({
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 2,
+      })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${asset.contractId}/holdings`)
-        .expect(HttpStatus.OK)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
+        .expect(200)
+
+      expect(response.body.items).toHaveLength(2)
+
+      const sortedItems = response.body.items.sort((a: any, b: any) => a.tokenId - b.tokenId)
+
+      expect(sortedItems[0]).toEqual({
+        tokenId: 1,
+        additionDate: token1.createdAt.toISOString(),
+      })
+      expect(sortedItems[1]).toEqual({
+        tokenId: 2,
+        additionDate: token2.createdAt.toISOString(),
+      })
 
       expect(response.body.total).toBe(2)
       expect(response.body.page).toBe(1)
       expect(response.body.limit).toBe(10)
       expect(response.body.totalPages).toBe(1)
-      expect(response.body.items).toHaveLength(2)
-
-      expect(response.body.items[0]).toEqual({
-        createdTimestamp: "2024-01-15T10:30:00.000Z",
-        delegatingSpender: null,
-        deleted: false,
-        metadata: "QmTestHash1",
-        modifiedTimestamp: "2024-01-15T10:30:00.000Z",
-        serialNumber: 1,
-        spenderId: "0.0.555555",
-      })
-
-      expect(response.body.items[1]).toEqual({
-        createdTimestamp: "2024-01-15T11:30:00.000Z",
-        delegatingSpender: "0.0.666666",
-        deleted: false,
-        metadata: "QmTestHash2",
-        modifiedTimestamp: "2024-01-15T11:30:00.000Z",
-        serialNumber: 2,
-        spenderId: null,
-      })
     })
 
-    it("should handle pagination parameters", async () => {
+    it("should handle pagination parameters correctly", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
       })
 
-      const asset = await environmentalAssetRepository.save({
-        contractId: "0.0.111111",
+      const environmentalAsset = await environmentalAssetRepository.save({
+        contractId: "0.0.7777",
         treasuryId: treasury.id,
       })
 
-      const mockHoldings = {
-        items: [
-          {
-            createdTimestamp: "2024-01-15T10:30:00.000Z",
-            delegatingSpender: null,
-            deleted: false,
-            metadata: "QmTestHash1",
-            modifiedTimestamp: "2024-01-15T10:30:00.000Z",
-            serialNumber: 1,
-            spenderId: "0.0.555555",
-          },
-          {
-            createdTimestamp: "2024-01-15T11:00:00.000Z",
-            delegatingSpender: null,
-            deleted: false,
-            metadata: "QmTestHash2",
-            modifiedTimestamp: "2024-01-15T11:00:00.000Z",
-            serialNumber: 2,
-            spenderId: "0.0.666666",
-          },
-          {
-            createdTimestamp: "2024-01-15T12:00:00.000Z",
-            delegatingSpender: null,
-            deleted: false,
-            metadata: "QmTestHash3",
-            modifiedTimestamp: "2024-01-15T12:00:00.000Z",
-            serialNumber: 3,
-            spenderId: "0.0.777777",
-          },
-        ],
-        total: 5,
-        page: 1,
-        limit: 3,
-        totalPages: 2,
+      const createdTokens: EnvironmentalAssetTokenPersistence[] = []
+      for (let i = 1; i <= 5; i++) {
+        const token = await environmentalAssetTokenRepository.save({
+          environmentalAssetId: environmentalAsset.id,
+          tokenId: i,
+        })
+        createdTokens.push(token)
       }
 
-      jest.spyOn(hederaPort, "getNFTs").mockResolvedValue(mockHoldings)
-
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${asset.contractId}/holdings`)
-        .query({ page: 1, limit: 3 })
-        .expect(HttpStatus.OK)
+        .get(
+          `/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
+            `?page=2&limit=2`,
+        )
+        .expect(200)
 
       expect(response.body.total).toBe(5)
-      expect(response.body.page).toBe(1)
-      expect(response.body.limit).toBe(3)
-      expect(response.body.totalPages).toBe(2)
-      expect(response.body.items).toHaveLength(3)
-      expect(response.body.items).toEqual([
-        {
-          createdTimestamp: "2024-01-15T10:30:00.000Z",
-          delegatingSpender: null,
-          deleted: false,
-          metadata: "QmTestHash1",
-          modifiedTimestamp: "2024-01-15T10:30:00.000Z",
-          serialNumber: 1,
-          spenderId: "0.0.555555",
-        },
-        {
-          createdTimestamp: "2024-01-15T11:00:00.000Z",
-          delegatingSpender: null,
-          deleted: false,
-          metadata: "QmTestHash2",
-          modifiedTimestamp: "2024-01-15T11:00:00.000Z",
-          serialNumber: 2,
-          spenderId: "0.0.666666",
-        },
-        {
-          createdTimestamp: "2024-01-15T12:00:00.000Z",
-          delegatingSpender: null,
-          deleted: false,
-          metadata: "QmTestHash3",
-          modifiedTimestamp: "2024-01-15T12:00:00.000Z",
-          serialNumber: 3,
-          spenderId: "0.0.777777",
-        },
-      ])
+      expect(response.body.page).toBe(2)
+      expect(response.body.limit).toBe(2)
+      expect(response.body.totalPages).toBe(3)
+      expect(response.body.items).toHaveLength(2)
+
+      const sortedTokensByCreatedAt = createdTokens.sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
+
+      const expectedToken1 = sortedTokensByCreatedAt[2]
+      const expectedToken2 = sortedTokensByCreatedAt[3]
+
+      const sortedResponseItems = response.body.items.sort((a: any, b: any) => a.tokenId - b.tokenId)
+      const expectedItems = [expectedToken1, expectedToken2].sort((a, b) => a.tokenId - b.tokenId)
+
+      expect(sortedResponseItems[0]).toEqual({
+        tokenId: expectedItems[0].tokenId,
+        additionDate: expectedItems[0].createdAt.toISOString(),
+      })
+      expect(sortedResponseItems[1]).toEqual({
+        tokenId: expectedItems[1].tokenId,
+        additionDate: expectedItems[1].createdAt.toISOString(),
+      })
     })
 
     it("should return 404 when treasury does not exist", async () => {
@@ -293,73 +222,48 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       })
     })
 
-    it("should handle ordering parameters", async () => {
+    it("should handle ordering parameters correctly", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
       })
 
-      const asset = await environmentalAssetRepository.save({
-        contractId: "0.0.111111",
+      const environmentalAsset = await environmentalAssetRepository.save({
+        contractId: "0.0.7777",
         treasuryId: treasury.id,
       })
 
-      const mockHoldings = {
-        items: [
-          {
-            created_timestamp: "2024-01-15T09:00:00.000Z",
-            delegating_spender: null,
-            deleted: false,
-            metadata: "QmTestHash1",
-            modified_timestamp: "2024-01-15T09:00:00.000Z",
-            serial_number: 1,
-            spender_id: "0.0.555555",
-          },
-          {
-            created_timestamp: "2024-01-15T10:00:00.000Z",
-            delegating_spender: null,
-            deleted: false,
-            metadata: "QmTestHash2",
-            modified_timestamp: "2024-01-15T10:00:00.000Z",
-            serial_number: 2,
-            spender_id: "0.0.666666",
-          },
-        ],
-        total: 2,
-        page: 1,
-        limit: 10,
-        totalPages: 1,
-      }
+      await environmentalAssetTokenRepository.save({
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 1,
+      })
 
-      jest.spyOn(hederaPort, "getNFTs").mockResolvedValue(mockHoldings)
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      await environmentalAssetTokenRepository.save({
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 2,
+      })
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      await environmentalAssetTokenRepository.save({
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 3,
+      })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${asset.contractId}/holdings`)
-        .query({ orderBy: "createdTimestamp", order: "ASC" })
-        .expect(HttpStatus.OK)
+        .get(
+          `/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
+            `?orderBy=createdAt&order=desc`,
+        )
+        .expect(200)
 
-      expect(response.body.items).toHaveLength(2)
-      expect(response.body.items).toEqual([
-        {
-          createdTimestamp: "2024-01-15T09:00:00.000Z",
-          delegatingSpender: null,
-          deleted: false,
-          metadata: "QmTestHash1",
-          modifiedTimestamp: "2024-01-15T09:00:00.000Z",
-          serialNumber: 1,
-          spenderId: "0.0.555555",
-        },
-        {
-          createdTimestamp: "2024-01-15T10:00:00.000Z",
-          delegatingSpender: null,
-          deleted: false,
-          metadata: "QmTestHash2",
-          modifiedTimestamp: "2024-01-15T10:00:00.000Z",
-          serialNumber: 2,
-          spenderId: "0.0.666666",
-        },
-      ])
+      expect(response.body.items).toHaveLength(3)
+      expect(response.body.items[0].tokenId).toBe(3)
+      expect(response.body.items[1].tokenId).toBe(2)
+      expect(response.body.items[2].tokenId).toBe(1)
     })
   })
 })
