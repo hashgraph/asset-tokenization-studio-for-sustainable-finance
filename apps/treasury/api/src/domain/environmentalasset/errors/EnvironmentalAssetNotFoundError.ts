@@ -6,7 +6,7 @@ export class EnvironmentalAssetNotFoundError extends EntityNotFoundError {
   }
 
   static contractIdError(contractId: string): EnvironmentalAssetNotFoundError {
-    return new EnvironmentalAssetNotFoundError(`EnvironmentalAsset not found for contractId: ${contractId}.`)
+    return new EnvironmentalAssetNotFoundError(`EnvironmentalAsset not found for contract id: ${contractId}.`)
   }
 
   private constructor(message: string) {

@@ -16,4 +16,12 @@ export class CheckEnvironmentalAssetExistsDomainService {
     }
     return environmentalAsset
   }
+
+  async executeByContractId(contractId: string): Promise<EnvironmentalAsset> {
+    const environmentalAsset = await this.repository.findByContractId(contractId)
+    if (!environmentalAsset) {
+      throw EnvironmentalAssetNotFoundError.contractIdError(contractId)
+    }
+    return environmentalAsset
+  }
 }

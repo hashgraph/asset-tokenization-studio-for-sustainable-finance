@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
@@ -8,7 +10,7 @@ import { Repository } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ERC721AddedDLTEvent } from "@port/environmentalasset/usecase/addenvironmentalasset/model/ERC721AddedDLTEvent"
+import { EnvironmentalAssetAddedDLTEvent } from "@port/environmentalasset/usecase/addenvironmentalasset/model/ERC721AddedDLTEvent"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { EnvironmentalAssetAlreadyExistsError } from "@domain/environmentalasset/errors/EnvironmentalAssetAlreadyExistsError"
 
@@ -58,13 +60,13 @@ describe("AddEnvironmentalAsset API Integration", () => {
       const assetContractId = "0.0.56744"
       jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(assetContractId)
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-      const event = new ERC721AddedDLTEvent(
+      const event = new EnvironmentalAssetAddedDLTEvent(
         treasury.contractId,
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await eventBus.publishSync(event, ERC721AddedDLTEvent.name)
+      await eventBus.publishSync(event, EnvironmentalAssetAddedDLTEvent.name)
 
       const environmentalAssets = await environmentalAssetRepository.find({
         where: { treasuryId: treasury.id },
@@ -93,13 +95,13 @@ describe("AddEnvironmentalAsset API Integration", () => {
       })
 
       jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(environmentalAsset.contractId)
-      const event = new ERC721AddedDLTEvent(
+      const event = new EnvironmentalAssetAddedDLTEvent(
         treasury.contractId,
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await expect(eventBus.publishSync(event, ERC721AddedDLTEvent.name)).rejects.toThrow(
+      await expect(eventBus.publishSync(event, EnvironmentalAssetAddedDLTEvent.name)).rejects.toThrow(
         EnvironmentalAssetAlreadyExistsError.idError("0x002"),
       )
 
@@ -112,13 +114,13 @@ describe("AddEnvironmentalAsset API Integration", () => {
 
   describe("when treasury does not exist", () => {
     it("should throw TreasuryNotFoundError", async () => {
-      const event = new ERC721AddedDLTEvent(
+      const event = new EnvironmentalAssetAddedDLTEvent(
         "0x999",
         "testTransactionHash",
         "testOperator",
         "0x16E6eD454447935176fC5095a8C4231306E38b2b",
       )
-      await expect(eventBus.publishSync(event, ERC721AddedDLTEvent.name)).rejects.toThrow(
+      await expect(eventBus.publishSync(event, EnvironmentalAssetAddedDLTEvent.name)).rejects.toThrow(
         TreasuryNotFoundError.contractIdsError(["0x999"]),
       )
     })

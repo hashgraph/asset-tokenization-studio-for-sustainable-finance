@@ -20,7 +20,6 @@ import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/s
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
-import { EnvironmentalAssetTransferTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTransferTypeOrmRepository"
 import { AddEnvironmentalAssetCommandHandler } from "@app/environmentalasset/addenvironmentalasset/command/AddEnvironmentalAssetCommandHandler"
 import { RemoveEnvironmentalAssetCommandHandler } from "@app/environmentalasset/removeenvironmentalasset/command/RemoveEnvironmentalAssetCommandHandler"
 import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalasset/AddEnvironmentalAssetNestJSEventAdapter"
@@ -37,6 +36,15 @@ import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/gete
 import { GetEnvironmentalAssetTransfersHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassettransfers/GetEnvironmentalAssetTransfersHttpAdapter"
 import { GetEnvironmentalAssetTransfersQueryHandler } from "@app/environmentalasset/getenvironmentalassettransfers/query/GetEnvironmentalAssetTransfersQueryHandler"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
+import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
+import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
+import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
+import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
+import { EnvironmentalAssetTransferTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTransferTypeOrmRepository"
+import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
+import { AddEnvironmentalAssetTransferAppService } from "@app/environmentalasset/addenvironmentalassettransfer/service/AddEnvironmentalAssetTransferAppService"
+import { AddEnvironmentalAssetTransferCommandHandler } from "@app/environmentalasset/addenvironmentalassettransfer/command/AddEnvironmentalAssetTransferCommandHandler"
+import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -48,12 +56,16 @@ const REPOSITORIES: Provider[] = [
     useClass: EnvironmentalAssetTypeOrmRepository,
   },
   {
-    provide: "PaymentTokenRepository",
-    useClass: PaymentTokenTypeOrmRepository,
+    provide: "EnvironmentalAssetTokenRepository",
+    useClass: EnvironmentalAssetTokenTypeOrmRepository,
   },
   {
     provide: "EnvironmentalAssetTransferRepository",
     useClass: EnvironmentalAssetTransferTypeOrmRepository,
+  },
+  {
+    provide: "PaymentTokenRepository",
+    useClass: PaymentTokenTypeOrmRepository,
   },
 ]
 
@@ -61,8 +73,9 @@ export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
-  PaymentTokenPersistence,
+  EnvironmentalAssetTokenPersistence,
   EnvironmentalAssetTransferPersistence,
+  PaymentTokenPersistence,
 ]
 
 export const CONTROLLERS = [
@@ -73,6 +86,7 @@ export const CONTROLLERS = [
   GetEnvironmentalAssetsHttpAdapter,
   GetEnvironmentalAssetTransfersHttpAdapter,
   GetTreasuryHttpAdapter,
+  GetEnvironmentalAssetHoldingsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -92,12 +106,16 @@ export const PROVIDERS = [
   RemoveEnvironmentalAssetNestJSEventAdapter,
   GetTreasuryAppService,
   GetTreasuryQueryHandler,
+  AddEnvironmentalAssetTransferAppService,
+  AddEnvironmentalAssetTransferCommandHandler,
+  AddEnvironmentalAssetTransferNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
   },
   GetEnvironmentalAssetsQueryHandler,
   GetEnvironmentalAssetTransfersQueryHandler,
+  GetEnvironmentalAssetHoldingsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,

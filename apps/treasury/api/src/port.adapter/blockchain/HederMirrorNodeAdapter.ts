@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { HederaPort } from "@port/blockchain/HederaPort"
 import axios from "axios"
 import { ConverterUtils, Retryable, Singleton } from "@hashgraph/green-bonds-shared-core"

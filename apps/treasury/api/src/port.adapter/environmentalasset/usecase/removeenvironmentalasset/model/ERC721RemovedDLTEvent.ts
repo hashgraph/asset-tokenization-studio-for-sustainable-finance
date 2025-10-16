@@ -1,12 +1,20 @@
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class ERC721RemovedDLTEvent extends DLTEvent {
+export class EnvironmentalAssetRemovedDLTEvent extends DLTEvent {
   readonly operator: string
-  readonly erc721: string
+  readonly environmentalAsset: string
+  readonly dissociationError?: string
 
-  constructor(contractId: string, transactionHash: string, operator: string, erc721: string) {
+  constructor(
+    contractId: string,
+    transactionHash: string,
+    operator: string,
+    environmentalAsset: string,
+    dissociationError?: string,
+  ) {
     super(contractId, transactionHash)
     this.operator = operator
-    this.erc721 = erc721
+    this.environmentalAsset = environmentalAsset
+    this.dissociationError = dissociationError
   }
 }

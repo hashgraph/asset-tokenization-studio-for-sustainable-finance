@@ -2,12 +2,20 @@
 
 import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import { EnvironmentalAssetQueryResponse } from "./EnvironmentalAssetQueryResponse"
+import { IsNotEmpty, ValidateNested } from "class-validator"
+import { Type } from "class-transformer"
 
 export class GetEnvironmentalAssetsQuery extends Query<QueryPageResponse<EnvironmentalAssetQueryResponse>> {
-  constructor(
-    public readonly treasuryContractId: string,
-    public readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
-  ) {
+  @IsNotEmpty()
+  readonly treasuryContractId: string
+
+  @ValidateNested()
+  @Type(() => QueryPageOptions)
+  readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT
+
+  constructor(treasuryContractId: string, pageOptions: QueryPageOptions) {
     super()
+    this.treasuryContractId = treasuryContractId
+    this.pageOptions = pageOptions
   }
 }
