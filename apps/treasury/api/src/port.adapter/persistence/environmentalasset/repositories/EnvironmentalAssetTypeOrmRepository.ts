@@ -20,6 +20,16 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return this.toDomain(savedPersistence)
   }
 
+  async findByContractId(contractId: string): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.repository.findOne({
+      where: {
+        contractId: contractId,
+        removalDate: IsNull(),
+      },
+    })
+    return persistence ? this.toDomain(persistence) : null
+  }
+
   async findByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset | null> {
     const persistence = await this.findActivePersistence(contractId, treasuryId)
     return persistence ? this.toDomain(persistence) : null
