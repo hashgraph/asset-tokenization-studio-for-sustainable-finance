@@ -11,4 +11,6 @@ export class EnvironmentalAssetToken extends BaseEntity {
   @IsNumber()
   @Min(1)
   tokenId: number
+
+  removalDate?: Date
 }

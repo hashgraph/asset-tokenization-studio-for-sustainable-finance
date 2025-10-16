@@ -10,4 +10,9 @@ export interface EnvironmentalAssetTokenRepository {
     environmentalAssetId: string,
     options: PageOptions,
   ): Promise<Page<EnvironmentalAssetToken>>
+
+  findByEnvironmentalAssetIdAndTokenId(
+    environmentalAssetId: string,
+    tokenId: number,
+  ): Promise<EnvironmentalAssetToken | null>
 }

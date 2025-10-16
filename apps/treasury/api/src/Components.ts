@@ -16,8 +16,12 @@ import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPe
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
 import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
+import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
+import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
+import { AddEnvironmentalAssetTokenDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetTokenDomainService"
+import { RemoveEnvironmentalAssetTokenDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetTokenDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
 import { AddEnvironmentalAssetCommandHandler } from "@app/environmentalasset/addenvironmentalasset/command/AddEnvironmentalAssetCommandHandler"
@@ -44,6 +48,10 @@ import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environ
 import { AddEnvironmentalAssetTransferAppService } from "@app/environmentalasset/addenvironmentalassettransfer/service/AddEnvironmentalAssetTransferAppService"
 import { AddEnvironmentalAssetTransferCommandHandler } from "@app/environmentalasset/addenvironmentalassettransfer/command/AddEnvironmentalAssetTransferCommandHandler"
 import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
+import { SyncEnvironmentalAssetTokenAppService } from "@app/environmentalasset/syncenvironmentalassettoken/service/SyncEnvironmentalAssetTokenAppService"
+import { SyncEnvironmentalAssetTokenNestJSEventAdapter } from "@port/environmentalasset/usecase/syncenvironmentalassettoken/SyncEnvironmentalAssetTokenNestJSEventAdapter"
+import { AddEnvironmentalAssetTokenCommandHandler } from "@app/environmentalasset/addenvironmentalassettoken/command/AddEnvironmentalAssetTokenCommandHandler"
+import { RemoveEnvironmentalAssetTokenCommandHandler } from "@app/environmentalasset/removeenvironmentalassettoken/command/RemoveEnvironmentalAssetTokenCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -97,8 +105,12 @@ export const PROVIDERS = [
   CheckTreasuryExistsDomainService,
   CheckEnvironmentalAssetExistsDomainService,
   CheckEnvironmentalAssetNotExistsDomainService,
+  CheckEnvironmentalAssetTokenExistsDomainService,
+  CheckEnvironmentalAssetTokenNotExistsDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
+  AddEnvironmentalAssetTokenDomainService,
+  RemoveEnvironmentalAssetTokenDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -108,6 +120,10 @@ export const PROVIDERS = [
   AddEnvironmentalAssetTransferAppService,
   AddEnvironmentalAssetTransferCommandHandler,
   AddEnvironmentalAssetTransferNestJSEventAdapter,
+  SyncEnvironmentalAssetTokenAppService,
+  SyncEnvironmentalAssetTokenNestJSEventAdapter,
+  AddEnvironmentalAssetTokenCommandHandler,
+  RemoveEnvironmentalAssetTokenCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

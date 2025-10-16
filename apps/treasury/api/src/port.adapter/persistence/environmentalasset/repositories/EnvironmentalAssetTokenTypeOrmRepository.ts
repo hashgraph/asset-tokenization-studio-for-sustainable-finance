@@ -45,6 +45,17 @@ export class EnvironmentalAssetTokenTypeOrmRepository implements EnvironmentalAs
     }
   }
 
+  async findByEnvironmentalAssetIdAndTokenId(
+    environmentalAssetId: string,
+    tokenId: number,
+  ): Promise<EnvironmentalAssetToken | null> {
+    const persistence = await this.repository.findOne({
+      where: { environmentalAssetId, tokenId },
+    })
+
+    return persistence ? this.toDomain(persistence) : null
+  }
+
   private toDomain(persistence: EnvironmentalAssetTokenPersistence): EnvironmentalAssetToken {
     return { ...persistence } as EnvironmentalAssetToken
   }

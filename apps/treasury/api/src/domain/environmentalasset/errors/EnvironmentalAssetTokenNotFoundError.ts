@@ -1,9 +1,15 @@
-import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
+// SPDX-License-Identifier: Apache-2.0
 
-export class EnvironmentalAssetTokenNotFoundError extends EntityNotFoundError {
-  constructor(environmentalAssetId: string, tokenId: number) {
-    super(
-      `Environmental Asset Token not found with environmentalAssetId: ${environmentalAssetId} and tokenId: ${tokenId}.`,
+import { DomainError } from "@hashgraph/green-bonds-shared-core"
+
+export class EnvironmentalAssetTokenNotFoundError extends DomainError {
+  private constructor(message: string) {
+    super(message)
+  }
+
+  static create(environmentalAssetContractId: string, tokenId: number): EnvironmentalAssetTokenNotFoundError {
+    return new EnvironmentalAssetTokenNotFoundError(
+      `Environmental asset token with contractId ${environmentalAssetContractId} and tokenId ${tokenId} not found`,
     )
   }
 }
