@@ -31,6 +31,7 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@typechain";
 import { createFactorySuiteConfiguration } from "@scripts/domain";
+import { factorySuiteRegistry } from "@scripts/infrastructure/factorySuiteRegistry";
 
 /**
  * Complete deployment output structure.
@@ -147,7 +148,7 @@ export async function deployFactorySuiteSystem(
   network: string,
   options: DeployFactorySuiteSystemOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
-  const { useTimeTravel = false, saveOutput = false, outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
   const signer = await provider.getSigner();
@@ -192,12 +193,23 @@ export async function deployFactorySuiteSystem(
     // STEP 3: Deploy facets
     // ========================================
     info("\n📦 Step 3/6: Deploying facets...");
-    const facetNames = ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
+
+    // Use TimeTravel variants when useTimeTravel is enabled
+    const facetNames = useTimeTravel
+      ? [
+          "AccessControlFacetTimeTravel",
+          "PauseFacetTimeTravel",
+          "FactorySuiteFacetTimeTravel",
+          "TimeTravelFacet", // Time control facet
+        ]
+      : ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
+
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
     const facetsResult = await deployFacets(provider, {
       facetNames,
       useTimeTravel,
+      registry: factorySuiteRegistry, // Use FactorySuite registry (clean dependency injection)
     });
 
     if (!facetsResult.success) {

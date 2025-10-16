@@ -1,6 +1,5 @@
 import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Contract } from "ethers";
 import { FactorySuiteFacet, MockAtsFactory, MockBusinessLogicResolver, MockERC20, MockERC721 } from "@contracts/index";
 
 export interface FactoryFixtureAccounts {

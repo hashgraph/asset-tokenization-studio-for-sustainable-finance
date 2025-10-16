@@ -23,7 +23,7 @@ describe("FactorySuite - Integration Tests", () => {
     it("should have correct configuration in BLR", async () => {
       const { blr, deployment } = await loadFixture(setupFixture);
 
-      const configVersion = await blr.getConfigurationVersion(FACTORY_SUITE_CONFIG_ID);
+      const configVersion = await blr.getLatestVersionByConfiguration(FACTORY_SUITE_CONFIG_ID);
       expect(configVersion).to.equal(deployment.configuration.version);
     });
 

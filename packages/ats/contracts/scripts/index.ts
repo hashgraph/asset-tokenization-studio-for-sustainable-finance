@@ -33,6 +33,11 @@
 export * from "./domain";
 
 // ========================================
+// Infrastructure
+// ========================================
+export { factorySuiteRegistry } from "./infrastructure/factorySuiteRegistry";
+
+// ========================================
 // Workflows
 // ========================================
 export * from "./workflows/deployFactorySuiteSystem";

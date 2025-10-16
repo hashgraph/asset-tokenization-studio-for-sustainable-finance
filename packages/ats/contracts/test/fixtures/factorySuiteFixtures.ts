@@ -18,7 +18,7 @@
 import { ethers } from "hardhat";
 import { HardhatProvider, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { deployFactorySuiteSystem } from "@scripts";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin } from "@typechain";
+import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@typechain";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
@@ -59,6 +59,11 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
     deployment.infrastructure.proxyAdmin.address,
   )) as ProxyAdmin;
 
+  // Get TimeTravelFacet if TimeTravel is enabled
+  const timeTravel = useTimeTravel
+    ? ((await ethers.getContractAt("ITimeTravel", deployment.infrastructure.factorySuite.proxy)) as ITimeTravel)
+    : undefined;
+
   return {
     // Provider & signers
     provider,
@@ -72,6 +77,9 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
     factorySuite,
     blr,
     proxyAdmin,
+
+    // TimeTravel control (only available when useTimeTravel: true)
+    timeTravel,
 
     // Deployment metadata
     deployment,

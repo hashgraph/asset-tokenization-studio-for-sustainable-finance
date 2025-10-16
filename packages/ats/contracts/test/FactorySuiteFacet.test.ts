@@ -17,16 +17,18 @@ describe("FactorySuiteFacet", () => {
 
   describe("Diamond Facet Implementation", () => {
     it("should implement IFactorySuite interface", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      // Static functions are called on deployed facet address, not proxy
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const supportedInterfaces = await factorySuiteFacet.getStaticInterfaceIds();
       expect(supportedInterfaces.length).to.be.greaterThan(0);
     });
 
     it("should have IStaticFunctionSelectors methods", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      // Static functions are called on deployed facet address, not proxy
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       // Verify it has the required static methods
       const resolverKey = await factorySuiteFacet.getStaticResolverKey();
@@ -41,16 +43,16 @@ describe("FactorySuiteFacet", () => {
 
   describe("getStaticResolverKey", () => {
     it("should return correct resolver key", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const actualKey = await factorySuiteFacet.getStaticResolverKey();
       expect(actualKey).to.equal(FACTORY_SUITE_RESOLVER_KEY);
     });
 
     it("should be a pure function (no state changes)", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const key1 = await factorySuiteFacet.getStaticResolverKey();
       const key2 = await factorySuiteFacet.getStaticResolverKey();
@@ -60,16 +62,16 @@ describe("FactorySuiteFacet", () => {
 
   describe("getStaticFunctionSelectors", () => {
     it("should return deployBondSuite selector", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const selectors = await factorySuiteFacet.getStaticFunctionSelectors();
       expect(selectors).to.have.lengthOf(1);
     });
 
     it("should return consistent selectors", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const selectors1 = await factorySuiteFacet.getStaticFunctionSelectors();
       const selectors2 = await factorySuiteFacet.getStaticFunctionSelectors();
@@ -78,8 +80,8 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should be a pure function", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const tx = await factorySuiteFacet.populateTransaction.getStaticFunctionSelectors();
       expect(tx.value).to.be.undefined;
@@ -88,8 +90,8 @@ describe("FactorySuiteFacet", () => {
 
   describe("getStaticInterfaceIds", () => {
     it("should return IFactorySuite interface ID", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const interfaceIds = await factorySuiteFacet.getStaticInterfaceIds();
 
@@ -98,8 +100,8 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should return consistent interface IDs", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const ids1 = await factorySuiteFacet.getStaticInterfaceIds();
       const ids2 = await factorySuiteFacet.getStaticInterfaceIds();
@@ -108,8 +110,8 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should be a pure function", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const gasEstimate1 = await factorySuiteFacet.estimateGas.getStaticInterfaceIds();
       const gasEstimate2 = await factorySuiteFacet.estimateGas.getStaticInterfaceIds();
@@ -120,12 +122,13 @@ describe("FactorySuiteFacet", () => {
 
   describe("Constructor", () => {
     it("should deploy successfully", async () => {
-      const { factorySuite } = await loadFixture(setupFixture);
-      expect(factorySuite.address).to.not.equal(ethers.constants.AddressZero);
+      const { facetAddresses } = await loadFixture(setupFixture);
+      expect(facetAddresses.FactorySuiteFacet).to.not.equal(ethers.constants.AddressZero);
     });
 
     it("should inherit from FactorySuite", async () => {
       const { factorySuite, deployer } = await loadFixture(setupFixture);
+      // Business logic functions are called through proxy
       const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
 
       const hasDeployBondSuite = factorySuiteFacet.deployBondSuite !== undefined;
@@ -133,8 +136,9 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should implement IStaticFunctionSelectors", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      // Static functions are called on deployed facet address
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const hasGetStaticResolverKey = factorySuiteFacet.getStaticResolverKey !== undefined;
       const hasGetStaticFunctionSelectors = factorySuiteFacet.getStaticFunctionSelectors !== undefined;
@@ -148,8 +152,8 @@ describe("FactorySuiteFacet", () => {
 
   describe("Diamond Pattern Integration", () => {
     it("should be compatible with diamond proxy pattern", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const selectors = await factorySuiteFacet.getStaticFunctionSelectors();
       const resolverKey = await factorySuiteFacet.getStaticResolverKey();
@@ -161,8 +165,8 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should provide all necessary metadata for diamond cut", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const selectors = await factorySuiteFacet.getStaticFunctionSelectors();
       const interfaceIds = await factorySuiteFacet.getStaticInterfaceIds();
@@ -179,8 +183,8 @@ describe("FactorySuiteFacet", () => {
 
   describe("Gas Efficiency", () => {
     it("should have efficient gas usage for metadata functions", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const gasForResolverKey = await factorySuiteFacet.estimateGas.getStaticResolverKey();
       const gasForSelectors = await factorySuiteFacet.estimateGas.getStaticFunctionSelectors();
@@ -194,8 +198,8 @@ describe("FactorySuiteFacet", () => {
 
   describe("Function Signature Verification", () => {
     it("should expose correct function signatures", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
       const contractInterface = factorySuiteFacet.interface;
 
       expect(contractInterface.getFunction("deployBondSuite")).to.not.be.undefined;
@@ -205,8 +209,8 @@ describe("FactorySuiteFacet", () => {
     });
 
     it("should have correct function visibility", async () => {
-      const { factorySuite, deployer } = await loadFixture(setupFixture);
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const { facetAddresses, deployer } = await loadFixture(setupFixture);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
       const contractInterface = factorySuiteFacet.interface;
 
       const resolverKeyFunc = contractInterface.getFunction("getStaticResolverKey");

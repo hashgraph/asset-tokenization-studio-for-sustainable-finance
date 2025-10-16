@@ -5,7 +5,6 @@ import { ArraysUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Arr
 import { AccessControl } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol";
 import { Pause } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol";
 import { KPI_DATA_MANAGER_ROLE } from "./constants/roles.sol";
-import { KPI_STORAGE_LOCATION } from "./constants/storageLocation.sol";
 import { IKpi } from "./interfaces/IKpi.sol";
 
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
@@ -26,7 +25,7 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     function addKpiData(
         uint256 date,
         uint256 kpiValue
-    ) external override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
+    ) external virtual override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
         if (date >= block.timestamp) revert InvalidDate(date);
         KpiStorage storage kpiStorage = _getKpiStorage();
 
@@ -69,7 +68,7 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         }
     }
 
-    function _getKpiStorage() private pure returns (KpiStorage storage kpiStorage) {
+    function _getKpiStorage() internal pure returns (KpiStorage storage kpiStorage) {
         assembly {
             kpiStorage.slot := KPI_STORAGE_LOCATION
         }

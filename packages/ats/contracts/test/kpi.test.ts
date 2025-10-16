@@ -10,7 +10,7 @@ import { expect } from "chai";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
 
-describe.only("Kpi", () => {
+describe("Kpi", () => {
   let kpi: Kpi;
   let proxyAdmin: ProxyAdmin;
   let unknownSigner: Signer;

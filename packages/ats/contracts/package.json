@@ -31,7 +31,11 @@
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage"
+    "test:factory-suite": "npx hardhat test test/FactorySuite.test.ts test/FactorySuiteFacet.test.ts",
+    "test:kpi": "npx hardhat test test/kpi.test.ts",
+    "coverage": "npx hardhat coverage",
+    "coverage:factory-suite": "npx hardhat coverage --testfiles \"test/FactorySuite.test.ts\" --testfiles \"test/FactorySuiteFacet.test.ts\"",
+    "coverage:kpi": "npx hardhat coverage --testfiles \"test/kpi.test.ts\""
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

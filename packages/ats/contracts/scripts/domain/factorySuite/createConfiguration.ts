@@ -7,14 +7,14 @@
  * the generic infrastructure operation with FactorySuite-specific facet list
  * and config ID (30'000).
  *
- * Thin wrapper around createConfiguration() from ATS infrastructure.
+ * Thin wrapper around createBatchConfiguration() from ATS infrastructure.
  *
  * @module domain/factorySuite/createConfiguration
  */
 
 import { Contract } from "ethers";
 import {
-  createConfiguration,
+  createBatchConfiguration,
   ConfigurationData,
   ConfigurationError,
   OperationResult,
@@ -28,17 +28,21 @@ import { FACTORY_SUITE_CONFIG_ID } from "@scripts/domain";
  * - AccessControlFacet (from ATS)
  * - PauseFacet (from ATS)
  * - FactorySuiteFacet (specific to green-bonds-platform)
+ *
+ * Note: FactorySuiteFacet is a custom green-bonds facet. ATS infrastructure
+ * will log a warning about it not being in the ATS registry, but will
+ * configure it correctly (as of ATS v1.x with extensibility improvements).
  */
 const FACTORY_SUITE_FACETS = ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"] as const;
 
 /**
  * Create FactorySuite configuration in BusinessLogicResolver.
  *
- * Thin wrapper that calls the generic createConfiguration() with FactorySuite data:
+ * Thin wrapper that calls the generic createBatchConfiguration() with FactorySuite data:
  * - Configuration ID: FACTORY_SUITE_CONFIG_ID (30'000)
  * - Facet list: FACTORY_SUITE_FACETS (3 facets)
  *
- * All implementation logic handled by ATS createConfiguration() operation.
+ * All implementation logic handled by ATS createBatchConfiguration() operation.
  *
  * @param blrContract - BusinessLogicResolver contract instance
  * @param facetAddresses - Map of facet names to their deployed addresses
@@ -72,10 +76,14 @@ export async function createFactorySuiteConfiguration(
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  return createConfiguration(blrContract, {
+  // Direct call to ATS infrastructure - no workaround needed!
+  // ATS now accepts external facets (warns but continues)
+  return createBatchConfiguration(blrContract, {
     configurationId: FACTORY_SUITE_CONFIG_ID,
     facetNames: FACTORY_SUITE_FACETS,
     facetAddresses,
     useTimeTravel,
+    partialBatchDeploy: false,
+    batchSize: 2,
   });
 }
