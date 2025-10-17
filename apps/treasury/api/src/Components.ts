@@ -20,8 +20,6 @@ import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environ
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
-import { AddEnvironmentalAssetTokenDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetTokenDomainService"
-import { RemoveEnvironmentalAssetTokenDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetTokenDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
 import { EnvironmentalAssetTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTypeOrmRepository"
 import { AddEnvironmentalAssetCommandHandler } from "@app/environmentalasset/addenvironmentalasset/command/AddEnvironmentalAssetCommandHandler"
@@ -109,8 +107,6 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetTokenNotExistsDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
-  AddEnvironmentalAssetTokenDomainService,
-  RemoveEnvironmentalAssetTokenDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,

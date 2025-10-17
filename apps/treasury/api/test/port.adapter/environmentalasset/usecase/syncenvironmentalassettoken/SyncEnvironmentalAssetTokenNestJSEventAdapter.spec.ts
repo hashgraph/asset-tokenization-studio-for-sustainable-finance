@@ -135,16 +135,18 @@ describe("SyncEnvironmentalAssetToken Integration", () => {
     )
     await eventBus.publishSync(event, TransferDLTEvent.name)
 
+    // Verify soft delete worked: find() should return empty (soft deleted entities are excluded by default)
     const tokens = await internalEnvironmentalAssetTokenRepository.find()
-    expect(tokens).toHaveLength(1)
-    expect(tokens[0]).toMatchObject({
-      id: existingToken.id,
-      environmentalAssetId: environmentalAsset.id,
-      tokenId: event.tokenId,
+    expect(tokens).toHaveLength(0)
+
+    // Verify the token still exists in DB but with deletedAt set
+    const tokenWithDeleted = await internalEnvironmentalAssetTokenRepository.findOne({
+      where: { id: existingToken.id },
+      withDeleted: true,
     })
-    expect(tokens[0].removalDate).toBeInstanceOf(Date)
-    expect(tokens[0].createdAt).toBeInstanceOf(Date)
-    expect(tokens[0].updatedAt).toBeInstanceOf(Date)
+    expect(tokenWithDeleted).toBeDefined()
+    expect(tokenWithDeleted.id).toBe(existingToken.id)
+    expect(tokenWithDeleted.deletedAt).toBeInstanceOf(Date)
 
     expect(publishedEvent.constructor.name).toEqual(EnvironmentalAssetTokenRemovedEvent.name)
     expect(publishedEvent).toEqual({

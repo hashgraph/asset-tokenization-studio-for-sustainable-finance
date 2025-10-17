@@ -4,7 +4,6 @@ import { Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { SyncEnvironmentalAssetTokenAppServiceRequest } from "@app/environmentalasset/syncenvironmentalassettoken/service/model/SyncEnvironmentalAssetTokenAppServiceRequest"
 import type { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
-import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { AddEnvironmentalAssetTokenCommand } from "@app/environmentalasset/addenvironmentalassettoken/command/AddEnvironmentalAssetTokenCommand"
 import { RemoveEnvironmentalAssetTokenCommand } from "@app/environmentalasset/removeenvironmentalassettoken/command/RemoveEnvironmentalAssetTokenCommand"
 
@@ -12,7 +11,6 @@ import { RemoveEnvironmentalAssetTokenCommand } from "@app/environmentalasset/re
 export class SyncEnvironmentalAssetTokenAppService {
   constructor(
     @Inject() private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
-    @Inject() private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly commandBus: CommandBus,
   ) {}
 
@@ -37,14 +35,12 @@ export class SyncEnvironmentalAssetTokenAppService {
     ]
 
     for (const scenario of scenarios) {
-      const treasury = await this.treasuryRepository.findByContractId(scenario.accountId)
-      if (!treasury) continue
-
-      const environmentalAsset = await this.environmentalAssetRepository.findByContractIdAndTreasuryId(
+      const exists = await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
         request.environmentalAssetContractId,
-        treasury.id,
+        scenario.accountId,
       )
-      if (!environmentalAsset) continue
+
+      if (!exists) continue
 
       await this.commandBus.execute(scenario.command(request.environmentalAssetContractId, request.tokenId))
       return

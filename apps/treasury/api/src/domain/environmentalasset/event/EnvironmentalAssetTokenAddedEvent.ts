@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
-export class EnvironmentalAssetTokenAddedEvent {
-  readonly environmentalAssetId: string
-  readonly tokenId: number
-  readonly timestamp: number
+import { Event } from "@hashgraph/green-bonds-shared-core"
 
-  constructor(environmentalAssetId: string, tokenId: number) {
-    this.environmentalAssetId = environmentalAssetId
-    this.tokenId = tokenId
-    this.timestamp = Date.now()
+export class EnvironmentalAssetTokenAddedEvent extends Event {
+  constructor(
+    readonly environmentalAssetId: string,
+    readonly tokenId: number,
+  ) {
+    super()
   }
 }
