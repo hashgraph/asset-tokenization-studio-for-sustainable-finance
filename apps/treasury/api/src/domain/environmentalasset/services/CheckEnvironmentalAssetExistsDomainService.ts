@@ -7,10 +7,13 @@ import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/erro
 
 @Singleton()
 export class CheckEnvironmentalAssetExistsDomainService {
-  constructor(@Inject("EnvironmentalAssetRepository") private readonly repository: EnvironmentalAssetRepository) {}
+  constructor(@Inject() private readonly environmentalAssetRepository: EnvironmentalAssetRepository) {}
 
   async execute(contractId: string, treasuryId: string): Promise<EnvironmentalAsset> {
-    const environmentalAsset = await this.repository.findByContractIdAndTreasuryId(contractId, treasuryId)
+    const environmentalAsset = await this.environmentalAssetRepository.findByContractIdAndTreasuryId(
+      contractId,
+      treasuryId,
+    )
     if (!environmentalAsset) {
       throw EnvironmentalAssetNotFoundError.idError(contractId)
     }
@@ -18,7 +21,7 @@ export class CheckEnvironmentalAssetExistsDomainService {
   }
 
   async executeByContractId(contractId: string): Promise<EnvironmentalAsset> {
-    const environmentalAsset = await this.repository.findByContractId(contractId)
+    const environmentalAsset = await this.environmentalAssetRepository.findByContractId(contractId)
     if (!environmentalAsset) {
       throw EnvironmentalAssetNotFoundError.contractIdError(contractId)
     }

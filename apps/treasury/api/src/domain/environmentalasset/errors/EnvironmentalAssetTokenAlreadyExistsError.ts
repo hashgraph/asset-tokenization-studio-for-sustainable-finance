@@ -1,10 +1,15 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { DomainError } from "@hashgraph/green-bonds-shared-core"
 
 export class EnvironmentalAssetTokenAlreadyExistsError extends DomainError {
-  constructor(environmentalAssetId: string, tokenId: number) {
-    super(
-      `Environmental Asset Token already exists with environmentalAssetId: ${environmentalAssetId} ` +
-        `and tokenId: ${tokenId}.`,
+  private constructor(message: string) {
+    super(message)
+  }
+
+  static create(environmentalAssetId: string, tokenId: number): EnvironmentalAssetTokenAlreadyExistsError {
+    return new EnvironmentalAssetTokenAlreadyExistsError(
+      `Environmental asset token with environmentalAssetId ${environmentalAssetId} and tokenId ${tokenId} already exists`,
     )
   }
 }

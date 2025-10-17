@@ -9,6 +9,5 @@ export class EnvironmentalAssetToken extends BaseEntity {
 
   @IsNotEmpty()
   @IsNumber()
-  @Min(1)
   tokenId: number
 }

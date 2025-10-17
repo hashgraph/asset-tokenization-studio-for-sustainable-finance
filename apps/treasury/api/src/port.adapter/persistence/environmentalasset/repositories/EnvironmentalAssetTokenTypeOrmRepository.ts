@@ -21,6 +21,10 @@ export class EnvironmentalAssetTokenTypeOrmRepository implements EnvironmentalAs
     return this.toDomain(savedPersistence)
   }
 
+  async softDelete(token: EnvironmentalAssetToken): Promise<void> {
+    await this.repository.softDelete({ id: token.id })
+  }
+
   async findAllByEnvironmentalAssetId(
     environmentalAssetId: string,
     options: PageOptions,
@@ -43,6 +47,17 @@ export class EnvironmentalAssetTokenTypeOrmRepository implements EnvironmentalAs
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
+
+  async findByEnvironmentalAssetIdAndTokenId(
+    environmentalAssetId: string,
+    tokenId: number,
+  ): Promise<EnvironmentalAssetToken | null> {
+    const persistence = await this.repository.findOne({
+      where: { environmentalAssetId, tokenId },
+    })
+
+    return persistence ? this.toDomain(persistence) : null
   }
 
   private toDomain(persistence: EnvironmentalAssetTokenPersistence): EnvironmentalAssetToken {

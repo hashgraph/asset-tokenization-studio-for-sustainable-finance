@@ -5,7 +5,7 @@ import { Event } from "@hashgraph/green-bonds-shared-core"
 export class EnvironmentalAssetTokenAddedEvent extends Event {
   constructor(
     readonly environmentalAssetId: string,
-    readonly tokenId: string,
+    readonly tokenId: number,
   ) {
     super()
   }

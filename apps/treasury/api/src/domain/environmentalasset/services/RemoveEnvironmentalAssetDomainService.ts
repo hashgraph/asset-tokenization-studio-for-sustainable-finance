@@ -8,8 +8,8 @@ import { RemoveEnvironmentalAssetDomainServiceResponse } from "@domain/environme
 @Singleton()
 export class RemoveEnvironmentalAssetDomainService {
   constructor(
-    @Inject("EnvironmentalAssetRepository") private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
-    @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
+    @Inject() private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
+    @Inject() private readonly treasuryRepository: TreasuryRepository,
     private readonly checkEnvironmentalAssetExists: CheckEnvironmentalAssetExistsDomainService,
   ) {}
 

@@ -16,4 +16,7 @@ export class EnvironmentalAssetTokenPersistence extends BaseEntityPersistence {
 
   @Column()
   tokenId: number
+
+  @Column({ type: "timestamp", nullable: true })
+  removalDate: Date | null
 }

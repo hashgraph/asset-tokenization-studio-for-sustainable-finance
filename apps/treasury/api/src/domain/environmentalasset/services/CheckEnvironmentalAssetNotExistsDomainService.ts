@@ -6,10 +6,13 @@ import { EnvironmentalAssetAlreadyExistsError } from "@domain/environmentalasset
 
 @Singleton()
 export class CheckEnvironmentalAssetNotExistsDomainService {
-  constructor(@Inject("EnvironmentalAssetRepository") private readonly repository: EnvironmentalAssetRepository) {}
+  constructor(@Inject() private readonly environmentalAssetRepository: EnvironmentalAssetRepository) {}
 
   async execute(assetContractId: string, treasuryId: string): Promise<void> {
-    const environmentalAsset = await this.repository.findByContractIdAndTreasuryId(assetContractId, treasuryId)
+    const environmentalAsset = await this.environmentalAssetRepository.findByContractIdAndTreasuryId(
+      assetContractId,
+      treasuryId,
+    )
     if (environmentalAsset) {
       throw EnvironmentalAssetAlreadyExistsError.idError(assetContractId)
     }

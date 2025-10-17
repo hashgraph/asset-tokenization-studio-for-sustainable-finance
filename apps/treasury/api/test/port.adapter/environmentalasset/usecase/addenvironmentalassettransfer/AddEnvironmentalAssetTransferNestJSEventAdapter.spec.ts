@@ -14,6 +14,7 @@ import { TransferDLTEvent } from "@port/shared/model/TransferDLTEvent"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
 import { EnvironmentalAssetTransferAddedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetTransferAddedEvent"
 import { TransferType } from "@domain/shared/model/TransferType"
+import { SyncEnvironmentalAssetTokenNestJSEventAdapter } from "@port/environmentalasset/usecase/syncenvironmentalassettoken/SyncEnvironmentalAssetTokenNestJSEventAdapter"
 
 describe("AddEnvironmentalAssetTransfer Integration", () => {
   let app: INestApplication
@@ -40,6 +41,10 @@ describe("AddEnvironmentalAssetTransfer Integration", () => {
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
     internalEnvironmentalAssetRepository = app.get(getRepositoryToken(EnvironmentalAssetPersistence))
     internalEnvironmentalAssetTransferRepository = app.get(getRepositoryToken(EnvironmentalAssetTransferPersistence))
+
+    // Mock the SyncEnvironmentalAssetTokenNestJSEventAdapter handler to avoid interference
+    const syncHandler = app.get(SyncEnvironmentalAssetTokenNestJSEventAdapter)
+    jest.spyOn(syncHandler, "handle").mockResolvedValue(undefined)
   })
 
   afterAll(async () => {

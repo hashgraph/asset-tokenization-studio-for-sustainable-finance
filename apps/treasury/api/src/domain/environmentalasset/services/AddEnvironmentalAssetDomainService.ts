@@ -9,8 +9,8 @@ import { AddEnvironmentalAssetDomainServiceResponse } from "@domain/environmenta
 @Singleton()
 export class AddEnvironmentalAssetDomainService {
   constructor(
-    @Inject("EnvironmentalAssetRepository") private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
-    @Inject("TreasuryRepository") private readonly treasuryRepository: TreasuryRepository,
+    @Inject() private readonly environmentalAssetRepository: EnvironmentalAssetRepository,
+    @Inject() private readonly treasuryRepository: TreasuryRepository,
     private readonly checkEnvironmentalAssetNotExists: CheckEnvironmentalAssetNotExistsDomainService,
   ) {}
 
