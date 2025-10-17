@@ -52,7 +52,7 @@ async function createBond(format) {
     ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
   },
   format: format,
-  accountId: "0.0.5466269"
+  accountId: process.env.ACCOUNT_ID
 };
   
   try {

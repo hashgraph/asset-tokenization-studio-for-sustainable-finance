@@ -31,7 +31,7 @@ async function signEvmTransaction(transaction, privateKeyStr) {
     data: txBack.data,
     value: txBack.value,
     chainId: txBack.chainId,
-    gasPrice: ethers.utils.parseUnits("500", "gwei"),
+    gasPrice: ethers.utils.parseUnits("600", "gwei"),
     type: 0,
   };
   const signedTx = await wallet.signTransaction(txToSign);
