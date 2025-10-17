@@ -67,7 +67,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
      */
     const transactionResponse = this.buildAndSerializeTransaction({
       contractInterface,
-      functionName: "transferERC721Token" as any,
+      functionName: "transferEnvironmentalAssetToken" as any,
       contractId: request.contractId,
       gas: this.GAS,
       environment,
@@ -86,7 +86,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   /**
    * Builds a transaction for environmental asset operations (add/remove)
    * @param request The transaction request containing assetContractId, contractId, accountId, and format
-   * @param functionName The contract function name to call ("addERC721Token" or "removeERC721Token")
+   * @param functionName The contract function name to call ("addEnvironmentalAssetToken"
+   * or "removeEnvironmentalAssetToken")
    * @returns BuildTransactionResponse containing the serialized unsigned transaction
    * @private
    */

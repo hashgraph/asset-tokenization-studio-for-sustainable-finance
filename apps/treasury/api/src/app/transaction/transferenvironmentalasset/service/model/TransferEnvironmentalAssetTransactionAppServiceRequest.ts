@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty } from "class-validator"
+import { IsDefined, IsNotEmpty } from "class-validator"
 
 export class TransferEnvironmentalAssetTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
   readonly assetContractId: string
 
-  @IsNotEmpty()
-  readonly tokenId: string
+  @IsDefined()
+  readonly tokenId: number
 
   @IsNotEmpty()
   readonly to: string
@@ -18,7 +18,7 @@ export class TransferEnvironmentalAssetTransactionAppServiceRequest extends Base
     format: string,
     accountId: string,
     contractId: string,
-    tokenId: string,
+    tokenId: number,
     to: string,
   ) {
     super(format, accountId, contractId)

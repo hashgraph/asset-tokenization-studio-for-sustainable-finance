@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumber, IsString, ValidateNested } from "class-validator"
+import { IsNotEmpty, IsString, ValidateNested } from "class-validator"
 import { Type } from "class-transformer"
 import { EnvironmentalAssetTransferQueryResponse } from "./EnvironmentalAssetTransferQueryResponse"
 

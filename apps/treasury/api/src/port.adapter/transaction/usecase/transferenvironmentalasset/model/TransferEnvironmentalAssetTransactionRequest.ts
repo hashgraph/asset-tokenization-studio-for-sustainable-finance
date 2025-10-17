@@ -3,10 +3,10 @@
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
 export class TransferEnvironmentalAssetTransactionRequest extends BaseTransactionRequest {
-  tokenId: string
+  tokenId: number
   to: string
 
-  constructor(format: string, accountId: string, tokenId: string, to: string) {
+  constructor(format: string, accountId: string, tokenId: number, to: string) {
     super(format, accountId)
     this.tokenId = tokenId
     this.to = to
