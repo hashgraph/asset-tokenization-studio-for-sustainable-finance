@@ -1,0 +1,119 @@
+{
+	"info": {
+		"_postman_id": "171b42b9-cedf-4f42-b305-e75e445c5187",
+		"name": "Treasury API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9628317"
+	},
+	"item": [
+		{
+			"name": "Treasury",
+			"item": [
+				{
+					"name": "Get Treasury",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Proceeds Recipient",
+			"item": [
+				{
+					"name": "Fund Proceeds Recipient",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"ethereum\",\n    \"accountId\": \"0.0.6548640\",\n    \"amount\": \"500000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/proceeds-recipients/0.0.6548643/transfer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"proceeds-recipients",
+								"0.0.6548643",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Environmental Asset",
+			"item": []
+		}
+	]
+}

@@ -28,7 +28,7 @@
     "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "compile:force": "npm run clean && npm run compile",
+    "compile:force": "npm run clean && npm run compile && npx tsc",
     "test": "hedera start -d && npx hardhat test; hedera stop",
     "test:portfolio": "hedera start -d && npx hardhat test test/portfolio.test.ts; hedera stop",
     "test:proceedsmanagement": "hedera start -d && npx hardhat test test/proceedsmanagement.test.ts; hedera stop",
