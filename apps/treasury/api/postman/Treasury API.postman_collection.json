@@ -113,7 +113,216 @@
 		},
 		{
 			"name": "Environmental Asset",
-			"item": []
+			"item": [
+				{
+					"name": "Add Environmental Asset",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"ethereum\",\n    \"accountId\": \"0.0.6548640\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"environmental-assets",
+								"0.0.7070547"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Transfer Environmental Asset",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"hedera\",\n    \"accountId\": \"0.0.6548640\",\n    \"to\": \"0.0.7069925\",\n    \"tokenId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547/transfer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"environmental-assets",
+								"0.0.7070547",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Environmental Asset",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"ethereum\",\n    \"accountId\": \"0.0.6548640\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"environmental-assets",
+								"0.0.7070547"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Environmental Assets",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"environmental-assets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Environmental Asset Holdings",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547/holdings",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"environmental-assets",
+								"0.0.7070547",
+								"holdings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
