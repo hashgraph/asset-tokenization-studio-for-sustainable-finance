@@ -8,7 +8,6 @@ export class AddEnvironmentalAssetTokenCommand extends Command<void> {
   environmentalAssetContractId: string
 
   @IsNumber()
-  @Min(1)
   tokenId: number
 
   constructor(environmentalAssetContractId: string, tokenId: number) {
