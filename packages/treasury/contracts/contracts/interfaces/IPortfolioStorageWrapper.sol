@@ -23,4 +23,9 @@ interface IPortfolioStorageWrapper {
      * @param dissociationError The error code
      */
     error DissociateTokenFailed(address token, int256 dissociationError);
+
+    /**
+     * @dev Error thrown when checking that an address cannot be zero
+     */
+    error InvalidAddressZero();
 }

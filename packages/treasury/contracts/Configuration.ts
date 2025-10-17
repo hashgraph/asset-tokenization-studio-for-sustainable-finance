@@ -89,19 +89,6 @@ export default class Configuration {
         )
     }
 
-    public static get usdcAddress(): Record<Network, string> {
-        return NETWORKS.reduce(
-            (result, network) => {
-                result[network] = Configuration._getEnvironmentVariable({
-                    name: `${network.toUpperCase()}_USDC_ADDRESS`,
-                    defaultValue: '',
-                })
-                return result
-            },
-            {} as Record<Network, string>
-        )
-    }
-
     private static _getEnvironmentVariableList({
         name,
         indexChar = '#',
