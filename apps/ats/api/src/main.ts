@@ -2,9 +2,16 @@
 import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./AppModule"
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger"
+import { LogLevel } from "@nestjs/common"
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  // Configure log levels
+  const defaultLevels: LogLevel[] = ["log", "error", "warn"]
+  const logLevels: LogLevel[] = process.env.LOG_LEVELS
+    ? (process.env.LOG_LEVELS.split(",") as LogLevel[])
+    : defaultLevels
+
+  const app = await NestFactory.create(AppModule, { logger: logLevels })
 
   // Enable CORS
   app.enableCors()
