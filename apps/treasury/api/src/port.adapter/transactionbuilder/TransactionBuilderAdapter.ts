@@ -17,7 +17,7 @@ import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/gr
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  private readonly GAS = 30_000_000
+  private readonly GAS = 15_000_000
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -48,11 +48,11 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
-    return this.buildEnvironmentalAssetTransaction(request, "addERC721Token")
+    return this.buildEnvironmentalAssetTransaction(request, "addEnvironmentalAssetToken")
   }
 
   removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
-    return this.buildEnvironmentalAssetTransaction(request, "removeERC721Token")
+    return this.buildEnvironmentalAssetTransaction(request, "removeEnvironmentalAssetToken")
   }
 
   transferEnvironmentalAsset(request: BuildTransferEnvironmentalAssetTransactionRequest): BuildTransactionResponse {
@@ -92,7 +92,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
    */
   private buildEnvironmentalAssetTransaction(
     request: BuildAddEnvironmentalAssetTransactionRequest | BuildRemoveEnvironmentalAssetTransactionRequest,
-    functionName: "addERC721Token" | "removeERC721Token",
+    functionName: "addEnvironmentalAssetToken" | "removeEnvironmentalAssetToken",
   ): BuildTransactionResponse {
     const iPortfolioInterface = IPortfolio__factory.createInterface()
     const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"

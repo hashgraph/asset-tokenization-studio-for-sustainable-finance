@@ -32,6 +32,32 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /**
+     * @dev Check whether an address is address zero
+     *
+     * @param checkedAddress The address to check
+     */
+    modifier notAddressZero(address checkedAddress) {
+        _checkNotAddressZero(checkedAddress);
+        _;
+    }
+
+    /**
+     * @dev Check whether an array contains any address zero
+     *
+     * @param checkedAddress The addresses array to check
+     */
+    modifier notAddressZeroInArray(address[] memory checkedAddress) {
+        for (uint256 index; index < checkedAddress.length; ) {
+            _checkNotAddressZero(checkedAddress[index]);
+
+            unchecked {
+                ++index;
+            }
+        }
+        _;
+    }
+
+    /**
      * @dev Add a new EnvironmentalAsset token contract to the treasury
      *
      * @param environmentalAssets The address of the EnvironmentalAsset token contract to add to the treasury
@@ -95,6 +121,7 @@ abstract contract PortfolioStorageWrapper is
      */
     function _setPaymentToken(address paymentToken) internal {
         _portfolioStorage().paymentToken = paymentToken;
+        _associateToken(paymentToken);
     }
 
     /*
@@ -202,6 +229,17 @@ abstract contract PortfolioStorageWrapper is
         // solhint-disable-next-line no-inline-assembly
         assembly {
             portofolioStorage.slot := position
+        }
+    }
+
+    /**
+     * @dev checks if a certain address is the address zero
+     *
+     * @param addressChecked The address to check
+     */
+    function _checkNotAddressZero(address addressChecked) internal pure {
+        if (addressChecked == address(0)) {
+            revert InvalidAddressZero();
         }
     }
 }

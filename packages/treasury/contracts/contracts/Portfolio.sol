@@ -29,7 +29,13 @@ abstract contract Portfolio is
     function initialize_Portfolio(
         address paymentToken,
         address[] memory environmentalAssets
-    ) external override onlyUninitialized(_portfolioStorage().initialized) {
+    )
+        external
+        override
+        notAddressZero(paymentToken)
+        notAddressZeroInArray(environmentalAssets)
+        onlyUninitialized(_portfolioStorage().initialized)
+    {
         PortfolioStorage storage portfolioStorage = _portfolioStorage();
         _setEnvironmentalAssets(environmentalAssets);
         _setPaymentToken(paymentToken);
@@ -48,7 +54,13 @@ abstract contract Portfolio is
      */
     function addEnvironmentalAssetToken(
         address environmentalAsset
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        notAddressZero(environmentalAsset)
+    {
         bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
             emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
@@ -69,6 +81,7 @@ abstract contract Portfolio is
         override
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
+        notAddressZero(environmentalAsset)
         returns (int256 dissociationError)
     {
         dissociationError = _removeEnvironmentalAssetToken(environmentalAsset);
@@ -105,6 +118,7 @@ abstract contract Portfolio is
     function getTotalEnvironmentalAssetTokens()
         external
         view
+        override
         returns (uint256 total)
     {
         return _getTotalEnvironmentalAssetTokens();
@@ -129,7 +143,12 @@ abstract contract Portfolio is
      *
      * @return paymentToken The payment token associated to the treasury
      */
-    function getPaymentToken() external view returns (address paymentToken) {
+    function getPaymentToken()
+        external
+        view
+        override
+        returns (address paymentToken)
+    {
         paymentToken = _getPaymentToken();
     }
 }

@@ -38,7 +38,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
     }
   })
 
-  describe("POST /:treasuryContractId/environmental-assets/:assetContractId/remove", () => {
+  describe("DELETE /:treasuryContractId/environmental-assets/:assetContractId", () => {
     it("should remove environmental asset with valid treasuryContractId and assetContractId", async () => {
       const treasuryContractId = "0.0.123456"
       const assetContractId = "0.0.789012"
@@ -48,9 +48,9 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/remove`)
+        .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
         .send(removeRequest)
-        .expect(201)
+        .expect(200)
 
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof response.body.unsignedTx).toBe("string")
@@ -79,9 +79,9 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/remove`)
+          .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(removeRequest)
-          .expect(201)
+          .expect(200)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -99,9 +99,9 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/remove`)
+          .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(removeRequest)
-          .expect(201)
+          .expect(200)
 
         expect(response.body).toHaveProperty("unsignedTx")
       }
@@ -116,7 +116,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${invalidTreasuryContractId}/environmental-assets/${assetContractId}/remove`)
+        .delete(`/api/treasuries/${invalidTreasuryContractId}/environmental-assets/${assetContractId}`)
         .send(removeRequest)
         .expect(500)
     })
@@ -130,7 +130,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${invalidAssetContractId}/remove`)
+        .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${invalidAssetContractId}`)
         .send(removeRequest)
         .expect(500)
     })
@@ -147,7 +147,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/remove`)
+          .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(removeRequest)
           .expect(400)
       }
@@ -160,7 +160,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/remove`)
+          .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -174,7 +174,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries//environmental-assets/${assetContractId}/remove`)
+        .delete(`/api/treasuries//environmental-assets/${assetContractId}`)
         .send(removeRequest)
         .expect(404)
     })
@@ -187,7 +187,7 @@ describe("RemoveEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets//remove`)
+        .delete(`/api/treasuries/${treasuryContractId}/environmental-assets/`)
         .send(removeRequest)
         .expect(404)
     })

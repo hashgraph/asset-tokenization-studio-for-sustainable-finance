@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Body, Param, Post } from "@nestjs/common"
+import { Body, Param, Delete } from "@nestjs/common"
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 
 import { RemoveEnvironmentalAssetTransactionRequest } from "./model/RemoveEnvironmentalAssetTransactionRequest"
@@ -14,7 +14,7 @@ export class RemoveEnvironmentalAssetTransactionHttpAdapter implements RemoveEnv
     private readonly removeEnvironmentalAssetTransactionAppService: RemoveEnvironmentalAssetTransactionAppService,
   ) {}
 
-  @Post(":treasuryContractId/environmental-assets/:assetContractId/remove")
+  @Delete(":treasuryContractId/environmental-assets/:assetContractId")
   removeEnvironmentalAsset(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("assetContractId") assetContractId: string,
