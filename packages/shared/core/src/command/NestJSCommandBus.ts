@@ -9,11 +9,16 @@ import { Logger } from "../logger/Logger"
 @Singleton()
 export class NestJSCommandBus implements CommandBus {
   private readonly logger = new Logger(NestJSCommandBus.name)
+  private readonly excludedCommandsForDebug = ["SetSyncStateCommand"]
 
   constructor(private internalCommandBus: InternalNestJSCommandBus) {}
 
   async execute<C extends Command<R>, R>(command: C): Promise<R> {
-    this.logger.log(`Executing command ${command.constructor.name}`)
+    if (this.excludedCommandsForDebug.includes(command.constructor.name)) {
+      this.logger.debug(`Executing command ${command.constructor.name}`)
+    } else {
+      this.logger.log(`Executing command ${command.constructor.name}`)
+    }
     return await this.internalCommandBus.execute(command)
   }
 }

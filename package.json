@@ -4,14 +4,17 @@
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [
-    "apps/shared/*",
-    "apps/ats/*",
-    "apps/treasury/*",
-    "apps/primary-market/*",
-    "packages/shared/*",
-    "packages/ats/*",
-    "packages/treasury/*",
-    "packages/primary-market/*"
+    "apps/ats/api",
+    "apps/primary-market/api",
+    "apps/shared/gateway",
+    "apps/shared/transaction-sender",
+    "apps/treasury/api",
+    "packages/ats/contracts",
+    "packages/primary-market/contracts",
+    "packages/treasury/contracts",
+    "packages/shared/blockchain-listener",
+    "packages/shared/core",
+    "scripts"
   ],
   "scripts": {
     "clean": "npm run ats:contracts:clean; node -e \"const fs=require('fs'); fs.rmSync('node_modules', {recursive:true, force:true})\"",
@@ -28,21 +31,27 @@
     "ats:contracts:format": "npm run format --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:format:fix": "npm run format:fix --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:lint": "npm run lint --workspace=@hashgraph/green-bonds-platform-ats-contracts",
-    "ats:contracts:lint:fix": "npm run lint:fix --workspace=@hashgraph/green-bonds-platform-ats-contracts"
+    "ats:contracts:lint:fix": "npm run lint:fix --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:api:build": "npm run build --workspace=@hashgraph/green-bonds-ats-api",
+    "ats:api:start": "npm run start --workspace=@hashgraph/green-bonds-ats-api",
+    "shared:build": "npm run shared:core:build && npm run shared:listener:build",
+    "shared:core:build": "npm run build --workspace=@hashgraph/green-bonds-shared-core",
+    "shared:listener:build": "npm run build --workspace=@hashgraph/green-bonds-blockchain-listener",
+    "scripts:docker:start": "npm run docker:start --workspace=@hashgraph/green-bonds-scripts"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "@typescript-eslint/parser": "^8.44.1",
-    "eslint": "^9.36.0",
-    "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-unused-imports": "^4.1.4",
-    "globals": "^15.14.0",
-    "prettier": "^3.6.2",
-    "prettier-plugin-solidity": "^2.1.0"
+    "@eslint/js": "9.37.0",
+    "@typescript-eslint/eslint-plugin": "8.46.0",
+    "@typescript-eslint/parser": "8.46.0",
+    "eslint": "9.37.0",
+    "eslint-plugin-prettier": "5.5.4",
+    "eslint-plugin-unused-imports": "4.2.0",
+    "globals": "16.4.0",
+    "prettier": "3.6.2",
+    "prettier-plugin-solidity": "2.1.0"
   },
   "overrides": {
-    "@typechain/ethers-v5": "^11.1.2",
-    "ws": "^8.15.0"
+    "@typechain/ethers-v5": "11.1.2",
+    "ws": "8.18.3"
   }
 }
