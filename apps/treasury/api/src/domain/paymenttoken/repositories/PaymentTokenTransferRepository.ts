@@ -3,7 +3,10 @@ import { PaymentTokenTransfer } from "@domain/paymenttoken/model/PaymentTokenTra
 export interface PaymentTokenTransferRepository {
   save(paymentTokenTransfer: PaymentTokenTransfer): Promise<PaymentTokenTransfer>
 
-  findById(id: string): Promise<PaymentTokenTransfer | null>
+  findByPaymentTokenId(
+    paymentTokenId: string,
+    options: PageOptions,
+    type?: string,
+  ): Promise<Page<PaymentTokenTransfer>>
 
-  findByAccountId(accountId: string): Promise<PaymentTokenTransfer[]>
 }

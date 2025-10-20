@@ -45,16 +45,22 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
-  private async findActivePersistence(
+  async findByContractIdAndTreasuryContractId(
     contractId: string,
-    treasuryId: string,
-  ): Promise<PaymentTokenPersistence | null> {
-    return this.repository.findOne({
+    treasuryContractId: string,
+  ): Promise<PaymentToken | null> {
+    const persistence = await this.paymentTokenRepository.findOne({
+      relations: {
+        treasury: true,
+      },
       where: {
         contractId,
-        treasuryId,
         removalDate: IsNull(),
+        treasury: {
+          contractId: treasuryContractId,
+        },
       },
     })
+    return persistence ? this.toDomain(persistence) : null
   }
 }

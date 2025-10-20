@@ -5,20 +5,33 @@ import { IsNotEmpty, IsString, ValidateNested } from "class-validator"
 import { Type } from "class-transformer"
 import { PaymentTokenTransferQueryResponse } from "./PaymentTokenTransferQueryResponse"
 
-export class GetPaymentTokenTransfersQuery extends Query<
-  QueryPageResponse<PaymentTokenTransferQueryResponse>
-> {
+export class GetPaymentTokenTransfersQuery extends Query<QueryPageResponse<PaymentTokenTransferQueryResponse>> {
+  @IsString()
+  @IsNotEmpty()
+  readonly treasuryContractId: string
+
   @IsString()
   @IsNotEmpty()
   readonly paymentTokenId: string
+
+  @IsOptional()
+  @IsIn(["INFLOW", "OUTFLOW"])
+  readonly type?: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(paymentTokenId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(
+    treasuryContractId: string,
+    paymentTokenId: string,
+    type: string,
+    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+  ) {
     super()
+    this.treasuryContractId = treasuryContractId
     this.paymentTokenId = paymentTokenId
+    this.type = type
     this.pageOptions = pageOptions
   }
 }

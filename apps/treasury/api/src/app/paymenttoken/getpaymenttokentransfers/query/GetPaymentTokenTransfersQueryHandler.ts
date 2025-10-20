@@ -11,8 +11,7 @@ import { PaymentTokenTransfer } from "@domain/paymenttoken/model/PaymentTokenTra
 @Singleton()
 @Handler(GetPaymentTokenTransfersQuery)
 export class GetPaymentTokenTransfersQueryHandler
-  implements
-    QueryHandler<GetPaymentTokenTransfersQuery, QueryPageResponse<PaymentTokenTransferQueryResponse>>
+  implements QueryHandler<GetPaymentTokenTransfersQuery, QueryPageResponse<PaymentTokenTransferQueryResponse>>
 {
   constructor(
     @Inject()
@@ -21,11 +20,10 @@ export class GetPaymentTokenTransfersQueryHandler
   ) {}
 
   @Validate()
-  async execute(
-    query: GetPaymentTokenTransfersQuery,
-  ): Promise<QueryPageResponse<PaymentTokenTransferQueryResponse>> {
-    const paymentToken = await this.checkPaymentTokenExistsDomainService.executeByContractId(
+  async execute(query: GetPaymentTokenTransfersQuery): Promise<QueryPageResponse<PaymentTokenTransferQueryResponse>> {
+    const paymentToken = await this.checkPaymentTokenExistsDomainService.executeByTreasuryContractId(
       query.paymentTokenId,
+      query.treasuryContractId,
     )
 
     const page = await this.paymentTokenTransferRepository.findByPaymentTokenId(

@@ -11,13 +11,17 @@ import { GetPaymentTokenTransfersPort } from "./GetPaymentTokenTransfersPort"
 export class GetPaymentTokenTransfersHttpAdapter implements GetPaymentTokenTransfersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get("payment-tokens/:paymentTokenId/transfers")
+  @Get(":treasuryContractId/payment-tokens/:paymentTokenId/transfers")
   async getPaymentTokenTransfers(
+    @Param("treasuryContractId") treasuryContractId: string,
     @Param("paymentTokenId") paymentTokenId: string,
     @Query() queryPageRequest: QueryPageRequest,
+    @Query("type") type?: string,
   ): Promise<PageResponse<PaymentTokenTransferResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetPaymentTokenTransfersQuery(paymentTokenId, queryPageOptions)
+
+    const query = new GetPaymentTokenTransfersQuery(treasuryContractId, paymentTokenId, type, queryPageOptions)
+
     return (await this.queryBus.execute(query)) as PageResponse<PaymentTokenTransferResponse>
   }
 }
