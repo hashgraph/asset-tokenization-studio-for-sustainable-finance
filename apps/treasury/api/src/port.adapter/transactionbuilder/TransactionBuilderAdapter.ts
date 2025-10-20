@@ -98,7 +98,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         environment,
         account: request.accountId,
         format: request.format as "ethereum",
-        args: [this.getEvmAddressFromHedera(request.treasuryContractId), this.getEvmAddressFromHedera(request.amount)],
+        args: [this.getEvmAddressFromHedera(request.treasuryContractId), request.amount],
       } as any)
     }
     const transaction = new TransferTransaction()
