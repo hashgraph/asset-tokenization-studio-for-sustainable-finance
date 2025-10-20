@@ -15,6 +15,7 @@ import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
+import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { TransferTransaction } from "@hashgraph/sdk"
 import { utils } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
@@ -140,6 +141,30 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
 
     return this.serializeHederaTransaction(transaction, environment, request.accountId)
+  }
+
+  updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): BuildTransactionResponse {
+    const iPortfolioInterface = IPortfolio__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    /**
+     * Type assertion is necessary here due to complex generic type inference in ethers.js
+     * The BaseTransactionBuilder expects specific generic constraints that cannot be
+     * automatically inferred from the IPortfolio interface.
+     * This is a known limitation when working with dynamically generated contract interfaces.
+     */
+    const transactionResponse = this.buildAndSerializeTransaction({
+      contractInterface: iPortfolioInterface,
+      functionName: "updatePaymentToken" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [this.getEvmAddressFromHedera(request.paymentTokenContractId)],
+    } as any)
+
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
 
   /**
