@@ -8,6 +8,7 @@ import { BuildRemoveEnvironmentalAssetTransactionRequest } from "./model/BuildRe
 import { BuildTransferEnvironmentalAssetTransactionRequest } from "./model/BuildTransferEnvironmentalAssetTransactionRequest"
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
+import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 
 export interface TransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse
@@ -16,4 +17,7 @@ export interface TransactionBuilderPort {
   transferEnvironmentalAsset(request: BuildTransferEnvironmentalAssetTransactionRequest): BuildTransactionResponse
   externalTransferPaymentToken(request: BuildExternalTransferPaymentTokenTransactionRequest): BuildTransactionResponse
   updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): BuildTransactionResponse
+  externalTransferEnvironmentalAsset(
+    request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
+  ): BuildTransactionResponse
 }

@@ -18,6 +18,7 @@ import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/trans
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { TransferTransaction } from "@hashgraph/sdk"
 import { utils } from "ethers"
+import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -105,6 +106,39 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const transaction = new TransferTransaction()
       .addTokenTransfer(request.contractId, request.accountId, BigInt(`-${request.amount}`))
       .addTokenTransfer(request.contractId, request.treasuryContractId, BigInt(request.amount))
+
+    return this.serializeHederaTransaction(transaction, environment, request.accountId)
+  }
+
+  externalTransferEnvironmentalAsset(
+    request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
+  ): BuildTransactionResponse {
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+    if (request.format === "ethereum") {
+      const contractInterface = new utils.Interface([
+        "function transferFrom(address from, address to, uint256 tokenId)",
+      ])
+      return this.buildAndSerializeTransaction({
+        contractInterface,
+        functionName: "transferFrom" as any,
+        contractId: request.contractId,
+        gas: this.GAS,
+        environment,
+        account: request.accountId,
+        format: request.format as "ethereum",
+        args: [
+          this.getEvmAddressFromHedera(request.accountId),
+          this.getEvmAddressFromHedera(request.treasuryContractId),
+          request.tokenId,
+        ],
+      } as any)
+    }
+    const transaction = new TransferTransaction().addNftTransfer(
+      request.contractId,
+      request.tokenId,
+      request.accountId,
+      request.treasuryContractId,
+    )
 
     return this.serializeHederaTransaction(transaction, environment, request.accountId)
   }
