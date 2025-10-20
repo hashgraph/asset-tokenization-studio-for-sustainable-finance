@@ -7,7 +7,7 @@ import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
 
 export abstract class BaseTransactionBuilder {
-  protected readonly formatSerializers: Record<
+  private readonly formatSerializers: Record<
     TransactionFormat,
     (context: {
       tx: ContractExecuteTransaction
