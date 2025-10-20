@@ -1,0 +1,142 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { Test, TestingModule } from '@nestjs/testing'
+import { INestApplication } from '@nestjs/common'
+import request from 'supertest'
+import { BuildTransactionResponse, SharedModule } from '@hashgraph/green-bonds-shared-core'
+import { PostgresModule } from '@config/PostgresModule'
+import { CONTROLLERS, PROVIDERS } from '@components'
+import { PostgreSqlContainer } from '@test/shared/containers/PostgresqlContainer'
+
+describe('CreateOfferingTransaction API Integration', () => {
+  let app: INestApplication
+  let container: PostgreSqlContainer
+
+  beforeAll(async () => {
+    container = await PostgreSqlContainer.create()
+  })
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      controllers: CONTROLLERS,
+      providers: [...PROVIDERS],
+    }).compile()
+
+    app = moduleFixture.createNestApplication()
+    app.setGlobalPrefix('api/v1/')
+    app.useLogger(false)
+    await app.init()
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  afterEach(async () => {
+    if (app) {
+      await app.close()
+    }
+  })
+
+  describe('POST /primary-markets/:marketContractId/bonds/:bondContractId', () => {
+    it('should create offering transaction with valid request data', async () => {
+      const marketContractId = '0.0.67890'
+      const bondContractId = '0.0.54321'
+      const createOfferingRequest = {
+        format: 'hedera',
+        accountId: '0.0.5466269',
+        treasuryAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+        paymentTokenAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+        lotSize: 1000,
+        minQuantity: 100,
+        maxQuantity: 10000,
+        targetQuantity: 5000,
+        targetQuantityRule: 1,
+        startDate: '1640995200000',
+        endDate: '1672531200000',
+        deadlineRule: 1,
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+        .send(createOfferingRequest)
+        .expect(201)
+
+      expect(response.body).toHaveProperty('unsignedTx')
+      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe('string')
+    })
+
+    it('should handle different valid format values', async () => {
+      const marketContractId = '0.0.67890'
+      const bondContractId = '0.0.54321'
+      const formats = ['hedera', 'ethereum']
+
+      for (const format of formats) {
+        const createOfferingRequest = {
+          format: format,
+          accountId: '0.0.5466269',
+          treasuryAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          paymentTokenAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+          lotSize: 1000,
+          minQuantity: 100,
+          maxQuantity: 10000,
+          targetQuantity: 5000,
+          targetQuantityRule: 1,
+          startDate: '1640995200000',
+          endDate: '1672531200000',
+          deadlineRule: 1,
+        }
+
+        const response = await request(app.getHttpServer())
+          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+          .send(createOfferingRequest)
+          .expect(201)
+
+        expect(response.body as BuildTransactionResponse).toHaveProperty('unsignedTx')
+      }
+    })
+
+    it('should return 400 for missing required fields', async () => {
+      const marketContractId = '0.0.67890'
+      const bondContractId = '0.0.54321'
+      const invalidRequests = [
+        {},
+        { format: 'hedera' },
+        { format: 'hedera', accountId: '0.0.12345' },
+        { format: 'hedera', accountId: '0.0.12345', treasuryAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7' },
+      ]
+
+      for (const invalidRequest of invalidRequests) {
+        await request(app.getHttpServer())
+          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+          .send(invalidRequest)
+          .expect(400)
+      }
+    })
+
+    it('should reject invalid deadline rule', async () => {
+      const marketContractId = '0.0.67890'
+      const bondContractId = '0.0.54321'
+      const createOfferingRequest = {
+        format: 'hedera',
+        accountId: '0.0.12345',
+        treasuryAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+        paymentTokenAddress: '0x48ca774f6942166bf37e178ccc1e861947ead8c7',
+        lotSize: 1000,
+        minQuantity: 100,
+        maxQuantity: 10000,
+        targetQuantity: 5000,
+        targetQuantityRule: 1,
+        startDate: '1640995200000',
+        endDate: '1672531200000',
+        deadlineRule: '-1',
+      }
+
+      await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+        .send(createOfferingRequest)
+        .expect(400)
+    })
+  })
+})
