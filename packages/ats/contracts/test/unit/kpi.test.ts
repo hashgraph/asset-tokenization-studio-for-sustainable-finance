@@ -12,7 +12,7 @@ import { upgradeKpiProxy } from "@scripts/domain/kpi/upgradeKpi";
 import { deployKpi } from "@scripts/domain/kpi/kpiDeploy";
 import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 
-describe.only("Kpi", () => {
+describe("Kpi", () => {
   let kpi: Kpi;
   let proxyAdmin: ProxyAdmin;
   let unknownSigner: Signer;

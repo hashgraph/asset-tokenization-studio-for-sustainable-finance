@@ -1,17 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * Test data sets helper for FactorySuite tests
- *
- * Provides centralized test data management with valid and invalid test cases.
- * Following 2025 best practice: DRY principle for test data.
- *
- * @module test/helpers/testDataSets
- */
-
 import { ethers } from "hardhat";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { TREASURY_CONFIG_ID } from "@scripts/domain";
+import { TREASURY_CONFIG_ID } from "@scripts";
 import { TREASURY_CONFIG_VERSION } from "@test";
 
 export interface TestDataSets {
@@ -27,11 +18,6 @@ export interface TestDataSets {
   invalidKpiData: any;
 }
 
-/**
- * Create comprehensive test data sets for FactorySuite testing
- * @param fixture - Test fixture containing mocks and signers
- * @returns Structured test data with valid and invalid cases
- */
 export function createTestDataSets(fixture: {
   mockResolver: any;
   paymentToken: any;
@@ -39,18 +25,14 @@ export function createTestDataSets(fixture: {
   erc721Token2: any;
   admin: SignerWithAddress;
   user: SignerWithAddress;
-  treasuryConfigId?: string; // Optional Treasury config ID (defaults to TREASURY_CONFIG_ID constant)
-  treasuryVersion?: number; // Optional Treasury version (defaults to 1)
+  treasuryConfigId?: string;
+  treasuryVersion?: number;
 }): TestDataSets {
   const { mockResolver, paymentToken, erc721Token1, erc721Token2, admin, treasuryConfigId, treasuryVersion } = fixture;
 
-  // Use provided Treasury config ID or the standard Treasury config ID (20000)
   const treasuryKey = treasuryConfigId || TREASURY_CONFIG_ID;
   const treasuryVer = treasuryVersion || TREASURY_CONFIG_VERSION;
 
-  // Valid Bond Data (ATS Factory BondData format - no coupon details)
-  // Note: ATS Factory BondData only has security, bondDetails, proceedRecipients, proceedRecipientsData
-  // Coupon details are configured separately in the Bond contract after deployment
   const validBondData = {
     security: {
       arePartitionsProtected: false,
@@ -63,7 +45,7 @@ export function createTestDataSets(fixture: {
       rbacs: [],
       isControllable: true,
       isWhiteList: true,
-      maxSupply: ethers.utils.parseEther("10000000"), // 10M max supply
+      maxSupply: ethers.utils.parseEther("10000000"),
       erc20MetadataInfo: {
         name: "Green Bond 2025",
         symbol: "GB2025",
@@ -75,24 +57,23 @@ export function createTestDataSets(fixture: {
       externalPauses: [],
       externalControlLists: [],
       externalKycLists: [],
-      erc20VotesActivated: false, // ERC20Votes extension not activated
+      erc20VotesActivated: false,
       compliance: ethers.constants.AddressZero,
       identityRegistry: ethers.constants.AddressZero,
     },
     bondDetails: {
-      currency: ethers.utils.hexlify(ethers.utils.toUtf8Bytes("USD")), // bytes3 (0x555344)
-      nominalValue: ethers.utils.parseEther("100"), // $100 par value
+      currency: ethers.utils.hexlify(ethers.utils.toUtf8Bytes("USD")),
+      nominalValue: ethers.utils.parseEther("100"),
       startingDate: Math.floor(Date.now() / 1000),
-      maturityDate: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year from now
+      maturityDate: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60,
     },
-    proceedRecipients: [], // No proceed recipients for green bonds (handled via Treasury)
-    proceedRecipientsData: [], // No proceed recipients data
+    proceedRecipients: [],
+    proceedRecipientsData: [],
   };
 
-  // Valid Factory Regulation Data (ATS format)
   const validFactoryRegulationData = {
-    regulationType: 0, // RegulationType.NONE
-    regulationSubType: 0, // RegulationSubType.NONE
+    regulationType: 0,
+    regulationSubType: 0,
     additionalSecurityData: {
       countriesControlListType: false,
       listOfCountries: "",
@@ -100,11 +81,10 @@ export function createTestDataSets(fixture: {
     },
   };
 
-  // Valid Treasury Data
   const validTreasuryData = {
     resolver: mockResolver.address,
     resolverProxyConfiguration: {
-      key: treasuryKey, // Use registered Treasury config
+      key: treasuryKey,
       version: treasuryVer,
     },
     rbacs: [],
@@ -112,31 +92,26 @@ export function createTestDataSets(fixture: {
     erc721s: [erc721Token1.address],
   };
 
-  // Valid KPI Data
   const validKpiData = {
     admin: admin.address,
     rbacs: [],
   };
 
-  // Invalid Treasury Data - Zero Resolver
   const invalidTreasuryDataZeroResolver = {
     ...validTreasuryData,
     resolver: ethers.constants.AddressZero,
   };
 
-  // Invalid Treasury Data - Zero Payment Token
   const invalidTreasuryDataZeroPaymentToken = {
     ...validTreasuryData,
     paymentToken: ethers.constants.AddressZero,
   };
 
-  // Invalid Treasury Data - Zero Address in ERC721 Array
   const invalidTreasuryDataZeroErc721 = {
     ...validTreasuryData,
     erc721s: [erc721Token1.address, ethers.constants.AddressZero],
   };
 
-  // Invalid KPI Data - Zero Admin
   const invalidKpiData = {
     ...validKpiData,
     admin: ethers.constants.AddressZero,
@@ -156,12 +131,6 @@ export function createTestDataSets(fixture: {
   };
 }
 
-/**
- * Create treasury data with multiple ERC721 tokens
- * @param validTreasuryData - Base valid treasury data
- * @param erc721Addresses - Array of ERC721 token addresses
- * @returns Treasury data with multiple ERC721 tokens
- */
 export function createTreasuryDataWithMultipleErc721s(validTreasuryData: any, erc721Addresses: string[]) {
   return {
     ...validTreasuryData,
@@ -169,11 +138,6 @@ export function createTreasuryDataWithMultipleErc721s(validTreasuryData: any, er
   };
 }
 
-/**
- * Create treasury data with empty ERC721 array
- * @param validTreasuryData - Base valid treasury data
- * @returns Treasury data with empty ERC721 array
- */
 export function createTreasuryDataWithEmptyErc721s(validTreasuryData: any) {
   return {
     ...validTreasuryData,
@@ -181,12 +145,6 @@ export function createTreasuryDataWithEmptyErc721s(validTreasuryData: any) {
   };
 }
 
-/**
- * Create KPI data with multiple RBAC roles
- * @param validKpiData - Base valid KPI data
- * @param roles - Array of { role, members } objects
- * @returns KPI data with multiple RBAC roles
- */
 export function createKpiDataWithRoles(validKpiData: any, roles: Array<{ role: string; members: string[] }>) {
   return {
     ...validKpiData,

@@ -7,7 +7,7 @@ import {
   MOCK_ERC721_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
   MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT,
-  createTestRole,
+  hashRole,
   TEST_ROLE_1,
   TEST_ROLE_2,
   TEST_KPI_ROLE_1,
@@ -382,11 +382,11 @@ describe("FactorySuite - Business Logic Tests", () => {
         },
         rbacs: [
           {
-            role: createTestRole(TEST_ROLE_1),
+            role: hashRole(TEST_ROLE_1),
             members: [admin.address],
           },
           {
-            role: createTestRole(TEST_ROLE_2),
+            role: hashRole(TEST_ROLE_2),
             members: [user.address],
           },
         ],
@@ -398,11 +398,11 @@ describe("FactorySuite - Business Logic Tests", () => {
         admin: admin.address,
         rbacs: [
           {
-            role: createTestRole(TEST_KPI_ROLE_1),
+            role: hashRole(TEST_KPI_ROLE_1),
             members: [admin.address],
           },
           {
-            role: createTestRole(TEST_KPI_ROLE_2),
+            role: hashRole(TEST_KPI_ROLE_2),
             members: [user.address],
           },
         ],
