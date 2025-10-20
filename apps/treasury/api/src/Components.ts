@@ -52,6 +52,8 @@ import { AddEnvironmentalAssetTokenCommandHandler } from "@app/environmentalasse
 import { RemoveEnvironmentalAssetTokenCommandHandler } from "@app/environmentalasset/removeenvironmentalassettoken/command/RemoveEnvironmentalAssetTokenCommandHandler"
 import { ExternalTransferPaymentTokenTransactionHttpAdapter } from "@port/transaction/usecase/externaltransferpaymenttoken/ExternalTransferPaymentTokenTransactionHttpAdapter"
 import { ExternalTransferPaymentTokenTransactionAppService } from "@app/transaction/externaltransferpaymenttoken/service/ExternalTransferPaymentTokenTransactionAppService"
+import { ExternalTransferEnvironmentalAssetTransactionAppService } from "@app/transaction/externaltransferenvironmentalasset/service/service/ExternalTransferEnvironmentalAssetTransactionAppService"
+import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/externaltransferenvironmentalasset/ExternalTransferEnvironmentalAssetTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -95,6 +97,7 @@ export const CONTROLLERS = [
   GetTreasuryHttpAdapter,
   GetEnvironmentalAssetHoldingsHttpAdapter,
   ExternalTransferPaymentTokenTransactionHttpAdapter,
+  ExternalTransferEnvironmentalAssetTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -124,6 +127,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetTokenCommandHandler,
   RemoveEnvironmentalAssetTokenCommandHandler,
   ExternalTransferPaymentTokenTransactionAppService,
+  ExternalTransferEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

@@ -38,7 +38,7 @@ describe("ExternalTransferPaymentTokenTransaction API Integration", () => {
     }
   })
 
-  describe("POST /treasuries/:treasuryContractId/environmental-assets/:assetContractId/transfer", () => {
+  describe("POST /payment-tokens/:paymentTokenContractId/treasuries/:treasuryContractId/transfer", () => {
     it("should create external payment token transfer in hedera format", async () => {
       const paymentTokenContractId = "0.0.123456"
       const treasuryContractId = "0.0.789012"
