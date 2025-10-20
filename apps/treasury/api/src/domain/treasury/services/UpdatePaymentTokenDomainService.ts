@@ -33,13 +33,13 @@ export class UpdatePaymentTokenDomainService {
         await this.paymentTokenRepository.save(treasury.paymentToken)
       }
 
-      // Create and save new payment token
+      // Create new payment token
       const newPaymentToken = new PaymentToken()
       newPaymentToken.contractId = newPaymentTokenContractId
       newPaymentToken.treasuryId = treasury.id
-      treasury.paymentToken = await this.paymentTokenRepository.save(newPaymentToken)
+      treasury.paymentToken = newPaymentToken
 
-      // Update treasury with new payment token
+      // Update treasury with new payment token (cascade will save the new payment token)
       await this.treasuryRepository.save(treasury)
 
       return new UpdatePaymentTokenDomainServiceResponse(treasury)

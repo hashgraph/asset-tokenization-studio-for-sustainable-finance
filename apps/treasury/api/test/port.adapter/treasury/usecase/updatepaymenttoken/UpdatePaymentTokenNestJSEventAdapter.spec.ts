@@ -186,17 +186,11 @@ describe("UpdatePaymentToken Integration", () => {
     const newPaymentTokenContractId = "0.0.333"
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValueOnce(newPaymentTokenContractId)
 
-    // Mock the paymentTokenRepository.save to fail on the second call (new token)
-    let saveCallCount = 0
-    jest.spyOn(internalPaymentTokenRepository, "save").mockImplementation(async (entity: any): Promise<any> => {
-      saveCallCount++
-      if (saveCallCount === 2) {
-        // Second save is for the new payment token
-        throw new Error("Database error simulated")
-      }
-      // First save is for marking old token with removalDate
-      return internalPaymentTokenRepository.create({ ...entity, id: entity.id || "mock-id" })
-    })
+    // Get the domain service to mock its repository
+    const paymentTokenRepository = app.get("PaymentTokenRepository")
+
+    // Mock to fail on the first save (old token with removalDate)
+    jest.spyOn(paymentTokenRepository, "save").mockRejectedValueOnce(new Error("Database error simulated"))
 
     const event = new PaymentTokenUpdatedDLTEvent(
       treasury.contractId,
