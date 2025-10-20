@@ -4,8 +4,16 @@
   "license": "Apache-2.0",
   "private": true,
   "workspaces": [
-    "apps/*/*",
-    "packages/*/*",
+    "apps/ats/api",
+    "apps/primary-market/api",
+    "apps/shared/gateway",
+    "apps/shared/transaction-sender",
+    "apps/treasury/api",
+    "packages/ats/contracts",
+    "packages/primary-market/contracts",
+    "packages/treasury/contracts",
+    "packages/shared/blockchain-listener",
+    "packages/shared/core",
     "scripts"
   ],
   "scripts": {
