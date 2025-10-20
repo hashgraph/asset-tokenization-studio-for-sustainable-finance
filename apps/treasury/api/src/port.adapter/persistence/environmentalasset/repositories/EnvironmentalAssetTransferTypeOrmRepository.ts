@@ -3,11 +3,10 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
-import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
 import { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
+import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { TransferType } from "@domain/shared/model/TransferType"
 
 @Injectable()
 export class EnvironmentalAssetTransferTypeOrmRepository implements EnvironmentalAssetTransferRepository {
@@ -24,7 +23,7 @@ export class EnvironmentalAssetTransferTypeOrmRepository implements Environmenta
   async findByEnvironmentalAssetId(
     environmentalAssetId: string,
     options: PageOptions,
-    type?: TransferType,
+    type?: string,
   ): Promise<Page<EnvironmentalAssetTransfer>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 

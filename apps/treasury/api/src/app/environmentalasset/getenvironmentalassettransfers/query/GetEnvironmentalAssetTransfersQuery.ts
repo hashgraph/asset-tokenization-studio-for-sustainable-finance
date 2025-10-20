@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, ValidateNested, IsOptional, IsEnum } from "class-validator"
+import { IsNotEmpty, IsString, ValidateNested, IsOptional, IsIn } from "class-validator"
 import { Type } from "class-transformer"
 import { EnvironmentalAssetTransferQueryResponse } from "./EnvironmentalAssetTransferQueryResponse"
-import { TransferType } from "@domain/shared/model/TransferType"
 
 export class GetEnvironmentalAssetTransfersQuery extends Query<
   QueryPageResponse<EnvironmentalAssetTransferQueryResponse>
@@ -18,8 +17,8 @@ export class GetEnvironmentalAssetTransfersQuery extends Query<
   readonly environmentalAssetContractId: string
 
   @IsOptional()
-  @IsEnum(TransferType)
-  readonly type?: TransferType
+  @IsIn(["INFLOW", "OUTFLOW"])
+  readonly type?: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
@@ -28,7 +27,7 @@ export class GetEnvironmentalAssetTransfersQuery extends Query<
   constructor(
     treasuryContractId: string,
     environmentalAssetContractId: string,
-    type: TransferType | undefined,
+    type?: string,
     pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
   ) {
     super()
