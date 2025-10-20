@@ -58,6 +58,9 @@ import { UpdatePaymentTokenTransactionHttpAdapter } from "@port/transaction/usec
 import { UpdatePaymentTokenTransactionAppService } from "@app/transaction/updatepaymenttoken/service/UpdatePaymentTokenTransactionAppService"
 import { ExternalTransferEnvironmentalAssetTransactionAppService } from "@app/transaction/externaltransferenvironmentalasset/service/service/ExternalTransferEnvironmentalAssetTransactionAppService"
 import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/externaltransferenvironmentalasset/ExternalTransferEnvironmentalAssetTransactionHttpAdapter"
+import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/updatepaymenttoken/UpdatePaymentTokenNestJSEventAdapter"
+import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
+import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -135,6 +138,9 @@ export const PROVIDERS = [
   RemoveEnvironmentalAssetTokenCommandHandler,
   ExternalTransferPaymentTokenTransactionAppService,
   UpdatePaymentTokenTransactionAppService,
+  UpdatePaymentTokenNestJSEventAdapter,
+  UpdatePaymentTokenCommandHandler,
+  UpdatePaymentTokenDomainService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
