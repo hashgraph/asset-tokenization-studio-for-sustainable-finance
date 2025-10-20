@@ -34,7 +34,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
 
     internalTreasuryRepository = moduleFixture.get<Repository<TreasuryPersistence>>(
@@ -61,7 +61,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
     }
   })
 
-  describe("GET /:treasuryContractId/environmental-assets/:environmentalAssetContractId/holdings", () => {
+  describe("GET /treasuries/:treasuryContractId/environmental-assets/:environmentalAssetContractId/holdings", () => {
     it("should return empty list when environmental asset has no holdings", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
@@ -75,7 +75,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
         .expect(200)
 
       expect(response.body).toHaveProperty("items")
@@ -109,7 +109,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -154,7 +154,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
 
       const response = await request(app.getHttpServer())
         .get(
-          `/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
             `?page=2&limit=2`,
         )
         .expect(200)
@@ -191,7 +191,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       const errorMessage = TreasuryNotFoundError.contractIdError(nonExistentTreasuryId).message
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${nonExistentTreasuryId}/environmental-assets/${assetContractId}/holdings`)
+        .get(`/api/v1/treasuries/${nonExistentTreasuryId}/environmental-assets/${assetContractId}/holdings`)
         .expect(HttpStatus.NOT_FOUND)
 
       expect(response.body).toEqual({
@@ -212,7 +212,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       const errorMessage = EnvironmentalAssetNotFoundError.idError(nonExistentAssetId).message
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${nonExistentAssetId}/holdings`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/environmental-assets/${nonExistentAssetId}/holdings`)
         .expect(HttpStatus.NOT_FOUND)
 
       expect(response.body).toEqual({
@@ -255,7 +255,7 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
 
       const response = await request(app.getHttpServer())
         .get(
-          `/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/holdings` +
             `?orderBy=createdAt&order=desc`,
         )
         .expect(200)

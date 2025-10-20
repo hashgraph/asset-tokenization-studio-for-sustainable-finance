@@ -24,7 +24,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
   })
 
@@ -38,7 +38,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
     }
   })
 
-  describe("POST /:treasuryContractId/environmental-assets/:assetContractId", () => {
+  describe("POST /treasuries/:treasuryContractId/environmental-assets/:assetContractId", () => {
     it("should add environmental asset with valid treasuryContractId and assetContractId", async () => {
       const treasuryContractId = "0.0.123456"
       const assetContractId = "0.0.789012"
@@ -48,7 +48,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
+        .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(201)
 
@@ -79,7 +79,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
+          .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(201)
 
@@ -99,7 +99,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
+          .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(201)
 
@@ -116,7 +116,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${invalidTreasuryContractId}/environmental-assets/${assetContractId}`)
+        .post(`/api/v1/treasuries/${invalidTreasuryContractId}/environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(500)
     })
@@ -130,7 +130,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${invalidAssetContractId}`)
+        .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${invalidAssetContractId}`)
         .send(addRequest)
         .expect(500)
     })
@@ -147,7 +147,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
+          .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(addRequest)
           .expect(400)
       }
@@ -160,7 +160,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
+          .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -174,7 +174,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries//environmental-assets/${assetContractId}`)
+        .post(`/api/v1/treasuries//environmental-assets/${assetContractId}`)
         .send(addRequest)
         .expect(404)
     })
@@ -187,7 +187,7 @@ describe("AddEnvironmentalAssetTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/`)
+        .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/`)
         .send(addRequest)
         .expect(404)
     })

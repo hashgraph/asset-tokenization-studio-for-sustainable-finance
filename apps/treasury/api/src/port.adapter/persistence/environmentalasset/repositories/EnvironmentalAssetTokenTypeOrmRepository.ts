@@ -21,7 +21,7 @@ export class EnvironmentalAssetTokenTypeOrmRepository implements EnvironmentalAs
     return this.toDomain(savedPersistence)
   }
 
-  async softDelete(token: EnvironmentalAssetToken): Promise<void> {
+  async delete(token: EnvironmentalAssetToken): Promise<void> {
     await this.repository.softDelete({ id: token.id })
   }
 

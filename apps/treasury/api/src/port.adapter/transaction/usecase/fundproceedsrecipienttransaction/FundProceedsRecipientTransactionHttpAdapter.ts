@@ -8,7 +8,7 @@ import { FundProceedsRecipientTransactionAppService } from "@app/transaction/fun
 import { FundProceedsRecipientTransactionAppServiceRequest } from "@app/transaction/fundproceedsrecipienttransaction/service/model/FundProceedsRecipientTransactionAppServiceRequest"
 import { FundProceedsRecipientTransactionPort } from "@port/transaction/usecase/fundproceedsrecipienttransaction/FundProceedsRecipientTransactionPort"
 
-@RestController()
+@RestController("treasuries")
 export class FundProceedsRecipientTransactionHttpAdapter implements FundProceedsRecipientTransactionPort {
   constructor(
     private readonly fundProceedsRecipientTransactionAppService: FundProceedsRecipientTransactionAppService,

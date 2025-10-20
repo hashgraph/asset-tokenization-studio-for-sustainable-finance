@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsNumber, IsString, Min } from "class-validator"
+import { IsNotEmpty, IsNumber, IsString } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class AddEnvironmentalAssetTokenCommand extends Command<void> {

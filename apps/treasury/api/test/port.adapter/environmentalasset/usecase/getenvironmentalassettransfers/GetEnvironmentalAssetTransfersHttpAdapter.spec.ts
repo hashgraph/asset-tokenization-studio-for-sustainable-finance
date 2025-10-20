@@ -33,7 +33,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
 
     internalTreasuryRepository = moduleFixture.get<Repository<TreasuryPersistence>>(
@@ -74,7 +74,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .expect(200)
 
       expect(response.body).toHaveProperty("items")
@@ -112,7 +114,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .expect(200)
 
       expect(response.body.total).toBe(2)
@@ -161,7 +165,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .query({ page: 1, limit: 3 })
         .expect(200)
 
@@ -201,7 +207,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .query({ orderBy: "createdAt", order: "ASC" })
         .expect(200)
 
@@ -219,7 +227,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       const nonExistentAssetId = "0.0.999999"
 
       await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${nonExistentAssetId}/transfers`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/environmental-assets/${nonExistentAssetId}/transfers`)
         .expect(404)
     })
 
@@ -255,7 +263,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset1.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset1.contractId}/transfers`,
+        )
         .expect(200)
 
       expect(response.body.total).toBe(1)
@@ -290,7 +300,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -334,7 +346,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .query({ type: TransferType.OUTFLOW })
         .expect(200)
 
@@ -371,7 +385,9 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(
+          `/api/v1/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`,
+        )
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)

@@ -32,7 +32,7 @@ describe("GetTreasury API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
     hederaPort = app.get("HederaPort")
@@ -46,7 +46,7 @@ describe("GetTreasury API Integration", () => {
     await internalTreasuryRepository.deleteAll()
   })
 
-  describe("GET /:treasuryContractId", () => {
+  describe("GET /treasuries/:treasuryContractId", () => {
     it("should return treasury with payment token", async () => {
       let treasury = await internalTreasuryRepository.save({
         contractId: "0.0.6625592",
@@ -65,7 +65,7 @@ describe("GetTreasury API Integration", () => {
 
       jest.spyOn(hederaPort, "getTokenBalance").mockResolvedValue(balance)
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}`)
+        .get(`/api/v1/treasuries/${treasury.contractId}`)
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
@@ -88,7 +88,7 @@ describe("GetTreasury API Integration", () => {
         paused: true,
       })
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasury.contractId}`)
+        .get(`/api/v1/treasuries/${treasury.contractId}`)
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
@@ -102,7 +102,7 @@ describe("GetTreasury API Integration", () => {
       const treasuryContractId = "0.0.33454"
       const errorMessage = TreasuryNotFoundError.contractIdError(treasuryContractId).message
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/${treasuryContractId}`)
+        .get(`/api/v1/treasuries/${treasuryContractId}`)
         .expect(HttpStatus.NOT_FOUND)
 
       expect(response.body).toEqual({
