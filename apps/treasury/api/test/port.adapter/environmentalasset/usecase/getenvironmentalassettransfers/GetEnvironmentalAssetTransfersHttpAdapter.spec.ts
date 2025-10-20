@@ -60,7 +60,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
     }
   })
 
-  describe("GET /environmental-assets/:environmentalAssetContractId/transfers", () => {
+  describe("GET /:treasuryContractId/environmental-assets/:environmentalAssetContractId/transfers", () => {
     it("should return empty list when environmental asset has no transfers", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
@@ -74,7 +74,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
         .expect(200)
 
       expect(response.body).toHaveProperty("items")
@@ -112,7 +112,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.total).toBe(2)
@@ -161,7 +161,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
         .query({ page: 1, limit: 3 })
         .expect(200)
 
@@ -201,7 +201,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
         .query({ orderBy: "createdAt", order: "ASC" })
         .expect(200)
 
@@ -211,10 +211,15 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
     })
 
     it("should return 404 when environmental asset does not exist", async () => {
+      const treasury = await internalTreasuryRepository.save({
+        contractId: "0.0.123456",
+        bondContractId: "0.0.789012",
+        paused: false,
+      })
       const nonExistentAssetId = "0.0.999999"
 
       await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${nonExistentAssetId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${nonExistentAssetId}/transfers`)
         .expect(404)
     })
 
@@ -250,7 +255,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset1.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset1.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.total).toBe(1)
@@ -285,7 +290,7 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/treasuries/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -300,6 +305,78 @@ describe("GetEnvironmentalAssetTransfers API Integration", () => {
       expect(outflowTransfer).toBeDefined()
       expect(outflowTransfer.accountId).toBe("0.0.222222")
       expect(outflowTransfer.tokenId).toBe(2)
+    })
+
+    it("should filter transfers by type=OUTFLOW query param", async () => {
+      const treasury = await internalTreasuryRepository.save({
+        contractId: "0.0.123456",
+        bondContractId: "0.0.789012",
+        paused: false,
+      })
+
+      const environmentalAsset = await internalEnvironmentalAssetRepository.save({
+        contractId: "0.0.111111",
+        treasuryId: treasury.id,
+      })
+
+      await internalEnvironmentalAssetTransferRepository.save({
+        accountId: "0.0.111111",
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 1,
+        type: TransferType.INFLOW,
+      })
+
+      await internalEnvironmentalAssetTransferRepository.save({
+        accountId: "0.0.222222",
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 2,
+        type: TransferType.OUTFLOW,
+      })
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .query({ type: TransferType.OUTFLOW })
+        .expect(200)
+
+      expect(response.body.items).toHaveLength(1)
+      expect(response.body.items[0].type).toBe(TransferType.OUTFLOW)
+      expect(response.body.items[0].accountId).toBe("0.0.222222")
+      expect(response.body.items[0].tokenId).toBe(2)
+    })
+
+    it("should return all transfers when type is not provided", async () => {
+      const treasury = await internalTreasuryRepository.save({
+        contractId: "0.0.123456",
+        bondContractId: "0.0.789012",
+        paused: false,
+      })
+
+      const environmentalAsset = await internalEnvironmentalAssetRepository.save({
+        contractId: "0.0.111111",
+        treasuryId: treasury.id,
+      })
+
+      await internalEnvironmentalAssetTransferRepository.save({
+        accountId: "0.0.111111",
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 1,
+        type: TransferType.INFLOW,
+      })
+
+      await internalEnvironmentalAssetTransferRepository.save({
+        accountId: "0.0.222222",
+        environmentalAssetId: environmentalAsset.id,
+        tokenId: 2,
+        type: TransferType.OUTFLOW,
+      })
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/treasuries/${treasury.contractId}/environmental-assets/${environmentalAsset.contractId}/transfers`)
+        .expect(200)
+
+      expect(response.body.items).toHaveLength(2)
+      const types = response.body.items.map((i: any) => i.type).sort()
+      expect(types).toEqual([TransferType.INFLOW, TransferType.OUTFLOW].sort())
     })
   })
 })

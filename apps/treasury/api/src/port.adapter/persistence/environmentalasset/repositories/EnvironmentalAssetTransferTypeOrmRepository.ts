@@ -7,6 +7,7 @@ import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/Env
 import { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { TransferType } from "@domain/shared/model/TransferType"
 
 @Injectable()
 export class EnvironmentalAssetTransferTypeOrmRepository implements EnvironmentalAssetTransferRepository {
@@ -23,11 +24,17 @@ export class EnvironmentalAssetTransferTypeOrmRepository implements Environmenta
   async findByEnvironmentalAssetId(
     environmentalAssetId: string,
     options: PageOptions,
+    type?: TransferType,
   ): Promise<Page<EnvironmentalAssetTransfer>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 
+    const where: any = { environmentalAssetId }
+    if (type) {
+      where.type = type
+    }
+
     const [persistenceList, total] = await this.repository.findAndCount({
-      where: { environmentalAssetId },
+      where,
       order: { [options.order.orderBy]: orderDirection },
       skip: (options.page - 1) * options.limit,
       take: options.limit,

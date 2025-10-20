@@ -3,7 +3,9 @@ import { EnvironmentalAssetTransferResponse } from "./model/EnvironmentalAssetTr
 
 export interface GetEnvironmentalAssetTransfersPort {
   getEnvironmentalAssetTransfers(
+    treasuryContractId: string,
     environmentalAssetContractId: string,
+    type: string | undefined,
     queryPageRequest: QueryPageRequest,
   ): Promise<PageResponse<EnvironmentalAssetTransferResponse>>
 }
