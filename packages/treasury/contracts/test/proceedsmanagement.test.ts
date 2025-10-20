@@ -58,9 +58,9 @@ describe('Proceeds management operations', () => {
 
         it('An account not granted the PROCEEDS_FULL_MANAGER role cannot transfer payment token', async () => {
             treasury = treasury.connect(signer_B)
-            await expect(
-                treasury.transferPaymentToken(AddressZero, 1)
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            await expect(treasury.transferPaymentToken(AddressZero, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role revoked cannot transfer payment token', async () => {
@@ -68,9 +68,9 @@ describe('Proceeds management operations', () => {
 
             await treasury.revokeRole(PROCEEDS_FULL_MANAGER, signer_A.address)
 
-            await expect(
-                treasury.transferPaymentToken(AddressZero, 1)
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            await expect(treasury.transferPaymentToken(AddressZero, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER)
         })
 
         beforeEach(async () => {
@@ -153,7 +153,9 @@ describe('Proceeds management operations', () => {
                     AddressZero,
                     1
                 )
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            )
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role revoked cannot transfer an environmental asset token', async () => {
@@ -167,7 +169,9 @@ describe('Proceeds management operations', () => {
                     AddressZero,
                     1
                 )
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            )
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER role cannot transfer a environmental asset token that does not own', async () => {
@@ -259,9 +263,9 @@ describe('Proceeds management operations', () => {
         it('An account not granted the FUNDS_MANAGER_ROLE role cannot fund a proceeds management', async () => {
             treasury = treasury.connect(signer_B)
 
-            await expect(
-                treasury.fundProceedsRecipient(AddressZero, 1)
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_B.address, FUNDS_MANAGER_ROLE)
         })
 
         it('An account with the FUNDS_MANAGER_ROLE role revoked cannot fund a proceeds recipient', async () => {
@@ -269,9 +273,9 @@ describe('Proceeds management operations', () => {
 
             await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
-            await expect(
-                treasury.fundProceedsRecipient(AddressZero, 1)
-            ).to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+            await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_A.address, FUNDS_MANAGER_ROLE)
         })
 
         // Falta subir la comprobación en una nueva release de ATS

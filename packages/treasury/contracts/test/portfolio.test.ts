@@ -80,9 +80,9 @@ describe('Portfolio operations', () => {
         it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot add an environmental asset', async () => {
             portfolio = portfolio.connect(signer_B)
 
-            await expect(
-                portfolio.addEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(portfolio.addEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot add an environmental asset', async () => {
@@ -90,9 +90,9 @@ describe('Portfolio operations', () => {
 
             await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await expect(
-                portfolio.addEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(portfolio.addEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role cannot add an environmental asset with zero address', async () => {
@@ -171,9 +171,9 @@ describe('Portfolio operations', () => {
         it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot remove an environmental asset', async () => {
             portfolio = portfolio.connect(signer_B)
 
-            await expect(
-                portfolio.removeEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(portfolio.removeEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot remove an environmental asset', async () => {
@@ -181,9 +181,9 @@ describe('Portfolio operations', () => {
 
             await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await expect(
-                portfolio.removeEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(portfolio.removeEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role cannot remove an environmental asset with zero address', async () => {
