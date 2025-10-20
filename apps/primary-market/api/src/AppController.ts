@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { Controller, Get } from '@nestjs/common'
 import { AppService } from './AppService'
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger'

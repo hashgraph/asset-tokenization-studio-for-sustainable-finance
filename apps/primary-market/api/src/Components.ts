@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { AppService } from './AppService'
 import { AppController } from './AppController'
 import { EVENT_LISTENER_ENTITIES } from '@hashgraph/green-bonds-blockchain-listener'
