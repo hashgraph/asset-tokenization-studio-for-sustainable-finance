@@ -2,9 +2,18 @@
 import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./AppModule"
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger"
+import { LogLevel, LOG_LEVELS, Logger } from "@nestjs/common"
+
+function getLogLevels(): LogLevel[] {
+  const logLevels: LogLevel[] = LOG_LEVELS
+  const defaultLogLevel: LogLevel = "log"
+  const minLogLevel = (process.env.LOG_LEVEL as LogLevel) || defaultLogLevel
+  return logLevels.slice(logLevels.indexOf(minLogLevel))
+}
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
+  // Configure log levels
+  const app = await NestFactory.create(AppModule, { logger: getLogLevels() })
 
   // Enable CORS
   app.enableCors()
@@ -26,7 +35,8 @@ async function bootstrap() {
   const port = process.env.PORT ?? 3000
   await app.listen(port)
 
-  console.log(`🏃 GreenBond ATS API is running on: http://localhost:${port}`)
-  console.log(`📖 API Documentation: http://localhost:${port}/api`)
+  const logger = new Logger("main")
+  logger.log(`🏃 GreenBond ATS API is running on: http://localhost:${port}`)
+  logger.log(`📖 API Documentation: http://localhost:${port}/api`)
 }
 void bootstrap()

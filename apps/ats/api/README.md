@@ -51,6 +51,21 @@ $ npm install --save nestjs-paginate
 $ npm install --save @nestjs/swagger
 ```
 
+## Configure .env
+You can copy .env.example to .env to have every property that the application is going to need.
+- PORT: the port where the app is going to be listening
+- LOG_LEVELS: list of log levels that you want to write, possible values log,error,warn,debug,verbose
+- HEDERA_NETWORK: possible values testnet, previewnet or mainnet
+- POSTGRESQL_HOST: host where the database is listening connections
+- POSTGRESQL_PORT: port where the database is listening connections
+- POSTGRESQL_USER: database user to connect
+- POSTGRESQL_PASSWORD: database password to connect
+- POSTGRESQL_DB: database schema
+- BLOCKCHAIN_LISTENER_NETWORK: possible values testnet, previewnet or mainnet
+- BLOCKCHAIN_LISTENER_BLOCK_NUMBER: block where the app is going to start listening
+- BLOCKCHAIN_LISTENER_POLL_INTERVAL: time in milliseconds to wait when there is not a new block available
+- BLOCKCHAIN_LISTENER_CONTRACTS: list of already deployed contracts that the app is going to listen events (factories for example)
+- BLOCKCHAIN_LISTENER_EVENTS: list of events that the app is going to listen from the LISTENER_CONTRACTS
 
 ## Project setup
 
