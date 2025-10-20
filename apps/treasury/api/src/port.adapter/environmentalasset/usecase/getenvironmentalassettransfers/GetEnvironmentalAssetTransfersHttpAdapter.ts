@@ -11,13 +11,21 @@ import { GetEnvironmentalAssetTransfersPort } from "./GetEnvironmentalAssetTrans
 export class GetEnvironmentalAssetTransfersHttpAdapter implements GetEnvironmentalAssetTransfersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get("environmental-assets/:environmentalAssetContractId/transfers")
+  @Get(":treasuryContractId/environmental-assets/:environmentalAssetContractId/transfers")
   async getEnvironmentalAssetTransfers(
+    @Param("treasuryContractId") treasuryContractId: string,
     @Param("environmentalAssetContractId") environmentalAssetContractId: string,
     @Query() queryPageRequest: QueryPageRequest,
+    @Query("type") type?: string,
   ): Promise<PageResponse<EnvironmentalAssetTransferResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetEnvironmentalAssetTransfersQuery(environmentalAssetContractId, queryPageOptions)
+
+    const query = new GetEnvironmentalAssetTransfersQuery(
+      treasuryContractId,
+      environmentalAssetContractId,
+      type,
+      queryPageOptions,
+    )
     return (await this.queryBus.execute(query)) as PageResponse<EnvironmentalAssetTransferResponse>
   }
 }

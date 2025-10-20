@@ -24,13 +24,15 @@ export class GetEnvironmentalAssetTransfersQueryHandler
   async execute(
     query: GetEnvironmentalAssetTransfersQuery,
   ): Promise<QueryPageResponse<EnvironmentalAssetTransferQueryResponse>> {
-    const environmentalAsset = await this.checkEnvironmentalAssetExistsDomainService.executeByContractId(
+    const environmentalAsset = await this.checkEnvironmentalAssetExistsDomainService.executeByTreasuryContractId(
       query.environmentalAssetContractId,
+      query.treasuryContractId,
     )
 
     const page = await this.environmentalAssetTransferRepository.findByEnvironmentalAssetId(
       environmentalAsset.id,
       query.pageOptions.toPageOptions(),
+      query.type,
     )
 
     return QueryPageResponse.fromPage(page, (transfer: EnvironmentalAssetTransfer) => ({

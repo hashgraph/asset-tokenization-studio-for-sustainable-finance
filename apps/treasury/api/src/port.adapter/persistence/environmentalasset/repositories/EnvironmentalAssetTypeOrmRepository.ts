@@ -84,6 +84,25 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     })
   }
 
+  async findByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<EnvironmentalAsset | null> {
+    const persistence = await this.repository.findOne({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: IsNull(),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+    return persistence ? this.toDomain(persistence) : null
+  }
+
   private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {
     return { ...persistence } as EnvironmentalAsset
   }

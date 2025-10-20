@@ -3,8 +3,8 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
-import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
 import { EnvironmentalAssetTransferRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetTransferRepository"
+import { EnvironmentalAssetTransfer } from "@domain/environmentalasset/model/EnvironmentalAssetTransfer"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
@@ -23,11 +23,17 @@ export class EnvironmentalAssetTransferTypeOrmRepository implements Environmenta
   async findByEnvironmentalAssetId(
     environmentalAssetId: string,
     options: PageOptions,
+    type?: string,
   ): Promise<Page<EnvironmentalAssetTransfer>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 
+    const where: any = { environmentalAssetId }
+    if (type) {
+      where.type = type
+    }
+
     const [persistenceList, total] = await this.repository.findAndCount({
-      where: { environmentalAssetId },
+      where,
       order: { [options.order.orderBy]: orderDirection },
       skip: (options.page - 1) * options.limit,
       take: options.limit,

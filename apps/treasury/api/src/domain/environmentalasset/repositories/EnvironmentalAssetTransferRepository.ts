@@ -9,5 +9,6 @@ export interface EnvironmentalAssetTransferRepository {
   findByEnvironmentalAssetId(
     environmentalAssetId: string,
     options: PageOptions,
+    type?: string,
   ): Promise<Page<EnvironmentalAssetTransfer>>
 }
