@@ -3,25 +3,24 @@
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
+import type { TransactionManager } from "@domain/shared/transaction/TransactionManager"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { UpdatePaymentTokenDomainServiceResponse } from "@domain/treasury/services/model/UpdatePaymentTokenDomainServiceResponse"
-import { DataSource } from "typeorm"
-import { InjectDataSource } from "@nestjs/typeorm"
 
 @Singleton()
 export class UpdatePaymentTokenDomainService {
   constructor(
     @Inject() private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
-    @InjectDataSource() private readonly dataSource: DataSource,
+    @Inject() private readonly transactionManager: TransactionManager,
   ) {}
 
   async execute(
     treasuryContractId: string,
     newPaymentTokenContractId: string,
   ): Promise<UpdatePaymentTokenDomainServiceResponse> {
-    return await this.dataSource.transaction(async () => {
+    return await this.transactionManager.execute(async () => {
       const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
       if (!treasury) {
         throw TreasuryNotFoundError.contractIdsError([treasuryContractId])
