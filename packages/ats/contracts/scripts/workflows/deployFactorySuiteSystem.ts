@@ -266,7 +266,7 @@ export async function deployFactorySuiteSystem(
     // Use ATS infrastructure function to deploy ResolverProxy
     // IMPORTANT: Initialize with deployer as DEFAULT_ADMIN_ROLE so roles can be granted in tests
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"; // bytes32(0)
-    
+
     const factorySuiteProxyResult = await deployResolverProxy(provider, {
       blrAddress: blrResult.blrAddress,
       configurationId: fsConfig.data.configurationId,

@@ -12,6 +12,7 @@
 import { ethers } from "hardhat";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { TREASURY_CONFIG_ID } from "@scripts/domain";
+import { TREASURY_CONFIG_VERSION } from "@test";
 
 export interface TestDataSets {
   validBondData: any;
@@ -45,7 +46,7 @@ export function createTestDataSets(fixture: {
 
   // Use provided Treasury config ID or the standard Treasury config ID (20000)
   const treasuryKey = treasuryConfigId || TREASURY_CONFIG_ID;
-  const treasuryVer = treasuryVersion || 1;
+  const treasuryVer = treasuryVersion || TREASURY_CONFIG_VERSION;
 
   // Valid Bond Data (ATS Factory BondData format - no coupon details)
   // Note: ATS Factory BondData only has security, bondDetails, proceedRecipients, proceedRecipientsData
@@ -161,10 +162,7 @@ export function createTestDataSets(fixture: {
  * @param erc721Addresses - Array of ERC721 token addresses
  * @returns Treasury data with multiple ERC721 tokens
  */
-export function createTreasuryDataWithMultipleErc721s(
-  validTreasuryData: any,
-  erc721Addresses: string[],
-) {
+export function createTreasuryDataWithMultipleErc721s(validTreasuryData: any, erc721Addresses: string[]) {
   return {
     ...validTreasuryData,
     erc721s: erc721Addresses,
@@ -189,10 +187,7 @@ export function createTreasuryDataWithEmptyErc721s(validTreasuryData: any) {
  * @param roles - Array of { role, members } objects
  * @returns KPI data with multiple RBAC roles
  */
-export function createKpiDataWithRoles(
-  validKpiData: any,
-  roles: Array<{ role: string; members: string[] }>,
-) {
+export function createKpiDataWithRoles(validKpiData: any, roles: Array<{ role: string; members: string[] }>) {
   return {
     ...validKpiData,
     rbacs: roles.map((r) => ({

@@ -2,9 +2,19 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import {
+  createTestDataSets,
+  MOCK_ERC721_CONTRACT_NAME,
+  TREASURY_CONFIG_VERSION,
+  MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT,
+  createTestRole,
+  TEST_ROLE_1,
+  TEST_ROLE_2,
+  TEST_KPI_ROLE_1,
+  TEST_KPI_ROLE_2,
+} from "@test";
 import { deployFactorySuiteWithMocksForBusinessLogic } from "@test/fixtures";
-import { createTestDataSets } from "@test/helpers/testDataSets";
-import { TREASURY_CONFIG_ID } from "@scripts/domain";
+import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
 
 describe("FactorySuite - Business Logic Tests", () => {
   async function setupFixture() {
@@ -29,7 +39,13 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData);
+        .deployBondSuite(
+          mockAtsFactory.address,
+          validBondData,
+          validFactoryRegulationData,
+          validTreasuryData,
+          validKpiData,
+        );
 
       const receipt = await tx.wait();
       expect(receipt.status).to.equal(1);
@@ -42,7 +58,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       )
         .to.emit(factorySuite, "BondSuiteDeployed")
         .withArgs(
@@ -63,11 +85,17 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData);
+        .callStatic.deployBondSuite(
+          mockAtsFactory.address,
+          validBondData,
+          validFactoryRegulationData,
+          validTreasuryData,
+          validKpiData,
+        );
 
       expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.KpiAddress).to.not.equal(ethers.constants.AddressZero);
+      expect(result.kpiAddress).to.not.equal(ethers.constants.AddressZero);
     });
 
     it("should call ATS factory deployBond method", async () => {
@@ -77,7 +105,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       ).to.emit(mockAtsFactory, "MockBondDeployed");
     });
   });
@@ -90,16 +124,22 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(unauthorized)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       ).to.be.revertedWithCustomError(accessControl, "AccountHasNoRole");
     });
 
     it("should revert when contract is paused", async () => {
-      const { factorySuite, mockAtsFactory, admin, deployer, pause, accessControl, testData } = await loadFixture(setupFixture);
+      const { factorySuite, mockAtsFactory, admin, deployer, pause, accessControl, testData } =
+        await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
 
       // Grant PAUSER_ROLE to deployer to be able to pause
-      const PAUSER_ROLE = "0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb";
       await accessControl.connect(deployer).grantRole(PAUSER_ROLE, deployer.address);
 
       // Pause the contract via PauseFacet
@@ -108,7 +148,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
     });
   });
@@ -121,7 +167,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(ethers.constants.AddressZero, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            ethers.constants.AddressZero,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidContractAddress");
     });
 
@@ -166,7 +218,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, invalidKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            invalidKpiData,
+          ),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidKpiData");
     });
 
@@ -178,7 +236,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         resolver: blr.address,
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
-          version: 1,
+          version: TREASURY_CONFIG_VERSION,
         },
         rbacs: [],
         paymentToken: paymentToken.address,
@@ -199,14 +257,15 @@ describe("FactorySuite - Business Logic Tests", () => {
     });
 
     it("should revert with InvalidTreasuryData for zero address in ERC721 array", async () => {
-      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, erc721Token1, testData } = await loadFixture(setupFixture);
+      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, erc721Token1, testData } =
+        await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validKpiData } = testData;
 
       const treasuryDataWithZeroERC721 = {
         resolver: blr.address,
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
-          version: 1,
+          version: TREASURY_CONFIG_VERSION,
         },
         rbacs: [],
         paymentToken: paymentToken.address,
@@ -238,7 +297,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData),
+          .deployBondSuite(
+            mockAtsFactory.address,
+            validBondData,
+            validFactoryRegulationData,
+            validTreasuryData,
+            validKpiData,
+          ),
       ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
   });
@@ -250,11 +315,17 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(mockAtsFactory.address, validBondData, validFactoryRegulationData, validTreasuryData, validKpiData);
+        .deployBondSuite(
+          mockAtsFactory.address,
+          validBondData,
+          validFactoryRegulationData,
+          validTreasuryData,
+          validKpiData,
+        );
 
       const receipt = await tx.wait();
       // Treasury and KPI deployment are expensive, so we allow up to 10M gas
-      expect(receipt.gasUsed.lt(ethers.BigNumber.from("10000000"))).to.be.true;
+      expect(receipt.gasUsed.lt(ethers.BigNumber.from(MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT))).to.be.true;
     });
   });
 
@@ -266,7 +337,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       // Create array with multiple ERC721 tokens
       const erc721Addresses = [];
       for (let i = 0; i < 5; i++) {
-        const MockERC721 = await ethers.getContractFactory("MockERC721");
+        const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
         const token = await MockERC721.deploy(`Token${i}`, `T${i}`);
         await token.deployed();
         erc721Addresses.push(token.address);
@@ -276,7 +347,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         resolver: blr.address,
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
-          version: 1,
+          version: TREASURY_CONFIG_VERSION,
         },
         rbacs: [],
         paymentToken: paymentToken.address,
@@ -307,15 +378,15 @@ describe("FactorySuite - Business Logic Tests", () => {
         resolver: blr.address,
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
-          version: 1,
+          version: TREASURY_CONFIG_VERSION,
         },
         rbacs: [
           {
-            role: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE_1")),
+            role: createTestRole(TEST_ROLE_1),
             members: [admin.address],
           },
           {
-            role: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("ROLE_2")),
+            role: createTestRole(TEST_ROLE_2),
             members: [user.address],
           },
         ],
@@ -327,11 +398,11 @@ describe("FactorySuite - Business Logic Tests", () => {
         admin: admin.address,
         rbacs: [
           {
-            role: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("KPI_ROLE_1")),
+            role: createTestRole(TEST_KPI_ROLE_1),
             members: [admin.address],
           },
           {
-            role: ethers.utils.keccak256(ethers.utils.toUtf8Bytes("KPI_ROLE_2")),
+            role: createTestRole(TEST_KPI_ROLE_2),
             members: [user.address],
           },
         ],

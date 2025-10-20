@@ -10,10 +10,10 @@
  * @example
  * ```typescript
  * // Import domain constants
- * import { FACTORY_SUITE_CONFIG_ID, TREASURY_CONFIG_ID, FACTORY_SUITE_ROLES } from '@scripts/domain'
+ * import { FACTORY_SUITE_CONFIG_ID, TREASURY_CONFIG_ID } from '@scripts/domain'
  *
  * // Import configuration creation
- * import { createFactorySuiteConfiguration, createTreasuryConfiguration } from '@scripts/domain'
+ * import { createFactorySuiteConfiguration } from '@scripts/domain'
  * ```
  */
 
@@ -22,6 +22,3 @@ export * from "./constants";
 
 // FactorySuite configuration
 export * from "./factorySuite/createConfiguration";
-
-// Treasury configuration (for testing)
-export * from "./treasury/createConfiguration";

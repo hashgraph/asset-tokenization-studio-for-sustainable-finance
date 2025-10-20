@@ -23,7 +23,14 @@ import {
   deployFacets,
   registerAdditionalFacets,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { deployFactorySuiteSystem, createTreasuryConfiguration, TREASURY_CONFIG_ID } from "@scripts";
+import { deployFactorySuiteSystem, TREASURY_CONFIG_ID, DEPLOYER_ROLE, PAUSER_ROLE } from "@scripts";
+import {
+  createTreasuryConfiguration,
+  MOCK_ERC20_CONTRACT_NAME,
+  MOCK_ERC721_CONTRACT_NAME,
+  MOCK_ATS_FACTORY_CONTRACT_NAME,
+  TREASURY_CONFIG_VERSION,
+} from "@test";
 import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@typechain";
 
 /**
@@ -208,37 +215,34 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
 
   const treasuryConfigId = TREASURY_CONFIG_ID;
 
-  // Treasury configuration version is 1 (first version of this configuration)
-  const treasuryVersion = 1;
+  // Treasury configuration version (first version of this configuration)
+  const treasuryVersion = TREASURY_CONFIG_VERSION;
 
   // ========================================
   // STEP 2: Grant DEPLOYER_ROLE to test signers
   // ========================================
   // The deployer account has DEFAULT_ADMIN_ROLE (set during proxy deployment)
-  // IMPORTANT: Use the correct DEPLOYER_ROLE constant from the smart contract
-  // DEPLOYER_ROLE = keccak256('green.bonds.platform.role.deployer')
-  const DEPLOYER_ROLE = "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283";
-
   // Grant DEPLOYER_ROLE to both deployer and admin signers for testing flexibility
   // The deployer signer (first account) has DEFAULT_ADMIN_ROLE from deployment
   await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, deployer.address);
   await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, admin.address);
 
   // Deploy mock contracts for business logic testing
-  const MockAtsFactory = await ethers.getContractFactory("MockAtsFactory");
+  const MockAtsFactory = await ethers.getContractFactory(MOCK_ATS_FACTORY_CONTRACT_NAME);
   const mockAtsFactory = await MockAtsFactory.deploy();
   await mockAtsFactory.deployed();
 
-  const MockERC20 = await ethers.getContractFactory("MockERC20");
+  const MockERC20 = await ethers.getContractFactory(MOCK_ERC20_CONTRACT_NAME);
   const paymentToken = await MockERC20.deploy("Payment Token", "PAY");
   await paymentToken.deployed();
 
-  const MockERC721 = await ethers.getContractFactory("MockERC721");
+  const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
   const erc721Token1 = await MockERC721.deploy("NFT 1", "NFT1");
   await erc721Token1.deployed();
 
-  const erc721Token2 = await MockERC721.deploy("NFT 2", "NFT2");
-  await erc721Token2.deployed();
+  const erc721Token2 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
+  const erc721Token2Instance = await erc721Token2.deploy("NFT 2", "NFT2");
+  await erc721Token2Instance.deployed();
 
   return {
     // Provider & signers
@@ -259,7 +263,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     mockAtsFactory,
     paymentToken,
     erc721Token1,
-    erc721Token2,
+    erc721Token2: erc721Token2Instance,
 
     // Treasury configuration metadata (for test data generation)
     treasuryConfigId,

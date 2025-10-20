@@ -1,16 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Treasury configuration module (for testing).
+ * Treasury test helper module.
  *
- * Creates Treasury configuration in BusinessLogicResolver with mock facets
- * for FactorySuite testing purposes. In production, real Treasury facets
- * would be deployed and configured by the Treasury domain team.
+ * Creates mock Treasury configuration in BusinessLogicResolver for FactorySuite testing.
+ * This is test-only infrastructure to simulate a pre-existing Treasury configuration
+ * without requiring actual Treasury contract implementations from the Treasury domain.
  *
- * This helper enables FactorySuite tests to simulate a pre-existing Treasury
- * configuration without requiring actual Treasury contract implementations.
- *
- * @module domain/treasury/createConfiguration
+ * @module test/helpers/treasuryTestHelper
  */
 
 import { Contract } from "ethers";
