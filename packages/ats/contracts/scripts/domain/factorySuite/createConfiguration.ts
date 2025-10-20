@@ -22,16 +22,8 @@ import {
 import { FACTORY_SUITE_CONFIG_ID } from "@scripts/domain";
 
 /**
- * FactorySuite facets list (3 facets total).
- *
- * Explicit positive list of all facets required for FactorySuite:
- * - AccessControlFacet (from ATS)
- * - PauseFacet (from ATS)
- * - FactorySuiteFacet (specific to green-bonds-platform)
- *
- * Note: FactorySuiteFacet is a custom green-bonds facet. ATS infrastructure
- * will log a warning about it not being in the ATS registry, but will
- * configure it correctly (as of ATS v1.x with extensibility improvements).
+ * FactorySuite facets: 2 ATS facets + 1 custom FactorySuiteFacet.
+ * Note: ATS infrastructure warns about custom facets but configures them correctly.
  */
 const FACTORY_SUITE_FACETS = ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"] as const;
 
@@ -76,8 +68,6 @@ export async function createFactorySuiteConfiguration(
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  // Direct call to ATS infrastructure - no workaround needed!
-  // ATS now accepts external facets (warns but continues)
   return createBatchConfiguration(blrContract, {
     configurationId: FACTORY_SUITE_CONFIG_ID,
     facetNames: FACTORY_SUITE_FACETS,

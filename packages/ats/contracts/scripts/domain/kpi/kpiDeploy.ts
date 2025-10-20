@@ -11,6 +11,14 @@ import { processAddressableArgs } from "@scripts/utils";
 
 import { ethers } from "hardhat";
 
+/**
+ * Deploy KPI contract with proxy pattern.
+ *
+ * @param provider - Deployment provider
+ * @param proxyAdmin - ProxyAdmin contract for upgrade control
+ * @param rbac - Role-based access control configuration
+ * @returns Promise resolving to KPI proxy and implementation contracts
+ */
 export async function deployKpi(
   provider: DeploymentProvider,
   proxyAdmin: ProxyAdmin,
@@ -34,6 +42,11 @@ export async function deployKpi(
   return { kpi, kpiLogic };
 }
 
+/**
+ * Deploy KPI implementation contract (logic).
+ *
+ * @returns Promise resolving to deployed KPI implementation
+ */
 export async function deployKpiLogic() {
   const kpiLogic = await (await ethers.getContractFactory("Kpi")).deploy();
   await kpiLogic.deployed();

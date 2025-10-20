@@ -162,9 +162,6 @@ export async function deployFactorySuiteSystem(
   info("═".repeat(60));
 
   try {
-    // ========================================
-    // STEP 1: Deploy ProxyAdmin
-    // ========================================
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
     const proxyAdminResult = await deployProxyAdmin(provider);
 
@@ -174,9 +171,6 @@ export async function deployFactorySuiteSystem(
 
     info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
 
-    // ========================================
-    // STEP 2: Deploy BusinessLogicResolver
-    // ========================================
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(provider, {
       proxyAdminAddress: proxyAdminResult.proxyAdminAddress,
@@ -189,19 +183,10 @@ export async function deployFactorySuiteSystem(
     info(`✅ BLR Implementation: ${blrResult.implementationAddress}`);
     info(`✅ BLR Proxy: ${blrResult.blrAddress}`);
 
-    // ========================================
-    // STEP 3: Deploy facets
-    // ========================================
     info("\n📦 Step 3/6: Deploying facets...");
 
-    // Use TimeTravel variants when useTimeTravel is enabled
     const facetNames = useTimeTravel
-      ? [
-          "AccessControlFacetTimeTravel",
-          "PauseFacetTimeTravel",
-          "FactorySuiteFacetTimeTravel",
-          "TimeTravelFacet", // Time control facet
-        ]
+      ? ["AccessControlFacetTimeTravel", "PauseFacetTimeTravel", "FactorySuiteFacetTimeTravel", "TimeTravelFacet"]
       : ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
@@ -209,7 +194,7 @@ export async function deployFactorySuiteSystem(
     const facetsResult = await deployFacets(provider, {
       facetNames,
       useTimeTravel,
-      registry: factorySuiteRegistry, // Use FactorySuite registry (clean dependency injection)
+      registry: factorySuiteRegistry,
     });
 
     if (!facetsResult.success) {
@@ -218,9 +203,6 @@ export async function deployFactorySuiteSystem(
 
     info(`✅ Deployed ${facetsResult.deployed.size} facets successfully`);
 
-    // ========================================
-    // STEP 4: Register facets in BLR
-    // ========================================
     info("\n📝 Step 4/6: Registering facets in BLR...");
 
     const facetAddresses: Record<string, string> = {};
@@ -241,9 +223,6 @@ export async function deployFactorySuiteSystem(
 
     info(`✅ Registered ${registerResult.registered.length} facets in BLR`);
 
-    // ========================================
-    // STEP 5: Create FactorySuite configuration
-    // ========================================
     info("\n💼 Step 5/6: Creating FactorySuite configuration...");
 
     const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
@@ -258,14 +237,9 @@ export async function deployFactorySuiteSystem(
     info(`✅ Config Version: ${fsConfig.data.version}`);
     info(`✅ Facets: ${fsConfig.data.facetKeys.length}`);
 
-    // ========================================
-    // STEP 6: Deploy FactorySuite ResolverProxy
-    // ========================================
     info("\n🏭 Step 6/6: Deploying FactorySuite ResolverProxy...");
 
-    // Use ATS infrastructure function to deploy ResolverProxy
-    // IMPORTANT: Initialize with deployer as DEFAULT_ADMIN_ROLE so roles can be granted in tests
-    const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"; // bytes32(0)
+    const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
     const factorySuiteProxyResult = await deployResolverProxy(provider, {
       blrAddress: blrResult.blrAddress,
@@ -274,7 +248,7 @@ export async function deployFactorySuiteSystem(
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,
-          members: [deployer], // Grant DEFAULT_ADMIN_ROLE to deployer
+          members: [deployer],
         },
       ],
       network,
@@ -292,9 +266,6 @@ export async function deployFactorySuiteSystem(
       info(`   Contract ID: ${factorySuiteProxyResult.contractId}`);
     }
 
-    // ========================================
-    // Build comprehensive output
-    // ========================================
     const endTime = Date.now();
 
     const output: DeployFactorySuiteOutput = {
@@ -311,15 +282,13 @@ export async function deployFactorySuiteSystem(
           proxy: blrResult.blrAddress,
         },
         factorySuite: {
-          implementation: blrResult.blrAddress, // ResolverProxy uses BLR
+          implementation: blrResult.blrAddress,
           proxy: factorySuiteAddress,
         },
       },
 
       facets: Array.from(facetsResult.deployed.entries()).map(([facetName, deploymentResult]) => {
         const facetAddress = deploymentResult.address!;
-
-        // Find matching key from config
         const configFacet = fsConfig.data.facetKeys.find((f) => f.address === facetAddress);
 
         return {
@@ -337,16 +306,13 @@ export async function deployFactorySuiteSystem(
       },
 
       summary: {
-        totalContracts: 3, // ProxyAdmin, BLR, FactorySuite
+        totalContracts: 3,
         totalFacets: facetsResult.deployed.size,
         deploymentTime: endTime - startTime,
         success: true,
       },
     };
 
-    // ========================================
-    // Print summary
-    // ========================================
     info("\n" + "═".repeat(60));
     info("✨ DEPLOYMENT COMPLETE");
     info("═".repeat(60));

@@ -3,14 +3,9 @@
 /**
  * FactorySuite Registry Provider
  *
- * Clean dependency injection implementation for FactorySuite domain.
- * Provides a minimal registry with only the facets needed for FactorySuite:
+ * Dependency injection implementation providing FactorySuite facet definitions:
  * - 2 ATS facets (AccessControlFacet, PauseFacet)
  * - 1 GBP custom facet (FactorySuiteFacet)
- *
- * This replaces the previous workaround of:
- * - Generating merged registry with 48 facets (47 ATS + 1 GBP)
- * - Runtime global registry mutation
  *
  * @module infrastructure/factorySuiteRegistry
  */

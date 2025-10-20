@@ -9,36 +9,17 @@
  * @module domain/constants
  */
 
-// ============================================================================
 // Configuration IDs
-// ============================================================================
 
-/**
- * Treasury configuration ID.
- *
- * bytes32(uint256(20000)) = 0x00...4e20
- * Used by BusinessLogicResolver to identify Treasury facet configuration.
- */
+/** Treasury configuration ID - bytes32(uint256(20000)) */
 export const TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20";
 
-/**
- * FactorySuite configuration ID.
- *
- * bytes32(uint256(30000)) = 0x00...7530
- * Used by BusinessLogicResolver to identify FactorySuite facet configuration.
- */
+/** FactorySuite configuration ID - bytes32(uint256(30000)) */
 export const FACTORY_SUITE_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000007530";
 
-// ============================================================================
-// Access Control Roles (FactorySuite)
-// ============================================================================
+// Access Control Roles
 
-/**
- * Role identifiers (keccak256 hashes) for FactorySuite access control.
- *
- * These roles are specific to FactorySuite and its deployment operations.
- * Used for granting permissions to accounts.
- */
+/** FactorySuite role identifiers (keccak256 hashes) */
 export const FACTORY_SUITE_ROLES = {
   /** keccak256('green.bonds.platform.role.deployer') */
   DEPLOYER: "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283",
@@ -47,13 +28,7 @@ export const FACTORY_SUITE_ROLES = {
   KPI_DATA_MANAGER: "0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e",
 } as const;
 
-// ============================================================================
-// Resolver Keys (FactorySuite)
-// ============================================================================
+// Resolver Keys
 
-/**
- * Static resolver key for FactorySuite facet registration.
- *
- * keccak256('green.bonds.platform.factorysuite.resolverKey')
- */
+/** FactorySuite facet registration key - keccak256('green.bonds.platform.factorysuite.resolverKey') */
 export const FACTORY_SUITE_RESOLVER_KEY = "0xcf89d9e351b154ec73d93d535b6701c171db4dd978aa2e8967ef3aae7d45453f";
