@@ -10,7 +10,7 @@ async function bootstrap() {
   app.enableCors()
 
   // Set global prefix
-  app.setGlobalPrefix('api/v1/primary-market')
+  app.setGlobalPrefix('api/v1/')
 
   // Swagger configuration
   const config = new DocumentBuilder()
