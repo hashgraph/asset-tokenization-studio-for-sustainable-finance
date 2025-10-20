@@ -97,7 +97,18 @@ abstract contract Portfolio is
      *
      * @param paymentToken The new payment token to associate to the treasury
      */
-    function updatePaymentToken(address paymentToken) external {}
+    function updatePaymentToken(
+        address paymentToken
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        notAddressZero(paymentToken)
+    {
+        _updatePaymentToken(paymentToken);
+        emit PaymentTokenUpdated(msg.sender, paymentToken);
+    }
 
     /**
      * @dev Dissociate an environmental asset token or a payment token from the treasury
@@ -106,7 +117,13 @@ abstract contract Portfolio is
      */
     function dissociateToken(
         address token
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        notAddressZero(token)
+    {
         _dissociateToken(token);
     }
 

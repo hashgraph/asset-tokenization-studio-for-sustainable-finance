@@ -10,6 +10,7 @@ import {
     deployPaymentToken,
     deployEnvironmentalAsset,
 } from '../scripts/deploy'
+import { setTimeout } from "timers/promises";
 
 let signer_A, signer_B
 let portfolio: PortfolioFacet
@@ -32,7 +33,6 @@ describe('Portfolio operations', () => {
             signer_A,
             []
         )
-
         ;[paymentTokenFactoryAddress, paymentTokenAddress] =
             await deployPaymentToken(signer_A, 100, 2)
 
@@ -224,6 +224,126 @@ describe('Portfolio operations', () => {
 
             expect(await portfolio.getTotalEnvironmentalAssetTokens()).to.equal(
                 0
+            )
+        })
+    })
+
+    describe('dissociateToken', () => {
+        it('An account cannot dissociate a token if the contract is paused', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await portfolio.pause()
+
+            await expect(
+                portfolio.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+        })
+
+        it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot dissociate a token', async () => {
+            portfolio = portfolio.connect(signer_B)
+
+            await expect(
+                portfolio.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot dissociate a token', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+
+            await expect(
+                portfolio.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot dissociate a token with address zero', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await expect(
+                portfolio.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot dissociate a not associated token', async () => {
+            const notAssociatedTokenAddress = "0x00000000000000000000000000000000006C4498"
+            portfolio = portfolio.connect(signer_A)
+            await expect(
+              portfolio.dissociateToken(notAssociatedTokenAddress)
+            ).to.be.revertedWithCustomError(
+              portfolio,
+              'DissociateTokenFailed'
+            ).withArgs(notAssociatedTokenAddress, 184)
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role can dissociate a token', async () => {
+            portfolio = portfolio.connect(signer_A)
+            await expect(portfolio.dissociateToken(paymentTokenAddress)).to.not
+                .be.reverted
+        })
+    })
+
+    describe('updatePaymentToken', () => {
+        it('An account cannot update the payment token if the contract is paused', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await portfolio.pause()
+
+            await expect(
+                portfolio.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+        })
+
+        it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot update the payment token', async () => {
+            portfolio = portfolio.connect(signer_B)
+
+            await expect(
+                portfolio.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot update the payment token', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+
+            await expect(
+                portfolio.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot update the payment token with address zero', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await expect(
+                portfolio.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role can update the payment token even when the previous one is not associated', async () => {
+            portfolio = portfolio.connect(signer_A)
+
+            await portfolio.dissociateToken(paymentTokenAddress)
+            ;[paymentTokenFactoryAddress, paymentTokenAddress] =
+                await deployPaymentToken(signer_A, 100, 2)
+
+            await expect(portfolio.updatePaymentToken(paymentTokenAddress))
+                .to.emit(portfolio, 'PaymentTokenUpdated')
+                .withArgs(signer_A.address, paymentTokenAddress)
+            expect(await portfolio.getPaymentToken()).to.equal(
+                paymentTokenAddress
+            )
+        })
+
+        it('An account with the PORTFOLIO_MANAGER_ROLE role can update the payment token', async () => {
+            ;[paymentTokenFactoryAddress, paymentTokenAddress] =
+                await deployPaymentToken(signer_A, 100, 2)
+            portfolio = portfolio.connect(signer_A)
+            await expect(portfolio.updatePaymentToken(paymentTokenAddress))
+                .to.emit(portfolio, 'PaymentTokenUpdated')
+                .withArgs(signer_A.address, paymentTokenAddress)
+            expect(await portfolio.getPaymentToken()).to.equal(
+                paymentTokenAddress
             )
         })
     })

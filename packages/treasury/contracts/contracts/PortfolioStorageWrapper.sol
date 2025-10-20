@@ -125,11 +125,22 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /*
+     * @dev Update the payment token
+     *
+     * @param paymentToken The new payment token to be set
+     */
+    function _updatePaymentToken(address paymentToken) internal {
+        _dissociateTokenAllowNotAssociated(_getPaymentToken());
+        _portfolioStorage().paymentToken = paymentToken;
+        _associateToken(paymentToken);
+    }
+
+    /*
      * @dev Associate a token with the contract
      *
      * @param token The address of the token we want to associate with the contract
      */
-    function _associateToken(address token) internal virtual {
+    function _associateToken(address token) internal {
         int256 responseCode = HederaTokenService.associateToken(
             address(this),
             token
@@ -154,7 +165,7 @@ abstract contract PortfolioStorageWrapper is
      */
     function _dissociateTokenAllowNotAssociated(
         address token
-    ) internal virtual returns (int256 dissociationError) {
+    ) internal returns (int256 dissociationError) {
         int256 responseCode = HederaTokenService.dissociateToken(
             address(this),
             token
@@ -170,7 +181,7 @@ abstract contract PortfolioStorageWrapper is
      *
      * @param token The address of the token we want to dissociate from the contract
      */
-    function _dissociateToken(address token) internal virtual {
+    function _dissociateToken(address token) internal {
         int256 responseCode = HederaTokenService.dissociateToken(
             address(this),
             token
