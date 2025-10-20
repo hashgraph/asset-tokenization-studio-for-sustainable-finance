@@ -9,7 +9,7 @@
  * @module test/helpers/timeHelpers
  */
 
-import type { ITimeTravel } from "@typechain";
+import type { ITimeTravel } from "@contracts";
 import { BigNumber } from "ethers";
 
 /**

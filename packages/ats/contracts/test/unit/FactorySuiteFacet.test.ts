@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { deployFactorySuiteInfrastructureFixture } from "@test/fixtures";
 import { FACTORY_SUITE_RESOLVER_KEY } from "@scripts/domain";
-import { FactorySuiteFacet__factory } from "@typechain";
+import { FactorySuiteFacet__factory } from "@contracts";
 
 describe("FactorySuiteFacet", () => {
   async function setupFixture() {

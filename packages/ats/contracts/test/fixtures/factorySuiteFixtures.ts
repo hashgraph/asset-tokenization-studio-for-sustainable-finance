@@ -31,7 +31,7 @@ import {
   MOCK_ATS_FACTORY_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
 } from "@test";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@typechain";
+import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@contracts";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure

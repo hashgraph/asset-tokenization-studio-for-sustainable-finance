@@ -29,7 +29,7 @@ import {
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { BusinessLogicResolver__factory } from "@typechain";
+import { BusinessLogicResolver__factory } from "@contracts";
 import { createFactorySuiteConfiguration } from "@scripts/domain";
 import { factorySuiteRegistry } from "@scripts/infrastructure/factorySuiteRegistry";
 
