@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { FundProceedsRecipientTransactionHttpAdapter } from "@port/transaction/usecase/fundproceedsrecipienttransaction/FundProceedsRecipientTransactionHttpAdapter"
+import { FundProceedsRecipientTransactionHttpAdapter } from "@port/transaction/usecase/fundproceedsrecipient/FundProceedsRecipientTransactionHttpAdapter"
 import { FundProceedsRecipientTransactionAppService } from "@app/transaction/fundproceedsrecipienttransaction/service/FundProceedsRecipientTransactionAppService"
 import { AddEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/addenvironmentalasset/AddEnvironmentalAssetTransactionHttpAdapter"
 import { AddEnvironmentalAssetTransactionAppService } from "@app/transaction/addenvironmentalasset/service/AddEnvironmentalAssetTransactionAppService"
@@ -8,6 +8,8 @@ import { RemoveEnvironmentalAssetTransactionHttpAdapter } from "@port/transactio
 import { RemoveEnvironmentalAssetTransactionAppService } from "@app/transaction/removeenvironmentalasset/service/RemoveEnvironmentalAssetTransactionAppService"
 import { TransferEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/transferenvironmentalasset/TransferEnvironmentalAssetTransactionHttpAdapter"
 import { TransferEnvironmentalAssetTransactionAppService } from "@app/transaction/transferenvironmentalasset/service/TransferEnvironmentalAssetTransactionAppService"
+import { TransferPaymentTokenTransactionHttpAdapter } from "@port/transaction/usecase/transferpaymenttoken/TransferPaymentTokenTransactionHttpAdapter"
+import { TransferPaymentTokenTransactionAppService } from "@app/transaction/transferpaymenttoken/service/TransferPaymentTokenTransactionAppService"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { Provider } from "@nestjs/common"
 import { TreasuryTypeOrmRepository } from "@port/persistence/treasury/repositories/TreasuryTypeOrmRepository"
@@ -94,6 +96,7 @@ export const CONTROLLERS = [
   AddEnvironmentalAssetTransactionHttpAdapter,
   RemoveEnvironmentalAssetTransactionHttpAdapter,
   TransferEnvironmentalAssetTransactionHttpAdapter,
+  TransferPaymentTokenTransactionHttpAdapter,
   GetEnvironmentalAssetsHttpAdapter,
   GetEnvironmentalAssetTransfersHttpAdapter,
   GetTreasuryHttpAdapter,
@@ -109,6 +112,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,
   TransferEnvironmentalAssetTransactionAppService,
+  TransferPaymentTokenTransactionAppService,
   CheckTreasuryExistsDomainService,
   CheckEnvironmentalAssetExistsDomainService,
   CheckEnvironmentalAssetNotExistsDomainService,

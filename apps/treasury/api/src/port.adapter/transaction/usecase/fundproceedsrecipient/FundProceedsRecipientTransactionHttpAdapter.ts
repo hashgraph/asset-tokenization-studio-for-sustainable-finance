@@ -6,7 +6,7 @@ import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shar
 import { FundProceedsRecipientTransactionRequest } from "./model/FundProceedsRecipientTransactionRequest"
 import { FundProceedsRecipientTransactionAppService } from "@app/transaction/fundproceedsrecipienttransaction/service/FundProceedsRecipientTransactionAppService"
 import { FundProceedsRecipientTransactionAppServiceRequest } from "@app/transaction/fundproceedsrecipienttransaction/service/model/FundProceedsRecipientTransactionAppServiceRequest"
-import { FundProceedsRecipientTransactionPort } from "@port/transaction/usecase/fundproceedsrecipienttransaction/FundProceedsRecipientTransactionPort"
+import { FundProceedsRecipientTransactionPort } from "@port/transaction/usecase/fundproceedsrecipient/FundProceedsRecipientTransactionPort"
 
 @RestController("treasuries")
 export class FundProceedsRecipientTransactionHttpAdapter implements FundProceedsRecipientTransactionPort {
