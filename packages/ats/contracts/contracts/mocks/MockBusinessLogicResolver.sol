@@ -9,10 +9,10 @@ contract MockBusinessLogicResolver {
     mapping(bytes32 => address) private _implementations;
 
     function setImplementation(bytes32 key, address implementation) external {
-        implementations[key] = implementation;
+        _implementations[key] = implementation;
     }
 
     function getImplementation(bytes32 key) external view returns (address) {
-        return implementations[key];
+        return _implementations[key];
     }
 }

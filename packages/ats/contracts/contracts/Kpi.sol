@@ -5,6 +5,7 @@ import { ArraysUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/Arr
 import { AccessControl } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol";
 import { Pause } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol";
 import { KPI_DATA_MANAGER_ROLE } from "./constants/roles.sol";
+import { KPI_STORAGE_LOCATION } from "./constants/storageLocation.sol";
 import { IKpi } from "./interfaces/IKpi.sol";
 
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";

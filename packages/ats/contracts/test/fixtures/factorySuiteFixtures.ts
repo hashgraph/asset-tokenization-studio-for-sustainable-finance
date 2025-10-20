@@ -16,8 +16,14 @@
  */
 
 import { ethers } from "hardhat";
-import { HardhatProvider, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { deployFactorySuiteSystem } from "@scripts";
+import {
+  HardhatProvider,
+  configureLogger,
+  LogLevel,
+  deployFacets,
+  registerAdditionalFacets,
+} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { deployFactorySuiteSystem, createTreasuryConfiguration, TREASURY_CONFIG_ID } from "@scripts";
 import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@typechain";
 
 /**
@@ -96,21 +102,132 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
 }
 
 /**
- * Fixture: Deploy with mock dependencies
- * (For isolated FactorySuite testing without full infrastructure)
+ * Fixture: Deploy FactorySuite with mock dependencies for business logic testing
+ *
+ * Deploys:
+ * - Full Diamond proxy (AccessControl + Pause + FactorySuite facets)
+ * - Mock dependencies (MockAtsFactory, MockERC20, MockERC721)
+ * - Real BLR with mock Treasury/KPI facets registered
+ * - Grants DEPLOYER_ROLE to admin signer
+ *
+ * Uses 2025 best practice: loadFixture pattern for performance optimization
+ *
+ * @returns Complete deployment + mocks for testing deployBondSuite() business logic
  */
-export async function deployFactorySuiteWithMocksFixture() {
+export async function deployFactorySuiteWithMocksForBusinessLogic() {
+  // Configure logger to SILENT for tests
+  configureLogger({ level: LogLevel.SILENT });
+
+  const provider = new HardhatProvider();
   const signers = await ethers.getSigners();
   const [deployer, admin, user, unauthorized] = signers;
 
-  // Deploy mock contracts
+  // Deploy complete Diamond system
+  const deployment = await deployFactorySuiteSystem(provider, "hardhat", {
+    useTimeTravel: false, // Don't need TimeTravel for business logic tests
+    saveOutput: false,
+  });
+
+  // IMPORTANT: The deployment uses HardhatProvider which internally uses ethers.provider.getSigner(0)
+  // This corresponds to the first Hardhat account (index 0 from ethers.getSigners())
+  // We need to ensure this matches our deployer signer
+  const deployerAddress = deployment.deployer;
+
+  // Get typed contract instances for Diamond proxy
+  const factorySuite = (await ethers.getContractAt(
+    "IFactorySuite",
+    deployment.infrastructure.factorySuite.proxy,
+  )) as IFactorySuite;
+
+  const blr = (await ethers.getContractAt(
+    "IBusinessLogicResolver",
+    deployment.infrastructure.blr.proxy,
+  )) as IBusinessLogicResolver;
+
+  // Get AccessControl and Pause facets for test setup
+  const accessControl = await ethers.getContractAt("IAccessControl", deployment.infrastructure.factorySuite.proxy);
+  const pause = await ethers.getContractAt("IPause", deployment.infrastructure.factorySuite.proxy);
+
+  // ========================================
+  // STEP 1: Deploy and register mock Treasury configuration
+  // ========================================
+  // Create a minimal registry for mock Treasury facet
+  const mockTreasuryRegistry = {
+    getFacetDefinition(name: string) {
+      const facets: Record<string, any> = {
+        MockTreasuryFacet: { name: "MockTreasuryFacet", description: "Mock Treasury facet" },
+      };
+      return facets[name];
+    },
+    getAllFacets() {
+      return [{ name: "MockTreasuryFacet", description: "Mock Treasury facet" }];
+    },
+  };
+
+  // Deploy ONLY MockTreasuryFacet (AccessControl already exists from FactorySuite deployment)
+  const mockFacetsResult = await deployFacets(provider, {
+    facetNames: ["MockTreasuryFacet"],
+    useTimeTravel: false,
+    registry: mockTreasuryRegistry,
+  });
+
+  if (!mockFacetsResult.success || mockFacetsResult.deployed.size !== 1) {
+    throw new Error("Failed to deploy MockTreasuryFacet");
+  }
+
+  // Extract deployed facet address
+  const mockFacetAddresses: Record<string, string> = {};
+  mockFacetsResult.deployed.forEach((result, facetName) => {
+    if (result.address) {
+      mockFacetAddresses[facetName] = result.address;
+    }
+  });
+
+  // Register MockTreasuryFacet in BLR using registerAdditionalFacets
+  const registerResult = await registerAdditionalFacets(provider, {
+    blrAddress: blr.address,
+    newFacets: mockFacetAddresses,
+  });
+
+  if (!registerResult.success) {
+    throw new Error(`Failed to register MockTreasuryFacet: ${registerResult.error}`);
+  }
+
+  // Create Treasury configuration in BLR using the helper
+  // This reuses AccessControlFacet from FactorySuite deployment and adds MockTreasuryFacet
+  const facetAddressesForConfig = {
+    AccessControlFacet: deployment.facets.find((f) => f.name === "AccessControlFacet")!.address,
+    MockTreasuryFacet: mockFacetAddresses.MockTreasuryFacet,
+  };
+
+  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false);
+
+  if (!treasuryConfigResult.success) {
+    throw new Error(`Failed to create Treasury configuration: ${treasuryConfigResult.error}`);
+  }
+
+  const treasuryConfigId = TREASURY_CONFIG_ID;
+
+  // Treasury configuration version is 1 (first version of this configuration)
+  const treasuryVersion = 1;
+
+  // ========================================
+  // STEP 2: Grant DEPLOYER_ROLE to test signers
+  // ========================================
+  // The deployer account has DEFAULT_ADMIN_ROLE (set during proxy deployment)
+  // IMPORTANT: Use the correct DEPLOYER_ROLE constant from the smart contract
+  // DEPLOYER_ROLE = keccak256('green.bonds.platform.role.deployer')
+  const DEPLOYER_ROLE = "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283";
+
+  // Grant DEPLOYER_ROLE to both deployer and admin signers for testing flexibility
+  // The deployer signer (first account) has DEFAULT_ADMIN_ROLE from deployment
+  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, deployer.address);
+  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, admin.address);
+
+  // Deploy mock contracts for business logic testing
   const MockAtsFactory = await ethers.getContractFactory("MockAtsFactory");
   const mockAtsFactory = await MockAtsFactory.deploy();
   await mockAtsFactory.deployed();
-
-  const MockResolver = await ethers.getContractFactory("MockBusinessLogicResolver");
-  const mockResolver = await MockResolver.deploy();
-  await mockResolver.deployed();
 
   const MockERC20 = await ethers.getContractFactory("MockERC20");
   const paymentToken = await MockERC20.deploy("Payment Token", "PAY");
@@ -120,22 +237,35 @@ export async function deployFactorySuiteWithMocksFixture() {
   const erc721Token1 = await MockERC721.deploy("NFT 1", "NFT1");
   await erc721Token1.deployed();
 
-  const erc721Token2 = await ethers.getContractFactory("MockERC721");
-  const erc721Token = await erc721Token2.deploy("NFT 2", "NFT2");
-  await erc721Token.deployed();
+  const erc721Token2 = await MockERC721.deploy("NFT 2", "NFT2");
+  await erc721Token2.deployed();
 
   return {
-    // Signers
+    // Provider & signers
+    provider,
+    signers,
     deployer,
     admin,
     user,
     unauthorized,
 
-    // Mock contracts
+    // Diamond proxy contracts (for business logic testing)
+    factorySuite, // ResolverProxy address - this is what we call deployBondSuite() on
+    blr, // Real BLR for Treasury/KPI deployments
+    accessControl, // For role management in tests
+    pause, // For pause testing
+
+    // Mock contracts for testing deployBondSuite()
     mockAtsFactory,
-    mockResolver,
     paymentToken,
     erc721Token1,
-    erc721Token2: erc721Token,
+    erc721Token2,
+
+    // Treasury configuration metadata (for test data generation)
+    treasuryConfigId,
+    treasuryVersion,
+
+    // Deployment metadata
+    deployment,
   };
 }

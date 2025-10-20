@@ -14,6 +14,14 @@
 // ============================================================================
 
 /**
+ * Treasury configuration ID.
+ *
+ * bytes32(uint256(20000)) = 0x00...4e20
+ * Used by BusinessLogicResolver to identify Treasury facet configuration.
+ */
+export const TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20";
+
+/**
  * FactorySuite configuration ID.
  *
  * bytes32(uint256(30000)) = 0x00...7530
