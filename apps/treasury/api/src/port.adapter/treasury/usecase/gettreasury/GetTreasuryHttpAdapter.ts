@@ -4,7 +4,7 @@ import { Get, Param } from "@nestjs/common"
 import { GetTreasuryAppService } from "@app/treasury/gettreasury/service/GetTreasuryAppService"
 import { GetTreasuryResponse } from "@port/treasury/usecase/gettreasury/model/GetTreasuryResponse"
 
-@RestController()
+@RestController("treasuries")
 export class GetTreasuryHttpAdapter implements GetTreasuryPort {
   constructor(private readonly getTreasuryAppService: GetTreasuryAppService) {}
 

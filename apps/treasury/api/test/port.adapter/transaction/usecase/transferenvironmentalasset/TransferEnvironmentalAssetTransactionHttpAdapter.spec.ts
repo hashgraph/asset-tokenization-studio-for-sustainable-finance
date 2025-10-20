@@ -24,7 +24,7 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
   })
 
@@ -38,7 +38,7 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
     }
   })
 
-  describe("POST /:treasuryContractId/environmental-assets/:assetContractId/transfer", () => {
+  describe("POST /treasuries/:treasuryContractId/environmental-assets/:assetContractId/transfer", () => {
     it("should transfer environmental asset with valid treasuryContractId, assetContractId and tokenId", async () => {
       const treasuryContractId = "0.0.123456"
       const assetContractId = "0.0.789012"
@@ -50,7 +50,7 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/transfer`)
+        .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/transfer`)
         .send(transferRequest)
         .expect(201)
 
@@ -89,7 +89,7 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/transfer`)
+          .post(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${assetContractId}/transfer`)
           .send(transferRequest)
           .expect(201)
 

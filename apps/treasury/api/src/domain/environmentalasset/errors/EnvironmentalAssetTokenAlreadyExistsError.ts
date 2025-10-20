@@ -9,7 +9,8 @@ export class EnvironmentalAssetTokenAlreadyExistsError extends DomainError {
 
   static create(environmentalAssetId: string, tokenId: number): EnvironmentalAssetTokenAlreadyExistsError {
     return new EnvironmentalAssetTokenAlreadyExistsError(
-      `Environmental asset token with environmentalAssetId ${environmentalAssetId} and tokenId ${tokenId} already exists`,
+      `Environmental asset token with environmentalAssetId ${environmentalAssetId}` +
+        ` and tokenId ${tokenId} already exists`,
     )
   }
 }

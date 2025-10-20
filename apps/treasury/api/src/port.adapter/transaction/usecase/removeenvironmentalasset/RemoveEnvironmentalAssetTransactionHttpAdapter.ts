@@ -8,7 +8,7 @@ import { RemoveEnvironmentalAssetTransactionAppService } from "@app/transaction/
 import { RemoveEnvironmentalAssetTransactionAppServiceRequest } from "@app/transaction/removeenvironmentalasset/service/model/RemoveEnvironmentalAssetTransactionAppServiceRequest"
 import { RemoveEnvironmentalAssetTransactionPort } from "@port/transaction/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetTransactionPort"
 
-@RestController()
+@RestController("treasuries")
 export class RemoveEnvironmentalAssetTransactionHttpAdapter implements RemoveEnvironmentalAssetTransactionPort {
   constructor(
     private readonly removeEnvironmentalAssetTransactionAppService: RemoveEnvironmentalAssetTransactionAppService,

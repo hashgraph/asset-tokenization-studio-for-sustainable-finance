@@ -30,7 +30,7 @@ export class RemoveEnvironmentalAssetTokenCommandHandler
       command.tokenId,
     )
 
-    await this.environmentalAssetTokenRepository.softDelete(existingEnvironmentalAssetToken)
+    await this.environmentalAssetTokenRepository.delete(existingEnvironmentalAssetToken)
 
     this.eventBus.publish(
       new EnvironmentalAssetTokenRemovedEvent(

@@ -7,7 +7,7 @@ import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
 
 export abstract class BaseTransactionBuilder {
-  private readonly formatSerializers: Record<
+  protected readonly formatSerializers: Record<
     TransactionFormat,
     (context: {
       tx: ContractExecuteTransaction
@@ -67,7 +67,7 @@ export abstract class BaseTransactionBuilder {
     return `0x${id.toEvmAddress()}`
   }
 
-  private serializeHederaTransaction(tx: Transaction, environment: Environment, account: string): TransactionResponse {
+  protected serializeHederaTransaction(tx: Transaction, environment: Environment, account: string): TransactionResponse {
     try {
       const accountId = AccountId.fromString(account)
       const txId = TransactionId.withValidStart(accountId, Timestamp.fromDate(new Date()))

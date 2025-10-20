@@ -24,7 +24,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
   })
 
@@ -41,7 +41,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
   describe("POST /treasuries/{treasuryId}/proceeds-recipients/{recipientId}/transfer", () => {
     const treasuryId = "0.0.123456789"
     const recipientId = "0.0.123456589"
-    const baseUrl = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
+    const baseUrl = `/api/v1/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
 
     it("should fund proceeds recipient with valid data", async () => {
       const fundRequest = {
@@ -80,7 +80,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
           accountId: "0.0.123456789",
         }
 
-        const url = `/api/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
+        const url = `/api/v1/treasuries/${treasuryId}/proceeds-recipients/${recipientId}/transfer`
         const response = await request(app.getHttpServer()).post(url).send(fundRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
@@ -131,7 +131,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
         accountId: "0.0.123456789",
       }
 
-      const url = `/api/treasuries/${invalidTreasuryId}/proceeds-recipients/${validRecipientId}/transfer`
+      const url = `/api/v1/treasuries/${invalidTreasuryId}/proceeds-recipients/${validRecipientId}/transfer`
       await request(app.getHttpServer()).post(url).send(fundRequest).expect(500)
     })
 
@@ -144,7 +144,7 @@ describe("FundProceedsRecipientTransaction API Integration", () => {
         accountId: "0.0.123456789",
       }
 
-      const url = `/api/treasuries/${validTreasuryId}/proceeds-recipients/${invalidRecipientId}/transfer`
+      const url = `/api/v1/treasuries/${validTreasuryId}/proceeds-recipients/${invalidRecipientId}/transfer`
       await request(app.getHttpServer()).post(url).send(fundRequest).expect(500)
     })
 

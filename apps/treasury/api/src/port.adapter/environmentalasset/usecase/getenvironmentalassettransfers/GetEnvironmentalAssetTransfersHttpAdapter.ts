@@ -7,7 +7,7 @@ import { GetEnvironmentalAssetTransfersQuery } from "@app/environmentalasset/get
 import { EnvironmentalAssetTransferResponse } from "./model/EnvironmentalAssetTransferResponse"
 import { GetEnvironmentalAssetTransfersPort } from "./GetEnvironmentalAssetTransfersPort"
 
-@RestController()
+@RestController("treasuries")
 export class GetEnvironmentalAssetTransfersHttpAdapter implements GetEnvironmentalAssetTransfersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 

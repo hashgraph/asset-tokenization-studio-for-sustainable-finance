@@ -8,7 +8,7 @@ import { TransferEnvironmentalAssetTransactionAppService } from "@app/transactio
 import { TransferEnvironmentalAssetTransactionAppServiceRequest } from "@app/transaction/transferenvironmentalasset/service/model/TransferEnvironmentalAssetTransactionAppServiceRequest"
 import { TransferEnvironmentalAssetTransactionPort } from "@port/transaction/usecase/transferenvironmentalasset/TransferEnvironmentalAssetTransactionPort"
 
-@RestController()
+@RestController("treasuries")
 export class TransferEnvironmentalAssetTransactionHttpAdapter implements TransferEnvironmentalAssetTransactionPort {
   constructor(
     private readonly transferEnvironmentalAssetTransactionAppService: TransferEnvironmentalAssetTransactionAppService,
