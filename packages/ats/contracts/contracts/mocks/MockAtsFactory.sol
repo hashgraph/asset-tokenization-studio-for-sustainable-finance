@@ -9,6 +9,7 @@ import { FactoryRegulationData as AtsFactoryRegulationData } from "@hashgraph/as
 /**
  * @title MockAtsFactory
  * @notice Mock implementation of ATS Factory for testing purposes
+ * @dev Supports error injection via shouldRevert and shouldReturnZeroAddress flags
  */
 contract MockAtsFactory {
     bool public shouldRevert;
@@ -16,6 +17,8 @@ contract MockAtsFactory {
     address public nextBondAddress;
 
     event MockBondDeployed(address bondAddress, IAtsFactory.BondData bondData, AtsFactoryRegulationData regulationData);
+
+    error DeployBondFailed();
 
     constructor() {
         shouldRevert = false;
@@ -40,7 +43,7 @@ contract MockAtsFactory {
         AtsFactoryRegulationData calldata regulationData
     ) external returns (address bondAddress) {
         if (shouldRevert) {
-            revert("MockAtsFactory: deployBond reverted");
+            revert DeployBondFailed();
         }
 
         if (shouldReturnZeroAddress) {
@@ -50,7 +53,6 @@ contract MockAtsFactory {
         bondAddress = nextBondAddress;
         emit MockBondDeployed(bondAddress, bondData, regulationData);
 
-        // Increment address for next deployment
         nextBondAddress = address(uint160(nextBondAddress) + 1);
     }
 }

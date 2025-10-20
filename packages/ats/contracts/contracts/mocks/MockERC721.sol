@@ -6,6 +6,7 @@ import { ERC721 } from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 /**
  * @title MockERC721
  * @notice Mock ERC721 token for environmental assets testing
+ * @dev Provides two mint signatures: auto-incrementing ID and custom ID
  */
 contract MockERC721 is ERC721 {
     uint256 private _nextTokenId;
@@ -16,7 +17,7 @@ contract MockERC721 is ERC721 {
 
     function mint(address to) external returns (uint256 tokenId) {
         tokenId = _nextTokenId;
-        _nextTokenId++;
+        ++_nextTokenId;
         _mint(to, tokenId);
     }
 
