@@ -24,7 +24,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/treasuries")
+    app.setGlobalPrefix("api/v1")
     await app.init()
   })
 
@@ -40,7 +40,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
   describe("POST /treasuries/{treasuryContractId}/payment-tokens/transfer", () => {
     const treasuryContractId = "0.0.123456789"
-    const baseUrl = `/api/treasuries/${treasuryContractId}/payment-tokens/transfer`
+    const baseUrl = `/api/v1/treasuries/${treasuryContractId}/payment-tokens/transfer`
 
     it("should transfer payment token with valid data", async () => {
       const transferRequest = {
@@ -68,7 +68,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
           accountId: "0.0.123456789",
         }
 
-        const url = `/api/treasuries/${treasuryId}/payment-tokens/transfer`
+        const url = `/api/v1/treasuries/${treasuryId}/payment-tokens/transfer`
         const response = await request(app.getHttpServer()).post(url).send(transferRequest).expect(201)
 
         expect(response.body).toHaveProperty("unsignedTx")
@@ -137,7 +137,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
         accountId: "0.0.123456789",
       }
 
-      const url = `/api/treasuries/${invalidTreasuryId}/payment-tokens/transfer`
+      const url = `/api/v1/treasuries/${invalidTreasuryId}/payment-tokens/transfer`
       await request(app.getHttpServer()).post(url).send(transferRequest).expect(500)
     })
 

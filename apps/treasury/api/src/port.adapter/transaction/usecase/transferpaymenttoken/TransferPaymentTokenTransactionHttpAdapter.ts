@@ -8,7 +8,7 @@ import { TransferPaymentTokenTransactionAppService } from "@app/transaction/tran
 import { TransferPaymentTokenTransactionAppServiceRequest } from "@app/transaction/transferpaymenttoken/service/model/TransferPaymentTokenTransactionAppServiceRequest"
 import { TransferPaymentTokenTransactionPort } from "@port/transaction/usecase/transferpaymenttoken/TransferPaymentTokenTransactionPort"
 
-@RestController()
+@RestController("treasuries")
 export class TransferPaymentTokenTransactionHttpAdapter implements TransferPaymentTokenTransactionPort {
   constructor(private readonly transferPaymentTokenTransactionAppService: TransferPaymentTokenTransactionAppService) {}
 
