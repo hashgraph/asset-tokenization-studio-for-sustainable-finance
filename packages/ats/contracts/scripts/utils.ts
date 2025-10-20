@@ -9,3 +9,18 @@ export async function getImplementationAddress(proxyAddress: string) {
   const raw = await ethers.provider.getStorageAt(proxyAddress, IMPLEMENTATION_SLOT);
   return ethers.utils.getAddress("0x" + raw.slice(26));
 }
+
+export async function processAddressableArgs(arg: unknown): Promise<unknown> {
+  if (Array.isArray(arg)) {
+    return Promise.all(arg.map(processAddressableArgs));
+  } else if (
+    // ethers v6 ethers => ethers.isAddressable(arg)
+    arg &&
+    typeof arg === "object" &&
+    "getAddress" in arg &&
+    typeof (arg as any).getAddress === "function"
+  ) {
+    return await (arg as any).getAddress();
+  }
+  return arg;
+}

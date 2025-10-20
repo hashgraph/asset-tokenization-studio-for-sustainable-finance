@@ -2,15 +2,17 @@ import { Kpi } from "@contracts/contracts";
 import { ProxyAdmin } from "@contracts/index";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { KPI_DATA_MANAGER_ROLE, PAUSER_ROLE } from "@scripts/constants";
-import { deployKpi, upgradeKpiProxy } from "@scripts/deploy/kpiDeploy";
 import { deployProxyAdmin } from "@scripts/proxy/deployProxy";
 import { getImplementationAddress } from "@scripts/utils";
 import { IResolverProxy } from "@contracts/contracts/Kpi";
 import { expect } from "chai";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
+import { upgradeKpiProxy } from "@scripts/domain/kpi/upgradeKpi";
+import { deployKpi } from "@scripts/domain/kpi/kpiDeploy";
+import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 
-describe("Kpi", () => {
+describe.only("Kpi", () => {
   let kpi: Kpi;
   let proxyAdmin: ProxyAdmin;
   let unknownSigner: Signer;
@@ -27,7 +29,8 @@ describe("Kpi", () => {
     ];
     proxyAdmin = await deployProxyAdmin();
 
-    kpi = (await deployKpi(proxyAdmin, rbac)).kpi;
+    const provider = new HardhatProvider();
+    kpi = (await deployKpi(provider, proxyAdmin, rbac)).kpi;
   }
   before(async () => {
     const signers = await ethers.getSigners();
@@ -147,7 +150,7 @@ describe("Kpi", () => {
       expect(before.kpiAggregatedValue).to.equal(123);
       const originalImplementationAddress = await getImplementationAddress(kpi.address);
 
-      await upgradeKpiProxy(proxyAdmin, kpi.address);
+      await upgradeKpiProxy(new HardhatProvider(), proxyAdmin, kpi.address);
 
       const newImplementationAddress = await getImplementationAddress(kpi.address);
 
