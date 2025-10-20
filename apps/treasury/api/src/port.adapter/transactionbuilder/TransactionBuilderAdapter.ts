@@ -11,6 +11,7 @@ import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundP
 import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEnvironmentalAssetTransactionRequest"
 import { BuildRemoveEnvironmentalAssetTransactionRequest } from "./model/BuildRemoveEnvironmentalAssetTransactionRequest"
 import { BuildTransferEnvironmentalAssetTransactionRequest } from "./model/BuildTransferEnvironmentalAssetTransactionRequest"
+import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
@@ -197,6 +198,24 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId,
       format: request.format as "hedera" | "ethereum",
       args: [this.getEvmAddressFromHedera(request.assetContractId)],
+    } as any)
+
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
+  }
+
+  transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): BuildTransactionResponse {
+    const contractInterface = IProceedsManagement__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    const transactionResponse = this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "transferPaymentToken" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [this.getEvmAddressFromHedera(request.to), request.amount],
     } as any)
 
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
