@@ -14,20 +14,20 @@ describe("FactorySuite - Integration Tests", () => {
   });
 
   describe("Infrastructure Deployment", () => {
-    it("should deploy with real BLR", async () => {
+    it("GIVEN valid infrastructure configuration WHEN deploying factory suite THEN success with real BLR", async () => {
       const { factorySuite, blr } = await loadFixture(setupFixture);
       expect(factorySuite.address).to.not.equal(ethers.constants.AddressZero);
       expect(blr.address).to.not.equal(ethers.constants.AddressZero);
     });
 
-    it("should have correct configuration in BLR", async () => {
+    it("GIVEN deployed factory suite WHEN querying BLR configuration THEN success with correct version", async () => {
       const { blr, deployment } = await loadFixture(setupFixture);
 
       const configVersion = await blr.getLatestVersionByConfiguration(FACTORY_SUITE_CONFIG_ID);
       expect(configVersion).to.equal(deployment.configuration.version);
     });
 
-    it("should have all facets registered", async () => {
+    it("GIVEN deployed factory suite WHEN checking facet registration THEN success with all three facets registered", async () => {
       const { deployment } = await loadFixture(setupFixture);
 
       expect(deployment.facets.length).to.equal(3);
@@ -38,7 +38,7 @@ describe("FactorySuite - Integration Tests", () => {
       ]);
     });
 
-    it("should have ProxyAdmin deployed", async () => {
+    it("GIVEN valid infrastructure configuration WHEN deploying factory suite THEN success with ProxyAdmin deployed", async () => {
       const { proxyAdmin } = await loadFixture(setupFixture);
       expect(proxyAdmin.address).to.not.equal(ethers.constants.AddressZero);
     });
