@@ -12,6 +12,7 @@ async function signHederaTransaction(transaction, privateKeyStr) {
   const signedTransaction = await transactionFromBytes.sign(privateKey);
   const signedBytes = signedTransaction.toBytes();
   const signedHex = Buffer.from(signedBytes).toString('hex');
+  await client.close();
   return signedHex;
 }
 
