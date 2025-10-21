@@ -25,7 +25,7 @@ export class GetPaymentTokensQueryHandler
     return QueryPageResponse.fromPage(page, (paymentToken: PaymentToken) => ({
       contractId: paymentToken.contractId,
       additionDate: paymentToken.createdAt,
-      removalDate: paymentToken.removalDate,
+      removalDate: paymentToken.removalDate ?? null,
     }))
   }
 }

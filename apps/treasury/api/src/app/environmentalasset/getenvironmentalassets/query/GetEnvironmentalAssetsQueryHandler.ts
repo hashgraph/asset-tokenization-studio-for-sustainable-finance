@@ -28,7 +28,7 @@ export class GetEnvironmentalAssetsQueryHandler
     return QueryPageResponse.fromPage(page, (environmentalAsset: EnvironmentalAsset) => ({
       contractId: environmentalAsset.contractId,
       additionDate: environmentalAsset.createdAt,
-      removalDate: environmentalAsset.removalDate,
+      removalDate: environmentalAsset.removalDate ?? null,
     }))
   }
 }
