@@ -337,9 +337,29 @@ function startNodeService(service) {
   });
 }
 
+async function buildPackages() {
+  log('📦 Building shared packages...', colors.cyan);
+  const workspaceRoot = path.resolve(__dirname, '../../');
+  
+  try {
+    await execAsync(`npm run shared:build`, { cwd: workspaceRoot });
+    log('✅ All packages built successfully', colors.green);
+    return true;
+  } catch (error) {
+    log(`❌ Failed to build packages: ${error.stderr || error.message}`, colors.red);
+    return false;
+  }
+}
+
 async function startNodeServices() {
   log('🚀 Starting Node.js API services...', colors.bright);
 
+  // Build packages first
+  const packagesBuilt = await buildPackages();
+  if (!packagesBuilt) {
+    log('⚠️  Warning: Package build failed, services may not work correctly', colors.yellow);
+  }
+  
   // Start ATS API first, then Gateway (which proxies to ATS), then Transaction Sender
   const services = [CONFIG.atsApi, CONFIG.gateway, CONFIG.transactionSender];
   const processes = [];
@@ -467,6 +487,8 @@ async function startFullInfrastructure() {
   log('⏳ Waiting for services to stabilize...', colors.yellow);
   await new Promise(resolve => setTimeout(resolve, 5000));
 
+
+
   // Start Node.js APIs
   const processes = await startNodeServices();
   
@@ -484,13 +506,14 @@ async function startFullInfrastructure() {
   log('\n🌐 Access Points:', colors.blue);
   log('• API Gateway: http://localhost:3000 (🔒 Requires x-api-key header)');
   log('• ATS API (Direct): http://localhost:3001/api/v1/ats');
+  log('• Swagger ATS API (Direct): http://localhost:3001/api');
   log('• ATS API (via Gateway): http://localhost:3000/api/v1/ats');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
   log('• RabbitMQ: http://localhost:15672 (guest/guest)');
   
   log('\n🔑 API Keys (for gateway access):', colors.magenta);
-  log('• demo-key-1, demo-key-2, your-secret-api-key');
+  log('• demo-key-1');
   
   log('\n⚠️  Press Ctrl+C to stop all services', colors.yellow);
 

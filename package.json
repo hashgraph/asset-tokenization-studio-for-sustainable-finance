@@ -43,7 +43,11 @@
     "shared:build": "npm run shared:core:build && npm run shared:listener:build",
     "shared:core:build": "npm run build --workspace=@hashgraph/green-bonds-shared-core",
     "shared:listener:build": "npm run build --workspace=@hashgraph/green-bonds-blockchain-listener",
-    "scripts:docker:start": "npm run docker:start --workspace=@hashgraph/green-bonds-scripts"
+    "scripts:docker:start": "npm run docker:start --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:docker:stop": "npm run docker:stop --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:test:bond": "npm run bond --workspace=@hashgraph/green-bonds-scripts"
   },
   "devDependencies": {
     "@eslint/js": "9.37.0",
