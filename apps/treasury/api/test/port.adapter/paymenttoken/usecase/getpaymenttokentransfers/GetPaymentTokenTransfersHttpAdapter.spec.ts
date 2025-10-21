@@ -74,9 +74,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`,
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .expect(200)
 
       expect(response.body).toHaveProperty("items")
@@ -114,9 +112,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`,
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.total).toBe(2)
@@ -165,9 +161,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`,
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .query({ page: 1, limit: 3 })
         .expect(200)
 
@@ -207,9 +201,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`,
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .query({ orderBy: "createdAt", order: "ASC" })
         .expect(200)
 
@@ -263,9 +255,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken1.contractId}/transfers`
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken1.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.total).toBe(1)
@@ -300,9 +290,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -346,9 +334,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .query({ type: TransferType.OUTFLOW })
         .expect(200)
 
@@ -385,9 +371,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(
-          `/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`
-        )
+        .get(`/api/v1/treasuries/${treasury.contractId}/payment-tokens/${paymentToken.contractId}/transfers`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
