@@ -5,18 +5,18 @@ import {
   BuildTransactionResponse,
   Environment,
   Singleton,
-} from '@hashgraph/green-bonds-shared-core'
-import { TransactionBuilderPort } from './TransactionBuilderPort'
-import { BuildCreateOfferingTransactionRequest } from './model/BuildCreateOfferingTransactionRequest'
-import { BuildGrantRoleTransactionRequest } from './model/BuildGrantRoleTransactionRequest'
-import { ConfigService } from '@nestjs/config'
-import { ConfigKeys } from '@config/ConfigKeys'
+} from "@hashgraph/green-bonds-shared-core"
+import { TransactionBuilderPort } from "./TransactionBuilderPort"
+import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
+import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
+import { ConfigService } from "@nestjs/config"
+import { ConfigKeys } from "@config/ConfigKeys"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly OFFERING_CREATION_GAS = 5_000_000
   private readonly GRANT_ROLE_GAS = 700_000
-  private readonly DEFAULT_ENVIRONMENT = 'testnet' as const
+  private readonly DEFAULT_ENVIRONMENT = "testnet" as const
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -26,22 +26,22 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const offering = this.buildOfferingParams(request)
 
     return this.buildTransaction({
-      functionName: 'createOffering',
+      functionName: "createOffering",
       contractId: request.contractId,
       gas: this.OFFERING_CREATION_GAS,
       account: request.accountId!,
-      format: request.format as 'hedera' | 'ethereum',
+      format: request.format as "hedera" | "ethereum",
       args: [offering],
     })
   }
 
   grantRole(request: BuildGrantRoleTransactionRequest): BuildTransactionResponse {
     return this.buildTransaction({
-      functionName: 'grantRole',
+      functionName: "grantRole",
       contractId: request.contractId,
       gas: this.GRANT_ROLE_GAS,
       account: request.accountId!,
-      format: request.format as 'hedera' | 'ethereum',
+      format: request.format as "hedera" | "ethereum",
       args: [request.role, this.getEvmAddressFromHedera(request.userAccountId)],
     })
   }
@@ -56,7 +56,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     // Temporary mock - replace with actual interface
     return {
       encodeFunctionData: () => {
-        return '0xmockTransactionData'
+        return "0xmockTransactionData"
       },
     } as any
   }
@@ -66,7 +66,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     contractId: string
     gas: number
     account: string
-    format: 'hedera' | 'ethereum'
+    format: "hedera" | "ethereum"
     args: any[]
   }): BuildTransactionResponse {
     const environment = this.getEnvironment()
