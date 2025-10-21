@@ -3,5 +3,5 @@
 export class PaymentTokenResponse {
   contractId: string
   additionDate: Date
-  removalDate?: Date
+  removalDate: Date | null
 }
