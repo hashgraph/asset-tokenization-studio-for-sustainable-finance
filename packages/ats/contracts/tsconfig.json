@@ -7,14 +7,20 @@
     "strict": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
+    "baseUrl": ".",
     "paths": {
-      "@contracts/*": ["./typechain-types/*", "./typechain-types/index.ts"],
-      "@scripts/*": ["./scripts/*", "./scripts/index.ts"]
+      "@configuration": ["./Configuration.ts"],
+      "@contracts": ["./typechain-types/index.ts"],
+      "@contracts/*": ["./typechain-types/*"],
+      "@scripts": ["./scripts/index.ts"],
+      "@scripts/*": ["./scripts/*"],
+      "@scripts/domain": ["./scripts/domain/index.ts"],
+      "@scripts/domain/*": ["./scripts/domain/*"],
+      "@test": ["./test/index.ts"],
+      "@test/*": ["./test/*"]
     }
   },
   "ts-node": {
-    "require": [
-      "tsconfig-paths/register" // https://stackoverflow.com/questions/56650711/cannot-find-module-that-is-defined-in-tsconfig-paths
-    ]
+    "require": ["tsconfig-paths/register"]
   }
 }

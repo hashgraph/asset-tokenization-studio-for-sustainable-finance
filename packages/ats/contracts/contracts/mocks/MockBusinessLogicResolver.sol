@@ -4,15 +4,16 @@ pragma solidity >=0.8.0 <0.9.0;
 /**
  * @title MockBusinessLogicResolver
  * @notice Simplified mock implementation of Business Logic Resolver for testing
+ * @dev Uses simple mapping for key-value storage without validation
  */
 contract MockBusinessLogicResolver {
-    mapping(bytes32 => address) private implementations;
+    mapping(bytes32 => address) private _implementations;
 
     function setImplementation(bytes32 key, address implementation) external {
-        implementations[key] = implementation;
+        _implementations[key] = implementation;
     }
 
     function getImplementation(bytes32 key) external view returns (address) {
-        return implementations[key];
+        return _implementations[key];
     }
 }

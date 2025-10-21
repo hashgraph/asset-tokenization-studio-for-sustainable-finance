@@ -20,8 +20,8 @@
     "clean:cache": "npx hardhat clean",
     "clean:build": "node -e \"const fs=require('fs'); ['build','typechain-types','artifacts'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
     "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
-    "format": "prettier --check .",
-    "format:fix": "prettier --write .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "lint": "npm run lint:sol; npm run lint:js",
     "lint:fix": "npm run lint:sol:fix; npm run lint:js:fix",
     "lint:sol": "solhint --config solhint.config.js 'contracts/**/*.sol'",
@@ -31,11 +31,15 @@
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
-    "coverage": "npx hardhat coverage"
+    "test:factory-suite": "npx hardhat test test/unit/factorySuite.test.ts test/unit/factorySuiteFacet.test.ts",
+    "test:kpi": "npx hardhat test test/unit/kpi.test.ts",
+    "coverage": "npx hardhat coverage",
+    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/unit/factorySuite*.test.ts'",
+    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/unit/kpi.test.ts'"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
+    "@hashgraph/asset-tokenization-contracts": "^1.15.2",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

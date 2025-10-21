@@ -26,7 +26,7 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     function addKpiData(
         uint256 date,
         uint256 kpiValue
-    ) external override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
+    ) external virtual override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
         if (date >= block.timestamp) revert InvalidDate(date);
         KpiStorage storage kpiStorage = _getKpiStorage();
 
@@ -69,7 +69,7 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         }
     }
 
-    function _getKpiStorage() private pure returns (KpiStorage storage kpiStorage) {
+    function _getKpiStorage() internal pure returns (KpiStorage storage kpiStorage) {
         assembly {
             kpiStorage.slot := KPI_STORAGE_LOCATION
         }
