@@ -344,7 +344,6 @@ async function buildPackages() {
   try {
     await execAsync(`npm run shared:build`, { cwd: workspaceRoot });
     log('✅ All packages built successfully', colors.green);
-    await new Promise(resolve => setTimeout(resolve, 3000));
     return true;
   } catch (error) {
     log(`❌ Failed to build packages: ${error.stderr || error.message}`, colors.red);
