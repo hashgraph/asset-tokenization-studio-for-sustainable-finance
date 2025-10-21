@@ -1,7 +1,8 @@
 # Green Bonds Platform
+
 [![License](https://img.shields.io/badge/license-apache2-blue.svg)](LICENSE)
 
-A monorepo platform for managing Green Bonds assets on Hedera and EVM blockchains, built with NestJS, TypeScript, Hardhat, and Solidity. 
+A monorepo platform for managing Green Bonds assets on Hedera and EVM blockchains, built with NestJS, TypeScript, Hardhat, and Solidity.
 
 It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to ensure modularity, scalability, and maintainability.
 
@@ -45,6 +46,7 @@ The project adheres to Hexagonal Architecture and DDD:
 ![Smart Contracts Architecture Diagram](docs/gbp_sc_architecture.png)
 
 ## Workspaces:
+
 - `apps/`: Applications;
   - `gateway`: API gateway for routing requests to various services and handling authentication.
   - `transaction-sender`: Service for sending and managing blockchain transactions on Hedera or EVM networks. It uses RabbitMQ to receive a send messages to Evercity.
@@ -66,10 +68,12 @@ The project adheres to Hexagonal Architecture and DDD:
 - PostgreSQL (for database)
 - Hardhat (for smart contracts)
 - Access to Hedera or EVM testnets (e.g., via Hedera SDK or Web3 providers)
+- Docker containers
 
 # Installation
 
 1. Clone the repository:
+
    ```bash
    git clone <repository-url>
    cd green-bond-platform
@@ -108,7 +112,7 @@ The project adheres to Hexagonal Architecture and DDD:
 
 1. Copy the example environment file:
    ```bash
-   cp apps/primary-market/api/.env.example apps/primary-market/api//.env
+   cp apps/primary-market/api/.env.example apps/primary-market/api/.env
    ```
 
 ## Treasury
@@ -125,82 +129,93 @@ Previously finish Installation and Configuration steps.
 ## Scripts
 
 1. Copy the example environment file:
+
    ```bash
-   cp apps/scripts/.env.example apps/scripts/.env
+   cp scripts/.env.example scripts/.env
    ```
 
-2. Configure apps/scripts/.env properties:
-    If you are going to use an ed25519 hedera address to sign transactions configure .env in this way:
-    * BLOCKCHAIN_FORMAT=hedera
-    * HEDERA_PRIVATE_KEY=\<add here the hedera private key in der format\>
-    * ACCOUNT_ID=\<add here the hedera id\>
+2. Configure scripts/.env properties:
+   If you are going to use an **ED25519** hedera address to sign transactions configure .env in this way:
+   - BLOCKCHAIN_FORMAT=hedera
+   - HEDERA_PRIVATE_KEY=\<add here the hedera private key in der format\>
+   - ACCOUNT_ID=\<add here the hedera id\>
 
-    If you are going to use an ecdsa hedera address to sign transactions configure .env in this way:
-    * BLOCKCHAIN_FORMAT=ethereum
-    * HEDERA_PRIVATE_KEY=\<add here the hedera private key in hex format\>
-    * ACCOUNT_ID=\<add here the hedera id\>
+   If you are going to use an **ECDSA** hedera address to sign transactions configure .env in this way:
+   - BLOCKCHAIN_FORMAT=ethereum
+   - ETHEREUM_PRIVATE_KEY=\<add here the ethereum private key in hex format\>
+   - ACCOUNT_ID=\<add here the hedera id\>
 
 3. Stand up platform:
-   ```bash
-   npm run scripts:gbp:start
-   ```
+
+> Make sure docker is running
+
+```bash
+npm run scripts:gbp:start
+```
 
 If you don't need the full platform and need to test a backend, you can stand up only the postgresql database and the rabbitMQ executing this command:
-   ```bash
-   npm run scripts:docker:start
-   ```
+
+```bash
+npm run scripts:docker:start
+```
 
 # Test GBP demo
 
 These tests are going to test the green bond platform e2e.
-* Each test call API Gateway, the API Gateway call the API backend and return the unsigned transaction.
-* The unsigned transaction is singed with the address configured in .env file and send a message to the RabbitMQ.
-* The transaction sender read the message and send it to the hedera testnet.
-* The API backend read the event from hedera testnet and save the data in the postgresql database.
+
+- Each test call API Gateway, the API Gateway call the API backend and return the unsigned transaction.
+- The unsigned transaction is singed with the address configured in .env file and send a message to the RabbitMQ.
+- The transaction sender read the message and send it to the hedera testnet.
+- The API backend read the event from hedera testnet and save the data in the postgresql database.
 
 ## Create Green Bond
 
 To deploy a green bond in hedera testnet you can execute this commnad
 
-   ```bash
-   npm run scripts:test:bond
-   ```
-
+```bash
+npm run scripts:test:bond
+```
 
 # Stop GBP demo
 
 To stop the platform execute this command:
-   ```bash
-   npm run scripts:gbp:stop
-   ```
-If you only stand up the postgresql database and the rabbitMQ executing this command to stop them:
-   ```bash
-   npm run scripts:docker:stop
-   ```
 
+```bash
+npm run scripts:gbp:stop
+```
+
+If you only stand up the postgresql database and the rabbitMQ executing this command to stop them:
+
+```bash
+npm run scripts:docker:stop
+```
 
 # Adding app to monorepo
 
-   ```bash
-   nest generate app <app-name> <workspace-name>
-   ```
+```bash
+nest generate app <app-name> <workspace-name>
+```
 
 This command creates a folder inside apps/<workspace-name>/<app-name> with a basic NestJS structure.
 
 # Testing
-* Unit tests: npm run test (in specific workspaces).
-* E2E tests: npm run test:e2e.
-* Coverage: npm run test:cov.
+
+- Unit tests: npm run test (in specific workspaces).
+- E2E tests: npm run test:e2e.
+- Coverage: npm run test:cov.
 
 # Deployment
-* Use Docker for containerized deployment (see scripts/).
-* For production, configure environment variables and use tools like Mau for NestJS apps.
-* Refer to NestJS Deployment Docs for more.
+
+- Use Docker for containerized deployment (see scripts/).
+- For production, configure environment variables and use tools like Mau for NestJS apps.
+- Refer to NestJS Deployment Docs for more.
 
 # Contributing
+
 1. Follow the architecture guidelines.
 2. Run npm run lint and npm run format before committing.
 3. Submit pull requests with clear descriptions.
 
 # License
+
 Licensed under Apache 2.0. See LICENSE for details.
