@@ -10,14 +10,14 @@ export class CheckPaymentTokenExistsDomainService {
   constructor(@Inject() private readonly paymentTokenRepository: PaymentTokenRepository) {}
 
   async execute(paymentTokenContractId: string, treasuryId: string): Promise<PaymentToken> {
-    const paymentToken = await this.paymentTokenRepository.findByContractIdAndTreasuryId(paymentTokenContractId, treasuryId)
+    const paymentToken = await this.paymentTokenRepository.findByContractId(paymentTokenContractId)
     if (!paymentToken) {
-      throw PaymentTokenNotFoundError.idError(tokenId)
+      throw PaymentTokenNotFoundError.contractIdError(paymentTokenContractId)
     }
     return paymentToken
   }
 
-  async executeByTreasuryContractId(paymentTokenContractId: string, treasuryContractId: string): Promise<EnvironmentalAsset> {
+  async executeByTreasuryContractId(paymentTokenContractId: string, treasuryContractId: string): Promise<PaymentToken> {
     const paymentToken = await this.paymentTokenRepository.findByContractIdAndTreasuryContractId(
       paymentTokenContractId,
       treasuryContractId,

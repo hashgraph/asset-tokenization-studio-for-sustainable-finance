@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentTokenTransfer } from "@domain/paymenttoken/model/PaymentTokenTransfer"
 import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
 import { PaymentTokenTransferRepository } from "@domain/paymenttoken/repositories/PaymentTokenTransferRepository"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class PaymentTokenTransferTypeOrmRepository implements PaymentTokenTransferRepository {

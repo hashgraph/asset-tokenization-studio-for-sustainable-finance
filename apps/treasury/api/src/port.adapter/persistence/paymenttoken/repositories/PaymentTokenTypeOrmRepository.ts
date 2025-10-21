@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Validate, Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { Repository } from "typeorm"
+import { Repository, IsNull } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
@@ -45,6 +45,29 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
+  private async findActivePersistence(
+    contractId: string,
+    treasuryId: string,
+  ): Promise<PaymentTokenPersistence | null> {
+    return this.paymentTokenRepository.findOne({
+      where: {
+        contractId,
+        treasuryId,
+        removalDate: IsNull(),
+      },
+    })
+  }
+
+  async findByContractId(contractId: string): Promise<PaymentToken | null> {
+    const persistence = await this.paymentTokenRepository.findOne({
+      where: {
+        contractId: contractId,
+        removalDate: IsNull(),
+      },
+    })
+    return persistence ? this.toDomain(persistence) : null
+  }
+
   async findByContractIdAndTreasuryContractId(
     contractId: string,
     treasuryContractId: string,
@@ -62,5 +85,9 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
       },
     })
     return persistence ? this.toDomain(persistence) : null
+  }
+
+  private toDomain(persistence: PaymentTokenPersistence): PaymentToken {
+    return { ...persistence } as PaymentToken
   }
 }

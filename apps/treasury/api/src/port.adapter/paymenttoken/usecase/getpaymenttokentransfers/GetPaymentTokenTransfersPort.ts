@@ -3,7 +3,9 @@ import { PaymentTokenTransferResponse } from "./model/PaymentTokenTransferRespon
 
 export interface GetPaymentTokenTransfersPort {
   getPaymentTokenTransfers(
-    paymentTokenId: string,
+    treasuryContractId: string,
+    paymentTokenContractId: string,
     queryPageRequest: QueryPageRequest,
+    type?: string,
   ): Promise<PageResponse<PaymentTokenTransferResponse>>
 }

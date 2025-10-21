@@ -2,25 +2,25 @@
 
 import { Get, Param, Query } from "@nestjs/common"
 import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
-import { QueryBus } from "@nestjs/cqrs"
-import { GetPaymentTokenTransfersQuery } from "@app/paymentToken/getpaymenttokentransfers/query/GetPaymentTokenTransfersQuery"
+import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
+import { GetPaymentTokenTransfersQuery } from "@app/paymenttoken/getpaymenttokentransfers/query/GetPaymentTokenTransfersQuery"
 import { PaymentTokenTransferResponse } from "./model/PaymentTokenTransferResponse"
 import { GetPaymentTokenTransfersPort } from "./GetPaymentTokenTransfersPort"
 
-@RestController()
+@RestController("treasuries")
 export class GetPaymentTokenTransfersHttpAdapter implements GetPaymentTokenTransfersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":treasuryContractId/payment-tokens/:paymentTokenId/transfers")
+  @Get(":treasuryContractId/payment-tokens/:paymentTokenContractId/transfers")
   async getPaymentTokenTransfers(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Param("paymentTokenId") paymentTokenId: string,
+    @Param("paymentTokenContractId") paymentTokenContractId: string,
     @Query() queryPageRequest: QueryPageRequest,
     @Query("type") type?: string,
   ): Promise<PageResponse<PaymentTokenTransferResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
 
-    const query = new GetPaymentTokenTransfersQuery(treasuryContractId, paymentTokenId, type, queryPageOptions)
+    const query = new GetPaymentTokenTransfersQuery(treasuryContractId, paymentTokenContractId, type, queryPageOptions)
 
     return (await this.queryBus.execute(query)) as PageResponse<PaymentTokenTransferResponse>
   }

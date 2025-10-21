@@ -1,7 +1,15 @@
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class PaymentTokenNotFoundError extends EntityNotFoundError {
-  constructor(treasuryContractIds: string[]) {
-    super(`Payment token not found for any of the treasury contract ids: ${treasuryContractIds.join(", ")}.`)
+  static idError(id: string): PaymentTokenNotFoundError {
+    return new PaymentTokenNotFoundError(`PaymentToken not found for id: ${id}.`)
+  }
+
+  static contractIdError(contractId: string): PaymentTokenNotFoundError {
+    return new PaymentTokenNotFoundError(`PaymentToken not found for contract id: ${contractId}.`)
+  }
+
+  private constructor(message: string) {
+    super(message)
   }
 }

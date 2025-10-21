@@ -29,6 +29,7 @@ export class GetPaymentTokenTransfersQueryHandler
     const page = await this.paymentTokenTransferRepository.findByPaymentTokenId(
       paymentToken.id,
       query.pageOptions.toPageOptions(),
+      query.type
     )
 
     return QueryPageResponse.fromPage(page, (transfer: PaymentTokenTransfer) => ({

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, ValidateNested } from "class-validator"
+import { IsNotEmpty, IsString, ValidateNested, IsOptional, IsIn } from "class-validator"
 import { Type } from "class-transformer"
 import { PaymentTokenTransferQueryResponse } from "./PaymentTokenTransferQueryResponse"
 
@@ -25,7 +25,7 @@ export class GetPaymentTokenTransfersQuery extends Query<QueryPageResponse<Payme
   constructor(
     treasuryContractId: string,
     paymentTokenId: string,
-    type: string,
+    type?: string,
     pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
   ) {
     super()
