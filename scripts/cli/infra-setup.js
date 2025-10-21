@@ -484,13 +484,14 @@ async function startFullInfrastructure() {
   log('\n🌐 Access Points:', colors.blue);
   log('• API Gateway: http://localhost:3000 (🔒 Requires x-api-key header)');
   log('• ATS API (Direct): http://localhost:3001/api/v1/ats');
+  log('• Swagger ATS API (Direct): http://localhost:3001/api');
   log('• ATS API (via Gateway): http://localhost:3000/api/v1/ats');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
   log('• RabbitMQ: http://localhost:15672 (guest/guest)');
   
   log('\n🔑 API Keys (for gateway access):', colors.magenta);
-  log('• demo-key-1, demo-key-2, your-secret-api-key');
+  log('• demo-key-1');
   
   log('\n⚠️  Press Ctrl+C to stop all services', colors.yellow);
 
