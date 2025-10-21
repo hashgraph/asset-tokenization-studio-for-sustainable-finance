@@ -2,7 +2,7 @@
 
 import { Get, Param, Query } from "@nestjs/common"
 import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
-import { QueryBus } from "@nestjs/cqrs"
+import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetEnvironmentalAssetHoldingsQuery } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQuery"
 import { EnvironmentalAssetHoldingsResponse } from "./model/EnvironmentalAssetHoldingsResponse"
 import { GetEnvironmentalAssetHoldingsPort } from "./GetEnvironmentalAssetHoldingsPort"
@@ -19,6 +19,6 @@ export class GetEnvironmentalAssetHoldingsHttpAdapter implements GetEnvironmenta
   ): Promise<PageResponse<EnvironmentalAssetHoldingsResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
     const query = new GetEnvironmentalAssetHoldingsQuery(treasuryContractId, assetContractId, queryPageOptions)
-    return (await this.queryBus.execute(query)) as PageResponse<EnvironmentalAssetHoldingsResponse>
+    return await this.queryBus.execute(query)
   }
 }
