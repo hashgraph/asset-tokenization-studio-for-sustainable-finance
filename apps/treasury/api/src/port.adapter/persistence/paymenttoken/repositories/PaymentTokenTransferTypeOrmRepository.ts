@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentTokenTransfer } from "@domain/paymenttoken/model/PaymentTokenTransfer"
 import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
 import { PaymentTokenTransferRepository } from "@domain/paymenttoken/repositories/PaymentTokenTransferRepository"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class PaymentTokenTransferTypeOrmRepository implements PaymentTokenTransferRepository {
@@ -22,11 +23,37 @@ export class PaymentTokenTransferTypeOrmRepository implements PaymentTokenTransf
     return persistence as PaymentTokenTransfer
   }
 
-  async findById(id: string): Promise<PaymentTokenTransfer | null> {
-    return await this.paymentTokenTransferRepository.findOne({ where: { id } })
+  async findByPaymentTokenId(
+    paymentTokenId: string,
+    options: PageOptions,
+    type?: string,
+  ): Promise<Page<PaymentTokenTransfer>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const where: any = { paymentTokenId }
+    if (type) {
+      where.type = type
+    }
+
+    const [persistenceList, total] = await this.paymentTokenTransferRepository.findAndCount({
+      where,
+      order: { [options.order.orderBy]: orderDirection },
+      skip: (options.page - 1) * options.limit,
+      take: options.limit,
+    })
+
+    const items = persistenceList.map((persistence) => this.toDomain(persistence))
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
   }
 
-  async findByAccountId(accountId: string): Promise<PaymentTokenTransfer[]> {
-    return await this.paymentTokenTransferRepository.find({ where: { accountId } })
+  private toDomain(persistence: PaymentTokenTransferPersistence): PaymentTokenTransfer {
+    return { ...persistence } as PaymentTokenTransfer
   }
 }

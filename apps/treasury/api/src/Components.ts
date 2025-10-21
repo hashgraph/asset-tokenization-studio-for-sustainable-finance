@@ -20,6 +20,7 @@ import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmenta
 import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
 import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
+import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
@@ -41,10 +42,14 @@ import { GetEnvironmentalAssetTransfersHttpAdapter } from "@port/environmentalas
 import { GetEnvironmentalAssetTransfersQueryHandler } from "@app/environmentalasset/getenvironmentalassettransfers/query/GetEnvironmentalAssetTransfersQueryHandler"
 import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
 import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
+import { GetPaymentTokenTransfersHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokentransfers/GetPaymentTokenTransfersHttpAdapter"
+import { GetPaymentTokenTransfersQueryHandler } from "@app/paymenttoken/getpaymenttokentransfers/query/GetPaymentTokenTransfersQueryHandler"
 import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
 import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
 import { EnvironmentalAssetTransferTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTransferTypeOrmRepository"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
+import { PaymentTokenTransferTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTransferTypeOrmRepository"
+import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
 import { AddEnvironmentalAssetTransferAppService } from "@app/environmentalasset/addenvironmentalassettransfer/service/AddEnvironmentalAssetTransferAppService"
 import { AddEnvironmentalAssetTransferCommandHandler } from "@app/environmentalasset/addenvironmentalassettransfer/command/AddEnvironmentalAssetTransferCommandHandler"
 import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
@@ -86,6 +91,10 @@ const REPOSITORIES: Provider[] = [
     provide: "PaymentTokenRepository",
     useClass: PaymentTokenTypeOrmRepository,
   },
+  {
+    provide: "PaymentTokenTransferRepository",
+    useClass: PaymentTokenTransferTypeOrmRepository,
+  },
 ]
 
 export const ENTITIES = [
@@ -95,6 +104,7 @@ export const ENTITIES = [
   EnvironmentalAssetTokenPersistence,
   EnvironmentalAssetTransferPersistence,
   PaymentTokenPersistence,
+  PaymentTokenTransferPersistence,
 ]
 
 export const CONTROLLERS = [
@@ -111,6 +121,7 @@ export const CONTROLLERS = [
   UpdatePaymentTokenTransactionHttpAdapter,
   ExternalTransferEnvironmentalAssetTransactionHttpAdapter,
   GetPaymentTokensHttpAdapter,
+  GetPaymentTokenTransfersHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -125,6 +136,7 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetNotExistsDomainService,
   CheckEnvironmentalAssetTokenExistsDomainService,
   CheckEnvironmentalAssetTokenNotExistsDomainService,
+  CheckPaymentTokenExistsDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   AddEnvironmentalAssetCommandHandler,
@@ -154,6 +166,7 @@ export const PROVIDERS = [
   GetEnvironmentalAssetTransfersQueryHandler,
   GetEnvironmentalAssetHoldingsQueryHandler,
   GetPaymentTokensQueryHandler,
+  GetPaymentTokenTransfersQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
