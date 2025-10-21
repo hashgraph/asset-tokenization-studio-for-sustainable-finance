@@ -34,9 +34,9 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, AtsCommon, Reentra
         if (address(treasuryData.resolver) == address(0)) revert InvalidTreasuryData();
         if (treasuryData.paymentToken == address(0)) revert InvalidTreasuryData();
 
-        // Validate all ERC721 addresses are non-zero (empty array is allowed)
-        for (uint256 i = 0; i < treasuryData.erc721s.length; ++i) {
-            if (treasuryData.erc721s[i] == address(0)) revert InvalidTreasuryData();
+        // Validate all environmental asset addresses are non-zero (empty array is allowed)
+        for (uint256 i = 0; i < treasuryData.environmentalAssets.length; ++i) {
+            if (treasuryData.environmentalAssets[i] == address(0)) revert InvalidTreasuryData();
         }
         _;
     }

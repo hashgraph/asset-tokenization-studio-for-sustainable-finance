@@ -19,15 +19,15 @@ interface IFactorySuite {
      * @param resolver Business Logic Resolver for diamond pattern
      * @param resolverProxyConfiguration Proxy configuration settings
      * @param rbacs Role-based access control configurations
-     * @param paymentToken ERC20 token address for payments
-     * @param erc721s Array of ERC721 token addresses for environmental assets portfolio
+     * @param paymentToken Payment token address for transactions
+     * @param environmentalAssets Array of environmental asset token addresses for portfolio
      */
     struct TreasuryData {
         IBusinessLogicResolver resolver;
         IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration;
         IResolverProxy.Rbac[] rbacs;
         address paymentToken;
-        address[] erc721s;
+        address[] environmentalAssets;
     }
 
     /**

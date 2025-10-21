@@ -14,8 +14,8 @@ export interface FactoryFixtureContracts {
   mockAtsFactory: MockAtsFactory;
   mockResolver: MockBusinessLogicResolver;
   paymentToken: MockERC20;
-  erc721Token1: MockERC721;
-  erc721Token2: MockERC721;
+  environmentalAssetToken1: MockERC721;
+  environmentalAssetToken2: MockERC721;
 }
 
 export interface FactoryFixture extends FactoryFixtureAccounts, FactoryFixtureContracts {}
@@ -34,8 +34,8 @@ export async function deployFactorySuiteFixture(): Promise<FactoryFixture> {
   const paymentToken = await MockERC20.deploy("Test Token", "TEST");
 
   const MockERC721 = await ethers.getContractFactory("MockERC721");
-  const erc721Token1 = await MockERC721.deploy("Carbon Credits", "CC");
-  const erc721Token2 = await MockERC721.deploy("Green Certificates", "GC");
+  const environmentalAssetToken1 = await MockERC721.deploy("Carbon Credits", "CC");
+  const environmentalAssetToken2 = await MockERC721.deploy("Green Certificates", "GC");
 
   // Deploy FactorySuiteFacet
   const FactorySuiteFacet = await ethers.getContractFactory("FactorySuiteFacet");
@@ -56,8 +56,8 @@ export async function deployFactorySuiteFixture(): Promise<FactoryFixture> {
     mockAtsFactory,
     mockResolver,
     paymentToken,
-    erc721Token1,
-    erc721Token2,
+    environmentalAssetToken1,
+    environmentalAssetToken2,
   };
 }
 
@@ -71,7 +71,7 @@ export interface TestDataSets {
 }
 
 export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
-  const { mockResolver, paymentToken, erc721Token1, erc721Token2, admin } = fixture;
+  const { mockResolver, paymentToken, environmentalAssetToken1, environmentalAssetToken2, admin } = fixture;
 
   const validBondData = {
     name: "Green Bond",
@@ -107,7 +107,7 @@ export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
       },
     ],
     paymentToken: paymentToken.address,
-    erc721s: [erc721Token1.address, erc721Token2.address],
+    environmentalAssets: [environmentalAssetToken1.address, environmentalAssetToken2.address],
   };
 
   const validKpiData = {
@@ -129,7 +129,7 @@ export function createTestDataSets(fixture: FactoryFixture): TestDataSets {
     },
     rbacs: [],
     paymentToken: ethers.constants.AddressZero, // Invalid - zero address
-    erc721s: [], // Empty array is now valid
+    environmentalAssets: [], // Empty array is now valid
   };
 
   const invalidKpiData = {
