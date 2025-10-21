@@ -344,7 +344,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       expect(response.body.items[0].amount).toBe("2")
     })
 
-    it.skip("should return all transfers when type is not provided", async () => {
+    it("should return all transfers when type is not provided", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",

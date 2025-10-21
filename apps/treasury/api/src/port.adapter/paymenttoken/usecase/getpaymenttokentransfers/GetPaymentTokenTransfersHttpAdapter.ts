@@ -22,6 +22,6 @@ export class GetPaymentTokenTransfersHttpAdapter implements GetPaymentTokenTrans
 
     const query = new GetPaymentTokenTransfersQuery(treasuryContractId, paymentTokenContractId, type, queryPageOptions)
 
-    return (await this.queryBus.execute(query)) as PageResponse<PaymentTokenTransferResponse>
+    return await this.queryBus.execute(query)
   }
 }
