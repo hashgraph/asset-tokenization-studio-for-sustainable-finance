@@ -73,7 +73,7 @@ import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpayme
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
 import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
 import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymenttokentransfer/command/AddPaymentTokenTransferCommandHandler"
-import { AddPaymentTokenTransferDomainService } from "@domain/treasury/services/AddPaymentTokenTransferDomainService"
+import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -164,7 +164,7 @@ export const PROVIDERS = [
   UpdatePaymentTokenDomainService,
   AddPaymentTokenTransferNestJSEventAdapter,
   AddPaymentTokenTransferCommandHandler,
-  AddPaymentTokenTransferDomainService,
+  AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",

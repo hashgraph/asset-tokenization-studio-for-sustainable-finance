@@ -3,16 +3,16 @@
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class PaymentTokenTransferAddedEvent extends Event {
-  treasuryContractId: string
-  recipientAccountId: string
+  paymentTokenId: string
+  accountId: string
   amount: string
-  transferId: string
+  type: string
 
-  constructor(treasuryContractId: string, recipientAccountId: string, amount: string, transferId: string) {
+  constructor(paymentTokenId: string, accountId: string, amount: string, type: string) {
     super()
-    this.treasuryContractId = treasuryContractId
-    this.recipientAccountId = recipientAccountId
+    this.paymentTokenId = paymentTokenId
+    this.accountId = accountId
     this.amount = amount
-    this.transferId = transferId
+    this.type = type
   }
 }

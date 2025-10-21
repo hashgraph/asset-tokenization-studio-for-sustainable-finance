@@ -6,19 +6,25 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class AddPaymentTokenTransferCommand extends Command<void> {
   @IsString()
   @IsNotEmpty()
-  treasuryContractId: string
+  accountId: string
 
   @IsString()
   @IsNotEmpty()
-  recipientAccountId: string
+  paymentTokenId: string
 
+  @IsString()
   @IsNotEmpty()
-  amount: bigint
+  amount: string
 
-  constructor(treasuryContractId: string, recipientAccountId: string, amount: bigint) {
+  @IsString()
+  @IsNotEmpty()
+  type: string
+
+  constructor(accountId: string, paymentTokenId: string, amount: string, type: string) {
     super()
-    this.treasuryContractId = treasuryContractId
-    this.recipientAccountId = recipientAccountId
+    this.accountId = accountId
+    this.paymentTokenId = paymentTokenId
     this.amount = amount
+    this.type = type
   }
 }

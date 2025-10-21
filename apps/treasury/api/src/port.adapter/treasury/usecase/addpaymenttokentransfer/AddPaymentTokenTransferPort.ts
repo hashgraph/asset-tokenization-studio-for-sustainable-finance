@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PaymentTokenTransferredDLTEvent } from "./model/PaymentTokenTransferredDLTEvent"
+import { TransferDLTEvent } from "@port/shared/model/TransferDLTEvent"
 
 export interface AddPaymentTokenTransferPort {
-  handle(event: PaymentTokenTransferredDLTEvent): Promise<void>
+  handle(event: TransferDLTEvent): Promise<void>
 }
