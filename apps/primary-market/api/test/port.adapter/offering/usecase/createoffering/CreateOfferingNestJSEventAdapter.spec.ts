@@ -1,0 +1,235 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { Test, TestingModule } from "@nestjs/testing"
+import { INestApplication } from "@nestjs/common"
+import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgresModule } from "@config/PostgresModule"
+import { DataSource, Repository } from "typeorm"
+import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
+import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
+import { getRepositoryToken } from "@nestjs/typeorm"
+import { OfferingCreatedDLTEvent } from "@port/offering/usecase/createoffering/model/OfferingCreatedDLTEvent"
+import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
+
+describe("CreateOfferingNestJSEventAdapter Integration", () => {
+  let app: INestApplication
+  let container: PostgreSqlContainer
+  let eventBus: EventBus
+  let offeringRepository: Repository<OfferingPersistence>
+  let primaryMarketRepository: Repository<PrimaryMarketPersistence>
+
+  beforeAll(async () => {
+    container = await PostgreSqlContainer.create()
+  })
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      controllers: CONTROLLERS,
+      providers: [...PROVIDERS],
+    }).compile()
+
+    app = moduleFixture.createNestApplication()
+    await app.init()
+    eventBus = app.get("EventBus")
+    offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
+    primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  afterEach(async () => {
+    const dataSource = app.get(DataSource)
+    await dataSource.createQueryBuilder().delete().from("Offering").execute()
+    await dataSource.createQueryBuilder().delete().from("PrimaryMarket").execute()
+    await app.close()
+  })
+
+  describe("CreateOfferingNestJSEventAdapter", () => {
+    it("should create a new offering when OfferingCreatedDLTEvent is published", async () => {
+      await primaryMarketRepository.save({
+        contractId: "0.0.1234567",
+      })
+
+      const event = new OfferingCreatedDLTEvent(
+        "0.0.1234567", // contractId (market)
+        "0x123456789", // transactionHash
+        "offering-123", // offeringId
+        "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
+        "0x0000000000000000000000000000000000001235", // asset (bond)
+        "0x0000000000000000000000000000000000001236", // treasury
+        "0x0000000000000000000000000000000000001237", // payment token
+        "1000", // lotSize
+        "100", // minQuantity
+        "10000", // maxQuantity
+        "5000", // targetQuantity
+        0, // targetQuantityRule
+        "1640995200", // startDate
+        "1672531200", // endDate
+        0, // deadlineRule
+      )
+
+      await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
+
+      const savedOffering = await offeringRepository.findOne({
+        where: { offeringId: "offering-123" },
+        relations: ["market"],
+      })
+
+      expect(savedOffering).toBeDefined()
+      expect(savedOffering).not.toBeNull()
+      expect(savedOffering!.offeringId).toBe("offering-123")
+      expect(savedOffering!.bondId).toBe("0.0.4661") // Converted from EVM address
+      expect(savedOffering!.treasuryId).toBe("0.0.4662") // Converted from EVM address
+      expect(savedOffering!.paymentTokenId).toBe("0.0.4663") // Converted from EVM address
+      expect(savedOffering!.lotSize).toBe("1000")
+      expect(savedOffering!.minQuantity).toBe("100")
+      expect(savedOffering!.maxQuantity).toBe("10000")
+      expect(savedOffering!.targetQuantity).toBe("5000")
+      expect(savedOffering!.targetQuantityRule).toBe(0)
+      expect(savedOffering!.startDate).toEqual(new Date(1640995200 * 1000))
+      expect(savedOffering!.endDate).toEqual(new Date(1672531200 * 1000))
+      expect(savedOffering!.deadlineRule).toBe(0)
+      expect(savedOffering!.status).toBe(OfferingStatus.CREATED)
+      expect(savedOffering!.market.contractId).toBe("0.0.1234567")
+    })
+
+    it("should throw error when offering with same offeringId already exists", async () => {
+      const primaryMarket = await primaryMarketRepository.save({
+        contractId: "0.0.1234567",
+      })
+
+      const existingOffering = offeringRepository.create({
+        offeringId: "offering-123",
+        market: primaryMarket,
+        bondId: "0.0.9999999",
+        treasuryId: "0.0.9999999",
+        paymentTokenId: "0.0.9999999",
+        lotSize: "500",
+        minQuantity: "50",
+        maxQuantity: "5000",
+        targetQuantity: "2500",
+        targetQuantityRule: 0,
+        startDate: new Date("2023-01-01"),
+        endDate: new Date("2024-01-01"),
+        deadlineRule: 0,
+        status: OfferingStatus.CREATED,
+      })
+
+      await offeringRepository.save(existingOffering)
+
+      const event = new OfferingCreatedDLTEvent(
+        "0.0.1234567", // contractId (market)
+        "0x123456789", // transactionHash
+        "offering-123", // Same offeringId
+        "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
+        "0x0000000000000000000000000000000000001235", // asset (bond)
+        "0x0000000000000000000000000000000000001236", // treasury
+        "0x0000000000000000000000000000000000001237", // payment token
+        "1000",
+        "100",
+        "10000",
+        "5000",
+        0,
+        "1640995200",
+        "1672531200",
+        0,
+      )
+
+      await expect(eventBus.publishSync(event, OfferingCreatedDLTEvent.name)).rejects.toThrow()
+    })
+
+    it("should create multiple offerings for the same market successfully", async () => {
+      await primaryMarketRepository.save({
+        contractId: "0.0.1234567",
+      })
+
+      const offeringIds = ["offering-1", "offering-2", "offering-3"]
+
+      for (const offeringId of offeringIds) {
+        const event = new OfferingCreatedDLTEvent(
+          "0.0.1234567", // contractId (market)
+          "0x123456789", // transactionHash
+          offeringId,
+          "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
+          "0x0000000000000000000000000000000000001235", // asset (bond)
+          "0x0000000000000000000000000000000000001236", // treasury
+          "0x0000000000000000000000000000000000001237", // payment token
+          "1000",
+          "100",
+          "10000",
+          "5000",
+          0,
+          "1640995200",
+          "1672531200",
+          0,
+        )
+
+        await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
+
+        const savedOffering = await offeringRepository.findOne({
+          where: { offeringId },
+        })
+
+        expect(savedOffering).toBeDefined()
+        expect(savedOffering).not.toBeNull()
+        expect(savedOffering!.offeringId).toBe(offeringId)
+      }
+
+      const allOfferings = await offeringRepository.find()
+      expect(allOfferings).toHaveLength(offeringIds.length)
+    })
+
+    it("should publish CreatedOfferingEvent after successful offering creation", async () => {
+      await primaryMarketRepository.save({
+        contractId: "0.0.1234567",
+      })
+
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
+      const event = new OfferingCreatedDLTEvent(
+        "0.0.1234567", // contractId (market)
+        "0x123456789", // transactionHash
+        "offering-123",
+        "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
+        "0x0000000000000000000000000000000000001235", // asset (bond)
+        "0x0000000000000000000000000000000000001236", // treasury
+        "0x0000000000000000000000000000000000001237", // payment token
+        "1000",
+        "100",
+        "10000",
+        "5000",
+        0,
+        "1640995200",
+        "1672531200",
+        0,
+      )
+
+      await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
+
+      expect(publishedEvent).toEqual(
+        expect.objectContaining({
+          offeringId: "offering-123",
+          marketId: "0.0.1234567",
+          bondId: "0.0.4661", // Converted from EVM address
+          treasuryId: "0.0.4662", // Converted from EVM address
+          paymentTokenId: "0.0.4663", // Converted from EVM address
+          lotSize: "1000",
+          minQuantity: "100",
+          maxQuantity: "10000",
+          targetQuantity: "5000",
+          targetQuantityRule: 0,
+          startDate: new Date(1640995200 * 1000),
+          endDate: new Date(1672531200 * 1000),
+          deadlineRule: 0,
+          timestamp: expect.any(Number),
+        }),
+      )
+    })
+  })
+})
