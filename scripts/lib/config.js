@@ -7,7 +7,8 @@ const config = {
   RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost:5672',
   BLOCKCHAIN_FORMAT: process.env.BLOCKCHAIN_FORMAT || 'hedera',
   HEDERA_PRIVATE_KEY: process.env.HEDERA_PRIVATE_KEY,
-  ETHEREUM_PRIVATE_KEY: process.env.ETHEREUM_PRIVATE_KEY
+  ETHEREUM_PRIVATE_KEY: process.env.ETHEREUM_PRIVATE_KEY,
+  ETHEREUM_GAS_PRICE_GWEI: process.env.ETHEREUM_GAS_PRICE_GWEI || '600',
 };
 
 // Console colors
