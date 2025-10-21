@@ -8,19 +8,17 @@ It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to e
 
 ### Table of Contents
 
-- **[Features](#features)**<br>
-- **[Architecture](#architecture)**<br>
-- **[Prerequisites](#prerequisites)**<br>
-- **[Installation](#installation)**<br>
-- **[Configuration](#configuration)**<br>
-- **[Green Bond Platform demo](#green-bond-platform-demo)**<br>
-- **[Test GBP demo](#test-gbp-demo)**<br>
-- **[Stop GBP demo](#stop-gbp-demo)**<br>
-- **[Adding app to monorepo](#adding-app-to-monorepo)**<br>
-- **[Testing](#testing)**<br>
-- **[Deployment](#deployment)**<br>
-- **[Contributing](#contributing)**<br>
-- **[License](#license)**<br>
+- **[Features](#features)**
+- **[Architecture](#architecture)**
+- **[Prerequisites](#prerequisites)**
+- **[Installation](#installation)**
+- **[Configuration](#configuration)**
+- **[Green Bond Platform demo](#green-bond-platform-demo)**
+- **[Adding app to monorepo](#adding-app-to-monorepo)**
+- **[Testing](#testing)**
+- **[Deployment](#deployment)**
+- **[Contributing](#contributing)**
+- **[License](#license)**
 
 # Features
 
@@ -128,7 +126,7 @@ The project adheres to Hexagonal Architecture and DDD:
 
 # Green Bond Platform demo
 
-Previously finish Installation and Configuration steps.
+Previously finish [Installation](#installation) and [Configuration](#configuration) steps.
 
 In scripts folder there are some tools for helping demos and testing end-to-end.
 
@@ -155,7 +153,7 @@ In scripts folder there are some tools for helping demos and testing end-to-end.
    ACCOUNT_ID=\<add here the Hedera ID\>
    ```
 
-3. Stand up platform:
+3. Start Green Bond Platform:
 
 > Make sure docker is running
 
@@ -279,7 +277,8 @@ In each specific workspace:
 
 # Deployment
 
-- Use Docker for containerized deployment (see `scripts/`).
+- Smart Contract factories have to be deployed on the Hedera network before starting the platform.
+- Use Docker for containerized deployment of each backend application.
 - Refer to [NestJS Deployment Docs](https://docs.nestjs.com/deployment) for more information.
 
 # Contributing
