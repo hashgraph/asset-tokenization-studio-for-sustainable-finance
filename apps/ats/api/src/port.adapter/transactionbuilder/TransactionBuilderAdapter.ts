@@ -76,7 +76,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       couponDetails: {
         couponFrequency: "2592000",
         couponRate: "1000",
-        firstCouponDate: "1761692400",
+        firstCouponDate: "1970997600",
       },
       // proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
       // proceedRecipientsData:
