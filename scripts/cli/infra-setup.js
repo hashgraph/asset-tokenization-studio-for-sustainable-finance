@@ -337,9 +337,30 @@ function startNodeService(service) {
   });
 }
 
+async function buildPackages() {
+  log('📦 Building shared packages...', colors.cyan);
+  const workspaceRoot = path.resolve(__dirname, '../../');
+  
+  try {
+    await execAsync(`npm run shared:build`, { cwd: workspaceRoot });
+    log('✅ All packages built successfully', colors.green);
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    return true;
+  } catch (error) {
+    log(`❌ Failed to build packages: ${error.stderr || error.message}`, colors.red);
+    return false;
+  }
+}
+
 async function startNodeServices() {
   log('🚀 Starting Node.js API services...', colors.bright);
 
+  // Build packages first
+  const packagesBuilt = await buildPackages();
+  if (!packagesBuilt) {
+    log('⚠️  Warning: Package build failed, services may not work correctly', colors.yellow);
+  }
+  
   // Start ATS API first, then Gateway (which proxies to ATS), then Transaction Sender
   const services = [CONFIG.atsApi, CONFIG.gateway, CONFIG.transactionSender];
   const processes = [];
@@ -466,6 +487,8 @@ async function startFullInfrastructure() {
   // Wait a bit for services to stabilize
   log('⏳ Waiting for services to stabilize...', colors.yellow);
   await new Promise(resolve => setTimeout(resolve, 5000));
+
+
 
   // Start Node.js APIs
   const processes = await startNodeServices();

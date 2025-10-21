@@ -124,6 +124,11 @@ The project adheres to Hexagonal Architecture and DDD:
    cp apps/treasury/api/.env.example apps/treasury/api/.env
    ```
 
+# Build shared packages
+   ```bash
+   npm run shared:build
+   ```
+
 # Green Bond Platform demo
 
 Previously finish [Installation](#installation) and [Configuration](#configuration) steps.
