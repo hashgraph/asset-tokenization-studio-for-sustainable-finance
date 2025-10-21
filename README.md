@@ -5,7 +5,23 @@ A monorepo platform for managing Green Bonds assets on Hedera and EVM blockchain
 
 It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to ensure modularity, scalability, and maintainability.
 
-## Features
+### Table of Contents
+
+- **[Features](#features)**<br>
+- **[Architecture](#architecture)**<br>
+- **[Prerequisites](#prerequisites)**<br>
+- **[Installation](#installation)**<br>
+- **[Configuration](#configuration)**<br>
+- **[Start up GBP demo](#start-up-gbp-demo)**<br>
+- **[Test GBP demo](#test-gbp-demo)**<br>
+- **[Stop GBP demo](#stop-gbp-demo)**<br>
+- **[Adding app to monorepo](#adding-app-to-monorepo)**<br>
+- **[Testing](#testing)**<br>
+- **[Deployment](#deployment)**<br>
+- **[Contributing](#contributing)**<br>
+- **[License](#license)**<br>
+
+# Features
 
 - **Blockchain Integration**: Support for Hedera and EVM networks (testnet, previewnet, mainnet).
 - **API Management**: RESTful APIs for Green Bonds ATS (Asset Tokenization Studio) operations.
@@ -15,7 +31,7 @@ It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to e
 - **Monorepo Structure**: Organized workspaces for apps, packages, and scripts using npm workspaces.
 - **Quality Assurance**: Linting, formatting, and testing tools (ESLint, Prettier, Solhint).
 
-## Architecture
+# Architecture
 
 The project adheres to Hexagonal Architecture and DDD:
 
@@ -28,7 +44,7 @@ The project adheres to Hexagonal Architecture and DDD:
 
 ![Smart Contracts Architecture Diagram](docs/gbp_sc_architecture.png)
 
-### Workspaces:
+## Workspaces:
 - `apps/`: Applications;
   - `gateway`: API gateway for routing requests to various services and handling authentication.
   - `transaction-sender`: Service for sending and managing blockchain transactions on Hedera or EVM networks. It uses RabbitMQ to receive a send messages to Evercity.
@@ -43,7 +59,7 @@ The project adheres to Hexagonal Architecture and DDD:
   - `core`: Shared core utilities, including common models, services, and helpers for the platform.
 - `scripts/`: Utility scripts for deployment and automation.
 
-## Prerequisites
+# Prerequisites
 
 - Node.js (v22+)
 - npm (v10+)
@@ -51,7 +67,7 @@ The project adheres to Hexagonal Architecture and DDD:
 - Hardhat (for smart contracts)
 - Access to Hedera or EVM testnets (e.g., via Hedera SDK or Web3 providers)
 
-## Installation
+# Installation
 
 1. Clone the repository:
    ```bash
@@ -65,48 +81,48 @@ The project adheres to Hexagonal Architecture and DDD:
    npm ci
    ```
 
-## Configuration
+# Configuration
 
-### Gateway
+## Gateway
 
 1. Copy the example environment file:
    ```bash
    cp apps/shared/gateway/.env.sample apps/shared/gateway/.env
    ```
 
-### Transaction Sender
+## Transaction Sender
 
 1. Copy the example environment file:
    ```bash
    cp apps/shared/transaction-sender/.env.example apps/shared/transaction-sender/.env
    ```
 
-### ATS
+## ATS
 
 1. Copy the example environment file:
    ```bash
    cp apps/ats/api/.env.example apps/ats/api/.env
    ```
 
-### Primary Market
+## Primary Market
 
 1. Copy the example environment file:
    ```bash
    cp apps/primary-market/api/.env.example apps/primary-market/api//.env
    ```
 
-### Treasury
+## Treasury
 
 1. Copy the example environment file:
    ```bash
    cp apps/treasury/api/.env.example apps/treasury/api/.env
    ```
 
-## Stand up green bond platform demo
+# Start up GBP demo
 
 Previously finish Installation and Configuration steps.
 
-### Scripts
+## Scripts
 
 1. Copy the example environment file:
    ```bash
@@ -134,7 +150,7 @@ If you don't need the full platform and need to test a backend, you can stand up
    npm run scripts:docker:start
    ```
 
-## Test green bond platform demo
+# Test GBP demo
 
 These tests are going to test the green bond platform e2e.
 * Each test call API Gateway, the API Gateway call the API backend and return the unsigned transaction.
@@ -142,7 +158,7 @@ These tests are going to test the green bond platform e2e.
 * The transaction sender read the message and send it to the hedera testnet.
 * The API backend read the event from hedera testnet and save the data in the postgresql database.
 
-### Create Green Bond
+## Create Green Bond
 
 To deploy a green bond in hedera testnet you can execute this commnad
 
@@ -151,7 +167,7 @@ To deploy a green bond in hedera testnet you can execute this commnad
    ```
 
 
-## Stop green bond platform demo
+# Stop GBP demo
 
 To stop the platform execute this command:
    ```bash
@@ -163,7 +179,7 @@ If you only stand up the postgresql database and the rabbitMQ executing this com
    ```
 
 
-## How to add a new application to monorepo
+# Adding app to monorepo
 
    ```bash
    nest generate app <app-name> <workspace-name>
@@ -171,20 +187,20 @@ If you only stand up the postgresql database and the rabbitMQ executing this com
 
 This command creates a folder inside apps/<workspace-name>/<app-name> with a basic NestJS structure.
 
-## Testing
+# Testing
 * Unit tests: npm run test (in specific workspaces).
 * E2E tests: npm run test:e2e.
 * Coverage: npm run test:cov.
 
-## Deployment
+# Deployment
 * Use Docker for containerized deployment (see scripts/).
 * For production, configure environment variables and use tools like Mau for NestJS apps.
 * Refer to NestJS Deployment Docs for more.
 
-## Contributing
+# Contributing
 1. Follow the architecture guidelines.
 2. Run npm run lint and npm run format before committing.
 3. Submit pull requests with clear descriptions.
 
-## License
+# License
 Licensed under Apache 2.0. See LICENSE for details.
