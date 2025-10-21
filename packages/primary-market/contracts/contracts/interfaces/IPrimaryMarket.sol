@@ -90,7 +90,7 @@ interface IPrimaryMarket {
     );
 
     /// @notice Thrown when an account does not have enough funds for a subscription
-    error NotEnoughFunds(address account, uint256 requiredFunds, uin256 availableFunds, address paymentToken);
+    error NotEnoughFunds(address account, uint256 requiredFunds, uint256 availableFunds, address paymentToken);
 
     /// @notice Thrown when an account is not allowed to participate in an offering
     error NotCompliantAccount(address account, address asset);
@@ -159,7 +159,7 @@ interface IPrimaryMarket {
     /// @param _pageIndex Pagination index
     /// @param _pageLength Number of IDs per page
     /// @return ids Array of offering IDs
-    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength) external view returns (uint256[] ids);
+    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength) external view returns (uint256[] memory ids);
 
     /// @notice Get details of a specific offering
     /// @param _offeringId The offering ID
@@ -183,7 +183,7 @@ interface IPrimaryMarket {
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
-    ) external view returns (uint256[] ids);
+    ) external view returns (uint256[] memory ids);
 
     /// @notice Get details of a specific subscription
     /// @param _offeringId The offering ID

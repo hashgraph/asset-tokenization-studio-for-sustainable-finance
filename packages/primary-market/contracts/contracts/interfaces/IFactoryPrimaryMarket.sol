@@ -12,16 +12,24 @@ interface IFactoryPrimaryMarket {
     /**
      * @notice Emitted when a new Primary Market contract is deployed
      * @param operator The address that initiated the deployment
+     * @param primaryMarketAddress The address of the deployed primary market contract
      * @param resolver The business logic resolver associated with the deployed Primary Market
      * @param resolverProxyConfiguration The configuration used for the resolver proxy
      * @param rbacs Array of RBAC (Role-Based Access Control) configurations applied to the resolver proxy
      */
     event PrimaryMarketDeployed(
         address indexed operator,
+        address indexed primaryMarketAddress,
         IBusinessLogicResolver resolver,
         IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration,
         IResolverProxy.Rbac[] rbacs
     );
+
+    /// @notice Thrown when non initial admin is added during primary market deployment
+    error NoInitialAdmins(IResolverProxy.Rbac[] rbacs);
+
+    /// @notice Thrown when the resovler address is wrong (typically 0)
+    error InvalidResolverAddress(address resolver);
 
     /**
      * @notice Deploys a new Primary Market contract using the provided resolver and configuration
@@ -33,7 +41,7 @@ interface IFactoryPrimaryMarket {
      */
     function deployPrimaryMarket(
         IBusinessLogicResolver resolver,
-        IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration,
-        IResolverProxy.Rbac[] rbacs
-    ) external;
+        IAtsFactory.ResolverProxyConfiguration calldata resolverProxyConfiguration,
+        IResolverProxy.Rbac[] calldata rbacs
+    ) external returns (address primaryMarketAddress);
 }
