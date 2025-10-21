@@ -39,6 +39,7 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
 
   async findByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<PaymentToken | null> {
     const persistence = await this.findActivePersistence(contractId, treasuryId)
