@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import type { TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
-import type { TransactionManager } from "@domain/shared/transaction/TransactionManager"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { UpdatePaymentTokenDomainServiceResponse } from "@domain/treasury/services/model/UpdatePaymentTokenDomainServiceResponse"

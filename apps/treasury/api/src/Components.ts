@@ -61,7 +61,7 @@ import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/
 import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/updatepaymenttoken/UpdatePaymentTokenNestJSEventAdapter"
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
-import { TypeOrmTransactionManager } from "@port/shared/transaction/TypeOrmTransactionManager"
+import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
 
