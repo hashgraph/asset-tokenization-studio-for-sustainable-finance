@@ -13,7 +13,7 @@ export interface TestDataSets {
   invalidTreasuryData: {
     zeroResolver: any;
     zeroPaymentToken: any;
-    zeroErc721InArray: any;
+    zeroEnvironmentalAssetInArray: any;
   };
   invalidKpiData: any;
 }
@@ -21,14 +21,14 @@ export interface TestDataSets {
 export function createTestDataSets(fixture: {
   mockResolver: any;
   paymentToken: any;
-  erc721Token1: any;
-  erc721Token2: any;
+  environmentalAssetToken1: any;
+  environmentalAssetToken2: any;
   admin: SignerWithAddress;
   user: SignerWithAddress;
   treasuryConfigId?: string;
   treasuryVersion?: number;
 }): TestDataSets {
-  const { mockResolver, paymentToken, erc721Token1, admin, treasuryConfigId, treasuryVersion } = fixture;
+  const { mockResolver, paymentToken, environmentalAssetToken1, admin, treasuryConfigId, treasuryVersion } = fixture;
 
   const treasuryKey = treasuryConfigId || TREASURY_CONFIG_ID;
   const treasuryVer = treasuryVersion || TREASURY_CONFIG_VERSION;
@@ -89,7 +89,7 @@ export function createTestDataSets(fixture: {
     },
     rbacs: [],
     paymentToken: paymentToken.address,
-    erc721s: [erc721Token1.address],
+    environmentalAssets: [environmentalAssetToken1.address],
   };
 
   const validKpiData = {
@@ -107,9 +107,9 @@ export function createTestDataSets(fixture: {
     paymentToken: ethers.constants.AddressZero,
   };
 
-  const invalidTreasuryDataZeroErc721 = {
+  const invalidTreasuryDataZeroEnvironmentalAsset = {
     ...validTreasuryData,
-    erc721s: [erc721Token1.address, ethers.constants.AddressZero],
+    environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero],
   };
 
   const invalidKpiData = {
@@ -125,23 +125,26 @@ export function createTestDataSets(fixture: {
     invalidTreasuryData: {
       zeroResolver: invalidTreasuryDataZeroResolver,
       zeroPaymentToken: invalidTreasuryDataZeroPaymentToken,
-      zeroErc721InArray: invalidTreasuryDataZeroErc721,
+      zeroEnvironmentalAssetInArray: invalidTreasuryDataZeroEnvironmentalAsset,
     },
     invalidKpiData,
   };
 }
 
-export function createTreasuryDataWithMultipleErc721s(validTreasuryData: any, erc721Addresses: string[]) {
+export function createTreasuryDataWithMultipleEnvironmentalAssets(
+  validTreasuryData: any,
+  environmentalAssetAddresses: string[],
+) {
   return {
     ...validTreasuryData,
-    erc721s: erc721Addresses,
+    environmentalAssets: environmentalAssetAddresses,
   };
 }
 
-export function createTreasuryDataWithEmptyErc721s(validTreasuryData: any) {
+export function createTreasuryDataWithEmptyEnvironmentalAssets(validTreasuryData: any) {
   return {
     ...validTreasuryData,
-    erc721s: [],
+    environmentalAssets: [],
   };
 }
 

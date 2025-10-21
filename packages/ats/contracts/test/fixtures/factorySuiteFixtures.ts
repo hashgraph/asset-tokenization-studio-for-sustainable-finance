@@ -237,12 +237,12 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   await paymentToken.deployed();
 
   const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const erc721Token1 = await MockERC721.deploy("NFT 1", "NFT1");
-  await erc721Token1.deployed();
+  const environmentalAssetToken1 = await MockERC721.deploy("NFT 1", "NFT1");
+  await environmentalAssetToken1.deployed();
 
-  const erc721Token2 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const erc721Token2Instance = await erc721Token2.deploy("NFT 2", "NFT2");
-  await erc721Token2Instance.deployed();
+  const environmentalAssetToken2Factory = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
+  const environmentalAssetToken2 = await environmentalAssetToken2Factory.deploy("NFT 2", "NFT2");
+  await environmentalAssetToken2.deployed();
 
   return {
     // Provider & signers
@@ -262,8 +262,8 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     // Mock contracts for testing deployBondSuite()
     mockAtsFactory,
     paymentToken,
-    erc721Token1,
-    erc721Token2: erc721Token2Instance,
+    environmentalAssetToken1,
+    environmentalAssetToken2,
 
     // Treasury configuration metadata (for test data generation)
     treasuryConfigId,
