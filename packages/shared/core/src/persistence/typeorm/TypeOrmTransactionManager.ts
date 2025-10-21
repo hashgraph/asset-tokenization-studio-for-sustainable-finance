@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Singleton, TransactionManager } from "@hashgraph/green-bonds-shared-core"
+import { Singleton } from "../../decorators/Singleton"
 import { InjectDataSource } from "@nestjs/typeorm"
 import { DataSource } from "typeorm"
+import { TransactionManager } from "../TransactionManager"
 
 @Singleton()
 export class TypeOrmTransactionManager implements TransactionManager {
