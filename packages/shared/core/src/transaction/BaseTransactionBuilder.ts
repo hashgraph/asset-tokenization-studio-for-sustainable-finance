@@ -67,7 +67,11 @@ export abstract class BaseTransactionBuilder {
     return `0x${id.toEvmAddress()}`
   }
 
-  protected serializeHederaTransaction(tx: Transaction, environment: Environment, account: string): TransactionResponse {
+  protected serializeHederaTransaction(
+    tx: Transaction,
+    environment: Environment,
+    account: string,
+  ): TransactionResponse {
     try {
       const accountId = AccountId.fromString(account)
       const txId = TransactionId.withValidStart(accountId, Timestamp.fromDate(new Date()))
