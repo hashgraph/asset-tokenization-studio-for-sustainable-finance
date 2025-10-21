@@ -31,10 +31,10 @@
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
-    "test:factory-suite": "npx hardhat test test/unit/FactorySuite.test.ts test/unit/FactorySuiteFacet.test.ts",
+    "test:factory-suite": "npx hardhat test test/unit/factorySuite.test.ts test/unit/factorySuiteFacet.test.ts",
     "test:kpi": "npx hardhat test test/unit/kpi.test.ts",
     "coverage": "npx hardhat coverage",
-    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/unit/FactorySuite*.test.ts'",
+    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/unit/factorySuite*.test.ts'",
     "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/unit/kpi.test.ts'"
   },
   "devDependencies": {

@@ -57,8 +57,8 @@ npm run clean                      # Clean build artifacts
 test/
 ├── fixtures/           # Reusable deployment fixtures
 ├── mocks/             # Mock contracts for testing
-├── FactorySuite.test.ts   # Core factory functionality
-└── FactorySuiteFacet.test.ts  # Facet-specific tests
+├── factorySuite.test.ts   # Core factory functionality
+└── factorySuiteFacet.test.ts  # Facet-specific tests
 ```
 
 ### Coverage Standards
