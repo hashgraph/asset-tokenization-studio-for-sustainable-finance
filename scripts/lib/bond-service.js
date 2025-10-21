@@ -24,8 +24,8 @@ async function createBond(format) {
     currency: "0x858368",
     numberOfUnits: "1000000",
     nominalValue: "100",
-    startingDate: "1760997600",
-    maturityDate: "1761865200",
+    startingDate: "1880997600",
+    maturityDate: "1980997600",
     configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
     configVersion: 0,
     resolverAddress: "0x9c6cf2b0c034bdb9cda67d49f69223df54d35f76",
@@ -52,7 +52,7 @@ async function createBond(format) {
     ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
   },
   format: format,
-  accountId: "0.0.5466269"
+  accountId: process.env.ACCOUNT_ID
 };
   
   try {
