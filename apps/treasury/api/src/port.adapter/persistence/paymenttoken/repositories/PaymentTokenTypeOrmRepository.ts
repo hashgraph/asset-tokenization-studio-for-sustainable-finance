@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Validate, Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { Repository } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
@@ -18,5 +18,26 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
   async save(paymentToken: PaymentToken): Promise<PaymentToken> {
     const persistence = await this.paymentTokenRepository.save(paymentToken as PaymentTokenPersistence)
     return persistence as PaymentToken
+  }
+
+  async findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<PaymentToken>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.paymentTokenRepository.findAndCount({
+      where: { treasuryId },
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
+    })
+
+    const items = persistences as PaymentToken[]
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
   }
 }

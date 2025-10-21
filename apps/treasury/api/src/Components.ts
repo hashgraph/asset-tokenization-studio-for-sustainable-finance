@@ -62,6 +62,8 @@ import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/upd
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
 import { TypeOrmTransactionManager } from "@port/shared/transaction/TypeOrmTransactionManager"
+import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
+import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -108,6 +110,7 @@ export const CONTROLLERS = [
   ExternalTransferPaymentTokenTransactionHttpAdapter,
   UpdatePaymentTokenTransactionHttpAdapter,
   ExternalTransferEnvironmentalAssetTransactionHttpAdapter,
+  GetPaymentTokensHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -150,6 +153,7 @@ export const PROVIDERS = [
   GetEnvironmentalAssetsQueryHandler,
   GetEnvironmentalAssetTransfersQueryHandler,
   GetEnvironmentalAssetHoldingsQueryHandler,
+  GetPaymentTokensQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
