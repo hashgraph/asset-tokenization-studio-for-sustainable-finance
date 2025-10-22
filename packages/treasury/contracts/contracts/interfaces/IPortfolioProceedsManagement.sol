@@ -3,5 +3,6 @@ pragma solidity 0.8.18;
 
 import './IPortfolio.sol';
 import './IProceedsManagement.sol';
+import './ILifeCycleCashFlow.sol';
 
-interface IPortfolioProceedsManagement is IPortfolio, IProceedsManagement {}
+interface ITreasury is IPortfolio, IProceedsManagement, ILifeCycleCashFlow {}
