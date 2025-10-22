@@ -45,12 +45,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}"
 							]
@@ -93,17 +94,24 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/proceeds-recipients/0.0.6548643/transfer",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/proceeds-recipients/:proceedsRecipientId/transfer",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"proceeds-recipients",
-								"0.0.6548643",
+								":proceedsRecipientId",
 								"transfer"
+							],
+							"variable": [
+								{
+									"key": "proceedsRecipientId",
+									"value": "0.0.6548643"
+								}
 							]
 						}
 					},
@@ -144,7 +152,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
 							"host": [
 								"{{url}}"
 							],
@@ -153,7 +161,7 @@
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
-								"0.0.7070547"
+								"{{environmentalAssetId}}"
 							]
 						}
 					},
@@ -189,7 +197,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547/transfer",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/transfer",
 							"host": [
 								"{{url}}"
 							],
@@ -198,7 +206,54 @@
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
-								"0.0.7070547",
+								"{{environmentalAssetId}}",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inflow Transfer Environmental Asset",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"ethereum\",\n    \"accountId\": \"0.0.6548640\",\n    \"tokenId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/environmental-assets/{{environmentalAssetId}}/treasuries/{{treasuryContractId}}/transfer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"environmental-assets",
+								"{{environmentalAssetId}}",
+								"treasuries",
+								"{{treasuryContractId}}",
 								"transfer"
 							]
 						}
@@ -235,7 +290,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
 							"host": [
 								"{{url}}"
 							],
@@ -244,7 +299,7 @@
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
-								"0.0.7070547"
+								"{{environmentalAssetId}}"
 							]
 						}
 					},
@@ -306,7 +361,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/0.0.7070547/holdings",
+							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/holdings",
 							"host": [
 								"{{url}}"
 							],
@@ -315,8 +370,60 @@
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
-								"0.0.7070547",
+								"{{environmentalAssetId}}",
 								"holdings"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment Token",
+			"item": [
+				{
+					"name": "Inflow Transfer Payment Token",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "{{apiKey}}",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "X-API-Key",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"hedera\",\n    \"accountId\": \"0.0.6548640\",\n    \"amount\": \"100000\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/payment-tokens/0.0.429274/treasuries/{{treasuryContractId}}/transfer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"payment-tokens",
+								"0.0.429274",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"transfer"
 							]
 						}
 					},
