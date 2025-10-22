@@ -31,6 +31,8 @@ import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasse
 import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetNestJSEventAdapter"
 import { PaymentTokenTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTypeOrmRepository"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
+import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
+import { PaymentTokenTransferTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTransferTypeOrmRepository"
 import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
 import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
 import { GetTreasuryAppService } from "@app/treasury/gettreasury/service/GetTreasuryAppService"
@@ -69,6 +71,9 @@ import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/Updat
 import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
+import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
+import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymenttokentransfer/command/AddPaymentTokenTransferCommandHandler"
+import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -157,6 +162,9 @@ export const PROVIDERS = [
   UpdatePaymentTokenNestJSEventAdapter,
   UpdatePaymentTokenCommandHandler,
   UpdatePaymentTokenDomainService,
+  AddPaymentTokenTransferNestJSEventAdapter,
+  AddPaymentTokenTransferCommandHandler,
+  AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
