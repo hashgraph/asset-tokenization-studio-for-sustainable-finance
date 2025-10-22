@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsNotEmpty, IsString } from "class-validator"
+import { IsIn, IsNotEmpty, IsNumberString, IsString, NotEquals } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class AddPaymentTokenTransferCommand extends Command<void> {
@@ -12,12 +12,11 @@ export class AddPaymentTokenTransferCommand extends Command<void> {
   @IsNotEmpty()
   paymentTokenId: string
 
-  @IsString()
-  @IsNotEmpty()
+  @NotEquals("0")
+  @IsNumberString({ no_symbols: true })
   amount: string
 
-  @IsString()
-  @IsNotEmpty()
+  @IsIn(["INFLOW", "OUTFLOW"])
   type: string
 
   constructor(accountId: string, paymentTokenId: string, amount: string, type: string) {

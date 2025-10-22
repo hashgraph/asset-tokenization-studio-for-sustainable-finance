@@ -17,16 +17,33 @@ export class AddPaymentTokenTransferAppService {
   @Validate()
   async execute(request: AddPaymentTokenTransferAppServiceRequest): Promise<void> {
     // Check if this transfer is related to an existing treasury with this payment token
+    let transferAccountId
+    let transferType
+    let treasury
     if (request.amount !== undefined) {
-      // Check if treasury with this payment token exists and toAccountId is the treasury
-      const treasuryTo = await this.treasuryRepository.findByContractId(request.toAccountId)
-      if (treasuryTo && treasuryTo.paymentToken?.contractId === request.paymentTokenContractId) {
+      // Check if fromAccountId is the treasury (OUTFLOW)
+      const treasuryFrom = await this.treasuryRepository.findByContractId(request.fromAccountId)
+      if (treasuryFrom && treasuryFrom.paymentToken?.contractId === request.paymentTokenContractId) {
+        transferAccountId = request.toAccountId
+        transferType = <string>TransferType.OUTFLOW
+        treasury = treasuryFrom
+      } else {
+        // Check if toAccountId is the treasury (INFLOW)
+        const treasuryTo = await this.treasuryRepository.findByContractId(request.toAccountId)
+        if (treasuryTo && treasuryTo.paymentToken?.contractId === request.paymentTokenContractId) {
+          transferAccountId = request.fromAccountId
+          transferType = <string>TransferType.INFLOW
+          treasury = treasuryTo
+        }
+      }
+
+      if (transferAccountId && transferType && treasury) {
         await this.commandBus.execute(
           new AddPaymentTokenTransferCommand(
-            request.fromAccountId,
-            treasuryTo.paymentToken.id,
+            transferAccountId,
+            treasury.paymentToken!.id,
             request.amount,
-            <string>TransferType.INFLOW,
+            transferType,
           ),
         )
       }

@@ -114,7 +114,7 @@ describe("AddPaymentTokenTransfer Integration", () => {
     })
   })
 
-  it("should not add transfer if treasury does not receive tokens", async () => {
+  it("should add OUTFLOW payment token transfer", async () => {
     const treasury = await internalTreasuryRepository.save({
       contractId: "0.0.222",
       bondContractId: "0.0.500",
@@ -129,22 +129,42 @@ describe("AddPaymentTokenTransfer Integration", () => {
     treasury.paymentToken = paymentToken
     await internalTreasuryRepository.save(treasury)
 
+    let publishedEvent
     const recipientAccountId = "0.0.999"
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValueOnce(treasury.contractId)
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValueOnce(recipientAccountId)
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-    // Treasury is sending, not receiving
     const event = new TransferDLTEvent(
       paymentToken.contractId,
       "testTransactionHash",
-      "0x14F0A3F22ef1c3057d684781DC36094433299DE6",
-      "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
-      "1000000",
+      "0x14F0A3F22ef1c3057d684781DC36094433299DE6", // from (treasury)
+      "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8", // to
+      "500000",
     )
     await eventBus.publishSync(event, TransferDLTEvent.name)
 
     const transfers = await internalPaymentTokenTransferRepository.find()
-    expect(transfers).toHaveLength(0)
+    expect(transfers).toHaveLength(1)
+    expect(transfers[0]).toEqual({
+      id: expect.any(String),
+      accountId: recipientAccountId,
+      paymentTokenId: paymentToken.id,
+      amount: event.value,
+      type: TransferType.OUTFLOW,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+
+    expect(publishedEvent.constructor.name).toEqual(PaymentTokenTransferAddedEvent.name)
+    expect(publishedEvent).toEqual({
+      paymentTokenId: paymentToken.id,
+      accountId: recipientAccountId,
+      amount: event.value,
+      type: TransferType.OUTFLOW,
+      timestamp: expect.any(Number),
+    })
   })
 
   it("should not add transfer if payment token does not belong to treasury", async () => {
