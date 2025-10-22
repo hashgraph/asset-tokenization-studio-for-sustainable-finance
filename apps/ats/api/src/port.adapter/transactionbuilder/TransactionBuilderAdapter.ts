@@ -3,17 +3,21 @@ import {
   BuildTransactionResponse,
   Environment,
   Singleton,
-} from "@hashgraph/green-bonds-shared-core"
-import { IFactory__factory } from "@hashgraph/asset-tokenization-contracts"
-import { ConfigService } from "@nestjs/config"
-import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
-import { TransactionBuilderPort } from "./TransactionBuilderPort"
+} from "@hashgraph/green-bonds-shared-core";
+import {IERC1643__factory, IFactory__factory} from "@hashgraph/asset-tokenization-contracts"
+import {ConfigService} from "@nestjs/config"
+import {BuildCreateBondTransactionRequest} from "./model/BuildCreateBondTransactionRequest"
+import {TransactionBuilderPort} from "./TransactionBuilderPort"
+import {
+  BuildSetBondDocumentTransactionRequest
+} from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest";
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  private readonly GAS = 15_000_000
+  private readonly GAS = 15_000_000;
   private readonly EVM_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
   private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
+  private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -22,8 +26,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   createBondTransaction(req: BuildCreateBondTransactionRequest): BuildTransactionResponse {
     //TODO change for the correct Suite Bond Factory when deployed
     const contractInterface = IFactory__factory.createInterface()
-
-    const environment = this.configService.get<Environment>("HEDERA_NETWORK") || "testnet"
 
     const securityTokenToCreate = {
       security: {
@@ -37,6 +39,11 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         rbacs: [
           {
             role: this.DEFAULT_ADMIN_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },{
+            role: this.DOCUMENTER_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
@@ -123,17 +130,57 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       ],
     }
 
+    return this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "deployBond",
+      req.contractId,
+      this.GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [
+      securityTokenToCreate,
+      factoryRegulationData,
+      ]
+    )
+  }
+
+  setBondDocumentTransaction(req: BuildSetBondDocumentTransactionRequest): BuildTransactionResponse {
+    return this.buildAndReturnTransactionResponse(
+      IERC1643__factory.createInterface(),
+      "setDocument",
+      req.contractId,
+      this.GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [
+        req.name,
+        req.uri,
+        req.hash
+      ])
+  }
+
+  private buildAndReturnTransactionResponse(
+    contractInterface: any,
+    functionName: string,
+    contractId: string,
+    gas: number,
+    account: any,
+    format: "hedera" | "ethereum",
+    args: any[]
+  ): BuildTransactionResponse {
+    const environment = this.configService.get<Environment>("HEDERA_NETWORK") || "testnet"
+
     const transactionResponse = this.buildAndSerializeTransaction({
       contractInterface,
-      functionName: "deployBond" as any,
-      contractId: req.contractId,
-      gas: this.GAS,
+      functionName,
+      contractId,
+      gas,
       environment,
-      account: req.accountId,
-      format: req.format as "hedera" | "ethereum",
-      args: [securityTokenToCreate, factoryRegulationData],
+      account,
+      format,
+      args
     } as any)
-
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
+
 }
