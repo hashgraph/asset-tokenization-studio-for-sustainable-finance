@@ -1,13 +1,19 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { FACTORY_PRIMARY_MARKET_RESOLVER_KEY } from "@scripts/domain";
-import { FactoryPrimaryMarketFacet__factory, IFactoryPrimaryMarket, IBusinessLogicResolver } from "@contracts";
+import {
+  FactoryPrimaryMarketFacet__factory,
+  IFactoryPrimaryMarket,
+  IBusinessLogicResolver,
+  IStaticFunctionSelectors,
+} from "@contracts";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
 import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
+let factoryPrimaryMarketFacet: IStaticFunctionSelectors;
 let blr: IBusinessLogicResolver;
 let deployer: Signer;
 let admin: Signer;
@@ -23,10 +29,23 @@ describe("FactoryPrimaryMarketFacet", () => {
       saveOutput: false, // Don't save deployment files during tests
     });
 
+    const facetAddresses = deployment.facets.reduce(
+      (acc, f) => {
+        acc[f.name] = f.address;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+
     factoryPrimaryMarket = (await ethers.getContractAt(
       "FactoryPrimaryMarket",
       deployment.infrastructure.factoryPrimaryMarket.proxy,
     )) as IFactoryPrimaryMarket;
+
+    factoryPrimaryMarketFacet = (await ethers.getContractAt(
+      "IStaticFunctionSelectors",
+      facetAddresses.FactoryPrimaryMarketFacet,
+    )) as IStaticFunctionSelectors;
 
     blr = (await ethers.getContractAt(
       "IBusinessLogicResolver",
@@ -34,7 +53,7 @@ describe("FactoryPrimaryMarketFacet", () => {
     )) as IBusinessLogicResolver;
   }
 
-  beforeAll(async () => {
+  before(async () => {
     const signers = await ethers.getSigners();
     [deployer, admin, user, unauthorized] = signers;
   });
@@ -45,11 +64,6 @@ describe("FactoryPrimaryMarketFacet", () => {
 
   describe("Diamond Facet Implementation", () => {
     it("GIVEN FactoryPrimaryMarketFacet deployed WHEN querying static interface IDs THEN success", async () => {
-      const factoryPrimaryMarketFacet = FactoryPrimaryMarketFacet__factory.connect(
-        factoryPrimaryMarket.address,
-        deployer,
-      );
-
       const supportedInterfaces = await factoryPrimaryMarketFacet.getStaticInterfaceIds();
       expect(supportedInterfaces.length).to.be.greaterThan(0);
     });
@@ -57,11 +71,6 @@ describe("FactoryPrimaryMarketFacet", () => {
 
   describe("getStaticResolverKey", () => {
     it("GIVEN FactoryPrimaryMarketFacet deployed WHEN calling getStaticResolverKey THEN success with correct key", async () => {
-      const factoryPrimaryMarketFacet = FactoryPrimaryMarketFacet__factory.connect(
-        factoryPrimaryMarket.address,
-        deployer,
-      );
-
       const actualKey = await factoryPrimaryMarketFacet.getStaticResolverKey();
       expect(actualKey).to.equal(FACTORY_PRIMARY_MARKET_RESOLVER_KEY);
     });
@@ -69,11 +78,6 @@ describe("FactoryPrimaryMarketFacet", () => {
 
   describe("getStaticFunctionSelectors", () => {
     it("GIVEN FactoryPrimaryMarketFacet deployed WHEN calling getStaticFunctionSelectors THEN success with deployBondPrimaryMarket selector", async () => {
-      const factoryPrimaryMarketFacet = FactoryPrimaryMarketFacet__factory.connect(
-        factoryPrimaryMarket.address,
-        deployer,
-      );
-
       const selectors = await factoryPrimaryMarketFacet.getStaticFunctionSelectors();
       expect(selectors).to.have.lengthOf(1);
     });
@@ -81,11 +85,6 @@ describe("FactoryPrimaryMarketFacet", () => {
 
   describe("getStaticInterfaceIds", () => {
     it("GIVEN FactoryPrimaryMarketFacet deployed WHEN calling getStaticInterfaceIds THEN success with IFactoryPrimaryMarket interface ID", async () => {
-      const factoryPrimaryMarketFacet = FactoryPrimaryMarketFacet__factory.connect(
-        factoryPrimaryMarket.address,
-        deployer,
-      );
-
       const interfaceIds = await factoryPrimaryMarketFacet.getStaticInterfaceIds();
 
       expect(interfaceIds).to.have.lengthOf(1);

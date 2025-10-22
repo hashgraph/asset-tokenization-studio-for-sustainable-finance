@@ -10,6 +10,7 @@ import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contract
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { PM_DEPLOYER_ROLE } from "../constants/roles.sol";
+import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 abstract contract FactoryPrimaryMarket is IFactoryPrimaryMarket, FactoryPrimaryMarketStorageWrapper, AtsCommon {
     modifier checkAdmins(IResolverProxy.Rbac[] calldata rbacs) {
