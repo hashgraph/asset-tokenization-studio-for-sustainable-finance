@@ -10,7 +10,7 @@ import {
 import {
     DEFAULT_ADMIN_ROLE,
     PAUSER_ROLE,
-    PROCEEDS_FULL_MANAGER,
+    PROCEEDS_FULL_MANAGER_ROLE,
     FUNDS_MANAGER_ROLE
 } from './constants/roles.sol';
 import {
@@ -35,7 +35,7 @@ abstract contract ProceedsManagement is
     function transferPaymentToken(
         address to,
         uint256 amount
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER) {
+    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) {
         _transferPaymentToken(to, amount);
         emit PaymentTokenTransferred(to, amount);
     }
@@ -51,7 +51,7 @@ abstract contract ProceedsManagement is
         address environmentalAsset,
         address to,
         uint256 tokenId
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER) {
+    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) {
         _transferEnvironmentalAssetToken(environmentalAsset, to, tokenId);
         emit EnvironmentalAssetTokenTransferred(
             environmentalAsset,
