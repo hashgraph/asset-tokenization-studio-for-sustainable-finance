@@ -1,20 +1,13 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { FACTORY_PRIMARY_MARKET_RESOLVER_KEY } from "@scripts/domain";
-import {
-  FactoryPrimaryMarketFacet__factory,
-  IFactoryPrimaryMarket,
-  IBusinessLogicResolver,
-  IStaticFunctionSelectors,
-} from "@contracts";
+import { IStaticFunctionSelectors } from "@contracts";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
 import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
-let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let factoryPrimaryMarketFacet: IStaticFunctionSelectors;
-let blr: IBusinessLogicResolver;
 let deployer: Signer;
 let admin: Signer;
 let user: Signer;
@@ -37,20 +30,10 @@ describe("FactoryPrimaryMarketFacet", () => {
       {} as Record<string, string>,
     );
 
-    factoryPrimaryMarket = (await ethers.getContractAt(
-      "FactoryPrimaryMarket",
-      deployment.infrastructure.factoryPrimaryMarket.proxy,
-    )) as IFactoryPrimaryMarket;
-
     factoryPrimaryMarketFacet = (await ethers.getContractAt(
       "IStaticFunctionSelectors",
       facetAddresses.FactoryPrimaryMarketFacet,
     )) as IStaticFunctionSelectors;
-
-    blr = (await ethers.getContractAt(
-      "IBusinessLogicResolver",
-      deployment.infrastructure.blr.proxy,
-    )) as IBusinessLogicResolver;
   }
 
   before(async () => {
