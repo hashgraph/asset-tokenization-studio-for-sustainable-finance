@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, ValidateNested } from "class-validator"
 import { User } from "../../user/model/User"

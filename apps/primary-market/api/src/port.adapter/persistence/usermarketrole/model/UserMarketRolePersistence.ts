@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { Entity, ManyToOne, JoinColumn, Index } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { UserPersistence } from "@port/persistence/user/model/UserPersistence"
