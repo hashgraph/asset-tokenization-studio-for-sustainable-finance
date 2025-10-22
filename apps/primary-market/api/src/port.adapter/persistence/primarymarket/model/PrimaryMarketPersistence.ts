@@ -10,6 +10,9 @@ export class PrimaryMarketPersistence extends BaseEntityPersistence {
   @Column({ unique: true })
   contractId: string
 
+  @Column({ default: false })
+  isPaused: boolean
+
   @OneToMany(() => UserMarketRolePersistence, (umr) => umr.market, { cascade: true })
   userMarketRoles: UserMarketRolePersistence[]
 

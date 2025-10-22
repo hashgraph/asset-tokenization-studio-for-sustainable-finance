@@ -53,6 +53,7 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
     if (!existing) {
       await this.primaryMarketRepository.save({
         contractId,
+        isPaused: false,
       })
       this.logger.log(`Created default PrimaryMarket with contractId: ${contractId}`)
     } else {
@@ -93,14 +94,18 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   }
 
   private async seedDefaultUserMarketRole() {
+    const contractId = "0.0.12345"
+    const userId = "0.0.1234"
+    const roleHex = "0x0000000000000000000000000000000000000000000000000000000000000001"
+
     const market = await this.primaryMarketRepository.findOne({
-      where: { contractId: "0.0.12345" },
+      where: { contractId },
     })
     const role = await this.roleRepository.findOne({
-      where: { hex: "0x0000000000000000000000000000000000000000000000000000000000000001" },
+      where: { hex: roleHex },
     })
     const user = await this.userRepository.findOne({
-      where: { accountId: "0.0.1234" },
+      where: { accountId: userId },
     })
 
     if (!market || !role || !user) {
