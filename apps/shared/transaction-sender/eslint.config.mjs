@@ -3,6 +3,7 @@ import eslint from "@eslint/js"
 import globals from "globals"
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import tseslint from "typescript-eslint"
+import jest from 'eslint-plugin-jest';
 
 export default tseslint.config(
   {
@@ -24,6 +25,17 @@ export default tseslint.config(
       },
     },
   },
+    {
+      files: ['test/**'],
+      plugins: {
+        jest,
+      },
+      rules: {
+        // Turn off rule for tests
+        '@typescript-eslint/unbound-method': 'off',
+        'jest/unbound-method': 'error',
+      },
+    },
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off",

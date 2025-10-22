@@ -83,7 +83,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     } catch (error: any) {
       const errorCode = error.code || "UNKNOWN_ERROR"
       return {
-        transactionId: "EXECUTION_FAILED",
+        transactionId: error.transactionHash || "EXECUTION_FAILED",
         status: "failed",
         errorCode: errorCode,
       }
