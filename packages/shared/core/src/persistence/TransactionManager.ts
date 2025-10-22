@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-
 export interface TransactionManager {
   /**
    * Executes the given work function within a database transaction.
