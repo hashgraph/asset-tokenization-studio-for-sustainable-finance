@@ -1,5 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
-import {Entity, Column, Index} from "typeorm"
+import { Entity, Column, Index } from "typeorm"
 
 @Entity("BondDocument")
 @Index(["name", "contractId"], { unique: true })

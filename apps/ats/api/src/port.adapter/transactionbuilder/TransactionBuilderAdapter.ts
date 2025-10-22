@@ -1,20 +1,19 @@
+// SPDX-License-Identifier: Apache-2.0
 import {
   BaseTransactionBuilder,
   BuildTransactionResponse,
   Environment,
   Singleton,
-} from "@hashgraph/green-bonds-shared-core";
-import {IERC1643__factory, IFactory__factory} from "@hashgraph/asset-tokenization-contracts"
-import {ConfigService} from "@nestjs/config"
-import {BuildCreateBondTransactionRequest} from "./model/BuildCreateBondTransactionRequest"
-import {TransactionBuilderPort} from "./TransactionBuilderPort"
-import {
-  BuildSetBondDocumentTransactionRequest
-} from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest";
+} from "@hashgraph/green-bonds-shared-core"
+import { IERC1643__factory, IFactory__factory } from "@hashgraph/asset-tokenization-contracts"
+import { ConfigService } from "@nestjs/config"
+import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
+import { TransactionBuilderPort } from "./TransactionBuilderPort"
+import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  private readonly GAS = 15_000_000;
+  private readonly GAS = 15_000_000
   private readonly EVM_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
   private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
   private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
@@ -42,7 +41,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
-          },{
+          },
+          {
             role: this.DOCUMENTER_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
@@ -137,10 +137,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [
-      securityTokenToCreate,
-      factoryRegulationData,
-      ]
+      [securityTokenToCreate, factoryRegulationData],
     )
   }
 
@@ -152,11 +149,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [
-        req.name,
-        req.uri,
-        req.hash
-      ])
+      [req.name, req.uri, req.hash],
+    )
   }
 
   private buildAndReturnTransactionResponse(
@@ -166,7 +160,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     gas: number,
     account: any,
     format: "hedera" | "ethereum",
-    args: any[]
+    args: any[],
   ): BuildTransactionResponse {
     const environment = this.configService.get<Environment>("HEDERA_NETWORK") || "testnet"
 
@@ -178,9 +172,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       environment,
       account,
       format,
-      args
+      args,
     } as any)
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
-
 }

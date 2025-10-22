@@ -1,19 +1,23 @@
-import {Inject, Singleton} from "@hashgraph/green-bonds-shared-core"
-import {SetBondDocumentDomainServiceRequest} from "./model/SetBondDocumentDomainServiceRequest"
-import {BondDocument} from "@domain/bond/document/model/BondDocument";
-import type {BondDocumentRepository} from "../repository/BondDocumentRepository";
-import {CheckBondExistsDomainService} from "@domain/bond/services/CheckBondExistsDomainService";
+// SPDX-License-Identifier: Apache-2.0
+import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { SetBondDocumentDomainServiceRequest } from "./model/SetBondDocumentDomainServiceRequest"
+import { BondDocument } from "@domain/bond/document/model/BondDocument"
+import type { BondDocumentRepository } from "../repository/BondDocumentRepository"
+import { CheckBondExistsDomainService } from "@domain/bond/services/CheckBondExistsDomainService"
 
 @Singleton()
 export class SetBondDocumentDomainService {
   constructor(
-      @Inject() private readonly bondDocumentRepository: BondDocumentRepository,
-      private readonly checkBondExistsDomainService: CheckBondExistsDomainService
+    @Inject() private readonly bondDocumentRepository: BondDocumentRepository,
+    private readonly checkBondExistsDomainService: CheckBondExistsDomainService,
   ) {}
 
   async execute(request: SetBondDocumentDomainServiceRequest): Promise<BondDocument> {
     await this.checkBondExistsDomainService.execute(request.contractId)
-    const existingBondDocument = await this.bondDocumentRepository.findByContractIdAndName(request.contractId, request.name)
+    const existingBondDocument = await this.bondDocumentRepository.findByContractIdAndName(
+      request.contractId,
+      request.name,
+    )
 
     if (existingBondDocument) {
       existingBondDocument.uri = request.uri

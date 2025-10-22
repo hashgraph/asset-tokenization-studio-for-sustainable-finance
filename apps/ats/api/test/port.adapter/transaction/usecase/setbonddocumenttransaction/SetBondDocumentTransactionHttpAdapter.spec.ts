@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import {Test, TestingModule} from "@nestjs/testing"
-import {INestApplication} from "@nestjs/common"
+import { Test, TestingModule } from "@nestjs/testing"
+import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import {BuildTransactionResponse, SharedModule} from "@hashgraph/green-bonds-shared-core"
-import {PostgresModule} from "@config/PostgresModule"
-import {CONTROLLERS, PROVIDERS} from "@components"
-import {PostgreSqlContainer} from "@test/shared/containers/PostgresqlContainer"
-import {
-  SetBondDocumentTransactionRequest
-} from "@port/transaction/usecase/setbonddocumenttransaction/model/SetBondDocumentTransactionRequest";
+import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgresModule } from "@config/PostgresModule"
+import { CONTROLLERS, PROVIDERS } from "@components"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
+import { SetBondDocumentTransactionRequest } from "@port/transaction/usecase/setbonddocumenttransaction/model/SetBondDocumentTransactionRequest"
 
 describe("CreateBondTransaction API Integration", () => {
   let app: INestApplication
@@ -67,7 +65,7 @@ describe("CreateBondTransaction API Integration", () => {
       const formats = ["hedera", "ethereum"]
       const documentIds = [
         "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-        "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+        "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
       ]
 
       for (let i = 0; i < formats.length; i++) {

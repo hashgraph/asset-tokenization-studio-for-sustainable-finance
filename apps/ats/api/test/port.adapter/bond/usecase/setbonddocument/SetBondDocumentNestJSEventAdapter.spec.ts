@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import {Test, TestingModule} from "@nestjs/testing"
-import {INestApplication} from "@nestjs/common"
-import {CONTROLLERS, PROVIDERS} from "@components"
-import {EventBus, SharedModule} from "@hashgraph/green-bonds-shared-core"
-import {PostgreSqlContainer} from "@test/shared/containers/PostgresqlContainer"
-import {PostgresModule} from "@config/PostgresModule"
-import {Repository} from "typeorm"
-import {BondPersistence} from "@port/bond/persistence/model/BondPersistence"
-import {getRepositoryToken} from "@nestjs/typeorm"
-import {BondDocumentPersistence} from "@port/bond/persistence/model/BondDocumentPersistence";
-import {DocumentUpdatedDLTEvent} from "@port/bond/usecase/setbonddocument/model/DocumentUpdatedDLTEvent";
+import { Test, TestingModule } from "@nestjs/testing"
+import { INestApplication } from "@nestjs/common"
+import { CONTROLLERS, PROVIDERS } from "@components"
+import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
+import { PostgresModule } from "@config/PostgresModule"
+import { Repository } from "typeorm"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
+import { getRepositoryToken } from "@nestjs/typeorm"
+import { BondDocumentPersistence } from "@port/bond/persistence/model/BondDocumentPersistence"
+import { DocumentUpdatedDLTEvent } from "@port/bond/usecase/setbonddocument/model/DocumentUpdatedDLTEvent"
 
 describe("SetBondDocumentNestJSEventAdapter Integration", () => {
-
-  const CONTRACT_ID = "0.0.6974684";
+  const CONTRACT_ID = "0.0.6974684"
 
   let app: INestApplication
   let container: PostgreSqlContainer
@@ -78,7 +77,9 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
-      const savedBondDocument = await bondDocumentRepository.findOne({ where: { contractId: CONTRACT_ID, name: documentName } })
+      const savedBondDocument = await bondDocumentRepository.findOne({
+        where: { contractId: CONTRACT_ID, name: documentName },
+      })
 
       expect(savedBondDocument).toBeDefined()
       expect(savedBondDocument).not.toBeNull()
@@ -116,7 +117,9 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
-      const savedBondDocument = await bondDocumentRepository.findOne({ where: { contractId: CONTRACT_ID, name: documentName } })
+      const savedBondDocument = await bondDocumentRepository.findOne({
+        where: { contractId: CONTRACT_ID, name: documentName },
+      })
 
       expect(savedBondDocument).toBeDefined()
       expect(savedBondDocument).not.toBeNull()
@@ -130,7 +133,7 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
       const documentNames = [
         "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
         "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbb",
-        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccc"
+        "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaccc",
       ]
 
       for (const name of documentNames) {
@@ -145,7 +148,7 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
         const savedBondDocument = await bondDocumentRepository.findOne({
-          where: { contractId: CONTRACT_ID, name: name }
+          where: { contractId: CONTRACT_ID, name: name },
         })
 
         expect(savedBondDocument).toBeDefined()
