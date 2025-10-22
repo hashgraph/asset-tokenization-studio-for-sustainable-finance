@@ -25,6 +25,11 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
+    if (process.env.NODE_ENV === "test") {
+      this.logger.log("Skipping database seeding in test environment")
+      return
+    }
+
     this.logger.log("Starting database seeding...")
 
     try {
