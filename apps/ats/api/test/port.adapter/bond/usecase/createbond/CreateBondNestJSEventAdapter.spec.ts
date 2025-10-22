@@ -96,6 +96,9 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
 
   describe("CreateBondNestJSEventAdapter", () => {
     it("should create a new bond when BondDeployedDLTEvent is published", async () => {
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
 
@@ -129,6 +132,9 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     })
 
     it("should throw BondFoundError when bond with same address already exists", async () => {
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
       const existingBond = {
         contractId: "0.0.6823801",
         treasuryId: "0.0.6823801",
@@ -166,6 +172,9 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     it("should create bonds with different addresses successfully", async () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
+
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
       const bondAddresses = [
         "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b:0.0.6974345",

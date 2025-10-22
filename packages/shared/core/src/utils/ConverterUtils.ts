@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { AccountId, EvmAddress } from "@hashgraph/sdk"
+import { AccountId, EvmAddress, AccountInfo } from "@hashgraph/sdk"
 import axios from "axios"
 import { Retryable } from "../decorators/Retryable"
 
@@ -14,6 +14,11 @@ export class ConverterUtils {
       return AccountId.fromEvmAddress(0, 0, evmAddressWithPrefix).toString()
     }
     return ((await ConverterUtils.fetchData(`accounts/${evmAddressWithPrefix}`)) as any).account
+  }
+
+  static async getEvmAddressFromHederaAddress(hederaAddress: string): Promise<string> {
+    const data = await this.fetchData<AccountInfo>(`accounts/${hederaAddress}`)
+    return data['evm_address']
   }
 
   static formatNumber(value: string, decimals: number) {
