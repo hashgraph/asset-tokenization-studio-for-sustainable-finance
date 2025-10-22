@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "171b42b9-cedf-4f42-b305-e75e445c5187",
+		"_postman_id": "afd52323-1451-431a-bc32-7c11f5089588",
 		"name": "Treasury API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "9628317"
+		"_exporter_id": "29245730"
 	},
 	"item": [
 		{
@@ -21,8 +21,7 @@
 									"});"
 								],
 								"type": "text/javascript",
-								"packages": {},
-								"requests": {}
+								"packages": {}
 							}
 						}
 					],
@@ -94,7 +93,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/proceeds-recipients/:proceedsRecipientId/transfer",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/proceeds-recipients/{{proceedsRecipientId}}/transfer",
 							"host": [
 								"{{url}}"
 							],
@@ -104,14 +103,8 @@
 								"treasuries",
 								"{{treasuryContractId}}",
 								"proceeds-recipients",
-								":proceedsRecipientId",
+								"{{proceedsRecipientId}}",
 								"transfer"
-							],
-							"variable": [
-								{
-									"key": "proceedsRecipientId",
-									"value": "0.0.6548643"
-								}
 							]
 						}
 					},
@@ -152,12 +145,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
@@ -197,12 +191,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/transfer",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/transfer",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
@@ -290,12 +285,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
@@ -326,12 +322,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/environmental-assets",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets"
@@ -361,12 +358,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/api/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/holdings",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/environmental-assets/{{environmentalAssetId}}/holdings",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"api",
+								"v1",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"environmental-assets",
@@ -383,28 +381,13 @@
 			"name": "Payment Token",
 			"item": [
 				{
-					"name": "Inflow Transfer Payment Token",
+					"name": "Transfer Payment Token",
 					"request": {
-						"auth": {
-							"type": "apikey",
-							"apikey": [
-								{
-									"key": "value",
-									"value": "{{apiKey}}",
-									"type": "string"
-								},
-								{
-									"key": "key",
-									"value": "X-API-Key",
-									"type": "string"
-								}
-							]
-						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"format\": \"hedera\",\n    \"accountId\": \"0.0.6548640\",\n    \"amount\": \"100000\"\n}",
+							"raw": "{\n    \"to\": \"\",\n    \"amount\": \"\",\n    \"format\": \"\",\n    \"accountId\": \"\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -412,7 +395,38 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/api/v1/payment-tokens/0.0.429274/treasuries/{{treasuryContractId}}/transfer",
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/payment-tokens/transfer",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"payment-tokens",
+								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inflow Transfer Payment Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"format\": \"\",\n    \"amount\": \"\",\n    \"accountId\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/payment-tokens/{{paymentTokenContractId}}/treasuries/{{treasuryContractId}}/transfer",
 							"host": [
 								"{{url}}"
 							],
@@ -420,10 +434,33 @@
 								"api",
 								"v1",
 								"payment-tokens",
-								"0.0.429274",
+								"{{paymentTokenContractId}}",
 								"treasuries",
 								"{{treasuryContractId}}",
 								"transfer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment Token Transfers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/treasuries/{{treasuryContractId}}/payment-tokens/{{paymentTokenContractId}}/transfers",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"treasuries",
+								"{{treasuryContractId}}",
+								"payment-tokens",
+								"{{paymentTokenContractId}}",
+								"transfers"
 							]
 						}
 					},
