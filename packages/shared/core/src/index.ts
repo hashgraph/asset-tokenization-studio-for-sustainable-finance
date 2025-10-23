@@ -49,8 +49,7 @@ export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
 export { RetryPort } from "./retry/RetryPort"
 
 export { BaseTransactionBuilder } from "./transaction/BaseTransactionBuilder"
-export { Environment } from "./transaction/Environment"
-export { getHederaClient, getEthereumProvider } from "./transaction/Environment"
+export { Environment, getHederaClient, getEthereumProvider } from "./transaction/Environment"
 
 export { BaseTransactionRequest } from "./transaction/model/BaseTransactionRequest"
 export { TransactionResponse } from "./transaction/model/TransactionResponse"
