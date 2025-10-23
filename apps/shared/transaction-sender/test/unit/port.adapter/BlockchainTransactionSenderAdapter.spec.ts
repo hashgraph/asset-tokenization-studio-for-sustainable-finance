@@ -51,8 +51,7 @@ jest.mock("ethers", () => ({
 }))
 
 const mockConfigService = {
-  getHederaNetwork: jest.fn().mockReturnValue("testnet"),
-  getEthereumNetwork: jest.fn().mockReturnValue("testnet"),
+  getNetwork: jest.fn().mockReturnValue("testnet"),
   getLogLevel: jest.fn().mockReturnValue("info"),
 }
 
@@ -297,7 +296,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
     it("should use configuration service for Hedera network", async () => {
       const { Client } = jest.requireMock("@hashgraph/sdk")
       
-      mockConfigService.getHederaNetwork.mockReturnValue("mainnet")
+      mockConfigService.getNetwork.mockReturnValue("mainnet")
       
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
@@ -305,14 +304,14 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       await adapter.sendTransaction(signedTransaction)
 
-      expect(mockConfigService.getHederaNetwork).toHaveBeenCalled()
+      expect(mockConfigService.getNetwork).toHaveBeenCalled()
       expect(Client.forMainnet).toHaveBeenCalled()
     })
 
     it("should use configuration service for Ethereum network and build HashIO URL", async () => {
       const { ethers } = jest.requireMock("ethers")
       
-      mockConfigService.getEthereumNetwork.mockReturnValue("mainnet")
+      mockConfigService.getNetwork.mockReturnValue("mainnet")
       
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
@@ -320,7 +319,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
       await adapter.sendTransaction(signedTransaction)
 
-      expect(mockConfigService.getEthereumNetwork).toHaveBeenCalled()
+      expect(mockConfigService.getNetwork).toHaveBeenCalled()
       expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
     })
 
@@ -331,17 +330,16 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
-      mockConfigService.getHederaNetwork.mockReturnValue("previewnet")
+      mockConfigService.getNetwork.mockReturnValue("previewnet")
       await adapter.sendTransaction(signedTransaction)
       expect(Client.forPreviewnet).toHaveBeenCalled()
 
-      mockConfigService.getHederaNetwork.mockReturnValue("local")
+      mockConfigService.getNetwork.mockReturnValue("local")
       await adapter.sendTransaction(signedTransaction)
-      expect(Client.forNetwork).toHaveBeenCalledWith({ "127.0.0.1:50211": "0.0.3" })
+      expect(Client.forNetwork).toHaveBeenCalledWith({})
 
-      mockConfigService.getHederaNetwork.mockReturnValue("unknown")
-      await adapter.sendTransaction(signedTransaction)
-      expect(Client.forTestnet).toHaveBeenCalled()
+      mockConfigService.getNetwork.mockReturnValue("unknown")
+      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow("Unsupported network environment: unknown")
     })
 
     it("should use separate network configurations for Ethereum HashIO URLs", async () => {
@@ -351,15 +349,15 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
 
-      mockConfigService.getEthereumNetwork.mockReturnValue("mainnet")
+      mockConfigService.getNetwork.mockReturnValue("mainnet")
       await adapter.sendTransaction(signedTransaction)
       expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
 
-      mockConfigService.getEthereumNetwork.mockReturnValue("previewnet")
+      mockConfigService.getNetwork.mockReturnValue("previewnet")
       await adapter.sendTransaction(signedTransaction)
       expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://previewnet.hashio.io/api")
 
-      mockConfigService.getEthereumNetwork.mockReturnValue("local")
+      mockConfigService.getNetwork.mockReturnValue("local")
       await adapter.sendTransaction(signedTransaction)
       expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("http://localhost:8545")
     })
@@ -368,8 +366,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       const { Client } = jest.requireMock("@hashgraph/sdk")
       const { ethers } = jest.requireMock("ethers")
       
-      mockConfigService.getHederaNetwork.mockReturnValue("mainnet")
-      mockConfigService.getEthereumNetwork.mockReturnValue("testnet")
+      mockConfigService.getNetwork.mockReturnValue("mainnet")
 
       const hederaTransaction = new SignedTransactionRequest()
       hederaTransaction.payload = "0x1234567890abcdef"
@@ -383,7 +380,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       expect(Client.forMainnet).toHaveBeenCalled()
 
       await adapter.sendTransaction(ethereumTransaction)
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://testnet.hashio.io/api")
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
     })
   })
 })

@@ -11,13 +11,10 @@ export class TransactionSenderConfigService extends BaseConfigService {
     super(configService)
   }
 
-  getHederaNetwork(): string {
-    return (this.getProperty(ConfigKeys.HEDERA_NETWORK) as string) || "testnet"
+  getNetwork(): string {
+    return (this.getProperty(ConfigKeys.NETWORK) as string) || "testnet"
   }
 
-  getEthereumNetwork(): string {
-    return (this.getProperty(ConfigKeys.ETHEREUM_NETWORK) as string) || "testnet"
-  }
 
   getLogLevel(): string {
     return (this.getProperty(ConfigKeys.LOG_LEVEL) as string) || "log"

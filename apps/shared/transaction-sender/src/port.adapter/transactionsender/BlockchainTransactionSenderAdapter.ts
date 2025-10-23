@@ -2,12 +2,13 @@
 
 import { Client, Transaction, Status } from "@hashgraph/sdk"
 import { ethers } from "ethers"
-import { Logger } from "@nestjs/common"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
 import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
-import { Singleton } from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
+import { getHederaClient, getEthereumProvider, Environment as NetworkEnvironment } from "@hashgraph/green-bonds-shared-core/src/transaction/Environment"
 import { TransactionSenderConfigService } from "../../config/TransactionSenderConfigService"
+
 
 @Singleton()
 export class BlockchainTransactionSenderAdapter implements BlockchainTransactionSenderPort {
@@ -44,7 +45,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
           : "UNKNOWN_ERROR"
         this.logger.error(
           `Hedera transaction receipt error for ${response.transactionId.toString()}: ${errorCode}`,
-          receiptError.stack,
+          receiptError,
         )
         return {
           transactionId: response.transactionId.toString(),
@@ -56,7 +57,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       const errorCode = executionError.status
         ? Status[executionError.status] || executionError.status.toString()
         : "EXECUTION_ERROR"
-      this.logger.error(`Hedera transaction execution error: ${errorCode}`, executionError.stack)
+      this.logger.error(`Hedera transaction execution error: ${errorCode}`, executionError)
       return {
         transactionId: "EXECUTION_FAILED",
         status: "failed",
@@ -66,44 +67,20 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       client.close()
     }
   }
-
   private createHederaClient(): Client {
-    const network = this.configService.getHederaNetwork()
-    
-    switch (network.toLowerCase()) {
-      case "mainnet":
-        return Client.forMainnet()
-      case "previewnet":
-        return Client.forPreviewnet()
-      case "local":
-        return Client.forNetwork({ "127.0.0.1:50211": "0.0.3" })
-      case "testnet":
-      default:
-        return Client.forTestnet()
-    }
+    const network = this.configService.getNetwork() as NetworkEnvironment
+    return getHederaClient(network)
   }
 
-  private getEthereumRpcUrl(): string {
-    const network = this.configService.getEthereumNetwork()
-    
-    switch (network.toLowerCase()) {
-      case "mainnet":
-        return "https://mainnet.hashio.io/api"
-      case "previewnet":
-        return "https://previewnet.hashio.io/api"
-      case "local":
-        return "http://localhost:8545"
-      case "testnet":
-      default:
-        return "https://testnet.hashio.io/api"
-    }
+  private getEthereumProvider(): ethers.providers.JsonRpcProvider {
+    const network = this.configService.getNetwork() as NetworkEnvironment
+    return getEthereumProvider(network)
   }
 
   private async sendEthereumTransaction(
     signedTransaction: SignedTransactionRequest,
   ): Promise<BlockchainTransactionResponse> {
-    const rpcUrl = this.getEthereumRpcUrl()
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+    const provider = this.getEthereumProvider()
 
     try {
       const txResponse = await provider.sendTransaction(signedTransaction.payload)
@@ -125,7 +102,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     } catch (error: any) {
       const errorCode = error.code || "UNKNOWN_ERROR"
       const transactionId = error.transactionHash || "EXECUTION_FAILED"
-      this.logger.error(`Ethereum transaction execution error: ${errorCode}`, error.stack)
+      this.logger.error(`Ethereum transaction execution error: ${errorCode}`, error)
       return {
         transactionId: transactionId,
         status: "failed",
