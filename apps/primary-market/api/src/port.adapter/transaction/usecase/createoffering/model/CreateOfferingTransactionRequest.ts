@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumber, IsString } from "class-validator"
+import { IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-validator"
 
 export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
   @IsNotEmpty()
@@ -12,31 +12,31 @@ export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
   paymentTokenAddress: string
 
   @IsNotEmpty()
-  @IsNumber()
-  lotSize: number
+  @IsNumberString()
+  lotSize: string
 
   @IsNotEmpty()
-  @IsNumber()
-  minQuantity: number
+  @IsNumberString()
+  minQuantity: string
 
   @IsNotEmpty()
-  @IsNumber()
-  maxQuantity: number
+  @IsNumberString()
+  maxQuantity: string
 
   @IsNotEmpty()
-  @IsNumber()
-  targetQuantity: number
+  @IsNumberString()
+  targetQuantity: string
 
   @IsNotEmpty()
   @IsNumber()
   targetQuantityRule: number
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   startDate: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   endDate: string
 
   @IsNotEmpty()

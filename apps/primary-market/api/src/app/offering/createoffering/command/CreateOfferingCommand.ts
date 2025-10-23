@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, IsDate } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CreateOfferingCommand extends Command<void> {
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   offeringId: string
 
   @IsNotEmpty()
@@ -24,19 +24,19 @@ export class CreateOfferingCommand extends Command<void> {
   paymentTokenId: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   lotSize: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   minQuantity: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   maxQuantity: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   targetQuantity: string
 
   @IsNotEmpty()
