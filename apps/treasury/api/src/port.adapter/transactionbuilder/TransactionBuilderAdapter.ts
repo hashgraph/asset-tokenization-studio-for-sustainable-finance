@@ -15,12 +15,17 @@ import { BuildTransferEnvironmentalAssetTransactionRequest } from "./model/Build
 import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
-import { IPortfolio__factory, IProceedsManagement__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
+import {
+  IPause__factory,
+  IPortfolio__factory,
+  IProceedsManagement__factory,
+} from "@hashgraph/green-bonds-platform-treasury-contracts"
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { TransferTransaction } from "@hashgraph/sdk"
 import { utils } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
+import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -190,5 +195,21 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     } as any)
 
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
+  }
+
+  async pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse> {
+    const contractInterface = IPause__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    return await this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "pause" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [],
+    } as any)
   }
 }
