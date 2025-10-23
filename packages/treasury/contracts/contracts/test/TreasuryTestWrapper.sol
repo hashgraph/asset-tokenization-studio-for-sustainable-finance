@@ -5,5 +5,10 @@ pragma solidity 0.8.18;
 
 import {Portfolio} from '../Portfolio.sol';
 import {ProceedsManagement} from '../ProceedsManagement.sol';
+import {LifeCycleCashFlow} from '../LifeCycleCashFlow.sol';
 
-contract TreasuryTestWrapper is Portfolio, ProceedsManagement {}
+contract TreasuryTestWrapper is
+    Portfolio,
+    ProceedsManagement,
+    LifeCycleCashFlow
+{}

@@ -5,7 +5,10 @@ import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { AddressZero } from '@ethersproject/constants'
 import { type TreasuryTestWrapper } from '@typechain'
-import { FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from '../scripts/constants'
+import {
+    FUNDS_MANAGER_ROLE,
+    PROCEEDS_FULL_MANAGER_ROLE,
+} from '../scripts/constants'
 import {
     deployTreasury,
     deployPaymentToken,
@@ -66,7 +69,10 @@ describe('Proceeds management operations', () => {
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer payment token', async () => {
             treasury = treasury.connect(signer_A)
 
-            await treasury.revokeRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(treasury.transferPaymentToken(AddressZero, 1))
                 .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
@@ -161,7 +167,10 @@ describe('Proceeds management operations', () => {
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer an environmental asset token', async () => {
             treasury = treasury.connect(signer_A)
 
-            await treasury.revokeRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(
                 treasury.transferEnvironmentalAssetToken(
