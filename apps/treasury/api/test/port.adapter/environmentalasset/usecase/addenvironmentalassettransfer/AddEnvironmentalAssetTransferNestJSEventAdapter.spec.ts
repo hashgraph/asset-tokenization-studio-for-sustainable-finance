@@ -15,6 +15,7 @@ import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environ
 import { EnvironmentalAssetTransferAddedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetTransferAddedEvent"
 import { TransferType } from "@domain/shared/model/TransferType"
 import { SyncEnvironmentalAssetTokenNestJSEventAdapter } from "@port/environmentalasset/usecase/syncenvironmentalassettoken/SyncEnvironmentalAssetTokenNestJSEventAdapter"
+import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
 
 describe("AddEnvironmentalAssetTransfer Integration", () => {
   let app: INestApplication
@@ -42,9 +43,12 @@ describe("AddEnvironmentalAssetTransfer Integration", () => {
     internalEnvironmentalAssetRepository = app.get(getRepositoryToken(EnvironmentalAssetPersistence))
     internalEnvironmentalAssetTransferRepository = app.get(getRepositoryToken(EnvironmentalAssetTransferPersistence))
 
-    // Mock the SyncEnvironmentalAssetTokenNestJSEventAdapter handler to avoid interference
+    // Mock all other handlers listening to TransferDLTEvent to avoid interference
     const syncHandler = app.get(SyncEnvironmentalAssetTokenNestJSEventAdapter)
     jest.spyOn(syncHandler, "handle").mockResolvedValue(undefined)
+
+    const paymentTokenTransferHandler = app.get(AddPaymentTokenTransferNestJSEventAdapter)
+    jest.spyOn(paymentTokenTransferHandler, "handle").mockResolvedValue(undefined)
   })
 
   afterAll(async () => {
