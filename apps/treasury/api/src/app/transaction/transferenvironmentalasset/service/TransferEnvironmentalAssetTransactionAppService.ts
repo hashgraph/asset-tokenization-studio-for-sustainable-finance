@@ -9,7 +9,9 @@ export class TransferEnvironmentalAssetTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
   @Validate()
-  execute(request: TransferEnvironmentalAssetTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.transferEnvironmentalAsset(request)
+  async execute(
+    request: TransferEnvironmentalAssetTransactionAppServiceRequest,
+  ): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.transferEnvironmentalAsset(request)
   }
 }

@@ -9,7 +9,9 @@ export class ExternalTransferPaymentTokenTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
   @Validate()
-  execute(request: ExternalTransferPaymentTokenTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.externalTransferPaymentToken(request)
+  async execute(
+    request: ExternalTransferPaymentTokenTransactionAppServiceRequest,
+  ): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.externalTransferPaymentToken(request)
   }
 }

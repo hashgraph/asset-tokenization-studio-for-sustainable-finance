@@ -8,7 +8,7 @@ import { RemoveEnvironmentalAssetTransactionAppServiceRequest } from "./model/Re
 export class RemoveEnvironmentalAssetTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: RemoveEnvironmentalAssetTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.removeEnvironmentalAsset(request)
+  async execute(request: RemoveEnvironmentalAssetTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.removeEnvironmentalAsset(request)
   }
 }

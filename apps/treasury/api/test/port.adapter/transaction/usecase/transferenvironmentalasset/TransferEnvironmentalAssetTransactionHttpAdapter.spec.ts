@@ -4,7 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 
@@ -26,6 +26,9 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1")
     await app.init()
+    jest
+      .spyOn(ConverterUtils, "getEvmAddressFromHederaAddress")
+      .mockResolvedValue("0x1dC69e700e3fF1Cd7ca407DcCC6f8061D260F1E7")
   })
 
   afterAll(async () => {

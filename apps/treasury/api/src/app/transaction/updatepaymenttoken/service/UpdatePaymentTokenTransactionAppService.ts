@@ -9,7 +9,7 @@ export class UpdatePaymentTokenTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
   @Validate()
-  execute(request: UpdatePaymentTokenTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.updatePaymentToken(request)
+  async execute(request: UpdatePaymentTokenTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.updatePaymentToken(request)
   }
 }

@@ -12,14 +12,18 @@ import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port
 import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
 
 export interface TransactionBuilderPort {
-  fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse
-  addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  transferEnvironmentalAsset(request: BuildTransferEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  externalTransferPaymentToken(request: BuildExternalTransferPaymentTokenTransactionRequest): BuildTransactionResponse
-  updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): BuildTransactionResponse
+  fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
+  addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
+  removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
+  transferEnvironmentalAsset(
+    request: BuildTransferEnvironmentalAssetTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  externalTransferPaymentToken(
+    request: BuildExternalTransferPaymentTokenTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
   externalTransferEnvironmentalAsset(
     request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
-  ): BuildTransactionResponse
-  transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): BuildTransactionResponse
+  ): Promise<BuildTransactionResponse>
+  transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
 }

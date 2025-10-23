@@ -5,6 +5,7 @@ import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment
 import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
+import { ConverterUtils } from "../utils/ConverterUtils"
 
 export abstract class BaseTransactionBuilder {
   private readonly formatSerializers: Record<
@@ -24,7 +25,7 @@ export abstract class BaseTransactionBuilder {
     },
   }
 
-  protected buildAndSerializeTransaction<
+  protected async buildAndSerializeTransaction<
     I extends Interface,
     F extends {
       [K in keyof I]: I[K] extends (...args: any[]) => Promise<any> ? K : never
@@ -42,14 +43,15 @@ export abstract class BaseTransactionBuilder {
     functionName: F
     args: Parameters<I[F] extends (...args: infer P) => any ? (...args: P) => any : never>
     format: TransactionFormat
-  }): TransactionResponse {
+  }): Promise<TransactionResponse> {
     try {
       const encodedHex = contractInterface.encodeFunctionData(functionName, args)
       const encoded = new Uint8Array(Buffer.from(encodedHex.slice(2), "hex"))
 
       const tx = new ContractExecuteTransaction().setContractId(contractId).setGas(gas).setFunctionParameters(encoded)
 
-      const contractEvmAddress = format === "ethereum" ? this.getEvmAddressFromHedera(contractId) : ""
+      const contractEvmAddress =
+        format === "ethereum" ? await ConverterUtils.getEvmAddressFromHederaAddress(contractId) : ""
 
       const serializer = this.formatSerializers[format]
       if (!serializer) {
@@ -59,12 +61,6 @@ export abstract class BaseTransactionBuilder {
     } catch (error) {
       throw new Error(`Failed to build and serialize transaction: ${(error as Error).message}`)
     }
-  }
-
-  protected getEvmAddressFromHedera(hederaAddress: string): string {
-    const input = hederaAddress.trim().toLowerCase()
-    const id = AccountId.fromString(input)
-    return `0x${id.toEvmAddress()}`
   }
 
   protected serializeHederaTransaction(

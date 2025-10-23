@@ -8,7 +8,7 @@ import { AddEnvironmentalAssetTransactionAppServiceRequest } from "./model/AddEn
 export class AddEnvironmentalAssetTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: AddEnvironmentalAssetTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.addEnvironmentalAsset(request)
+  async execute(request: AddEnvironmentalAssetTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.addEnvironmentalAsset(request)
   }
 }
