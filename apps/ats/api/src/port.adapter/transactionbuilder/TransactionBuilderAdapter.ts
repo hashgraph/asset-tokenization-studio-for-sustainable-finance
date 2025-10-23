@@ -22,7 +22,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     super()
   }
 
-  createBondTransaction(req: BuildCreateBondTransactionRequest): BuildTransactionResponse {
+  async createBondTransaction(req: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse> {
     //TODO change for the correct Suite Bond Factory when deployed
     const contractInterface = IFactory__factory.createInterface()
 
@@ -130,7 +130,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       ],
     }
 
-    return this.buildAndReturnTransactionResponse(
+    return await this.buildAndReturnTransactionResponse(
       contractInterface,
       "deployBond",
       req.contractId,
@@ -141,8 +141,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  setBondDocumentTransaction(req: BuildSetBondDocumentTransactionRequest): BuildTransactionResponse {
-    return this.buildAndReturnTransactionResponse(
+  async setBondDocumentTransaction(req: BuildSetBondDocumentTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
       IERC1643__factory.createInterface(),
       "setDocument",
       req.contractId,
@@ -153,7 +153,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  private buildAndReturnTransactionResponse(
+  private async buildAndReturnTransactionResponse(
     contractInterface: any,
     functionName: string,
     contractId: string,
@@ -161,10 +161,10 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     account: any,
     format: "hedera" | "ethereum",
     args: any[],
-  ): BuildTransactionResponse {
+  ): Promise<BuildTransactionResponse> {
     const environment = this.configService.get<Environment>("HEDERA_NETWORK") || "testnet"
 
-    const transactionResponse = this.buildAndSerializeTransaction({
+    const transactionResponse = await this.buildAndSerializeTransaction({
       contractInterface,
       functionName,
       contractId,

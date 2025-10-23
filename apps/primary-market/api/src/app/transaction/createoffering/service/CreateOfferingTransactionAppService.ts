@@ -8,7 +8,7 @@ import { CreateOfferingTransactionAppServiceRequest } from "./model/CreateOfferi
 export class CreateOfferingTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: CreateOfferingTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.createOffering(request)
+  async execute(request: CreateOfferingTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.createOffering(request)
   }
 }

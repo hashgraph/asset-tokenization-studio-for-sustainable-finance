@@ -4,6 +4,6 @@ import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransa
 import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
 
 export interface TransactionBuilderPort {
-  createBondTransaction(request: BuildCreateBondTransactionRequest): BuildTransactionResponse
-  setBondDocumentTransaction(request: BuildSetBondDocumentTransactionRequest): BuildTransactionResponse
+  createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
+  setBondDocumentTransaction(request: BuildSetBondDocumentTransactionRequest): Promise<BuildTransactionResponse>
 }

@@ -7,7 +7,7 @@ import { SetBondDocumentTransactionAppServiceRequest } from "@app/bond/transacti
 export class SetBondDocumentTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: SetBondDocumentTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.setBondDocumentTransaction(request)
+  async execute(request: SetBondDocumentTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.setBondDocumentTransaction(request)
   }
 }

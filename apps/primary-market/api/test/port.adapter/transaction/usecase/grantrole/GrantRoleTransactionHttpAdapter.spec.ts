@@ -3,7 +3,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { BuildTransactionResponse, ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
@@ -25,6 +25,9 @@ describe("GrantRoleTransaction API Integration", () => {
 
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1/")
+    jest
+      .spyOn(ConverterUtils, "getEvmAddressFromHederaAddress")
+      .mockResolvedValue("0x1dC69e700e3fF1Cd7ca407DcCC6f8061D260F1E7")
     app.useLogger(false)
     await app.init()
   })

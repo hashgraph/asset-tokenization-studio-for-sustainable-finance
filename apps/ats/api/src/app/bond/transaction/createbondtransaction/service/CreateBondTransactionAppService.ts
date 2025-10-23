@@ -6,7 +6,7 @@ import type { TransactionBuilderPort } from "@port/transactionbuilder/Transactio
 export class CreateBondTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: CreateBondTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.createBondTransaction(request)
+  async execute(request: CreateBondTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.createBondTransaction(request)
   }
 }

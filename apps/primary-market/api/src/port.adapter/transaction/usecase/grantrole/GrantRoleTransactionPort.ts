@@ -9,5 +9,5 @@ export interface GrantRoleTransactionPort {
     roleId: string,
     userAccountId: string,
     request: GrantRoleTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }

@@ -8,7 +8,7 @@ import { GrantRoleTransactionAppServiceRequest } from "./model/GrantRoleTransact
 export class GrantRoleTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: GrantRoleTransactionAppServiceRequest): TransactionAppServiceResponse {
-    return this.transactionBuilderPort.grantRole(request)
+  async execute(request: GrantRoleTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.grantRole(request)
   }
 }
