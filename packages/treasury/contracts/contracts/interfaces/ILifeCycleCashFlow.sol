@@ -70,11 +70,11 @@ interface ILifeCycleCashFlow {
     );
 
     /**
-     * @notice Error thrown when attempting to execute a payment for an asset not managed by the contract
+     * @notice Error thrown when attempting to execute a payment for a bond not managed by the contract
      *
-     * @param asset The address of the asset that is being tried to operate with
+     * @param bond The address of the bond that is being tried to operate with
      */
-    error InvalidAsset(address asset);
+    error InvalidBond(address bond);
 
     /**
      * @notice Error thrown when attempting to execute a payment a date does not corresponds to the payment date
@@ -85,12 +85,12 @@ interface ILifeCycleCashFlow {
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_LifeCycleCashFlow(address asset) external;
+    function initialize_LifeCycleCashFlow(address bond) external;
 
     /*
      * @dev Pay a coupon to a page of holders
      *
-     * @param asset The address of the asset that the coupon belongs to
+     * @param bond The address of the bond that the coupon belongs to
      * @param distributionID The coupon identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
@@ -101,7 +101,7 @@ interface ILifeCycleCashFlow {
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address asset,
+        address bond,
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
@@ -110,7 +110,7 @@ interface ILifeCycleCashFlow {
     /*
      * @dev Retry the payment of a coupon to a list of holders
      *
-     * @param asset The address of the asset that the coupon belongs to
+     * @param bond The address of the bond that the coupon belongs to
      * @param distributionID The coupon identifier
      * @param holders The array of holders addresses who will be paid
      *
@@ -119,7 +119,7 @@ interface ILifeCycleCashFlow {
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address asset,
+        address bond,
         uint256 distributionID,
         address[] calldata holders
     ) external returns (PaymentResult memory result);
@@ -158,9 +158,9 @@ interface ILifeCycleCashFlow {
     ) external returns (PaymentResult memory result);
 
     /*
-     * @dev Returns the asset address
+     * @dev Returns the bond address
      *
-     * @return The asset address
+     * @return The bond address
      */
-    function getAsset() external returns (address asset);
+    function getBond() external returns (address bond);
 }

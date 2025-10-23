@@ -15,7 +15,7 @@ abstract contract LifeCycleCashFlow is
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
-        address asset
+        address bond
     )
         external
         override
@@ -23,14 +23,14 @@ abstract contract LifeCycleCashFlow is
     {
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
-        _setAsset(asset);
+        _setBond(bond);
         lifeCycleCashFlowStorage.initialized = true;
     }
 
     /*
      * @dev Pay a coupon or dividend to a page of holders
      *
-     * @param asset The address of the asset that the coupon/dividend belongs to
+     * @param bond The address of the bond that the coupon/dividend belongs to
      * @param distributionId The coupon/dividend identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
@@ -41,7 +41,7 @@ abstract contract LifeCycleCashFlow is
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address asset,
+        address bond,
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
@@ -61,7 +61,7 @@ abstract contract LifeCycleCashFlow is
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address asset,
+        address bond,
         uint256 distributionId,
         address[] calldata holders
     ) external override returns (PaymentResult memory result) {
@@ -106,11 +106,11 @@ abstract contract LifeCycleCashFlow is
     }
 
     /*
-     * @dev Returns the asset address
+     * @dev Returns the bond address
      *
-     * @return The asset address
+     * @return The bond address
      */
-    function getAsset() external view returns (address) {
-        return _getAsset();
+    function getBond() external view returns (address) {
+        return _getBond();
     }
 }

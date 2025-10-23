@@ -43,7 +43,7 @@ contract LifeCycleCashFlowFacet is LifeCycleCashFlow, IStaticFunctionSelectors {
         staticFunctionSelectors[selectorIndex++] = this
             .executeBondRedemptionByAddresses
             .selector;
-        staticFunctionSelectors[selectorIndex++] = this.getAsset.selector;
+        staticFunctionSelectors[selectorIndex++] = this.getBond.selector;
     }
 
     function getStaticInterfaceIds()

@@ -16,7 +16,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     AtsCommon
 {
     struct LifeCycleCashFlowStorage {
-        address asset;
+        address bond;
         bool initialized;
     }
 
@@ -25,17 +25,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @param asset The asset to be set
      */
-    function _setAsset(address asset) internal {
-        _lifeCycleCashFlowStorage().asset = asset;
+    function _setBond(address bond) internal {
+        _lifeCycleCashFlowStorage().bond = bond;
     }
 
     /*
-     * @dev Set the asset
+     * @dev Set the bond
      *
-     * @param asset The asset to be set
+     * @param bond The bond to be set
      */
-    function _getAsset() internal view returns (address) {
-        return _lifeCycleCashFlowStorage().asset;
+    function _getBond() internal view returns (address) {
+        return _lifeCycleCashFlowStorage().bond;
     }
 
     /*
