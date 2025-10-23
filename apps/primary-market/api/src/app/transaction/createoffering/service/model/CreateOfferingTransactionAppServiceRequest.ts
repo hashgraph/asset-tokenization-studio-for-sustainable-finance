@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumber, IsString } from "class-validator"
+import { IsNotEmpty, IsNumber, IsNumberString, IsString } from "class-validator"
 
 export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
@@ -17,31 +17,31 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
   readonly paymentTokenAddress: string
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly lotSize: number
+  @IsNumberString()
+  readonly lotSize: string
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly minQuantity: number
+  @IsNumberString()
+  readonly minQuantity: string
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly maxQuantity: number
+  @IsNumberString()
+  readonly maxQuantity: string
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly targetQuantity: number
+  @IsNumberString()
+  readonly targetQuantity: string
 
   @IsNotEmpty()
   @IsNumber()
   readonly targetQuantityRule: number
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   readonly startDate: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   readonly endDate: string
 
   @IsNotEmpty()
@@ -55,10 +55,10 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
     bondContractId: string,
     treasuryAddress: string,
     paymentTokenAddress: string,
-    lotSize: number,
-    minQuantity: number,
-    maxQuantity: number,
-    targetQuantity: number,
+    lotSize: string,
+    minQuantity: string,
+    maxQuantity: string,
+    targetQuantity: string,
     targetQuantityRule: number,
     startDate: string,
     endDate: string,

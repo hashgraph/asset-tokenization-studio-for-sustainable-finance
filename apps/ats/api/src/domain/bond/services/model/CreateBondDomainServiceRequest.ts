@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, Min, IsDate } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, Min, IsDate, IsNumberString } from "class-validator"
 import { Type } from "class-transformer"
 
 export class CreateBondDomainServiceRequest {
@@ -32,7 +32,7 @@ export class CreateBondDomainServiceRequest {
   @IsNotEmpty()
   currency: string
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   nominalValue: string
 
@@ -46,7 +46,7 @@ export class CreateBondDomainServiceRequest {
   @Type(() => Date)
   maturityDate: Date
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   maxSupply: string
 }

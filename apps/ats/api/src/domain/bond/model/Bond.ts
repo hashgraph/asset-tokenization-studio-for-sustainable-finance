@@ -1,5 +1,5 @@
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsDate } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-validator"
 
 export class Bond extends BaseEntity {
   @IsNotEmpty()
@@ -35,7 +35,7 @@ export class Bond extends BaseEntity {
   currency: string
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   nominalValue: string
 
   @IsNotEmpty()
@@ -47,6 +47,6 @@ export class Bond extends BaseEntity {
   maturityDate: Date
 
   @IsNotEmpty()
-  @IsString()
+  @IsNumberString()
   maxSupply: string
 }

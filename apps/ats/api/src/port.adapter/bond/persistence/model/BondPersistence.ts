@@ -27,7 +27,7 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 50 })
   currency: string
 
-  @Column({ type: "numeric", precision: 78, scale: 0 })
+  @Column({ type: "varchar" })
   nominalValue: string
 
   @Column({ type: "timestamp" })
@@ -36,6 +36,6 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: "timestamp" })
   maturityDate: Date
 
-  @Column({ type: "numeric", precision: 78, scale: 0 })
+  @Column({ type: "varchar" })
   maxSupply: string
 }
