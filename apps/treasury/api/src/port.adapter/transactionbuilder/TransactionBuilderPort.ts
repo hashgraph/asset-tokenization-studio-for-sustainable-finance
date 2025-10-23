@@ -10,6 +10,7 @@ import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/trans
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
+import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
 
 export interface TransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
@@ -26,4 +27,5 @@ export interface TransactionBuilderPort {
     request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
   ): Promise<BuildTransactionResponse>
   transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
+  pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
 }
