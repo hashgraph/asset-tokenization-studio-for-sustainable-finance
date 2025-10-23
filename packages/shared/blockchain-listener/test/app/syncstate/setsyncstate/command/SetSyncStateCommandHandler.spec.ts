@@ -60,6 +60,7 @@ describe("SetSyncStateCommandHandler", () => {
       lastBlockNumber: lastBlockNumber,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(publishedEvent).toEqual(
@@ -84,6 +85,7 @@ describe("SetSyncStateCommandHandler", () => {
       lastBlockNumber: lastBlockNumber,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(publishedEvent).toEqual(
@@ -109,6 +111,7 @@ describe("SetSyncStateCommandHandler", () => {
       lastBlockNumber: newLastBlockNumber,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(newPublishedEvent).toEqual(

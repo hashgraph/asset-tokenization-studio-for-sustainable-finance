@@ -86,6 +86,7 @@ describe("ProcessEventCommandHandler", () => {
       errorReason: null,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(publishedEvent).toEqual({
@@ -129,6 +130,7 @@ describe("ProcessEventCommandHandler", () => {
       errorReason: "test",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(publishedEvent).toEqual({

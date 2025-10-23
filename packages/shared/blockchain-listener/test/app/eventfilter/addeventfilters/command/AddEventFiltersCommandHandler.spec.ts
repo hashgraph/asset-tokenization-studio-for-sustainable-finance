@@ -65,6 +65,7 @@ describe("AddEventFiltersCommandHandler", () => {
       eventSignature: eventSignatures[0],
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(eventFilters.find((eventFilter) => eventFilter.eventSignature === eventSignatures[1])).toEqual({
@@ -74,6 +75,7 @@ describe("AddEventFiltersCommandHandler", () => {
       eventSignature: eventSignatures[1],
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null,
     })
 
     expect(publishedEvent).toEqual({
