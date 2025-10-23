@@ -13,11 +13,11 @@ export class UpdatePaymentTokenTransactionHttpAdapter implements UpdatePaymentTo
   constructor(private readonly updatePaymentTokenTransactionAppService: UpdatePaymentTokenTransactionAppService) {}
 
   @Put(":treasuryContractId/payment-tokens")
-  updatePaymentToken(
+  async updatePaymentToken(
     @Param("treasuryContractId") treasuryContractId: string,
     @Body() request: UpdatePaymentTokenTransactionRequest,
-  ): TransactionResponse {
-    return this.updatePaymentTokenTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.updatePaymentTokenTransactionAppService.execute(
       new UpdatePaymentTokenTransactionAppServiceRequest(
         request.format,
         request.accountId!,

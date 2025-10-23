@@ -8,5 +8,5 @@ export interface ExternalTransferPaymentTokenTransactionPort {
     paymentTokenContractId: string,
     treasuryContractId: string,
     request: ExternalTransferPaymentTokenTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }

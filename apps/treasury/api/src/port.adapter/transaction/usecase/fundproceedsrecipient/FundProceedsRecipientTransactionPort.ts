@@ -8,5 +8,5 @@ export interface FundProceedsRecipientTransactionPort {
     treasuryContractId: string,
     recipientContractId: string,
     request: FundProceedsRecipientTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }

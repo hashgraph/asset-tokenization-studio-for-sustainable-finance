@@ -1,24 +1,33 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { AccountId, EvmAddress, AccountInfo } from "@hashgraph/sdk"
-import axios from "axios"
+import axios, { HttpStatusCode } from "axios"
 import { Retryable } from "../decorators/Retryable"
 
 export class ConverterUtils {
   private constructor() {}
 
+  @Retryable()
   static async getHederaAddressFromEvm(evmAddress: string): Promise<string> {
     const input = evmAddress.trim().toLowerCase()
     const evmAddressWithPrefix = input.startsWith("0x") ? input : `0x${input}`
     if (ConverterUtils.isLongZeroAddress(evmAddressWithPrefix)) {
       return AccountId.fromEvmAddress(0, 0, evmAddressWithPrefix).toString()
     }
-    return ((await ConverterUtils.fetchData(`accounts/${evmAddressWithPrefix}`)) as any).account
+    return ((await this.fetchData(`accounts/${evmAddressWithPrefix}`)) as any).account
   }
 
+  @Retryable()
   static async getEvmAddressFromHederaAddress(hederaAddress: string): Promise<string> {
-    const data = await this.fetchData<AccountInfo>(`accounts/${hederaAddress}`)
-    return data['evm_address']
+    try {
+      const data = await this.fetchData<AccountInfo>(`accounts/${hederaAddress}`)
+      return data["evm_address"]
+    } catch (error) {
+      if (error?.status !== HttpStatusCode.NotFound) {
+        throw error
+      }
+    }
+    return `0x${AccountId.fromString(hederaAddress).toEvmAddress()}`
   }
 
   static formatNumber(value: string, decimals: number) {
@@ -37,7 +46,6 @@ export class ConverterUtils {
     return true
   }
 
-  @Retryable()
   private static async fetchData<T>(path: string): Promise<T> {
     const url = `${ConverterUtils.getMirrorNodeURL()}/api/v1/${path}`
     const { data } = await axios.get(url)

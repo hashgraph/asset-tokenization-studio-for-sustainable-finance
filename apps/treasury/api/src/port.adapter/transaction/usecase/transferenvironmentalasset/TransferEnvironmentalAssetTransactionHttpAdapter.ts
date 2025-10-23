@@ -15,12 +15,12 @@ export class TransferEnvironmentalAssetTransactionHttpAdapter implements Transfe
   ) {}
 
   @Post(":treasuryContractId/environmental-assets/:assetContractId/transfer")
-  transferEnvironmentalAsset(
+  async transferEnvironmentalAsset(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("assetContractId") assetContractId: string,
     @Body() request: TransferEnvironmentalAssetTransactionRequest,
-  ): TransactionResponse {
-    return this.transferEnvironmentalAssetTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.transferEnvironmentalAssetTransactionAppService.execute(
       new TransferEnvironmentalAssetTransactionAppServiceRequest(
         assetContractId,
         request.format,

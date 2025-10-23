@@ -31,8 +31,6 @@ import { AddEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasse
 import { RemoveEnvironmentalAssetNestJSEventAdapter } from "@port/environmentalasset/usecase/removeenvironmentalasset/RemoveEnvironmentalAssetNestJSEventAdapter"
 import { PaymentTokenTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTypeOrmRepository"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
-import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
-import { PaymentTokenTransferTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTransferTypeOrmRepository"
 import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
 import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
 import { GetTreasuryAppService } from "@app/treasury/gettreasury/service/GetTreasuryAppService"

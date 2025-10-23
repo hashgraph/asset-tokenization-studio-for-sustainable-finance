@@ -9,11 +9,17 @@ import { Logger } from "../logger/Logger"
 @Singleton()
 export class NestJSQueryBus implements QueryBus {
   private readonly logger = new Logger(NestJSQueryBus.name)
+  private readonly excludedQueriesForDebug = ["GetEventFiltersQuery"]
 
   constructor(private internalQueryBus: InternalNestJSQueryBus) {}
 
   async execute<Q extends Query<R>, R>(query: Q): Promise<R> {
-    this.logger.log(`Executing query ${query.constructor.name}`)
+    const queryName = query.constructor.name
+    if (this.excludedQueriesForDebug.includes(queryName)) {
+      this.logger.debug(`Executing query ${queryName}`)
+    } else {
+      this.logger.log(`Executing query ${queryName}`)
+    }
     return await this.internalQueryBus.execute(query)
   }
 }

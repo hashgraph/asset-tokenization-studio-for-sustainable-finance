@@ -9,14 +9,6 @@ import { PaymentTokenNotFoundError } from "@domain/paymenttoken/errors/PaymentTo
 export class CheckPaymentTokenExistsDomainService {
   constructor(@Inject() private readonly paymentTokenRepository: PaymentTokenRepository) {}
 
-  async execute(paymentTokenContractId: string, treasuryId: string): Promise<PaymentToken> {
-    const paymentToken = await this.paymentTokenRepository.findByContractId(paymentTokenContractId)
-    if (!paymentToken) {
-      throw PaymentTokenNotFoundError.contractIdError(paymentTokenContractId)
-    }
-    return paymentToken
-  }
-
   async executeByTreasuryContractId(paymentTokenContractId: string, treasuryContractId: string): Promise<PaymentToken> {
     const paymentToken = await this.paymentTokenRepository.findByContractIdAndTreasuryContractId(
       paymentTokenContractId,

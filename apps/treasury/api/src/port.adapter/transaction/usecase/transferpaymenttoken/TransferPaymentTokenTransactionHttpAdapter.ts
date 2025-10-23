@@ -13,11 +13,11 @@ export class TransferPaymentTokenTransactionHttpAdapter implements TransferPayme
   constructor(private readonly transferPaymentTokenTransactionAppService: TransferPaymentTokenTransactionAppService) {}
 
   @Post(":treasuryContractId/payment-tokens/transfer")
-  transferPaymentToken(
+  async transferPaymentToken(
     @Param("treasuryContractId") treasuryContractId: string,
     @Body() request: TransferPaymentTokenTransactionRequest,
-  ): TransactionResponse {
-    return this.transferPaymentTokenTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.transferPaymentTokenTransactionAppService.execute(
       new TransferPaymentTokenTransactionAppServiceRequest(
         request.to,
         request.amount,

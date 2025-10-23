@@ -12,12 +12,12 @@ export class ExternalTransferPaymentTokenTransactionHttpAdapter implements Exter
   constructor(private readonly appService: ExternalTransferPaymentTokenTransactionAppService) {}
 
   @Post(":paymentTokenContractId/treasuries/:treasuryContractId/transfer")
-  externalTransferPaymentToken(
+  async externalTransferPaymentToken(
     @Param("paymentTokenContractId") paymentTokenContractId: string,
     @Param("treasuryContractId") treasuryContractId: string,
     @Body() request: ExternalTransferPaymentTokenTransactionRequest,
-  ): TransactionResponse {
-    return this.appService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.appService.execute(
       new ExternalTransferPaymentTokenTransactionAppServiceRequest(
         request.format,
         request.accountId,
