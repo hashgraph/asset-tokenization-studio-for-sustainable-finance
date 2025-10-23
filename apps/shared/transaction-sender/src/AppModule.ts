@@ -8,7 +8,7 @@ import { SendEthereumSignedTransactionRabbitAdapter } from "./port.adapter/trans
 import { SendSignedTransactionCommandHandler } from "@app/sendsignedtransaction/command/SendSignedTransactionCommandHandler"
 import { PublishTransactionResultCommandHandler } from "@app/publishtransactionresult/command/PublishTransactionResultCommandHandler"
 import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
-
+import { TransactionSenderConfigService } from "./config/TransactionSenderConfigService"
 import { TransactionResultPublisherRabbitAdapter } from "./port.adapter/transactionresultpublisher/TransactionResultPublisherRabbitAdapter"
 import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSEventAdapter"
 @Module({
@@ -30,6 +30,7 @@ import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/us
   ],
   controllers: [],
   providers: [
+    TransactionSenderConfigService,
     SendHederaSignedTransactionRabbitAdapter,
     SendEthereumSignedTransactionRabbitAdapter,
     SendSignedTransactionCommandHandler,
