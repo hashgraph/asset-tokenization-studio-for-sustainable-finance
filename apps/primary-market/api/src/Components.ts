@@ -16,7 +16,7 @@ import { UserTypeORMRepository } from "@port/persistence/user/repositories/UserT
 import { UserMarketRoleTypeORMRepository } from "@port/persistence/usermarketrole/repositories/UserMarketRoleTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
-import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
+import { CheckPrimaryMarketActiveDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketActiveDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
 import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { CreateOfferingCommandHandler } from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
@@ -60,7 +60,7 @@ export const PROVIDERS = [
   GrantRoleTransactionAppService,
   CreateOfferingDomainService,
   GrantUserMarketRoleDomainService,
-  CheckPrimaryMarketExistsDomainService,
+  CheckPrimaryMarketActiveDomainService,
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   CreateOfferingCommandHandler,
