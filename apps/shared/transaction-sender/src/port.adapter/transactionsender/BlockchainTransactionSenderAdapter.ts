@@ -6,7 +6,7 @@ import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPo
 import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
 import { Singleton, Logger } from "@hashgraph/green-bonds-shared-core"
-import { getHederaClient, getEthereumProvider, Environment as NetworkEnvironment } from "@hashgraph/green-bonds-shared-core/src/transaction/Environment"
+import { getHederaClient, getEthereumProvider, Environment as NetworkEnvironment } from "@hashgraph/green-bonds-shared-core"
 import { TransactionSenderConfigService } from "../../config/TransactionSenderConfigService"
 
 
