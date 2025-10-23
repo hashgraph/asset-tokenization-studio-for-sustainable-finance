@@ -9,6 +9,15 @@ jest.mock("@hashgraph/sdk", () => ({
     forTestnet: jest.fn().mockReturnValue({
       close: jest.fn(),
     }),
+    forMainnet: jest.fn().mockReturnValue({
+      close: jest.fn(),
+    }),
+    forPreviewnet: jest.fn().mockReturnValue({
+      close: jest.fn(),
+    }),
+    forNetwork: jest.fn().mockReturnValue({
+      close: jest.fn(),
+    }),
   },
   Transaction: {
     fromBytes: jest.fn().mockReturnValue({
@@ -41,11 +50,17 @@ jest.mock("ethers", () => ({
   },
 }))
 
+const mockConfigService = {
+  getHederaNetwork: jest.fn().mockReturnValue("testnet"),
+  getEthereumNetwork: jest.fn().mockReturnValue("testnet"),
+  getLogLevel: jest.fn().mockReturnValue("info"),
+}
+
 describe("BlockchainTransactionSenderAdapter", () => {
   let adapter: BlockchainTransactionSenderAdapter
 
   beforeEach(() => {
-    adapter = new BlockchainTransactionSenderAdapter()
+    adapter = new BlockchainTransactionSenderAdapter(mockConfigService as any)
     jest.clearAllMocks()
   })
 
@@ -234,7 +249,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
         sendTransaction: jest.fn().mockResolvedValue({
           wait: jest.fn().mockResolvedValue({
             transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
-            status: 0, // Transaction reverted
+            status: 0,
           }),
         }),
       }
@@ -277,6 +292,98 @@ describe("BlockchainTransactionSenderAdapter", () => {
         status: "failed",
         errorCode: "INSUFFICIENT_FUNDS",
       })
+    })
+
+    it("should use configuration service for Hedera network", async () => {
+      const { Client } = jest.requireMock("@hashgraph/sdk")
+      
+      mockConfigService.getHederaNetwork.mockReturnValue("mainnet")
+      
+      const signedTransaction = new SignedTransactionRequest()
+      signedTransaction.payload = "0x1234567890abcdef"
+      signedTransaction.format = "hedera"
+
+      await adapter.sendTransaction(signedTransaction)
+
+      expect(mockConfigService.getHederaNetwork).toHaveBeenCalled()
+      expect(Client.forMainnet).toHaveBeenCalled()
+    })
+
+    it("should use configuration service for Ethereum network and build HashIO URL", async () => {
+      const { ethers } = jest.requireMock("ethers")
+      
+      mockConfigService.getEthereumNetwork.mockReturnValue("mainnet")
+      
+      const signedTransaction = new SignedTransactionRequest()
+      signedTransaction.payload = "0xabcdef1234567890"
+      signedTransaction.format = "ethereum"
+
+      await adapter.sendTransaction(signedTransaction)
+
+      expect(mockConfigService.getEthereumNetwork).toHaveBeenCalled()
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
+    })
+
+    it("should handle different Hedera networks from configuration", async () => {
+      const { Client } = jest.requireMock("@hashgraph/sdk")
+      
+      const signedTransaction = new SignedTransactionRequest()
+      signedTransaction.payload = "0x1234567890abcdef"
+      signedTransaction.format = "hedera"
+
+      mockConfigService.getHederaNetwork.mockReturnValue("previewnet")
+      await adapter.sendTransaction(signedTransaction)
+      expect(Client.forPreviewnet).toHaveBeenCalled()
+
+      mockConfigService.getHederaNetwork.mockReturnValue("local")
+      await adapter.sendTransaction(signedTransaction)
+      expect(Client.forNetwork).toHaveBeenCalledWith({ "127.0.0.1:50211": "0.0.3" })
+
+      mockConfigService.getHederaNetwork.mockReturnValue("unknown")
+      await adapter.sendTransaction(signedTransaction)
+      expect(Client.forTestnet).toHaveBeenCalled()
+    })
+
+    it("should use separate network configurations for Ethereum HashIO URLs", async () => {
+      const { ethers } = jest.requireMock("ethers")
+      
+      const signedTransaction = new SignedTransactionRequest()
+      signedTransaction.payload = "0xabcdef1234567890"
+      signedTransaction.format = "ethereum"
+
+      mockConfigService.getEthereumNetwork.mockReturnValue("mainnet")
+      await adapter.sendTransaction(signedTransaction)
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
+
+      mockConfigService.getEthereumNetwork.mockReturnValue("previewnet")
+      await adapter.sendTransaction(signedTransaction)
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://previewnet.hashio.io/api")
+
+      mockConfigService.getEthereumNetwork.mockReturnValue("local")
+      await adapter.sendTransaction(signedTransaction)
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("http://localhost:8545")
+    })
+
+    it("should handle different network configurations independently", async () => {
+      const { Client } = jest.requireMock("@hashgraph/sdk")
+      const { ethers } = jest.requireMock("ethers")
+      
+      mockConfigService.getHederaNetwork.mockReturnValue("mainnet")
+      mockConfigService.getEthereumNetwork.mockReturnValue("testnet")
+
+      const hederaTransaction = new SignedTransactionRequest()
+      hederaTransaction.payload = "0x1234567890abcdef"
+      hederaTransaction.format = "hedera"
+
+      const ethereumTransaction = new SignedTransactionRequest()
+      ethereumTransaction.payload = "0xabcdef1234567890"
+      ethereumTransaction.format = "ethereum"
+
+      await adapter.sendTransaction(hederaTransaction)
+      expect(Client.forMainnet).toHaveBeenCalled()
+
+      await adapter.sendTransaction(ethereumTransaction)
+      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://testnet.hashio.io/api")
     })
   })
 })
