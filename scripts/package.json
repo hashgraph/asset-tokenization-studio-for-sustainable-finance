@@ -4,16 +4,17 @@
   "description": "Utility scripts for Evercity Green Bonds Platform",
   "private": true,
   "scripts": {
-  "sign": "node cli/transaction-signer.js",
-  "bond": "node cli/bond-simulator.js", 
-  "sign-and-send": "node cli/transaction-sign-and-send.js",
-  "all:start": "node cli/infra-setup.js start",
-  "all:stop": "node cli/infra-setup.js stop",
-  "all:status": "node cli/infra-setup.js status",
-  "docker:start": "node cli/infra-setup.js start docker",
-  "docker:stop": "node cli/infra-setup.js stop",
-  "apis:start": "node cli/infra-setup.js start apis",
-  "apis:stop": "node cli/infra-setup.js stop"
+  "sign": "node utils/transaction-signer.js",
+  "sign-and-send": "node utils/transaction-sign-and-send.js",
+  "ats:bond": "node ats/bond/bond-simulator.js",
+  "primary-market:offering": "node primary-market/offering/offering-simulator.js",
+  "all:start": "node shared/infra/infra-setup.js start",
+  "all:stop": "node shared/infra/infra-setup.js stop",
+  "all:status": "node shared/infra/infra-setup.js status",
+  "docker:start": "node shared/infra/infra-setup.js start docker",
+  "docker:stop": "node shared/infra/infra-setup.js stop",
+  "apis:start": "node shared/infra/infra-setup.js start apis",
+  "apis:stop": "node shared/infra/infra-setup.js stop"
   },
   "license": "Apache-2.0"
 }

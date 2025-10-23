@@ -1,8 +1,8 @@
-const { config } = require('../lib/config');
-const { log, logSuccess, logError, logHeader, colors } = require('../lib/logger');
-const { signTransaction, validateSigningConfig } = require('../lib/transaction-signer');
-const { publishSignedTransaction } = require('../lib/infrastructure');
-const { createBond } = require('../lib/bond-service');
+const { config } = require('../../shared/lib/config');
+const { log, logSuccess, logError, logHeader, colors } = require('../../shared/lib/logger');
+const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
+const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
+const { createBond } = require('./bond-service');
 
 async function runBondCreationSimulator() {
   logHeader('🚀 Running Bond Creation Simulator...');
