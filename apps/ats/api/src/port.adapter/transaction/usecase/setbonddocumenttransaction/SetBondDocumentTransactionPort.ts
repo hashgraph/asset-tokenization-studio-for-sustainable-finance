@@ -8,5 +8,5 @@ export interface SetBondDocumentTransactionPort {
     contractId: string,
     name: string,
     request: SetBondDocumentTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }

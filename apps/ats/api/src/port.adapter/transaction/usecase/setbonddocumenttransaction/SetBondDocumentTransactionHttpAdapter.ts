@@ -12,11 +12,11 @@ export class SetBondDocumentTransactionHttpAdapter implements SetBondDocumentTra
   constructor(private readonly setBondDocumentTransactionAppService: SetBondDocumentTransactionAppService) {}
 
   @Post(":bondContractId/documents/:documentId")
-  setBondDocumentTransaction(
+  async setBondDocumentTransaction(
     @Param("bondContractId") contractId: string,
     @Param("documentId", Bytes32ParamPipe) name: string,
     @Body() request: SetBondDocumentTransactionRequest,
-  ): TransactionResponse {
+  ): Promise<TransactionResponse> {
     const appServiceRequest = new SetBondDocumentTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
@@ -26,6 +26,6 @@ export class SetBondDocumentTransactionHttpAdapter implements SetBondDocumentTra
       request.hash,
     )
 
-    return this.setBondDocumentTransactionAppService.execute(appServiceRequest)
+    return await this.setBondDocumentTransactionAppService.execute(appServiceRequest)
   }
 }

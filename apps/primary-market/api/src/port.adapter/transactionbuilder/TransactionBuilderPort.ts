@@ -5,6 +5,6 @@ import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferi
 import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
 
 export interface TransactionBuilderPort {
-  createOffering(request: BuildCreateOfferingTransactionRequest): BuildTransactionResponse
-  grantRole(request: BuildGrantRoleTransactionRequest): BuildTransactionResponse
+  createOffering(request: BuildCreateOfferingTransactionRequest): Promise<BuildTransactionResponse>
+  grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse>
 }

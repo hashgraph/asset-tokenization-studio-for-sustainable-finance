@@ -11,12 +11,12 @@ export class GrantRoleTransactionHttpAdapter implements GrantRoleTransactionPort
   constructor(private readonly grantRoleTransactionAppService: GrantRoleTransactionAppService) {}
 
   @Post(":marketContractId/roles/:roleId/users/:userAccountId")
-  grantRoleTransaction(
+  async grantRoleTransaction(
     @Param("marketContractId") marketContractId: string,
     @Param("roleId") roleId: string,
     @Param("userAccountId") userAccountId: string,
     @Body() request: GrantRoleTransactionRequest,
-  ): TransactionResponse {
+  ): Promise<TransactionResponse> {
     const appServiceRequest = new GrantRoleTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
@@ -24,6 +24,6 @@ export class GrantRoleTransactionHttpAdapter implements GrantRoleTransactionPort
       roleId,
       userAccountId,
     )
-    return this.grantRoleTransactionAppService.execute(appServiceRequest)
+    return await this.grantRoleTransactionAppService.execute(appServiceRequest)
   }
 }

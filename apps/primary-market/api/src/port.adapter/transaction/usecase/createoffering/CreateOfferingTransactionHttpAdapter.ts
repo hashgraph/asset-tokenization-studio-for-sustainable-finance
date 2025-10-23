@@ -11,11 +11,11 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
   constructor(private readonly createOfferingTransactionAppService: CreateOfferingTransactionAppService) {}
 
   @Post(":marketContractId/bonds/:bondContractId")
-  createOfferingTransaction(
+  async createOfferingTransaction(
     @Param("marketContractId") marketContractId: string,
     @Param("bondContractId") bondContractId: string,
     @Body() request: CreateOfferingTransactionRequest,
-  ): TransactionResponse {
+  ): Promise<TransactionResponse> {
     const appServiceRequest = new CreateOfferingTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
@@ -32,6 +32,6 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.endDate,
       request.deadlineRule,
     )
-    return this.createOfferingTransactionAppService.execute(appServiceRequest)
+    return await this.createOfferingTransactionAppService.execute(appServiceRequest)
   }
 }

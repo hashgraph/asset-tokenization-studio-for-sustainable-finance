@@ -8,5 +8,5 @@ export interface CreateOfferingTransactionPort {
     marketContractId: string,
     bondContractId: string,
     request: CreateOfferingTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }
