@@ -8,8 +8,9 @@
  * 2. PgAdmin (via Docker) 
  * 3. RabbitMQ (via Docker)
  * 4. ATS API (Node.js process) - Port 3001
- * 5. API Gateway (Node.js process) - Port 3000 (with authentication)
- * 6. Transaction Sender (Node.js process) - Port 3005
+ * 5. Primary Market API (Node.js process) - Port 3002
+ * 6. API Gateway (Node.js process) - Port 3000 (with authentication)
+ * 7. Transaction Sender (Node.js process) - Port 3005
  * 
  * The API Gateway provides:
  * - Authentication via API keys (x-api-key header)
@@ -32,7 +33,7 @@ const fs = require('fs');
 // Configuration
 const CONFIG = {
   docker: {
-    composeFile: path.join(path.dirname(__dirname), 'docker-compose.yaml'),
+    composeFile: path.join(path.dirname(__dirname), '..', 'docker-compose.yaml'),
     services: {
       postgres: {
         name: 'PostgreSQL',
@@ -56,7 +57,7 @@ const CONFIG = {
   },
   atsApi: {
     name: 'ATS API',
-    path: '../../apps/ats/api',
+    path: '../../../apps/ats/api',
     port: 3001,
     healthUrl: 'http://localhost:3001/health',
     command: 'npm run start:dev',
@@ -66,17 +67,29 @@ const CONFIG = {
       POSTGRESQL_PORT: '5432'
     }
   },
+  primaryMarketApi: {
+    name: 'Primary Market API',
+    path: '../../../apps/primary-market/api',
+    port: 3002,
+    healthUrl: 'http://localhost:3002/health',
+    command: 'npm run start:dev',
+    env: {
+      PORT: '3002',
+      POSTGRESQL_HOST: 'localhost',
+      POSTGRESQL_PORT: '5432'
+    }
+  },
   gateway: {
     name: 'API Gateway',
-    path: '../../apps/shared/gateway',
+    path: '../../../apps/shared/gateway',
     port: 3000,
     healthUrl: 'http://localhost:3000/health',
     command: 'npm run start:dev',
     env: {
       PORT: '3000',
       LOG_LEVEL: 'log',
-      PATHS: '/api/v1/ats',
-      ROUTES: 'http://localhost:3001',
+      PATHS: '/api/v1/ats,/api/v1/primary-markets',
+      ROUTES: 'http://localhost:3001,http://localhost:3002',
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'
@@ -84,7 +97,7 @@ const CONFIG = {
   },
   transactionSender: {
     name: 'Transaction Sender',
-    path: '../../apps/shared/transaction-sender',
+    path: '../../../apps/shared/transaction-sender',
     port: 3005,
     healthUrl: 'http://localhost:3005',
     command: 'npm run start:dev',
@@ -239,12 +252,20 @@ function startNodeService(service) {
     const env = { ...process.env, ...service.env };
     
     // For workspace projects, use npm from the workspace root with package name
-    const workspaceRoot = path.resolve(__dirname, '../../');
+    const workspaceRoot = path.resolve(__dirname, '../../../');
     let child;
     
     // Map service paths to workspace package names
     if (service.path.includes('apps/ats/api')) {
       const workspaceName = '@hashgraph/green-bonds-ats-api';
+      child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
+        cwd: workspaceRoot,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        detached: false,
+        env: env
+      });
+    } else if (service.path.includes('apps/primary-market/api')) {
+      const workspaceName = '@hashgraph/green-bonds-primary-market-api';
       child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
         cwd: workspaceRoot,
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -339,7 +360,7 @@ function startNodeService(service) {
 
 async function buildPackages() {
   log('📦 Building shared packages...', colors.cyan);
-  const workspaceRoot = path.resolve(__dirname, '../../');
+  const workspaceRoot = path.resolve(__dirname, '../../../');
   
   try {
     await execAsync(`npm run shared:build`, { cwd: workspaceRoot });
@@ -360,8 +381,8 @@ async function startNodeServices() {
     log('⚠️  Warning: Package build failed, services may not work correctly', colors.yellow);
   }
   
-  // Start ATS API first, then Gateway (which proxies to ATS), then Transaction Sender
-  const services = [CONFIG.atsApi, CONFIG.gateway, CONFIG.transactionSender];
+  // Start ATS API and Primary Market API first, then Gateway (which proxies to both), then Transaction Sender
+  const services = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.gateway, CONFIG.transactionSender];
   const processes = [];
 
   for (const service of services) {
@@ -437,7 +458,7 @@ async function checkInfrastructureStatus() {
 
   // Check Node.js services
   log('\n🚀 Node.js Services:', colors.cyan);
-  const nodeServices = [CONFIG.atsApi, CONFIG.gateway, CONFIG.transactionSender];
+  const nodeServices = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.gateway, CONFIG.transactionSender];
   for (const service of nodeServices) {
     const healthy = await checkServiceHealth(service);
     log(`• ${service.name}: ${healthy ? '🟢 Running' : '🔴 Stopped'}`, 
@@ -456,6 +477,7 @@ async function stopAllInfrastructure() {
   log('\n🚀 Stopping Node.js services...', colors.cyan);
   await stopNodeProcessOnPort(3000, 'API Gateway');
   await stopNodeProcessOnPort(3001, 'ATS API');
+  await stopNodeProcessOnPort(3002, 'Primary Market API');
   await stopNodeProcessOnPort(3005, 'Transaction Sender');
   
   // Stop Docker services
@@ -506,8 +528,11 @@ async function startFullInfrastructure() {
   log('\n🌐 Access Points:', colors.blue);
   log('• API Gateway: http://localhost:3000 (🔒 Requires x-api-key header)');
   log('• ATS API (Direct): http://localhost:3001/api/v1/ats');
-  log('• Swagger ATS API (Direct): http://localhost:3001/api');
+  log('• ATS API Swagger (Direct): http://localhost:3001/api');
   log('• ATS API (via Gateway): http://localhost:3000/api/v1/ats');
+  log('• Primary Market API (Direct): http://localhost:3002/api/v1/primary-markets');
+  log('• Primary Market API Swagger (Direct): http://localhost:3002/api');
+  log('• Primary Market API (via Gateway): http://localhost:3000/api/v1/primary-markets');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
   log('• RabbitMQ: http://localhost:15672 (guest/guest)');

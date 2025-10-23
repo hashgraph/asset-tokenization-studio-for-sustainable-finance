@@ -1,8 +1,8 @@
-const { config } = require('../lib/config');
-const { log, logSuccess, logError, logHeader, colors } = require('../lib/logger');
-const { signTransaction, validateSigningConfig } = require('../lib/transaction-signer');
-const { publishSignedTransaction } = require('../lib/infrastructure');
-const { getUserInput } = require('../lib/input');
+const { config } = require('../shared/lib/config');
+const { log, logSuccess, logError, logHeader, colors } = require('../shared/lib/logger');
+const { signTransaction, validateSigningConfig } = require('../shared/lib/transaction-signer');
+const { publishSignedTransaction } = require('../shared/lib/infrastructure');
+const { getUserInput } = require('../shared/lib/input');
 
 async function runTransactionSignAndSend() {
   logHeader('🚀 Transaction Sign & Send Tool');

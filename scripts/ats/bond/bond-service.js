@@ -1,5 +1,5 @@
-const { gatewayClient } = require('./gateway-client');
-const { logSuccess, logError, logInfo, log, colors } = require('./logger');
+const { gatewayClient } = require('../../shared/lib/gateway-client');
+const { logSuccess, logError, logInfo, log, colors } = require('../../shared/lib/logger');
 
 async function createBond(format) {
   log(`\n📋 Creating ${format.toUpperCase()} bond...`, colors.bright);
