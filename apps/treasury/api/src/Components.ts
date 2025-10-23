@@ -74,6 +74,8 @@ import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymentt
 import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
 import { PauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionHttpAdapter"
 import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
+import { UnpauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/unpausetreasury/UnpauseTreasuryTransactionHttpAdapter"
+import { UnpauseTreasuryTransactionAppService } from "@app/transaction/unpausetreasury/service/UnpauseTreasuryTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -126,6 +128,7 @@ export const CONTROLLERS = [
   UpdatePaymentTokenTransactionHttpAdapter,
   ExternalTransferEnvironmentalAssetTransactionHttpAdapter,
   GetPaymentTokensHttpAdapter,
+  UnpauseTreasuryTransactionHttpAdapter,
   GetPaymentTokenTransfersHttpAdapter,
   PauseTreasuryTransactionHttpAdapter,
 ]
@@ -165,6 +168,7 @@ export const PROVIDERS = [
   UpdatePaymentTokenDomainService,
   AddPaymentTokenTransferNestJSEventAdapter,
   AddPaymentTokenTransferCommandHandler,
+  UnpauseTreasuryTransactionAppService,
   AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
   PauseTreasuryTransactionAppService,

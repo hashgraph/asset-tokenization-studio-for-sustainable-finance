@@ -26,6 +26,7 @@ import { TransferTransaction } from "@hashgraph/sdk"
 import { utils } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
+import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -204,6 +205,22 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     return await this.buildAndSerializeTransaction({
       contractInterface,
       functionName: "pause" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [],
+    } as any)
+  }
+
+  async unpauseTreasury(request: BuildUnpauseTreasuryTransactionRequest): Promise<BuildTransactionResponse> {
+    const contractInterface = IPause__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    return await this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "unpause" as any,
       contractId: request.contractId,
       gas: this.GAS,
       environment,
