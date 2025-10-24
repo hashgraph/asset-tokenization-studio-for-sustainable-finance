@@ -17,7 +17,9 @@ import {
 
 abstract contract LifeCycleCashFlow is
     ILifeCycleCashFlow,
-    LifeCycleCashFlowStorageWrapper
+    LifeCycleCashFlowStorageWrapper,
+    Pause,
+    AccessControl
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
@@ -56,9 +58,24 @@ abstract contract LifeCycleCashFlow is
         external
         override
         onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        isBond(bond)
+        onlyOnDistributionDate(bond, distributionId)
         returns (PaymentResult memory result, bool executed)
     {
-        // solhint-disable-next-line no-empty-blocks
+        (result, executed) = _executeDistribution(
+            _lifeCycleCashFlowStorage().bond,
+            distributionId,
+            pageIndex,
+            pageLength
+        );
+
+        emit DistributionExecuted(
+            distributionId,
+            pageIndex,
+            pageLength,
+            result
+        );
     }
 
     /*
@@ -76,8 +93,22 @@ abstract contract LifeCycleCashFlow is
         address bond,
         uint256 distributionId,
         address[] calldata holders
-    ) external override returns (PaymentResult memory result) {
-        // solhint-disable-next-line no-empty-blocks
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        isBond(bond)
+        onlyOnDistributionDate(bond, distributionId)
+        returns (PaymentResult memory result)
+    {
+        result = _executeDistributionByAddresses(
+            _lifeCycleCashFlowStorage().bond,
+            distributionId,
+            holders
+        );
+
+        emit DistributionByAddressesExecuted(distributionId, holders, result);
     }
 
     /*

@@ -126,6 +126,6 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param value True if the value is not greater than the maximum int64, false otherwise
      */
     function _uint256FitsIntoInt64(uint256 value) private pure returns (bool) {
-        return value <= 9223372036854775807;
+        return value <= uint256(uint64(type(int64).max));
     }
 }
