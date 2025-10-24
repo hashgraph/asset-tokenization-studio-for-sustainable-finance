@@ -6,6 +6,7 @@ import { Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "../model/PrimaryMarketPersistence"
 import { PrimaryMarketRepository } from "@domain/primarymarket/repositories/PrimaryMarketRepository"
 import { PrimaryMarket } from "@domain/primarymarket/model/PrimaryMarket"
+import { plainToInstance } from "class-transformer"
 
 @Injectable()
 export class PrimaryMarketTypeORMRepository implements PrimaryMarketRepository {
@@ -23,6 +24,6 @@ export class PrimaryMarketTypeORMRepository implements PrimaryMarketRepository {
   }
 
   private toDomain(persistence: PrimaryMarketPersistence): PrimaryMarket {
-    return { ...persistence } as PrimaryMarket
+    return plainToInstance(PrimaryMarket, persistence)
   }
 }

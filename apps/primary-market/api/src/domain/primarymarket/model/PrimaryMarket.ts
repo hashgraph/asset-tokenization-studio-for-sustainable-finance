@@ -2,6 +2,7 @@
 
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsBoolean } from "class-validator"
+import { PrimaryMarketPausedError } from "../errors/PrimaryMarketPausedError"
 
 export class PrimaryMarket extends BaseEntity {
   @IsNotEmpty()
@@ -10,4 +11,10 @@ export class PrimaryMarket extends BaseEntity {
 
   @IsBoolean()
   isPaused: boolean
+
+  isActive(): void {
+    if (this.isPaused) {
+      throw PrimaryMarketPausedError.pausedError(this.contractId)
+    }
+  }
 }

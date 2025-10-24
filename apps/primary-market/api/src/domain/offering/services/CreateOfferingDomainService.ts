@@ -6,17 +6,18 @@ import { CreateOfferingDomainServiceRequest } from "./model/CreateOfferingDomain
 import { Offering } from "../model/Offering"
 import { OfferingFoundError } from "../errors/OfferingFoundError"
 import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
-import { CheckPrimaryMarketActiveDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketActiveDomainService"
+import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 
 @Singleton()
 export class CreateOfferingDomainService {
   constructor(
     @Inject() private readonly offeringRepository: OfferingRepository,
-    private readonly checkPrimaryMarketActiveDomainService: CheckPrimaryMarketActiveDomainService,
+    private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
   ) {}
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
-    const market = await this.checkPrimaryMarketActiveDomainService.execute(createOfferingDomainServiceRequest.marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(createOfferingDomainServiceRequest.marketId)
+    market.isActive()
 
     const existingOffering = await this.offeringRepository.findByOfferingId(
       createOfferingDomainServiceRequest.offeringId,
