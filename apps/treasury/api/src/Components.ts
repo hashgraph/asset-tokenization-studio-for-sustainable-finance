@@ -80,6 +80,10 @@ import { PauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/pausetre
 import { PauseTreasuryCommandHandler } from "@app/treasury/pausetreasury/command/PauseTreasuryCommandHandler"
 import { UnpauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryNestJSEventAdapter"
 import { UnpauseTreasuryCommandHandler } from "@app/treasury/unpausetreasury/command/UnpauseTreasuryCommandHandler"
+import { ProceedsRecipientTypeOrmRepository } from "@port/persistence/proceedsrecipient/repositories/ProceedsRecipientTypeOrmRepository"
+import { ProceedsRecipientAllocationTypeOrmRepository } from "@port/persistence/proceedsrecipient/repositories/ProceedsRecipientAllocationTypeOrmRepository"
+import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientPersistence"
+import { ProceedsRecipientAllocationPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientAllocationPersistence"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -106,6 +110,14 @@ const REPOSITORIES: Provider[] = [
     provide: "PaymentTokenTransferRepository",
     useClass: PaymentTokenTransferTypeOrmRepository,
   },
+  {
+    provide: "ProceedsRecipientRepository",
+    useClass: ProceedsRecipientTypeOrmRepository,
+  },
+  {
+    provide: "ProceedsRecipientAllocationRepository",
+    useClass: ProceedsRecipientAllocationTypeOrmRepository,
+  },
 ]
 
 export const ENTITIES = [
@@ -116,6 +128,8 @@ export const ENTITIES = [
   EnvironmentalAssetTransferPersistence,
   PaymentTokenPersistence,
   PaymentTokenTransferPersistence,
+  ProceedsRecipientPersistence,
+  ProceedsRecipientAllocationPersistence,
 ]
 
 export const CONTROLLERS = [
