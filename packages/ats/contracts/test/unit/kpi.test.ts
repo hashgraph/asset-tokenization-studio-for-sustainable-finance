@@ -1,15 +1,15 @@
 import { Kpi } from "@contracts/contracts";
-import { ProxyAdmin } from "@contracts/index";
+import { ProxyAdmin } from "@contracts";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { KPI_DATA_MANAGER_ROLE, PAUSER_ROLE } from "@scripts/constants";
-import { deployProxyAdmin } from "@scripts/proxy/deployProxy";
-import { getImplementationAddress } from "@scripts/utils";
+import { KPI_DATA_MANAGER_ROLE, PAUSER_ROLE } from "@scripts/domain";
+import { deployProxyAdmin } from "@scripts";
+import { getImplementationAddress } from "@scripts";
 import { IResolverProxy } from "@contracts/contracts/Kpi";
 import { expect } from "chai";
 import { Signer } from "ethers";
 import { ethers } from "hardhat";
-import { upgradeKpiProxy } from "@scripts/domain/kpi/upgradeKpi";
-import { deployKpi } from "@scripts/domain/kpi/kpiDeploy";
+import { upgradeKpiProxy } from "@scripts/domain";
+import { deployKpi } from "@scripts/domain";
 import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 describe("Kpi", () => {

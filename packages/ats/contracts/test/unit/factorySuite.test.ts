@@ -12,8 +12,8 @@ import {
   TEST_ROLE_2,
   TEST_KPI_ROLE_1,
   TEST_KPI_ROLE_2,
+  deployFactorySuiteWithMocksForBusinessLogic,
 } from "@test";
-import { deployFactorySuiteWithMocksForBusinessLogic } from "@test/fixtures";
 import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
 
 describe("FactorySuite - Business Logic Tests", () => {

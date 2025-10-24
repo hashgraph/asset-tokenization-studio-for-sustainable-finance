@@ -4,6 +4,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "@primitivefi/hardhat-dodoc";
 import "hardhat-dependency-compiler";
+import "@tasks";
 
 const config: HardhatUserConfig = {
   solidity: {

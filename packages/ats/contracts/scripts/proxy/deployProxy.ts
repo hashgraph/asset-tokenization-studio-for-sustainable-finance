@@ -1,5 +1,5 @@
-import { ProxyAdmin } from "@contracts/index";
-import { getProxyAdminOwnerEnv } from "@scripts/utils";
+import { ProxyAdmin } from "@contracts";
+import { getProxyAdminOwnerEnv } from "@scripts";
 import { BaseContract } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import { ethers } from "hardhat";

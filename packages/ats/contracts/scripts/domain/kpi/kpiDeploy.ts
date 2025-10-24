@@ -7,7 +7,7 @@ import {
   deployProxy,
   LogLevel,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { processAddressableArgs } from "@scripts/utils";
+import { processAddressableArgs } from "@scripts";
 
 import { ethers } from "hardhat";
 

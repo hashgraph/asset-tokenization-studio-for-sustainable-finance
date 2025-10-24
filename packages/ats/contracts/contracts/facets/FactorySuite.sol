@@ -5,8 +5,8 @@ pragma solidity >=0.8.0 <0.9.0;
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { IAtsFactory, AtsFactoryRegulationData } from "./interfaces/IFactorySuite.sol";
-import { DEPLOYER_ROLE } from "./constants/roles.sol";
+import { IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
+import { DEPLOYER_ROLE } from "../constants/roles.sol";
 import { FactorySuiteStorageWrapper } from "./FactorySuiteStorageWrapper.sol";
 // solhint-enable max-line-length
 
