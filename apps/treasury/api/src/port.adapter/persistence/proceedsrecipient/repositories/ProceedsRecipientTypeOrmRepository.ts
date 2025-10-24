@@ -19,4 +19,18 @@ export class ProceedsRecipientTypeOrmRepository implements ProceedsRecipientRepo
     const persistence = await this.proceedsRecipientRepository.save(proceedsRecipient as ProceedsRecipientPersistence)
     return persistence as ProceedsRecipient
   }
+
+  async findByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<ProceedsRecipient | null> {
+    const persistence = await this.proceedsRecipientRepository
+      .createQueryBuilder("proceedsRecipient")
+      .innerJoin("proceedsRecipient.treasury", "treasury")
+      .where("proceedsRecipient.contractId = :contractId", { contractId })
+      .andWhere("treasury.contractId = :treasuryContractId", { treasuryContractId })
+      .getOne()
+
+    return persistence ? (persistence as ProceedsRecipient) : null
+  }
 }

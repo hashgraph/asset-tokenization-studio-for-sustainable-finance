@@ -4,4 +4,8 @@ import { ProceedsRecipient } from "@domain/proceedsrecipient/model/ProceedsRecip
 
 export interface ProceedsRecipientRepository {
   save(proceedsRecipient: ProceedsRecipient): Promise<ProceedsRecipient>
+  findByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<ProceedsRecipient | null>
 }
