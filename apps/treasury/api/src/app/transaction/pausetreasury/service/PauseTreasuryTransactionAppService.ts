@@ -10,6 +10,6 @@ export class PauseTreasuryTransactionAppService {
 
   @Validate()
   async execute(request: PauseTreasuryTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
-    return this.transactionBuilderPort.pauseTreasury(request)
+    return await this.transactionBuilderPort.pauseTreasury(request)
   }
 }

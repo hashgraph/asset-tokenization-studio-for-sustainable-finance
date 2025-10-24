@@ -6,6 +6,7 @@ import { Repository } from "typeorm"
 import { OfferingRepository } from "@domain/offering/repositories/OfferingRepository"
 import { Offering } from "@domain/offering/model/Offering"
 import { OfferingPersistence } from "../model/OfferingPersistence"
+import { plainToInstance } from "class-transformer"
 
 @Injectable()
 export class OfferingTypeORMRepository implements OfferingRepository {
@@ -15,7 +16,7 @@ export class OfferingTypeORMRepository implements OfferingRepository {
   ) {}
 
   async save(offering: Offering): Promise<Offering> {
-    const saved = await this.repository.save(offering as OfferingPersistence)
+    const saved = await this.repository.save(offering as unknown as OfferingPersistence)
     return this.toDomain(saved)
   }
 
@@ -28,6 +29,6 @@ export class OfferingTypeORMRepository implements OfferingRepository {
   }
 
   private toDomain(persistence: OfferingPersistence): Offering {
-    return { ...persistence } as Offering
+    return plainToInstance(Offering, persistence)
   }
 }

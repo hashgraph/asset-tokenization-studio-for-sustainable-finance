@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import { CheckPrimaryMarketActiveDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketActiveDomainService"
+import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import type { RoleRepository } from "@domain/role/repositories/RoleRepository"
 import type { UserRepository } from "@domain/user/repositories/UserRepository"
 import type { UserMarketRoleRepository } from "../repositories/UserMarketRepository"
@@ -17,15 +17,16 @@ export class GrantUserMarketRoleDomainService {
     @Inject() private readonly roleRepository: RoleRepository,
     @Inject() private readonly userRepository: UserRepository,
     @Inject() private readonly userMarketRoleRepository: UserMarketRoleRepository,
-    private readonly checkPrimaryMarketActiveDomainService: CheckPrimaryMarketActiveDomainService,
+    private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
   ) {}
 
   async execute(
     grantUserMarketRoleDomainServiceRequest: GrantUserMarketRoleDomainServiceRequest,
   ): Promise<UserMarketRole> {
-    const market = await this.checkPrimaryMarketActiveDomainService.execute(
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(
       grantUserMarketRoleDomainServiceRequest.marketId,
     )
+    market.isActive()
 
     const role = await this.getOrCreateRole(grantUserMarketRoleDomainServiceRequest.roleHex)
     const user = await this.getOrCreateUser(grantUserMarketRoleDomainServiceRequest.accountId)

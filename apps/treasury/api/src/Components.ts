@@ -76,6 +76,10 @@ import { PauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/p
 import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
 import { UnpauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/unpausetreasury/UnpauseTreasuryTransactionHttpAdapter"
 import { UnpauseTreasuryTransactionAppService } from "@app/transaction/unpausetreasury/service/UnpauseTreasuryTransactionAppService"
+import { PauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/pausetreasury/PauseTreasuryNestJSEventAdapter"
+import { PauseTreasuryCommandHandler } from "@app/treasury/pausetreasury/command/PauseTreasuryCommandHandler"
+import { UnpauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryNestJSEventAdapter"
+import { UnpauseTreasuryCommandHandler } from "@app/treasury/unpausetreasury/command/UnpauseTreasuryCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -172,6 +176,10 @@ export const PROVIDERS = [
   AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
   PauseTreasuryTransactionAppService,
+  PauseTreasuryNestJSEventAdapter,
+  PauseTreasuryCommandHandler,
+  UnpauseTreasuryNestJSEventAdapter,
+  UnpauseTreasuryCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
