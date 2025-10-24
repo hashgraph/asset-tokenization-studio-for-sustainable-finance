@@ -6,6 +6,7 @@ import { Repository } from "typeorm"
 import { UserMarketRoleRepository } from "@domain/usermarketrole/repositories/UserMarketRepository"
 import { UserMarketRole } from "@domain/usermarketrole/model/UserMarketRole"
 import { UserMarketRolePersistence } from "../model/UserMarketRolePersistence"
+import { plainToInstance } from "class-transformer"
 
 @Injectable()
 export class UserMarketRoleTypeORMRepository implements UserMarketRoleRepository {
@@ -15,7 +16,7 @@ export class UserMarketRoleTypeORMRepository implements UserMarketRoleRepository
   ) {}
 
   async save(userMarketRole: UserMarketRole): Promise<UserMarketRole> {
-    const saved = await this.repository.save(userMarketRole as UserMarketRolePersistence)
+    const saved = await this.repository.save(userMarketRole as unknown as UserMarketRolePersistence)
     return this.toDomain(saved)
   }
 
@@ -32,6 +33,6 @@ export class UserMarketRoleTypeORMRepository implements UserMarketRoleRepository
   }
 
   private toDomain(persistence: UserMarketRolePersistence): UserMarketRole {
-    return { ...persistence } as UserMarketRole
+    return plainToInstance(UserMarketRole, persistence)
   }
 }
