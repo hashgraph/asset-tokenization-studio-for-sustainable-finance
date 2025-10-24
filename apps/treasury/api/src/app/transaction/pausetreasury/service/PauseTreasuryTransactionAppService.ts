@@ -2,7 +2,7 @@
 
 import { Inject, Singleton, TransactionAppServiceResponse, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { TransactionBuilderPort } from "@port/transactionbuilder/TransactionBuilderPort"
-import { PauseTreasuryTransactionAppServiceRequest } from "@app/transaction/pausetreasury/service/model/PauseTreasuryTransactionAppServiceRequest"
+import { PauseTreasuryTransactionAppServiceRequest } from "./model/PauseTreasuryTransactionAppServiceRequest"
 
 @Singleton()
 export class PauseTreasuryTransactionAppService {
