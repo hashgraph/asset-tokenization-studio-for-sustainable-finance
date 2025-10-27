@@ -227,10 +227,6 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
   private decodeLog(request: DecodeLogRequest): BlockchainEvent {
     try {
-      if (!request.data || request.data === "0x") {
-        return null
-      }
-
       const eventSignature: string = request.eventSignatures.find(
         (eventSignature) => eventSignature.normalizedEventSignatureHash === request.topics[0],
       )?.eventSignature
