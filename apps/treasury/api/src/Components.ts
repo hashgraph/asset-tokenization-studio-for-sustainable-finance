@@ -88,6 +88,9 @@ import { SyncProceedsRecipientNestJSEventAdapter } from "@port/proceedsrecipient
 import { SyncProceedsRecipientAppService } from "@app/proceedsrecipient/syncproceedsrecipient/service/SyncProceedsRecipientAppService"
 import { CreateProceedsRecipientCommandHandler } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommandHandler"
 import { AddProceedsRecipientAllocationCommandHandler } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommandHandler"
+import { GetProceedsRecipientAllocationsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipientallocations/GetProceedsRecipientAllocationsHttpAdapter"
+import { GetProceedsRecipientAllocationsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipientallocations/query/GetProceedsRecipientAllocationsQueryHandler"
+import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -153,6 +156,7 @@ export const CONTROLLERS = [
   UnpauseTreasuryTransactionHttpAdapter,
   GetPaymentTokenTransfersHttpAdapter,
   PauseTreasuryTransactionHttpAdapter,
+  GetProceedsRecipientAllocationsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -170,6 +174,7 @@ export const PROVIDERS = [
   CheckPaymentTokenExistsDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
+  CheckProceedsRecipientExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -211,6 +216,7 @@ export const PROVIDERS = [
   GetEnvironmentalAssetHoldingsQueryHandler,
   GetPaymentTokensQueryHandler,
   GetPaymentTokenTransfersQueryHandler,
+  GetProceedsRecipientAllocationsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
