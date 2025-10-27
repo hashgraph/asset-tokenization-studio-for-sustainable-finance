@@ -32,7 +32,7 @@ import {
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { BusinessLogicResolver__factory } from "@contracts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createTreasuryConfiguration } from "@scripts/domain";
 import { treasuryRegistry } from "@scripts/infrastructure/treasuryRegistry";
 import type { DeployTreasuryOutput } from "./deployTreasury";
@@ -178,7 +178,7 @@ export async function deployTreasuryWithExistingInfra(
     const facetsResult = await deployFacets(provider, {
       facetNames,
       useTimeTravel,
-      registry: treasuryRegistry,
+      registries: [treasuryRegistry],
     });
 
     if (!facetsResult.success) {
@@ -238,7 +238,8 @@ export async function deployTreasuryWithExistingInfra(
     const treasuryConfig = await createTreasuryConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
 
     if (!treasuryConfig.success) {
-      throw new Error(`Treasury config failed: ${treasuryConfig.error} - ${treasuryConfig.message}`);
+      //throw new Error(`Treasury config failed: ${treasuryConfig.error} - ${treasuryConfig.message}`);
+      throw new Error(`Treasury config failed: ${treasuryConfig}`);
     }
 
     info(`✅ Treasury Config ID: ${treasuryConfig.data.configurationId}`);
