@@ -7,8 +7,8 @@ pragma solidity >=0.8.0 <0.9.0;
  * @dev Used by MockAtsFactory to simulate bond contract creation
  */
 contract MockBond {
-    string public name = "Mock Bond";
-    string public symbol = "MBOND";
+    string public name = 'Mock Bond';
+    string public symbol = 'MBOND';
 
     // solhint-disable-next-line no-empty-blocks
     constructor() {}

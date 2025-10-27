@@ -27,12 +27,14 @@ abstract contract LifeCycleCashFlow is
     )
         external
         override
-        notAddressZero(bond)
+        notAddressZero(asset)
         onlyUninitialized(_lifeCycleCashFlowStorage().initialized)
     {
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
+        _grantRole(PAYOUT_ROLE, _msgSender());
+        _grantRole(PAUSER_ROLE, _msgSender());
         lifeCycleCashFlowStorage.initialized = true;
     }
 

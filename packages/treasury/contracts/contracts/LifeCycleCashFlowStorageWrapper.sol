@@ -92,7 +92,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             pageLength
         );
         if (holders.length == 0) return (result, false);
-        result = _executeDistributionByAddresses(asset, distributionId, holders);
+        result = _executeDistributionByAddresses(
+            asset,
+            distributionId,
+            holders
+        );
         return (result, true);
     }
 
@@ -521,7 +525,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageLength
     ) private view returns (address[] memory) {
         return
-            IBond(asset).getCouponHolders(distributionId, pageIndex, pageLength);
+            IBond(asset).getCouponHolders(
+                distributionId,
+                pageIndex,
+                pageLength
+            );
     }
 
     /*
