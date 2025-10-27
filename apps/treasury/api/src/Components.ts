@@ -84,6 +84,10 @@ import { ProceedsRecipientTypeOrmRepository } from "@port/persistence/proceedsre
 import { ProceedsRecipientAllocationTypeOrmRepository } from "@port/persistence/proceedsrecipient/repositories/ProceedsRecipientAllocationTypeOrmRepository"
 import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientPersistence"
 import { ProceedsRecipientAllocationPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientAllocationPersistence"
+import { SyncProceedsRecipientNestJSEventAdapter } from "@port/proceedsrecipient/usecase/syncproceedsrecipient/SyncProceedsRecipientNestJSEventAdapter"
+import { SyncProceedsRecipientAppService } from "@app/proceedsrecipient/syncproceedsrecipient/service/SyncProceedsRecipientAppService"
+import { CreateProceedsRecipientCommandHandler } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommandHandler"
+import { AddProceedsRecipientAllocationCommandHandler } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -194,6 +198,10 @@ export const PROVIDERS = [
   PauseTreasuryCommandHandler,
   UnpauseTreasuryNestJSEventAdapter,
   UnpauseTreasuryCommandHandler,
+  SyncProceedsRecipientNestJSEventAdapter,
+  SyncProceedsRecipientAppService,
+  CreateProceedsRecipientCommandHandler,
+  AddProceedsRecipientAllocationCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
