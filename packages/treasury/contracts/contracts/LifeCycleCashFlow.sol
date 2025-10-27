@@ -23,7 +23,7 @@ abstract contract LifeCycleCashFlow is
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
-        address bond
+        address asset
     )
         external
         override
@@ -32,15 +32,15 @@ abstract contract LifeCycleCashFlow is
     {
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
-        _setBond(bond);
+        _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
     }
 
     /*
-     * @dev Pay a coupon or dividend to a page of holders
+     * @dev Pay a distribution or dividend to a page of holders
      *
-     * @param bond The address of the bond that the coupon/dividend belongs to
-     * @param distributionId The coupon/dividend identifier
+     * @param asset The address of the asset that the distribution belongs to
+     * @param distributionId The distribution identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
      *
@@ -50,7 +50,7 @@ abstract contract LifeCycleCashFlow is
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address bond,
+        address asset,
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
@@ -59,12 +59,12 @@ abstract contract LifeCycleCashFlow is
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        isBond(bond)
-        onlyOnDistributionDate(bond, distributionId)
+        isAsset(asset)
+        onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result, bool executed)
     {
         (result, executed) = _executeDistribution(
-            _lifeCycleCashFlowStorage().bond,
+            _lifeCycleCashFlowStorage().asset,
             distributionId,
             pageIndex,
             pageLength
@@ -79,10 +79,10 @@ abstract contract LifeCycleCashFlow is
     }
 
     /*
-     * @dev Retry the payment of a coupon or dividend to a list of holders
+     * @dev Retry the payment of a distribution or dividend to a list of holders
      *
-     * @param asset The address of the asset that the coupon/dividend belongs to
-     * @param distributionId The coupon/dividend identifier
+     * @param asset The address of the asset that the distribution belongs to
+     * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
      * @return The array of the holders addresses whose payment were not successful
@@ -90,7 +90,7 @@ abstract contract LifeCycleCashFlow is
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address bond,
+        address asset,
         uint256 distributionId,
         address[] calldata holders
     )
@@ -98,12 +98,12 @@ abstract contract LifeCycleCashFlow is
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        isBond(bond)
-        onlyOnDistributionDate(bond, distributionId)
+        isAsset(asset)
+        onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result)
     {
         result = _executeDistributionByAddresses(
-            _lifeCycleCashFlowStorage().bond,
+            _lifeCycleCashFlowStorage().asset,
             distributionId,
             holders
         );
@@ -149,11 +149,11 @@ abstract contract LifeCycleCashFlow is
     }
 
     /*
-     * @dev Returns the bond address
+     * @dev Returns the asset address
      *
-     * @return The bond address
+     * @return The asset address
      */
-    function getBond() external view returns (address) {
-        return _getBond();
+    function getAsset() external view returns (address) {
+        return _getAsset();
     }
 }

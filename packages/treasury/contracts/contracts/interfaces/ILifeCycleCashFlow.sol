@@ -11,9 +11,9 @@ interface ILifeCycleCashFlow {
     }
 
     /*
-     * @dev Emitted when a coupon by page is executed
+     * @dev Emitted when a distribution by page is executed
      *
-     * @param distributionID The coupon identifier
+     * @param distributionID The distribution identifier
      * @param pageIndex The page index
      * @param pageLength The page length
      * @param failed Holders addresses whose payments failed
@@ -28,9 +28,9 @@ interface ILifeCycleCashFlow {
     );
 
     /*
-     * @dev Emitted when a coupon by addresses is executed
+     * @dev Emitted when a distribution by addresses is executed
      *
-     * @param distributionID The coupon/dividend identifier
+     * @param distributionID The distribution/dividend identifier
      * @param holders The holders addresses
      * @param failed Holders addresses whose payments failed
      * @param succeeded Holders addresses whose payments succeeded
@@ -71,11 +71,11 @@ interface ILifeCycleCashFlow {
     );
 
     /**
-     * @notice Error thrown when attempting to execute a payment for a bond not managed by the contract
+     * @notice Error thrown when attempting to execute a payment for a asset not managed by the contract
      *
-     * @param bond The address of the bond that is being tried to operate with
+     * @param asset The address of the asset that is being tried to operate with
      */
-    error InvalidBond(address bond);
+    error InvalidAsset(address asset);
 
     /**
      * @notice Error thrown when attempting to execute a payment a date does not corresponds to the payment date
@@ -103,13 +103,13 @@ interface ILifeCycleCashFlow {
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_LifeCycleCashFlow(address bond) external;
+    function initialize_LifeCycleCashFlow(address asset) external;
 
     /*
-     * @dev Pay a coupon to a page of holders
+     * @dev Pay a distribution to a page of holders
      *
-     * @param bond The address of the bond that the coupon belongs to
-     * @param distributionID The coupon identifier
+     * @param asset The address of the asset that the distribution belongs to
+     * @param distributionID The distribution identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
      *
@@ -119,17 +119,17 @@ interface ILifeCycleCashFlow {
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
-        address bond,
+        address asset,
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
     ) external returns (PaymentResult memory result, bool);
 
     /*
-     * @dev Retry the payment of a coupon to a list of holders
+     * @dev Retry the payment of a distribution to a list of holders
      *
-     * @param bond The address of the bond that the coupon belongs to
-     * @param distributionID The coupon identifier
+     * @param asset The address of the asset that the distribution belongs to
+     * @param distributionID The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
      * @return The array of the holders addresses whose payment were not successful
@@ -137,7 +137,7 @@ interface ILifeCycleCashFlow {
      * @return The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
-        address bond,
+        address asset,
         uint256 distributionID,
         address[] calldata holders
     ) external returns (PaymentResult memory result);
@@ -176,9 +176,9 @@ interface ILifeCycleCashFlow {
     ) external returns (PaymentResult memory result);
 
     /*
-     * @dev Returns the bond address
+     * @dev Returns the asset address
      *
-     * @return The bond address
+     * @return The asset address
      */
-    function getBond() external returns (address bond);
+    function getAsset() external returns (address asset);
 }

@@ -31,7 +31,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     PortfolioStorageWrapper
 {
     struct LifeCycleCashFlowStorage {
-        address bond;
+        address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
         bool initialized;
     }
@@ -50,8 +50,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         int64 totalAmount;
     }
 
-    modifier isBond(address bond) {
-        _checkBond(bond);
+    modifier isAsset(address asset) {
+        _checkAsset(asset);
         _;
     }
 
@@ -61,56 +61,56 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Set the bond
+     * @dev Set the asset
      *
-     * @param bond The bond to be set
+     * @param asset The asset to be set
      */
-    function _setBond(address bond) internal {
-        _lifeCycleCashFlowStorage().bond = bond;
+    function _setAsset(address asset) internal {
+        _lifeCycleCashFlowStorage().asset = asset;
     }
 
     /*
-     * @dev Pay a coupon to a list of holders
+     * @dev Pay a distribution to a list of holders
      *
-     * @param bond The bond the distribution belongs to
-     * @param distributionId The coupon identifier
+     * @param asset The asset the distribution belongs to
+     * @param distributionId The distribution identifier
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLength The number of holders who will be paid
      *
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistribution(
-        address bond,
+        address asset,
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
     ) internal returns (PaymentResult memory result, bool) {
         address[] memory holders = _getHolders(
-            bond,
+            asset,
             distributionId,
             pageIndex,
             pageLength
         );
         if (holders.length == 0) return (result, false);
-        result = _executeDistributionByAddresses(bond, distributionId, holders);
+        result = _executeDistributionByAddresses(asset, distributionId, holders);
         return (result, true);
     }
 
     /*
-     * @dev Retry the payment of a coupon to a list of holders
+     * @dev Retry the payment of a distribution to a list of holders
      *
-     * @param bond The bond the distribution belongs to
-     * @param distributionId The coupon identifier
+     * @param asset The asset the distribution belongs to
+     * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
      * @return The array of the holders addresses whose payment were not successful
      */
     function _executeDistributionByAddresses(
-        address bond,
+        address asset,
         uint256 distributionId,
         address[] memory holders
     ) internal returns (PaymentResult memory result) {
-        (result) = _payHoldersDistribution(bond, distributionId, holders);
+        (result) = _payHoldersDistribution(asset, distributionId, holders);
     }
 
     /*
@@ -138,14 +138,14 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Returns the array containing holders addresses who couldn't be paid for a distribution id
      *
-     * @param bond The bond the distribution belongs to
-     * @param distributionId The coupon identifier
+     * @param asset The asset the distribution belongs to
+     * @param distributionId The distribution identifier
      * @param holders The holders to be paid
      *
      * @return The array of the holders addresses whose payment were not successful for the distribution
      */
     function _payHoldersDistribution(
-        address bond,
+        address asset,
         uint256 distributionId,
         address[] memory holders
     ) private returns (PaymentResult memory result) {
@@ -158,7 +158,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         BatchInfo memory batchInfo;
         batchInfo.holders = new address[](holders.length);
         batchInfo.amounts = new int64[](holders.length);
-        uint256 nominalValue = IBond(bond).getBondDetails().nominalValue;
+        uint256 nominalValue = IBond(asset).getBondDetails().nominalValue;
         address paymentToken = _getPaymentToken();
 
         for (uint256 index; index < holders.length; ) {
@@ -185,8 +185,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 continue;
             }
 
-            (bool success, uint256 amount) = _getCouponAmount(
-                bond,
+            (bool success, uint256 amount) = _getDistributionAmount(
+                asset,
                 distributionId,
                 holder,
                 nominalValue,
@@ -257,30 +257,38 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         return result;
     }
 
+    /*
+     * @dev Check if a holder address is valid
+     *
+     * @param holder The holder address to be checked
+     *
+     * @return True if the holder address is valid, false otherwise
+     */
     function _isHolderValid(address holder) private pure returns (bool) {
         return holder != address(0);
     }
 
     /*
-     * @dev Get the coupon amount to pay for a certain holder
+     * @dev Get the distribution amount to pay for a certain holder
      *
-     * @param asset The asset its coupon amount is requested
-     * @param couponId The coupon identifier
+     * @param asset The asset its distribution amount is requested
+     * @param distributionId The distribution identifier
      * @param holder The holder address to be paid
+     * @param nominalValue The nominal value of the asset
      * @param bondDetailsData Bond details to calculate the amount
      *
-     * @return True if getting coupon for was successfully executed, false otherwise
+     * @return True if getting distribution for was successfully executed, false otherwise
      * @return The amount to be paid
      */
-    function _getCouponAmount(
+    function _getDistributionAmount(
         address asset,
-        uint256 couponId,
+        uint256 distributionId,
         address holder,
         uint256 nominalValue,
         address
     ) private view returns (bool success, uint256 amount) {
         // TODO: Change by the below commented code when a new version of ATS contacts is released
-        try IBond(asset).getCouponFor(couponId, holder) returns (
+        try IBond(asset).getCouponFor(distributionId, holder) returns (
             IBond.CouponFor memory couponFor
         ) {
             amount = ((couponFor.tokenBalance *
@@ -387,12 +395,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Set the bond
+     * @dev Set the asset
      *
-     * @param bond The bond to be set
+     * @param asset The asset to be set
      */
-    function _getBond() internal view returns (address) {
-        return _lifeCycleCashFlowStorage().bond;
+    function _getAsset() internal view returns (address) {
+        return _lifeCycleCashFlowStorage().asset;
     }
 
     /*
@@ -429,7 +437,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     /*
      * @dev Checks if a distribution was already paid to a holder
      *
-     * @param distributionId The coupon identifier
+     * @param distributionId The distribution identifier
      * @param holder The holder to the if the distribution was already paid
      *
      * @return True if the distribution was already paid to the holder, false otherwise
@@ -496,30 +504,30 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Get a list of holders of a coupon by page
+     * @dev Get a list of holders of a distribution by page
      *
-     * @param bond The bond the holders belongs to
-     * @param distributionId The bond coupon identifier
+     * @param asset The asset the holders belongs to
+     * @param distributionId The asset distribution identifier
      * @param pageIndex The index of the page
      * @param pageLength The number of holders
      *
      * @return The array of the holders addresses
      */
     function _getHolders(
-        address bond,
+        address asset,
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
     ) private view returns (address[] memory) {
         return
-            IBond(bond).getCouponHolders(distributionId, pageIndex, pageLength);
+            IBond(asset).getCouponHolders(distributionId, pageIndex, pageLength);
     }
 
     /*
      * @dev Check that today is the execution date of the distributionId
      *
      * @param asset The asset the distribution belongs to
-     * @param distributionId The coupon identifier
+     * @param distributionId The distribution identifier
      */
     function _checkDistributionDate(
         address asset,
@@ -533,12 +541,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Get the coupon execution date
+     * @dev Get the distribution execution date
      *
      * @param asset The asset its distribution execution date is requested
-     * @param distributionId The identifier of the coupon
+     * @param distributionId The identifier of the distribution
      *
-     * @returns The coupon execution date
+     * @returns The distribution execution date
      */
     function _getDistributionExecutionDate(
         address asset,
@@ -548,13 +556,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Check that the contract manages a certain bond
+     * @dev Check that the contract manages a certain asset
      *
-     * @param bond The address of the bond to check
+     * @param asset The address of the asset to check
      */
-    function _checkBond(address bond) private view {
-        if (bond != _lifeCycleCashFlowStorage().bond) {
-            revert InvalidBond(bond);
+    function _checkAsset(address asset) private view {
+        if (asset != _lifeCycleCashFlowStorage().asset) {
+            revert InvalidAsset(asset);
         }
     }
 
@@ -665,7 +673,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Check that today is the payment date of a distribution or a bond
+     * @dev Check that today is the payment date of a distribution
      *
      * @param initialDate The payment initialDate
      * @param currentDate The current date
