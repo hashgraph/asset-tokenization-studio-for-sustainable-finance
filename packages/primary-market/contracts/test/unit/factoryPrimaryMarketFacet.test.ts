@@ -3,7 +3,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { FACTORY_PRIMARY_MARKET_RESOLVER_KEY } from "@scripts/domain";
 import { IStaticFunctionSelectors } from "@contracts";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { HardhatProvider, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
@@ -14,6 +14,8 @@ let user: Signer;
 let unauthorized: Signer;
 
 describe("FactoryPrimaryMarketFacet", () => {
+  configureLogger({ level: LogLevel.SILENT });
+
   async function deployFixture() {
     const provider = new HardhatProvider();
 
