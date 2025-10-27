@@ -90,6 +90,8 @@ import { CreateProceedsRecipientCommandHandler } from "@app/proceedsrecipient/cr
 import { AddProceedsRecipientAllocationCommandHandler } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommandHandler"
 import { GetProceedsRecipientAllocationsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipientallocations/GetProceedsRecipientAllocationsHttpAdapter"
 import { GetProceedsRecipientAllocationsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipientallocations/query/GetProceedsRecipientAllocationsQueryHandler"
+import { GetProceedsRecipientsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipients/GetProceedsRecipientsHttpAdapter"
+import { GetProceedsRecipientsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipients/query/GetProceedsRecipientsQueryHandler"
 import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
 
 const REPOSITORIES: Provider[] = [
@@ -157,6 +159,7 @@ export const CONTROLLERS = [
   GetPaymentTokenTransfersHttpAdapter,
   PauseTreasuryTransactionHttpAdapter,
   GetProceedsRecipientAllocationsHttpAdapter,
+  GetProceedsRecipientsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -217,6 +220,7 @@ export const PROVIDERS = [
   GetPaymentTokensQueryHandler,
   GetPaymentTokenTransfersQueryHandler,
   GetProceedsRecipientAllocationsQueryHandler,
+  GetProceedsRecipientsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
