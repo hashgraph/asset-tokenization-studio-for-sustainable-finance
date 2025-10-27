@@ -2,7 +2,7 @@
 import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
-export class CreatedOfferingEvent extends Event {
+export class OfferingCreatedEvent extends Event {
   constructor(
     public readonly id: string,
     public readonly offeringId: string,

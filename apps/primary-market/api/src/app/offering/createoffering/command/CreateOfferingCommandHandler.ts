@@ -4,7 +4,7 @@ import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { CreateOfferingCommand } from "./CreateOfferingCommand"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
-import { CreatedOfferingEvent } from "@domain/offering/event/CreatedOfferingEvent"
+import { OfferingCreatedEvent } from "@domain/offering/event/OfferingCreatedEvent"
 
 @Singleton()
 @Handler(CreateOfferingCommand)
@@ -18,7 +18,7 @@ export class CreateOfferingCommandHandler implements CommandHandler<CreateOfferi
   async execute(command: CreateOfferingCommand): Promise<void> {
     const offering = await this.createOfferingDomainService.execute(command)
     this.eventBus.publish(
-      new CreatedOfferingEvent(
+      new OfferingCreatedEvent(
         offering.id,
         offering.offeringId,
         offering.market.contractId,
