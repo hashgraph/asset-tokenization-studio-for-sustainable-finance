@@ -132,7 +132,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return True if the value can be safely converted to uint8, false otherwise
      */
     function _valueFitsInUint8(int32 value) internal pure returns (bool) {
-        return value >= 0 && value <= int32(int8(type(uint8).max));
+        if (value < 0) return false;
+        return uint32(value) <= type(uint8).max;
     }
 
     /*
