@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Handler, Inject, Singleton, Validate, ConverterUtils } from "@hashgraph/green-bonds-shared-core"
 import { QueryHandler, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { ProceedsRecipientAllocationRepository } from "@domain/proceedsrecipient/repositories/ProceedsRecipientAllocationRepository"
 import { GetProceedsRecipientAllocationsQuery } from "./GetProceedsRecipientAllocationsQuery"
@@ -8,6 +8,7 @@ import { ProceedsRecipientAllocationQueryResponse } from "./ProceedsRecipientAll
 import { ProceedsRecipientAllocation } from "@domain/proceedsrecipient/model/ProceedsRecipientAllocation"
 import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
 
 @Singleton()
 @Handler(GetProceedsRecipientAllocationsQuery)
@@ -20,6 +21,7 @@ export class GetProceedsRecipientAllocationsQueryHandler
     private readonly allocationRepository: ProceedsRecipientAllocationRepository,
     private readonly checkProceedsRecipientExistsDomainService: CheckProceedsRecipientExistsDomainService,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
+    private readonly checkPaymentTokenExistsDomainService: CheckPaymentTokenExistsDomainService,
   ) {}
 
   @Validate()
@@ -37,9 +39,25 @@ export class GetProceedsRecipientAllocationsQueryHandler
       query.pageOptions.toPageOptions(),
     )
 
-    return QueryPageResponse.fromPage(allocationsPage, (allocation: ProceedsRecipientAllocation) => ({
-      amount: allocation.amount,
-      createdAt: allocation.createdAt,
-    }))
+    const formattedAllocations = await Promise.all(
+      allocationsPage.items.map(async (allocation: ProceedsRecipientAllocation) => {
+        const paymentToken = await this.checkPaymentTokenExistsDomainService.executeById(allocation.paymentTokenId)
+        const formattedAmount = ConverterUtils.formatNumber(allocation.amount, paymentToken.decimals)
+
+        return {
+          paymentTokenId: allocation.paymentTokenId,
+          amount: formattedAmount,
+          createdAt: allocation.createdAt,
+        }
+      }),
+    )
+
+    return {
+      items: formattedAllocations,
+      total: allocationsPage.total,
+      page: allocationsPage.page,
+      limit: allocationsPage.limit,
+      totalPages: allocationsPage.totalPages,
+    }
   }
 }

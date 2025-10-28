@@ -71,6 +71,7 @@ describe("AddPaymentTokenTransfer Integration", () => {
     const paymentToken = await internalPaymentTokenRepository.save({
       contractId: "0.0.111",
       treasuryId: treasury.id,
+      decimals: 8,
     })
 
     treasury.paymentToken = paymentToken
@@ -124,6 +125,7 @@ describe("AddPaymentTokenTransfer Integration", () => {
     const paymentToken = await internalPaymentTokenRepository.save({
       contractId: "0.0.111",
       treasuryId: treasury.id,
+      decimals: 8,
     })
 
     treasury.paymentToken = paymentToken
@@ -177,6 +179,7 @@ describe("AddPaymentTokenTransfer Integration", () => {
     const paymentToken = await internalPaymentTokenRepository.save({
       contractId: "0.0.111",
       treasuryId: treasury.id,
+      decimals: 8,
     })
 
     treasury.paymentToken = paymentToken

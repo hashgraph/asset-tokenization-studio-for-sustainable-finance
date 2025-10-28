@@ -25,10 +25,21 @@ describe("UpdatePaymentToken Integration", () => {
   })
 
   beforeEach(async () => {
+    const mockHederaPort = {
+      getTokenBalance: jest.fn().mockResolvedValue("0"),
+      getTokenDecimals: jest.fn().mockResolvedValue(8),
+    }
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: PROVIDERS,
+      providers: [
+        ...PROVIDERS.filter((provider) => !(typeof provider === "object" && provider.provide === "HederaPort")),
+        {
+          provide: "HederaPort",
+          useValue: mockHederaPort,
+        },
+      ],
     }).compile()
 
     app = moduleFixture.createNestApplication()
@@ -57,6 +68,7 @@ describe("UpdatePaymentToken Integration", () => {
     const oldPaymentToken = await internalPaymentTokenRepository.save({
       contractId: "0.0.111",
       treasuryId: treasury.id,
+      decimals: 8,
     })
 
     treasury.paymentToken = oldPaymentToken
@@ -178,6 +190,7 @@ describe("UpdatePaymentToken Integration", () => {
     const oldPaymentToken = await internalPaymentTokenRepository.save({
       contractId: "0.0.111",
       treasuryId: treasury.id,
+      decimals: 8,
     })
 
     treasury.paymentToken = oldPaymentToken

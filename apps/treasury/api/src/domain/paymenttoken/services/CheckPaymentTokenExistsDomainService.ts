@@ -19,4 +19,12 @@ export class CheckPaymentTokenExistsDomainService {
     }
     return paymentToken
   }
+
+  async executeById(paymentTokenId: string): Promise<PaymentToken> {
+    const paymentToken = await this.paymentTokenRepository.findById(paymentTokenId)
+    if (!paymentToken) {
+      throw PaymentTokenNotFoundError.idError(paymentTokenId)
+    }
+    return paymentToken
+  }
 }

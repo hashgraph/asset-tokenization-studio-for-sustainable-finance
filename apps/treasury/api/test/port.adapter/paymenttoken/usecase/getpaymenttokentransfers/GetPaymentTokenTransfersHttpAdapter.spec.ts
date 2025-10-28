@@ -71,6 +71,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       const response = await request(app.getHttpServer())
@@ -95,6 +96,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       const transfer1 = await internalPaymentTokenTransferRepository.save({
@@ -126,14 +128,14 @@ describe("GetPaymentTokenTransfers API Integration", () => {
 
       expect(item1).toEqual({
         accountId: transfer1.accountId,
-        amount: transfer1.amount,
+        amount: "0.00000001",
         type: transfer1.type,
         transferDate: expect.any(String),
       })
 
       expect(item2).toEqual({
         accountId: transfer2.accountId,
-        amount: transfer2.amount,
+        amount: "0.00000002",
         type: transfer2.type,
         transferDate: expect.any(String),
       })
@@ -149,6 +151,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       for (let i = 1; i <= 5; i++) {
@@ -182,6 +185,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       const transfer1 = await internalPaymentTokenTransferRepository.save({
@@ -233,11 +237,13 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken1 = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       const paymentToken2 = await internalPaymentTokenRepository.save({
         contractId: "0.0.222222",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       await internalPaymentTokenTransferRepository.save({
@@ -273,6 +279,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       await internalPaymentTokenTransferRepository.save({
@@ -300,11 +307,11 @@ describe("GetPaymentTokenTransfers API Integration", () => {
 
       expect(inflowTransfer).toBeDefined()
       expect(inflowTransfer.accountId).toBe("0.0.111111")
-      expect(inflowTransfer.amount).toBe("1")
+      expect(inflowTransfer.amount).toBe("0.00000001")
 
       expect(outflowTransfer).toBeDefined()
       expect(outflowTransfer.accountId).toBe("0.0.222222")
-      expect(outflowTransfer.amount).toBe("2")
+      expect(outflowTransfer.amount).toBe("0.00000002")
     })
 
     it("should filter transfers by type=OUTFLOW query param", async () => {
@@ -317,6 +324,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       await internalPaymentTokenTransferRepository.save({
@@ -341,7 +349,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].type).toBe(TransferType.OUTFLOW)
       expect(response.body.items[0].accountId).toBe("0.0.222222")
-      expect(response.body.items[0].amount).toBe("2")
+      expect(response.body.items[0].amount).toBe("0.00000002")
     })
 
     it("should return all transfers when type is not provided", async () => {
@@ -354,6 +362,7 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 8,
       })
 
       await internalPaymentTokenTransferRepository.save({

@@ -10,6 +10,9 @@ export class PaymentTokenPersistence extends BaseEntityPersistence {
   @Column()
   treasuryId: string
 
+  @Column({ type: "int" })
+  decimals: number
+
   @ManyToOne(() => TreasuryPersistence, { onDelete: "CASCADE" })
   @JoinColumn()
   treasury: TreasuryPersistence

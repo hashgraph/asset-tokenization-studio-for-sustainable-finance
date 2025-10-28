@@ -7,16 +7,24 @@ import type { ProceedsRecipientRepository } from "@domain/proceedsrecipient/repo
 import { ProceedsRecipient } from "@domain/proceedsrecipient/model/ProceedsRecipient"
 import { CreateProceedsRecipientCommand } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommand"
 import { AddProceedsRecipientAllocationCommand } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommand"
+import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 
 @Singleton()
 export class SyncProceedsRecipientAppService {
   constructor(
     @Inject() private readonly proceedsRecipientRepository: ProceedsRecipientRepository,
+    private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
     @Inject() private readonly commandBus: CommandBus,
   ) {}
 
   @Validate()
   async execute(request: SyncProceedsRecipientAppServiceRequest): Promise<void> {
+    const treasury = await this.checkTreasuryExistsDomainService.execute(request.treasuryContractId)
+
+    if (!treasury.paymentToken) {
+      throw new Error(`Treasury ${request.treasuryContractId} does not have an active payment token`)
+    }
+
     // Check if the proceeds recipient exists for this treasury
     const existingProceedsRecipient = await this.proceedsRecipientRepository.findByContractIdAndTreasuryContractId(
       request.proceedsRecipientContractId,
@@ -35,6 +43,8 @@ export class SyncProceedsRecipientAppService {
       proceedsRecipientId = existingProceedsRecipient.id
     }
 
-    await this.commandBus.execute(new AddProceedsRecipientAllocationCommand(proceedsRecipientId, request.amount))
+    await this.commandBus.execute(
+      new AddProceedsRecipientAllocationCommand(proceedsRecipientId, treasury.paymentToken.id, request.amount),
+    )
   }
 }

@@ -20,6 +20,11 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence as PaymentToken
   }
 
+  async findById(id: string): Promise<PaymentToken | null> {
+    const persistence = await this.paymentTokenRepository.findOne({ where: { id } })
+    return persistence ? this.toDomain(persistence) : null
+  }
+
   async findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<PaymentToken>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 

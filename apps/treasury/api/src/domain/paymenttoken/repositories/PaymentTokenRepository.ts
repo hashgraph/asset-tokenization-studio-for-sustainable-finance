@@ -6,6 +6,8 @@ import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 export interface PaymentTokenRepository {
   save(paymentToken: PaymentToken): Promise<PaymentToken>
 
+  findById(id: string): Promise<PaymentToken | null>
+
   findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<PaymentToken>>
 
   findByContractId(contractId: string): Promise<PaymentToken | null>
