@@ -1,7 +1,7 @@
 import { Kpi } from "@contracts/contracts";
 import { ProxyAdmin } from "@contracts";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { KPI_DATA_MANAGER_ROLE, PAUSER_ROLE } from "@scripts/domain";
+import { ROLES, PAUSER_ROLE } from "@scripts/domain";
 import { deployProxyAdmin } from "@scripts";
 import { getImplementationAddress } from "@scripts";
 import { IResolverProxy } from "@contracts/contracts/Kpi";
@@ -22,7 +22,7 @@ describe("Kpi", () => {
   async function deployFixture() {
     rbac = [
       {
-        role: KPI_DATA_MANAGER_ROLE,
+        role: ROLES.KPI_DATA_MANAGER_ROLE,
         members: [await owner.getAddress()],
       },
       { role: PAUSER_ROLE, members: [await owner.getAddress()] },

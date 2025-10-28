@@ -24,13 +24,7 @@ import {
   registerAdditionalFacets,
   atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import {
-  deployFactorySuiteSystem,
-  factorySuiteRegistry,
-  TREASURY_CONFIG_ID,
-  DEPLOYER_ROLE,
-  PAUSER_ROLE,
-} from "@scripts";
+import { deployFactorySuiteSystem, factorySuiteRegistry, TREASURY_CONFIG_ID, ROLES, PAUSER_ROLE } from "@scripts";
 import {
   createTreasuryConfiguration,
   MOCK_ERC20_CONTRACT_NAME,
@@ -225,8 +219,8 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // The deployer account has DEFAULT_ADMIN_ROLE (set during proxy deployment)
   // Grant DEPLOYER_ROLE to both deployer and admin signers for testing flexibility
   // The deployer signer (first account) has DEFAULT_ADMIN_ROLE from deployment
-  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, deployer.address);
-  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, admin.address);
+  await accessControl.connect(deployer).grantRole(ROLES.DEPLOYER_ROLE, deployer.address);
+  await accessControl.connect(deployer).grantRole(ROLES.DEPLOYER_ROLE, admin.address);
 
   // Deploy mock contracts for business logic testing
   const MockAtsFactory = await ethers.getContractFactory(MOCK_ATS_FACTORY_CONTRACT_NAME);

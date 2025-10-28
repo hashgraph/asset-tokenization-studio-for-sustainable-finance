@@ -9,11 +9,15 @@
  *
  * @example
  * ```typescript
- * // Import domain constants
+ * // Import configuration IDs (from constants.ts)
  * import { FACTORY_SUITE_CONFIG_ID, TREASURY_CONFIG_ID } from '@scripts/domain'
  *
- * // Import registry helpers
- * import { getFacetDefinition, getAllFacets, ROLES } from '@scripts/domain'
+ * // Import registry data and helpers (from auto-generated registry)
+ * import { ROLES, getFacetDefinition, getAllFacets } from '@scripts/domain'
+ *
+ * // Access roles from registry
+ * const deployerRole = ROLES.DEPLOYER_ROLE
+ * const kpiRole = ROLES.KPI_DATA_MANAGER_ROLE
  *
  * // Import configuration creation
  * import { createFactorySuiteConfiguration } from '@scripts/domain'
