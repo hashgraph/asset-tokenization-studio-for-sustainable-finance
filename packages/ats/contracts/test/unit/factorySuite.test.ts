@@ -13,6 +13,7 @@ import {
   TEST_KPI_ROLE_1,
   TEST_KPI_ROLE_2,
   deployFactorySuiteWithMocksForBusinessLogic,
+  deployBondSuiteAndExtractContracts,
 } from "@test";
 import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
 
@@ -421,6 +422,133 @@ describe("FactorySuite - Business Logic Tests", () => {
       expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.kpiAddress).to.not.equal(ethers.constants.AddressZero);
+    });
+  });
+
+  describe("deployBondSuite - Treasury Initialization", () => {
+    it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN Treasury lifecycle is initialized with bond address", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      // Verify lifecycle was initialized
+      expect(await treasury.lifeCycleCashFlowInitialized()).to.equal(true);
+      expect(await treasury.bondAddress()).to.equal(bondAddress);
+    });
+
+    it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN Treasury portfolio is initialized with payment token", async () => {
+      const { factorySuite, mockAtsFactory, admin, paymentToken, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      const { treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      // Verify portfolio was initialized
+      expect(await treasury.portfolioInitialized()).to.equal(true);
+      expect(await treasury.paymentToken()).to.equal(paymentToken.address);
+    });
+
+    it("GIVEN valid bond suite parameters with environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with assets", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      const { treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      // Verify environmental assets were set
+      expect(await treasury.getEnvironmentalAssetsCount()).to.equal(1);
+    });
+
+    it("GIVEN valid bond suite parameters with empty environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with no assets", async () => {
+      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+
+      const treasuryDataWithEmptyArray = {
+        resolver: blr.address,
+        resolverProxyConfiguration: {
+          key: TREASURY_CONFIG_ID,
+          version: TREASURY_CONFIG_VERSION,
+        },
+        rbacs: [],
+        paymentToken: paymentToken.address,
+        environmentalAssets: [],
+      };
+
+      const { treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        treasuryDataWithEmptyArray,
+        validKpiData,
+      );
+
+      // Verify portfolio was initialized with no environmental assets
+      expect(await treasury.portfolioInitialized()).to.equal(true);
+      expect(await treasury.getEnvironmentalAssetsCount()).to.equal(0);
+    });
+
+    it("GIVEN valid bond suite parameters with multiple environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with all assets", async () => {
+      const {
+        factorySuite,
+        mockAtsFactory,
+        admin,
+        blr,
+        paymentToken,
+        environmentalAssetToken1,
+        environmentalAssetToken2,
+        testData,
+      } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+
+      const treasuryDataWithMultipleAssets = {
+        resolver: blr.address,
+        resolverProxyConfiguration: {
+          key: TREASURY_CONFIG_ID,
+          version: TREASURY_CONFIG_VERSION,
+        },
+        rbacs: [],
+        paymentToken: paymentToken.address,
+        environmentalAssets: [environmentalAssetToken1.address, environmentalAssetToken2.address],
+      };
+
+      const { treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        treasuryDataWithMultipleAssets,
+        validKpiData,
+      );
+
+      // Verify portfolio was initialized with all environmental assets
+      expect(await treasury.portfolioInitialized()).to.equal(true);
+      expect(await treasury.getEnvironmentalAssetsCount()).to.equal(2);
     });
   });
 });

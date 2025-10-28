@@ -4,11 +4,7 @@
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
-  "files": [
-    "build/",
-    "contracts/",
-    "!build/**/*.map"
-  ],
+  "files": ["build/", "contracts/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
@@ -31,12 +27,7 @@
     "./contracts/*": "./contracts/*",
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -65,8 +56,8 @@
     "prepack": "npm run compile:force"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
+    "@hashgraph/green-bonds-platform-treasury-contracts": "*",
+    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/asset-tokenization-studio/packages/ats/contracts",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
@@ -77,6 +68,7 @@
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^6.1.2",
     "@types/jest": "^29.5.14",
+    "@eslint/js": "^9.36.0",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
     "eslint": "^9.36.0",

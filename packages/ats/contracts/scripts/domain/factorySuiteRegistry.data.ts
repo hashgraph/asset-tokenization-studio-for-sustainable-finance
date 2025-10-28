@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-10-27T07:31:31.440Z
+ * Generated: 2025-10-28T12:31:14.503Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6
@@ -116,8 +116,8 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     methods: [
       {
         name: "_configureTreasuryContract",
-        signature: "_configureTreasuryContract(address,//,//)",
-        selector: "0xb5fb36f5",
+        signature: "_configureTreasuryContract(address,TreasuryData,address)",
+        selector: "0x5a42aaf6",
       },
       {
         name: "_deployBondContract",
@@ -243,13 +243,29 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 
   MockTreasuryFacet: {
     name: "MockTreasuryFacet",
-    description: "Minimal mock implementation of Treasury facet for testing FactorySuite deployment",
+    description: "Mock implementation of Treasury facet for testing FactorySuite deployment",
     resolverKey: {
       name: "MOCK_TREASURY_RESOLVER_KEY",
       value: "0x38d0ce88249ec7d3a3880d686dc1016275f7c0815711636109778755f5eac994",
     },
     inheritance: ["IStaticFunctionSelectors"],
-    methods: [],
+    methods: [
+      {
+        name: "getEnvironmentalAssetsCount",
+        signature: "getEnvironmentalAssetsCount()",
+        selector: "0x3c61f750",
+      },
+      {
+        name: "initialize_LifeCycleCashFlow",
+        signature: "initialize_LifeCycleCashFlow(address)",
+        selector: "0x211afa54",
+      },
+      {
+        name: "initialize_Portfolio",
+        signature: "initialize_Portfolio(address,address[])",
+        selector: "0xde73748f",
+      },
+    ],
   },
 };
 
