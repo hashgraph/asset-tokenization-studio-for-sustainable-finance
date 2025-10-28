@@ -93,6 +93,10 @@ import { GetProceedsRecipientAllocationsQueryHandler } from "@app/proceedsrecipi
 import { GetProceedsRecipientsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipients/GetProceedsRecipientsHttpAdapter"
 import { GetProceedsRecipientsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipients/query/GetProceedsRecipientsQueryHandler"
 import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
+import { DistributionTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionTypeOrmRepository"
+import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
+import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
+import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -124,6 +128,14 @@ const REPOSITORIES: Provider[] = [
     useClass: ProceedsRecipientTypeOrmRepository,
   },
   {
+    provide: "DistributionRepository",
+    useClass: DistributionTypeOrmRepository,
+  },
+  {
+    provide: "DistributionHolderRepository",
+    useClass: DistributionHolderTypeOrmRepository,
+  },
+  {
     provide: "ProceedsRecipientAllocationRepository",
     useClass: ProceedsRecipientAllocationTypeOrmRepository,
   },
@@ -139,6 +151,8 @@ export const ENTITIES = [
   PaymentTokenTransferPersistence,
   ProceedsRecipientPersistence,
   ProceedsRecipientAllocationPersistence,
+  DistributionPersistence,
+  DistributionHolderPersistence,
 ]
 
 export const CONTROLLERS = [
