@@ -49,6 +49,17 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     })
   }
 
+  async submitSubscription(request: BuildSubmitSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "submitSubscription",
+      contractId: request.contractId,
+      gas: this.SUBSCRIPTION_SUBMIT_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.lotUnits],
+    })
+  }
+
   private getEnvironment(): Environment {
     return this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || this.DEFAULT_ENVIRONMENT
   }

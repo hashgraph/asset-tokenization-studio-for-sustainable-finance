@@ -6,8 +6,10 @@ import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-liste
 import { Provider } from "@nestjs/common"
 import { CreateOfferingTransactionHttpAdapter } from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
 import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { SubmitSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
 import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
 import { GrantRoleTransactionAppService } from "@app/transaction/grantrole/service/GrantRoleTransactionAppService"
+import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/repositories/PrimaryMarketTypeORMRepository"
 import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
@@ -51,13 +53,19 @@ const REPOSITORIES: Provider[] = [
   },
 ]
 
-export const CONTROLLERS = [AppController, CreateOfferingTransactionHttpAdapter, GrantRoleTransactionHttpAdapter]
+export const CONTROLLERS = [
+  AppController,
+  CreateOfferingTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  SubmitSubscriptionTransactionHttpAdapter,
+]
 export const PROVIDERS = [
   ...REPOSITORIES,
   AppService,
   DatabaseSeederService,
   CreateOfferingTransactionAppService,
   GrantRoleTransactionAppService,
+  SubmitSubscriptionTransactionAppService,
   CreateOfferingDomainService,
   GrantUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,

@@ -4,7 +4,7 @@ import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { GrantRoleCommand } from "./GrantRoleCommand"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
-import { GrantRoleEvent } from "@domain/role/event/GrantRoleEvent"
+import { RoleGrantedEvent } from "@domain/role/event/RoleGrantedEvent"
 
 @Singleton()
 @Handler(GrantRoleCommand)
@@ -18,7 +18,7 @@ export class GrantRoleCommandHandler implements CommandHandler<GrantRoleCommand,
   async execute(command: GrantRoleCommand): Promise<void> {
     const userMarketRole = await this.grantUserMarketRoleDomainService.execute(command)
     this.eventBus.publish(
-      new GrantRoleEvent(
+      new RoleGrantedEvent(
         userMarketRole.id,
         userMarketRole.user.accountId,
         userMarketRole.role.hex,

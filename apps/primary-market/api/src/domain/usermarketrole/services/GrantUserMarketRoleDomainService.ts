@@ -26,7 +26,7 @@ export class GrantUserMarketRoleDomainService {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
       grantUserMarketRoleDomainServiceRequest.marketId,
     )
-    market.isActive()
+    market.checkActive()
 
     const role = await this.getOrCreateRole(grantUserMarketRoleDomainServiceRequest.roleHex)
     const user = await this.getOrCreateUser(grantUserMarketRoleDomainServiceRequest.accountId)
