@@ -12,20 +12,27 @@
  * @module domain/treasury/createConfiguration
  */
 
-import { Contract } from "ethers";
+import { Contract } from 'ethers'
 import {
-  createBatchConfiguration,
-  ConfigurationData,
-  ConfigurationError,
-  OperationResult,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
-import { TREASURY_CONFIG_ID } from "@scripts/domain";
+    createBatchConfiguration,
+    ConfigurationData,
+    ConfigurationError,
+    OperationResult,
+} from '@hashgraph/asset-tokenization-contracts/scripts'
+import { TREASURY_CONFIG_ID } from '@scripts/domain'
+import type { RegistryProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 
 /**
  * Treasury facets: 2 ATS facets + 3 custom Treasury facets.
  * Note: ATS infrastructure warns about custom facets but configures them correctly.
  */
-const TREASURY_FACETS = ["AccessControlFacet", "PauseFacet", "LifeCycleCashFlowFacet", "Portfolio", "ProceedsManagement"] as const;
+const TREASURY_FACETS = [
+    'AccessControlFacet',
+    'PauseFacet',
+    'LifeCycleCashFlowFacet',
+    'PortfolioFacet',
+    'ProceedsManagementFacet',
+] as const
 
 /**
  * Create Treasury configuration in BusinessLogicResolver.
@@ -53,8 +60,8 @@ const TREASURY_FACETS = ["AccessControlFacet", "PauseFacet", "LifeCycleCashFlowF
  *         'AccessControlFacet': '0xabc...',
  *         'PauseFacet': '0xdef...',
  *         'LifeCycleCashFlowFacet': '0x123...',
-* *        'PortfolioFacet': '0x456...',
-* *        'ProceedsManagementFacet': '0x789...',
+ * *        'PortfolioFacet': '0x456...',
+ * *        'ProceedsManagementFacet': '0x789...',
  *     },
  *     false
  * )
@@ -66,16 +73,19 @@ const TREASURY_FACETS = ["AccessControlFacet", "PauseFacet", "LifeCycleCashFlowF
  * ```
  */
 export async function createTreasuryConfiguration(
-  blrContract: Contract,
-  facetAddresses: Record<string, string>,
-  useTimeTravel: boolean = false,
+    blrContract: Contract,
+    facetAddresses: Record<string, string>,
+    useTimeTravel: boolean = false,
+    treasuryRegistry: RegistryProvider
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  return createBatchConfiguration(blrContract, {
-    configurationId: TREASURY_CONFIG_ID,
-    facetNames: TREASURY_FACETS,
-    facetAddresses,
-    useTimeTravel,
-    partialBatchDeploy: false,
-    batchSize: 2,
-  });
+    return createBatchConfiguration(blrContract, {
+        configurationId: TREASURY_CONFIG_ID,
+        facetNames: TREASURY_FACETS,
+        facetAddresses,
+        useTimeTravel,
+        partialBatchDeploy: false,
+        batchSize: 2,
+        gasLimit: 15_000_000,
+        registry: treasuryRegistry,
+    })
 }

@@ -10,8 +10,16 @@
  * @module infrastructure/treasuryRegistry
  */
 
-import type { RegistryProvider, FacetDefinition } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { FACET_REGISTRY as ATS_REGISTRY } from "@hashgraph/asset-tokenization-contracts/scripts";
+import type {
+    RegistryProvider,
+    FacetDefinition,
+} from '@hashgraph/asset-tokenization-contracts/scripts'
+import { FACET_REGISTRY as ATS_REGISTRY } from '@hashgraph/asset-tokenization-contracts/scripts'
+import {
+    LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY,
+    PORTFOLIO_RESOLVER_KEY,
+    PROCEEDS_MANAGEMENT_RESOLVER_KEY,
+} from '../domain/constants'
 
 /**
  * Treasury facet definitions.
@@ -21,24 +29,36 @@ import { FACET_REGISTRY as ATS_REGISTRY } from "@hashgraph/asset-tokenization-co
  * - GBP custom facets: LifeCycleCashFlowFacet, PortfolioFacet, ProceedsManagementFacet
  */
 const TREASURY_FACETS: Record<string, FacetDefinition> = {
-  // ATS facets (subset)
-  AccessControlFacet: ATS_REGISTRY.AccessControlFacet,
-  PauseFacet: ATS_REGISTRY.PauseFacet,
+    // ATS facets (subset)
+    AccessControlFacet: ATS_REGISTRY.AccessControlFacet,
+    PauseFacet: ATS_REGISTRY.PauseFacet,
 
-  // GBP custom facets
-  LifeCycleCashFlowFacet: {
-    name: "LifeCycleCashFlowFacet",
-    description: "Bond's coupons and cash out payments",
-  },
-  PortfolioFacet: {
-    name: "PortfolioFacet",
-    description: "Manages the payment token and environmental assets",
-  },
-  ProceedsManagementFacet:  {
-    name: "ProceedsManagementFacet",
-    description: "Transfers payment tokens and environmental assets tokens",
-  }
-};
+    // GBP custom facets
+    LifeCycleCashFlowFacet: {
+        name: 'LifeCycleCashFlowFacet',
+        description: "Bond's coupons and cash out payments",
+        resolverKey: {
+            name: 'LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY',
+            value: LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY,
+        },
+    },
+    PortfolioFacet: {
+        name: 'PortfolioFacet',
+        description: 'Manages the payment token and environmental assets',
+        resolverKey: {
+            name: 'PORTFOLIO_RESOLVER_KEY',
+            value: PORTFOLIO_RESOLVER_KEY,
+        },
+    },
+    ProceedsManagementFacet: {
+        name: 'ProceedsManagementFacet',
+        description: 'Transfers payment tokens and environmental assets tokens',
+        resolverKey: {
+            name: 'PROCEEDS_MANAGEMENT_RESOLVER_KEY',
+            value: PROCEEDS_MANAGEMENT_RESOLVER_KEY,
+        },
+    },
+}
 
 /**
  * Treasury Registry Provider.
@@ -59,11 +79,11 @@ const TREASURY_FACETS: Record<string, FacetDefinition> = {
  * ```
  */
 export const treasuryRegistry: RegistryProvider = {
-  getFacetDefinition(name: string): FacetDefinition | undefined {
-    return TREASURY_FACETS[name];
-  },
+    getFacetDefinition(name: string): FacetDefinition | undefined {
+        return TREASURY_FACETS[name]
+    },
 
-  getAllFacets(): FacetDefinition[] {
-    return Object.values(TREASURY_FACETS);
-  },
-};
+    getAllFacets(): FacetDefinition[] {
+        return Object.values(TREASURY_FACETS)
+    },
+}

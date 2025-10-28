@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.18;
+
+pragma solidity ^0.8.0;
+
 // solhint-disable max-line-length
 
 bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;

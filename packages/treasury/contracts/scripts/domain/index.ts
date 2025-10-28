@@ -18,7 +18,7 @@
  */
 
 // Domain constants
-export * from "./constants";
+export * from './constants'
 
 // FactorySuite configuration
-export * from "./treasury/createConfiguration";
+export * from './treasury/createConfiguration'
