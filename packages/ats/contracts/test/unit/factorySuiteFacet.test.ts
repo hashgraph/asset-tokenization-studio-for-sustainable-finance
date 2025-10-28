@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { deployFactorySuiteInfrastructureFixture } from "@test/fixtures";
+import { deployFactorySuiteInfrastructureFixture } from "@test";
 import { FACTORY_SUITE_RESOLVER_KEY } from "@scripts/domain";
 import { FactorySuiteFacet__factory } from "@contracts";
 

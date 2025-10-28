@@ -27,7 +27,7 @@
     "lint:sol:fix": "solhint 'packages/*/contracts/contracts/**/*.sol' --fix --noPrompt",
     "ats:contracts:clean": "npm run clean --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:compile": "npm run compile --workspace=@hashgraph/green-bonds-platform-ats-contracts",
-    "ats:contracts:build": "npm run compile --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:build": "npm run build --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:format": "npm run format --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:format:check": "npm run format:check --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:lint": "npm run lint --workspace=@hashgraph/green-bonds-platform-ats-contracts",

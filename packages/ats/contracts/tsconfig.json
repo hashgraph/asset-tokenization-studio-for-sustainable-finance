@@ -1,25 +1,31 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ES2022",
     "module": "commonjs",
+    "declaration": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
+    "importHelpers": true,
+    "alwaysStrict": true,
+    "strict": true,
+    "outDir": "./build",
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@configuration": ["./Configuration.ts"],
       "@contracts": ["./typechain-types/index.ts"],
-      "@contracts/*": ["./typechain-types/*"],
+      "@typechain": ["./typechain-types/index.ts"],
+      "@typechain/*": ["./typechain-types/*"],
       "@scripts": ["./scripts/index.ts"],
-      "@scripts/*": ["./scripts/*"],
       "@scripts/domain": ["./scripts/domain/index.ts"],
-      "@scripts/domain/*": ["./scripts/domain/*"],
-      "@test": ["./test/index.ts"],
-      "@test/*": ["./test/*"]
+      "@tasks": ["./tasks/index.ts"],
+      "@test": ["./test/index.ts"]
     }
   },
+  "include": ["scripts/**/*", "typechain-types/**/*", "test", "tasks"],
+  "exclude": ["node_modules", "build", "dist", "coverage", "artifacts", "cache"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }

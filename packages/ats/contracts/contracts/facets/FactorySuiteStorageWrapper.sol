@@ -5,9 +5,9 @@ pragma solidity >=0.8.0 <0.9.0;
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
-import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "./interfaces/IFactorySuite.sol";
-import { Kpi } from "./Kpi.sol";
-import { IKpi } from "./interfaces/IKpi.sol";
+import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
+import { Kpi } from "../Kpi.sol";
+import { IKpi } from "../interfaces/IKpi.sol";
 // solhint-enable max-line-length
 
 /**

@@ -3,6 +3,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 // solhint-disable-next-line max-line-length
 import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
+import { MOCK_TREASURY_RESOLVER_KEY } from "./constants/resolverKeys.sol";
 
 /**
  * @title MockTreasuryFacet
@@ -10,10 +11,8 @@ import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contract
  * @dev Only implements required IStaticFunctionSelectors interface - no actual Treasury logic
  */
 contract MockTreasuryFacet is IStaticFunctionSelectors {
-    bytes32 private constant _RESOLVER_KEY = bytes32("TREASURY_MOCK");
-
     function getStaticResolverKey() external pure override returns (bytes32) {
-        return _RESOLVER_KEY;
+        return MOCK_TREASURY_RESOLVER_KEY;
     }
 
     function getStaticFunctionSelectors() external pure override returns (bytes4[] memory) {
