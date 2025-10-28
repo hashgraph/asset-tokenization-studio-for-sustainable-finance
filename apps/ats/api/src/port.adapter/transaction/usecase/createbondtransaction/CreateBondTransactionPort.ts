@@ -4,5 +4,5 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { CreateBondTransactionRequest } from "./model/CreateBondTransactionRequest"
 
 export interface CreateBondTransactionPort {
-  createBondTransaction(factoryId: string, request: CreateBondTransactionRequest): TransactionResponse
+  createBondTransaction(factoryId: string, request: CreateBondTransactionRequest): Promise<TransactionResponse>
 }

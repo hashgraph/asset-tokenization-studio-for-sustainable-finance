@@ -12,8 +12,8 @@ import {
   TEST_ROLE_2,
   TEST_KPI_ROLE_1,
   TEST_KPI_ROLE_2,
+  deployFactorySuiteWithMocksForBusinessLogic,
 } from "@test";
-import { deployFactorySuiteWithMocksForBusinessLogic } from "@test/fixtures";
 import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
 
 describe("FactorySuite - Business Logic Tests", () => {
@@ -22,8 +22,8 @@ describe("FactorySuite - Business Logic Tests", () => {
     const testData = createTestDataSets({
       mockResolver: { address: fixture.blr.address }, // Use real BLR for Treasury/KPI
       paymentToken: fixture.paymentToken,
-      erc721Token1: fixture.erc721Token1,
-      erc721Token2: fixture.erc721Token2,
+      environmentalAssetToken1: fixture.environmentalAssetToken1,
+      environmentalAssetToken2: fixture.environmentalAssetToken2,
       admin: fixture.admin,
       user: fixture.user,
       treasuryConfigId: fixture.treasuryConfigId,
@@ -228,7 +228,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       ).to.be.revertedWithCustomError(factorySuite, "InvalidKpiData");
     });
 
-    it("GIVEN treasury data with empty ERC721 array WHEN deploying bond suite THEN success", async () => {
+    it("GIVEN treasury data with empty environmental assets array WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validKpiData } = testData;
 
@@ -240,7 +240,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         },
         rbacs: [],
         paymentToken: paymentToken.address,
-        erc721s: [], // Empty array should be allowed
+        environmentalAssets: [], // Empty array should be allowed
       };
 
       await expect(
@@ -256,12 +256,12 @@ describe("FactorySuite - Business Logic Tests", () => {
       ).to.not.be.reverted;
     });
 
-    it("GIVEN treasury data with zero address in ERC721 array WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
-      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, erc721Token1, testData } =
+    it("GIVEN treasury data with zero address in environmental assets array WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
+      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, environmentalAssetToken1, testData } =
         await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validKpiData } = testData;
 
-      const treasuryDataWithZeroERC721 = {
+      const treasuryDataWithZeroEnvironmentalAsset = {
         resolver: blr.address,
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
@@ -269,7 +269,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         },
         rbacs: [],
         paymentToken: paymentToken.address,
-        erc721s: [erc721Token1.address, ethers.constants.AddressZero], // Contains zero address
+        environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero], // Contains zero address
       };
 
       await expect(
@@ -279,7 +279,7 @@ describe("FactorySuite - Business Logic Tests", () => {
             mockAtsFactory.address,
             validBondData,
             validFactoryRegulationData,
-            treasuryDataWithZeroERC721,
+            treasuryDataWithZeroEnvironmentalAsset,
             validKpiData,
           ),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
@@ -330,17 +330,17 @@ describe("FactorySuite - Business Logic Tests", () => {
   });
 
   describe("Edge Cases", () => {
-    it("GIVEN treasury data with maximum length ERC721 arrays WHEN deploying bond suite THEN success", async () => {
+    it("GIVEN treasury data with maximum length environmental assets arrays WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validKpiData } = testData;
 
-      // Create array with multiple ERC721 tokens
-      const erc721Addresses = [];
+      // Create array with multiple environmental asset tokens
+      const environmentalAssetAddresses = [];
       for (let i = 0; i < 5; i++) {
         const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
         const token = await MockERC721.deploy(`Token${i}`, `T${i}`);
         await token.deployed();
-        erc721Addresses.push(token.address);
+        environmentalAssetAddresses.push(token.address);
       }
 
       const treasuryDataWithManyTokens = {
@@ -351,7 +351,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         },
         rbacs: [],
         paymentToken: paymentToken.address,
-        erc721s: erc721Addresses,
+        environmentalAssets: environmentalAssetAddresses,
       };
 
       const result = await factorySuite
@@ -370,7 +370,7 @@ describe("FactorySuite - Business Logic Tests", () => {
     });
 
     it("GIVEN treasury and KPI data with multiple RBAC entries WHEN deploying bond suite THEN success", async () => {
-      const { factorySuite, mockAtsFactory, admin, user, blr, paymentToken, erc721Token1, testData } =
+      const { factorySuite, mockAtsFactory, admin, user, blr, paymentToken, environmentalAssetToken1, testData } =
         await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData } = testData;
 
@@ -391,7 +391,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           },
         ],
         paymentToken: paymentToken.address,
-        erc721s: [erc721Token1.address],
+        environmentalAssets: [environmentalAssetToken1.address],
       };
 
       const kpiDataWithMultipleRbacs = {

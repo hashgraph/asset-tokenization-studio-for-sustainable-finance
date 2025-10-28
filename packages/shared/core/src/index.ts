@@ -36,6 +36,8 @@ export { Logger } from "./logger/Logger"
 
 export { BaseEntity } from "./persistence/BaseEntity"
 export { BaseEntityPersistence } from "./persistence/BaseEntityPersistence"
+export { TransactionManager } from "./persistence/TransactionManager"
+export { TypeOrmTransactionManager } from "./persistence/typeorm/TypeOrmTransactionManager"
 
 export { NestJSQueryBus } from "./query/NestJSQueryBus"
 export { Query } from "./query/Query"
@@ -47,7 +49,7 @@ export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
 export { RetryPort } from "./retry/RetryPort"
 
 export { BaseTransactionBuilder } from "./transaction/BaseTransactionBuilder"
-export { Environment } from "./transaction/Environment"
+export { Environment, getHederaClient, getEthereumProvider } from "./transaction/Environment"
 
 export { BaseTransactionRequest } from "./transaction/model/BaseTransactionRequest"
 export { TransactionResponse } from "./transaction/model/TransactionResponse"

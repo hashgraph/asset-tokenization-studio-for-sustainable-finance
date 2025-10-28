@@ -15,6 +15,7 @@ import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmen
 import { EnvironmentalAssetTokenAddedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetTokenAddedEvent"
 import { EnvironmentalAssetTokenRemovedEvent } from "@domain/environmentalasset/event/EnvironmentalAssetTokenRemovedEvent"
 import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
+import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
 
 describe("SyncEnvironmentalAssetToken Integration", () => {
   let app: INestApplication
@@ -42,9 +43,12 @@ describe("SyncEnvironmentalAssetToken Integration", () => {
     internalEnvironmentalAssetRepository = app.get(getRepositoryToken(EnvironmentalAssetPersistence))
     internalEnvironmentalAssetTokenRepository = app.get(getRepositoryToken(EnvironmentalAssetTokenPersistence))
 
-    // Mock the AddEnvironmentalAssetTransferNestJSEventAdapter handler to avoid interference
+    // Mock all other handlers listening to TransferDLTEvent to avoid interference
     const transferHandler = app.get(AddEnvironmentalAssetTransferNestJSEventAdapter)
     jest.spyOn(transferHandler, "handle").mockResolvedValue(undefined)
+
+    const paymentTokenTransferHandler = app.get(AddPaymentTokenTransferNestJSEventAdapter)
+    jest.spyOn(paymentTokenTransferHandler, "handle").mockResolvedValue(undefined)
   })
 
   afterAll(async () => {
@@ -145,8 +149,8 @@ describe("SyncEnvironmentalAssetToken Integration", () => {
       withDeleted: true,
     })
     expect(tokenWithDeleted).toBeDefined()
-    expect(tokenWithDeleted.id).toBe(existingToken.id)
-    expect(tokenWithDeleted.deletedAt).toBeInstanceOf(Date)
+    expect(tokenWithDeleted!.id).toBe(existingToken.id)
+    expect(tokenWithDeleted!.deletedAt).toBeInstanceOf(Date)
 
     expect(publishedEvent.constructor.name).toEqual(EnvironmentalAssetTokenRemovedEvent.name)
     expect(publishedEvent).toEqual({

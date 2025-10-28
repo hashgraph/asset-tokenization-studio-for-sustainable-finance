@@ -58,6 +58,9 @@
   },
   "jest": {
     "preset": "../../../jest.base.config.js",
+    "setupFiles": [
+      "<rootDir>/jest.setup.js"
+    ],
     "moduleNameMapper": {
       "^@app/(.*)$": "<rootDir>/src/app/$1",
       "^@domain/(.*)$": "<rootDir>/src/domain/$1",

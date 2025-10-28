@@ -10,16 +10,24 @@ import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/trans
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
+import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
+import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 
 export interface TransactionBuilderPort {
-  fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): BuildTransactionResponse
-  addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  transferEnvironmentalAsset(request: BuildTransferEnvironmentalAssetTransactionRequest): BuildTransactionResponse
-  externalTransferPaymentToken(request: BuildExternalTransferPaymentTokenTransactionRequest): BuildTransactionResponse
-  updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): BuildTransactionResponse
+  fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
+  addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
+  removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
+  transferEnvironmentalAsset(
+    request: BuildTransferEnvironmentalAssetTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  externalTransferPaymentToken(
+    request: BuildExternalTransferPaymentTokenTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  updatePaymentToken(request: BuildUpdatePaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
   externalTransferEnvironmentalAsset(
     request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
-  ): BuildTransactionResponse
-  transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): BuildTransactionResponse
+  ): Promise<BuildTransactionResponse>
+  transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
+  unpauseTreasury(request: BuildUnpauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
+  pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
 }

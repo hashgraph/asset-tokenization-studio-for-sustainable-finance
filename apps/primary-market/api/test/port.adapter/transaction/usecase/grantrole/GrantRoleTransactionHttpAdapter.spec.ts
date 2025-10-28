@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
-import request from 'supertest'
-import { BuildTransactionResponse, SharedModule } from '@hashgraph/green-bonds-shared-core'
-import { PostgresModule } from '@config/PostgresModule'
-import { CONTROLLERS, PROVIDERS } from '@components'
-import { PostgreSqlContainer } from '@test/shared/containers/PostgresqlContainer'
+import { Test, TestingModule } from "@nestjs/testing"
+import { INestApplication } from "@nestjs/common"
+import request from "supertest"
+import { BuildTransactionResponse, ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgresModule } from "@config/PostgresModule"
+import { CONTROLLERS, PROVIDERS } from "@components"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 
-describe('GrantRoleTransaction API Integration', () => {
+describe("GrantRoleTransaction API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
 
@@ -24,7 +24,10 @@ describe('GrantRoleTransaction API Integration', () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix('api/v1/')
+    app.setGlobalPrefix("api/v1/")
+    jest
+      .spyOn(ConverterUtils, "getEvmAddressFromHederaAddress")
+      .mockResolvedValue("0x1dC69e700e3fF1Cd7ca407DcCC6f8061D260F1E7")
     app.useLogger(false)
     await app.init()
   })
@@ -39,14 +42,14 @@ describe('GrantRoleTransaction API Integration', () => {
     }
   })
 
-  describe('POST /primary-markets/:marketContractId/roles/:roleId/users/:userAccountId', () => {
-    it('should grant role transaction with valid request data', async () => {
-      const marketContractId = '0.0.67890'
-      const roleId = 'ADMIN_ROLE'
-      const userAccountId = '0.0.12345'
+  describe("POST /primary-markets/:marketContractId/roles/:roleId/users/:userAccountId", () => {
+    it("should grant role transaction with valid request data", async () => {
+      const marketContractId = "0.0.67890"
+      const roleId = "ADMIN_ROLE"
+      const userAccountId = "0.0.12345"
       const grantRoleRequest = {
-        format: 'hedera',
-        accountId: '0.0.5466269',
+        format: "hedera",
+        accountId: "0.0.5466269",
       }
 
       const response = await request(app.getHttpServer())
@@ -54,20 +57,20 @@ describe('GrantRoleTransaction API Integration', () => {
         .send(grantRoleRequest)
         .expect(201)
 
-      expect(response.body).toHaveProperty('unsignedTx')
-      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe('string')
+      expect(response.body).toHaveProperty("unsignedTx")
+      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
 
-    it('should handle different valid format values', async () => {
-      const marketContractId = '0.0.67890'
-      const roleId = 'USER_ROLE'
-      const userAccountId = '0.0.12345'
-      const formats = ['hedera', 'ethereum']
+    it("should handle different valid format values", async () => {
+      const marketContractId = "0.0.67890"
+      const roleId = "USER_ROLE"
+      const userAccountId = "0.0.12345"
+      const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
         const grantRoleRequest = {
           format: format,
-          accountId: '0.0.5466269',
+          accountId: "0.0.5466269",
         }
 
         const response = await request(app.getHttpServer())
@@ -75,15 +78,15 @@ describe('GrantRoleTransaction API Integration', () => {
           .send(grantRoleRequest)
           .expect(201)
 
-        expect(response.body as BuildTransactionResponse).toHaveProperty('unsignedTx')
+        expect(response.body as BuildTransactionResponse).toHaveProperty("unsignedTx")
       }
     })
 
-    it('should return 400 for missing required fields', async () => {
-      const marketContractId = '0.0.67890'
-      const roleId = 'ADMIN_ROLE'
-      const userAccountId = '0.0.12345'
-      const invalidRequests = [{}, { accountId: '0.0.12345' }, { format: '' }]
+    it("should return 400 for missing required fields", async () => {
+      const marketContractId = "0.0.67890"
+      const roleId = "ADMIN_ROLE"
+      const userAccountId = "0.0.12345"
+      const invalidRequests = [{}, { accountId: "0.0.12345" }, { format: "" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())

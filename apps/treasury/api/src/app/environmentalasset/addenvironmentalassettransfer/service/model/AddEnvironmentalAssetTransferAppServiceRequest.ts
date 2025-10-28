@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsNotEmpty, IsNumber } from "class-validator"
+import { IsNotEmpty } from "class-validator"
 
 export class AddEnvironmentalAssetTransferAppServiceRequest {
   @IsNotEmpty()
@@ -12,6 +12,5 @@ export class AddEnvironmentalAssetTransferAppServiceRequest {
   @IsNotEmpty()
   readonly toAccountId: string
 
-  @IsNumber()
   readonly tokenId?: number
 }

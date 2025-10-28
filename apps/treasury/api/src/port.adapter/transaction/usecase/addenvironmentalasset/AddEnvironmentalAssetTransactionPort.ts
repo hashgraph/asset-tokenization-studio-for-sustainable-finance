@@ -8,5 +8,5 @@ export interface AddEnvironmentalAssetTransactionPort {
     treasuryContractId: string,
     assetContractId: string,
     request: AddEnvironmentalAssetTransactionRequest,
-  ): TransactionResponse
+  ): Promise<TransactionResponse>
 }

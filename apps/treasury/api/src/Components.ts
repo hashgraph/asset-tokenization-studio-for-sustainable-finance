@@ -20,6 +20,7 @@ import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmenta
 import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetNotExistsDomainService"
 import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
+import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
@@ -41,10 +42,14 @@ import { GetEnvironmentalAssetTransfersHttpAdapter } from "@port/environmentalas
 import { GetEnvironmentalAssetTransfersQueryHandler } from "@app/environmentalasset/getenvironmentalassettransfers/query/GetEnvironmentalAssetTransfersQueryHandler"
 import { GetEnvironmentalAssetHoldingsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassetholdings/GetEnvironmentalAssetHoldingsHttpAdapter"
 import { GetEnvironmentalAssetHoldingsQueryHandler } from "@app/environmentalasset/getenvironmentalassetholdings/query/GetEnvironmentalAssetHoldingsQueryHandler"
+import { GetPaymentTokenTransfersHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokentransfers/GetPaymentTokenTransfersHttpAdapter"
+import { GetPaymentTokenTransfersQueryHandler } from "@app/paymenttoken/getpaymenttokentransfers/query/GetPaymentTokenTransfersQueryHandler"
 import { EnvironmentalAssetTokenTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTokenTypeOrmRepository"
 import { EnvironmentalAssetTokenPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTokenPersistence"
 import { EnvironmentalAssetTransferTypeOrmRepository } from "@port/persistence/environmentalasset/repositories/EnvironmentalAssetTransferTypeOrmRepository"
 import { EnvironmentalAssetTransferPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetTransferPersistence"
+import { PaymentTokenTransferTypeOrmRepository } from "@port/persistence/paymenttoken/repositories/PaymentTokenTransferTypeOrmRepository"
+import { PaymentTokenTransferPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenTransferPersistence"
 import { AddEnvironmentalAssetTransferAppService } from "@app/environmentalasset/addenvironmentalassettransfer/service/AddEnvironmentalAssetTransferAppService"
 import { AddEnvironmentalAssetTransferCommandHandler } from "@app/environmentalasset/addenvironmentalassettransfer/command/AddEnvironmentalAssetTransferCommandHandler"
 import { AddEnvironmentalAssetTransferNestJSEventAdapter } from "@port/environmentalasset/usecase/addenvironmentalassettransfer/AddEnvironmentalAssetTransferNestJSEventAdapter"
@@ -61,9 +66,37 @@ import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/
 import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/updatepaymenttoken/UpdatePaymentTokenNestJSEventAdapter"
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
-import { TypeOrmTransactionManager } from "@port/shared/transaction/TypeOrmTransactionManager"
+import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
+import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
+import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymenttokentransfer/command/AddPaymentTokenTransferCommandHandler"
+import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
+import { PauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionHttpAdapter"
+import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
+import { UnpauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/unpausetreasury/UnpauseTreasuryTransactionHttpAdapter"
+import { UnpauseTreasuryTransactionAppService } from "@app/transaction/unpausetreasury/service/UnpauseTreasuryTransactionAppService"
+import { PauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/pausetreasury/PauseTreasuryNestJSEventAdapter"
+import { PauseTreasuryCommandHandler } from "@app/treasury/pausetreasury/command/PauseTreasuryCommandHandler"
+import { UnpauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryNestJSEventAdapter"
+import { UnpauseTreasuryCommandHandler } from "@app/treasury/unpausetreasury/command/UnpauseTreasuryCommandHandler"
+import { ProceedsRecipientTypeOrmRepository } from "@port/persistence/proceedsrecipient/repositories/ProceedsRecipientTypeOrmRepository"
+import { ProceedsRecipientAllocationTypeOrmRepository } from "@port/persistence/proceedsrecipient/repositories/ProceedsRecipientAllocationTypeOrmRepository"
+import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientPersistence"
+import { ProceedsRecipientAllocationPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientAllocationPersistence"
+import { SyncProceedsRecipientNestJSEventAdapter } from "@port/proceedsrecipient/usecase/syncproceedsrecipient/SyncProceedsRecipientNestJSEventAdapter"
+import { SyncProceedsRecipientAppService } from "@app/proceedsrecipient/syncproceedsrecipient/service/SyncProceedsRecipientAppService"
+import { CreateProceedsRecipientCommandHandler } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommandHandler"
+import { AddProceedsRecipientAllocationCommandHandler } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommandHandler"
+import { GetProceedsRecipientAllocationsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipientallocations/GetProceedsRecipientAllocationsHttpAdapter"
+import { GetProceedsRecipientAllocationsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipientallocations/query/GetProceedsRecipientAllocationsQueryHandler"
+import { GetProceedsRecipientsHttpAdapter } from "@port/proceedsrecipient/usecase/getproceedsrecipients/GetProceedsRecipientsHttpAdapter"
+import { GetProceedsRecipientsQueryHandler } from "@app/proceedsrecipient/getproceedsrecipients/query/GetProceedsRecipientsQueryHandler"
+import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
+import { DistributionTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionTypeOrmRepository"
+import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
+import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
+import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -86,6 +119,26 @@ const REPOSITORIES: Provider[] = [
     provide: "PaymentTokenRepository",
     useClass: PaymentTokenTypeOrmRepository,
   },
+  {
+    provide: "PaymentTokenTransferRepository",
+    useClass: PaymentTokenTransferTypeOrmRepository,
+  },
+  {
+    provide: "ProceedsRecipientRepository",
+    useClass: ProceedsRecipientTypeOrmRepository,
+  },
+  {
+    provide: "DistributionRepository",
+    useClass: DistributionTypeOrmRepository,
+  },
+  {
+    provide: "DistributionHolderRepository",
+    useClass: DistributionHolderTypeOrmRepository,
+  },
+  {
+    provide: "ProceedsRecipientAllocationRepository",
+    useClass: ProceedsRecipientAllocationTypeOrmRepository,
+  },
 ]
 
 export const ENTITIES = [
@@ -95,6 +148,11 @@ export const ENTITIES = [
   EnvironmentalAssetTokenPersistence,
   EnvironmentalAssetTransferPersistence,
   PaymentTokenPersistence,
+  PaymentTokenTransferPersistence,
+  ProceedsRecipientPersistence,
+  ProceedsRecipientAllocationPersistence,
+  DistributionPersistence,
+  DistributionHolderPersistence,
 ]
 
 export const CONTROLLERS = [
@@ -111,6 +169,11 @@ export const CONTROLLERS = [
   UpdatePaymentTokenTransactionHttpAdapter,
   ExternalTransferEnvironmentalAssetTransactionHttpAdapter,
   GetPaymentTokensHttpAdapter,
+  UnpauseTreasuryTransactionHttpAdapter,
+  GetPaymentTokenTransfersHttpAdapter,
+  PauseTreasuryTransactionHttpAdapter,
+  GetProceedsRecipientAllocationsHttpAdapter,
+  GetProceedsRecipientsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -125,8 +188,10 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetNotExistsDomainService,
   CheckEnvironmentalAssetTokenExistsDomainService,
   CheckEnvironmentalAssetTokenNotExistsDomainService,
+  CheckPaymentTokenExistsDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
+  CheckProceedsRecipientExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -145,7 +210,20 @@ export const PROVIDERS = [
   UpdatePaymentTokenNestJSEventAdapter,
   UpdatePaymentTokenCommandHandler,
   UpdatePaymentTokenDomainService,
+  AddPaymentTokenTransferNestJSEventAdapter,
+  AddPaymentTokenTransferCommandHandler,
+  UnpauseTreasuryTransactionAppService,
+  AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
+  PauseTreasuryTransactionAppService,
+  PauseTreasuryNestJSEventAdapter,
+  PauseTreasuryCommandHandler,
+  UnpauseTreasuryNestJSEventAdapter,
+  UnpauseTreasuryCommandHandler,
+  SyncProceedsRecipientNestJSEventAdapter,
+  SyncProceedsRecipientAppService,
+  CreateProceedsRecipientCommandHandler,
+  AddProceedsRecipientAllocationCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -154,6 +232,9 @@ export const PROVIDERS = [
   GetEnvironmentalAssetTransfersQueryHandler,
   GetEnvironmentalAssetHoldingsQueryHandler,
   GetPaymentTokensQueryHandler,
+  GetPaymentTokenTransfersQueryHandler,
+  GetProceedsRecipientAllocationsQueryHandler,
+  GetProceedsRecipientsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,

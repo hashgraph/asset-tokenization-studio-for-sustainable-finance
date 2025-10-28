@@ -27,7 +27,8 @@
       "@domain/*": ["src/domain/*"],
       "@port/*": ["src/port.adapter/*"],
       "@test/*": ["test/*"],
-      "@components": ["src/Components"]
+      "@components": ["src/Components"],
+      "@utils/*": ["src/utils/*"],
     }
   }
 }

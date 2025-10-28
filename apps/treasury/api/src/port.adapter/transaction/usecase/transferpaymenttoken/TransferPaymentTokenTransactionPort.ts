@@ -4,5 +4,8 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { TransferPaymentTokenTransactionRequest } from "./model/TransferPaymentTokenTransactionRequest"
 
 export interface TransferPaymentTokenTransactionPort {
-  transferPaymentToken(treasuryContractId: string, request: TransferPaymentTokenTransactionRequest): TransactionResponse
+  transferPaymentToken(
+    treasuryContractId: string,
+    request: TransferPaymentTokenTransactionRequest,
+  ): Promise<TransactionResponse>
 }

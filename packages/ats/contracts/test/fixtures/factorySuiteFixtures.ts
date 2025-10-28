@@ -22,8 +22,15 @@ import {
   LogLevel,
   deployFacets,
   registerAdditionalFacets,
+  atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { deployFactorySuiteSystem, TREASURY_CONFIG_ID, DEPLOYER_ROLE, PAUSER_ROLE } from "@scripts";
+import {
+  deployFactorySuiteSystem,
+  factorySuiteRegistry,
+  TREASURY_CONFIG_ID,
+  DEPLOYER_ROLE,
+  PAUSER_ROLE,
+} from "@scripts";
 import {
   createTreasuryConfiguration,
   MOCK_ERC20_CONTRACT_NAME,
@@ -158,24 +165,14 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // ========================================
   // STEP 1: Deploy and register mock Treasury configuration
   // ========================================
-  // Create a minimal registry for mock Treasury facet
-  const mockTreasuryRegistry = {
-    getFacetDefinition(name: string) {
-      const facets: Record<string, any> = {
-        MockTreasuryFacet: { name: "MockTreasuryFacet", description: "Mock Treasury facet" },
-      };
-      return facets[name];
-    },
-    getAllFacets() {
-      return [{ name: "MockTreasuryFacet", description: "Mock Treasury facet" }];
-    },
-  };
+  // Mock facets are now included in factorySuiteRegistry (includeMocksInRegistry: true)
+  // No need for manual mock registry creation!
 
   // Deploy ONLY MockTreasuryFacet (AccessControl already exists from FactorySuite deployment)
   const mockFacetsResult = await deployFacets(provider, {
     facetNames: ["MockTreasuryFacet"],
     useTimeTravel: false,
-    registry: mockTreasuryRegistry,
+    registries: [atsRegistry, factorySuiteRegistry],
   });
 
   if (!mockFacetsResult.success || mockFacetsResult.deployed.size !== 1) {
@@ -194,6 +191,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   const registerResult = await registerAdditionalFacets(provider, {
     blrAddress: blr.address,
     newFacets: mockFacetAddresses,
+    registries: [atsRegistry, factorySuiteRegistry],
   });
 
   if (!registerResult.success) {
@@ -207,7 +205,10 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     MockTreasuryFacet: mockFacetAddresses.MockTreasuryFacet,
   };
 
-  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false);
+  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false, [
+    atsRegistry,
+    factorySuiteRegistry,
+  ]);
 
   if (!treasuryConfigResult.success) {
     throw new Error(`Failed to create Treasury configuration: ${treasuryConfigResult.error}`);
@@ -237,12 +238,12 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   await paymentToken.deployed();
 
   const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const erc721Token1 = await MockERC721.deploy("NFT 1", "NFT1");
-  await erc721Token1.deployed();
+  const environmentalAssetToken1 = await MockERC721.deploy("NFT 1", "NFT1");
+  await environmentalAssetToken1.deployed();
 
-  const erc721Token2 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const erc721Token2Instance = await erc721Token2.deploy("NFT 2", "NFT2");
-  await erc721Token2Instance.deployed();
+  const environmentalAssetToken2Factory = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
+  const environmentalAssetToken2 = await environmentalAssetToken2Factory.deploy("NFT 2", "NFT2");
+  await environmentalAssetToken2.deployed();
 
   return {
     // Provider & signers
@@ -262,8 +263,8 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     // Mock contracts for testing deployBondSuite()
     mockAtsFactory,
     paymentToken,
-    erc721Token1,
-    erc721Token2: erc721Token2Instance,
+    environmentalAssetToken1,
+    environmentalAssetToken2,
 
     // Treasury configuration metadata (for test data generation)
     treasuryConfigId,

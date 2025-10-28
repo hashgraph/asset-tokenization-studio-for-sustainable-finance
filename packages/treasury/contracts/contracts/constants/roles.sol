@@ -4,14 +4,20 @@ pragma solidity 0.8.18;
 
 bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
 
-// keccak256('green.bonds.treasury.role.portfolio.manager');
-bytes32 constant PORTFOLIO_MANAGER_ROLE = 0x8734926a1c1200d18e737f9b81dd7f424b59efc1eb35b9afb5fee0faa29e1077;
+// keccak256('green.bonds.platform.treasury.role.portfolio.manager');
+bytes32 constant PORTFOLIO_MANAGER_ROLE = 0xf8f1da56e510d0db422582238e75a932b72ae6165ad31a4c2eb993e0c9196a06;
 
-// keccak256('green.bonds.treasury.role.pauser');
+// keccak256('security.token.standard.role.pauser');
 bytes32 constant PAUSER_ROLE = 0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb;
 
-// keccak256('green.bonds.treasury.role.funds.manager');
-bytes32 constant FUNDS_MANAGER_ROLE = 0x5deab80f7dc81e163521c79bbbfc24cfe00f75f4ff7006e53789aae4b66755d4;
+// keccak256('green.bonds.platform.treasury.role.funds.manager');
+bytes32 constant FUNDS_MANAGER_ROLE = 0x6b2cde3f3e0fdc0dee8b8dc6466157b675ab2b8465c45b8b9c4cf0049a93344d;
 
-// keccak256('green.bonds.treasury.role.proceeds.full.manager');
-bytes32 constant PROCEEDS_FULL_MANAGER = 0xc72c3e363e25be4f275bc99e815905b525be1cd147d9a2b9f05087df873b361d;
+// keccak256('green.bonds.platform.treasury.role.proceeds.full.manager');
+bytes32 constant PROCEEDS_FULL_MANAGER_ROLE = 0x2fa449e97717e92b32320917db3073c2407e0bc636bc1367e879e379239e26e5;
+
+// keccak256('green.bonds.platform.treasury.role.payout');
+bytes32 constant PAYOUT_ROLE = 0x096259e60fc84b10645035350be6adc907cf0cd20b1a7866e1ea9c7502a8265e;
+
+// keccak256('green.bonds.platform.treasury.role.redemption');
+bytes32 constant REDEMPTION_ROLE = 0x75e1cb791887e8c7a9a1aafbb8997773bd21a9f3c83f4a70066ba5ebf7bd8ef9;

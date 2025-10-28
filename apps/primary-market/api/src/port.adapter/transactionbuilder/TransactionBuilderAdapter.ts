@@ -3,46 +3,60 @@
 import {
   BaseTransactionBuilder,
   BuildTransactionResponse,
+  ConverterUtils,
   Environment,
   Singleton,
-} from '@hashgraph/green-bonds-shared-core'
-import { TransactionBuilderPort } from './TransactionBuilderPort'
-import { BuildCreateOfferingTransactionRequest } from './model/BuildCreateOfferingTransactionRequest'
-import { BuildGrantRoleTransactionRequest } from './model/BuildGrantRoleTransactionRequest'
-import { ConfigService } from '@nestjs/config'
-import { ConfigKeys } from '@config/ConfigKeys'
+} from "@hashgraph/green-bonds-shared-core"
+import { TransactionBuilderPort } from "./TransactionBuilderPort"
+import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
+import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
+import { ConfigService } from "@nestjs/config"
+import { ConfigKeys } from "@config/ConfigKeys"
+import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly OFFERING_CREATION_GAS = 5_000_000
+  private readonly SUBSCRIPTION_SUBMIT_GAS = 700_000
   private readonly GRANT_ROLE_GAS = 700_000
-  private readonly DEFAULT_ENVIRONMENT = 'testnet' as const
+  private readonly DEFAULT_ENVIRONMENT = "testnet" as const
 
   constructor(private readonly configService: ConfigService) {
     super()
   }
 
-  createOffering(request: BuildCreateOfferingTransactionRequest): BuildTransactionResponse {
-    const offering = this.buildOfferingParams(request)
+  async createOffering(request: BuildCreateOfferingTransactionRequest): Promise<BuildTransactionResponse> {
+    const offering = await this.buildOfferingParams(request)
 
-    return this.buildTransaction({
-      functionName: 'createOffering',
+    return await this.buildTransaction({
+      functionName: "createOffering",
       contractId: request.contractId,
       gas: this.OFFERING_CREATION_GAS,
       account: request.accountId!,
-      format: request.format as 'hedera' | 'ethereum',
+      format: request.format as "hedera" | "ethereum",
       args: [offering],
     })
   }
 
-  grantRole(request: BuildGrantRoleTransactionRequest): BuildTransactionResponse {
-    return this.buildTransaction({
-      functionName: 'grantRole',
+  async grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "grantRole",
       contractId: request.contractId,
       gas: this.GRANT_ROLE_GAS,
       account: request.accountId!,
-      format: request.format as 'hedera' | 'ethereum',
-      args: [request.role, this.getEvmAddressFromHedera(request.userAccountId)],
+      format: request.format as "hedera" | "ethereum",
+      args: [request.role, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+    })
+  }
+
+  async submitSubscription(request: BuildSubmitSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "submitSubscription",
+      contractId: request.contractId,
+      gas: this.SUBSCRIPTION_SUBMIT_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.lotUnits],
     })
   }
 
@@ -56,23 +70,23 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     // Temporary mock - replace with actual interface
     return {
       encodeFunctionData: () => {
-        return '0xmockTransactionData'
+        return "0xmockTransactionData"
       },
     } as any
   }
 
-  private buildTransaction(params: {
+  private async buildTransaction(params: {
     functionName: string
     contractId: string
     gas: number
     account: string
-    format: 'hedera' | 'ethereum'
+    format: "hedera" | "ethereum"
     args: any[]
-  }): BuildTransactionResponse {
+  }): Promise<BuildTransactionResponse> {
     const environment = this.getEnvironment()
     const contractInterface = this.getPrimaryMarketInterface()
 
-    const transactionResponse = this.buildAndSerializeTransaction({
+    const transactionResponse = await this.buildAndSerializeTransaction({
       contractInterface,
       functionName: params.functionName as any,
       contractId: params.contractId,
@@ -86,9 +100,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
 
-  private buildOfferingParams(request: BuildCreateOfferingTransactionRequest) {
+  private async buildOfferingParams(request: BuildCreateOfferingTransactionRequest) {
     return {
-      asset: this.getEvmAddressFromHedera(request.bondContractId),
+      asset: await ConverterUtils.getEvmAddressFromHederaAddress(request.bondContractId),
       treasury: request.treasuryAddress,
       paymentToken: request.paymentTokenAddress,
       lotSize: request.lotSize,

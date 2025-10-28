@@ -15,12 +15,12 @@ export class FundProceedsRecipientTransactionHttpAdapter implements FundProceeds
   ) {}
 
   @Post(":treasuryContractId/proceeds-recipients/:recipientContractId/transfer")
-  fundProceedsRecipient(
+  async fundProceedsRecipient(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("recipientContractId") recipientContractId: string,
     @Body() request: FundProceedsRecipientTransactionRequest,
-  ): TransactionResponse {
-    return this.fundProceedsRecipientTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.fundProceedsRecipientTransactionAppService.execute(
       new FundProceedsRecipientTransactionAppServiceRequest(
         recipientContractId,
         request.amount,

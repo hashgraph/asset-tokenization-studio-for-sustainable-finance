@@ -3,16 +3,16 @@
 /**
  * Complete FactorySuite system deployment workflow.
  *
- * Orchestrates the deployment of the entire FactorySuite infrastructure:
+ * Orchestrates deployment of the entire FactorySuite infrastructure with multi-registry support:
  * - ProxyAdmin for upgrade management
  * - BusinessLogicResolver (BLR) with proxy
- * - Required facets (AccessControl, Pause, FactorySuite)
- * - Facet registration in BLR
+ * - Required facets (AccessControl, Pause, FactorySuite) from multiple registries
+ * - Facet registration in BLR using combined ATS and FactorySuite registries
  * - FactorySuite configuration (config ID 30'000)
  * - FactorySuite proxy
  *
- * Provides comprehensive deployment output including all addresses, keys, config IDs,
- * versions, and optional Hedera Contract IDs.
+ * Uses ATS standard facets (AccessControl, Pause) and custom FactorySuite facets
+ * by passing arrays of registries to ATS infrastructure operations.
  *
  * @module workflows/deployFactorySuiteSystem
  */
@@ -24,14 +24,14 @@ import {
   deployFacets,
   registerFacets,
   deployResolverProxy,
+  atsRegistry,
   info,
   success,
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@contracts";
-import { createFactorySuiteConfiguration } from "@scripts/domain";
-import { factorySuiteRegistry } from "@scripts/infrastructure/factorySuiteRegistry";
+import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 
 /**
  * Complete deployment output structure.
@@ -194,7 +194,7 @@ export async function deployFactorySuiteSystem(
     const facetsResult = await deployFacets(provider, {
       facetNames,
       useTimeTravel,
-      registry: factorySuiteRegistry,
+      registries: [atsRegistry, factorySuiteRegistry],
     });
 
     if (!facetsResult.success) {
@@ -215,6 +215,7 @@ export async function deployFactorySuiteSystem(
     const registerResult = await registerFacets(provider, {
       blrAddress: blrResult.blrAddress,
       facets: facetAddresses,
+      registries: [atsRegistry, factorySuiteRegistry],
     });
 
     if (!registerResult.success) {
@@ -227,7 +228,10 @@ export async function deployFactorySuiteSystem(
 
     const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel, [
+      atsRegistry,
+      factorySuiteRegistry,
+    ]);
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);

@@ -57,7 +57,8 @@
       "^@port/(.*)$": "<rootDir>/src/port.adapter/$1",
       "^@config/(.*)$": "<rootDir>/src/config/$1",
       "^@test/(.*)$": "<rootDir>/test/$1",
-      "^@components$": "<rootDir>/src/Components"
+      "^@components$": "<rootDir>/src/Components",
+      "^@utils/(.*)$": "<rootDir>/src/utils/$1"
     }
   }
 }

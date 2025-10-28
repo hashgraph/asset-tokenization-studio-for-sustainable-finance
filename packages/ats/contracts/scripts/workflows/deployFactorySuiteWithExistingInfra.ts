@@ -3,11 +3,10 @@
 /**
  * FactorySuite deployment workflow with existing infrastructure.
  *
- * Designed for multi-module orchestration scenarios where BusinessLogicResolver
- * and common facets (AccessControl, Pause) are already deployed and shared
- * across multiple domains (e.g., ATS, Treasury, FactorySuite).
+ * Designed for multi-module orchestration where BusinessLogicResolver and common
+ * facets are already deployed and shared across domains (e.g., ATS, Treasury, FactorySuite).
  *
- * This workflow only deploys FactorySuite-specific components:
+ * Deploys only FactorySuite-specific components using multi-registry support:
  * - FactorySuiteFacet (and TimeTravel variant if needed)
  * - FactorySuite configuration in existing BLR (config ID 30'000)
  * - FactorySuite ResolverProxy
@@ -15,7 +14,9 @@
  * Reuses existing infrastructure:
  * - Shared BLR proxy
  * - Shared ProxyAdmin
- * - Shared AccessControlFacet and PauseFacet
+ * - Shared AccessControlFacet and PauseFacet (from atsRegistry)
+ *
+ * Uses combined atsRegistry and factorySuiteRegistry for proper facet resolution.
  *
  * @module workflows/deployFactorySuiteWithExistingInfra
  */
@@ -25,14 +26,14 @@ import {
   deployFacets,
   registerAdditionalFacets,
   deployResolverProxy,
+  atsRegistry,
   info,
   success,
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@contracts";
-import { createFactorySuiteConfiguration } from "@scripts/domain";
-import { factorySuiteRegistry } from "@scripts/infrastructure/factorySuiteRegistry";
+import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
 
 /**
@@ -174,7 +175,7 @@ export async function deployFactorySuiteWithExistingInfra(
     const facetsResult = await deployFacets(provider, {
       facetNames,
       useTimeTravel,
-      registry: factorySuiteRegistry,
+      registries: [atsRegistry, factorySuiteRegistry],
     });
 
     if (!facetsResult.success) {
@@ -198,6 +199,7 @@ export async function deployFactorySuiteWithExistingInfra(
     const registerResult = await registerAdditionalFacets(provider, {
       blrAddress,
       newFacets: newFacetAddresses,
+      registries: [atsRegistry, factorySuiteRegistry],
     });
 
     if (!registerResult.success) {
@@ -227,7 +229,10 @@ export async function deployFactorySuiteWithExistingInfra(
           FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
         };
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel, [
+      atsRegistry,
+      factorySuiteRegistry,
+    ]);
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);

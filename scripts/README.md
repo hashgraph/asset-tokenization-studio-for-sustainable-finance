@@ -2,7 +2,35 @@
 
 Utility scripts and infrastructure management for the Green Bonds Platform.
 
-## 🚀 **Quick Start**
+## � **Project Structure**
+
+```
+scripts/
+├── ats/                          # ATS (Asset Tokenization Service) scripts
+│   └── bond/                     # Bond-related scripts
+│       ├── bond-simulator.js     # Bond creation simulator
+│       └── bond-service.js       # Bond service API client
+├── primary-market/               # Primary Market scripts
+│   └── offering/                 # Offering-related scripts
+│       ├── offering-simulator.js # Offering creation simulator
+│       └── offering-service.js   # Offering service API client
+├── treasury/                     # Treasury scripts (future)
+├── shared/                       # Shared utilities and infrastructure
+│   ├── infra/                    # Infrastructure management
+│   │   └── infra-setup.js        # Main infrastructure orchestration
+│   └── lib/                      # Shared libraries
+│       ├── config.js             # Configuration management
+│       ├── gateway-client.js     # API Gateway HTTP client
+│       ├── infrastructure.js     # RabbitMQ utilities
+│       ├── input.js              # User input utilities
+│       ├── logger.js             # Logging utilities
+│       └── transaction-signer.js # Transaction signing
+└── utils/                        # General utility scripts
+    ├── transaction-signer.js     # Interactive transaction signer
+    └── transaction-sign-and-send.js # Sign and publish transactions
+```
+
+## �🚀 **Quick Start**
 
 ### **Infrastructure Management**
 ```bash
@@ -12,27 +40,28 @@ cd scripts
 npm run all:start
 
 # OR start services individually
-npm run docker:start              # Start Docker services only (PostgreSQL, RabbitMQ, PgAdmin)
-npm run apis:start                 # Start Node.js APIs only (ATS API, Transaction Sender)
+npm run docker:start              # Start Docker services only
+npm run apis:start                # Start Node.js APIs only
 
 # Check status of all services
 npm run all:status
 
 # Stop services
-npm run apis:stop                  # Stop APIs only
-npm run all:stop                   # Stop everything (Docker + APIs)
+npm run apis:stop                 # Stop APIs only
+npm run all:stop                  # Stop everything
 ```
 
-### **Utility Scripts**
+### **Service-Specific Scripts**
 ```bash
-# Transaction signing only
-npm run sign
+# ATS - Bond creation simulation
+npm run ats:bond
 
-# Transaction signing and sending (requires infrastructure)
-npm run sign-and-send  
+# Primary Market - Offering creation simulation
+npm run primary-market:offering
 
-# Bond creation simulation (requires infrastructure)
-npm run bond
+# Utilities
+npm run sign                      # Transaction signing only
+npm run sign-and-send             # Sign and publish transaction
 ```
 
 ## 🏗️ **Infrastructure Architecture**
@@ -45,12 +74,13 @@ npm run bond
 
 ### **Node.js Services**
 - **API Gateway** (Port 3000): Authenticated proxy to all services - http://localhost:3000 🔒
-- **ATS API** (Port 3001): Bond management service - http://localhost:3001/api/v1/ats (Direct)
+- **ATS API** (Port 3001): Bond management service - http://localhost:3001/api/v1/ats
+- **Primary Market API** (Port 3002): Offering management service - http://localhost:3002/api/v1/primary-markets
 - **Transaction Sender** (Port 3005): Processes signed transactions from RabbitMQ
 
 ### **API Access & Security**
 - **🔒 Recommended**: Use API Gateway (Port 3000) with authentication
-- **🔓 Direct**: Access ATS API directly (Port 3001) for development only  
+- **🔓 Direct**: Access APIs directly (Ports 3001, 3002) for development only  
 - **🔑 Authentication**: All gateway requests require `x-api-key` header
 - **🎯 Benefits**: Centralized security, request logging, rate limiting
 
@@ -68,7 +98,8 @@ npm run bond
 ### **Utility Scripts**
 - `npm run sign` - Interactive transaction signing tool
 - `npm run sign-and-send` - Transaction signing and sending utility
-- `npm run bond` - Bond creation simulation workflow
+- `npm run ats:bond` - ATS Bond creation simulation workflow
+- `npm run primary-market:offering` - Primary Market offering creation workflow
 
 ## ⚙️ **Prerequisites**
 
@@ -86,9 +117,9 @@ All scripts now use the API Gateway for secure, authenticated access to services
 
 ### **Architecture Flow**
 ```
-Scripts → API Gateway (Port 3000) → ATS API (Port 3001)
+Scripts → API Gateway (Port 3000) → ATS API (Port 3001) / Primary Market API (Port 3002)
          ↓ (with x-api-key)      ↓ (authenticated)
-      Security Layer           Bond Management
+      Security Layer           Service APIs
 ```
 
 ### **Authentication Configuration**
@@ -116,19 +147,26 @@ gatewayClient.post('/api/v1/ats/bonds', data)
 
 ### **Testing Gateway Integration**
 ```bash
-cd scripts/cli
-node test-gateway-integration.js     # Test gateway connection
+# Test ATS API through gateway
+curl -H "x-api-key: demo-key-1" \
+     -H "Content-Type: application/json" \
+     http://localhost:3000/api/v1/ats/bonds
+
+# Test Primary Market API through gateway  
+curl -H "x-api-key: demo-key-1" \
+     -H "Content-Type: application/json" \
+     http://localhost:3000/api/v1/primary-markets
 ```
 
 ### **Manual API Testing**
 ```bash
 # Through Gateway (Recommended)
-curl -H "x-api-key: demo-key-1" \
-     -H "Content-Type: application/json" \
-     http://localhost:3000/api/v1/ats/bonds
+curl -H "x-api-key: demo-key-1" http://localhost:3000/api/v1/ats/bonds
+curl -H "x-api-key: demo-key-1" http://localhost:3000/api/v1/primary-markets
 
 # Direct API (Development only)  
 curl http://localhost:3001/api/v1/ats/bonds
+curl http://localhost:3002/api/v1/primary-markets
 ```
 
 ## �🛠️ **Setup Instructions**
@@ -150,7 +188,7 @@ curl http://localhost:3001/api/v1/ats/bonds
    
    # Edit .env file with your configuration
    # API_KEY=demo-key-1                              # Gateway authentication
-   # ATS_API_URL=http://localhost:3000               # Gateway URL
+   # GATEWAY_API_URL=http://localhost:3000           # Gateway URL
    # BLOCKCHAIN_FORMAT=hedera                        # Choose 'hedera' or 'ethereum'
    # HEDERA_PRIVATE_KEY=your-hedera-private-key-in-der-format
    # ACCOUNT_ID=your-hedera-account-id               # Required for Hedera (e.g., 0.0.123456)
@@ -189,11 +227,19 @@ npm run apis:stop
 ```
 
 ### **Testing Blockchain Flows**
+```bash
+# Test ATS bond creation
+npm run ats:bond
+
+# Test Primary Market offering creation
+npm run primary-market:offering
+```
+
 You can test different blockchain formats by changing the `BLOCKCHAIN_FORMAT` in your `.env` file:
 - Set `BLOCKCHAIN_FORMAT=hedera` to test Hedera transaction flows
 - Set `BLOCKCHAIN_FORMAT=ethereum` to test Ethereum/EVM transaction flows
 
-All utility scripts (`npm run sign`, `npm run sign-and-send`, `npm run bond`) will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
+All scripts will automatically use the format specified in `BLOCKCHAIN_FORMAT`.
 
 ## 🚨 **Troubleshooting**
 
@@ -235,15 +281,17 @@ curl http://localhost:15672                                              # Rabbi
 ### **Gateway Configuration Issues**
 If the gateway isn't routing correctly, check the infra-setup.js configuration:
 ```javascript
-// In scripts/cli/infra-setup.js - Gateway config should have:
-PATHS: '/api/v1/ats'                  // Routes to intercept
-ROUTES: 'http://localhost:3001'       // Target ATS API
+// In scripts/shared/infra/infra-setup.js - Gateway config should have:
+PATHS: '/api/v1/ats,/api/v1/primary-markets'           // Routes to intercept
+ROUTES: 'http://localhost:3001,http://localhost:3002'  // Target APIs
 API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key'
 ```
 
 ## 🌐 **Service URLs**
 
 When running, you can access:
-- **ATS API**: http://localhost:3000/api
+- **API Gateway**: http://localhost:3000 (🔒 Requires x-api-key header)
+- **ATS API Swagger**: http://localhost:3001/api
+- **Primary Market API Swagger**: http://localhost:3002/api
 - **PgAdmin**: http://localhost:5050 (admin@admin.com / admin)
 - **RabbitMQ Management**: http://localhost:15672 (guest / guest)

@@ -8,7 +8,7 @@ import { FundProceedsRecipientTransactionAppServiceRequest } from "./model/FundP
 export class FundProceedsRecipientTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: FundProceedsRecipientTransactionAppServiceRequest): TransactionAppServiceResponse {
+  async execute(request: FundProceedsRecipientTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
     return this.transactionBuilderPort.fundProceedsRecipient(request)
   }
 }

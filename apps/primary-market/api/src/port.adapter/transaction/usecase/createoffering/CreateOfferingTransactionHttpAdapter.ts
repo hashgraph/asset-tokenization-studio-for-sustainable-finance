@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
-import { RestController, TransactionResponse } from '@hashgraph/green-bonds-shared-core'
-import { CreateOfferingTransactionRequest } from './model/CreateOfferingTransactionRequest'
-import { Body, Param, Post } from '@nestjs/common'
-import { CreateOfferingTransactionPort } from './CreateOfferingTransactionPort'
-import { CreateOfferingTransactionAppService } from '@app/transaction/createoffering/service/CreateOfferingTransactionAppService'
-import { CreateOfferingTransactionAppServiceRequest } from '@app/transaction/createoffering/service/model/CreateOfferingTransactionAppServiceRequest'
+import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import { CreateOfferingTransactionRequest } from "./model/CreateOfferingTransactionRequest"
+import { Body, Param, Post } from "@nestjs/common"
+import { CreateOfferingTransactionPort } from "./CreateOfferingTransactionPort"
+import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
+import { CreateOfferingTransactionAppServiceRequest } from "@app/transaction/createoffering/service/model/CreateOfferingTransactionAppServiceRequest"
 
-@RestController('primary-markets')
+@RestController("primary-markets")
 export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTransactionPort {
   constructor(private readonly createOfferingTransactionAppService: CreateOfferingTransactionAppService) {}
 
-  @Post(':marketContractId/bonds/:bondContractId')
-  createOfferingTransaction(
-    @Param('marketContractId') marketContractId: string,
-    @Param('bondContractId') bondContractId: string,
+  @Post(":marketContractId/bonds/:bondContractId")
+  async createOfferingTransaction(
+    @Param("marketContractId") marketContractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Body() request: CreateOfferingTransactionRequest,
-  ): TransactionResponse {
+  ): Promise<TransactionResponse> {
     const appServiceRequest = new CreateOfferingTransactionAppServiceRequest(
       request.format,
-      request.accountId ?? '',
+      request.accountId ?? "",
       marketContractId,
       bondContractId,
       request.treasuryAddress,
@@ -32,6 +32,6 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.endDate,
       request.deadlineRule,
     )
-    return this.createOfferingTransactionAppService.execute(appServiceRequest)
+    return await this.createOfferingTransactionAppService.execute(appServiceRequest)
   }
 }

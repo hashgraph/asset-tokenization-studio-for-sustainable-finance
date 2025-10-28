@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, Min, IsDate } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, Min, IsDate, IsNumberString } from "class-validator"
 import { Type } from "class-transformer"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
@@ -33,7 +33,7 @@ export class CreateBondCommand extends Command<void> {
   @IsNotEmpty()
   currency: string
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   nominalValue: string
 
@@ -47,7 +47,7 @@ export class CreateBondCommand extends Command<void> {
   @Type(() => Date)
   maturityDate: Date
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   maxSupply: string
 

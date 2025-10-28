@@ -5,9 +5,14 @@ pragma solidity >=0.8.0 <0.9.0;
 import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
 import { FACTORY_SUITE_RESOLVER_KEY } from "../constants/resolverKeys.sol";
 import { IFactorySuite } from "../interfaces/IFactorySuite.sol";
-import { FactorySuite } from "../FactorySuite.sol";
+import { FactorySuite } from "./FactorySuite.sol";
 // solhint-enable max-line-length
 
+/**
+ * @title FactorySuiteFacet
+ * @notice Atomic deployment of Bond, Treasury, and KPI contract suites
+ * @dev Diamond facet for factory suite operations
+ */
 contract FactorySuiteFacet is IStaticFunctionSelectors, FactorySuite {
     constructor() {
         // solhint-disable-previous-line no-empty-blocks

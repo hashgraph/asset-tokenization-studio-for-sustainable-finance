@@ -8,7 +8,7 @@ import { TransferPaymentTokenTransactionAppServiceRequest } from "./model/Transf
 export class TransferPaymentTokenTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  execute(request: TransferPaymentTokenTransactionAppServiceRequest): TransactionAppServiceResponse {
+  async execute(request: TransferPaymentTokenTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
     return this.transactionBuilderPort.transferPaymentToken(request)
   }
 }

@@ -15,12 +15,12 @@ export class AddEnvironmentalAssetTransactionHttpAdapter implements AddEnvironme
   ) {}
 
   @Post(":treasuryContractId/environmental-assets/:assetContractId")
-  addEnvironmentalAsset(
+  async addEnvironmentalAsset(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("assetContractId") assetContractId: string,
     @Body() request: AddEnvironmentalAssetTransactionRequest,
-  ): TransactionResponse {
-    return this.addEnvironmentalAssetTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.addEnvironmentalAssetTransactionAppService.execute(
       new AddEnvironmentalAssetTransactionAppServiceRequest(
         assetContractId,
         request.format,

@@ -15,12 +15,12 @@ export class RemoveEnvironmentalAssetTransactionHttpAdapter implements RemoveEnv
   ) {}
 
   @Delete(":treasuryContractId/environmental-assets/:assetContractId")
-  removeEnvironmentalAsset(
+  async removeEnvironmentalAsset(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("assetContractId") assetContractId: string,
     @Body() request: RemoveEnvironmentalAssetTransactionRequest,
-  ): TransactionResponse {
-    return this.removeEnvironmentalAssetTransactionAppService.execute(
+  ): Promise<TransactionResponse> {
+    return await this.removeEnvironmentalAssetTransactionAppService.execute(
       new RemoveEnvironmentalAssetTransactionAppServiceRequest(
         assetContractId,
         request.format,

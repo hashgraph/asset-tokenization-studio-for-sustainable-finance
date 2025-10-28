@@ -68,11 +68,11 @@ export class SecurityTokenCreationAppServiceRequest {
   @IsNotEmpty()
   currency: string
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   numberOfUnits: string
 
-  @IsString()
+  @IsNumberString()
   @IsNotEmpty()
   nominalValue: string
 

@@ -11,10 +11,10 @@ export class CreateBondTransactionHttpAdapter implements CreateBondTransactionPo
   constructor(private readonly createBondTransactionAppService: CreateBondTransactionAppService) {}
 
   @Post("factories/:factoryContractId/bond-transactions")
-  createBondTransaction(
+  async createBondTransaction(
     @Param("factoryContractId") factoryContractId: string,
     @Body() request: CreateBondTransactionRequest,
-  ): TransactionResponse {
+  ): Promise<TransactionResponse> {
     const appServiceRequest = new CreateBondTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
@@ -25,6 +25,6 @@ export class CreateBondTransactionHttpAdapter implements CreateBondTransactionPo
       request.kpiData,
     )
 
-    return this.createBondTransactionAppService.execute(appServiceRequest)
+    return await this.createBondTransactionAppService.execute(appServiceRequest)
   }
 }
