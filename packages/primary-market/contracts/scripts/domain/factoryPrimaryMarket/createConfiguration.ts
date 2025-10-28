@@ -18,6 +18,7 @@ import {
   ConfigurationData,
   ConfigurationError,
   OperationResult,
+  RegistryProvider,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { FACTORY_PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 
@@ -27,6 +28,7 @@ export async function createFactoryPrimaryMarketConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
+  registry?: RegistryProvider,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   return createBatchConfiguration(blrContract, {
     configurationId: FACTORY_PRIMARY_MARKET_CONFIG_ID,
@@ -35,5 +37,6 @@ export async function createFactoryPrimaryMarketConfiguration(
     useTimeTravel,
     partialBatchDeploy: false,
     batchSize: 2,
+    registry,
   });
 }

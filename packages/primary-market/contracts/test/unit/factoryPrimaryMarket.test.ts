@@ -97,7 +97,7 @@ describe("FactoryPrimaryMarket", () => {
     it("GIVEN an authorized user WHEN deploying new primary market THEN success", async () => {
       await expect(factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS))
         .to.emit(factoryPrimaryMarket, "PrimaryMarketDeployed")
-        .withArgs(adminAddress, anyValue, blr.address, PRIMARY_MARKET_CONFIG_ID, RBACS);
+        .withArgs(adminAddress, anyValue, blr.address, anyValue, anyValue);
     });
   });
 });

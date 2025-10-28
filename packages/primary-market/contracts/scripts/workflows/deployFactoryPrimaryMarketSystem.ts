@@ -30,7 +30,7 @@ import {
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@contracts";
-import { createFactoryPrimaryMarketConfiguration } from "@scripts/domain";
+import { createFactoryPrimaryMarketConfiguration, createPrimaryMarketConfiguration } from "@scripts/domain";
 import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure/factoryPrimaryMarketRegistry";
 
 /**
@@ -162,7 +162,7 @@ export async function deployFactoryPrimaryMarketSystem(
   info("═".repeat(60));
 
   try {
-    info("\n📋 Step 1/6: Deploying ProxyAdmin...");
+    info("\n📋 Step 1/7: Deploying ProxyAdmin...");
     const proxyAdminResult = await deployProxyAdmin(provider);
 
     if (!proxyAdminResult.success) {
@@ -171,7 +171,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
 
-    info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
+    info("\n🔷 Step 2/7: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(provider, {
       proxyAdminAddress: proxyAdminResult.proxyAdminAddress,
     });
@@ -183,16 +183,17 @@ export async function deployFactoryPrimaryMarketSystem(
     info(`✅ BLR Implementation: ${blrResult.implementationAddress}`);
     info(`✅ BLR Proxy: ${blrResult.blrAddress}`);
 
-    info("\n📦 Step 3/6: Deploying facets...");
+    info("\n📦 Step 3/7: Deploying facets...");
 
     const facetNames = useTimeTravel
       ? [
           "AccessControlFacetTimeTravel",
           "PauseFacetTimeTravel",
           "FactoryPrimaryMarketFacetTimeTravel",
+          "PrimaryMarketFacetTimeTravel",
           "TimeTravelFacet",
         ]
-      : ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet"];
+      : ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet", "PrimaryMarketFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
@@ -208,7 +209,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ Deployed ${facetsResult.deployed.size} facets successfully`);
 
-    info("\n📝 Step 4/6: Registering facets in BLR...");
+    info("\n📝 Step 4/7: Registering facets in BLR...");
 
     const facetAddresses: Record<string, string> = {};
     facetsResult.deployed.forEach((deploymentResult, facetName) => {
@@ -220,6 +221,7 @@ export async function deployFactoryPrimaryMarketSystem(
     const registerResult = await registerFacets(provider, {
       blrAddress: blrResult.blrAddress,
       facets: facetAddresses,
+      registries: [factoryPrimaryMarketRegistry],
     });
 
     if (!registerResult.success) {
@@ -228,11 +230,16 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ Registered ${registerResult.registered.length} facets in BLR`);
 
-    info("\n💼 Step 5/6: Creating FactoryPrimaryMarket configuration...");
+    info("\n💼 Step 5/7: Creating FactoryPrimaryMarket configuration...");
 
     const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
 
-    const fsConfig = await createFactoryPrimaryMarketConfiguration(blrContract, facetAddresses, useTimeTravel);
+    const fsConfig = await createFactoryPrimaryMarketConfiguration(
+      blrContract,
+      facetAddresses,
+      useTimeTravel,
+      factoryPrimaryMarketRegistry,
+    );
 
     if (!fsConfig.success) {
       throw new Error(`FactoryPrimaryMarket config failed: ${fsConfig.error} - ${fsConfig.message}`);
@@ -242,7 +249,24 @@ export async function deployFactoryPrimaryMarketSystem(
     info(`✅ Config Version: ${fsConfig.data.version}`);
     info(`✅ Facets: ${fsConfig.data.facetKeys.length}`);
 
-    info("\n🏭 Step 6/6: Deploying FactoryPrimaryMarket ResolverProxy...");
+    info("\n💼 Step 6/7: Creating PrimaryMarket configuration...");
+
+    const pmConfig = await createPrimaryMarketConfiguration(
+      blrContract,
+      facetAddresses,
+      useTimeTravel,
+      factoryPrimaryMarketRegistry,
+    );
+
+    if (!pmConfig.success) {
+      throw new Error(`PrimaryMarket config failed: ${pmConfig.error} - ${pmConfig.message}`);
+    }
+
+    info(`✅ PrimaryMarket Config ID: ${pmConfig.data.configurationId}`);
+    info(`✅ Config Version: ${pmConfig.data.version}`);
+    info(`✅ Facets: ${pmConfig.data.facetKeys.length}`);
+
+    info("\n🏭 Step 7/7: Deploying FactoryPrimaryMarket ResolverProxy...");
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 

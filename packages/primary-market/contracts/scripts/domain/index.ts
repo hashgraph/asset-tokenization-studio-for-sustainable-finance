@@ -15,3 +15,6 @@ export * from "./constants";
 
 // FactoryPrimaryMarket configuration
 export * from "./factoryPrimaryMarket/createConfiguration";
+
+// PrimaryMarket configuration
+export * from "./primaryMarket/createConfiguration";
