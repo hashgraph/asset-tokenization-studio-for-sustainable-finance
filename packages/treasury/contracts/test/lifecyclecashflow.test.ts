@@ -75,4 +75,60 @@ describe('LifeCycleCashFlow operations', () => {
             ).to.be.revertedWithCustomError(lifeCycleCashFlow, 'TokenIsPaused')
         })
     })
+
+    describe('executeDistribution', () => {
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution with the contract paused, THEN it reverts with TokenIsPaused error', async () => {
+            treasury = treasury.connect(signer_A)
+
+            await treasury.pause()
+
+            await expect(
+                treasury.executeDistribution(AddressZero, 1, 1, 1)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
+        })
+
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN an account not granted the PAYOUT_ROLE role executes a distribution, THEN it reverts with AccountHasNoRole error', async () => {
+            treasury = treasury.connect(signer_B)
+
+            await expect(treasury.executeDistribution(AddressZero, 1, 1, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PAYOUT_ROLE)
+        })
+
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN an account with the PAYOUT_ROLE role revoked executes a distribution, THEN it reverts with AccountHasNoRole error', async () => {
+            treasury = treasury.connect(signer_A)
+
+            await treasury.revokeRole(PAYOUT_ROLE, signer_A.address)
+
+            await expect(treasury.executeDistribution(AddressZero, 1, 1, 1))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PAYOUT_ROLE)
+        })
+
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution of an address zero address, THEN it reverts with InvalidAddressZero error', async () => {
+            treasury = treasury.connect(signer_A)
+            await expect(
+                treasury.executeDistribution(AddressZero, 1, 1, 1)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
+        })
+
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution of a random asset, THEN it reverts with InvalidAddressZero error', async () => {
+            treasury = treasury.connect(signer_A)
+
+            const randomWallet = ethers.Wallet.createRandom();
+            const privateKey = randomWallet.privateKey;
+
+            await expect(
+                treasury.executeDistribution(randomWallet.address, 1, 1, 1)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAsset')
+        })
+
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution on a non-distribution date, THEN it reverts with NotPaymentDate error', async () => {
+            treasury = treasury.connect(signer_A)
+
+            await expect(
+                treasury.executeDistribution(assetAddress, 1, 1, 1)
+            ).to.be.revertedWithCustomError(treasury, 'NotPaymentDate')
+        })
+    })
 })

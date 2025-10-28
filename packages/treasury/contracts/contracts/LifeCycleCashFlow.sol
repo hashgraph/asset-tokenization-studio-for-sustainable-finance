@@ -33,6 +33,7 @@ abstract contract LifeCycleCashFlow is
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
+        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _grantRole(PAYOUT_ROLE, _msgSender());
         _grantRole(PAUSER_ROLE, _msgSender());
         lifeCycleCashFlowStorage.initialized = true;
@@ -61,6 +62,7 @@ abstract contract LifeCycleCashFlow is
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
+        notAddressZero(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result, bool executed)
