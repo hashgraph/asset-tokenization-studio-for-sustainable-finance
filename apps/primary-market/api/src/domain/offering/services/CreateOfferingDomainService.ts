@@ -17,7 +17,7 @@ export class CreateOfferingDomainService {
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(createOfferingDomainServiceRequest.marketId)
-    market.isActive()
+    market.checkActive()
 
     const existingOffering = await this.offeringRepository.findByOfferingId(
       createOfferingDomainServiceRequest.offeringId,
