@@ -20,9 +20,6 @@ export class EnvironmentalAssetTransferPersistence extends BaseEntityPersistence
   @Column()
   tokenId: number
 
-  @Column({
-    type: "enum",
-    enum: TransferType,
-  })
+  @Column()
   type: TransferType
 }

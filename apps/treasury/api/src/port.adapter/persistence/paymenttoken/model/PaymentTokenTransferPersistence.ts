@@ -18,9 +18,6 @@ export class PaymentTokenTransferPersistence extends BaseEntityPersistence {
   @JoinColumn()
   paymentToken: PaymentTokenPersistence
 
-  @Column({
-    type: "enum",
-    enum: TransferType,
-  })
+  @Column()
   type: TransferType
 }
