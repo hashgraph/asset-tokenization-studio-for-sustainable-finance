@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-10-28T12:31:14.503Z
+ * Generated: 2025-10-28T13:06:20.832Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6

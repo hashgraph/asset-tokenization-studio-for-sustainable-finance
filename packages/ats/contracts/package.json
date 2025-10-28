@@ -4,7 +4,11 @@
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
-  "files": ["build/", "contracts/", "!build/**/*.map"],
+  "files": [
+    "build/",
+    "contracts/",
+    "!build/**/*.map"
+  ],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
@@ -27,7 +31,12 @@
     "./contracts/*": "./contracts/*",
     "./package.json": "./package.json"
   },
-  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
+  "keywords": [
+    "hedera",
+    "smart-contracts",
+    "tokenization",
+    "hardhat"
+  ],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -57,7 +66,7 @@
   },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/asset-tokenization-studio/packages/ats/contracts",
+    "@hashgraph/asset-tokenization-contracts": "1.15.2",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
