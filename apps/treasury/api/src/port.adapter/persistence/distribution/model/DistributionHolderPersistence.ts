@@ -3,11 +3,7 @@
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { Column, Entity, ManyToOne, JoinColumn } from "typeorm"
 import { DistributionPersistence } from "./DistributionPersistence"
-
-export enum DistributionHolderStatus {
-  SUCCESS = "SUCCESS",
-  FAILED = "FAILED",
-}
+import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
 
 @Entity("DistributionHolder")
 export class DistributionHolderPersistence extends BaseEntityPersistence {
