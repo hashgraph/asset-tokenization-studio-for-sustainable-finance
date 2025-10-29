@@ -5,7 +5,6 @@ import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PrimaryMarketStorageWrapper } from "./PrimaryMarketStorageWrapper.sol";
 import { OFFERING_CREATOR_ROLE } from "../constants/roles.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title PrimaryMarket
@@ -34,23 +33,19 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
             revert WrongPaymentToken(_offeringInfo.paymentToken);
         }
 
-        // Validate quantities
+        // Validate lot quantities
         if (
             _offeringInfo.lotSize == 0 ||
-            _offeringInfo.minQuantity == 0 ||
-            _offeringInfo.maxQuantity == 0 ||
-            _offeringInfo.targetQuantity == 0 ||
-            _offeringInfo.minQuantity > _offeringInfo.maxQuantity ||
-            _offeringInfo.maxQuantity > _offeringInfo.targetQuantity ||
-            _offeringInfo.minQuantity % _offeringInfo.lotSize != 0 ||
-            _offeringInfo.maxQuantity % _offeringInfo.lotSize != 0 ||
-            _offeringInfo.targetQuantity % _offeringInfo.lotSize != 0
+            _offeringInfo.minLots == 0 ||
+            _offeringInfo.maxLots == 0 ||
+            _offeringInfo.targetLots == 0 ||
+            _offeringInfo.minLots > _offeringInfo.maxLots
         ) {
             revert WrongQuantities(
                 _offeringInfo.lotSize,
-                _offeringInfo.minQuantity,
-                _offeringInfo.maxQuantity,
-                _offeringInfo.targetQuantity
+                _offeringInfo.minLots,
+                _offeringInfo.maxLots,
+                _offeringInfo.targetLots
             );
         }
 
@@ -81,109 +76,16 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
     function createOffering(
         Offering calldata _offeringInfo
     ) external override onlyUnpaused onlyRole(OFFERING_CREATOR_ROLE) validateOfferingParams(_offeringInfo) {
-        PrimaryMarketStorage storage s = _primaryMarketStorage();
-
-        uint256 offeringId = s.nextOfferingId++;
-        s.offeringIds.push(offeringId);
-
-        OfferingState storage offering = s.offerings[offeringId];
-        offering.info = _offeringInfo;
-        offering.creator = msg.sender;
-        offering.status = OfferingStatus.CREATED;
-        offering.totalSubscribed = 0;
-        offering.nextSubscriptionId = 0;
-
-        // Associate payment token with this contract (Hedera token association)
-        // This is a no-op on EVM chains but required on Hedera
-        _associateToken(_offeringInfo.paymentToken);
-
-        emit OfferingCreated(offeringId, msg.sender, _offeringInfo);
+        _createOffering(_offeringInfo);
     }
 
     /**
      * @notice Submit a subscription to an offering
      * @param _offeringId The offering ID
-     * @param _lotUnits Number of lot units to subscribe
+     * @param _lotUnits Number of lots to subscribe (must be between minLots and maxLots)
      */
     function submitSubscription(uint256 _offeringId, uint256 _lotUnits) external override onlyUnpaused offeringExists(_offeringId) {
-        PrimaryMarketStorage storage s = _primaryMarketStorage();
-        OfferingState storage offering = s.offerings[_offeringId];
-
-        // Check offering is open for subscriptions
-        if (offering.status != OfferingStatus.OPEN && offering.status != OfferingStatus.CREATED) {
-            revert SubscriptionNotAcceptedForOffering(_offeringId);
-        }
-
-        // Auto-open offering if it's in CREATED status and start date has passed
-        if (offering.status == OfferingStatus.CREATED && block.timestamp >= offering.info.startDate) {
-            offering.status = OfferingStatus.OPEN;
-        }
-
-        // Check we haven't passed the end date
-        if (block.timestamp > offering.info.endDate) {
-            revert SubscriptionNotAcceptedForOffering(_offeringId);
-        }
-
-        // Check investor is compliant with asset restrictions
-        if (!_isCompliantInvestor(msg.sender, offering.info.asset)) {
-            revert NotCompliantAccount(msg.sender, offering.info.asset);
-        }
-
-        // Calculate subscription amount
-        uint256 subscriptionAmount = _lotUnits * offering.info.lotSize;
-
-        // Validate quantity constraints
-        if (subscriptionAmount < offering.info.minQuantity || subscriptionAmount > offering.info.maxQuantity) {
-            revert WrongQuantities(offering.info.lotSize, offering.info.minQuantity, offering.info.maxQuantity, offering.info.targetQuantity);
-        }
-
-        // Check if oversubscription is allowed
-        uint256 newTotal = offering.totalSubscribed + subscriptionAmount;
-        if (
-            offering.info.targetQuantityRule == TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED &&
-            newTotal > offering.info.targetQuantity
-        ) {
-            revert WrongQuantities(offering.info.lotSize, offering.info.minQuantity, offering.info.maxQuantity, offering.info.targetQuantity);
-        }
-
-        // Calculate required payment (assuming 1:1 ratio for simplicity, can be enhanced)
-        uint256 requiredPayment = subscriptionAmount; // TODO: Add price calculation logic
-        IERC20 paymentToken = IERC20(offering.info.paymentToken);
-
-        // Check investor has approved enough tokens
-        uint256 allowance = paymentToken.allowance(msg.sender, address(this));
-        if (allowance < requiredPayment) {
-            revert NotEnoughFunds(msg.sender, requiredPayment, allowance, offering.info.paymentToken);
-        }
-
-        // Transfer payment tokens from investor to this contract
-        bool success = paymentToken.transferFrom(msg.sender, address(this), requiredPayment);
-        if (!success) {
-            revert NotEnoughFunds(msg.sender, requiredPayment, 0, offering.info.paymentToken);
-        }
-
-        // Create subscription
-        uint256 subscriptionId = offering.nextSubscriptionId++;
-        offering.subscriptionIds.push(subscriptionId);
-        offering.subscriptions[subscriptionId] = Subscription({
-            investor: msg.sender,
-            lotUnits: _lotUnits,
-            exists: true,
-            cancelled: false
-        });
-
-        // Update total subscribed
-        offering.totalSubscribed = newTotal;
-
-        // Auto-close if target reached and deadline rule is CLOSE_TARGET_REACHED
-        if (
-            offering.info.deadlineRule == DeadlineRule.CLOSE_TARGET_REACHED &&
-            newTotal >= offering.info.targetQuantity
-        ) {
-            offering.status = OfferingStatus.CLOSED;
-        }
-
-        emit SubscriptionSubmitted(_offeringId, subscriptionId, msg.sender, _lotUnits);
+        _submitSubscription(_offeringId, _lotUnits);
     }
 
     /**
@@ -191,7 +93,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @return total_ Total offerings created
      */
     function getTotalOfferings() external view override returns (uint256 total_) {
-        return _primaryMarketStorage().nextOfferingId;
+        return _getTotalOfferings();
     }
 
     /**
@@ -201,22 +103,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @return ids Array of offering IDs
      */
     function getOfferingIds(uint256 _pageIndex, uint256 _pageLength) external view override returns (uint256[] memory ids) {
-        PrimaryMarketStorage storage s = _primaryMarketStorage();
-        uint256 start = _pageIndex * _pageLength;
-        uint256 end = start + _pageLength;
-
-        if (end > s.offeringIds.length) {
-            end = s.offeringIds.length;
-        }
-
-        if (start >= s.offeringIds.length) {
-            return new uint256[](0);
-        }
-
-        ids = new uint256[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            ids[i - start] = s.offeringIds[i];
-        }
+        return _getOfferingIds(_pageIndex, _pageLength);
     }
 
     /**
@@ -228,8 +115,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
     function getOffering(
         uint256 _offeringId
     ) external view override offeringExists(_offeringId) returns (Offering memory offeringInfo_, address offeringOperator_) {
-        OfferingState storage offering = _primaryMarketStorage().offerings[_offeringId];
-        return (offering.info, offering.creator);
+        return _getOffering(_offeringId);
     }
 
     /**
@@ -238,7 +124,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @return total_ Total subscriptions
      */
     function getTotalSubscriptions(uint256 _offeringId) external view override offeringExists(_offeringId) returns (uint256 total_) {
-        return _primaryMarketStorage().offerings[_offeringId].nextSubscriptionId;
+        return _getTotalSubscriptions(_offeringId);
     }
 
     /**
@@ -253,22 +139,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
         uint256 _pageIndex,
         uint256 _pageLength
     ) external view override offeringExists(_offeringId) returns (uint256[] memory ids) {
-        OfferingState storage offering = _primaryMarketStorage().offerings[_offeringId];
-        uint256 start = _pageIndex * _pageLength;
-        uint256 end = start + _pageLength;
-
-        if (end > offering.subscriptionIds.length) {
-            end = offering.subscriptionIds.length;
-        }
-
-        if (start >= offering.subscriptionIds.length) {
-            return new uint256[](0);
-        }
-
-        ids = new uint256[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            ids[i - start] = offering.subscriptionIds[i];
-        }
+        return _getSubscriptionIds(_offeringId, _pageIndex, _pageLength);
     }
 
     /**
@@ -282,53 +153,35 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
         uint256 _offeringId,
         uint256 _subscriptionId
     ) external view override offeringExists(_offeringId) returns (address investor_, uint256 lotUnits_) {
-        Subscription storage sub = _primaryMarketStorage().offerings[_offeringId].subscriptions[_subscriptionId];
-
-        if (!sub.exists) {
-            revert OfferingDoesNotExist(_subscriptionId); // Reusing error for subscription not found
-        }
-
-        return (sub.investor, sub.lotUnits);
+        return _getSubscription(_offeringId, _subscriptionId);
     }
 
-    // Placeholder implementations for execute and cancel (to be implemented in Phase 2)
+    /**
+     * @notice Execute an offering
+     * @param _offeringId The offering ID
+     * @param _pageIndex Pagination index for processing subscriptions
+     * @param _pageLength Number of subscriptions to process in this batch
+     */
     function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        revert OfferingCannotBeExecuted(_offeringId);
+        _executeOffering(_offeringId, _pageIndex, _pageLength);
     }
 
+    /**
+     * @notice Cancel an offering
+     * @param _offeringId The offering ID
+     * @param _pageIndex Pagination index for processing subscriptions
+     * @param _pageLength Number of subscriptions to process in this batch
+     */
     function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        revert OfferingCannotBeCancelled(_offeringId);
+        _cancelOffering(_offeringId, _pageIndex, _pageLength);
     }
 
+    /**
+     * @notice Cancel a specific subscription (only when it blocks execution)
+     * @param _offeringId The offering ID
+     * @param _subscriptionId The subscription ID
+     */
     function cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) external override {
-        revert SubscriptionNotAcceptedForOffering(_offeringId);
-    }
-
-    /**
-     * @notice Check if investor is compliant with asset restrictions
-     * @param _investor Investor address
-     * @param _asset Asset address
-     * @return bool True if compliant
-     * @dev TODO: Implement proper compliance checking with T-REX identity registry
-     *      This requires calling the asset's identityRegistry and checking investor verification
-     */
-    function _isCompliantInvestor(address _investor, address _asset) internal view returns (bool) {
-        // Simplified implementation - always returns true
-        // Full implementation should check T-REX IdentityRegistry for investor verification
-        _investor; // Silence unused variable warning
-        _asset; // Silence unused variable warning
-        return true;
-    }
-
-    /**
-     * @notice Associate token with contract (for Hedera compatibility)
-     * @param _token Token address to associate
-     * @dev This is a no-op on EVM chains
-     */
-    function _associateToken(address _token) internal {
-        // On Hedera, this would call the token association system contract
-        // On EVM chains, this is a no-op
-        // Implementation depends on deployment target
-        _token; // Silence unused variable warning
+        _cancelSubscription(_offeringId, _subscriptionId);
     }
 }

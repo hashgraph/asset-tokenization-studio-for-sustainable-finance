@@ -20,10 +20,10 @@ interface IPrimaryMarket {
     /// @param asset The address of the asset being offered
     /// @param treasury The address receiving payments
     /// @param paymentToken The token used for payments
-    /// @param lotSize Minimum tradable unit
-    /// @param minQuantity Minimum total quantity per investor
-    /// @param maxQuantity Maximum total quantity per investor
-    /// @param targetQuantity Total target quantity for the offering
+    /// @param lotSize Size of each lot in tokens (minimum tradable unit)
+    /// @param minLots Minimum number of lots per investor (minLots * lotSize = minimum investment)
+    /// @param maxLots Maximum number of lots per investor (maxLots * lotSize = maximum investment)
+    /// @param targetLots Target number of lots for the offering (targetLots * lotSize = target amount)
     /// @param targetQuantityRule Rule for handling oversubscription
     /// @param startDate Timestamp when offering starts
     /// @param endDate Timestamp when offering ends
@@ -33,9 +33,9 @@ interface IPrimaryMarket {
         address treasury;
         address paymentToken;
         uint256 lotSize;
-        uint256 minQuantity;
-        uint256 maxQuantity;
-        uint256 targetQuantity;
+        uint256 minLots;
+        uint256 maxLots;
+        uint256 targetLots;
         TargetQuantityRule targetQuantityRule;
         uint256 startDate;
         uint256 endDate;
@@ -119,8 +119,8 @@ interface IPrimaryMarket {
     /// @notice Thrown when creating an offering with an invalid payment token
     error WrongPaymentToken(address paymentToken);
 
-    /// @notice Thrown when creating an offering with inconsistent quantities
-    error WrongQuantities(uint256 lotSize, uint256 minQuantity, uint256 maxQuantity, uint256 targetQuantity);
+    /// @notice Thrown when creating an offering with inconsistent lot quantities
+    error WrongQuantities(uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots);
 
     /// @notice Thrown when creating an offering with inconsistent dates
     error WrongDates(uint256 startDate, uint256 endDate);
