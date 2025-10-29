@@ -8,6 +8,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
+import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { ProceedsRecipientFundedDLTEvent } from "@port/proceedsrecipient/usecase/syncproceedsrecipient/model/ProceedsRecipientFundedDLTEvent"
 import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientPersistence"
@@ -20,6 +21,7 @@ describe("SyncProceedsRecipient Integration", () => {
   let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
+  let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalProceedsRecipientRepository: Repository<ProceedsRecipientPersistence>
   let internalProceedsRecipientAllocationRepository: Repository<ProceedsRecipientAllocationPersistence>
 
@@ -38,6 +40,7 @@ describe("SyncProceedsRecipient Integration", () => {
     await app.init()
     eventBus = app.get("EventBus")
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
+    internalPaymentTokenRepository = app.get(getRepositoryToken(PaymentTokenPersistence))
     internalProceedsRecipientRepository = app.get(getRepositoryToken(ProceedsRecipientPersistence))
     internalProceedsRecipientAllocationRepository = app.get(getRepositoryToken(ProceedsRecipientAllocationPersistence))
   })
@@ -50,6 +53,7 @@ describe("SyncProceedsRecipient Integration", () => {
     await internalProceedsRecipientAllocationRepository.deleteAll()
     await internalProceedsRecipientRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()
+    await internalPaymentTokenRepository.deleteAll()
   })
 
   it("should create proceeds recipient and add allocation on first funding", async () => {
@@ -58,6 +62,15 @@ describe("SyncProceedsRecipient Integration", () => {
       bondContractId: "0.0.500",
       paused: false,
     })
+
+    const paymentToken = await internalPaymentTokenRepository.save({
+      contractId: "0.0.333",
+      treasuryId: treasury.id,
+      decimals: 8,
+    })
+
+    treasury.paymentToken = paymentToken
+    await internalTreasuryRepository.save(treasury)
 
     const publishedEvents: any[] = []
     const proceedsRecipientContractId = "0.0.12345"
@@ -92,6 +105,7 @@ describe("SyncProceedsRecipient Integration", () => {
     expect(allocations[0]).toEqual({
       id: expect.any(String),
       proceedsRecipientId: proceedsRecipients[0].id,
+      paymentTokenId: paymentToken.id,
       amount: amount,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
@@ -109,6 +123,7 @@ describe("SyncProceedsRecipient Integration", () => {
     expect(publishedEvents[1].constructor.name).toEqual(ProceedsRecipientAllocationAddedEvent.name)
     expect(publishedEvents[1]).toEqual({
       proceedsRecipientId: proceedsRecipients[0].id,
+      paymentTokenId: paymentToken.id,
       amount: amount,
       timestamp: expect.any(Number),
     })
@@ -121,6 +136,15 @@ describe("SyncProceedsRecipient Integration", () => {
       paused: false,
     })
 
+    const paymentToken = await internalPaymentTokenRepository.save({
+      contractId: "0.0.333",
+      treasuryId: treasury.id,
+      decimals: 8,
+    })
+
+    treasury.paymentToken = paymentToken
+    await internalTreasuryRepository.save(treasury)
+
     const proceedsRecipientContractId = "0.0.12345"
     const existingProceedsRecipient = await internalProceedsRecipientRepository.save({
       contractId: proceedsRecipientContractId,
@@ -129,6 +153,7 @@ describe("SyncProceedsRecipient Integration", () => {
 
     await internalProceedsRecipientAllocationRepository.save({
       proceedsRecipientId: existingProceedsRecipient.id,
+      paymentTokenId: paymentToken.id,
       amount: "500000",
     })
 
@@ -157,6 +182,7 @@ describe("SyncProceedsRecipient Integration", () => {
     expect(allocations[1]).toEqual({
       id: expect.any(String),
       proceedsRecipientId: existingProceedsRecipient.id,
+      paymentTokenId: paymentToken.id,
       amount: amount,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
@@ -167,6 +193,7 @@ describe("SyncProceedsRecipient Integration", () => {
     expect(publishedEvents[0].constructor.name).toEqual(ProceedsRecipientAllocationAddedEvent.name)
     expect(publishedEvents[0]).toEqual({
       proceedsRecipientId: existingProceedsRecipient.id,
+      paymentTokenId: paymentToken.id,
       amount: amount,
       timestamp: expect.any(Number),
     })
@@ -178,6 +205,15 @@ describe("SyncProceedsRecipient Integration", () => {
       bondContractId: "0.0.500",
       paused: false,
     })
+
+    const paymentToken = await internalPaymentTokenRepository.save({
+      contractId: "0.0.333",
+      treasuryId: treasury.id,
+      decimals: 8,
+    })
+
+    treasury.paymentToken = paymentToken
+    await internalTreasuryRepository.save(treasury)
 
     const proceedsRecipientContractId = "0.0.12345"
     const amounts = ["100000", "200000", "300000"]
@@ -210,6 +246,15 @@ describe("SyncProceedsRecipient Integration", () => {
       bondContractId: "0.0.500",
       paused: false,
     })
+
+    const paymentToken = await internalPaymentTokenRepository.save({
+      contractId: "0.0.333",
+      treasuryId: treasury.id,
+      decimals: 8,
+    })
+
+    treasury.paymentToken = paymentToken
+    await internalTreasuryRepository.save(treasury)
 
     const recipient1 = "0.0.11111"
     const recipient2 = "0.0.22222"

@@ -2,7 +2,7 @@
 
 import { HederaPort } from "@port/blockchain/HederaPort"
 import axios from "axios"
-import { ConverterUtils, Retryable, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { Retryable, Singleton } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class HederMirrorNodeAdapter implements HederaPort {
@@ -16,10 +16,16 @@ export class HederMirrorNodeAdapter implements HederaPort {
   async getTokenBalance(tokenId: string, accountId: string): Promise<string> {
     const balances = ((await this.fetchData(`tokens/${tokenId}/balances/?account.id=${accountId}`)) as any)?.balances
     if (balances && balances.length && balances[0].balance !== 0) {
-      const { balance, decimals } = balances[0]
-      return ConverterUtils.formatNumber(balance.toString(), decimals)
+      const { balance } = balances[0]
+      return balance.toString()
     }
     return "0"
+  }
+
+  @Retryable()
+  async getTokenDecimals(tokenId: string): Promise<number> {
+    const tokenInfo = (await this.fetchData(`tokens/${tokenId}`)) as any
+    return parseInt(tokenInfo?.decimals?.toString() || "0", 10)
   }
 
   private getMirrorNodeURL(network: string): string {

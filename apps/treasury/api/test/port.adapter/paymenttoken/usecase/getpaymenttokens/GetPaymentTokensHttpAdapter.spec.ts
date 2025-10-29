@@ -84,11 +84,13 @@ describe("GetPaymentTokens API Integration", () => {
       const token1 = await paymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 18,
       })
 
       const token2 = await paymentTokenRepository.save({
         contractId: "0.0.222222",
         treasuryId: treasury.id,
+        decimals: 18,
       })
 
       const response = await request(app.getHttpServer())
@@ -129,11 +131,13 @@ describe("GetPaymentTokens API Integration", () => {
       const token1 = await paymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 18,
       })
 
       const token2 = await paymentTokenRepository.save({
         contractId: "0.0.222222",
         treasuryId: treasury.id,
+        decimals: 18,
         removalDate: removalDate,
       })
 
@@ -171,6 +175,7 @@ describe("GetPaymentTokens API Integration", () => {
         await paymentTokenRepository.save({
           contractId: `0.0.${111110 + i}`,
           treasuryId: treasury.id,
+          decimals: 18,
         })
       }
 
@@ -196,6 +201,7 @@ describe("GetPaymentTokens API Integration", () => {
       const token1 = await paymentTokenRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        decimals: 18,
       })
 
       await new Promise((resolve) => setTimeout(resolve, 10))
@@ -203,6 +209,7 @@ describe("GetPaymentTokens API Integration", () => {
       const token2 = await paymentTokenRepository.save({
         contractId: "0.0.222222",
         treasuryId: treasury.id,
+        decimals: 18,
       })
 
       const response = await request(app.getHttpServer())

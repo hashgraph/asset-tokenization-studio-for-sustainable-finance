@@ -4,6 +4,7 @@ import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
+import type { HederaPort } from "@port/blockchain/HederaPort"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { UpdatePaymentTokenDomainServiceResponse } from "@domain/treasury/services/model/UpdatePaymentTokenDomainServiceResponse"
@@ -14,6 +15,7 @@ export class UpdatePaymentTokenDomainService {
     @Inject() private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
     @Inject() private readonly transactionManager: TransactionManager,
+    @Inject() private readonly hederaPort: HederaPort,
   ) {}
 
   async execute(
@@ -32,10 +34,14 @@ export class UpdatePaymentTokenDomainService {
         await this.paymentTokenRepository.save(treasury.paymentToken)
       }
 
+      // Get token decimals from Hedera Mirror Node
+      const decimals = await this.hederaPort.getTokenDecimals(newPaymentTokenContractId)
+
       // Create new payment token
       const newPaymentToken = new PaymentToken()
       newPaymentToken.contractId = newPaymentTokenContractId
       newPaymentToken.treasuryId = treasury.id
+      newPaymentToken.decimals = decimals
       treasury.paymentToken = newPaymentToken
 
       // Update treasury with new payment token (cascade will save the new payment token)

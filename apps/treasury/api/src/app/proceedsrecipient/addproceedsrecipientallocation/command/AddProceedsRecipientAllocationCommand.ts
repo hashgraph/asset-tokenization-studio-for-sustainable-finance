@@ -7,13 +7,17 @@ export class AddProceedsRecipientAllocationCommand extends Command<void> {
   @IsNotEmpty()
   proceedsRecipientId: string
 
+  @IsNotEmpty()
+  paymentTokenId: string
+
   @NotEquals("0")
   @IsNumberString({ no_symbols: true })
   amount: string
 
-  constructor(proceedsRecipientId: string, amount: string) {
+  constructor(proceedsRecipientId: string, paymentTokenId: string, amount: string) {
     super()
     this.proceedsRecipientId = proceedsRecipientId
+    this.paymentTokenId = paymentTokenId
     this.amount = amount
   }
 }
