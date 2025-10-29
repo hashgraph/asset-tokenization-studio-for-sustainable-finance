@@ -8,6 +8,8 @@ export interface PaymentTokenRepository {
 
   findById(id: string): Promise<PaymentToken | null>
 
+  findByIds(ids: string[]): Promise<PaymentToken[]>
+
   findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<PaymentToken>>
 
   findByContractId(contractId: string): Promise<PaymentToken | null>

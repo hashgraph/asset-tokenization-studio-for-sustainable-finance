@@ -9,6 +9,7 @@ import { ProceedsRecipientAllocation } from "@domain/proceedsrecipient/model/Pro
 import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
+import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
 
 @Singleton()
 @Handler(GetProceedsRecipientAllocationsQuery)
@@ -22,6 +23,8 @@ export class GetProceedsRecipientAllocationsQueryHandler
     private readonly checkProceedsRecipientExistsDomainService: CheckProceedsRecipientExistsDomainService,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
     private readonly checkPaymentTokenExistsDomainService: CheckPaymentTokenExistsDomainService,
+    @Inject("PaymentTokenRepository")
+    private readonly paymentTokenRepository: PaymentTokenRepository,
   ) {}
 
   @Validate()
@@ -39,18 +42,21 @@ export class GetProceedsRecipientAllocationsQueryHandler
       query.pageOptions.toPageOptions(),
     )
 
-    const formattedAllocations = await Promise.all(
-      allocationsPage.items.map(async (allocation: ProceedsRecipientAllocation) => {
-        const paymentToken = await this.checkPaymentTokenExistsDomainService.executeById(allocation.paymentTokenId)
-        const formattedAmount = ConverterUtils.formatNumber(allocation.amount, paymentToken.decimals)
+    const uniquePaymentTokenIds = [...new Set(allocationsPage.items.map((allocation) => allocation.paymentTokenId))]
 
-        return {
-          paymentTokenId: allocation.paymentTokenId,
-          amount: formattedAmount,
-          createdAt: allocation.createdAt,
-        }
-      }),
-    )
+    const paymentTokens = await this.paymentTokenRepository.findByIds(uniquePaymentTokenIds)
+    const paymentTokensMap = new Map(paymentTokens.map((token) => [token.id, token]))
+
+    const formattedAllocations = allocationsPage.items.map((allocation: ProceedsRecipientAllocation) => {
+      const paymentToken = paymentTokensMap.get(allocation.paymentTokenId)
+      const formattedAmount = ConverterUtils.formatNumber(allocation.amount, paymentToken?.decimals || 0)
+
+      return {
+        paymentTokenId: allocation.paymentTokenId,
+        amount: formattedAmount,
+        createdAt: allocation.createdAt,
+      }
+    })
 
     return {
       items: formattedAllocations,
