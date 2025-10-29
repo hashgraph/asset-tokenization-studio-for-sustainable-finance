@@ -96,6 +96,8 @@ import { DistributionTypeOrmRepository } from "@port/persistence/distribution/re
 import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
 import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
+import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
+import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -173,6 +175,7 @@ export const CONTROLLERS = [
   PauseTreasuryTransactionHttpAdapter,
   GetProceedsRecipientAllocationsHttpAdapter,
   GetProceedsRecipientsHttpAdapter,
+  GetDistributionsHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -233,6 +236,7 @@ export const PROVIDERS = [
   GetPaymentTokenTransfersQueryHandler,
   GetProceedsRecipientAllocationsQueryHandler,
   GetProceedsRecipientsQueryHandler,
+  GetDistributionsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,
