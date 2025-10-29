@@ -12,6 +12,7 @@ import { PostgresModule } from "@config/PostgresModule"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
+import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 
 describe("GetDistributionHolders API Integration", () => {
   let app: INestApplication
@@ -19,6 +20,7 @@ describe("GetDistributionHolders API Integration", () => {
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalDistributionRepository: Repository<DistributionPersistence>
   let internalDistributionHolderRepository: Repository<DistributionHolderPersistence>
+  let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -43,6 +45,9 @@ describe("GetDistributionHolders API Integration", () => {
     )
     internalDistributionHolderRepository = moduleFixture.get<Repository<DistributionHolderPersistence>>(
       getRepositoryToken(DistributionHolderPersistence),
+    )
+    internalPaymentTokenRepository = moduleFixture.get<Repository<PaymentTokenPersistence>>(
+      getRepositoryToken(PaymentTokenPersistence),
     )
   })
 
@@ -118,17 +123,17 @@ describe("GetDistributionHolders API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      const item1 = response.body.items.find((item: any) => item.holderAccountId === holder1.holderAccountId)
-      const item2 = response.body.items.find((item: any) => item.holderAccountId === holder2.holderAccountId)
+      const item1 = response.body.items.find((item: any) => item.accountId === holder1.holderAccountId)
+      const item2 = response.body.items.find((item: any) => item.accountId === holder2.holderAccountId)
 
       expect(item1).toEqual({
-        holderAccountId: holder1.holderAccountId,
+        accountId: holder1.holderAccountId,
         amount: holder1.amount,
         status: holder1.status,
       })
 
       expect(item2).toEqual({
-        holderAccountId: holder2.holderAccountId,
+        accountId: holder2.holderAccountId,
         amount: holder2.amount,
         status: holder2.status,
       })
@@ -199,8 +204,8 @@ describe("GetDistributionHolders API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items[0].holderAccountId).toBe(holder1.holderAccountId)
-      expect(response.body.items[1].holderAccountId).toBe(holder2.holderAccountId)
+      expect(response.body.items[0].accountId).toBe(holder1.holderAccountId)
+      expect(response.body.items[1].accountId).toBe(holder2.holderAccountId)
     })
 
     it("should return 404 when distribution does not exist", async () => {
@@ -251,7 +256,7 @@ describe("GetDistributionHolders API Integration", () => {
 
       expect(response.body.total).toBe(1)
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].holderAccountId).toBe("0.0.111111")
+      expect(response.body.items[0].accountId).toBe("0.0.111111")
     })
 
     it("should return holders with correct statuses", async () => {
@@ -289,11 +294,11 @@ describe("GetDistributionHolders API Integration", () => {
       const failedHolder = response.body.items.find((item: any) => item.status === "FAILED")
 
       expect(successHolder).toBeDefined()
-      expect(successHolder.holderAccountId).toBe("0.0.111111")
+      expect(successHolder.accountId).toBe("0.0.111111")
       expect(successHolder.amount).toBe("1000000000")
 
       expect(failedHolder).toBeDefined()
-      expect(failedHolder.holderAccountId).toBe("0.0.222222")
+      expect(failedHolder.accountId).toBe("0.0.222222")
       expect(failedHolder.amount).toBe("2000000000")
     })
 
@@ -329,7 +334,7 @@ describe("GetDistributionHolders API Integration", () => {
 
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].status).toBe("SUCCESS")
-      expect(response.body.items[0].holderAccountId).toBe("0.0.111111")
+      expect(response.body.items[0].accountId).toBe("0.0.111111")
       expect(response.body.items[0].amount).toBe("1000000000")
     })
 
@@ -365,7 +370,7 @@ describe("GetDistributionHolders API Integration", () => {
 
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].status).toBe("FAILED")
-      expect(response.body.items[0].holderAccountId).toBe("0.0.222222")
+      expect(response.body.items[0].accountId).toBe("0.0.222222")
       expect(response.body.items[0].amount).toBe("2000000000")
     })
 
@@ -401,6 +406,56 @@ describe("GetDistributionHolders API Integration", () => {
       expect(response.body.items).toHaveLength(2)
       const statuses = response.body.items.map((i: any) => i.status).sort()
       expect(statuses).toEqual(["FAILED", "SUCCESS"])
+    })
+
+    it("should format amount using payment token decimals", async () => {
+      // Create treasury first
+      const treasury = await internalTreasuryRepository.save({
+        contractId: "0.0.123456",
+        bondContractId: "0.0.789012",
+        paused: false,
+      })
+
+      // Create payment token with 6 decimals
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
+      // Update treasury with payment token
+      treasury.paymentToken = paymentToken
+      await internalTreasuryRepository.save(treasury)
+
+      const distribution = await internalDistributionRepository.save({
+        id: 1,
+      })
+
+      await internalDistributionHolderRepository.save({
+        holderAccountId: "0.0.111111",
+        status: "SUCCESS",
+        amount: "1000000", // 1000000 with 6 decimals = 1.0
+        distributionId: distribution.id,
+      })
+
+      await internalDistributionHolderRepository.save({
+        holderAccountId: "0.0.222222",
+        status: "SUCCESS",
+        amount: "2500000", // 2500000 with 6 decimals = 2.5
+        distributionId: distribution.id,
+      })
+
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .expect(200)
+
+      expect(response.body.items).toHaveLength(2)
+      
+      const holder1 = response.body.items.find((item: any) => item.accountId === "0.0.111111")
+      const holder2 = response.body.items.find((item: any) => item.accountId === "0.0.222222")
+      
+      expect(holder1.amount).toBe("1") // 1000000 / 10^6 = 1.0
+      expect(holder2.amount).toBe("2.5") // 2500000 / 10^6 = 2.5
     })
   })
 })

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import {
+  ConverterUtils,
   Handler,
   Inject,
   QueryHandler,
@@ -28,7 +29,7 @@ export class GetDistributionHoldersQueryHandler
 
   @Validate()
   async execute(query: GetDistributionHoldersQuery): Promise<QueryPageResponse<DistributionHolderQueryResponse>> {
-    await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)
+    const treasury = await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)
 
     await this.checkDistributionExistsDomainService.execute(query.distributionId)
 
@@ -38,10 +39,12 @@ export class GetDistributionHoldersQueryHandler
       query.status,
     )
 
+    const paymentTokenDecimals = treasury.paymentToken?.decimals || 0
+
     return QueryPageResponse.fromPage(distributionHoldersPage, (distributionHolder: DistributionHolder) => ({
-      holderAccountId: distributionHolder.holderAccountId,
+      accountId: distributionHolder.holderAccountId,
       status: distributionHolder.status,
-      amount: distributionHolder.amount,
+      amount: ConverterUtils.formatNumber(distributionHolder.amount, paymentTokenDecimals),
     }))
   }
 }
