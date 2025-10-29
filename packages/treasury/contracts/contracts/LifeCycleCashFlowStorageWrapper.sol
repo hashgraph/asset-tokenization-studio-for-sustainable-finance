@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.18;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
 import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
+import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     LIFECYCLE_CASH_FLOW_STORAGE_POSITION
 } from './constants/storagePositions.sol';
@@ -13,7 +14,8 @@ import {
 
 abstract contract LifeCycleCashFlowStorageWrapper is
     ILifeCycleCashFlow,
-    AtsCommon
+    AtsCommon,
+    PortfolioStorageWrapper
 {
     struct LifeCycleCashFlowStorage {
         address bond;

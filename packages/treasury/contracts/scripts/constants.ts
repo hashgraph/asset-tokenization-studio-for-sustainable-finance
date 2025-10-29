@@ -9,3 +9,6 @@ export const PROCEEDS_FULL_MANAGER_ROLE =
 
 export const FUNDS_MANAGER_ROLE =
     '0x6b2cde3f3e0fdc0dee8b8dc6466157b675ab2b8465c45b8b9c4cf0049a93344d'
+
+export const PAUSER_ROLE =
+    '0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb'
