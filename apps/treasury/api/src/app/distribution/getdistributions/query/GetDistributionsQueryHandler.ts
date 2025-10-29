@@ -20,7 +20,7 @@ export class GetDistributionsQueryHandler
   implements QueryHandler<GetDistributionsQuery, QueryPageResponse<DistributionQueryResponse>>
 {
   constructor(
-    @Inject("DistributionRepository")
+    @Inject()
     private readonly distributionRepository: DistributionRepository,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
   ) {}
