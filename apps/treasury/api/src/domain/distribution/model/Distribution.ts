@@ -7,6 +7,9 @@ export class Distribution {
   @IsNotEmpty()
   id: number
 
+  @IsNotEmpty()
+  treasuryId: string
+
   @IsDate()
   createdAt: Date
 
