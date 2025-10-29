@@ -8,18 +8,10 @@ import {
 } from './LifeCycleCashFlowStorageWrapper.sol';
 import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
 import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
-import {
-    Pause
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {
-    AccessControl
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
 abstract contract LifeCycleCashFlow is
     ILifeCycleCashFlow,
-    LifeCycleCashFlowStorageWrapper,
-    Pause,
-    AccessControl
+    LifeCycleCashFlowStorageWrapper
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
@@ -33,9 +25,6 @@ abstract contract LifeCycleCashFlow is
         LifeCycleCashFlowStorage
             storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(PAYOUT_ROLE, _msgSender());
-        _grantRole(PAUSER_ROLE, _msgSender());
         lifeCycleCashFlowStorage.initialized = true;
     }
 

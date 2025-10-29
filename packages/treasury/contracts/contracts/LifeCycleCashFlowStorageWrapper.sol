@@ -13,8 +13,8 @@ import {
     Common as AtsCommon
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
 import {
-    IBond
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol';
+    TRexIBondRead as IBondRead
+} from '@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol';
 import {
     Pairing
 } from '@hashgraph/smart-contracts/contracts/bls-signature/Pairing.sol';
@@ -163,7 +163,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         BatchInfo memory batchInfo;
         batchInfo.holders = new address[](holders.length);
         batchInfo.amounts = new int64[](holders.length);
-        uint256 nominalValue = IBond(asset).getBondDetails().nominalValue;
+        uint256 nominalValue = IBondRead(asset).getBondDetails().nominalValue;
         address paymentToken = _getPaymentToken();
 
         for (uint256 index; index < holders.length; ) {
@@ -290,29 +290,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 distributionId,
         address holder,
         uint256 nominalValue,
-        address
-    ) private view returns (bool success, uint256 amount) {
-        // TODO: Change by the below commented code when a new version of ATS contacts is released
-        try IBond(asset).getCouponFor(distributionId, holder) returns (
-            IBond.CouponFor memory couponFor
-        ) {
-            amount = ((couponFor.tokenBalance *
-                nominalValue *
-                (couponFor.executionDate) *
-                couponFor.rate) /
-                100 /
-                (365 * 24 * 60 * 60) /
-                10 ** couponFor.decimals);
-            return (true, amount);
-        } catch {
-            return (false, 0);
-        }
-
-        /*try IBondRead(_asset).getCouponFor(_couponID, _holder) returns (IBondRead.CouponFor memory couponFor) {
-            uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
+        address paymentToken
+    ) private returns (bool success, uint256 amount) {
+        try IBondRead(asset).getCouponFor(distributionId, holder) returns (IBondRead.CouponFor memory couponFor) {
+            uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
-            amount = ((couponFor.tokenBalance * _nominalValue * couponFor.period * couponFor.rate) /
+            amount = ((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
             100 /
             (365 * 24 * 60 * 60) /
             10 ** scaleDown *
@@ -320,7 +304,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             return (true, amount);
         } catch {
             return (false, 0);
-        } */
+        }
     }
 
     /**
@@ -525,7 +509,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageLength
     ) private view returns (address[] memory) {
         return
-            IBond(asset).getCouponHolders(
+            IBondRead(asset).getCouponHolders(
                 distributionId,
                 pageIndex,
                 pageLength
@@ -561,7 +545,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         uint256 distributionId
     ) private view returns (uint256) {
-        return IBond(asset).getCoupon(distributionId).coupon.executionDate;
+        return IBondRead(asset).getCoupon(distributionId).coupon.executionDate;
     }
 
     /*

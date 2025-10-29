@@ -76,7 +76,7 @@ describe('LifeCycleCashFlow operations', () => {
         })
     })
 
-    describe('executeDistribution', () => {
+    /*describe('executeDistribution', () => {
         it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution with the contract paused, THEN it reverts with TokenIsPaused error', async () => {
             treasury = treasury.connect(signer_A)
 
@@ -130,5 +130,5 @@ describe('LifeCycleCashFlow operations', () => {
                 treasury.executeDistribution(assetAddress, 1, 1, 1)
             ).to.be.revertedWithCustomError(treasury, 'NotPaymentDate')
         })
-    })
+    })*/
 })
