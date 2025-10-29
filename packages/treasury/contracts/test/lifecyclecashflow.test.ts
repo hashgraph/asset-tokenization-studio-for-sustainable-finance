@@ -9,20 +9,12 @@ import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts
 import type { LifeCycleCashFlow, IPause, IAccessControl } from '@contracts'
 import { PAUSER_ROLE } from '../scripts/constants'
 
-let signer_A, signer_B
-let lifeCycleCashFlow: LifeCycleCashFlow
-let accessControl: IAccessControl
-let pause: IPause
-let assetAddress: string
-
 describe('LifeCycleCashFlow operations', () => {
-    before(() => {
-        // mute | mock console.log
-        console.log = () => {}
-    })
-
-    const hre = require('hardhat')
-    const hreConfig = hre.network.config
+    let signer_A, signer_B
+    let lifeCycleCashFlow: LifeCycleCashFlow
+    let accessControl: IAccessControl
+    let pause: IPause
+    let assetAddress: string
 
     beforeEach(async () => {
         ;[signer_A, signer_B] = await ethers.getSigners()

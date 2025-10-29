@@ -1,22 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * Complete Treasury deployment workflow.
- *
- * Orchestrates the deployment of the entire Treasury infrastructure:
- * - ProxyAdmin for upgrade management
- * - BusinessLogicResolver (BLR) with proxy
- * - Required facets (AccessControl, Pause, LifeCycleCashFlow, Portfolio, ProceedsManagement)
- * - Facet registration in BLR
- * - Treasury configuration (config ID 20'000)
- * - Treasury proxy
- *
- * Provides comprehensive deployment output including all addresses, keys, config IDs,
- * versions, and optional Hedera Contract IDs.
- *
- * @module workflows/deployTreasury
- */
-
 import type { DeploymentProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 import {
     deployProxyAdmin,
@@ -28,6 +11,8 @@ import {
     success,
     section,
     error as logError,
+    configureLogger,
+    LogLevel,
 } from '@hashgraph/asset-tokenization-contracts/scripts'
 import { BusinessLogicResolver__factory } from '@hashgraph/asset-tokenization-contracts'
 import { createTreasuryConfiguration } from '@scripts/domain'
@@ -107,47 +92,12 @@ export interface DeployTreasuryOptions {
     outputPath?: string
 }
 
-/**
- * Deploy complete Treasury.
- *
- * Executes the full deployment workflow:
- * 1. Deploy ProxyAdmin
- * 2. Deploy BusinessLogicResolver with proxy
- * 3. Deploy facets (AccessControl, Pause, LifeCycleCashFlow, Portfolio, ProceedsManagement)
- * 4. Register facets in BLR
- * 5. Create Treasury configuration (config ID 20'000)
- * 6. Deploy Treasury proxy
- *
- * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
- *
- * @param provider - Deployment provider (HardhatProvider or StandaloneProvider)
- * @param network - Network name (testnet, mainnet, hardhat, etc.)
- * @param options - Deployment options
- * @returns Promise resolving to complete deployment output
- *
- * @example
- * ```typescript
- * import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts/infrastructure'
- *
- * // Create provider
- * const provider = new HardhatProvider()
- *
- * // Deploy complete system to hardhat network
- * const output = await deployTreasury(provider, 'hardhat', {
- *     useTimeTravel: false,
- *     saveOutput: true
- * })
- *
- * info(`BLR Proxy: ${output.infrastructure.blr.proxy}`)
- * info(`Treasury Proxy: ${output.infrastructure.treasury.proxy}`)
- * info(`Config Version: ${output.configuration.version}`)
- * ```
- */
 export async function deployTreasury(
     provider: DeploymentProvider,
     network: string,
     options: DeployTreasuryOptions = {}
 ): Promise<DeployTreasuryOutput> {
+    configureLogger({ level: LogLevel.SILENT });
     const {
         useTimeTravel = false,
         saveOutput: _saveOutput = false,

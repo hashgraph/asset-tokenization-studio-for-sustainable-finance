@@ -1,27 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * Treasury deployment workflow with existing infrastructure.
- *
- * Designed for multi-module orchestration scenarios where BusinessLogicResolver
- * and common facets (AccessControl, Pause) are already deployed and shared
- * across multiple domains (e.g., ATS, Treasury, Treasury).
- *
- * This workflow only deploys Treasury-specific components:
- * - LifeCycleCashFlowFacet (and TimeTravel variant if needed)
- * - PortfolioFacet (and TimeTravel variant if needed)
- * - ProceedsManagementFacet (and TimeTravel variant if needed)
- * - Treasury configuration in existing BLR (config ID 30'000)
- * - Treasury ResolverProxy
- *
- * Reuses existing infrastructure:
- * - Shared BLR proxy
- * - Shared ProxyAdmin
- * - Shared AccessControlFacet and PauseFacet
- *
- * @module workflows/deployTreasuryWithExistingInfra
- */
-
 import type { DeploymentProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 import {
     deployFacets,
@@ -31,6 +9,8 @@ import {
     success,
     section,
     error as logError,
+    configureLogger,
+    LogLevel,
 } from '@hashgraph/asset-tokenization-contracts/scripts'
 import { BusinessLogicResolver__factory } from '@hashgraph/asset-tokenization-contracts'
 import { createTreasuryConfiguration } from '@scripts/domain'
@@ -71,59 +51,13 @@ export interface DeployWithExistingInfraOptions {
     outputPath?: string
 }
 
-/**
- * Deploy Treasury with existing infrastructure.
- *
- * Use case: Multi-module orchestration where BLR and common facets
- * are already deployed (e.g., shared infrastructure across ATS, Treasury).
- *
- * Deployment steps:
- * 1. Validate existing infrastructure addresses
- * 2. Deploy only LifeCycleCashFlowFacet, PortfolioFacet and ProceedsManagementFacet (and TimeTravel variants if needed)
- * 3. Register new facets in existing BLR
- * 4. Create Treasury configuration using existing + new facets
- * 5. Deploy Treasury ResolverProxy
- *
- * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
- *
- * @param provider - Deployment provider (HardhatProvider or StandaloneProvider)
- * @param network - Network name (testnet, mainnet, hardhat, etc.)
- * @param existingInfra - Existing infrastructure addresses
- * @param options - Deployment options
- * @returns Promise resolving to complete deployment output
- *
- * @example
- * ```typescript
- * import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts/infrastructure'
- *
- * // First, deploy shared ATS infrastructure
- * const atsInfra = await deployAtsSystem(provider, 'testnet')
- *
- * // Then deploy Treasury using existing infrastructure
- * const treasury = await deployTreasuryWithExistingInfra(
- *   provider,
- *   'testnet',
- *   {
- *     blrAddress: atsInfra.blr.proxy,
- *     proxyAdminAddress: atsInfra.proxyAdmin.address,
- *     facets: {
- *       accessControl: atsInfra.facets.find(f => f.name === 'AccessControlFacet').address,
- *       pause: atsInfra.facets.find(f => f.name === 'PauseFacet').address,
- *     }
- *   },
- *   { useTimeTravel: false }
- * )
- *
- * info(`Treasury Proxy: ${treasury.infrastructure.treasury.proxy}`)
- * info(`Uses BLR: ${treasury.infrastructure.blr.proxy}`)
- * ```
- */
 export async function deployTreasuryWithExistingInfra(
     provider: DeploymentProvider,
     network: string,
     existingInfra: ExistingInfrastructure,
     options: DeployWithExistingInfraOptions = {}
 ): Promise<DeployTreasuryOutput> {
+    configureLogger({ level: LogLevel.SILENT });
     const {
         useTimeTravel = false,
         saveOutput: _saveOutput = false,
@@ -250,32 +184,9 @@ export async function deployTreasuryWithExistingInfra(
             signer
         )
 
-        // Combine existing + new facets for configuration
-        const facetNamesForConfig: Record<string, string> = useTimeTravel
-            ? {
-                  AccessControlFacetTimeTravel: facets.accessControl,
-                  PauseFacetTimeTravel: facets.pause,
-                  LifeCycleCashFlowFacetTimeTravel:
-                      newFacetAddresses.LifeCycleCashFlowFacetTimeTravel,
-                  PortfolioFacetTimeTravel:
-                      newFacetAddresses.PortfolioFacetTimeTravel,
-                  ProceedsManagementFacetTimeTravel:
-                      newFacetAddresses.ProceedsManagementFacetTimeTravel,
-                  TimeTravelFacet: newFacetAddresses.TimeTravelFacet,
-              }
-            : {
-                  AccessControlFacet: facets.accessControl,
-                  PauseFacet: facets.pause,
-                  LifeCycleCashFlowFacet:
-                      newFacetAddresses.LifeCycleCashFlowFacet,
-                  PortfolioFacet: newFacetAddresses.PortfolioFacet,
-                  ProceedsManagementFacet:
-                      newFacetAddresses.ProceedsManagementFacet,
-              }
-
         const treasuryConfig = await createTreasuryConfiguration(
             blrContract,
-            facetNamesForConfig,
+            newFacetAddresses,
             useTimeTravel,
             treasuryRegistry
         )
