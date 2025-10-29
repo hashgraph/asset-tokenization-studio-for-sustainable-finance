@@ -15,6 +15,7 @@ import { DistributionHolderQueryResponse } from "./DistributionHolderQueryRespon
 import { DistributionHolder } from "@domain/distribution/model/DistributionHolder"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
+import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
 
 @Singleton()
 @Handler(GetDistributionHoldersQuery)
@@ -25,11 +26,12 @@ export class GetDistributionHoldersQueryHandler
     @Inject() private readonly distributionHolderRepository: DistributionHolderRepository,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
     private readonly checkDistributionExistsDomainService: CheckDistributionExistsDomainService,
+    @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
   ) {}
 
   @Validate()
   async execute(query: GetDistributionHoldersQuery): Promise<QueryPageResponse<DistributionHolderQueryResponse>> {
-    const treasury = await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)
+    await this.checkTreasuryExistsDomainService.execute(query.treasuryContractId)
 
     await this.checkDistributionExistsDomainService.execute(query.distributionId)
 
@@ -39,12 +41,28 @@ export class GetDistributionHoldersQueryHandler
       query.status,
     )
 
-    const paymentTokenDecimals = treasury.paymentToken?.decimals || 0
+    const uniquePaymentTokenIds = [...new Set(distributionHoldersPage.items.map((holder) => holder.paymentTokenId))]
 
-    return QueryPageResponse.fromPage(distributionHoldersPage, (distributionHolder: DistributionHolder) => ({
-      accountId: distributionHolder.holderAccountId,
-      status: distributionHolder.status,
-      amount: ConverterUtils.formatNumber(distributionHolder.amount, paymentTokenDecimals),
-    }))
+    const paymentTokens = await this.paymentTokenRepository.findByIds(uniquePaymentTokenIds)
+    const paymentTokensMap = new Map(paymentTokens.map((token) => [token.id, token]))
+
+    const formattedHolders = distributionHoldersPage.items.map((distributionHolder: DistributionHolder) => {
+      const paymentToken = paymentTokensMap.get(distributionHolder.paymentTokenId)
+      const formattedAmount = ConverterUtils.formatNumber(distributionHolder.amount, paymentToken?.decimals || 0)
+
+      return {
+        accountId: distributionHolder.holderAccountId,
+        status: distributionHolder.status,
+        amount: formattedAmount,
+      }
+    })
+
+    return {
+      items: formattedHolders,
+      total: distributionHoldersPage.total,
+      page: distributionHoldersPage.page,
+      limit: distributionHoldersPage.limit,
+      totalPages: distributionHoldersPage.totalPages,
+    }
   }
 }

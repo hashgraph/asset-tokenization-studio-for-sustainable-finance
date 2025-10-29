@@ -72,8 +72,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -95,8 +102,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       const holder1 = await internalDistributionHolderRepository.save({
@@ -104,6 +118,7 @@ describe("GetDistributionHolders API Integration", () => {
         status: "SUCCESS",
         amount: "1000000000",
         distributionId: distribution.id,
+        paymentTokenId: paymentToken.id,
       })
 
       const holder2 = await internalDistributionHolderRepository.save({
@@ -111,6 +126,7 @@ describe("GetDistributionHolders API Integration", () => {
         status: "FAILED",
         amount: "2000000000",
         distributionId: distribution.id,
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -128,13 +144,13 @@ describe("GetDistributionHolders API Integration", () => {
 
       expect(item1).toEqual({
         accountId: holder1.holderAccountId,
-        amount: holder1.amount,
+        amount: "1000",
         status: holder1.status,
       })
 
       expect(item2).toEqual({
         accountId: holder2.holderAccountId,
-        amount: holder2.amount,
+        amount: "2000",
         status: holder2.status,
       })
     })
@@ -146,8 +162,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       for (let i = 1; i <= 5; i++) {
@@ -156,6 +179,7 @@ describe("GetDistributionHolders API Integration", () => {
           distributionId: distribution.id,
           amount: "1000000000",
           status: i % 2 === 0 ? "SUCCESS" : "FAILED",
+          paymentTokenId: paymentToken.id,
         })
       }
 
@@ -178,8 +202,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       const holder1 = await internalDistributionHolderRepository.save({
@@ -187,6 +218,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await new Promise((resolve) => setTimeout(resolve, 10))
@@ -196,6 +228,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -228,12 +261,20 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution1 = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       const distribution2 = await internalDistributionRepository.save({
         id: 2,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -241,6 +282,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution1.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -248,6 +290,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution2.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -266,8 +309,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -275,6 +325,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -282,6 +333,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -295,11 +347,11 @@ describe("GetDistributionHolders API Integration", () => {
 
       expect(successHolder).toBeDefined()
       expect(successHolder.accountId).toBe("0.0.111111")
-      expect(successHolder.amount).toBe("1000000000")
+      expect(successHolder.amount).toBe("1000")
 
       expect(failedHolder).toBeDefined()
       expect(failedHolder.accountId).toBe("0.0.222222")
-      expect(failedHolder.amount).toBe("2000000000")
+      expect(failedHolder.amount).toBe("2000")
     })
 
     it("should filter holders by status=SUCCESS query param", async () => {
@@ -309,8 +361,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -318,6 +377,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -325,6 +385,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -335,7 +396,7 @@ describe("GetDistributionHolders API Integration", () => {
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].status).toBe("SUCCESS")
       expect(response.body.items[0].accountId).toBe("0.0.111111")
-      expect(response.body.items[0].amount).toBe("1000000000")
+      expect(response.body.items[0].amount).toBe("1000")
     })
 
     it("should filter holders by status=FAILED query param", async () => {
@@ -345,8 +406,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -354,6 +422,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -361,6 +430,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -371,7 +441,7 @@ describe("GetDistributionHolders API Integration", () => {
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].status).toBe("FAILED")
       expect(response.body.items[0].accountId).toBe("0.0.222222")
-      expect(response.body.items[0].amount).toBe("2000000000")
+      expect(response.body.items[0].amount).toBe("2000")
     })
 
     it("should return all holders when status is not provided", async () => {
@@ -381,8 +451,15 @@ describe("GetDistributionHolders API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.555555",
+        treasuryId: treasury.id,
+        decimals: 6,
+      })
+
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -390,6 +467,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "1000000000",
         status: "SUCCESS",
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
@@ -397,6 +475,7 @@ describe("GetDistributionHolders API Integration", () => {
         distributionId: distribution.id,
         amount: "2000000000",
         status: "FAILED",
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -409,40 +488,40 @@ describe("GetDistributionHolders API Integration", () => {
     })
 
     it("should format amount using payment token decimals", async () => {
-      // Create treasury first
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
       })
 
-      // Create payment token with 6 decimals
       const paymentToken = await internalPaymentTokenRepository.save({
         contractId: "0.0.555555",
         treasuryId: treasury.id,
         decimals: 6,
       })
 
-      // Update treasury with payment token
       treasury.paymentToken = paymentToken
       await internalTreasuryRepository.save(treasury)
 
       const distribution = await internalDistributionRepository.save({
         id: 1,
+        treasuryId: treasury.id,
       })
 
       await internalDistributionHolderRepository.save({
         holderAccountId: "0.0.111111",
         status: "SUCCESS",
-        amount: "1000000", // 1000000 with 6 decimals = 1.0
+        amount: "1000000",
         distributionId: distribution.id,
+        paymentTokenId: paymentToken.id,
       })
 
       await internalDistributionHolderRepository.save({
         holderAccountId: "0.0.222222",
         status: "SUCCESS",
-        amount: "2500000", // 2500000 with 6 decimals = 2.5
+        amount: "2500000",
         distributionId: distribution.id,
+        paymentTokenId: paymentToken.id,
       })
 
       const response = await request(app.getHttpServer())
@@ -450,12 +529,12 @@ describe("GetDistributionHolders API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
-      
+
       const holder1 = response.body.items.find((item: any) => item.accountId === "0.0.111111")
       const holder2 = response.body.items.find((item: any) => item.accountId === "0.0.222222")
-      
-      expect(holder1.amount).toBe("1") // 1000000 / 10^6 = 1.0
-      expect(holder2.amount).toBe("2.5") // 2500000 / 10^6 = 2.5
+
+      expect(holder1.amount).toBe("1")
+      expect(holder2.amount).toBe("2.5")
     })
   })
 })
