@@ -6,10 +6,13 @@ import { AddressZero } from '@ethersproject/constants'
 import { deployContract } from '../scripts/deploy'
 import { deployTreasury } from '../scripts/workflows/deployTreasury'
 import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
-import type { LifeCycleCashFlow } from '@contracts'
+import type { LifeCycleCashFlow, IPause, IAccessControl } from '@contracts'
+import { PAUSER_ROLE } from '../scripts/constants'
 
 let signer_A, signer_B
 let lifeCycleCashFlow: LifeCycleCashFlow
+let accessControl: IAccessControl
+let pause: IPause
 let assetAddress: string
 
 describe('LifeCycleCashFlow operations', () => {
@@ -34,8 +37,19 @@ describe('LifeCycleCashFlow operations', () => {
             deployment.infrastructure.treasury.proxy
         )) as LifeCycleCashFlow
 
-        lifeCycleCashFlow = lifeCycleCashFlow.connect(signer_A)
+        pause = (await ethers.getContractAt(
+            'IPause',
+            deployment.infrastructure.treasury.proxy
+        )) as IPause
+
+        accessControl = (await ethers.getContractAt(
+            'IAccessControl',
+            deployment.infrastructure.treasury.proxy
+        )) as IAccessControl
+
         assetAddress = await deployContract('AssetMock', signer_A, [])
+
+        lifeCycleCashFlow = lifeCycleCashFlow.connect(signer_A)
         await lifeCycleCashFlow.initialize_LifeCycleCashFlow(assetAddress)
     })
 
@@ -56,6 +70,17 @@ describe('LifeCycleCashFlow operations', () => {
                 lifeCycleCashFlow,
                 'InvalidAddressZero'
             )
+        })
+    })
+
+    describe('executeDistribution', () => {
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution with the contract paused, THEN it reverts with TokenIsPaused error', async () => {
+            await accessControl.grantRole(PAUSER_ROLE, signer_A.address)
+            await pause.pause()
+
+            await expect(
+                lifeCycleCashFlow.executeDistribution(AddressZero, 1, 1, 1)
+            ).to.be.revertedWithCustomError(lifeCycleCashFlow, 'TokenIsPaused')
         })
     })
 })

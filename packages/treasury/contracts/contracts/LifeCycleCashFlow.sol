@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
-import {PAYOUT_ROLE, REDEMPTION_ROLE} from './constants/roles.sol';
+import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
 import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
 import {
     Pause
@@ -17,9 +17,7 @@ import {
 
 abstract contract LifeCycleCashFlow is
     ILifeCycleCashFlow,
-    LifeCycleCashFlowStorageWrapper,
-    Pause,
-    AccessControl
+    LifeCycleCashFlowStorageWrapper
 {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
@@ -54,7 +52,7 @@ abstract contract LifeCycleCashFlow is
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) external override returns (PaymentResult memory result, bool executed) {
+    ) external override onlyUnpaused returns (PaymentResult memory result, bool executed) {
         // solhint-disable-next-line no-empty-blocks
     }
 
