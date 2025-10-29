@@ -7,12 +7,8 @@ import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
 import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
-import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
 
-abstract contract LifeCycleCashFlow is
-    ILifeCycleCashFlow,
-    LifeCycleCashFlowStorageWrapper
-{
+abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset

@@ -5,26 +5,9 @@ pragma solidity ^0.8.0;
 
 import {IPortfolio} from './interfaces/IPortfolio.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {
-    PORTFOLIO_MANAGER_ROLE,
-    DEFAULT_ADMIN_ROLE,
-    PROCEEDS_FULL_MANAGER_ROLE,
-    FUNDS_MANAGER_ROLE,
-    PAUSER_ROLE
-} from './constants/roles.sol';
-import {
-    Pause
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {
-    AccessControl
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
+import {PORTFOLIO_MANAGER_ROLE} from './constants/roles.sol';
 
-abstract contract Portfolio is
-    IPortfolio,
-    PortfolioStorageWrapper,
-    Pause,
-    AccessControl
-{
+abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
@@ -39,11 +22,6 @@ abstract contract Portfolio is
         PortfolioStorage storage portfolioStorage = _portfolioStorage();
         _setEnvironmentalAssets(environmentalAssets);
         _setPaymentToken(paymentToken);
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(PORTFOLIO_MANAGER_ROLE, _msgSender());
-        _grantRole(PROCEEDS_FULL_MANAGER_ROLE, _msgSender());
-        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
-        _grantRole(PAUSER_ROLE, _msgSender());
         portfolioStorage.initialized = true;
     }
 

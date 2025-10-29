@@ -4,37 +4,37 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { AddressZero } from '@ethersproject/constants'
-import { type TreasuryTestWrapper } from '@typechain'
 import {
+    PAUSER_ROLE,
     FUNDS_MANAGER_ROLE,
     PROCEEDS_FULL_MANAGER_ROLE,
 } from '../scripts/constants'
-import {
-    deployTreasury,
-    deployPaymentToken,
-    deployEnvironmentalAsset,
-} from '../scripts/deploy'
-
-let signer_A, signer_B
-let treasury: TreasuryTestWrapper
-let environmentalAssetFactoryAddress: string
-let environmentalAssetAddress: string
-let paymentTokenFactoryAddress: string
-let paymentTokenAddress: string
-let tokenId: string
+import { deployPaymentToken, deployEnvironmentalAsset } from '../scripts/deploy'
+import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
+import type { ITreasury } from '@contracts'
+import { deployTreasury } from '../scripts/workflows/deployTreasury'
 
 describe('Proceeds management operations', () => {
-    before(() => {
-        // mute | mock console.log
-        console.log = () => {}
-    })
-
-    const hre = require('hardhat')
-    const hreConfig = hre.network.config
+    let signer_A, signer_B
+    let treasury: ITreasury
+    let environmentalAssetFactoryAddress: string
+    let environmentalAssetAddress: string
+    let paymentTokenFactoryAddress: string
+    let paymentTokenAddress: string
+    let tokenId: string
 
     beforeEach(async () => {
         ;[signer_A, signer_B] = await ethers.getSigners()
-        treasury = await deployTreasury(signer_A, [])
+        const provider = new HardhatProvider()
+        const deployment = await deployTreasury(provider, 'hardhat', {
+            useTimeTravel: false,
+            saveOutput: false,
+        })
+
+        treasury = (await ethers.getContractAt(
+            'ITreasury',
+            deployment.infrastructure.treasury.proxy
+        )) as ITreasury
         ;[paymentTokenFactoryAddress, paymentTokenAddress] =
             await deployPaymentToken(signer_A, 100, 2)
         ;[
@@ -42,6 +42,7 @@ describe('Proceeds management operations', () => {
             environmentalAssetAddress,
             tokenId,
         ] = await deployEnvironmentalAsset(signer_A)
+
         treasury = treasury.connect(signer_A)
         await treasury.initialize_Portfolio(paymentTokenAddress, [
             environmentalAssetAddress,
@@ -50,8 +51,7 @@ describe('Proceeds management operations', () => {
 
     describe('transferPaymentToken', () => {
         it('An account cannot transfer payment token if the contract is paused', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
             await expect(
@@ -67,8 +67,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer payment token', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
             await treasury.revokeRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -93,14 +95,21 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer more payment tokens than the Treasury owns', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
+
             await expect(treasury.transferPaymentToken(signer_A.address, 200))
                 .to.be.revertedWithCustomError(treasury, 'NotEnoughBalance')
                 .withArgs(200)
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer payment tokens to address zero', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(treasury.transferPaymentToken(AddressZero, 100))
                 .to.be.revertedWithCustomError(
@@ -111,7 +120,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an amount of payment tokens exceeding 9223372036854775807', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(
                 treasury.transferPaymentToken(
@@ -124,7 +136,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role can transfer payment tokens', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
             await expect(
                 treasury.transferPaymentToken(signer_A.address, 100, {
                     gasLimit: 2000000,
@@ -137,8 +152,7 @@ describe('Proceeds management operations', () => {
 
     describe('transferEnvironmentalAssetToken', () => {
         it('An account cannot transfer an environmental asset token if the contract is paused', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
             await expect(
@@ -165,8 +179,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer an environmental asset token', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
             await treasury.revokeRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -184,7 +200,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer a environmental asset token that does not own', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(
                 treasury.transferEnvironmentalAssetToken(
@@ -198,7 +217,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an invalid NFT id', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(
                 treasury.transferEnvironmentalAssetToken(
@@ -215,7 +237,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an environmental asset with a serial number greater than 9223372036854775807', async () => {
-            treasury = treasury.connect(signer_A)
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
 
             await expect(
                 treasury.transferEnvironmentalAssetToken(
@@ -232,6 +257,10 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the PROCEEDS_FULL_MANAGER_ROLE role can transfer an environmental asset token', async () => {
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
             let environmentalAssetFactory = await ethers.getContractAt(
                 'EnvironmentalAssetFactory',
                 environmentalAssetFactoryAddress
@@ -243,8 +272,6 @@ describe('Proceeds management operations', () => {
                 treasury.address,
                 tokenId
             )
-
-            treasury = treasury.connect(signer_A)
 
             await expect(
                 treasury.transferEnvironmentalAssetToken(
@@ -260,8 +287,7 @@ describe('Proceeds management operations', () => {
 
     describe('fundProceedsRecipient', () => {
         it('An account cannot fund a proceeds recipient if the contract is paused', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
             await expect(
@@ -278,8 +304,7 @@ describe('Proceeds management operations', () => {
         })
 
         it('An account with the FUNDS_MANAGER_ROLE role revoked cannot fund a proceeds recipient', async () => {
-            treasury = treasury.connect(signer_A)
-
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
             await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(AddressZero, 1))
@@ -288,9 +313,10 @@ describe('Proceeds management operations', () => {
         })
 
         // Falta subir la comprobación en una nueva release de ATS
-        it.skip('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot fund a proceeds recipient if this does not belong to the bond', async () => {
-            treasury = treasury.connect(signer_A)
+        it.skip('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient if this does not belong to the bond', async () => {
             const proceedsRecipient = signer_A.address
+
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(proceedsRecipient, 1))
                 .to.be.revertedWithCustomError(
@@ -313,18 +339,18 @@ describe('Proceeds management operations', () => {
             )
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot fund a proceeds recipient with more payment tokens than the Treasury owns', async () => {
-            treasury = treasury.connect(signer_A)
+        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with more payment tokens than the Treasury owns', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(proceedsRecipient, 200))
                 .to.be.revertedWithCustomError(treasury, 'NotEnoughBalance')
                 .withArgs(200)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot fund a proceeds recipient with address zero', async () => {
-            treasury = treasury.connect(signer_A)
+        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with address zero', async () => {
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(AddressZero, 100))
                 .to.be.revertedWithCustomError(
@@ -334,10 +360,10 @@ describe('Proceeds management operations', () => {
                 .withArgs(AddressZero, 100)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot fund a proceeds recipient with an amount exceeding 9223372036854775807', async () => {
-            treasury = treasury.connect(signer_A)
+        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with an amount exceeding 9223372036854775807', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(
                 treasury.fundProceedsRecipient(
@@ -349,10 +375,10 @@ describe('Proceeds management operations', () => {
                 .withArgs(9223372036854775808n)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role can fund a proceeds recipient belonging to the bond', async () => {
-            treasury = treasury.connect(signer_A)
+        it('An account with the FUNDS_MANAGER_ROLE role can fund a proceeds recipient belonging to the bond', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
+            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(proceedsRecipient, 100))
                 .to.emit(treasury, 'ProceedsRecipientFunded')

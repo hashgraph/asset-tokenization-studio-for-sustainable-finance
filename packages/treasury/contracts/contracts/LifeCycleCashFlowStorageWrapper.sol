@@ -292,15 +292,19 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 nominalValue,
         address paymentToken
     ) private returns (bool success, uint256 amount) {
-        try IBondRead(asset).getCouponFor(distributionId, holder) returns (IBondRead.CouponFor memory couponFor) {
+        try IBondRead(asset).getCouponFor(distributionId, holder) returns (
+            IBondRead.CouponFor memory couponFor
+        ) {
             uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
-            amount = ((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
-            100 /
-            (365 * 24 * 60 * 60) /
-            10 ** scaleDown *
-            10 ** scaleUp);
+            amount = (((couponFor.tokenBalance *
+                nominalValue *
+                couponFor.period *
+                couponFor.rate) /
+                100 /
+                (365 * 24 * 60 * 60) /
+                10 ** scaleDown) * 10 ** scaleUp);
             return (true, amount);
         } catch {
             return (false, 0);

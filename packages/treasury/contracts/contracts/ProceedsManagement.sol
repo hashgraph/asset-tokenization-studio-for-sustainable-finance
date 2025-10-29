@@ -8,23 +8,13 @@ import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';
 import {
-    DEFAULT_ADMIN_ROLE,
-    PAUSER_ROLE,
     PROCEEDS_FULL_MANAGER_ROLE,
     FUNDS_MANAGER_ROLE
 } from './constants/roles.sol';
-import {
-    Pause
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {
-    AccessControl
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
 abstract contract ProceedsManagement is
     IProceedsManagement,
-    ProceedsManagementStorageWrapper,
-    Pause,
-    AccessControl
+    ProceedsManagementStorageWrapper
 {
     /*
      * @dev Transfers an amount of payment tokens to an address

@@ -2,7 +2,6 @@
 
 import { ethers } from 'hardhat'
 import {
-    type TreasuryTestWrapper,
     type PaymentTokenFactory,
     type EnvironmentalAssetFactory,
 } from '@typechain'
@@ -16,18 +15,6 @@ export async function deployContract(
     const contract = await contractFactory.deploy(...args)
     await contract.deployed()
     return contract.address
-}
-
-export async function deployTreasury(
-    signer,
-    args
-): Promise<TreasuryTestWrapper> {
-    const treasuryAddress = await deployContract(
-        'TreasuryTestWrapper',
-        signer,
-        args
-    )
-    return await ethers.getContractAt('TreasuryTestWrapper', treasuryAddress)
 }
 
 export async function deployEnvironmentalAsset(

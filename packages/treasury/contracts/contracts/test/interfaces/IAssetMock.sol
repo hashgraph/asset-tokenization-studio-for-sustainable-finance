@@ -7,6 +7,7 @@ interface IAssetMock {
         uint256 recordDate;
         uint256 executionDate;
         uint256 rate;
+        uint8 rateDecimals;
         uint256 period;
     }
 
