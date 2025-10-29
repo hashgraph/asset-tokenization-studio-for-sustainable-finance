@@ -20,10 +20,7 @@ export class SyncProceedsRecipientAppService {
   @Validate()
   async execute(request: SyncProceedsRecipientAppServiceRequest): Promise<void> {
     const treasury = await this.checkTreasuryExistsDomainService.execute(request.treasuryContractId)
-
-    if (!treasury.paymentToken) {
-      throw new Error(`Treasury ${request.treasuryContractId} does not have an active payment token`)
-    }
+    treasury.ensurePaymentTokenConfigured()
 
     // Check if the proceeds recipient exists for this treasury
     const existingProceedsRecipient = await this.proceedsRecipientRepository.findByContractIdAndTreasuryContractId(
@@ -44,7 +41,7 @@ export class SyncProceedsRecipientAppService {
     }
 
     await this.commandBus.execute(
-      new AddProceedsRecipientAllocationCommand(proceedsRecipientId, treasury.paymentToken.id, request.amount),
+      new AddProceedsRecipientAllocationCommand(proceedsRecipientId, treasury.paymentToken!.id, request.amount),
     )
   }
 }
