@@ -1,13 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.18;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
-import {PAYOUT_ROLE, REDEMPTION_ROLE} from './constants/roles.sol';
+import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
 import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
+import {
+    Pause
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
+import {
+    AccessControl
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
 
 abstract contract LifeCycleCashFlow is
     ILifeCycleCashFlow,
@@ -19,6 +25,7 @@ abstract contract LifeCycleCashFlow is
     )
         external
         override
+        notAddressZero(bond)
         onlyUninitialized(_lifeCycleCashFlowStorage().initialized)
     {
         LifeCycleCashFlowStorage
@@ -45,7 +52,7 @@ abstract contract LifeCycleCashFlow is
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) external override returns (PaymentResult memory result, bool executed) {
+    ) external override onlyUnpaused returns (PaymentResult memory result, bool executed) {
         // solhint-disable-next-line no-empty-blocks
     }
 
