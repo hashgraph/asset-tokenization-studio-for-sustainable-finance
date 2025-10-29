@@ -3,7 +3,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
-import { TransferType } from "@domain/shared/model/TransferType"
 
 @Entity("EnvironmentalAssetTransfer")
 export class EnvironmentalAssetTransferPersistence extends BaseEntityPersistence {
@@ -21,5 +20,5 @@ export class EnvironmentalAssetTransferPersistence extends BaseEntityPersistence
   tokenId: number
 
   @Column()
-  type: TransferType
+  type: string
 }
