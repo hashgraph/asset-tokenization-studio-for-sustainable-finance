@@ -8,7 +8,6 @@ import { ProceedsRecipientAllocationQueryResponse } from "./ProceedsRecipientAll
 import { ProceedsRecipientAllocation } from "@domain/proceedsrecipient/model/ProceedsRecipientAllocation"
 import { CheckProceedsRecipientExistsDomainService } from "@domain/proceedsrecipient/services/CheckProceedsRecipientExistsDomainService"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
-import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
 
 @Singleton()
@@ -18,13 +17,10 @@ export class GetProceedsRecipientAllocationsQueryHandler
     QueryHandler<GetProceedsRecipientAllocationsQuery, QueryPageResponse<ProceedsRecipientAllocationQueryResponse>>
 {
   constructor(
-    @Inject("ProceedsRecipientAllocationRepository")
-    private readonly allocationRepository: ProceedsRecipientAllocationRepository,
+    @Inject() private readonly proceedsRecipientAllocationRepository: ProceedsRecipientAllocationRepository,
     private readonly checkProceedsRecipientExistsDomainService: CheckProceedsRecipientExistsDomainService,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
-    private readonly checkPaymentTokenExistsDomainService: CheckPaymentTokenExistsDomainService,
-    @Inject("PaymentTokenRepository")
-    private readonly paymentTokenRepository: PaymentTokenRepository,
+    @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
   ) {}
 
   @Validate()
@@ -37,7 +33,7 @@ export class GetProceedsRecipientAllocationsQueryHandler
       treasury.contractId,
     )
 
-    const allocationsPage = await this.allocationRepository.findByProceedsRecipientId(
+    const allocationsPage = await this.proceedsRecipientAllocationRepository.findByProceedsRecipientId(
       proceedsRecipient.id,
       query.pageOptions.toPageOptions(),
     )
