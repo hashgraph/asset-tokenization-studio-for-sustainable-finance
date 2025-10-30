@@ -170,6 +170,12 @@ interface IPrimaryMarket {
     /// @notice Thrown when creating an offering with invalid rule combination
     error InvalidRuleCombination(TargetQuantityRule targetQuantityRule, DeadlineRule deadlineRule);
 
+    /// @notice Thrown when submitting a subscription with invalid lot units (outside minLots/maxLots range)
+    error InvalidSubscriptionLotUnits(uint256 lotUnits, uint256 minLots, uint256 maxLots);
+
+    /// @notice Thrown when a subscription would cause the offering to exceed its target amount
+    error SubscriptionExceedsTarget(uint256 currentTotal, uint256 subscriptionAmount, uint256 targetAmount);
+
     /// @notice Create a new offering
     /// @param _offeringInfo The details of the offering to create
     function createOffering(Offering calldata _offeringInfo) external;

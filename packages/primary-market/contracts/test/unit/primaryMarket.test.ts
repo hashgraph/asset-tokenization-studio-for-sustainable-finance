@@ -177,7 +177,7 @@ describe("PrimaryMarket", () => {
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
-        .to.emit(primaryMarket, "OfferingCreated").withArgs(1, offeringCreatorAddress, anyValue);
+        .to.emit(primaryMarket, "OfferingCreated").withArgs(0, offeringCreatorAddress, anyValue);
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
@@ -546,14 +546,14 @@ describe("PrimaryMarket", () => {
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 0)).to.be.revertedWithCustomError(
         primaryMarket,
-        "WrongQuantities"
+        "InvalidSubscriptionLotUnits"
       );
     });
 
     it("GIVEN subscription above maxLots WHEN submitting THEN fail", async () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 51)).to.be.revertedWithCustomError(
         primaryMarket,
-        "WrongQuantities"
+        "InvalidSubscriptionLotUnits"
       );
     });
 
@@ -565,7 +565,7 @@ describe("PrimaryMarket", () => {
       // Second subscription would exceed target (45 + 45 + 20 = 110 > 100)
       await expect(primaryMarket.connect(investor2).submitSubscription(offeringId, 20)).to.be.revertedWithCustomError(
         primaryMarket,
-        "WrongQuantities"
+        "SubscriptionExceedsTarget"
       );
     });
 

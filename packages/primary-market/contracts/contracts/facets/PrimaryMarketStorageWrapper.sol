@@ -16,7 +16,6 @@ abstract contract PrimaryMarketStorageWrapper {
     struct Subscription {
         address investor; // Address of the investor
         uint256 lotUnits; // Number of lot units subscribed
-        bool exists; // Flag to check if subscription exists
         bool cancelled; // Flag to mark if subscription was cancelled
     }
 
@@ -29,17 +28,15 @@ abstract contract PrimaryMarketStorageWrapper {
         address creator;                   // Address that created the offering
         bool executed;                     // Lifecycle flag: offering was executed
         bool cancelled;                    // Lifecycle flag: offering was cancelled
-        uint256 totalSubscribed;           // Total token amount subscribed so far
-        uint256[] subscriptionIds;         // Array of subscription IDs for iteration
+        uint256 totalSubscribedLots;      // Total lot units subscribed so far (not tokens)
         mapping(uint256 => Subscription) subscriptions; // subscriptionId => Subscription
-        uint256 nextSubscriptionId;        // Counter for subscription IDs
+        uint256 nextSubscriptionId;        // Counter for subscription IDs (IDs are sequential: 0, 1, 2, ...)
     }
 
     /// @notice Main storage structure
     struct PrimaryMarketStorage {
         mapping(uint256 => OfferingState) offerings; // offeringId => OfferingState
-        uint256[] offeringIds; // Array of offering IDs for iteration
-        uint256 nextOfferingId; // Counter for offering IDs
+        uint256 nextOfferingId; // Counter for offering IDs (IDs are sequential: 0, 1, 2, ...)
     }
 
     /**
@@ -67,13 +64,12 @@ abstract contract PrimaryMarketStorageWrapper {
         PrimaryMarketStorage storage s = _primaryMarketStorage();
 
         uint256 offeringId = s.nextOfferingId++;
-        s.offeringIds.push(offeringId);
 
         OfferingState storage offering = s.offerings[offeringId];
         offering.info = _offeringInfo;
         offering.creator = msg.sender;
         // executed and cancelled default to false
-        offering.totalSubscribed = 0;
+        offering.totalSubscribedLots = 0;
         offering.nextSubscriptionId = 0;
 
         // Associate payment token with this contract (Hedera token association)
@@ -107,26 +103,22 @@ abstract contract PrimaryMarketStorageWrapper {
 
         // Validate lot unit constraints (must be within minLots and maxLots)
         if (_lotUnits < offering.info.minLots || _lotUnits > offering.info.maxLots) {
-            revert IPrimaryMarket.WrongQuantities(offering.info.lotSize, offering.info.minLots, offering.info.maxLots, offering.info.targetLots);
+            revert IPrimaryMarket.InvalidSubscriptionLotUnits(_lotUnits, offering.info.minLots, offering.info.maxLots);
         }
 
-        // Calculate subscription amount in tokens
-        uint256 subscriptionAmount = _lotUnits * offering.info.lotSize;
-        uint256 newTotal = offering.totalSubscribed + subscriptionAmount;
+        uint256 newTotal = offering.totalSubscribedLots + _lotUnits;
 
         // Validate oversubscription policy
         // When OVERSUBSCRIPTION_NOT_ALLOWED: reject if subscription would exceed target
         // When OVERSUBSCRIPTION_ALLOWED: accept subscription even if exceeds target
         if (offering.info.targetQuantityRule == IPrimaryMarket.TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED) {
-            uint256 targetAmount = offering.info.targetLots * offering.info.lotSize;
-            if (newTotal > targetAmount) {
-                revert IPrimaryMarket.WrongQuantities(offering.info.lotSize, offering.info.minLots, offering.info.maxLots, offering.info.targetLots);
+            if (newTotal > offering.info.targetLots) {
+                revert IPrimaryMarket.SubscriptionExceedsTarget(offering.totalSubscribedLots, _lotUnits, offering.info.targetLots);
             }
         }
 
-        // Get bond nominal value and calculate required payment
-        // nominalValue is price per token in paymentToken, subscriptionAmount is in asset tokens
-        uint256 requiredPayment = subscriptionAmount * IBondRead(offering.info.asset).getBondDetails().nominalValue;
+        // Calculate required payment: lotUnits * lotSize (tokens) * nominalValue (price per token)
+        uint256 requiredPayment = _lotUnits * offering.info.lotSize * IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
         // Check investor has approved enough payment tokens
         if (IERC20(offering.info.paymentToken).allowance(msg.sender, address(this)) < requiredPayment) {
@@ -145,16 +137,14 @@ abstract contract PrimaryMarketStorageWrapper {
 
         // Create subscription
         uint256 subscriptionId = offering.nextSubscriptionId++;
-        offering.subscriptionIds.push(subscriptionId);
         offering.subscriptions[subscriptionId] = Subscription({
             investor: msg.sender,
             lotUnits: _lotUnits,
-            exists: true,
             cancelled: false
         });
 
-        // Update total subscribed
-        offering.totalSubscribed = newTotal;
+        // Update total subscribed lots
+        offering.totalSubscribedLots = newTotal;
 
         emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, msg.sender, _lotUnits);
     }
@@ -172,23 +162,24 @@ abstract contract PrimaryMarketStorageWrapper {
      * @param _pageIndex Page index (0-based)
      * @param _pageLength Number of IDs per page
      * @return ids Array of offering IDs
+     * @dev IDs are sequential (0, 1, 2, ...), so we generate them mathematically instead of storing
      */
     function _getOfferingIds(uint256 _pageIndex, uint256 _pageLength) internal view returns (uint256[] memory ids) {
-        PrimaryMarketStorage storage s = _primaryMarketStorage();
+        uint256 total = _primaryMarketStorage().nextOfferingId;
         uint256 start = _pageIndex * _pageLength;
         uint256 end = start + _pageLength;
 
-        if (end > s.offeringIds.length) {
-            end = s.offeringIds.length;
-        }
-
-        if (start >= s.offeringIds.length) {
+        if (start >= total) {
             return new uint256[](0);
         }
 
+        if (end > total) {
+            end = total;
+        }
+
         ids = new uint256[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            ids[i - start] = s.offeringIds[i];
+        for (uint256 i = 0; i < ids.length; i++) {
+            ids[i] = start + i;
         }
     }
 
@@ -240,9 +231,8 @@ abstract contract PrimaryMarketStorageWrapper {
             return IPrimaryMarket.OfferingStatus.CANCELLED;
         }
 
-        // Calculate if target is reached
-        uint256 targetAmount = offering.info.targetLots * offering.info.lotSize;
-        bool targetReached = offering.totalSubscribed >= targetAmount;
+        // Calculate if target is reached (comparing lots directly)
+        bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
 
         // Before start date
         if (block.timestamp < offering.info.startDate) {
@@ -298,27 +288,28 @@ abstract contract PrimaryMarketStorageWrapper {
      * @param _pageIndex Page index (0-based)
      * @param _pageLength Number of IDs per page
      * @return ids Array of subscription IDs
+     * @dev IDs are sequential (0, 1, 2, ...), so we generate them mathematically instead of storing
      */
     function _getSubscriptionIds(
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
     ) internal view returns (uint256[] memory ids) {
-        OfferingState storage offering = _primaryMarketStorage().offerings[_offeringId];
+        uint256 total = _primaryMarketStorage().offerings[_offeringId].nextSubscriptionId;
         uint256 start = _pageIndex * _pageLength;
         uint256 end = start + _pageLength;
 
-        if (end > offering.subscriptionIds.length) {
-            end = offering.subscriptionIds.length;
-        }
-
-        if (start >= offering.subscriptionIds.length) {
+        if (start >= total) {
             return new uint256[](0);
         }
 
+        if (end > total) {
+            end = total;
+        }
+
         ids = new uint256[](end - start);
-        for (uint256 i = start; i < end; i++) {
-            ids[i - start] = offering.subscriptionIds[i];
+        for (uint256 i = 0; i < ids.length; i++) {
+            ids[i] = start + i;
         }
     }
 
@@ -335,7 +326,7 @@ abstract contract PrimaryMarketStorageWrapper {
     ) internal view returns (address investor_, uint256 lotUnits_) {
         Subscription storage sub = _primaryMarketStorage().offerings[_offeringId].subscriptions[_subscriptionId];
 
-        if (!sub.exists) {
+        if (sub.investor == address(0)) {
             revert IPrimaryMarket.OfferingDoesNotExist(_subscriptionId); // Reusing error for subscription not found
         }
 
