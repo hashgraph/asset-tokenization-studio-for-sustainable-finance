@@ -34,6 +34,7 @@ import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTrea
 import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionTransactionRequest"
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
+import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -309,6 +310,22 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     return {
       items: transactions,
     }
+  }
+
+  async dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse> {
+    const iPortfolioInterface = IPortfolio__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    return await this.buildAndSerializeTransaction({
+      contractInterface: iPortfolioInterface,
+      functionName: "dissociateToken" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment,
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [await ConverterUtils.getEvmAddressFromHederaAddress(request.tokenContractId)],
+    } as any)
   }
 
   private async getTotalCouponHolders(

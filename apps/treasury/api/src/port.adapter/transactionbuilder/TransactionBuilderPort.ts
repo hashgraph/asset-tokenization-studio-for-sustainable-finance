@@ -15,6 +15,7 @@ import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTrea
 import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecuteDistributionTransactionRequest"
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
+import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
 
 export interface TransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
@@ -37,4 +38,5 @@ export interface TransactionBuilderPort {
   executeDistributionByAddresses(
     request: BuildExecuteDistributionByAddressesTransactionRequest,
   ): Promise<MultipleTransactionResponse>
+  dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse>
 }
