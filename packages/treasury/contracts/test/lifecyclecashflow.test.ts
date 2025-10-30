@@ -3,7 +3,7 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { AddressZero } from '@ethersproject/constants'
-import { deployContract } from '../scripts/deploy'
+import { deployContract } from '../scripts/test/deploy'
 import { deployTreasury } from '../scripts/workflows/deployTreasury'
 import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 import type { ITreasury } from '@contracts'
@@ -27,7 +27,7 @@ describe('LifeCycleCashFlow operations', () => {
             deployment.infrastructure.treasury.proxy
         )) as ITreasury
 
-        assetAddress = await deployContract('AssetMock', signer_A, [])
+        assetAddress = await deployContract('AssetMock', signer_A, [true])
 
         treasury = treasury.connect(signer_A)
         await treasury.initialize_LifeCycleCashFlow(assetAddress)
@@ -91,7 +91,15 @@ describe('LifeCycleCashFlow operations', () => {
             ).to.be.revertedWithCustomError(treasury, 'InvalidAsset')
         })
 
-        it.only('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution on a non-distribution date, THEN it reverts with NotPaymentDate error', async () => {
+        it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution on a non-distribution date, THEN it reverts with NotPaymentDate error', async () => {
+            await treasury.grantRole(PAYOUT_ROLE, signer_A.address)
+
+            await expect(
+                treasury.executeDistribution(assetAddress, 1, 1, 1)
+            ).to.be.revertedWithCustomError(treasury, 'NotPaymentDate')
+        })
+
+        it.only('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN the distribution is paid to the holders', async () => {
             await treasury.grantRole(PAYOUT_ROLE, signer_A.address)
 
             await expect(

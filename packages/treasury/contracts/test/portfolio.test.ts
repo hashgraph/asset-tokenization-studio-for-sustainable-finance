@@ -8,7 +8,7 @@ import {
     deployContract,
     deployPaymentToken,
     deployEnvironmentalAsset,
-} from '../scripts/deploy'
+} from '../scripts/test/deploy'
 import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 import type { ITreasury } from '@contracts'
 import { deployTreasury } from '../scripts/workflows/deployTreasury'

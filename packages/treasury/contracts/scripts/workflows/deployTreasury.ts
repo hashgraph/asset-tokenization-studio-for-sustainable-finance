@@ -97,7 +97,7 @@ export async function deployTreasury(
     network: string,
     options: DeployTreasuryOptions = {}
 ): Promise<DeployTreasuryOutput> {
-    configureLogger({ level: LogLevel.SILENT })
+    //configureLogger({ level: LogLevel.SILENT })
     const {
         useTimeTravel = false,
         saveOutput: _saveOutput = false,
@@ -156,7 +156,7 @@ export async function deployTreasury(
                   'LifeCycleCashFlowFacet',
                   'PortfolioFacet',
                   'ProceedsManagementFacet',
-              ]
+            ]
 
         info(`   Facets to deploy: ${facetNames.join(', ')}`)
 

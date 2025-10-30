@@ -9,7 +9,10 @@ import {
     FUNDS_MANAGER_ROLE,
     PROCEEDS_FULL_MANAGER_ROLE,
 } from '../scripts/constants'
-import { deployPaymentToken, deployEnvironmentalAsset } from '../scripts/deploy'
+import {
+    deployPaymentToken,
+    deployEnvironmentalAsset,
+} from '../scripts/test/deploy'
 import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
 import type { ITreasury } from '@contracts'
 import { deployTreasury } from '../scripts/workflows/deployTreasury'

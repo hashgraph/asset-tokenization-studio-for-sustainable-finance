@@ -5,17 +5,20 @@ pragma solidity ^0.8.0;
 import {IAssetMock} from './interfaces/IAssetMock.sol';
 
 contract AssetMock is IAssetMock {
-    string public name = 'Mock Bond';
-    string public symbol = 'MBOND';
+    string internal name = 'Mock Bond';
+    string internal symbol = 'MBOND';
+    bool internal isToday;
 
     // solhint-disable-next-line no-empty-blocks
-    constructor() {}
+    constructor(bool todayIsExecutionDate) {
+        isToday = todayIsExecutionDate;
+    }
 
     function getCoupon(
         uint256
-    ) external pure returns (RegisteredCoupon memory registeredCoupon) {
+    ) external view returns (RegisteredCoupon memory registeredCoupon) {
         registeredCoupon.coupon.recordDate = 1753874807;
-        registeredCoupon.coupon.executionDate = 1793175926;
+        registeredCoupon.coupon.executionDate = isToday ? block.timestamp : 1919590386;
         registeredCoupon.coupon.rate = 1;
         registeredCoupon.coupon.rateDecimals = 6;
         registeredCoupon.coupon.period = 2592000;
