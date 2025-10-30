@@ -110,16 +110,18 @@ describe("GetPaymentTokens API Integration", () => {
         contractId: "0.0.111111",
         additionDate: token1.createdAt.toISOString(),
         removalDate: null,
+        dissociationError: null,
       })
 
       expect(sortedItems[1]).toEqual({
         contractId: "0.0.222222",
         additionDate: token2.createdAt.toISOString(),
         removalDate: null,
+        dissociationError: null,
       })
     })
 
-    it("should return payment tokens with removal dates", async () => {
+    it("should return payment tokens with removal dates and dissociation error", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
@@ -139,6 +141,7 @@ describe("GetPaymentTokens API Integration", () => {
         treasuryId: treasury.id,
         decimals: 18,
         removalDate: removalDate,
+        dissociationError: 9999,
       })
 
       const response = await request(app.getHttpServer())
@@ -155,12 +158,14 @@ describe("GetPaymentTokens API Integration", () => {
         contractId: "0.0.111111",
         additionDate: token1.createdAt.toISOString(),
         removalDate: null,
+        dissociationError: null,
       })
 
       expect(sortedItems[1]).toEqual({
         contractId: "0.0.222222",
         additionDate: token2.createdAt.toISOString(),
         removalDate: removalDate.toISOString(),
+        dissociationError: token2.dissociationError,
       })
     })
 

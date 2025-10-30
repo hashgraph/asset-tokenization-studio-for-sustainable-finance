@@ -4,7 +4,6 @@ import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import type { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
-import type { HederaPort } from "@port/blockchain/HederaPort"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { UpdatePaymentTokenDomainServiceResponse } from "@domain/treasury/services/model/UpdatePaymentTokenDomainServiceResponse"
@@ -15,12 +14,13 @@ export class UpdatePaymentTokenDomainService {
     @Inject() private readonly treasuryRepository: TreasuryRepository,
     @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
     @Inject() private readonly transactionManager: TransactionManager,
-    @Inject() private readonly hederaPort: HederaPort,
   ) {}
 
   async execute(
     treasuryContractId: string,
     newPaymentTokenContractId: string,
+    decimals: number,
+    dissociationError: number,
   ): Promise<UpdatePaymentTokenDomainServiceResponse> {
     return await this.transactionManager.execute(async () => {
       const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
@@ -31,11 +31,9 @@ export class UpdatePaymentTokenDomainService {
       // Mark old payment token with removal date if exists
       if (treasury.paymentToken) {
         treasury.paymentToken.removalDate = new Date()
+        treasury.paymentToken.dissociationError = dissociationError || undefined
         await this.paymentTokenRepository.save(treasury.paymentToken)
       }
-
-      // Get token decimals from Hedera Mirror Node
-      const decimals = await this.hederaPort.getTokenDecimals(newPaymentTokenContractId)
 
       // Create new payment token
       const newPaymentToken = new PaymentToken()

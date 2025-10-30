@@ -16,6 +16,7 @@ export class RemoveEnvironmentalAssetDomainService {
   async execute(
     treasuryContractId: string,
     assetContractId: string,
+    dissociationError: number,
   ): Promise<RemoveEnvironmentalAssetDomainServiceResponse> {
     const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
     if (!treasury) {
@@ -24,6 +25,7 @@ export class RemoveEnvironmentalAssetDomainService {
 
     let environmentalAsset = await this.checkEnvironmentalAssetExists.execute(assetContractId, treasury.id)
     environmentalAsset.removalDate = new Date()
+    environmentalAsset.dissociationError = dissociationError || undefined
 
     environmentalAsset = await this.environmentalAssetRepository.save(environmentalAsset)
 

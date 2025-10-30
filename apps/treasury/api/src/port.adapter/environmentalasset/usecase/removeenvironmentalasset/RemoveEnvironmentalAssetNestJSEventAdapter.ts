@@ -1,7 +1,7 @@
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { ConverterUtils, EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { RemoveEnvironmentalAssetCommand } from "@app/environmentalasset/removeenvironmentalasset/command/RemoveEnvironmentalAssetCommand"
-import { EnvironmentalAssetRemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/ERC721RemovedDLTEvent"
+import { EnvironmentalAssetRemovedDLTEvent } from "@port/environmentalasset/usecase/removeenvironmentalasset/model/EnvironmentalAssetRemovedDLTEvent"
 import { RemoveEnvironmentalAssetPort } from "./RemoveEnvironmentalAssetPort"
 
 @Singleton()
@@ -16,6 +16,7 @@ export class RemoveEnvironmentalAssetNestJSEventAdapter
       new RemoveEnvironmentalAssetCommand(
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.environmentalAsset),
+        event.dissociationError,
       ),
     )
   }
