@@ -35,6 +35,7 @@ let admin: Signer;
 let offeringCreator: Signer;
 let investor1: Signer;
 let investor2: Signer;
+let investor3: Signer;
 let treasury: Signer;
 
 // Addresses
@@ -42,6 +43,7 @@ let adminAddress: string;
 let offeringCreatorAddress: string;
 let investor1Address: string;
 let investor2Address: string;
+let investor3Address: string;
 let treasuryAddress: string;
 
 // Mock contracts
@@ -122,7 +124,8 @@ describe("PrimaryMarket", () => {
     // Mint payment tokens to investors
     const mintAmount = ethers.utils.parseUnits("1000000", 6); // 1M USDC
     await mockPaymentToken.mint(investor1Address, mintAmount);
-    await mockPaymentToken.mint(investor2Address, mintAmount);
+    //await mockPaymentToken.mint(investor2Address, mintAmount);
+    await mockPaymentToken.mint(investor3Address, mintAmount);
 
     // Approve Primary Market to spend payment tokens
     await mockPaymentToken.connect(investor1).approve(primaryMarket.address, ethers.constants.MaxUint256);
@@ -140,11 +143,12 @@ describe("PrimaryMarket", () => {
 
   before(async () => {
     const signers = await ethers.getSigners();
-    [deployer, admin, offeringCreator, investor1, investor2, treasury] = signers;
+    [deployer, admin, offeringCreator, investor1, investor2, investor3, treasury] = signers;
     adminAddress = await admin.getAddress();
     offeringCreatorAddress = await offeringCreator.getAddress();
     investor1Address = await investor1.getAddress();
     investor2Address = await investor2.getAddress();
+    investor3Address = await investor3.getAddress();
     treasuryAddress = await treasury.getAddress();
   });
 
@@ -513,10 +517,11 @@ describe("PrimaryMarket", () => {
 
   describe("Submitting Subscriptions", () => {
     let offeringId: number;
+    let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
       const now = await time.latest();
-      const offering: IPrimaryMarket.OfferingStruct = {
+      offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
@@ -544,29 +549,73 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 0)).to.be.revertedWithCustomError(
+      const lotsUnit = offering.minLots - 1;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit)).to.be.revertedWithCustomError(
         primaryMarket,
         "InvalidSubscriptionLotUnits"
-      );
+      ).withArgs(lotsUnit, offering.minLots, offering.maxLots);
     });
 
     it("GIVEN subscription above maxLots WHEN submitting THEN fail", async () => {
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 51)).to.be.revertedWithCustomError(
+      const lotsUnit = offering.maxLots + 1;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit)).to.be.revertedWithCustomError(
         primaryMarket,
         "InvalidSubscriptionLotUnits"
-      );
+      ).withArgs(lotsUnit, offering.minLots, offering.maxLots);
+    });
+
+    it("GIVEN subscription for non existing offering WHEN submitting THEN fail", async () => {
+      const wrongOfferingId = 898956565656;
+      const lotsUnit = offering.minLots + 1;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(wrongOfferingId, lotsUnit)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "OfferingDoesNotExist"
+      ).withArgs(wrongOfferingId);
+    });
+
+     it("GIVEN subscription without giving allowance to PM WHEN submitting THEN fail", async () => {
+      const lotsUnit = offering.minLots + 1;
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
+      const cost = lotsUnit * offering.lotSize * nominalValue
+
+      await expect(primaryMarket.connect(investor3).submitSubscription(offeringId, lotsUnit)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "NotEnoughFunds"
+      ).withArgs(investor3, cost, 0, offering.paymentToken);
+    });
+
+     it("GIVEN subscription without enough balance to PM WHEN submitting THEN fail", async () => {
+      const lotsUnit = offering.minLots + 1;
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
+      const cost = lotsUnit * offering.lotSize * nominalValue
+
+      await expect(primaryMarket.connect(investor2).submitSubscription(offeringId, lotsUnit)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "NotEnoughFunds"
+      ).withArgs(investor3, cost, ethers.constants.MaxUint256, offering.paymentToken);
     });
 
     it("GIVEN OVERSUBSCRIPTION_NOT_ALLOWED WHEN subscription exceeds target THEN fail", async () => {
       // First subscription: 90 lots (must be within maxLots=50, so use 45)
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 45);
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 45);
+      const iterations = offering.targetLots / offering.maxLots;
+
+      for(let i=0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots);
+      }
+
+      const lotsUnit = offering.targetLots - (iterations * offering.maxLots) + 1
+      const totalSubscription = iterations * offering.maxLots
 
       // Second subscription would exceed target (45 + 45 + 20 = 110 > 100)
-      await expect(primaryMarket.connect(investor2).submitSubscription(offeringId, 20)).to.be.revertedWithCustomError(
+      await expect(primaryMarket.connect(investor2).submitSubscription(offeringId, lotsUnit)).to.be.revertedWithCustomError(
         primaryMarket,
         "SubscriptionExceedsTarget"
-      );
+      ).withArgs(totalSubscription, lotsUnit, offering.targetLots);
     });
 
     it("GIVEN CLOSED_TARGET_WAITING status WHEN submitting THEN fail", async () => {
