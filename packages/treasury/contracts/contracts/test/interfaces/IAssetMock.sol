@@ -15,4 +15,11 @@ interface IAssetMock {
         Coupon coupon;
         uint256 snapshotId;
     }
+
+    struct BondDetailsData {
+        bytes3 currency;
+        uint256 nominalValue;
+        uint256 startingDate;
+        uint256 maturityDate;
+    }
 }

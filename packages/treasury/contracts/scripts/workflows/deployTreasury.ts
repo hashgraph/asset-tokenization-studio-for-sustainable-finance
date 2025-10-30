@@ -156,7 +156,7 @@ export async function deployTreasury(
                   'LifeCycleCashFlowFacet',
                   'PortfolioFacet',
                   'ProceedsManagementFacet',
-            ]
+              ]
 
         info(`   Facets to deploy: ${facetNames.join(', ')}`)
 
