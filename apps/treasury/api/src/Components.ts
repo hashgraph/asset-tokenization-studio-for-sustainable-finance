@@ -105,6 +105,10 @@ import { CheckDistributionExistsDomainService } from "@domain/distribution/servi
 import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
 import { ExecuteDistributionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionHttpAdapter"
 import { ExecuteDistributionByAddressesTransactionAppService } from "@app/transaction/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionAppService"
+import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/usecase/dissociatepaymenttoken/DissociatePaymentTokenTransactionHttpAdapter"
+import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
+import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
+import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -186,6 +190,8 @@ export const CONTROLLERS = [
   ExecuteDistributionTransactionHttpAdapter,
   GetDistributionHoldersHttpAdapter,
   ExecuteDistributionByAddressesTransactionHttpAdapter,
+  DissociatePaymentTokenTransactionHttpAdapter,
+  DissociateEnvironmentalAssetTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -239,6 +245,8 @@ export const PROVIDERS = [
   ExecuteDistributionTransactionAppService,
   GetDistributionHoldersQueryHandler,
   ExecuteDistributionByAddressesTransactionAppService,
+  DissociatePaymentTokenTransactionAppService,
+  DissociateEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
