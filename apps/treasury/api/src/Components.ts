@@ -100,6 +100,9 @@ import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistr
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
 import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
 import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
+import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
+import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
+import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
 import { ExecuteDistributionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionHttpAdapter"
 import { ExecuteDistributionByAddressesTransactionAppService } from "@app/transaction/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionAppService"
 
@@ -181,6 +184,7 @@ export const CONTROLLERS = [
   GetProceedsRecipientsHttpAdapter,
   GetDistributionsHttpAdapter,
   ExecuteDistributionTransactionHttpAdapter,
+  GetDistributionHoldersHttpAdapter,
   ExecuteDistributionByAddressesTransactionHttpAdapter,
 ]
 
@@ -200,6 +204,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
+  CheckDistributionExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -232,6 +237,7 @@ export const PROVIDERS = [
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
   ExecuteDistributionTransactionAppService,
+  GetDistributionHoldersQueryHandler,
   ExecuteDistributionByAddressesTransactionAppService,
   {
     provide: "TransactionBuilderPort",

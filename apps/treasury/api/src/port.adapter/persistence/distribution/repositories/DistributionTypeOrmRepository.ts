@@ -40,4 +40,9 @@ export class DistributionTypeOrmRepository implements DistributionRepository {
       totalPages: Math.ceil(total / pageOptions.limit),
     }
   }
+
+  async findById(id: number): Promise<Distribution | null> {
+    const persistence = await this.distributionRepository.findOneBy({ id })
+    return persistence ? (persistence as Distribution) : null
+  }
 }
