@@ -102,6 +102,17 @@ import { SyncDistributionNestJSEventAdapter } from "@port/distribution/usecase/s
 import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
 import { CreateDistributionCommandHandler } from "@app/distribution/createdistribution/command/CreateDistributionCommandHandler"
 import { AddDistributionHolderCommandHandler } from "@app/distribution/adddistributionholder/command/AddDistributionHolderCommandHandler"
+import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
+import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
+import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
+import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
+import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionAppService } from "@app/transaction/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionAppService"
+import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/usecase/dissociatepaymenttoken/DissociatePaymentTokenTransactionHttpAdapter"
+import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
+import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
+import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -180,6 +191,11 @@ export const CONTROLLERS = [
   GetProceedsRecipientAllocationsHttpAdapter,
   GetProceedsRecipientsHttpAdapter,
   GetDistributionsHttpAdapter,
+  ExecuteDistributionTransactionHttpAdapter,
+  GetDistributionHoldersHttpAdapter,
+  ExecuteDistributionByAddressesTransactionHttpAdapter,
+  DissociatePaymentTokenTransactionHttpAdapter,
+  DissociateEnvironmentalAssetTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -198,6 +214,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
+  CheckDistributionExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -233,6 +250,11 @@ export const PROVIDERS = [
   SyncDistributionAppService,
   CreateDistributionCommandHandler,
   AddDistributionHolderCommandHandler,
+  ExecuteDistributionTransactionAppService,
+  GetDistributionHoldersQueryHandler,
+  ExecuteDistributionByAddressesTransactionAppService,
+  DissociatePaymentTokenTransactionAppService,
+  DissociateEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

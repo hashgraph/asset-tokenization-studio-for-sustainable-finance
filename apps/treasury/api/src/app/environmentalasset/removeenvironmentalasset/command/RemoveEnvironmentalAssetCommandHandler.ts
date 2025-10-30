@@ -18,6 +18,7 @@ export class RemoveEnvironmentalAssetCommandHandler implements CommandHandler<Re
     const result = await this.removeEnvironmentalAssetDomainService.execute(
       command.treasuryContractId,
       command.assetContractId,
+      command.dissociationError,
     )
 
     this.eventBus.publish(

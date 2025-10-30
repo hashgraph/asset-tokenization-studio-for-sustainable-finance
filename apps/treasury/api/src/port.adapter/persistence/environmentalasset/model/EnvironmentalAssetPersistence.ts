@@ -16,4 +16,7 @@ export class EnvironmentalAssetPersistence extends BaseEntityPersistence {
 
   @Column({ nullable: true })
   removalDate?: Date
+
+  @Column({ nullable: true })
+  dissociationError?: number
 }

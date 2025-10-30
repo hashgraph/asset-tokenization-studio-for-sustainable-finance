@@ -17,4 +17,7 @@ export class DistributionHolder extends BaseEntity {
   @IsNumber()
   @IsNotEmpty()
   distributionId: number
+
+  @IsNotEmpty()
+  paymentTokenId: string
 }

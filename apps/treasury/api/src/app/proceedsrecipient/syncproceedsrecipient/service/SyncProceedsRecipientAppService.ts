@@ -4,10 +4,10 @@ import { Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { SyncProceedsRecipientAppServiceRequest } from "@app/proceedsrecipient/syncproceedsrecipient/service/model/SyncProceedsRecipientAppServiceRequest"
 import type { ProceedsRecipientRepository } from "@domain/proceedsrecipient/repositories/ProceedsRecipientRepository"
-import { ProceedsRecipient } from "@domain/proceedsrecipient/model/ProceedsRecipient"
 import { CreateProceedsRecipientCommand } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommand"
 import { AddProceedsRecipientAllocationCommand } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommand"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { ProceedsRecipient } from "@domain/proceedsrecipient/model/ProceedsRecipient"
 
 @Singleton()
 export class SyncProceedsRecipientAppService {
@@ -32,9 +32,9 @@ export class SyncProceedsRecipientAppService {
 
     if (!existingProceedsRecipient) {
       // Create a new proceeds recipient
-      const proceedsRecipient = (await this.commandBus.execute(
+      const proceedsRecipient: ProceedsRecipient = await this.commandBus.execute(
         new CreateProceedsRecipientCommand(request.proceedsRecipientContractId, request.treasuryContractId),
-      )) as ProceedsRecipient
+      )
       proceedsRecipientId = proceedsRecipient.id
     } else {
       proceedsRecipientId = existingProceedsRecipient.id
