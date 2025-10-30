@@ -66,12 +66,64 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
     }
 
     /**
-     * @notice Validates offering exists and is in expected status
+     * @notice Validates offering exists
      * @param _offeringId Offering ID to check
      */
     modifier offeringExists(uint256 _offeringId) {
-        if (_offeringId >= _primaryMarketStorage().nextOfferingId) {
+        if (_offeringId == 0 || _offeringId > _getNextOfferingId()) {
             revert OfferingDoesNotExist(_offeringId);
+        }
+        _;
+    }
+
+    /**
+     * @notice Validates offering is in OPEN status (accepting subscriptions)
+     * @param _offeringId Offering ID to check
+     */
+    modifier offeringIsOpen(uint256 _offeringId) {
+        if (_getOfferingStatus(_offeringId) != OfferingStatus.OPEN) {
+            revert SubscriptionNotAcceptedForOffering(_offeringId);
+        }
+        _;
+    }
+
+    /**
+     * @notice Validates lot units are within allowed range
+     * @param _offeringId Offering ID to get min/max lots
+     * @param _lotUnits Lot units to validate
+     */
+    modifier validLotUnits(uint256 _offeringId, uint256 _lotUnits) {
+        Offering memory offering = _getOfferingState(_offeringId).info;
+        if (_lotUnits < offering.minLots || _lotUnits > offering.maxLots) {
+            revert InvalidSubscriptionLotUnits(_lotUnits, offering.minLots, offering.maxLots);
+        }
+        _;
+    }
+
+    /**
+     * @notice Validates investor is compliant for the asset
+     * @param _offeringId Offering ID to get asset address
+     */
+    modifier compliantInvestor(uint256 _offeringId) {
+        address asset = _getOfferingState(_offeringId).info.asset;
+        if (!_isCompliantInvestor(msg.sender, asset)) {
+            revert NotCompliantAccount(msg.sender, asset);
+        }
+        _;
+    }
+
+    /**
+     * @notice Validates subscription doesn't exceed target (when OVERSUBSCRIPTION_NOT_ALLOWED)
+     * @param _offeringId Offering ID
+     * @param _lotUnits Lot units being subscribed
+     */
+    modifier withinTargetLimit(uint256 _offeringId, uint256 _lotUnits) {
+        OfferingState storage offering = _getOfferingState(_offeringId);
+        if (offering.info.targetQuantityRule == TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED) {
+            uint256 newTotal = offering.totalSubscribedLots + _lotUnits;
+            if (newTotal > offering.info.targetLots) {
+                revert SubscriptionExceedsTarget(offering.totalSubscribedLots, _lotUnits, offering.info.targetLots);
+            }
         }
         _;
     }
@@ -92,8 +144,46 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId The offering ID
      * @param _lotUnits Number of lots to subscribe (must be between minLots and maxLots)
      */
-    function submitSubscription(uint256 _offeringId, uint256 _lotUnits) external override onlyUnpaused offeringExists(_offeringId) {
+    function submitSubscription(uint256 _offeringId, uint256 _lotUnits)
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        offeringIsOpen(_offeringId)
+        compliantInvestor(_offeringId)
+        validLotUnits(_offeringId, _lotUnits)
+        withinTargetLimit(_offeringId, _lotUnits)
+    {
         _submitSubscription(_offeringId, _lotUnits);
+    }
+
+    /**
+     * @notice Execute an offering
+     * @param _offeringId The offering ID
+     * @param _pageIndex Pagination index for processing subscriptions
+     * @param _pageLength Number of subscriptions to process in this batch
+     */
+    function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
+        _executeOffering(_offeringId, _pageIndex, _pageLength);
+    }
+
+    /**
+     * @notice Cancel an offering
+     * @param _offeringId The offering ID
+     * @param _pageIndex Pagination index for processing subscriptions
+     * @param _pageLength Number of subscriptions to process in this batch
+     */
+    function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
+        _cancelOffering(_offeringId, _pageIndex, _pageLength);
+    }
+
+    /**
+     * @notice Cancel a specific subscription (only when it blocks execution)
+     * @param _offeringId The offering ID
+     * @param _subscriptionId The subscription ID
+     */
+    function cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) external override {
+        _cancelSubscription(_offeringId, _subscriptionId);
     }
 
     /**
@@ -110,7 +200,12 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _pageLength Number of IDs per page
      * @return ids Array of offering IDs
      */
-    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength) external view override returns (uint256[] memory ids) {
+    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength)
+        external
+        view
+        override
+        returns (uint256[] memory ids)
+    {
         return _getOfferingIds(_pageIndex, _pageLength);
     }
 
@@ -120,9 +215,13 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @return offeringInfo_ Offering information
      * @return offeringOperator_ Address that created the offering
      */
-    function getOffering(
-        uint256 _offeringId
-    ) external view override offeringExists(_offeringId) returns (Offering memory offeringInfo_, address offeringOperator_) {
+    function getOffering(uint256 _offeringId)
+        external
+        view
+        override
+        offeringExists(_offeringId)
+        returns (Offering memory offeringInfo_, address offeringOperator_)
+    {
         return _getOffering(_offeringId);
     }
 
@@ -131,7 +230,13 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId Offering ID
      * @return status_ Current offering status
      */
-    function getOfferingStatus(uint256 _offeringId) external view override offeringExists(_offeringId) returns (OfferingStatus status_) {
+    function getOfferingStatus(uint256 _offeringId)
+        external
+        view
+        override
+        offeringExists(_offeringId)
+        returns (OfferingStatus status_)
+    {
         return _getOfferingStatus(_offeringId);
     }
 
@@ -140,7 +245,13 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId Offering ID
      * @return total_ Total subscriptions
      */
-    function getTotalSubscriptions(uint256 _offeringId) external view override offeringExists(_offeringId) returns (uint256 total_) {
+    function getTotalSubscriptions(uint256 _offeringId)
+        external
+        view
+        override
+        offeringExists(_offeringId)
+        returns (uint256 total_)
+    {
         return _getTotalSubscriptions(_offeringId);
     }
 
@@ -171,34 +282,5 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
         uint256 _subscriptionId
     ) external view override offeringExists(_offeringId) returns (address investor_, uint256 lotUnits_) {
         return _getSubscription(_offeringId, _subscriptionId);
-    }
-
-    /**
-     * @notice Execute an offering
-     * @param _offeringId The offering ID
-     * @param _pageIndex Pagination index for processing subscriptions
-     * @param _pageLength Number of subscriptions to process in this batch
-     */
-    function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        _executeOffering(_offeringId, _pageIndex, _pageLength);
-    }
-
-    /**
-     * @notice Cancel an offering
-     * @param _offeringId The offering ID
-     * @param _pageIndex Pagination index for processing subscriptions
-     * @param _pageLength Number of subscriptions to process in this batch
-     */
-    function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        _cancelOffering(_offeringId, _pageIndex, _pageLength);
-    }
-
-    /**
-     * @notice Cancel a specific subscription (only when it blocks execution)
-     * @param _offeringId The offering ID
-     * @param _subscriptionId The subscription ID
-     */
-    function cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) external override {
-        _cancelSubscription(_offeringId, _subscriptionId);
     }
 }

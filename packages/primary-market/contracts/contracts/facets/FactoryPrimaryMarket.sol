@@ -10,20 +10,19 @@ import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contract
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { PM_DEPLOYER_ROLE } from "../constants/roles.sol";
-import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 abstract contract FactoryPrimaryMarket is IFactoryPrimaryMarket, FactoryPrimaryMarketStorageWrapper, AtsCommon {
     modifier checkAdmins(IResolverProxy.Rbac[] calldata rbacs) {
         bool adminFound;
 
         // Looking for admin role within initialization rbacas in order to add the factory
-        for (uint256 rbacsIndex = 0; rbacsIndex < rbacs.length; rbacsIndex++) {
+        for (uint256 rbacsIndex = 0; rbacsIndex < rbacs.length; ++rbacsIndex) {
             if (rbacs[rbacsIndex].role == _DEFAULT_ADMIN_ROLE) {
                 if (rbacs[rbacsIndex].members.length > 0) {
                     for (
                         uint256 adminMemberIndex = 0;
                         adminMemberIndex < rbacs[rbacsIndex].members.length;
-                        adminMemberIndex++
+                        ++adminMemberIndex
                     ) {
                         if (rbacs[rbacsIndex].members[adminMemberIndex] != address(0)) {
                             adminFound = true;

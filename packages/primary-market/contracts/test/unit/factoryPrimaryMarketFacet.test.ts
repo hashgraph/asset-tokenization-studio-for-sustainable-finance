@@ -5,13 +5,8 @@ import { IStaticFunctionSelectors } from "@contracts";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
 import { HardhatProvider, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
-import { Signer } from "ethers";
 
 let factoryPrimaryMarketFacet: IStaticFunctionSelectors;
-let deployer: Signer;
-let admin: Signer;
-let user: Signer;
-let unauthorized: Signer;
 
 describe("FactoryPrimaryMarketFacet", () => {
   configureLogger({ level: LogLevel.SILENT });
@@ -39,8 +34,7 @@ describe("FactoryPrimaryMarketFacet", () => {
   }
 
   before(async () => {
-    const signers = await ethers.getSigners();
-    [deployer, admin, user, unauthorized] = signers;
+    // Signers setup not needed for this test
   });
 
   beforeEach(async () => {

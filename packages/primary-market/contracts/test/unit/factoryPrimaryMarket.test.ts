@@ -16,9 +16,7 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
-let deployer: Signer;
 let admin: Signer;
-let user: Signer;
 let unauthorized: Signer;
 let adminAddress: string;
 let RBACS: { role: string; members: string[] }[];
@@ -55,7 +53,7 @@ describe("FactoryPrimaryMarket", () => {
 
   before(async () => {
     const signers = await ethers.getSigners();
-    [deployer, admin, user, unauthorized] = signers;
+    [, admin, , unauthorized] = signers;
     adminAddress = await admin.getAddress();
     RBACS = [
       {
