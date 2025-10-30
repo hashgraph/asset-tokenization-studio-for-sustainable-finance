@@ -14,10 +14,14 @@ export class DistributionTypeOrmRepository implements DistributionRepository {
     private readonly distributionRepository: Repository<DistributionPersistence>,
   ) {}
 
-  @Validate()
   async save(distribution: Distribution): Promise<Distribution> {
     const persistence = await this.distributionRepository.save(distribution as DistributionPersistence)
     return persistence as Distribution
+  }
+
+  async findById(id: number): Promise<Distribution | null> {
+    const persistence = await this.distributionRepository.findOne({ where: { id } })
+    return persistence ? (persistence as Distribution) : null
   }
 
   async findByTreasuryId(treasuryId: string, pageOptions: PageOptions): Promise<Page<Distribution>> {

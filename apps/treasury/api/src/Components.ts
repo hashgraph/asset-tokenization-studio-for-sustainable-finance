@@ -98,6 +98,10 @@ import { DistributionPersistence } from "@port/persistence/distribution/model/Di
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
+import { SyncDistributionNestJSEventAdapter } from "@port/distribution/usecase/syncdistribution/SyncDistributionNestJSEventAdapter"
+import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
+import { CreateDistributionCommandHandler } from "@app/distribution/createdistribution/command/CreateDistributionCommandHandler"
+import { AddDistributionHolderCommandHandler } from "@app/distribution/adddistributionholder/command/AddDistributionHolderCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -225,6 +229,10 @@ export const PROVIDERS = [
   SyncProceedsRecipientAppService,
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
+  SyncDistributionNestJSEventAdapter,
+  SyncDistributionAppService,
+  CreateDistributionCommandHandler,
+  AddDistributionHolderCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
