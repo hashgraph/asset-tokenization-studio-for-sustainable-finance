@@ -103,6 +103,8 @@ import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/use
 import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
 import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
 import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionAppService } from "@app/transaction/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -183,6 +185,7 @@ export const CONTROLLERS = [
   GetDistributionsHttpAdapter,
   ExecuteDistributionTransactionHttpAdapter,
   GetDistributionHoldersHttpAdapter,
+  ExecuteDistributionByAddressesTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -235,6 +238,7 @@ export const PROVIDERS = [
   AddProceedsRecipientAllocationCommandHandler,
   ExecuteDistributionTransactionAppService,
   GetDistributionHoldersQueryHandler,
+  ExecuteDistributionByAddressesTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

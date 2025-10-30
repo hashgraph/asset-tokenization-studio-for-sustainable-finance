@@ -32,6 +32,8 @@ import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port
 import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
 import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionTransactionRequest"
+import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
+import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -270,6 +272,42 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       page: request.pageOptions.page,
       limit: request.pageOptions.limit,
       totalPages: Math.ceil(numberOfBatches / request.pageOptions.limit),
+    }
+  }
+
+  async executeDistributionByAddresses(
+    request: BuildExecuteDistributionByAddressesTransactionRequest,
+  ): Promise<MultipleTransactionResponse> {
+    const contractInterface = ILifeCycleCashFlow__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    const maxBatchSize = request.maxBatchSize || this.configService.get<number>(ConfigKeys.MAX_BATCH_SIZE) || 15
+    const bondAddress = await ConverterUtils.getEvmAddressFromHederaAddress(request.bondContractId)
+    const batches = Array.from({ length: Math.ceil(request.holdersAccountIds.length / maxBatchSize) }, (_, i) =>
+      request.holdersAccountIds.slice(i * maxBatchSize, i * maxBatchSize + maxBatchSize),
+    )
+    const transactions = await Promise.all(
+      batches.map(async (batch) => {
+        return (
+          await this.buildAndSerializeTransaction({
+            contractInterface,
+            functionName: "executeDistributionByAddresses" as any,
+            contractId: request.contractId,
+            gas: this.GAS,
+            environment,
+            account: request.accountId,
+            format: request.format as "hedera" | "ethereum",
+            args: [
+              bondAddress,
+              request.distributionId,
+              await Promise.all(batch.map((accountId) => ConverterUtils.getEvmAddressFromHederaAddress(accountId))),
+            ],
+          } as any)
+        ).unsignedTx
+      }),
+    )
+    return {
+      items: transactions,
     }
   }
 

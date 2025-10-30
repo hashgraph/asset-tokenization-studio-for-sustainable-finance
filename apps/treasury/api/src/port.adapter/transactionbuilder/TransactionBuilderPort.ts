@@ -13,6 +13,8 @@ import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransf
 import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
 import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecuteDistributionTransactionRequest"
+import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
+import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 
 export interface TransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
@@ -32,4 +34,7 @@ export interface TransactionBuilderPort {
   unpauseTreasury(request: BuildUnpauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
   pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
   executeDistribution(request: BuildExecuteDistributionTransactionRequest): Promise<PageResponse<string>>
+  executeDistributionByAddresses(
+    request: BuildExecuteDistributionByAddressesTransactionRequest,
+  ): Promise<MultipleTransactionResponse>
 }
