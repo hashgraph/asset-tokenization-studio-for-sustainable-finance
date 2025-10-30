@@ -17,7 +17,7 @@ contract PrimaryMarketFacet is IStaticFunctionSelectors, PrimaryMarket {
     }
 
     function getStaticFunctionSelectors() external pure returns (bytes4[] memory staticFunctionSelectors) {
-        staticFunctionSelectors = new bytes4[](11);
+        staticFunctionSelectors = new bytes4[](12);
         uint256 selectorIndex = 0;
 
         // Write functions
@@ -31,6 +31,7 @@ contract PrimaryMarketFacet is IStaticFunctionSelectors, PrimaryMarket {
         staticFunctionSelectors[selectorIndex++] = this.getTotalOfferings.selector;
         staticFunctionSelectors[selectorIndex++] = this.getOfferingIds.selector;
         staticFunctionSelectors[selectorIndex++] = this.getOffering.selector;
+        staticFunctionSelectors[selectorIndex++] = this.getOfferingStatus.selector;
         staticFunctionSelectors[selectorIndex++] = this.getTotalSubscriptions.selector;
         staticFunctionSelectors[selectorIndex++] = this.getSubscriptionIds.selector;
         staticFunctionSelectors[selectorIndex++] = this.getSubscription.selector;
