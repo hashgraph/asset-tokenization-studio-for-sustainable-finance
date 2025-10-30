@@ -57,7 +57,7 @@ export async function deployTreasuryWithExistingInfra(
     existingInfra: ExistingInfrastructure,
     options: DeployWithExistingInfraOptions = {}
 ): Promise<DeployTreasuryOutput> {
-    configureLogger({ level: LogLevel.SILENT });
+    configureLogger({ level: LogLevel.SILENT })
     const {
         useTimeTravel = false,
         saveOutput: _saveOutput = false,

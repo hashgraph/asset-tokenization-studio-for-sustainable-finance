@@ -129,8 +129,12 @@ abstract contract PortfolioStorageWrapper is
      *
      * @param paymentToken The new payment token to be set
      */
-    function _updatePaymentToken(address paymentToken) internal {
-        _dissociateTokenAllowNotAssociated(_getPaymentToken());
+    function _updatePaymentToken(
+        address paymentToken
+    ) internal returns (int256 dissociationError) {
+        dissociationError = _dissociateTokenAllowNotAssociated(
+            _getPaymentToken()
+        );
         _portfolioStorage().paymentToken = paymentToken;
         _associateToken(paymentToken);
     }

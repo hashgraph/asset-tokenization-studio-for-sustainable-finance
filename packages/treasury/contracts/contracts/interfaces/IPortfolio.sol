@@ -35,7 +35,9 @@ interface IPortfolio {
      */
     event PaymentTokenUpdated(
         address indexed operator,
-        address newPaymentToken
+        address newPaymentToken,
+        address oldPaymentToken,
+        int256 dissociationError
     );
 
     /**
@@ -73,7 +75,9 @@ interface IPortfolio {
      *
      * @param paymentToken The new payment token to associate to the treasury
      */
-    function updatePaymentToken(address paymentToken) external;
+    function updatePaymentToken(
+        address paymentToken
+    ) external returns (int256 dissociationError);
 
     /**
      * @dev Dissociate an environmental asset token or a payment token from the treasury

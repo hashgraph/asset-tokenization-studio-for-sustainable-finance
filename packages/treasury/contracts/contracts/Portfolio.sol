@@ -105,9 +105,16 @@ abstract contract Portfolio is
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         notAddressZero(paymentToken)
+        returns (int256 dissociationError)
     {
-        _updatePaymentToken(paymentToken);
-        emit PaymentTokenUpdated(msg.sender, paymentToken);
+        address currentPaymentToken = _getPaymentToken();
+        dissociationError = _updatePaymentToken(paymentToken);
+        emit PaymentTokenUpdated(
+            msg.sender,
+            paymentToken,
+            currentPaymentToken,
+            dissociationError
+        );
     }
 
     /**
