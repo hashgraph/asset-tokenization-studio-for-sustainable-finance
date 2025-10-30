@@ -54,6 +54,14 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
             revert WrongDates(_offeringInfo.startDate, _offeringInfo.endDate);
         }
 
+        // Validate rule combination: OVERSUBSCRIPTION_ALLOWED + CLOSE_TARGET_REACHED is not allowed
+        if (
+            _offeringInfo.targetQuantityRule == TargetQuantityRule.OVERSUBSCRIPTION_ALLOWED &&
+            _offeringInfo.deadlineRule == DeadlineRule.CLOSE_TARGET_REACHED
+        ) {
+            revert InvalidRuleCombination(_offeringInfo.targetQuantityRule, _offeringInfo.deadlineRule);
+        }
+
         _;
     }
 
@@ -116,6 +124,15 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
         uint256 _offeringId
     ) external view override offeringExists(_offeringId) returns (Offering memory offeringInfo_, address offeringOperator_) {
         return _getOffering(_offeringId);
+    }
+
+    /**
+     * @notice Get the current status of an offering (calculated dynamically)
+     * @param _offeringId Offering ID
+     * @return status_ Current offering status
+     */
+    function getOfferingStatus(uint256 _offeringId) external view override offeringExists(_offeringId) returns (OfferingStatus status_) {
+        return _getOfferingStatus(_offeringId);
     }
 
     /**

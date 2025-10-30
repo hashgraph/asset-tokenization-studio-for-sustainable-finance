@@ -3,6 +3,35 @@ pragma solidity >=0.8.0 <0.9.0;
 
 /// @title IPrimaryMarket
 /// @notice Interface for managing primary market offerings, subscriptions, and execution/cancellation logic.
+/// @dev Policy Combinations and Behavior:
+///
+/// 1. OVERSUBSCRIPTION_NOT_ALLOWED + WAIT_UNTIL_END:
+///    - Subscriptions accepted until endDate, but total cannot exceed target
+///    - When target reached: NO more subscriptions accepted (status: CLOSED_TARGET_WAITING)
+///    - Execution: ONLY allowed after endDate AND if target reached
+///    - If target not reached after endDate: ONLY rollback/cancellation allowed
+///    - Status flow: PENDING → OPEN → CLOSED_TARGET_WAITING → EXECUTABLE → EXECUTED
+///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///
+/// 2. OVERSUBSCRIPTION_NOT_ALLOWED + CLOSE_TARGET_REACHED:
+///    - Subscriptions accepted until target reached OR endDate
+///    - When target reached: NO more subscriptions, execution allowed immediately (status: EXECUTABLE)
+///    - Execution: allowed when target reached (even before endDate) OR after endDate if target reached
+///    - If target not reached after endDate: ONLY rollback/cancellation allowed
+///    - Status flow: PENDING → OPEN → EXECUTABLE → EXECUTED
+///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///
+/// 3. OVERSUBSCRIPTION_ALLOWED + WAIT_UNTIL_END:
+///    - Subscriptions accepted until endDate, can exceed target
+///    - When target reached before endDate: continue accepting subscriptions (status: OPEN)
+///    - Execution: ONLY allowed after endDate AND if target reached
+///    - If target not reached after endDate: ONLY rollback/cancellation allowed
+///    - Status flow: PENDING → OPEN → EXECUTABLE → EXECUTED
+///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///
+/// 4. OVERSUBSCRIPTION_ALLOWED + CLOSE_TARGET_REACHED:
+///    - INVALID COMBINATION - Rejected in createOffering validation
+///    - Reason: Contradictory rules (allow oversubscription but close when target reached)
 interface IPrimaryMarket {
     /// @notice Rules for how the target quantity of an offering is treated
     enum TargetQuantityRule {
@@ -14,6 +43,19 @@ interface IPrimaryMarket {
     enum DeadlineRule {
         WAIT_UNTIL_END,
         CLOSE_TARGET_REACHED
+    }
+
+    /// @notice Calculated status of an offering (not stored, computed dynamically)
+    enum OfferingStatus {
+        PENDING,              // Before startDate
+        OPEN,                 // Accepting subscriptions
+        CLOSED_TARGET,        // Target reached, can execute immediately (CLOSE_TARGET_REACHED only)
+        CLOSED_TARGET_WAITING,// Target reached, waiting for endDate (WAIT_UNTIL_END only)
+        CLOSED_DEADLINE,      // Deadline reached, subscriptions closed
+        EXECUTABLE,           // Can be executed
+        CANCELLABLE_ONLY,     // Only rollback/cancellation allowed (target not reached after deadline)
+        EXECUTED,             // Already executed
+        CANCELLED             // Already cancelled
     }
 
     /// @notice Structure representing a market offering
@@ -125,6 +167,9 @@ interface IPrimaryMarket {
     /// @notice Thrown when creating an offering with inconsistent dates
     error WrongDates(uint256 startDate, uint256 endDate);
 
+    /// @notice Thrown when creating an offering with invalid rule combination
+    error InvalidRuleCombination(TargetQuantityRule targetQuantityRule, DeadlineRule deadlineRule);
+
     /// @notice Create a new offering
     /// @param _offeringInfo The details of the offering to create
     function createOffering(Offering calldata _offeringInfo) external;
@@ -168,6 +213,11 @@ interface IPrimaryMarket {
     function getOffering(
         uint256 _offeringId
     ) external view returns (Offering memory offeringInfo_, address offeringOperator_);
+
+    /// @notice Get the current status of an offering (calculated dynamically)
+    /// @param _offeringId The offering ID
+    /// @return status_ Current offering status
+    function getOfferingStatus(uint256 _offeringId) external view returns (OfferingStatus status_);
 
     /// @notice Get total number of subscriptions for a specific offering
     /// @param _offeringId The offering ID
