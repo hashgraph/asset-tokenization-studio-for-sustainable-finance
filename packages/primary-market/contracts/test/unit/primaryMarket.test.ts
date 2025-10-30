@@ -21,6 +21,7 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
+import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 
 // Contracts
 let primaryMarket: IPrimaryMarket;
@@ -176,7 +177,7 @@ describe("PrimaryMarket", () => {
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
-        .to.emit(primaryMarket, "OfferingCreated");
+        .to.emit(primaryMarket, "OfferingCreated").withArgs(1, offeringCreatorAddress, anyValue);
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
@@ -198,7 +199,196 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
         primaryMarket,
         "WrongAsset"
-      );
+      ).withArgs(offering.asset);
+    });
+
+    it("GIVEN invalid treasury address WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: ADDRESS_ZERO,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongTreasury"
+      ).withArgs(offering.treasury);
+    });
+
+    it("GIVEN invalid payment token address WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: ADDRESS_ZERO,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongPaymentToken"
+      ).withArgs(offering.paymentToken);
+    });
+
+    it("GIVEN star date bigger than end date address WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 3600,
+        endDate: now + 60,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongDates"
+      ).withArgs(offering.startDate, offering.endDate);
+    });
+
+     it("GIVEN start date less than current date address WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now - 3600,
+        endDate: now + 60,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongDates"
+      ).withArgs(offering.startDate, offering.endDate);
+    });
+
+    it("GIVEN lots equal to 0  WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: 0,
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongQuantities"
+      ).withArgs(offering.lotSize, offering.minLots, offering.maxLots, offering.targetLots);
+
+      const offering_2: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 0,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongQuantities"
+      ).withArgs(offering_2.lotSize, offering_2.minLots, offering_2.maxLots, offering_2.targetLots);
+
+      const offering_3: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 0,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering_3)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongQuantities"
+      ).withArgs(offering_3.lotSize, offering_3.minLots, offering_3.maxLots, offering_3.targetLots);
+
+      const offering_4: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 0,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering_4)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongQuantities"
+      ).withArgs(offering_4.lotSize, offering_4.minLots, offering_4.maxLots, offering_4.targetLots);
+    });
+
+    it("GIVEN minLots larger than maxLots WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 50,
+        maxLots: 1,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "WrongQuantities"
+      ).withArgs(offering.lotSize, offering.minLots, offering.maxLots, offering.targetLots);
     });
 
     it("GIVEN invalid rule combination WHEN creating offering THEN fail", async () => {
@@ -220,7 +410,7 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
         primaryMarket,
         "InvalidRuleCombination"
-      );
+      ).withArgs(offering.targetQuantityRule, offering.deadlineRule);
     });
 
     it("GIVEN unauthorized account WHEN creating offering THEN fail", async () => {
