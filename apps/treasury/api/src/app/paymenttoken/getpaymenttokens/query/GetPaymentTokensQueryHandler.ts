@@ -26,6 +26,7 @@ export class GetPaymentTokensQueryHandler
       contractId: paymentToken.contractId,
       additionDate: paymentToken.createdAt,
       removalDate: paymentToken.removalDate ?? null,
+      dissociationError: paymentToken.dissociationError ?? null,
     }))
   }
 }

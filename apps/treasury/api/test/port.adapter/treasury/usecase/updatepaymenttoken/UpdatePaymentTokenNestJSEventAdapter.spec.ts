@@ -84,6 +84,8 @@ describe("UpdatePaymentToken Integration", () => {
       "testTransactionHash",
       "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
       "0x14F0A3F22ef1c3057d684781DC36094433299DE6",
+      "0x6b5243a6860065ec872AB3e28e522E5828C7EDFb",
+      0,
     )
     await eventBus.publishSync(event, PaymentTokenUpdatedDLTEvent.name)
 
@@ -91,6 +93,7 @@ describe("UpdatePaymentToken Integration", () => {
     const oldToken = await internalPaymentTokenRepository.findOne({ where: { id: oldPaymentToken.id } })
     expect(oldToken).toBeDefined()
     expect(oldToken.removalDate).toBeInstanceOf(Date)
+    expect(oldToken.dissociationError).toBeNull()
 
     // Verify new payment token was created
     const tokens = await internalPaymentTokenRepository.find()
@@ -99,6 +102,70 @@ describe("UpdatePaymentToken Integration", () => {
     expect(newToken).toBeDefined()
     expect(newToken.treasuryId).toBe(treasury.id)
     expect(newToken.removalDate).toBeNull()
+    expect(newToken.dissociationError).toBeNull()
+
+    // Verify treasury was updated with new payment token
+    const updatedTreasury = await internalTreasuryRepository.findOne({
+      where: { id: treasury.id },
+      relations: ["paymentToken"],
+    })
+    expect(updatedTreasury.paymentToken.id).toBe(newToken.id)
+    expect(updatedTreasury.paymentToken.contractId).toBe(newPaymentTokenContractId)
+
+    expect(publishedEvent.constructor.name).toEqual(PaymentTokenUpdatedEvent.name)
+    expect(publishedEvent).toEqual({
+      treasuryContractId: treasury.contractId,
+      bondContractId: treasury.bondContractId,
+      paymentTokenContractId: newPaymentTokenContractId,
+      timestamp: expect.any(Number),
+    })
+  })
+
+  it("should update payment token and mark old one with removal date and dissociation error", async () => {
+    const treasury = await internalTreasuryRepository.save({
+      contractId: "0.0.222",
+      bondContractId: "0.0.500",
+      paused: false,
+    })
+
+    const oldPaymentToken = await internalPaymentTokenRepository.save({
+      contractId: "0.0.111",
+      treasuryId: treasury.id,
+      decimals: 8,
+    })
+
+    treasury.paymentToken = oldPaymentToken
+    await internalTreasuryRepository.save(treasury)
+
+    let publishedEvent
+    const newPaymentTokenContractId = "0.0.333"
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValueOnce(newPaymentTokenContractId)
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
+    const event = new PaymentTokenUpdatedDLTEvent(
+      treasury.contractId,
+      "testTransactionHash",
+      "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
+      "0x14F0A3F22ef1c3057d684781DC36094433299DE6",
+      "0x6b5243a6860065ec872AB3e28e522E5828C7EDFb",
+      87,
+    )
+    await eventBus.publishSync(event, PaymentTokenUpdatedDLTEvent.name)
+
+    // Verify old payment token has removal date
+    const oldToken = await internalPaymentTokenRepository.findOne({ where: { id: oldPaymentToken.id } })
+    expect(oldToken).toBeDefined()
+    expect(oldToken.removalDate).toBeInstanceOf(Date)
+    expect(oldToken.dissociationError).toEqual(event.dissociationError)
+
+    // Verify new payment token was created
+    const tokens = await internalPaymentTokenRepository.find()
+    expect(tokens).toHaveLength(2)
+    const newToken = tokens.find((t) => t.contractId === newPaymentTokenContractId)
+    expect(newToken).toBeDefined()
+    expect(newToken.treasuryId).toBe(treasury.id)
+    expect(newToken.removalDate).toBeNull()
+    expect(newToken.dissociationError).toBeNull()
 
     // Verify treasury was updated with new payment token
     const updatedTreasury = await internalTreasuryRepository.findOne({
@@ -134,6 +201,8 @@ describe("UpdatePaymentToken Integration", () => {
       "testTransactionHash",
       "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
       "0x14F0A3F22ef1c3057d684781DC36094433299DE6",
+      "0x6b5243a6860065ec872AB3e28e522E5828C7EDFb",
+      87,
     )
     await eventBus.publishSync(event, PaymentTokenUpdatedDLTEvent.name)
 
@@ -172,6 +241,8 @@ describe("UpdatePaymentToken Integration", () => {
       "testTransactionHash",
       "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
       "0x14F0A3F22ef1c3057d684781DC36094433299DE6",
+      "0x6b5243a6860065ec872AB3e28e522E5828C7EDFb",
+      0,
     )
 
     await expect(eventBus.publishSync(event, PaymentTokenUpdatedDLTEvent.name)).rejects.toThrow()
@@ -210,6 +281,8 @@ describe("UpdatePaymentToken Integration", () => {
       "testTransactionHash",
       "0x8B8De7629CccF9306193E8E03F9aa1d7458c19a8",
       "0x14F0A3F22efec3057d684781DC36094433299DE6",
+      "0x6b5243a6860065ec872AB3e28e522E5828C7EDFb",
+      0,
     )
 
     // The transaction should fail

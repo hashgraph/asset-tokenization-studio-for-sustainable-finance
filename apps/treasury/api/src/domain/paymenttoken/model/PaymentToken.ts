@@ -1,5 +1,5 @@
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumber, Min } from "class-validator"
+import { IsInt, IsNotEmpty, IsNumber, IsOptional, Min } from "class-validator"
 
 export class PaymentToken extends BaseEntity {
   @IsNotEmpty()
@@ -13,4 +13,9 @@ export class PaymentToken extends BaseEntity {
   decimals: number
 
   removalDate?: Date
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  dissociationError?: number
 }
