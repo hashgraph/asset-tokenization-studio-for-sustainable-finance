@@ -13,11 +13,15 @@ import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransact
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
+import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
+import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly OFFERING_CREATION_GAS = 5_000_000
   private readonly SUBSCRIPTION_SUBMIT_GAS = 700_000
+  private readonly EXECUTE_OFFERING_GAS = 700_000
+  private readonly CANCEL_OFFERING_GAS = 700_000
   private readonly GRANT_ROLE_GAS = 700_000
   private readonly DEFAULT_ENVIRONMENT = "testnet" as const
 
@@ -57,6 +61,28 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
       args: [request.offeringId, request.lotUnits],
+    })
+  }
+
+  async executeOffering(request: BuildExecuteOfferingTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "executeOffering",
+      contractId: request.contractId,
+      gas: this.EXECUTE_OFFERING_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.start, request.end],
+    })
+  }
+
+  async cancelOffering(request: BuildCancelOfferingTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "cancelOffering",
+      contractId: request.contractId,
+      gas: this.CANCEL_OFFERING_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.start, request.end],
     })
   }
 
