@@ -98,8 +98,11 @@ import { DistributionPersistence } from "@port/persistence/distribution/model/Di
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
-import {ExecuteDistributionTransactionAppService} from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService";
-import {ExecuteDistributionTransactionHttpAdapter} from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter";
+import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
+import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
+import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
+import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
+import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -179,6 +182,7 @@ export const CONTROLLERS = [
   GetProceedsRecipientsHttpAdapter,
   GetDistributionsHttpAdapter,
   ExecuteDistributionTransactionHttpAdapter,
+  GetDistributionHoldersHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -197,6 +201,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
+  CheckDistributionExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
@@ -229,6 +234,7 @@ export const PROVIDERS = [
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
   ExecuteDistributionTransactionAppService,
+  GetDistributionHoldersQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

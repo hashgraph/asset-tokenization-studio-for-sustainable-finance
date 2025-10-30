@@ -18,6 +18,9 @@ export class DistributionHolderPersistence extends BaseEntityPersistence {
   @Column()
   distributionId: number
 
+  @Column()
+  paymentTokenId: string
+
   @ManyToOne(() => DistributionPersistence, { onDelete: "CASCADE" })
   @JoinColumn()
   distribution: DistributionPersistence
