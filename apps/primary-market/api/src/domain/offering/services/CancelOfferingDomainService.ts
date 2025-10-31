@@ -18,41 +18,44 @@ export class CancelOfferingDomainService {
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
   ) {}
 
-  async execute(cancelOfferingDomainServiceRequest: CancelOfferingDomainServiceRequest): Promise<void> {
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(cancelOfferingDomainServiceRequest.marketId)
+  async execute(request: CancelOfferingDomainServiceRequest): Promise<void> {
+    const { marketId, offeringId, operatorId, subscriptionIdsSuccess, subscriptionIdsFailed } = request
+
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketId)
     market.checkActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingId(
-      cancelOfferingDomainServiceRequest.offeringId,
-    )
+    const existingOffering = await this.offeringRepository.findByOfferingId(offeringId)
     if (!existingOffering) {
-      throw OfferingNotFoundError.offeringIdError(cancelOfferingDomainServiceRequest.offeringId)
+      throw OfferingNotFoundError.offeringIdError(offeringId)
     }
 
-    existingOffering.checkOperator(cancelOfferingDomainServiceRequest.operatorId)
+    existingOffering.checkOperator(operatorId)
 
-    const subscriptionsToUpdate: Subscription[] = []
-
-    for (const subscriptionId of cancelOfferingDomainServiceRequest.subscriptionIdsSuccess) {
-      const subscription = await this.subscriptionRepository.findBySubscriptionId(subscriptionId)
-      if (!subscription) {
-        throw SubscriptionNotFoundError.subscriptionIdError(subscriptionId)
-      }
-      subscription.status = SubscriptionStatus.CANCELLED
-      subscriptionsToUpdate.push(subscription)
-    }
-
-    for (const subscriptionId of cancelOfferingDomainServiceRequest.subscriptionIdsFailed) {
-      const subscription = await this.subscriptionRepository.findBySubscriptionId(subscriptionId)
-      if (!subscription) {
-        throw SubscriptionNotFoundError.subscriptionIdError(subscriptionId)
-      }
-      subscription.status = SubscriptionStatus.FAILED
-      subscriptionsToUpdate.push(subscription)
-    }
+    const subscriptionsToUpdate = [
+      ...(await this.updateSubscriptionsStatus(subscriptionIdsSuccess, SubscriptionStatus.CANCELLED)),
+      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, SubscriptionStatus.FAILED)),
+    ]
 
     if (subscriptionsToUpdate.length > 0) {
       await this.subscriptionRepository.saveAll(subscriptionsToUpdate)
     }
+  }
+
+  private async updateSubscriptionsStatus(
+    subscriptionIds: string[],
+    status: SubscriptionStatus,
+  ): Promise<Subscription[]> {
+    const updated: Subscription[] = []
+
+    for (const subscriptionId of subscriptionIds) {
+      const subscription = await this.subscriptionRepository.findBySubscriptionId(subscriptionId)
+      if (!subscription) {
+        throw SubscriptionNotFoundError.subscriptionIdError(subscriptionId)
+      }
+      subscription.status = status
+      updated.push(subscription)
+    }
+
+    return updated
   }
 }
