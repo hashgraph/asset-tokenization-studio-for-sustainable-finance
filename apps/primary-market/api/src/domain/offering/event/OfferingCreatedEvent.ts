@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingCreatedEvent extends Event {
@@ -8,7 +7,7 @@ export class OfferingCreatedEvent extends Event {
     public readonly offeringId: string,
     public readonly marketId: string,
     public readonly bondId: string,
-    public readonly status: OfferingStatus,
+    public readonly operatorId: string,
     public readonly treasuryId: string,
     public readonly paymentTokenId: string,
     public readonly lotSize: string,

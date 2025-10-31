@@ -16,6 +16,10 @@ export class CreateOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
+  operatorId: string
+
+  @IsNotEmpty()
+  @IsString()
   treasuryId: string
 
   @IsNotEmpty()

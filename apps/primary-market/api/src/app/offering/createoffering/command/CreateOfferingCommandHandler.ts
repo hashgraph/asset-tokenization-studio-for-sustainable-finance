@@ -23,7 +23,7 @@ export class CreateOfferingCommandHandler implements CommandHandler<CreateOfferi
         offering.offeringId,
         offering.market.contractId,
         offering.bondId,
-        offering.status,
+        offering.operatorId,
         offering.treasuryId,
         offering.paymentTokenId,
         offering.lotSize,
