@@ -7,5 +7,4 @@ export interface DistributionRepository {
   save(distribution: Distribution): Promise<Distribution>
   findById(id: number): Promise<Distribution | null>
   findByTreasuryId(treasuryId: string, pageOptions: PageOptions): Promise<Page<Distribution>>
-  findById(id: number): Promise<Distribution | null>
 }
