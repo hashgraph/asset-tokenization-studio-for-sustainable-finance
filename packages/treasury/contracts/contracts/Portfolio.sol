@@ -107,8 +107,10 @@ abstract contract Portfolio is
         notAddressZero(paymentToken)
         returns (int256 dissociationError)
     {
-        address currentPaymentToken = _getPaymentToken();
-        dissociationError = _updatePaymentToken(paymentToken);
+        address currentPaymentToken;
+        (dissociationError, currentPaymentToken) = _updatePaymentToken(
+            paymentToken
+        );
         emit PaymentTokenUpdated(
             msg.sender,
             paymentToken,

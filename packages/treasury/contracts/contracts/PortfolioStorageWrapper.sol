@@ -131,10 +131,9 @@ abstract contract PortfolioStorageWrapper is
      */
     function _updatePaymentToken(
         address paymentToken
-    ) internal returns (int256 dissociationError) {
-        dissociationError = _dissociateTokenAllowNotAssociated(
-            _getPaymentToken()
-        );
+    ) internal returns (int256 dissociationError, address oldPaymentToken) {
+        oldPaymentToken = _getPaymentToken();
+        dissociationError = _dissociateTokenAllowNotAssociated(oldPaymentToken);
         _portfolioStorage().paymentToken = paymentToken;
         _associateToken(paymentToken);
     }

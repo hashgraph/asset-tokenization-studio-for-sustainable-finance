@@ -264,7 +264,7 @@ describe('Portfolio operations', () => {
             ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
         })
 
-        it.only('An account granted the PORTFOLIO_MANAGER_ROLE role can update the payment token', async () => {
+        it('An account granted the PORTFOLIO_MANAGER_ROLE role can update the payment token', async () => {
             portfolio = portfolio.connect(signer_A)
 
             await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
