@@ -128,6 +128,9 @@ abstract contract PortfolioStorageWrapper is
      * @dev Update the payment token
      *
      * @param paymentToken The new payment token to be set
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the old token
+     * @return oldPaymentToken The payment token existing just before the update
      */
     function _updatePaymentToken(
         address paymentToken
