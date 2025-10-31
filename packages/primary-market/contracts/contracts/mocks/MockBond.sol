@@ -14,11 +14,7 @@ contract MockBond is IBondRead {
     address public treasury;
     uint256 public nominalValue;
 
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        address treasury_
-    ) {
+    constructor(string memory name_, string memory symbol_, address treasury_) {
         name = name_;
         symbol = symbol_;
         treasury = treasury_;
@@ -30,12 +26,7 @@ contract MockBond is IBondRead {
         nominalValue = nominalValue_;
     }
 
-    function getBondDetails()
-        external
-        view
-        override
-        returns (BondDetailsData memory bondDetailsData_)
-    {
+    function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
         bondDetailsData_ = BondDetailsData({
             currency: bytes3("USD"),
             nominalValue: nominalValue,
@@ -44,16 +35,11 @@ contract MockBond is IBondRead {
         });
     }
 
-    function getCoupon(
-        uint256
-    ) external pure override returns (RegisteredCoupon memory) {
+    function getCoupon(uint256) external pure override returns (RegisteredCoupon memory) {
         revert("Not implemented");
     }
 
-    function getCouponFor(
-        uint256,
-        address
-    ) external pure override returns (CouponFor memory) {
+    function getCouponFor(uint256, address) external pure override returns (CouponFor memory) {
         revert("Not implemented");
     }
 
@@ -61,11 +47,7 @@ contract MockBond is IBondRead {
         return 0;
     }
 
-    function getCouponHolders(
-        uint256,
-        uint256,
-        uint256
-    ) external pure override returns (address[] memory) {
+    function getCouponHolders(uint256, uint256, uint256) external pure override returns (address[] memory) {
         return new address[](0);
     }
 

@@ -5,13 +5,14 @@ import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 
 /**
  * @title PrimaryMarketStorageWrapper
  * @notice Storage layout for Primary Market facet using diamond storage pattern
  * @dev Uses EIP-2535 Diamond Storage pattern to avoid storage collisions
  */
-abstract contract PrimaryMarketStorageWrapper {
+abstract contract PrimaryMarketStorageWrapper is AtsCommon {
     /// @notice Detailed information about a subscription
     struct Subscription {
         address investor; // Address of the investor
@@ -24,13 +25,13 @@ abstract contract PrimaryMarketStorageWrapper {
      * @dev Lifecycle is tracked with two boolean flags: executed and cancelled
      */
     struct OfferingState {
-        IPrimaryMarket.Offering info;     // Basic offering information
-        address creator;                   // Address that created the offering
-        bool executed;                     // Lifecycle flag: offering was executed
-        bool cancelled;                    // Lifecycle flag: offering was cancelled
-        uint256 totalSubscribedLots;      // Total lot units subscribed so far (not tokens)
+        IPrimaryMarket.Offering info; // Basic offering information
+        address creator; // Address that created the offering
+        bool executed; // Lifecycle flag: offering was executed
+        bool cancelled; // Lifecycle flag: offering was cancelled
+        uint256 totalSubscribedLots; // Total lot units subscribed so far (not tokens)
         mapping(uint256 => Subscription) subscriptions; // subscriptionId => Subscription
-        uint256 nextSubscriptionId;        // Counter for subscription IDs (IDs are sequential: 1, 2, 3, ...)
+        uint256 nextSubscriptionId; // Counter for subscription IDs (IDs are sequential: 1, 2, 3, ...)
     }
 
     /// @notice Main storage structure
@@ -51,7 +52,7 @@ abstract contract PrimaryMarketStorageWrapper {
 
         OfferingState storage offering = s.offerings[offeringId];
         offering.info = _offeringInfo;
-        offering.creator = msg.sender;
+        offering.creator = _msgSender();
         // executed and cancelled default to false
         offering.totalSubscribedLots = 0;
         offering.nextSubscriptionId = 0;
@@ -60,7 +61,7 @@ abstract contract PrimaryMarketStorageWrapper {
         // This is a no-op on EVM chains but required on Hedera
         _associateToken(_offeringInfo.paymentToken);
 
-        emit IPrimaryMarket.OfferingCreated(offeringId, msg.sender, _offeringInfo);
+        emit IPrimaryMarket.OfferingCreated(offeringId, _msgSender(), _offeringInfo);
     }
 
     /**
@@ -78,24 +79,24 @@ abstract contract PrimaryMarketStorageWrapper {
             IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
         // Check investor has approved enough payment tokens
-        if (IERC20(offering.info.paymentToken).allowance(msg.sender, address(this)) < requiredPayment) {
+        if (IERC20(offering.info.paymentToken).allowance(_msgSender(), address(this)) < requiredPayment) {
             revert IPrimaryMarket.NotEnoughFunds(
-                msg.sender,
+                _msgSender(),
                 requiredPayment,
-                IERC20(offering.info.paymentToken).allowance(msg.sender, address(this)),
+                IERC20(offering.info.paymentToken).allowance(_msgSender(), address(this)),
                 offering.info.paymentToken
             );
         }
 
         // Transfer payment tokens from investor to this contract
-        if (!IERC20(offering.info.paymentToken).transferFrom(msg.sender, address(this), requiredPayment)) {
-            revert IPrimaryMarket.NotEnoughFunds(msg.sender, requiredPayment, 0, offering.info.paymentToken);
+        if (!IERC20(offering.info.paymentToken).transferFrom(_msgSender(), address(this), requiredPayment)) {
+            revert IPrimaryMarket.NotEnoughFunds(_msgSender(), requiredPayment, 0, offering.info.paymentToken);
         }
 
         // Create subscription
         uint256 subscriptionId = ++offering.nextSubscriptionId;
         offering.subscriptions[subscriptionId] = Subscription({
-            investor: msg.sender,
+            investor: _msgSender(),
             lotUnits: _lotUnits,
             cancelled: false
         });
@@ -103,7 +104,7 @@ abstract contract PrimaryMarketStorageWrapper {
         // Update total subscribed lots
         offering.totalSubscribedLots += _lotUnits;
 
-        emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, msg.sender, _lotUnits);
+        emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, _msgSender(), _lotUnits);
     }
 
     /**
@@ -192,12 +193,12 @@ abstract contract PrimaryMarketStorageWrapper {
         bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
 
         // Before start date
-        if (block.timestamp < offering.info.startDate) {
+        if (_blockTimestamp() < offering.info.startDate) {
             return IPrimaryMarket.OfferingStatus.PENDING;
         }
 
         // After end date
-        if (block.timestamp > offering.info.endDate) {
+        if (_blockTimestamp() > offering.info.endDate) {
             // All policies: after deadline, check if executable or only cancellable
             if (targetReached) {
                 return IPrimaryMarket.OfferingStatus.EXECUTABLE;
@@ -220,8 +221,7 @@ abstract contract PrimaryMarketStorageWrapper {
             // Policy: WAIT_UNTIL_END (with OVER_ALLOWED or OVER_NOT_ALLOWED)
             if (
                 targetReached &&
-                offering.info.targetQuantityRule ==
-                    IPrimaryMarket.TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED
+                offering.info.targetQuantityRule == IPrimaryMarket.TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED
             ) {
                 // Target reached with OVER_NOT_ALLOWED: no more subscriptions, waiting for deadline
                 return IPrimaryMarket.OfferingStatus.CLOSED_TARGET_WAITING;
@@ -315,11 +315,7 @@ abstract contract PrimaryMarketStorageWrapper {
      * @notice Returns the storage
      * @return primaryMarketStorage Primary market storage
      */
-    function _primaryMarketStorage()
-        internal
-        pure
-        returns (PrimaryMarketStorage storage primaryMarketStorage)
-    {
+    function _primaryMarketStorage() internal pure returns (PrimaryMarketStorage storage primaryMarketStorage) {
         bytes32 position = PRIMARY_MARKET_STORAGE_POSITION;
         // solhint-disable-next-line no-inline-assembly
         assembly {

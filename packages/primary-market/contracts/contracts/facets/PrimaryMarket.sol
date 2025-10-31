@@ -4,15 +4,13 @@ pragma solidity >=0.8.0 <0.9.0;
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PrimaryMarketStorageWrapper } from "./PrimaryMarketStorageWrapper.sol";
 import { OFFERING_CREATOR_ROLE } from "../constants/roles.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 
 /**
  * @title PrimaryMarket
  * @notice Core implementation of Primary Market functionality for managing offerings and subscriptions
  * @dev Abstract contract implementing IPrimaryMarket interface
  */
-abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, AtsCommon {
-
+abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     /**
      * @notice Validates offering parameters
      * @param _offeringInfo Offering information to validate
@@ -50,7 +48,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
         }
 
         // Validate dates
-        if (_offeringInfo.startDate >= _offeringInfo.endDate || _offeringInfo.startDate < block.timestamp) {
+        if (_offeringInfo.startDate >= _offeringInfo.endDate || _offeringInfo.startDate < _blockTimestamp()) {
             revert WrongDates(_offeringInfo.startDate, _offeringInfo.endDate);
         }
 
@@ -106,8 +104,8 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      */
     modifier compliantInvestor(uint256 _offeringId) {
         address asset = _getOfferingState(_offeringId).info.asset;
-        if (!_isCompliantInvestor(msg.sender, asset)) {
-            revert NotCompliantAccount(msg.sender, asset);
+        if (!_isCompliantInvestor(_msgSender(), asset)) {
+            revert NotCompliantAccount(_msgSender(), asset);
         }
         _;
     }
@@ -144,7 +142,10 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId The offering ID
      * @param _lotUnits Number of lots to subscribe (must be between minLots and maxLots)
      */
-    function submitSubscription(uint256 _offeringId, uint256 _lotUnits)
+    function submitSubscription(
+        uint256 _offeringId,
+        uint256 _lotUnits
+    )
         external
         override
         onlyUnpaused
@@ -200,12 +201,10 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _pageLength Number of IDs per page
      * @return ids Array of offering IDs
      */
-    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength)
-        external
-        view
-        override
-        returns (uint256[] memory ids)
-    {
+    function getOfferingIds(
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) external view override returns (uint256[] memory ids) {
         return _getOfferingIds(_pageIndex, _pageLength);
     }
 
@@ -215,7 +214,9 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @return offeringInfo_ Offering information
      * @return offeringOperator_ Address that created the offering
      */
-    function getOffering(uint256 _offeringId)
+    function getOffering(
+        uint256 _offeringId
+    )
         external
         view
         override
@@ -230,13 +231,9 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId Offering ID
      * @return status_ Current offering status
      */
-    function getOfferingStatus(uint256 _offeringId)
-        external
-        view
-        override
-        offeringExists(_offeringId)
-        returns (OfferingStatus status_)
-    {
+    function getOfferingStatus(
+        uint256 _offeringId
+    ) external view override offeringExists(_offeringId) returns (OfferingStatus status_) {
         return _getOfferingStatus(_offeringId);
     }
 
@@ -245,13 +242,9 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper, 
      * @param _offeringId Offering ID
      * @return total_ Total subscriptions
      */
-    function getTotalSubscriptions(uint256 _offeringId)
-        external
-        view
-        override
-        offeringExists(_offeringId)
-        returns (uint256 total_)
-    {
+    function getTotalSubscriptions(
+        uint256 _offeringId
+    ) external view override offeringExists(_offeringId) returns (uint256 total_) {
         return _getTotalSubscriptions(_offeringId);
     }
 

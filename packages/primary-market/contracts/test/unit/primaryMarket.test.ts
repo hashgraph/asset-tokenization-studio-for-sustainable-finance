@@ -17,9 +17,11 @@ import {
 import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
+import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
 
 // Contracts
 let primaryMarket: IPrimaryMarket;
+let primaryMarketTimeTravel: ITimeTravel;
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
@@ -52,7 +54,7 @@ describe("PrimaryMarket", () => {
 
     // Deploy factory system
     const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
-      useTimeTravel: false,
+      useTimeTravel: true,
       saveOutput: false,
     });
 
@@ -103,6 +105,7 @@ describe("PrimaryMarket", () => {
 
     const primaryMarketAddress = event.args.primaryMarketAddress;
     primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
+    primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
 
     // Deploy mock tokens
     const MockERC20 = await ethers.getContractFactory("MockERC20");
@@ -500,7 +503,7 @@ describe("PrimaryMarket", () => {
     let offeringId: number;
     let offering: IPrimaryMarket.OfferingStruct;
 
-    beforeEach(async () => {
+    async function deployFactoryPrimaryMarket(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
       offering = {
         asset: mockAsset.address,
@@ -510,10 +513,10 @@ describe("PrimaryMarket", () => {
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
-        targetQuantityRule: 0, // OVERSUBSCRIPTION_NOT_ALLOWED
+        targetQuantityRule: targetQuantityRule, // OVERSUBSCRIPTION_NOT_ALLOWED
         startDate: now + 60,
         endDate: now + 3600,
-        deadlineRule: 0, // WAIT_UNTIL_END
+        deadlineRule: deadlineRule, // WAIT_UNTIL_END
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -521,12 +524,18 @@ describe("PrimaryMarket", () => {
       const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
       await time.increase(61); // Move past startDate
+    }
+
+    beforeEach(async () => {
+      await deployFactoryPrimaryMarket(0, 0);
     });
 
     it("GIVEN valid subscription WHEN submitting THEN success", async () => {
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 10))
+      const lotsUnit = offering.minLots + 1;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
         .to.emit(primaryMarket, "SubscriptionSubmitted")
-        .withArgs(offeringId, 1, investor1Address, 10);
+        .withArgs(offeringId, 1, investor1Address, lotsUnit);
     });
 
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
@@ -580,30 +589,77 @@ describe("PrimaryMarket", () => {
       );
     });
 
-    it("GIVEN OVERSUBSCRIPTION_NOT_ALLOWED WHEN subscription exceeds target THEN fail", async () => {
-      // Subscribe 90 lots (leaving 10 lots to target)
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots); // 50 lots
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 40); // +40 = 90 total
+    it("GIVEN subscription before offering startDate or after endDate WHEN submitting THEN fail", async () => {
+      const lotsUnit = offering.minLots + 1;
 
-      const lotsUnit = 11; // This would exceed: 90 + 11 = 101 > 100
-      const totalSubscription = 90;
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate - 1);
 
-      // Subscription would exceed target (90 + 11 = 101 > 100)
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
-        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionExceedsTarget")
-        .withArgs(totalSubscription, lotsUnit, offering.targetLots);
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
+        .withArgs(offeringId);
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
+        .withArgs(offeringId);
     });
 
-    it("GIVEN CLOSED_TARGET_WAITING status WHEN submitting THEN fail", async () => {
-      // Reach target
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 50);
-      await primaryMarket.connect(investor2).submitSubscription(offeringId, 50);
+    it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {
+      const iterations = offering.targetLots / offering.maxLots; // 100 / 50 = 2
 
-      // Try to submit when status is CLOSED_TARGET_WAITING
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, 1)).to.be.revertedWithCustomError(
-        primaryMarket,
-        "SubscriptionNotAcceptedForOffering",
-      );
+      for (let i = 0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots);
+      }
+
+      const remainder = offering.targetLots - iterations * offering.maxLots;
+
+      if (remainder > 0) await primaryMarket.connect(investor1).submitSubscription(offeringId, remainder);
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN subscription for offering that has already reached its target when offerings closed on target WHEN submitting THEN fail", async () => {
+      await deployFactoryPrimaryMarket(0, 1);
+
+      const iterations = offering.targetLots / offering.maxLots; // 100 / 50 = 2
+
+      for (let i = 0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots);
+      }
+
+      const remainder = offering.targetLots % offering.maxLots;
+
+      if (remainder > 0) await primaryMarket.connect(investor1).submitSubscription(offeringId, remainder);
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN subscription that exceeds target when over subscription not allowed WHEN submitting THEN fail", async () => {
+      const iterations = offering.targetLots / offering.maxLots - 1; // 100 / 50 = 2
+
+      for (let i = 0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots);
+      }
+
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      const totalLots = iterations * offering.maxLots + offering.minLots;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionExceedsTarget")
+        .withArgs(totalLots, offering.maxLots, offering.targetLots);
+    });
+
+    it("GIVEN subscription for non-compliant investor WHEN submitting THEN fail", async () => {
+      // Assume investor1 is non compliant
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
+        .to.be.revertedWithCustomError(primaryMarket, "NotCompliantAccount")
+        .withArgs(investor1, offering.asset);
     });
   });
 

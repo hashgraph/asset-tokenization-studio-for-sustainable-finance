@@ -24,6 +24,7 @@ const FACTORY_PRIMARY_MARKET_FACETS: Record<string, FacetDefinition> = {
   // ATS facets (subset)
   AccessControlFacet: ATS_REGISTRY.AccessControlFacet,
   PauseFacet: ATS_REGISTRY.PauseFacet,
+  TimeTravelFacet: ATS_REGISTRY.TimeTravelFacet,
 
   // GBP custom facets
   FactoryPrimaryMarketFacet: {

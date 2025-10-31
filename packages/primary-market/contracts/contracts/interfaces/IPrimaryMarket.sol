@@ -47,15 +47,15 @@ interface IPrimaryMarket {
 
     /// @notice Calculated status of an offering (not stored, computed dynamically)
     enum OfferingStatus {
-        PENDING,              // Before startDate
-        OPEN,                 // Accepting subscriptions
-        CLOSED_TARGET,        // Target reached, can execute immediately (CLOSE_TARGET_REACHED only)
-        CLOSED_TARGET_WAITING,// Target reached, waiting for endDate (WAIT_UNTIL_END only)
-        CLOSED_DEADLINE,      // Deadline reached, subscriptions closed
-        EXECUTABLE,           // Can be executed
-        CANCELLABLE_ONLY,     // Only rollback/cancellation allowed (target not reached after deadline)
-        EXECUTED,             // Already executed
-        CANCELLED             // Already cancelled
+        PENDING, // Before startDate
+        OPEN, // Accepting subscriptions
+        CLOSED_TARGET, // Target reached, can execute immediately (CLOSE_TARGET_REACHED only)
+        CLOSED_TARGET_WAITING, // Target reached, waiting for endDate (WAIT_UNTIL_END only)
+        CLOSED_DEADLINE, // Deadline reached, subscriptions closed
+        EXECUTABLE, // Can be executed
+        CANCELLABLE_ONLY, // Only rollback/cancellation allowed (target not reached after deadline)
+        EXECUTED, // Already executed
+        CANCELLED // Already cancelled
     }
 
     /// @notice Structure representing a market offering

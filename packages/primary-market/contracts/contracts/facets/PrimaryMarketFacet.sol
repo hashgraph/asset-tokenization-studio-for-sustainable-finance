@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import { IStaticFunctionSelectors } from
-    "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
+import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
 import { PRIMARY_MARKET_RESOLVER_KEY } from "../constants/resolverKeys.sol";
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PrimaryMarket } from "./PrimaryMarket.sol";
