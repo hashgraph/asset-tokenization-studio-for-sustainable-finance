@@ -37,6 +37,10 @@ import { UserMarketRolePersistence } from "@port/persistence/usermarketrole/mode
 import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { DatabaseSeederService } from "@config/DatabaseSeederService"
+import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffering/service/CancelOfferingTransactionAppService"
+import { ExecuteOfferingTransactionAppService } from "@app/transaction/executeoffering/service/ExecuteOfferingTransactionAppService"
+import { CancelOfferingTransactionHttpAdapter } from "@port/transaction/usecase/cancelOffering/CancelOfferingTransactionHttpAdapter"
+import { ExecuteOfferingTransactionHttpAdapter } from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -74,6 +78,8 @@ export const CONTROLLERS = [
   CreateOfferingTransactionHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
+  CancelOfferingTransactionHttpAdapter,
+  ExecuteOfferingTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -93,6 +99,8 @@ export const PROVIDERS = [
   CreateOfferingCommandHandler,
   GrantRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
+  CancelOfferingTransactionAppService,
+  ExecuteOfferingTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

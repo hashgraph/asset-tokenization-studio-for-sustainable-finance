@@ -32,10 +32,14 @@ interface IPortfolio {
      *
      * @param operator The operator who call the function to update the payment token
      * @param newPaymentToken The new payment token
+     * @param oldPaymentToken The previous payment token existing just before the update
+     * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     event PaymentTokenUpdated(
         address indexed operator,
-        address newPaymentToken
+        address newPaymentToken,
+        address oldPaymentToken,
+        int256 dissociationError
     );
 
     /**
@@ -72,8 +76,12 @@ interface IPortfolio {
      * @dev Update the payment token associated to the treasury
      *
      * @param paymentToken The new payment token to associate to the treasury
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function updatePaymentToken(address paymentToken) external;
+    function updatePaymentToken(
+        address paymentToken
+    ) external returns (int256 dissociationError);
 
     /**
      * @dev Dissociate an environmental asset token or a payment token from the treasury
