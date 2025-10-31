@@ -10,6 +10,7 @@ import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
+import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -150,6 +151,20 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.name, req.uri, req.hash],
+    )
+  }
+
+  async removeBondDocumentTransaction(
+    req: BuildRemoveBondDocumentTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IERC1643__factory.createInterface(),
+      "removeDocument",
+      req.contractId,
+      this.GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.name],
     )
   }
 

@@ -20,6 +20,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
     await this.commandBus.execute(
       new AddEventFiltersCommand(await ConverterUtils.getEvmAddressFromHederaAddress(event.contractId), [
         "DocumentUpdated(bytes32 indexed _name,string _uri,bytes32 _documentHash)",
+        "DocumentRemoved(bytes32 indexed name,string uri,bytes32 documentHash)",
       ]),
     )
   }

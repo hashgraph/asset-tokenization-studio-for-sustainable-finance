@@ -23,6 +23,11 @@ import { SetBondDocumentDomainService } from "@domain/bond/document/service/SetB
 import { BondDocumentPersistence } from "@port/bond/persistence/model/BondDocumentPersistence"
 import { BondDocumentTypeOrmRepository } from "@port/bond/persistence/repositories/BondDocumentTypeOrmRepository"
 import { CreateBondFiltersAdapter } from "@port/bond/usecase/createbondfilters/CreateBondFiltersAdapter"
+import { RemoveBondDocumentTransactionHttpAdapter } from "@port/transaction/usecase/removebonddocumenttransaction/RemoveBondDocumentTransactionHttpAdapter"
+import { RemoveBondDocumentTransactionAppService } from "@app/bond/transaction/removebonddocumenttransaction/service/RemoveBondDocumentTransactionAppService"
+import { RemoveBondDocumentCommandHandler } from "@app/bond/removebonddocument/command/RemoveBondDocumentCommandHandler"
+import { RemoveBondDocumentNestJSEventAdapter } from "@port/bond/usecase/removebonddocument/RemoveBondDocumentNestJSEventAdapter"
+import { RemoveBondDocumentDomainService } from "@domain/bond/document/service/RemoveBondDocumentDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -41,6 +46,7 @@ export const CONTROLLERS = [
   GetBondHttpAdapter,
   GetBondsHttpAdapter,
   SetBondDocumentTransactionHttpAdapter,
+  RemoveBondDocumentTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -56,6 +62,10 @@ export const PROVIDERS = [
   SetBondDocumentCommandHandler,
   SetBondDocumentNestJSEventAdapter,
   SetBondDocumentDomainService,
+  RemoveBondDocumentTransactionAppService,
+  RemoveBondDocumentCommandHandler,
+  RemoveBondDocumentNestJSEventAdapter,
+  RemoveBondDocumentDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
