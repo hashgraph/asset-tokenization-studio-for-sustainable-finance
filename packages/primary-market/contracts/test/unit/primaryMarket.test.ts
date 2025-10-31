@@ -177,6 +177,27 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
         .to.emit(primaryMarket, "OfferingCreated")
         .withArgs(1, offeringCreatorAddress, anyValue);
+
+      const total = await primaryMarket.getTotalOfferings();
+      expect(total).to.equal(1);
+
+      const offeringIds = await primaryMarket.getOfferingIds(0, 100);
+      expect(offeringIds.length).to.equal(1);
+      expect(offeringIds[0]).to.equal(1);
+
+      const [offeringInfo, creator] = await primaryMarket.getOffering(1);
+      expect(offeringInfo.asset).to.equal(offering.asset);
+      expect(offeringInfo.treasury).to.equal(offering.treasury);
+      expect(offeringInfo.paymentToken).to.equal(offering.paymentToken);
+      expect(offeringInfo.lotSize).to.equal(offering.lotSize);
+      expect(offeringInfo.minLots).to.equal(offering.minLots);
+      expect(offeringInfo.maxLots).to.equal(offering.maxLots);
+      expect(offeringInfo.targetLots).to.equal(offering.targetLots);
+      expect(offeringInfo.targetQuantityRule).to.equal(offering.targetQuantityRule);
+      expect(offeringInfo.startDate).to.equal(offering.startDate);
+      expect(offeringInfo.endDate).to.equal(offering.endDate);
+      expect(offeringInfo.deadlineRule).to.equal(offering.deadlineRule);
+      expect(creator).to.equal(offeringCreatorAddress);
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
@@ -536,6 +557,17 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
         .to.emit(primaryMarket, "SubscriptionSubmitted")
         .withArgs(offeringId, 1, investor1Address, lotsUnit);
+
+      const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
+      expect(totalSubscription).to.equal(1);
+
+      const subscriptionIds = await primaryMarket.getSubscriptionIds(offeringId, 0, 100);
+      expect(subscriptionIds.length).to.equal(1);
+      expect(subscriptionIds[0]).to.equal(1);
+
+      const [investor, subscribedLotUnits] = await primaryMarket.getSubscription(offeringId, 1);
+      expect(investor).to.equal(investor1Address);
+      expect(subscribedLotUnits).to.equal(lotsUnit);
     });
 
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
@@ -598,11 +630,19 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
 
+      let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+
+      expect(offeringStatus).to.equal(0); //PENDING
+
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
+
+      offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+
+      expect(offeringStatus).to.equal(6); //CANCELLABLE_ONLY
     });
 
     it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {
@@ -619,6 +659,10 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
+
+      let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+
+      expect(offeringStatus).to.equal(2); //CLOSED
     });
 
     it("GIVEN subscription for offering that has already reached its target when offerings closed on target WHEN submitting THEN fail", async () => {
@@ -637,6 +681,10 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
+
+      let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+
+      expect(offeringStatus).to.equal(5); //EXECUTABLE
     });
 
     it("GIVEN subscription that exceeds target when over subscription not allowed WHEN submitting THEN fail", async () => {
@@ -660,62 +708,6 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
         .to.be.revertedWithCustomError(primaryMarket, "NotCompliantAccount")
         .withArgs(investor1, offering.asset);
-    });
-  });
-
-  describe("Reading Offering Data", () => {
-    let offeringId: number;
-
-    beforeEach(async () => {
-      const now = await time.latest();
-      const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
-        treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
-        minLots: 1,
-        maxLots: 50,
-        targetLots: 100,
-        targetQuantityRule: 0,
-        startDate: now + 60,
-        endDate: now + 3600,
-        deadlineRule: 0,
-      };
-
-      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
-      const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-    });
-
-    it("GIVEN offering created WHEN getting total offerings THEN correct count", async () => {
-      const total = await primaryMarket.getTotalOfferings();
-      expect(total).to.equal(1);
-    });
-
-    it("GIVEN offering created WHEN getting offering details THEN correct data", async () => {
-      const [offeringInfo, creator] = await primaryMarket.getOffering(offeringId);
-      expect(offeringInfo.asset).to.equal(mockAsset.address);
-      expect(offeringInfo.treasury).to.equal(treasuryAddress);
-      expect(creator).to.equal(offeringCreatorAddress);
-    });
-
-    it("GIVEN subscriptions submitted WHEN getting total subscriptions THEN correct count", async () => {
-      await time.increase(61);
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 10);
-      await primaryMarket.connect(investor2).submitSubscription(offeringId, 20);
-
-      const total = await primaryMarket.getTotalSubscriptions(offeringId);
-      expect(total).to.equal(2);
-    });
-
-    it("GIVEN subscription submitted WHEN getting subscription details THEN correct data", async () => {
-      await time.increase(61);
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 10);
-
-      const [investor, lotUnits] = await primaryMarket.getSubscription(offeringId, 1);
-      expect(investor).to.equal(investor1Address);
-      expect(lotUnits).to.equal(10);
     });
   });
 });
