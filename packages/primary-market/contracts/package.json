@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "file:/home/mfrancia/Documentos/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
+    "@hashgraph/asset-tokenization-contracts": "https://gitpkg.vercel.app/hashgraph/asset-tokenization-studio/packages/ats/contracts?refactor/EVRCT-147-modularize-simplify-contract-scripts-build",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
