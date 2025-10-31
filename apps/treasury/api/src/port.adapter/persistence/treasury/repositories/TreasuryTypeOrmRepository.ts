@@ -22,7 +22,11 @@ export class TreasuryTypeOrmRepository implements TreasuryRepository {
   }
 
   async findByContractId(contractId: string): Promise<Treasury | null> {
-    return this.toDomain(await this.treasuryRepository.findOneBy({ contractId }))
+    const persistence = await this.treasuryRepository.findOne({
+      where: { contractId },
+      relations: ["paymentToken"],
+    })
+    return this.toDomain(persistence)
   }
 
   async findByBondContractId(bondContractId: string): Promise<Treasury | null> {

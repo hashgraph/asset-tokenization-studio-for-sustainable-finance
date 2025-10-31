@@ -9,9 +9,6 @@ import { AddDistributionHolderCommand } from "@app/distribution/adddistributionh
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
 
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
-const ZERO_AMOUNT = "0"
-
 @Singleton()
 export class SyncDistributionAppService {
   constructor(
@@ -26,15 +23,18 @@ export class SyncDistributionAppService {
 
     await this.ensureDistributionExists(request.distributionId, treasury.id)
 
-    const validSuccessAddresses = this.filterZeroAddresses(request.successAddresses)
-    const validFailedAddresses = this.filterZeroAddresses(request.failedAddresses)
+    const paymentTokenId = treasury.paymentToken?.id
+    if (!paymentTokenId) {
+      throw new Error(`Payment token not configured for treasury ${request.treasuryContractId}`)
+    }
 
-    await this.processSuccessfulHolders(validSuccessAddresses, request.paidAmounts, request.distributionId)
-    await this.processFailedHolders(validFailedAddresses, request.distributionId)
-  }
-
-  private filterZeroAddresses(addresses: string[]): string[] {
-    return addresses.filter((address) => address && address !== ZERO_ADDRESS)
+    await this.processSuccessfulHolders(
+      request.successAddresses,
+      request.paidAmounts,
+      request.distributionId,
+      paymentTokenId,
+    )
+    await this.processFailedHolders(request.failedAddresses, request.distributionId, paymentTokenId)
   }
 
   private async ensureDistributionExists(distributionId: number, treasuryId: string): Promise<void> {
@@ -49,20 +49,37 @@ export class SyncDistributionAppService {
     addresses: string[],
     paidAmounts: string[],
     distributionId: number,
+    paymentTokenId: string,
   ): Promise<void> {
     for (let i = 0; i < addresses.length; i++) {
       const address = addresses[i]
       const amount = paidAmounts[i]
       await this.commandBus.execute(
-        new AddDistributionHolderCommand(address, DistributionHolderStatus.SUCCESS, amount, distributionId),
+        new AddDistributionHolderCommand(
+          address,
+          DistributionHolderStatus.SUCCESS,
+          amount,
+          distributionId,
+          paymentTokenId,
+        ),
       )
     }
   }
 
-  private async processFailedHolders(addresses: string[], distributionId: number): Promise<void> {
+  private async processFailedHolders(
+    addresses: string[],
+    distributionId: number,
+    paymentTokenId: string,
+  ): Promise<void> {
     for (const address of addresses) {
       await this.commandBus.execute(
-        new AddDistributionHolderCommand(address, DistributionHolderStatus.FAILED, ZERO_AMOUNT, distributionId),
+        new AddDistributionHolderCommand(
+          address,
+          DistributionHolderStatus.FAILED,
+          undefined,
+          distributionId,
+          paymentTokenId,
+        ),
       )
     }
   }

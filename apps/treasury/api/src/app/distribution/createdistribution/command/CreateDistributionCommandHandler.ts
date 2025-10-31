@@ -9,21 +9,19 @@ import { DistributionCreatedEvent } from "@domain/distribution/event/Distributio
 
 @Singleton()
 @Handler(CreateDistributionCommand)
-export class CreateDistributionCommandHandler implements CommandHandler<CreateDistributionCommand, Distribution> {
+export class CreateDistributionCommandHandler implements CommandHandler<CreateDistributionCommand, void> {
   constructor(
     @Inject() private readonly distributionRepository: DistributionRepository,
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
   @Validate()
-  async execute(command: CreateDistributionCommand): Promise<Distribution> {
+  async execute(command: CreateDistributionCommand): Promise<void> {
     const distribution = await this.distributionRepository.save({
       id: command.distributionId,
       treasuryId: command.treasuryId,
     } as Distribution)
 
     this.eventBus.publish(new DistributionCreatedEvent(distribution.id, command.treasuryId))
-
-    return distribution
   }
 }

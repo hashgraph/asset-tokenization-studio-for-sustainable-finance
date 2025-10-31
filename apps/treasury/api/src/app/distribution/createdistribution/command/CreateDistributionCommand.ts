@@ -2,9 +2,8 @@
 
 import { Command } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsNumber } from "class-validator"
-import { Distribution } from "@domain/distribution/model/Distribution"
 
-export class CreateDistributionCommand extends Command<Distribution> {
+export class CreateDistributionCommand extends Command<void> {
   @IsNumber()
   @IsNotEmpty()
   distributionId: number

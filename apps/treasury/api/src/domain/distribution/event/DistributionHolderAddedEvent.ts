@@ -7,7 +7,7 @@ export class DistributionHolderAddedEvent extends Event {
   constructor(
     readonly holderAccountId: string,
     readonly status: DistributionHolderStatus,
-    readonly amount: string,
+    readonly amount: string | undefined,
     readonly distributionId: number,
   ) {
     super()

@@ -2,27 +2,20 @@
 
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export abstract class BaseDistributionExecutedDLTEvent extends DLTEvent {
-  readonly distributionId: string
-  readonly successAddresses: string[]
-  readonly failedAddresses: string[]
-  readonly alreadyPaidAddresses: string[]
-  readonly paidAmounts: string[]
+export interface PaymentResult {
+  failedAddresses: string[]
+  succeededAddresses: string[]
+  alreadyPaidAddresses: string[]
+  paidAmounts: string[]
+}
 
-  constructor(
-    contractId: string,
-    transactionHash: string,
-    distributionId: string,
-    successAddresses: string[],
-    failedAddresses: string[],
-    alreadyPaidAddresses: string[],
-    paidAmounts: string[],
-  ) {
+export abstract class BaseDistributionExecutedDLTEvent extends DLTEvent {
+  readonly distributionId: number
+  readonly result: PaymentResult
+
+  constructor(contractId: string, transactionHash: string, distributionId: number, result: PaymentResult) {
     super(contractId, transactionHash)
     this.distributionId = distributionId
-    this.successAddresses = successAddresses
-    this.failedAddresses = failedAddresses
-    this.alreadyPaidAddresses = alreadyPaidAddresses
-    this.paidAmounts = paidAmounts
+    this.result = result
   }
 }

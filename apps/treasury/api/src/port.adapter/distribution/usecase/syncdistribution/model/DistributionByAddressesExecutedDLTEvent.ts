@@ -1,5 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { BaseDistributionExecutedDLTEvent } from "./BaseDistributionExecutedDLTEvent"
+import { BaseDistributionExecutedDLTEvent, PaymentResult } from "./BaseDistributionExecutedDLTEvent"
 
-export class DistributionByAddressesExecutedDLTEvent extends BaseDistributionExecutedDLTEvent {}
+export class DistributionByAddressesExecutedDLTEvent extends BaseDistributionExecutedDLTEvent {
+  readonly holders: string[]
+
+  constructor(
+    contractId: string,
+    transactionHash: string,
+    distributionId: number,
+    holders: string[],
+    result: PaymentResult,
+  ) {
+    super(contractId, transactionHash, distributionId, result)
+    this.holders = holders
+  }
+}
