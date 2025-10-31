@@ -10,6 +10,7 @@ import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
+import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientPersistence"
 import { ProceedsRecipientAllocationPersistence } from "@port/persistence/proceedsrecipient/model/ProceedsRecipientAllocationPersistence"
 
@@ -17,6 +18,7 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
+  let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalProceedsRecipientRepository: Repository<ProceedsRecipientPersistence>
   let internalProceedsRecipientAllocationRepository: Repository<ProceedsRecipientAllocationPersistence>
 
@@ -38,6 +40,9 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
     internalTreasuryRepository = moduleFixture.get<Repository<TreasuryPersistence>>(
       getRepositoryToken(TreasuryPersistence),
     )
+    internalPaymentTokenRepository = moduleFixture.get<Repository<PaymentTokenPersistence>>(
+      getRepositoryToken(PaymentTokenPersistence),
+    )
     internalProceedsRecipientRepository = moduleFixture.get<Repository<ProceedsRecipientPersistence>>(
       getRepositoryToken(ProceedsRecipientPersistence),
     )
@@ -53,6 +58,7 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
   afterEach(async () => {
     await internalProceedsRecipientAllocationRepository.deleteAll()
     await internalProceedsRecipientRepository.deleteAll()
+    await internalPaymentTokenRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()
     if (app) {
       await app.close()
@@ -100,20 +106,33 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.333",
+        treasuryId: treasury.id,
+        decimals: 8,
+        treasury: treasury,
+      })
+
       const proceedsRecipient = await internalProceedsRecipientRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
         treasury: treasury,
       })
 
-      const allocation1 = await internalProceedsRecipientAllocationRepository.save({
+      await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient.id,
+        paymentTokenId: paymentToken.id,
         amount: "1000",
+        proceedsRecipient: proceedsRecipient,
+        paymentToken: paymentToken,
       })
 
-      const allocation2 = await internalProceedsRecipientAllocationRepository.save({
+      await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient.id,
+        paymentTokenId: paymentToken.id,
         amount: "2000",
+        proceedsRecipient: proceedsRecipient,
+        paymentToken: paymentToken,
       })
 
       const response = await request(app.getHttpServer())
@@ -129,16 +148,18 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      const item1 = response.body.items.find((item: any) => item.amount === allocation1.amount)
-      const item2 = response.body.items.find((item: any) => item.amount === allocation2.amount)
+      const item1 = response.body.items.find((item: any) => item.amount === "0.00001")
+      const item2 = response.body.items.find((item: any) => item.amount === "0.00002")
 
       expect(item1).toEqual({
-        amount: allocation1.amount,
+        paymentTokenId: expect.any(String),
+        amount: "0.00001",
         createdAt: expect.any(String),
       })
 
       expect(item2).toEqual({
-        amount: allocation2.amount,
+        paymentTokenId: expect.any(String),
+        amount: "0.00002",
         createdAt: expect.any(String),
       })
     })
@@ -150,15 +171,26 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.333",
+        treasuryId: treasury.id,
+        decimals: 8,
+        treasury: treasury,
+      })
+
       const proceedsRecipient = await internalProceedsRecipientRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
+        treasury: treasury,
       })
 
       for (let i = 1; i <= 5; i++) {
         await internalProceedsRecipientAllocationRepository.save({
           proceedsRecipientId: proceedsRecipient.id,
+          paymentTokenId: paymentToken.id,
           amount: `${i * 1000}`,
+          proceedsRecipient: proceedsRecipient,
+          paymentToken: paymentToken,
         })
       }
 
@@ -183,21 +215,32 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.333",
+        treasuryId: treasury.id,
+        decimals: 8,
+        treasury: treasury,
+      })
+
       const proceedsRecipient = await internalProceedsRecipientRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
         treasury: treasury,
       })
 
-      const allocation1 = await internalProceedsRecipientAllocationRepository.save({
+      await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient.id,
+        paymentTokenId: paymentToken.id,
         amount: "1000",
+        proceedsRecipient: proceedsRecipient,
+        paymentToken: paymentToken,
       })
 
       await new Promise((resolve) => setTimeout(resolve, 10))
 
-      const allocation2 = await internalProceedsRecipientAllocationRepository.save({
+      await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient.id,
+        paymentTokenId: paymentToken.id,
         amount: "2000",
       })
 
@@ -209,8 +252,8 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items[0].amount).toBe(allocation1.amount)
-      expect(response.body.items[1].amount).toBe(allocation2.amount)
+      expect(response.body.items[0].amount).toBe("0.00001")
+      expect(response.body.items[1].amount).toBe("0.00002")
     })
 
     it("should return 404 when treasury does not exist", async () => {
@@ -247,6 +290,13 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         paused: false,
       })
 
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.333",
+        treasuryId: treasury.id,
+        decimals: 8,
+        treasury: treasury,
+      })
+
       const proceedsRecipient1 = await internalProceedsRecipientRepository.save({
         contractId: "0.0.111111",
         treasuryId: treasury.id,
@@ -261,12 +311,18 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
 
       await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient1.id,
+        paymentTokenId: paymentToken.id,
         amount: "1000",
+        proceedsRecipient: proceedsRecipient1,
+        paymentToken: paymentToken,
       })
 
       await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient2.id,
+        paymentTokenId: paymentToken.id,
         amount: "2000",
+        proceedsRecipient: proceedsRecipient2,
+        paymentToken: paymentToken,
       })
 
       const response = await request(app.getHttpServer())
@@ -278,7 +334,7 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
 
       expect(response.body.total).toBe(1)
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].amount).toBe("1000")
+      expect(response.body.items[0].amount).toBe("0.00001")
     })
 
     it("should return allocations with correct structure", async () => {
@@ -286,6 +342,13 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
         contractId: "0.0.123456",
         bondContractId: "0.0.789012",
         paused: false,
+      })
+
+      const paymentToken = await internalPaymentTokenRepository.save({
+        contractId: "0.0.333",
+        treasuryId: treasury.id,
+        decimals: 8,
+        treasury: treasury,
       })
 
       const proceedsRecipient = await internalProceedsRecipientRepository.save({
@@ -296,7 +359,10 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
 
       await internalProceedsRecipientAllocationRepository.save({
         proceedsRecipientId: proceedsRecipient.id,
+        paymentTokenId: paymentToken.id,
         amount: "1000",
+        proceedsRecipient: proceedsRecipient,
+        paymentToken: paymentToken,
       })
 
       const response = await request(app.getHttpServer())
@@ -308,7 +374,8 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
 
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0]).toEqual({
-        amount: "1000",
+        paymentTokenId: expect.any(String),
+        amount: "0.00001",
         createdAt: expect.any(String),
       })
 

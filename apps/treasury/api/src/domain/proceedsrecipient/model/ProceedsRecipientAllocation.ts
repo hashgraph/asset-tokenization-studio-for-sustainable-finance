@@ -7,6 +7,9 @@ export class ProceedsRecipientAllocation extends BaseEntity {
   @IsNotEmpty()
   proceedsRecipientId: string
 
+  @IsNotEmpty()
+  paymentTokenId: string
+
   @NotEquals("0")
   @IsNumberString({ no_symbols: true })
   amount: string

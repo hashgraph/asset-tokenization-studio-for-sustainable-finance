@@ -4,4 +4,5 @@ export class EnvironmentalAssetResponse {
   contractId: string
   additionDate: Date
   removalDate: Date | null
+  dissociationError: number | null
 }

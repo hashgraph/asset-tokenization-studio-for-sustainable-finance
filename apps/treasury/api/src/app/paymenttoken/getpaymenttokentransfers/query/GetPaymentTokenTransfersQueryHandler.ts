@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Handler, Inject, Singleton, Validate, ConverterUtils } from "@hashgraph/green-bonds-shared-core"
 import { QueryHandler, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { PaymentTokenTransferRepository } from "@domain/paymenttoken/repositories/PaymentTokenTransferRepository"
 import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
@@ -34,7 +34,7 @@ export class GetPaymentTokenTransfersQueryHandler
 
     return QueryPageResponse.fromPage(page, (transfer: PaymentTokenTransfer) => ({
       accountId: transfer.accountId,
-      amount: transfer.amount,
+      amount: ConverterUtils.formatNumber(transfer.amount, paymentToken.decimals),
       type: transfer.type,
       transferDate: transfer.createdAt,
     }))

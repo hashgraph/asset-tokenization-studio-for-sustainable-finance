@@ -29,6 +29,7 @@ export class GetEnvironmentalAssetsQueryHandler
       contractId: environmentalAsset.contractId,
       additionDate: environmentalAsset.createdAt,
       removalDate: environmentalAsset.removalDate ?? null,
+      dissociationError: environmentalAsset.dissociationError ?? null,
     }))
   }
 }

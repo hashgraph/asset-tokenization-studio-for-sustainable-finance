@@ -4,4 +4,5 @@ export class PaymentTokenResponse {
   contractId: string
   additionDate: Date
   removalDate: Date | null
+  dissociationError: number | null
 }

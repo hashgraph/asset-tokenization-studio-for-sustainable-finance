@@ -32,8 +32,16 @@ export class ConverterUtils {
 
   static formatNumber(value: string, decimals: number) {
     const position = value.length - decimals
+    if (position <= 0) {
+      // Value is shorter than or equal to decimals, so it's all decimal part
+      const paddedValue = value.padStart(decimals, "0")
+      const decimalPart = paddedValue.replace(/0+$/, "")
+      return decimalPart ? `0.${decimalPart}` : "0"
+    }
+
+    const integerPart = value.slice(0, position)
     const decimalPart = value.slice(position).replace(/0+$/, "")
-    return `${value.slice(0, position) || "0"}${decimalPart ? "." + decimalPart : ""}`
+    return `${integerPart}${decimalPart ? "." + decimalPart : ""}`
   }
 
   private static isLongZeroAddress(address: string) {

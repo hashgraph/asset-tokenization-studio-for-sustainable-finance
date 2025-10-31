@@ -88,6 +88,7 @@ describe("GetEnvironmentalAssets API Integration", () => {
       const asset2 = await environmentalAssetRepository.save({
         contractId: "0.0.222222",
         treasuryId: treasury.id,
+        dissociationError: 777,
       })
 
       const response = await request(app.getHttpServer())
@@ -110,6 +111,10 @@ describe("GetEnvironmentalAssets API Integration", () => {
         expect(item).toHaveProperty("removalDate")
         expect(item.removalDate).toBeNull()
       })
+      expect(response.body.items.find((item) => item.contractId === asset1.contractId).dissociationError).toBeNull()
+      expect(response.body.items.find((item) => item.contractId === asset2.contractId).dissociationError).toEqual(
+        asset2.dissociationError,
+      )
     })
 
     it("should handle pagination parameters", async () => {
