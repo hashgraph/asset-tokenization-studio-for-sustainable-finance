@@ -53,7 +53,7 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         returns (PaymentResult memory result, bool executed)
     {
         (result, executed) = _executeDistribution(
-            _lifeCycleCashFlowStorage().asset,
+            asset,
             distributionId,
             pageIndex,
             pageLength
@@ -87,12 +87,13 @@ abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
+        notAddressZero(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result)
     {
         result = _executeDistributionByAddresses(
-            _lifeCycleCashFlowStorage().asset,
+            asset,
             distributionId,
             holders
         );

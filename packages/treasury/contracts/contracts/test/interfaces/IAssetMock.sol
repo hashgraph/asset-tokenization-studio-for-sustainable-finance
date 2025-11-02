@@ -22,4 +22,15 @@ interface IAssetMock {
         uint256 startingDate;
         uint256 maturityDate;
     }
+
+    struct CouponFor {
+        uint256 tokenBalance;
+        uint256 rate;
+        uint8 rateDecimals;
+        uint256 recordDate;
+        uint256 executionDate;
+        uint256 period;
+        uint8 decimals;
+        bool recordDateReached;
+    }
 }

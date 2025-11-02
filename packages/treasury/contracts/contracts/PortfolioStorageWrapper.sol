@@ -26,7 +26,7 @@ abstract contract PortfolioStorageWrapper is
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct PortfolioStorage {
-        EnumerableSet.AddressSet environmentalAssetss;
+        EnumerableSet.AddressSet environmentalAssets;
         address paymentToken;
         bool initialized;
     }
@@ -66,12 +66,12 @@ abstract contract PortfolioStorageWrapper is
         address environmentalAssets
     ) internal returns (bool) {
         if (
-            !_portfolioStorage().environmentalAssetss.contains(
+            !_portfolioStorage().environmentalAssets.contains(
                 environmentalAssets
             )
         ) {
             if (
-                _portfolioStorage().environmentalAssetss.add(
+                _portfolioStorage().environmentalAssets.add(
                     environmentalAssets
                 )
             ) {
@@ -92,7 +92,7 @@ abstract contract PortfolioStorageWrapper is
     function _removeEnvironmentalAssetToken(
         address environmentalAssets
     ) internal returns (int256 dissociationError) {
-        _portfolioStorage().environmentalAssetss.remove(environmentalAssets);
+        _portfolioStorage().environmentalAssets.remove(environmentalAssets);
         dissociationError = _dissociateTokenAllowNotAssociated(
             environmentalAssets
         );
@@ -101,13 +101,13 @@ abstract contract PortfolioStorageWrapper is
     /*
      * @dev Set the EnvironmentalAsset tokens list
      *
-     * @param environmentalAssetss The EnvironmentalAsset tokens list to be set
+     * @param environmentalAssets The EnvironmentalAsset tokens list to be set
      */
     function _setEnvironmentalAssets(
-        address[] memory environmentalAssetss
+        address[] memory environmentalAssets
     ) internal {
-        for (uint256 index; index < environmentalAssetss.length; ) {
-            _addEnvironmentalAssetToken(environmentalAssetss[index]);
+        for (uint256 index; index < environmentalAssets.length; ) {
+            _addEnvironmentalAssetToken(environmentalAssets[index]);
             unchecked {
                 ++index;
             }
@@ -207,20 +207,20 @@ abstract contract PortfolioStorageWrapper is
         view
         returns (uint256 total)
     {
-        return _portfolioStorage().environmentalAssetss.length();
+        return _portfolioStorage().environmentalAssets.length();
     }
 
     /*
      * @dev Get the list of EnvironmentalAsset tokens
      *
-     * @return environmentalAssetss The EnvironmentalAsset tokens list
+     * @return environmentalAssets The EnvironmentalAsset tokens list
      */
     function _getEnvironmentalAssets()
         internal
         view
-        returns (EnumerableSet.AddressSet storage environmentalAssetss)
+        returns (EnumerableSet.AddressSet storage environmentalAssets)
     {
-        environmentalAssetss = _portfolioStorage().environmentalAssetss;
+        environmentalAssets = _portfolioStorage().environmentalAssets;
     }
 
     /*

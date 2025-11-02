@@ -159,107 +159,107 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         result.paidAmounts = new uint256[](holders.length);
         result.alreadyPaidAddresses = new address[](holders.length);
 
-        PayingArraysIndexes memory payingArraysIndexes;
-        BatchInfo memory batchInfo;
-        batchInfo.holders = new address[](holders.length);
-        batchInfo.amounts = new int64[](holders.length);
-        uint256 nominalValue = IBondRead(asset).getBondDetails().nominalValue;
-        address paymentToken = _getPaymentToken();
+        if (holders.length > 0) {
+            PayingArraysIndexes memory payingArraysIndexes;
+            BatchInfo memory batchInfo;
+            batchInfo.holders = new address[](holders.length);
+            batchInfo.amounts = new int64[](holders.length);
+            uint256 nominalValue = IBondRead(asset).getBondDetails().nominalValue;
+            address paymentToken = _getPaymentToken();
 
-        for (uint256 index; index < holders.length; ) {
-            address holder = holders[index];
-            if (!_isHolderValid(holder)) {
-                result.failedAddresses[
-                    payingArraysIndexes.failedAddressesIndex
-                ] = holder;
+            for (uint256 index; index < holders.length; ) {
+                address holder = holders[index];
+                if (!_isHolderValid(holder)) {
+                    result.failedAddresses[
+                        payingArraysIndexes.failedAddressesIndex
+                    ] = holder;
+                    unchecked {
+                        ++payingArraysIndexes.failedAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                if (_isDistributionHolderPaid(distributionId, holder)) {
+                    result.alreadyPaidAddresses[
+                        payingArraysIndexes.alreadyPaidAddressesIndex
+                    ] = holder;
+                    unchecked {
+                        ++payingArraysIndexes.alreadyPaidAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                (bool success, uint256 amount) = _getDistributionAmount(
+                    asset,
+                    distributionId,
+                    holder,
+                    nominalValue,
+                    paymentToken
+                );
+
+                if (!success || !_isValidAmount(amount)) {
+                    result.failedAddresses[
+                        payingArraysIndexes.failedAddressesIndex
+                    ] = holder;
+                    unchecked {
+                        ++payingArraysIndexes.failedAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                if (
+                    !_valueFitsInInt64(
+                        uint256(uint64(batchInfo.totalAmount)) + amount
+                    )
+                ) {
+                    // batch transfer payment
+                    uint256 succeededResults;
+                    uint256 failedResults;
+                    (
+                        succeededResults,
+                        failedResults
+                    ) = _processBatchDistribution(
+                        distributionId,
+                        paymentToken,
+                        batchInfo,
+                        payingArraysIndexes,
+                        result
+                    );
+                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
+                    payingArraysIndexes.failedAddressesIndex += failedResults;
+
+                    batchInfo.holders = new address[](holders.length);
+                    batchInfo.amounts = new int64[](holders.length);
+                    batchInfo.totalAmount = 0;
+                    payingArraysIndexes.batchIndex = 0;
+                }
+                batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
+                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
+                    int256(amount)
+                );
+                batchInfo.totalAmount += batchInfo.amounts[
+                    payingArraysIndexes.batchIndex
+                ];
                 unchecked {
-                    ++payingArraysIndexes.failedAddressesIndex;
+                    ++payingArraysIndexes.batchIndex;
                     ++index;
                 }
-                continue;
             }
 
-            if (_isDistributionHolderPaid(distributionId, holder)) {
-                result.alreadyPaidAddresses[
-                    payingArraysIndexes.alreadyPaidAddressesIndex
-                ] = holder;
-                unchecked {
-                    ++payingArraysIndexes.alreadyPaidAddressesIndex;
-                    ++index;
-                }
-                continue;
-            }
-
-            (bool success, uint256 amount) = _getDistributionAmount(
-                asset,
-                distributionId,
-                holder,
-                nominalValue,
-                paymentToken
-            );
-
-            if (!success || !_isValidAmount(amount)) {
-                result.failedAddresses[
-                    payingArraysIndexes.failedAddressesIndex
-                ] = holder;
-                unchecked {
-                    ++payingArraysIndexes.failedAddressesIndex;
-                    ++index;
-                }
-                continue;
-            }
-
-            if (
-                !_valueFitsInInt64(
-                    uint256(uint64(batchInfo.totalAmount)) + amount
-                )
-            ) {
-                // batch transfer payment
-                uint256 succeededResults;
-                uint256 failedResults;
-                (
-                    result,
-                    succeededResults,
-                    failedResults
-                ) = _processBatchDistribution(
+            // last batch transfer payment
+            if (batchInfo.holders[0] != address(0)) {
+                _processBatchDistribution(
                     distributionId,
                     paymentToken,
                     batchInfo,
                     payingArraysIndexes,
                     result
                 );
-                payingArraysIndexes.succeededAddressesIndex += succeededResults;
-                payingArraysIndexes.failedAddressesIndex += failedResults;
-
-                batchInfo.holders = new address[](holders.length);
-                batchInfo.amounts = new int64[](holders.length);
-                batchInfo.totalAmount = 0;
-                payingArraysIndexes.batchIndex = 0;
-            }
-            batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
-            batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
-                int256(amount)
-            );
-            batchInfo.totalAmount += batchInfo.amounts[
-                payingArraysIndexes.batchIndex
-            ];
-            unchecked {
-                ++payingArraysIndexes.batchIndex;
-                ++index;
             }
         }
-
-        // last batch transfer payment
-        if (batchInfo.holders[0] != address(0)) {
-            (result, , ) = _processBatchDistribution(
-                distributionId,
-                paymentToken,
-                batchInfo,
-                payingArraysIndexes,
-                result
-            );
-        }
-        return result;
     }
 
     /*
@@ -298,6 +298,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
+            //return (true, 9223372036854775808);
             amount = (((couponFor.tokenBalance *
                 nominalValue *
                 couponFor.period *
@@ -348,42 +349,41 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address paymentToken,
         BatchInfo memory batchInfo,
         PayingArraysIndexes memory payingArraysIndexes,
-        PaymentResult memory resultParams
+        PaymentResult memory result
     )
-        private
-        returns (
-            PaymentResult memory result,
-            uint256 succeededResults,
-            uint256 failedResults
-        )
+    private
+    returns (
+        uint256 succeededResults,
+        uint256 failedResults
+    )
     {
         if (
             _payBatchHoldersDistribution(
-                distributionId,
-                paymentToken,
-                batchInfo.holders,
-                batchInfo.amounts,
-                batchInfo.totalAmount
-            )
+            distributionId,
+            paymentToken,
+            batchInfo.holders,
+            batchInfo.amounts,
+            batchInfo.totalAmount
+        )
         ) {
             (
                 result.succeededAddresses,
                 result.paidAmounts
             ) = _populateSourceArraysFromDataArrays(
-                resultParams.succeededAddresses,
+                result.succeededAddresses,
                 payingArraysIndexes.succeededAddressesIndex,
                 batchInfo.holders,
-                resultParams.paidAmounts,
+                result.paidAmounts,
                 batchInfo.amounts
             );
-            return (result, resultParams.succeededAddresses.length, 0);
+            return (result.succeededAddresses.length, 0);
         } else {
             result.failedAddresses = _populateSourceArrayFromDataArray(
-                resultParams.failedAddresses,
+                result.failedAddresses,
                 payingArraysIndexes.failedAddressesIndex,
                 batchInfo.holders
             );
-            return (result, 0, resultParams.failedAddresses.length);
+            return (0, result.failedAddresses.length);
         }
     }
 
@@ -608,7 +608,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return True if the amount is valid, false otherwise
      */
     function _isValidAmount(uint256 amount) private pure returns (bool) {
-        return _valueFitsInInt64(amount) && amount > 0;
+        return amount > 0 && _valueFitsInInt64(amount);
     }
 
     /*

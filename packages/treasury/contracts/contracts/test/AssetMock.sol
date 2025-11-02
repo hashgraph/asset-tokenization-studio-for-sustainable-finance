@@ -8,12 +8,14 @@ contract AssetMock is IAssetMock {
     string internal name = 'Mock Bond';
     string internal symbol = 'MBOND';
     bool internal isToday;
-    bool internal withHolders;
+    uint256 internal tokenBalance;
+    address[] internal holders;
 
     // solhint-disable-next-line no-empty-blocks
-    constructor(bool todayIsExecutionDate, bool wHolders) {
+    constructor(bool todayIsExecutionDate, uint256 holderTokenBalance, address[] memory couponHolders) {
         isToday = todayIsExecutionDate;
-        withHolders = wHolders;
+        tokenBalance = holderTokenBalance;
+        holders = couponHolders;
     }
 
     function getCoupon(
@@ -33,16 +35,25 @@ contract AssetMock is IAssetMock {
         uint256,
         uint256,
         uint256
-    ) external view returns (address[] memory holders_) {
-        if (!withHolders) return new address[](0);
-        holders_ = new address[](1);
-        holders_[0] = 0x05FbA803Be258049A27B820088bab1cAD2058871;
+    ) external view returns (address[] memory) {
+        return holders;
     }
 
     function getBondDetails() external pure returns (BondDetailsData memory bondDetailsData_) {
         bondDetailsData_.currency = 0x555344;
-        bondDetailsData_.nominalValue = 2345678901;
+        bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.startingDate = 1751282807;
         bondDetailsData_.maturityDate = 1761823607;
+    }
+
+    function getCouponFor(uint256, address) external view returns (CouponFor memory couponFor_) {
+        couponFor_.tokenBalance = tokenBalance;
+        couponFor_.rate = 2;
+        couponFor_.rateDecimals = 2;
+        couponFor_.recordDate = 1753874807;
+        couponFor_.executionDate = 1753874807;
+        couponFor_.period = 2592000;
+        couponFor_.decimals = 2;
+        couponFor_.recordDateReached = true;
     }
 }

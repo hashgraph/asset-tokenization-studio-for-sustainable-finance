@@ -210,50 +210,50 @@ describe('Portfolio operations', () => {
 
     describe('updatePaymentToken', () => {
         it('An account cannot update the payment token if the contract is paused', async () => {
-            portfolio = portfolio.connect(signer_A)
+            treasury = treasury.connect(signer_A)
 
-            await portfolio.pause()
+            await treasury.pause()
 
             await expect(
-                portfolio.updatePaymentToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+                treasury.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
         it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot update the payment token', async () => {
-            portfolio = portfolio.connect(signer_B)
+            treasury = treasury.connect(signer_B)
 
-            await expect(portfolio.updatePaymentToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.updatePaymentToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot update the payment token', async () => {
-            portfolio = portfolio.connect(signer_A)
+            treasury = treasury.connect(signer_A)
 
-            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await expect(portfolio.updatePaymentToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.updatePaymentToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
         it('An account with the PORTFOLIO_MANAGER_ROLE role cannot update the payment token with zero address', async () => {
-            portfolio = portfolio.connect(signer_A)
+            treasury = treasury.connect(signer_A)
             await expect(
-                portfolio.updatePaymentToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+                treasury.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
         it('An account granted the PORTFOLIO_MANAGER_ROLE role can update the payment token', async () => {
-            portfolio = portfolio.connect(signer_A)
+            treasury = treasury.connect(signer_A)
 
-            await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] =
                 await deployPaymentToken(signer_A, 100, 2)
 
-            await expect(portfolio.updatePaymentToken(newPaymentTokenAddress))
-                .to.emit(portfolio, 'PaymentTokenUpdated')
+            await expect(treasury.updatePaymentToken(newPaymentTokenAddress))
+                .to.emit(treasury, 'PaymentTokenUpdated')
                 .withArgs(
                     signer_A.address,
                     newPaymentTokenAddress,
