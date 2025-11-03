@@ -7,19 +7,43 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { LibCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
+import {
+    HederaTokenService,
+    HederaResponseCodes
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
 /**
  * @title PrimaryMarketStorageWrapper
  * @notice Storage layout for Primary Market facet using diamond storage pattern
  * @dev Uses EIP-2535 Diamond Storage pattern to avoid storage collisions
  */
-abstract contract PrimaryMarketStorageWrapper is AtsCommon {
+abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     /// @notice Detailed information about a subscription
     struct Subscription {
         address investor; // Address of the investor
         uint256 lotUnits; // Number of lot units subscribed
         bool cancelled; // Flag to mark if subscription was cancelled
         bool executed; // Flag to mark if subscription was executed
+    }
+
+    // only for insternal use
+    enum CountIndex {
+        FAILED,
+        SUCCEEDED,
+        ALREADY_PROCESSED,
+        SUBSCRIPTION_ID_INDEX,
+        TRANSFER_INDEX
+    }
+
+    struct TransferItem {
+        int64 amount;
+        address destination;
+    }
+
+    struct ProcessOfferingInfo {
+        uint256 offeringId;
+        uint256[] subscriptionIdsToProcess;
+        bool isExecution;
     }
 
     /**
@@ -70,58 +94,203 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
-    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
-        return _processOffering(_offeringId, _pageIndex, _pageLength, true);
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory executionResult) {
+        executionResult = _processOffering(
+            ProcessOfferingInfo(_offeringId, _extractIds(_pageIndex, _pageLength), true)
+        );
+        emit IPrimaryMarket.OfferingExecuted(
+            _offeringId,
+            _msgSender(),
+            executionResult.succeededSubscriptions,
+            executionResult.failedSubscriptions,
+            executionResult.alreadyProcessedSubscriptions
+        );
+        return executionResult;
     }
 
     function _cancelOffering(
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
-    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
-        return _processOffering(_offeringId, _pageIndex, _pageLength, false);
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory cancelResult) {
+        cancelResult = _processOffering(ProcessOfferingInfo(_offeringId, _extractIds(_pageIndex, _pageLength), false));
+        emit IPrimaryMarket.OfferingCancelled(
+            _offeringId,
+            _msgSender(),
+            cancelResult.succeededSubscriptions,
+            cancelResult.failedSubscriptions,
+            cancelResult.alreadyProcessedSubscriptions
+        );
+        return cancelResult;
     }
 
     function _processOffering(
-        uint256 _offeringId,
-        uint256 _pageIndex,
-        uint256 _pageLength,
-        bool _isExecution
-    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
-        (uint256 start, uint256 end) = LibCommon.getStartAndEnd(_pageIndex, _pageLength);
-        uint256 length = end - start;
+        ProcessOfferingInfo memory _processOfferingInfo
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory processResult) {
+        processResult.failedSubscriptions = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
+        processResult.succeededSubscriptions = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
+        processResult.alreadyProcessedSubscriptions = new uint256[](
+            _processOfferingInfo.subscriptionIdsToProcess.length
+        );
+        uint256[] memory subscriptionIds = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
+        uint256[] memory indexCounts = new uint256[](5);
 
-        exeuctionResult.failedSubscriptions = new uint256[](length);
-        exeuctionResult.succeededSubscriptions = new uint256[](length);
-        exeuctionResult.alreadyProcessedSubscriptions = new uint256[](length);
-        uint256 failedCount = 0;
-        uint256 succeededCount = 0;
-        uint256 alreadyProcessedCount = 0;
+        uint256 transfersLength = _processOfferingInfo.isExecution
+            ? 2
+            : _processOfferingInfo.subscriptionIdsToProcess.length + 1;
 
-        uint256[] memory amountsToTransfer = new uint256[](length);
-        address[] memory destinations = new address[](length);
-        uint256 amountIndex;
+        TransferItem[] memory transferItems = new TransferItem[](transfersLength);
+        int64 totalToTransfer;
 
-        OfferingState storage offering = _getOfferingState(_offeringId);
+        OfferingState storage offering = _getOfferingState(_processOfferingInfo.offeringId);
 
-        for (uint256 subscriptionId = start; subscriptionId < end; subscriptionId++) {
-            Subscription storage subscription = offering.subscriptions[subscriptionId];
+        if (_processOfferingInfo.isExecution) transferItems[0].destination = offering.info.treasury;
 
-            if (subscription.executed || subscription.cancelled) {
-                exeuctionResult.alreadyProcessedSubscriptions[alreadyProcessedCount] = subscriptionId;
-                alreadyProcessedCount++;
-                continue;
-            }
-
-            amountsToTransfer[amountIndex] =
-                subscription.lotUnits *
-                offering.info.lotSize *
-                IBondRead(offering.info.asset).getBondDetails().nominalValue;
-
-            destinations[amountIndex] = _isExecution ? offering.info.treasury : subscription.investor;
-
-            amountIndex++;
+        for (uint256 index = 0; index < _processOfferingInfo.subscriptionIdsToProcess.length; index++) {
+            _processSubscription(
+                offering,
+                _processOfferingInfo,
+                _processOfferingInfo.subscriptionIdsToProcess[index],
+                processResult,
+                indexCounts,
+                subscriptionIds,
+                totalToTransfer,
+                transfersLength,
+                transferItems
+            );
         }
+
+        _payBatch(
+            offering,
+            _processOfferingInfo.isExecution,
+            offering.info.paymentToken,
+            transferItems,
+            totalToTransfer,
+            subscriptionIds,
+            processResult,
+            indexCounts
+        );
+    }
+
+    function _processSubscription(
+        OfferingState storage offering,
+        ProcessOfferingInfo memory _processOfferingInfo,
+        uint256 subscriptionId,
+        IPrimaryMarket.OfferingProcessResult memory processResult,
+        uint256[] memory indexCounts,
+        uint256[] memory subscriptionIds,
+        int64 totalToTransfer,
+        uint256 transfersLength,
+        TransferItem[] memory transferItems
+    ) internal {
+        Subscription storage subscription = offering.subscriptions[subscriptionId];
+
+        if (subscription.executed || subscription.cancelled) {
+            processResult.alreadyProcessedSubscriptions[
+                indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]
+            ] = subscriptionId;
+            indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]++;
+            return;
+        }
+
+        uint256 amount = subscription.lotUnits *
+            offering.info.lotSize *
+            IBondRead(offering.info.asset).getBondDetails().nominalValue;
+
+        if (!_isValidAmount(amount)) {
+            processResult.failedSubscriptions[indexCounts[uint256(CountIndex.FAILED)]] = subscriptionId;
+            indexCounts[uint256(CountIndex.FAILED)]++;
+            return;
+        }
+
+        subscriptionIds[indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]] = subscriptionId;
+        indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]++;
+
+        int64 int64Amount = int64(int256(amount));
+
+        if (!_valueFitsInInt64(uint256(uint64(totalToTransfer)) + amount)) {
+            _payBatch(
+                offering,
+                _processOfferingInfo.isExecution,
+                offering.info.paymentToken,
+                transferItems,
+                totalToTransfer,
+                subscriptionIds,
+                processResult,
+                indexCounts
+            );
+
+            //reset
+            totalToTransfer = 0;
+            indexCounts[uint256(CountIndex.TRANSFER_INDEX)] = 0;
+            transferItems = new TransferItem[](transfersLength);
+            subscriptionIds = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
+            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)] = 0;
+            if (_processOfferingInfo.isExecution) transferItems[0].destination = offering.info.treasury;
+        }
+
+        totalToTransfer += int64Amount;
+
+        if (_processOfferingInfo.isExecution) {
+            transferItems[0].amount += int64Amount;
+        } else {
+            transferItems[indexCounts[uint256(CountIndex.TRANSFER_INDEX)]].amount = int64Amount;
+            transferItems[indexCounts[uint256(CountIndex.TRANSFER_INDEX)]].destination = subscription.investor;
+            indexCounts[uint256(CountIndex.TRANSFER_INDEX)]++;
+        }
+    }
+
+    function _payBatch(
+        OfferingState storage offering,
+        bool isExecution,
+        address paymentToken,
+        TransferItem[] memory transferItems,
+        int64 totalToTransfer,
+        uint256[] memory subscriptionIds,
+        IPrimaryMarket.OfferingProcessResult memory processResult,
+        uint256[] memory indexCounts
+    ) private {
+        uint256 nextIndex = isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
+        transferItems[nextIndex].amount = -totalToTransfer;
+        transferItems[nextIndex].destination = address(this);
+
+        int64[] memory amounts = new int64[](nextIndex + 1);
+        address[] memory destinations = new address[](nextIndex + 1);
+
+        for (uint256 i = 0; i <= nextIndex; i++) {
+            amounts[i] = transferItems[i].amount;
+            destinations[i] = transferItems[i].destination;
+        }
+
+        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
+            indexCounts[uint256(CountIndex.SUCCEEDED)] = _addToList(
+                subscriptionIds,
+                processResult.succeededSubscriptions,
+                indexCounts[uint256(CountIndex.SUCCEEDED)]
+            );
+            for (uint256 i = 0; i < subscriptionIds.length; i++) {
+                if (isExecution) offering.subscriptions[subscriptionIds[i]].executed = true;
+                else offering.subscriptions[subscriptionIds[i]].cancelled = true;
+            }
+            return;
+        }
+        indexCounts[uint256(CountIndex.FAILED)] = _addToList(
+            subscriptionIds,
+            processResult.failedSubscriptions,
+            indexCounts[uint256(CountIndex.FAILED)]
+        );
+    }
+
+    function _addToList(
+        uint256[] memory subscriptionIds,
+        uint256[] memory list,
+        uint256 listIndex
+    ) internal pure returns (uint256 newListIndex) {
+        for (uint256 i = 0; i < subscriptionIds.length; i++) {
+            list[listIndex] = subscriptionIds[i];
+            listIndex++;
+        }
+        newListIndex = listIndex;
     }
 
     /**
@@ -437,5 +606,25 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         _investor; // Silence unused variable warning
         _asset; // Silence unused variable warning
         return true;
+    }
+
+    function _isValidAmount(uint256 amount) private pure returns (bool) {
+        return amount > 0 && _valueFitsInInt64(amount);
+    }
+
+    function _valueFitsInInt64(uint256 value) internal pure returns (bool) {
+        return value <= uint256(uint64(type(int64).max));
+    }
+
+    function _extractIds(
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) internal pure returns (uint256[] memory subscriptionIds) {
+        (uint256 start, uint256 end) = LibCommon.getStartAndEnd(_pageIndex, _pageLength);
+        uint256 length = end - start;
+        subscriptionIds = new uint256[](length);
+        for (uint256 i = 0; i < length; i++) {
+            subscriptionIds[i] = start + i;
+        }
     }
 }

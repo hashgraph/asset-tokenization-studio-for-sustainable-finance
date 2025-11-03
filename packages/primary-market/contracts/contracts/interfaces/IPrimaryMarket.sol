@@ -122,7 +122,8 @@ interface IPrimaryMarket {
         uint256 indexed offeringId,
         address indexed operator,
         uint256[] subscriptionIdsSuccess,
-        uint256[] subscriptionIdsFailed
+        uint256[] subscriptionIdsFailed,
+        uint256[] subscriptionIdsAlreadyExecuted
     );
 
     /// @notice Emitted when an offering is cancelled
@@ -134,7 +135,8 @@ interface IPrimaryMarket {
         uint256 indexed offeringId,
         address indexed operator,
         uint256[] subscriptionIdsSuccess,
-        uint256[] subscriptionIdsFailed
+        uint256[] subscriptionIdsFailed,
+        uint256[] subscriptionIdsAlreadyCancelled
     );
 
     /// @notice Thrown when an account does not have enough funds for a subscription
