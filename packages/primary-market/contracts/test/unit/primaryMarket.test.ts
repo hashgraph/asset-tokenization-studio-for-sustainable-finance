@@ -477,7 +477,7 @@ describe("PrimaryMarket", () => {
       expect(status).to.equal(1); // OPEN
     });
 
-    it("GIVEN OVERSUBSCRIPTION_NOT_ALLOWED + WAIT_UNTIL_END WHEN target reached THEN CLOSED_TARGET_WAITING", async () => {
+    it("GIVEN OVERSUBSCRIPTION_NOT_ALLOWED + WAIT_UNTIL_END WHEN target reached THEN CLOSED", async () => {
       await time.increase(61); // Move past startDate
 
       // Subscribe to reach target (100 lots * 100 tokens = 10,000 tokens)
@@ -485,7 +485,7 @@ describe("PrimaryMarket", () => {
       await primaryMarket.connect(investor2).submitSubscription(offeringId, 50);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(3); // CLOSED_TARGET_WAITING
+      expect(status).to.equal(2); // CLOSED
     });
 
     it("GIVEN target reached and past endDate WHEN checking status THEN EXECUTABLE", async () => {
@@ -499,7 +499,7 @@ describe("PrimaryMarket", () => {
       await time.increase(3600);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(5); // EXECUTABLE
+      expect(status).to.equal(3); // EXECUTABLE
     });
 
     it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE", async () => {
@@ -512,7 +512,7 @@ describe("PrimaryMarket", () => {
       await time.increase(3600);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(6); // CANCELLABLE
+      expect(status).to.equal(4); // CANCELLABLE
     });
   });
 
@@ -634,7 +634,7 @@ describe("PrimaryMarket", () => {
 
       offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
-      expect(offeringStatus).to.equal(6); //CANCELLABLE
+      expect(offeringStatus).to.equal(4); //CANCELLABLE
     });
 
     it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {
@@ -676,7 +676,7 @@ describe("PrimaryMarket", () => {
 
       let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
-      expect(offeringStatus).to.equal(5); //EXECUTABLE
+      expect(offeringStatus).to.equal(3); //EXECUTABLE
     });
 
     it("GIVEN subscription that exceeds target when over subscription not allowed WHEN submitting THEN fail", async () => {

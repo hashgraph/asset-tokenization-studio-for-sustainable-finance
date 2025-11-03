@@ -38,6 +38,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 offeringId;
         uint256[] subscriptionIdsToProcess;
         bool isExecution;
+        uint256 nominalValue;
     }
 
     /// @notice Detailed information about a subscription
@@ -55,9 +56,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     struct OfferingState {
         IPrimaryMarket.Offering info; // Basic offering information
         address creator; // Address that created the offering
-        bool executed; // Lifecycle flag: offering was executed
-        bool cancelled; // Lifecycle flag: offering was cancelled
         uint256 totalSubscribedLots; // Total lot units subscribed so far (not tokens)
+        uint256 pendingSubscribedLots; // Lot units pending execution/cancellation
         mapping(uint256 => Subscription) subscriptions; // subscriptionId => Subscription
         uint256 nextSubscriptionId; // Counter for subscription IDs (IDs are sequential: 1, 2, 3, ...)
     }
@@ -83,6 +83,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         offering.creator = _msgSender();
         // executed and cancelled default to false
         offering.totalSubscribedLots = 0;
+        offering.pendingSubscribedLots = 0;
         offering.nextSubscriptionId = 0;
 
         // Associate payment token with this contract (Hedera token association)
@@ -132,6 +133,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         // Update total subscribed lots
         offering.totalSubscribedLots += _lotUnits;
+        offering.pendingSubscribedLots += _lotUnits;
 
         emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, _msgSender(), _lotUnits);
     }
@@ -153,6 +155,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         subscription.cancelled = true;
 
+        offering.pendingSubscribedLots -= subscription.lotUnits;
+
         bool success = IERC20(offering.info.paymentToken).transfer(subscription.investor, amount);
 
         if (!success) revert IPrimaryMarket.SubscriptionCannotBeCancelled(_offeringId, _subscriptionId);
@@ -170,7 +174,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 _offeringId,
         uint256[] memory _subscriptionIds
     ) internal returns (IPrimaryMarket.OfferingProcessResult memory executionResult) {
-        executionResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, true));
+        executionResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, true, 0));
         emit IPrimaryMarket.OfferingExecuted(
             _offeringId,
             _msgSender(),
@@ -193,7 +197,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 _offeringId,
         uint256[] memory _subscriptionIds
     ) internal returns (IPrimaryMarket.OfferingProcessResult memory cancelResult) {
-        cancelResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, false));
+        cancelResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, false, 0));
         emit IPrimaryMarket.OfferingCancelled(
             _offeringId,
             _msgSender(),
@@ -226,6 +230,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         if (_processOfferingInfo.isExecution) transferItems[0].destination = offering.info.treasury;
 
+        _processOfferingInfo.nominalValue = IBondRead(offering.info.asset).getBondDetails().nominalValue;
+
         for (uint256 index = 0; index < _processOfferingInfo.subscriptionIdsToProcess.length; index++) {
             _processSubscription(
                 offering,
@@ -242,7 +248,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         _payBatch(
             offering,
-            _processOfferingInfo.isExecution,
+            _processOfferingInfo,
             offering.info.paymentToken,
             transferItems,
             totalToTransfer,
@@ -275,9 +281,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             return;
         }
 
-        uint256 amount = subscription.lotUnits *
-            offering.info.lotSize *
-            IBondRead(offering.info.asset).getBondDetails().nominalValue;
+        uint256 amount = subscription.lotUnits * offering.info.lotSize * _processOfferingInfo.nominalValue;
 
         if (!_isValidAmount(amount)) {
             processResult.failedSubscriptions[indexCounts[uint256(CountIndex.FAILED)]] = subscriptionId;
@@ -293,7 +297,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         if (!_valueFitsInInt64(uint256(uint64(totalToTransfer)) + amount)) {
             _payBatch(
                 offering,
-                _processOfferingInfo.isExecution,
+                _processOfferingInfo,
                 offering.info.paymentToken,
                 transferItems,
                 totalToTransfer,
@@ -324,7 +328,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
     function _payBatch(
         OfferingState storage offering,
-        bool isExecution,
+        ProcessOfferingInfo memory _processOfferingInfo,
         address paymentToken,
         TransferItem[] memory transferItems,
         int64 totalToTransfer,
@@ -332,7 +336,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         IPrimaryMarket.OfferingProcessResult memory processResult,
         uint256[] memory indexCounts
     ) private {
-        uint256 nextIndex = isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
+        uint256 nextIndex = _processOfferingInfo.isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
         transferItems[nextIndex].amount = -totalToTransfer;
         transferItems[nextIndex].destination = address(this);
 
@@ -351,9 +355,11 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
                 indexCounts[uint256(CountIndex.SUCCEEDED)]
             );
             for (uint256 i = 0; i < subscriptionIds.length; i++) {
-                if (isExecution) offering.subscriptions[subscriptionIds[i]].executed = true;
+                if (_processOfferingInfo.isExecution) offering.subscriptions[subscriptionIds[i]].executed = true;
                 else offering.subscriptions[subscriptionIds[i]].cancelled = true;
             }
+            offering.pendingSubscribedLots -=
+                uint256(uint64(totalToTransfer)) / (offering.info.lotSize * _processOfferingInfo.nominalValue);
             return;
         }
         indexCounts[uint256(CountIndex.FAILED)] = _addToList(
@@ -423,28 +429,22 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     function _getOfferingStatus(uint256 _offeringId) internal view returns (IPrimaryMarket.OfferingStatus) {
         OfferingState storage offering = _getOfferingState(_offeringId);
 
-        // Check if already executed or cancelled
-        if (offering.executed) {
-            return IPrimaryMarket.OfferingStatus.EXECUTED;
-        }
-        if (offering.cancelled) {
-            return IPrimaryMarket.OfferingStatus.CANCELLED;
-        }
-
-        // Calculate if target is reached (comparing lots directly)
-        bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
-
         // Before start date
         if (_blockTimestamp() < offering.info.startDate) {
             return IPrimaryMarket.OfferingStatus.PENDING;
         }
 
+        // Calculate if target is reached (comparing lots directly)
+        bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
+
         // After end date
         if (_blockTimestamp() > offering.info.endDate) {
             // All policies: after deadline, check if executable or only cancellable
             if (targetReached) {
+                if (offering.pendingSubscribedLots == 0) return IPrimaryMarket.OfferingStatus.EXECUTED;
                 return IPrimaryMarket.OfferingStatus.EXECUTABLE;
             } else {
+                if (offering.pendingSubscribedLots == 0) return IPrimaryMarket.OfferingStatus.CANCELLED;
                 return IPrimaryMarket.OfferingStatus.CANCELLABLE;
             }
         }
@@ -466,7 +466,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
                 offering.info.targetQuantityRule == IPrimaryMarket.TargetQuantityRule.OVERSUBSCRIPTION_NOT_ALLOWED
             ) {
                 // Target reached with OVER_NOT_ALLOWED: no more subscriptions, waiting for deadline
-                return IPrimaryMarket.OfferingStatus.CLOSED_TARGET_WAITING;
+                return IPrimaryMarket.OfferingStatus.CLOSED;
             } else {
                 // Still accepting subscriptions until deadline
                 // - OVER_NOT_ALLOWED: only if target not yet reached (checked above)

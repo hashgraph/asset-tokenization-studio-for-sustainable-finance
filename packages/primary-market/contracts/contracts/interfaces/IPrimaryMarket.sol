@@ -55,9 +55,7 @@ interface IPrimaryMarket {
     enum OfferingStatus {
         PENDING, // Before startDate
         OPEN, // Accepting subscriptions
-        CLOSED_TARGET, // Target reached, can execute immediately (CLOSE_TARGET_REACHED only)
-        CLOSED_TARGET_WAITING, // Target reached, waiting for endDate (WAIT_UNTIL_END only)
-        CLOSED_DEADLINE, // Deadline reached, subscriptions closed
+        CLOSED, // Not accepting subscriptions but cannot be executed or cancelled yet
         EXECUTABLE, // Can be executed
         CANCELLABLE, // Only rollback/cancellation allowed (target not reached after deadline)
         EXECUTED, // Already executed
