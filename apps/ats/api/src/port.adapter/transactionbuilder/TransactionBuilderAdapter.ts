@@ -15,6 +15,7 @@ import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuil
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly GAS = 15_000_000
+  private readonly DOCUMENT_TRANSACTIONS_GAS = 300_000
   private readonly EVM_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
   private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
   private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
@@ -147,7 +148,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       IERC1643__factory.createInterface(),
       "setDocument",
       req.contractId,
-      this.GAS,
+      this.DOCUMENT_TRANSACTIONS_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.name, req.uri, req.hash],
@@ -161,7 +162,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       IERC1643__factory.createInterface(),
       "removeDocument",
       req.contractId,
-      this.GAS,
+      this.DOCUMENT_TRANSACTIONS_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.name],
