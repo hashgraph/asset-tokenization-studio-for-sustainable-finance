@@ -33,7 +33,7 @@ interface IPortfolio {
      * @param operator The operator who call the function to update the payment token
      * @param newPaymentToken The new payment token
      * @param oldPaymentToken The previous payment token existing just before the update
-     * @return dissociationError The possible error code happened when trying to dissociate the token
+     * @param dissociationError The possible error code happened when trying to dissociate the token
      */
     event PaymentTokenUpdated(
         address indexed operator,
@@ -41,6 +41,13 @@ interface IPortfolio {
         address oldPaymentToken,
         int256 dissociationError
     );
+
+    /**
+     * @dev Emitted when a token is dissociated
+     *
+     * @param token The dissociated token
+     */
+    event TokenDissociated(address token);
 
     /**
      * @dev Initialize the portfolio facet

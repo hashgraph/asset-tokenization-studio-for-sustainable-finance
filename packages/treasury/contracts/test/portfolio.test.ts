@@ -211,6 +211,7 @@ describe('Portfolio operations', () => {
 
     describe('updatePaymentToken', () => {
         it('GIVEN a deployed Treasury contract, WHEN the contract is paused and updates the payment token, THEN a TokenIsPaused error occurs', async () => {
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
             await expect(
@@ -227,6 +228,7 @@ describe('Portfolio operations', () => {
         })
 
         it('GIVEN a deployed Treasury contract, WHEN an account having the PORTFOLIO_MANAGER_ROLE revoked updates the payment token, THEN an AccountHasNoRole error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
             await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.updatePaymentToken(AddressZero))
@@ -235,6 +237,7 @@ describe('Portfolio operations', () => {
         })
 
         it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token with a zero address token, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
             await expect(
                 treasury.updatePaymentToken(AddressZero)
             ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
@@ -242,11 +245,15 @@ describe('Portfolio operations', () => {
 
         it('GIVEN a treasury with a balance of 1 payment token, WHEN updating the payment token, THEN a PaymentTokenUpdated event is emitted with a 195 dissociation code error', async () => {
             paymentTokenFactory = await ethers.getContractAt(
-              'PaymentTokenFactory',
-              paymentTokenFactoryAddress
+                'PaymentTokenFactory',
+                paymentTokenFactoryAddress
             )
             paymentTokenFactory = paymentTokenFactory.connect(signer_A)
-            await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1)
+            await paymentTokenFactory.transferPaymentToken(
+                paymentTokenAddress,
+                treasury.address,
+                1
+            )
 
             const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] =
                 await deployPaymentToken(signer_A, 100, 2)
@@ -264,7 +271,7 @@ describe('Portfolio operations', () => {
         })
 
         it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated', async () => {
-            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
             const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] =
                 await deployPaymentToken(signer_A, 100, 2)
@@ -277,6 +284,48 @@ describe('Portfolio operations', () => {
                     paymentTokenAddress,
                     0
                 )
+        })
+    })
+
+    describe('dissociateToken', () => {
+        it.only('GIVEN a deployed Treasury contract, WHEN the contract is paused and dissociates the payment token, THEN a TokenIsPaused error occurs', async () => {
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
+            await treasury.pause()
+
+            await expect(
+                treasury.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
+        })
+
+        it.only('GIVEN a deployed Treasury contract, WHEN an account not granted the PORTFOLIO_MANAGER_ROLE dissociates the payment token, THEN an AccountHasNoRole error occurs', async () => {
+            treasury = treasury.connect(signer_B)
+
+            await expect(treasury.dissociateToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
+        })
+
+        it.only('GIVEN a deployed Treasury contract, WHEN an account having the PORTFOLIO_MANAGER_ROLE revoked dissociates the payment token, THEN an AccountHasNoRole error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+
+            await expect(treasury.dissociateToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
+        })
+
+        it.only('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates a zero address token, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await expect(
+                treasury.dissociateToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
+        })
+
+        it.only('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates the payment token, THEN a TokenDissociated event is emitted', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await expect(treasury.dissociateToken(paymentTokenAddress))
+                .to.emit(treasury, 'TokenDissociated')
+                .withArgs(paymentTokenAddress)
         })
     })
 })

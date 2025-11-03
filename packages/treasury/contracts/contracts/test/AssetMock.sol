@@ -12,7 +12,11 @@ contract AssetMock is IAssetMock {
     address[] internal holders;
 
     // solhint-disable-next-line no-empty-blocks
-    constructor(bool todayIsExecutionDate, uint256 holderTokenBalance, address[] memory couponHolders) {
+    constructor(
+        bool todayIsExecutionDate,
+        uint256 holderTokenBalance,
+        address[] memory couponHolders
+    ) {
         isToday = todayIsExecutionDate;
         tokenBalance = holderTokenBalance;
         holders = couponHolders;
@@ -39,14 +43,21 @@ contract AssetMock is IAssetMock {
         return holders;
     }
 
-    function getBondDetails() external pure returns (BondDetailsData memory bondDetailsData_) {
+    function getBondDetails()
+        external
+        pure
+        returns (BondDetailsData memory bondDetailsData_)
+    {
         bondDetailsData_.currency = 0x555344;
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.startingDate = 1751282807;
         bondDetailsData_.maturityDate = 1761823607;
     }
 
-    function getCouponFor(uint256, address) external view returns (CouponFor memory couponFor_) {
+    function getCouponFor(
+        uint256,
+        address
+    ) external view returns (CouponFor memory couponFor_) {
         couponFor_.tokenBalance = tokenBalance;
         couponFor_.rate = 2;
         couponFor_.rateDecimals = 2;

@@ -71,9 +71,7 @@ abstract contract PortfolioStorageWrapper is
             )
         ) {
             if (
-                _portfolioStorage().environmentalAssets.add(
-                    environmentalAssets
-                )
+                _portfolioStorage().environmentalAssets.add(environmentalAssets)
             ) {
                 _associateToken(environmentalAssets);
                 return true;
