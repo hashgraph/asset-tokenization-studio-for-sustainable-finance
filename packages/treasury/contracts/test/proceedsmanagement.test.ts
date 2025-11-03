@@ -53,7 +53,7 @@ describe('Proceeds management operations', () => {
     })
 
     describe('transferPaymentToken', () => {
-        it('An account cannot transfer payment token if the contract is paused', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and transfers payment tokens, THEN a TokenIsPaused error occurs', async () => {
             await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
@@ -62,14 +62,14 @@ describe('Proceeds management operations', () => {
             ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer payment token', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN an AccountHasNoRole error occurs', async () => {
             treasury = treasury.connect(signer_B)
             await expect(treasury.transferPaymentToken(AddressZero, 1))
                 .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER_ROLE)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer payment token', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers payment tokens, THEN an AccountHasNoRole error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -97,7 +97,7 @@ describe('Proceeds management operations', () => {
             )
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer more payment tokens than the Treasury owns', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -108,7 +108,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(200)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer payment tokens to address zero', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address account, THEN a TransferPaymentTokenFailed error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -122,7 +122,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(AddressZero, 100)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an amount of payment tokens exceeding 9223372036854775807', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an amount of payment tokens greater than 9223372036854775807, THEN a NotAllowedAmount error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -138,7 +138,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(9223372036854775808n)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role can transfer payment tokens', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN payment tokens are transferred', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -154,7 +154,7 @@ describe('Proceeds management operations', () => {
     })
 
     describe('transferEnvironmentalAssetToken', () => {
-        it('An account cannot transfer an environmental asset token if the contract is paused', async () => {
+          it('GIVEN a deployed Treasury contract, WHEN the contract is paused and transfers an environmental asset token, THEN a TokenIsPaused error occurs', async () => {
             await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
@@ -167,7 +167,7 @@ describe('Proceeds management operations', () => {
             ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an environmental asset token', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
             treasury = treasury.connect(signer_B)
 
             await expect(
@@ -181,7 +181,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER_ROLE)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role revoked cannot transfer an environmental asset token', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -202,7 +202,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER_ROLE)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer a environmental asset token that does not own', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset the Treasury does not own, THEN a NotTokenIdOwner error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -219,7 +219,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(tokenId)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an invalid NFT id', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an invalid environmental asset token id, THEN a TransferEnvironmentalAssetTokenFailed error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -239,7 +239,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(environmentalAssetAddress, signer_A.address, 346346)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role cannot transfer an environmental asset with a serial number greater than 9223372036854775807', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers a environmental asset token with a serial number greater than 9223372036854775807, THEN a NotAllowedSerialNumber error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -259,7 +259,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(9223372036854775808n)
         })
 
-        it('An account with the PROCEEDS_FULL_MANAGER_ROLE role can transfer an environmental asset token', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset token, THEN the environmental asset token is transferred', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
                 signer_A.address
@@ -289,7 +289,7 @@ describe('Proceeds management operations', () => {
     })
 
     describe('fundProceedsRecipient', () => {
-        it('An account cannot fund a proceeds recipient if the contract is paused', async () => {
+          it('GIVEN a deployed Treasury contract, WHEN the contract is paused and funds a proceeds recipient, THEN a TokenIsPaused error occurs', async () => {
             await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
@@ -298,7 +298,7 @@ describe('Proceeds management operations', () => {
             ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the FUNDS_MANAGER_ROLE role cannot fund a proceeds management', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
             treasury = treasury.connect(signer_B)
 
             await expect(treasury.fundProceedsRecipient(AddressZero, 1))
@@ -306,7 +306,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(signer_B.address, FUNDS_MANAGER_ROLE)
         })
 
-        it('An account with the FUNDS_MANAGER_ROLE role revoked cannot fund a proceeds recipient', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
             await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
@@ -316,7 +316,7 @@ describe('Proceeds management operations', () => {
         })
 
         // Falta subir la comprobación en una nueva release de ATS
-        it.skip('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient if this does not belong to the bond', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked funds a proceeds recipient that does not belong to the asset, THEN an AccountHasNoRole error occurs', async () => {
             const proceedsRecipient = signer_A.address
 
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
@@ -342,7 +342,7 @@ describe('Proceeds management operations', () => {
             )
         })
 
-        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with more payment tokens than the Treasury owns', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
@@ -352,7 +352,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(200)
         })
 
-        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with address zero', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a TransferPaymentTokenFailed error occurs', async () => {
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
             await expect(treasury.fundProceedsRecipient(AddressZero, 100))
@@ -363,7 +363,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(AddressZero, 100)
         })
 
-        it('An account with the FUNDS_MANAGER_ROLE role cannot fund a proceeds recipient with an amount exceeding 9223372036854775807', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with an amount greater than 9223372036854775807, THEN a NotAllowedAmount error occurs', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
@@ -378,7 +378,7 @@ describe('Proceeds management operations', () => {
                 .withArgs(9223372036854775808n)
         })
 
-        it('An account with the FUNDS_MANAGER_ROLE role can fund a proceeds recipient belonging to the bond', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN the proceeds recipient is funded', async () => {
             // TODO: Change to a valid proceeds recipient belonging to the bond
             const proceedsRecipient = signer_A.address
             await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
