@@ -10,16 +10,18 @@
  *
  * @example
  * ```typescript
- * // Import our domain logic
- * import {
- *   FACTORY_SUITE_CONFIG_ID,
- *   getFacetDefinition,
- *   ROLES,
- *   createFactorySuiteConfiguration
- * } from '@scripts'
+ * // Import configuration IDs (domain constants)
+ * import { FACTORY_SUITE_CONFIG_ID, TREASURY_CONFIG_ID } from '@scripts'
  *
- * // Import our workflows
- * import { deployFactorySuiteSystem } from '@scripts'
+ * // Import registry data and helpers (auto-generated from contracts)
+ * import { ROLES, getFacetDefinition, factorySuiteRegistry } from '@scripts'
+ *
+ * // Access roles from registry
+ * const deployerRole = ROLES.DEPLOYER_ROLE
+ * const kpiRole = ROLES.KPI_DATA_MANAGER_ROLE
+ *
+ * // Import configuration and workflow functions
+ * import { createFactorySuiteConfiguration, deployFactorySuiteSystem } from '@scripts'
  *
  * // Import ATS infrastructure directly
  * import {

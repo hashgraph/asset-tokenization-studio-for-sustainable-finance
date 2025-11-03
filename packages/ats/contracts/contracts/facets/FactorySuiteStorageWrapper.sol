@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
@@ -8,6 +8,8 @@ import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
 import { IKpi } from "../interfaces/IKpi.sol";
+import { ILifeCycleCashFlow } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/ILifeCycleCashFlow.sol";
+import { IPortfolio } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/IPortfolio.sol";
 // solhint-enable max-line-length
 
 /**
@@ -90,15 +92,17 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
     }
 
     /**
-     * @notice Configures the Treasury contract - implementation pending Treasury interface
-     * @dev Parameters reserved for future Treasury configuration implementation
+     * @notice Configures the Treasury contract with lifecycle and portfolio initialization
+     * @param treasuryAddress Address of the deployed Treasury contract
+     * @param treasuryData Treasury configuration data
+     * @param bondAddress Address of the deployed Bond contract
      */
     function _configureTreasuryContract(
-        address, // treasuryAddress
-        TreasuryData calldata, // treasuryData
-        address // bondAddress
+        address treasuryAddress,
+        TreasuryData calldata treasuryData,
+        address bondAddress
     ) internal {
-        // solhint-disable-next-line no-empty-blocks
-        // TODO: Implement when Treasury contract interface is available
+        ILifeCycleCashFlow(treasuryAddress).initialize_LifeCycleCashFlow(bondAddress);
+        IPortfolio(treasuryAddress).initialize_Portfolio(treasuryData.paymentToken, treasuryData.environmentalAssets);
     }
 }
