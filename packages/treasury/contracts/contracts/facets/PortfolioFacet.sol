@@ -45,10 +45,10 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
             .dissociateToken
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .getTotalEnvironmentalAssetTokens
+            .getTotalEnvironmentalAssets
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
-            .getEnvironmentalAssetTokens
+            .getEnvironmentalAssets
             .selector;
         staticFunctionSelectors[selectorIndex++] = this
             .getPaymentToken

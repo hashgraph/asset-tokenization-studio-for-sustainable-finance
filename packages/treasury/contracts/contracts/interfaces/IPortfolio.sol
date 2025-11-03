@@ -98,27 +98,27 @@ interface IPortfolio {
     function dissociateToken(address token) external;
 
     /**
-     * @dev Get the total amount of environmental asset tokens associated to the treasury
+     * @dev Get the total amount of environmental assets added to the treasury
      *
-     * @return total The total amount of environmental asset tokens associated to the treasury
+     * @return total The total amount of environmental assets added to the treasury
      */
-    function getTotalEnvironmentalAssetTokens()
+    function getTotalEnvironmentalAssets()
         external
         view
         returns (uint256 total);
 
     /**
-     * @dev Get a page list of environmental asset tokens associated to the treasury
+     * @dev Get a page list of environmental assets added to the treasury
      *
-     * @param pageIndex The page index of environmental asset tokens associated to the treasury
-     * @param pageLength The page length of environmental asset tokens associated to the treasury
+     * @param pageIndex The page index of environmental assets added to the treasury
+     * @param pageLength The page length of environmental assets added to the treasury
      *
-     * @return environmentalAsset The page list of environmental asset tokens associated to the treasury
+     * @return environmentalAssets The page list of environmental assets added to the treasury
      */
-    function getEnvironmentalAssetTokens(
+    function getEnvironmentalAssets(
         uint256 pageIndex,
         uint256 pageLength
-    ) external view returns (address[] memory environmentalAsset);
+    ) external view returns (address[] memory environmentalAssets);
 
     /**
      * @dev Get the payment token associated to the treasury
