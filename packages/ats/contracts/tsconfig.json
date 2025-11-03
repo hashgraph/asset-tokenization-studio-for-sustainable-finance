@@ -27,6 +27,10 @@
   "include": ["scripts/**/*", "typechain-types/**/*", "test", "tasks"],
   "exclude": ["node_modules", "build", "dist", "coverage", "artifacts", "cache"],
   "ts-node": {
-    "require": ["tsconfig-paths/register"]
+    "require": ["tsconfig-paths/register"],
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }

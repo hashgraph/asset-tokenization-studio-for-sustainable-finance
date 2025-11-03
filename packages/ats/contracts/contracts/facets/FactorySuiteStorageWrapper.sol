@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
 import { IKpi } from "../interfaces/IKpi.sol";
@@ -16,7 +17,7 @@ import { IPortfolio } from "@hashgraph/green-bonds-platform-treasury-contracts/c
  * @title FactorySuiteStorageWrapper
  * @notice Storage wrapper with deployment and configuration logic for FactorySuite
  */
-abstract contract FactorySuiteStorageWrapper is IFactorySuite {
+abstract contract FactorySuiteStorageWrapper is AtsCommon {
     /**
      * @notice Deploys the Bond contract using the ATS Bond Factory implementation
      * @dev KPI address parameter is reserved for future ATS Factory integration
@@ -35,7 +36,7 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
         try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
         } catch {
-            revert BondDeploymentFailed();
+            revert IFactorySuite.BondDeploymentFailed();
         }
     }
 
@@ -49,7 +50,7 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
      * @return treasuryAddress Address of the deployed Treasury contract
      */
     function _deployTreasuryContract(
-        TreasuryData calldata treasuryData,
+        IFactorySuite.TreasuryData calldata treasuryData,
         address bondAddress
     ) internal returns (address treasuryAddress) {
         // Deploy Treasury contract using ResolverProxy pattern (similar to ATS Factory)
@@ -70,11 +71,11 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
     /**
      * @notice Deploys the Kpi contract using the Transparent Upgradeable Proxy pattern
      * @param kpiData Kpi configuration data containing admin and RBAC settings
-     * @return KpiAddress Address of the deployed Kpi proxy contract
+     * @return kpiAddress Address of the deployed Kpi proxy contract
      */
-    function _deployKpiContract(KpiData calldata kpiData) internal returns (address KpiAddress) {
+    function _deployKpiContract(IFactorySuite.KpiData calldata kpiData) internal returns (address kpiAddress) {
         // Deploy Kpi logic contract
-        Kpi KpiLogic = new Kpi();
+        Kpi kpiLogic = new Kpi();
 
         // Deploy ProxyAdmin with specified admin
         ProxyAdmin proxyAdmin = new ProxyAdmin();
@@ -83,12 +84,12 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
         // Deploy TransparentUpgradeableProxy with initialize call
         // RBAC roles are configured during initialization via the initialize() function
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
-            address(KpiLogic),
+            address(kpiLogic),
             address(proxyAdmin),
             abi.encodeWithSelector(IKpi.initialize.selector, kpiData.rbacs)
         );
 
-        KpiAddress = address(proxy);
+        kpiAddress = address(proxy);
     }
 
     /**
@@ -99,7 +100,7 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
      */
     function _configureTreasuryContract(
         address treasuryAddress,
-        TreasuryData calldata treasuryData,
+        IFactorySuite.TreasuryData calldata treasuryData,
         address bondAddress
     ) internal {
         ILifeCycleCashFlow(treasuryAddress).initialize_LifeCycleCashFlow(bondAddress);

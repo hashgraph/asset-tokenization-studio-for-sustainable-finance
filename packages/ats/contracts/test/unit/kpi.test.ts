@@ -55,6 +55,7 @@ describe("Kpi", () => {
     it("GIVEN date is 0 WHEN adding KPI data THEN fail with InvalidDate", async () => {
       await expect(kpi.addKpiData(0, 100)).to.be.revertedWithCustomError(kpi, "InvalidDate");
     });
+
     it("GIVEN date is in the future WHEN adding KPI data THEN fail with InvalidDate", async () => {
       const now = Math.floor(Date.now() / 1000) + 1000;
       await expect(kpi.addKpiData(now, 100)).to.be.revertedWithCustomError(kpi, "InvalidDate");

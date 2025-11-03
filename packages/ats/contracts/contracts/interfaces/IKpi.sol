@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
 
+// solhint-disable-next-line max-line-length
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
 
 /**
@@ -31,6 +32,14 @@ interface IKpi {
     }
 
     /**
+     * @notice Emitted when new Kpi data is added
+     * @param date The timestamp for which Kpi data was added
+     * @param value The Kpi value that was recorded
+     */
+    // solhint-disable-next-line gas-indexed-events
+    event KpiDataAdded(uint256 indexed date, uint256 value);
+
+    /**
      * @notice Thrown when an invalid date (zero or negative) is provided
      * @param providedDate The invalid date that was provided
      */
@@ -48,13 +57,6 @@ interface IKpi {
      * @param requestedDate The date for which no Kpi data exists
      */
     error KpiDataNotFound(uint256 requestedDate);
-
-    /**
-     * @notice Emitted when new Kpi data is added
-     * @param date The timestamp for which Kpi data was added
-     * @param value The Kpi value that was recorded
-     */
-    event KpiDataAdded(uint256 indexed date, uint256 value);
 
     function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 
