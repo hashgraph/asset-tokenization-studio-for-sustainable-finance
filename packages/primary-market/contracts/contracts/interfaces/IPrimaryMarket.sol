@@ -213,6 +213,22 @@ interface IPrimaryMarket {
         uint256 _pageLength
     ) external returns (OfferingProcessResult memory cancelResult);
 
+    /// @notice Execute an offering
+    /// @param _offeringId The offering ID
+    /// @param _subscriptionIds list of subscription Ids to execute
+    function executeOfferingBySubscriptionId(
+        uint256 _offeringId,
+        uint256[] calldata _subscriptionIds
+    ) external returns (OfferingProcessResult memory executionResult);
+
+    /// @notice Cancel an offering
+    /// @param _offeringId The offering ID
+    /// @param _subscriptionIds list of subscription Ids to cancel
+    function cancelOfferingBySubscriptionId(
+        uint256 _offeringId,
+        uint256[] calldata _subscriptionIds
+    ) external returns (OfferingProcessResult memory cancelResult);
+
     /// @notice Cancel a specific subscription (only when it blocks execution)
     /// @param _offeringId The offering ID
     /// @param _subscriptionId The subscription ID
@@ -221,12 +237,6 @@ interface IPrimaryMarket {
     /// @notice Get the total number of offerings
     /// @return total_ Total offerings
     function getTotalOfferings() external view returns (uint256 total_);
-
-    /// @notice Get offering IDs with pagination
-    /// @param _pageIndex Pagination index
-    /// @param _pageLength Number of IDs per page
-    /// @return ids Array of offering IDs
-    function getOfferingIds(uint256 _pageIndex, uint256 _pageLength) external view returns (uint256[] memory ids);
 
     /// @notice Get details of a specific offering
     /// @param _offeringId The offering ID
@@ -245,17 +255,6 @@ interface IPrimaryMarket {
     /// @param _offeringId The offering ID
     /// @return total_ Total subscriptions
     function getTotalSubscriptions(uint256 _offeringId) external view returns (uint256 total_);
-
-    /// @notice Get subscription IDs with pagination for a specific offering
-    /// @param _offeringId The offering ID
-    /// @param _pageIndex Pagination index
-    /// @param _pageLength Number of IDs per page
-    /// @return ids Array of subscription IDs
-    function getSubscriptionIds(
-        uint256 _offeringId,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view returns (uint256[] memory ids);
 
     /// @notice Get details of a specific subscription
     /// @param _offeringId The offering ID

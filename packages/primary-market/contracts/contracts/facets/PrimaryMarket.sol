@@ -223,6 +223,20 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         return _cancelOffering(_offeringId, _pageIndex, _pageLength);
     }
 
+    function executeOfferingBySubscriptionId(
+        uint256 _offeringId,
+        uint256[] calldata _subscriptionIds
+    ) external returns (OfferingProcessResult memory executionResult) {
+        return _executeOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
+    }
+
+    function cancelOfferingBySubscriptionId(
+        uint256 _offeringId,
+        uint256[] calldata _subscriptionIds
+    ) external returns (OfferingProcessResult memory cancelResult) {
+        return _cancelOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
+    }
+
     /**
      * @notice Cancel a specific subscription (only when it blocks execution)
      * @param _offeringId The offering ID
@@ -238,19 +252,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      */
     function getTotalOfferings() external view override returns (uint256 total_) {
         return _getTotalOfferings();
-    }
-
-    /**
-     * @notice Get offering IDs with pagination
-     * @param _pageIndex Page index (0-based)
-     * @param _pageLength Number of IDs per page
-     * @return ids Array of offering IDs
-     */
-    function getOfferingIds(
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view override returns (uint256[] memory ids) {
-        return _getOfferingIds(_pageIndex, _pageLength);
     }
 
     /**
@@ -291,21 +292,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         uint256 _offeringId
     ) external view override offeringExists(_offeringId) returns (uint256 total_) {
         return _getTotalSubscriptions(_offeringId);
-    }
-
-    /**
-     * @notice Get subscription IDs for an offering with pagination
-     * @param _offeringId Offering ID
-     * @param _pageIndex Page index (0-based)
-     * @param _pageLength Number of IDs per page
-     * @return ids Array of subscription IDs
-     */
-    function getSubscriptionIds(
-        uint256 _offeringId,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) external view override offeringExists(_offeringId) returns (uint256[] memory ids) {
-        return _getSubscriptionIds(_offeringId, _pageIndex, _pageLength);
     }
 
     /**

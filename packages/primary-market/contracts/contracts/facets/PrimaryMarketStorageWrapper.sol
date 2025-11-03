@@ -18,14 +18,6 @@ import {
  * @dev Uses EIP-2535 Diamond Storage pattern to avoid storage collisions
  */
 abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
-    /// @notice Detailed information about a subscription
-    struct Subscription {
-        address investor; // Address of the investor
-        uint256 lotUnits; // Number of lot units subscribed
-        bool cancelled; // Flag to mark if subscription was cancelled
-        bool executed; // Flag to mark if subscription was executed
-    }
-
     // only for insternal use
     enum CountIndex {
         FAILED,
@@ -34,6 +26,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         SUBSCRIPTION_ID_INDEX,
         TRANSFER_INDEX
     }
+
+    uint256 constant COUNT_INDEX_SIZE = 5;
 
     struct TransferItem {
         int64 amount;
@@ -44,6 +38,14 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 offeringId;
         uint256[] subscriptionIdsToProcess;
         bool isExecution;
+    }
+
+    /// @notice Detailed information about a subscription
+    struct Subscription {
+        address investor; // Address of the investor
+        uint256 lotUnits; // Number of lot units subscribed
+        bool cancelled; // Flag to mark if subscription was cancelled
+        bool executed; // Flag to mark if subscription was executed
     }
 
     /**
@@ -95,9 +97,14 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 _pageIndex,
         uint256 _pageLength
     ) internal returns (IPrimaryMarket.OfferingProcessResult memory executionResult) {
-        executionResult = _processOffering(
-            ProcessOfferingInfo(_offeringId, _extractIds(_pageIndex, _pageLength), true)
-        );
+        return _executeOfferingBySubscriptionIds(_offeringId, _extractIds(_pageIndex, _pageLength));
+    }
+
+    function _executeOfferingBySubscriptionIds(
+        uint256 _offeringId,
+        uint256[] memory _subscriptionIds
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory executionResult) {
+        executionResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, true));
         emit IPrimaryMarket.OfferingExecuted(
             _offeringId,
             _msgSender(),
@@ -113,7 +120,14 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 _pageIndex,
         uint256 _pageLength
     ) internal returns (IPrimaryMarket.OfferingProcessResult memory cancelResult) {
-        cancelResult = _processOffering(ProcessOfferingInfo(_offeringId, _extractIds(_pageIndex, _pageLength), false));
+        return _cancelOfferingBySubscriptionIds(_offeringId, _extractIds(_pageIndex, _pageLength));
+    }
+
+    function _cancelOfferingBySubscriptionIds(
+        uint256 _offeringId,
+        uint256[] memory _subscriptionIds
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory cancelResult) {
+        cancelResult = _processOffering(ProcessOfferingInfo(_offeringId, _subscriptionIds, false));
         emit IPrimaryMarket.OfferingCancelled(
             _offeringId,
             _msgSender(),
@@ -133,7 +147,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             _processOfferingInfo.subscriptionIdsToProcess.length
         );
         uint256[] memory subscriptionIds = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
-        uint256[] memory indexCounts = new uint256[](5);
+        uint256[] memory indexCounts = new uint256[](COUNT_INDEX_SIZE);
 
         uint256 transfersLength = _processOfferingInfo.isExecution
             ? 2
@@ -281,18 +295,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         );
     }
 
-    function _addToList(
-        uint256[] memory subscriptionIds,
-        uint256[] memory list,
-        uint256 listIndex
-    ) internal pure returns (uint256 newListIndex) {
-        for (uint256 i = 0; i < subscriptionIds.length; i++) {
-            list[listIndex] = subscriptionIds[i];
-            listIndex++;
-        }
-        newListIndex = listIndex;
-    }
-
     /**
      * @notice Internal implementation for submitting a subscription
      * @param _offeringId The offering ID
@@ -364,32 +366,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
      */
     function _getTotalOfferings() internal view returns (uint256 total_) {
         return _getNextOfferingId();
-    }
-
-    /**
-     * @notice Internal implementation for getting offering IDs with pagination
-     * @param _pageIndex Page index (0-based)
-     * @param _pageLength Number of IDs per page
-     * @return ids Array of offering IDs
-     * @dev IDs are sequential (1, 2, 3, ...), so we generate them mathematically instead of storing
-     */
-    function _getOfferingIds(uint256 _pageIndex, uint256 _pageLength) internal view returns (uint256[] memory ids) {
-        uint256 total = _getNextOfferingId();
-        uint256 start = _pageIndex * _pageLength + 1; // IDs start at 1
-        uint256 end = start + _pageLength;
-
-        if (start > total) {
-            return new uint256[](0);
-        }
-
-        if (end > total + 1) {
-            end = total + 1;
-        }
-
-        ids = new uint256[](end - start);
-        for (uint256 i = 0; i < ids.length; ++i) {
-            ids[i] = start + i;
-        }
     }
 
     /**
@@ -495,37 +471,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     }
 
     /**
-     * @notice Internal implementation for getting subscription IDs with pagination
-     * @param _offeringId Offering ID
-     * @param _pageIndex Page index (0-based)
-     * @param _pageLength Number of IDs per page
-     * @return ids Array of subscription IDs
-     * @dev IDs are sequential (1, 2, 3, ...), so we generate them mathematically instead of storing
-     */
-    function _getSubscriptionIds(
-        uint256 _offeringId,
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) internal view returns (uint256[] memory ids) {
-        uint256 total = _getOfferingState(_offeringId).nextSubscriptionId;
-        uint256 start = _pageIndex * _pageLength + 1; // IDs start at 1
-        uint256 end = start + _pageLength;
-
-        if (start > total) {
-            return new uint256[](0);
-        }
-
-        if (end > total + 1) {
-            end = total + 1;
-        }
-
-        ids = new uint256[](end - start);
-        for (uint256 i = 0; i < ids.length; ++i) {
-            ids[i] = start + i;
-        }
-    }
-
-    /**
      * @notice Internal implementation for getting subscription details
      * @param _offeringId Offering ID
      * @param _subscriptionId Subscription ID
@@ -616,15 +561,24 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         return value <= uint256(uint64(type(int64).max));
     }
 
-    function _extractIds(
-        uint256 _pageIndex,
-        uint256 _pageLength
-    ) internal pure returns (uint256[] memory subscriptionIds) {
+    function _extractIds(uint256 _pageIndex, uint256 _pageLength) internal pure returns (uint256[] memory ids) {
         (uint256 start, uint256 end) = LibCommon.getStartAndEnd(_pageIndex, _pageLength);
         uint256 length = end - start;
-        subscriptionIds = new uint256[](length);
+        ids = new uint256[](length);
         for (uint256 i = 0; i < length; i++) {
-            subscriptionIds[i] = start + i;
+            ids[i] = start + i;
         }
+    }
+
+    function _addToList(
+        uint256[] memory subscriptionIds,
+        uint256[] memory list,
+        uint256 listIndex
+    ) internal pure returns (uint256 newListIndex) {
+        for (uint256 i = 0; i < subscriptionIds.length; i++) {
+            list[listIndex] = subscriptionIds[i];
+            listIndex++;
+        }
+        newListIndex = listIndex;
     }
 }

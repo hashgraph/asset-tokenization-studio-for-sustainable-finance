@@ -24,16 +24,16 @@ contract PrimaryMarketFacet is IStaticFunctionSelectors, PrimaryMarket {
         staticFunctionSelectors[selectorIndex] = this.createOffering.selector;
         staticFunctionSelectors[++selectorIndex] = this.submitSubscription.selector;
         staticFunctionSelectors[++selectorIndex] = this.executeOffering.selector;
+        staticFunctionSelectors[++selectorIndex] = this.executeOfferingBySubscriptionId.selector;
         staticFunctionSelectors[++selectorIndex] = this.cancelOffering.selector;
+        staticFunctionSelectors[++selectorIndex] = this.cancelOfferingBySubscriptionId.selector;
         staticFunctionSelectors[++selectorIndex] = this.cancelSubscription.selector;
 
         // View functions
         staticFunctionSelectors[++selectorIndex] = this.getTotalOfferings.selector;
-        staticFunctionSelectors[++selectorIndex] = this.getOfferingIds.selector;
         staticFunctionSelectors[++selectorIndex] = this.getOffering.selector;
         staticFunctionSelectors[++selectorIndex] = this.getOfferingStatus.selector;
         staticFunctionSelectors[++selectorIndex] = this.getTotalSubscriptions.selector;
-        staticFunctionSelectors[++selectorIndex] = this.getSubscriptionIds.selector;
         staticFunctionSelectors[++selectorIndex] = this.getSubscription.selector;
     }
 
