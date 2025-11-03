@@ -16,7 +16,7 @@ export class RemoveEnvironmentalAssetNestJSEventAdapter
       new RemoveEnvironmentalAssetCommand(
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.environmentalAsset),
-        event.dissociationError,
+        +event.dissociationError,
       ),
     )
   }

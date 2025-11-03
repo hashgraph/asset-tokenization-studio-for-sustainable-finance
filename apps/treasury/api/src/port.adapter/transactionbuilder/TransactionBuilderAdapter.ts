@@ -21,7 +21,7 @@ import {
   IPause__factory,
   IPortfolio__factory,
   IProceedsManagement__factory,
-  IBond__factory,
+  IBondRead__factory,
   ILifeCycleCashFlow__factory,
 } from "@hashgraph/green-bonds-platform-treasury-contracts"
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
@@ -334,7 +334,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     environment: Environment,
   ): Promise<number> {
     return (
-      await IBond__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalCouponHolders(distributionId)
+      await IBondRead__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalCouponHolders(distributionId)
     ).toNumber()
   }
 }
