@@ -96,6 +96,8 @@ import { DistributionTypeOrmRepository } from "@port/persistence/distribution/re
 import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
 import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
+import { RedemptionHolderTypeOrmRepository } from "@port/persistence/redemption/repositories/RedemptionHolderTypeOrmRepository"
+import { RedemptionHolderPersistence } from "@port/persistence/redemption/model/RedemptionHolderPersistence"
 import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
 import { SyncDistributionNestJSEventAdapter } from "@port/distribution/usecase/syncdistribution/SyncDistributionNestJSEventAdapter"
@@ -152,6 +154,10 @@ const REPOSITORIES: Provider[] = [
     useClass: DistributionHolderTypeOrmRepository,
   },
   {
+    provide: "RedemptionHolderRepository",
+    useClass: RedemptionHolderTypeOrmRepository,
+  },
+  {
     provide: "ProceedsRecipientAllocationRepository",
     useClass: ProceedsRecipientAllocationTypeOrmRepository,
   },
@@ -169,6 +175,7 @@ export const ENTITIES = [
   ProceedsRecipientAllocationPersistence,
   DistributionPersistence,
   DistributionHolderPersistence,
+  RedemptionHolderPersistence,
 ]
 
 export const CONTROLLERS = [
