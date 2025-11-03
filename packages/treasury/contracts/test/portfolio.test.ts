@@ -3,109 +3,100 @@
 import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { AddressZero } from '@ethersproject/constants'
-import { type PortfolioFacet } from '@typechain'
-import { PORTFOLIO_MANAGER_ROLE } from '../scripts/constants'
+import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from '../scripts/constants'
 import {
     deployContract,
     deployPaymentToken,
     deployEnvironmentalAsset,
-} from '../scripts/deploy'
-
-let signer_A, signer_B
-let portfolio: PortfolioFacet
-let paymentTokenFactoryAddress: string
-let paymentTokenAddress: string
+} from '../scripts/test/deploy'
+import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
+import type { ITreasury, IPaymentTokenFactory } from '@contracts'
+import { deployTreasury } from '../scripts/workflows/deployTreasury'
 
 describe('Portfolio operations', () => {
-    before(() => {
-        // mute | mock console.log
-        console.log = () => {}
-    })
-
-    const hre = require('hardhat')
-    const hreConfig = hre.network.config
+    let signer_A, signer_B
+    let treasury: ITreasury
+    let paymentTokenFactory: IPaymentTokenFactory
+    let paymentTokenFactoryAddress: string
+    let paymentTokenAddress: string
 
     beforeEach(async () => {
         ;[signer_A, signer_B] = await ethers.getSigners()
-        const portfolioAddress = await deployContract(
-            'PortfolioFacet',
-            signer_A,
-            []
-        )
+        const provider = new HardhatProvider()
+        const deployment = await deployTreasury(provider, 'hardhat', {
+            useTimeTravel: false,
+            saveOutput: false,
+        })
 
+        treasury = (await ethers.getContractAt(
+            'ITreasury',
+            deployment.infrastructure.treasury.proxy
+        )) as ITreasury
         ;[paymentTokenFactoryAddress, paymentTokenAddress] =
             await deployPaymentToken(signer_A, 100, 2)
 
-        portfolio = await ethers.getContractAt(
-            'PortfolioFacet',
-            portfolioAddress
-        )
-        portfolio = portfolio.connect(signer_A)
-        await portfolio.initialize_Portfolio(paymentTokenAddress, [])
+        treasury = treasury.connect(signer_A)
+        await treasury.initialize_Portfolio(paymentTokenAddress, [])
     })
 
     describe('initialize_Portfolio', () => {
-        it('An account cannot initialize the Portfolio facet twice', async () => {
+        it('GIVEN an already initialized Portfolio facet, WHEN initializing once again, THEN an AlreadyInitialized error occurs', async () => {
             await expect(
-                portfolio.initialize_Portfolio(paymentTokenAddress, [])
-            ).to.be.revertedWithCustomError(portfolio, 'AlreadyInitialized')
+                treasury.initialize_Portfolio(paymentTokenAddress, [])
+            ).to.be.revertedWithCustomError(treasury, 'AlreadyInitialized')
         })
 
-        it('An account cannot initialize the Portfolio facet with the address zero as the payment token', async () => {
+        it('GIVEN a Portfolio facet, WHEN initializing with a zero address payment token, THEN an InvalidAddressZero error occurs', async () => {
             await expect(
-                portfolio.initialize_Portfolio(AddressZero, [])
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+                treasury.initialize_Portfolio(AddressZero, [])
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
-        it('An account cannot initialize the Portfolio facet with an array of environmental assets containing a zero address', async () => {
+        it('GIVEN a Portfolio facet, WHEN initializing with address zero environmental assets, THEN an InvalidAddressZero error occurs', async () => {
             await expect(
-                portfolio.initialize_Portfolio(paymentTokenAddress, [
+                treasury.initialize_Portfolio(paymentTokenAddress, [
                     AddressZero,
                 ])
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
     })
 
     describe('addEnvironmentalAssetToken', () => {
-        it('An account cannot add an EnvironmentalAssetToken if the contract is paused', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.pause()
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and adds an environmental asset token, THEN a TokenIsPaused error occurs', async () => {
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
+            await treasury.pause()
 
             await expect(
-                portfolio.addEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+                treasury.addEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot add an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_B)
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PORTFOLIO_MANAGER_ROLE adds an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
+            treasury = treasury.connect(signer_B)
 
-            await expect(portfolio.addEnvironmentalAssetToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.addEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot add an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PORTFOLIO_MANAGER_ROLE revoked adds an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
-
-            await expect(portfolio.addEnvironmentalAssetToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.addEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot add an environmental asset with zero address', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE adds zero address environmental asset token, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
             await expect(
-                portfolio.addEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+                treasury.addEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
-        it('An account granted the PORTFOLIO_MANAGER_ROLE role can add an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE adds an environmental asset token, THEN the environmental asset token is added', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
                 environmentalAssetFactoryAddress,
@@ -113,25 +104,23 @@ describe('Portfolio operations', () => {
                 tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
-            portfolio = portfolio.connect(signer_B)
+            treasury = treasury.connect(signer_B)
 
             await expect(
-                portfolio.addEnvironmentalAssetToken(environmentalAssetAddress)
+                treasury.addEnvironmentalAssetToken(environmentalAssetAddress)
             )
-                .to.emit(portfolio, 'TokenAssociated')
+                .to.emit(treasury, 'TokenAssociated')
                 .withArgs(environmentalAssetAddress)
-                .to.emit(portfolio, 'EnvironmentalAssetAdded')
+                .to.emit(treasury, 'EnvironmentalAssetAdded')
                 .withArgs(signer_B.address, environmentalAssetAddress)
 
-            expect(await portfolio.getTotalEnvironmentalAssetTokens()).to.equal(
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
                 1
             )
         })
 
-        it('An account granted the PORTFOLIO_MANAGER_ROLE role cannot add an already existing environmental asset', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE adds an already added environmental asset token, THEN TokenAssociated and EnvironmentalAssetAdded events are not emitted', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
                 environmentalAssetFactoryAddress,
@@ -139,64 +128,58 @@ describe('Portfolio operations', () => {
                 tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
-            portfolio = portfolio.connect(signer_B)
+            treasury = treasury.connect(signer_B)
 
-            await portfolio.addEnvironmentalAssetToken(
-                environmentalAssetAddress
-            )
+            await treasury.addEnvironmentalAssetToken(environmentalAssetAddress)
 
             await expect(
-                portfolio.addEnvironmentalAssetToken(environmentalAssetAddress)
+                treasury.addEnvironmentalAssetToken(environmentalAssetAddress)
             )
-                .to.not.emit(portfolio, 'TokenAssociated')
-                .to.not.emit(portfolio, 'EnvironmentalAssetAdded')
+                .to.not.emit(treasury, 'TokenAssociated')
+                .to.not.emit(treasury, 'EnvironmentalAssetAdded')
 
-            expect(await portfolio.getTotalEnvironmentalAssetTokens()).to.equal(
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
                 1
             )
         })
     })
 
     describe('removeEnvironmentalAssetToken', () => {
-        it('An account cannot remove an EnvironmentalAssetToken if the contract is paused', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.pause()
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and removes an environmental asset token, THEN a TokenIsPaused error occurs', async () => {
+            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
+            await treasury.pause()
 
             await expect(
-                portfolio.removeEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+                treasury.removeEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot remove an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_B)
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
+            treasury = treasury.connect(signer_B)
 
-            await expect(portfolio.removeEnvironmentalAssetToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.removeEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot remove an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PORTFOLIO_MANAGER_ROLE revoked removes an environmental asset token, THEN an AccountHasNoRole error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+            await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
-
-            await expect(portfolio.removeEnvironmentalAssetToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.removeEnvironmentalAssetToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot remove an environmental asset with zero address', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes a zero address environmental asset token, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
             await expect(
-                portfolio.removeEnvironmentalAssetToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+                treasury.removeEnvironmentalAssetToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
-        it('An account granted the PORTFOLIO_MANAGER_ROLE role can remove an environmental asset', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN the environmental asset token is removed', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
 
             const [
                 environmentalAssetFactoryAddress,
@@ -204,76 +187,90 @@ describe('Portfolio operations', () => {
                 tokenId,
             ] = await deployEnvironmentalAsset(signer_A)
 
-            portfolio = portfolio.connect(signer_B)
+            treasury = treasury.connect(signer_B)
 
-            await portfolio.addEnvironmentalAssetToken(
-                environmentalAssetAddress
-            )
+            await treasury.addEnvironmentalAssetToken(environmentalAssetAddress)
 
-            expect(await portfolio.getTotalEnvironmentalAssetTokens()).to.equal(
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
                 1
             )
 
             await expect(
-                portfolio.removeEnvironmentalAssetToken(
+                treasury.removeEnvironmentalAssetToken(
                     environmentalAssetAddress
                 )
             )
-                .to.emit(portfolio, 'EnvironmentalAssetRemoved')
+                .to.emit(treasury, 'EnvironmentalAssetRemoved')
                 .withArgs(signer_B.address, environmentalAssetAddress, 0)
 
-            expect(await portfolio.getTotalEnvironmentalAssetTokens()).to.equal(
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
                 0
             )
         })
     })
 
     describe('updatePaymentToken', () => {
-        it('An account cannot update the payment token if the contract is paused', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.pause()
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and updates the payment token, THEN a TokenIsPaused error occurs', async () => {
+            await treasury.pause()
 
             await expect(
-                portfolio.updatePaymentToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'TokenIsPaused')
+                treasury.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
         })
 
-        it('An account not granted the PORTFOLIO_MANAGER_ROLE role cannot update the payment token', async () => {
-            portfolio = portfolio.connect(signer_B)
+        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN an AccountHasNoRole error occurs', async () => {
+            treasury = treasury.connect(signer_B)
 
-            await expect(portfolio.updatePaymentToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.updatePaymentToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_B.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role revoked cannot update the payment token', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PORTFOLIO_MANAGER_ROLE revoked updates the payment token, THEN an AccountHasNoRole error occurs', async () => {
+            await treasury.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
 
-            await portfolio.revokeRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
-
-            await expect(portfolio.updatePaymentToken(AddressZero))
-                .to.be.revertedWithCustomError(portfolio, 'AccountHasNoRole')
+            await expect(treasury.updatePaymentToken(AddressZero))
+                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_A.address, PORTFOLIO_MANAGER_ROLE)
         })
 
-        it('An account with the PORTFOLIO_MANAGER_ROLE role cannot update the payment token with zero address', async () => {
-            portfolio = portfolio.connect(signer_A)
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token with a zero address token, THEN an InvalidAddressZero error occurs', async () => {
             await expect(
-                portfolio.updatePaymentToken(AddressZero)
-            ).to.be.revertedWithCustomError(portfolio, 'InvalidAddressZero')
+                treasury.updatePaymentToken(AddressZero)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
-        it('An account granted the PORTFOLIO_MANAGER_ROLE role can update the payment token', async () => {
-            portfolio = portfolio.connect(signer_A)
-
-            await portfolio.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+        it('GIVEN a treasury with a balance of 1 payment token, WHEN updating the payment token, THEN a PaymentTokenUpdated event is emitted with a 195 dissociation code error', async () => {
+            paymentTokenFactory = await ethers.getContractAt(
+              'PaymentTokenFactory',
+              paymentTokenFactoryAddress
+            )
+            paymentTokenFactory = paymentTokenFactory.connect(signer_A)
+            await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1)
 
             const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] =
                 await deployPaymentToken(signer_A, 100, 2)
 
-            await expect(portfolio.updatePaymentToken(newPaymentTokenAddress))
-                .to.emit(portfolio, 'PaymentTokenUpdated')
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address)
+
+            await expect(treasury.updatePaymentToken(newPaymentTokenAddress))
+                .to.emit(treasury, 'PaymentTokenUpdated')
+                .withArgs(
+                    signer_A.address,
+                    newPaymentTokenAddress,
+                    paymentTokenAddress,
+                    195
+                )
+        })
+
+        it('GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated', async () => {
+            await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address)
+
+            const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] =
+                await deployPaymentToken(signer_A, 100, 2)
+
+            await expect(treasury.updatePaymentToken(newPaymentTokenAddress))
+                .to.emit(treasury, 'PaymentTokenUpdated')
                 .withArgs(
                     signer_A.address,
                     newPaymentTokenAddress,

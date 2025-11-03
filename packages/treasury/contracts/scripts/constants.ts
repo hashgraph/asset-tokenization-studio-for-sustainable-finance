@@ -12,3 +12,6 @@ export const FUNDS_MANAGER_ROLE =
 
 export const PAUSER_ROLE =
     '0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb'
+
+export const PAYOUT_ROLE =
+    '0x096259e60fc84b10645035350be6adc907cf0cd20b1a7866e1ea9c7502a8265e'
