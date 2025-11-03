@@ -17,9 +17,12 @@ export class CreateDistributionCommandHandler implements CommandHandler<CreateDi
 
   @Validate()
   async execute(command: CreateDistributionCommand): Promise<void> {
+    const now = new Date()
     const distribution = await this.distributionRepository.save({
       id: command.distributionId,
       treasuryId: command.treasuryId,
+      createdAt: now,
+      updatedAt: now,
     } as Distribution)
 
     this.eventBus.publish(new DistributionCreatedEvent(distribution.id, command.treasuryId))

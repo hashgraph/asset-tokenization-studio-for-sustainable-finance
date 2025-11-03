@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Page, PageOptions, Singleton } from "@hashgraph/green-bonds-shared-core"
+import { Page, PageOptions, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { Repository } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Distribution } from "@domain/distribution/model/Distribution"
@@ -14,6 +14,7 @@ export class DistributionTypeOrmRepository implements DistributionRepository {
     private readonly distributionRepository: Repository<DistributionPersistence>,
   ) {}
 
+  @Validate()
   async save(distribution: Distribution): Promise<Distribution> {
     const persistence = await this.distributionRepository.save(distribution as DistributionPersistence)
     return persistence as Distribution
