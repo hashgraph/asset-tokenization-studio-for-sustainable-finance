@@ -98,6 +98,10 @@ import { DistributionPersistence } from "@port/persistence/distribution/model/Di
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
+import { SyncDistributionNestJSEventAdapter } from "@port/distribution/usecase/syncdistribution/SyncDistributionNestJSEventAdapter"
+import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
+import { CreateDistributionCommandHandler } from "@app/distribution/createdistribution/command/CreateDistributionCommandHandler"
+import { AddDistributionHolderCommandHandler } from "@app/distribution/adddistributionholder/command/AddDistributionHolderCommandHandler"
 import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
 import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
 import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
@@ -242,6 +246,10 @@ export const PROVIDERS = [
   SyncProceedsRecipientAppService,
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
+  SyncDistributionNestJSEventAdapter,
+  SyncDistributionAppService,
+  CreateDistributionCommandHandler,
+  AddDistributionHolderCommandHandler,
   ExecuteDistributionTransactionAppService,
   GetDistributionHoldersQueryHandler,
   ExecuteDistributionByAddressesTransactionAppService,

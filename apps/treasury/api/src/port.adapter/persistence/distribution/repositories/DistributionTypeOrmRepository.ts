@@ -20,6 +20,11 @@ export class DistributionTypeOrmRepository implements DistributionRepository {
     return persistence as Distribution
   }
 
+  async findById(id: number): Promise<Distribution | null> {
+    const persistence = await this.distributionRepository.findOne({ where: { id } })
+    return persistence ? (persistence as Distribution) : null
+  }
+
   async findByTreasuryId(treasuryId: string, pageOptions: PageOptions): Promise<Page<Distribution>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
@@ -39,10 +44,5 @@ export class DistributionTypeOrmRepository implements DistributionRepository {
       limit: pageOptions.limit,
       totalPages: Math.ceil(total / pageOptions.limit),
     }
-  }
-
-  async findById(id: number): Promise<Distribution | null> {
-    const persistence = await this.distributionRepository.findOneBy({ id })
-    return persistence ? (persistence as Distribution) : null
   }
 }

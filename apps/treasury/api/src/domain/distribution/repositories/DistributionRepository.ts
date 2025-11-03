@@ -5,6 +5,6 @@ import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface DistributionRepository {
   save(distribution: Distribution): Promise<Distribution>
-  findByTreasuryId(treasuryId: string, pageOptions: PageOptions): Promise<Page<Distribution>>
   findById(id: number): Promise<Distribution | null>
+  findByTreasuryId(treasuryId: string, pageOptions: PageOptions): Promise<Page<Distribution>>
 }
