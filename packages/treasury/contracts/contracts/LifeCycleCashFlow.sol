@@ -52,7 +52,12 @@ abstract contract LifeCycleCashFlow is
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) external override onlyUnpaused returns (PaymentResult memory result, bool executed) {
+    )
+        external
+        override
+        onlyUnpaused
+        returns (PaymentResult memory result, bool executed)
+    {
         // solhint-disable-next-line no-empty-blocks
     }
 

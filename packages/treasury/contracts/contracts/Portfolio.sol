@@ -96,6 +96,8 @@ abstract contract Portfolio is
      * @dev Update the payment token associated to the treasury
      *
      * @param paymentToken The new payment token to associate to the treasury
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     function updatePaymentToken(
         address paymentToken
@@ -105,9 +107,18 @@ abstract contract Portfolio is
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         notAddressZero(paymentToken)
+        returns (int256 dissociationError)
     {
-        _updatePaymentToken(paymentToken);
-        emit PaymentTokenUpdated(msg.sender, paymentToken);
+        address currentPaymentToken;
+        (dissociationError, currentPaymentToken) = _updatePaymentToken(
+            paymentToken
+        );
+        emit PaymentTokenUpdated(
+            msg.sender,
+            paymentToken,
+            currentPaymentToken,
+            dissociationError
+        );
     }
 
     /**

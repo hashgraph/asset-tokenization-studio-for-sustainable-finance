@@ -21,13 +21,13 @@ declare module 'hardhat/types/config' {
 
 const config: HardhatUserConfig = {
     solidity: {
-        version: '0.8.18',
+        version: '0.8.28',
         settings: {
             optimizer: {
                 enabled: true,
                 runs: 100,
             },
-            evmVersion: 'london',
+            evmVersion: 'cancun',
         },
     },
     paths: {
@@ -45,7 +45,7 @@ const config: HardhatUserConfig = {
             },
             chainId: 1337,
             blockGasLimit: 30_000_000,
-            hardfork: 'london',
+            hardfork: 'cancun',
             forking: {
                 url: Configuration.endpoints.testnet.jsonRpc,
             },
@@ -89,6 +89,21 @@ const config: HardhatUserConfig = {
     },
     mocha: {
         timeout: 3_000_000,
+    },
+    dependencyCompiler: {
+        paths: [
+            '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
+            '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/resolver/BusinessLogicResolver.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/unstructured/ResolverProxyUnstructured.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControlFacet.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/PauseFacet.sol',
+            // TimeTravel contracts for testing
+            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelFacet.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/AccessControlFacetTimeTravel.sol',
+            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/PauseFacetTimeTravel.sol',
+        ],
     },
 }
 
