@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
@@ -14,7 +15,12 @@
     "resolveJsonModule": true,
     "paths": {
       "@configuration": ["./Configuration"],
-      "@scripts": ["./scripts/index"],
+      "@contracts": ["./typechain-types/index.ts"],
+      "@contracts/*": ["./typechain-types/*"],
+      "@scripts": ["./scripts/index.ts"],
+      "@scripts/*": ["./scripts/*"],
+      "@scripts/domain": ["./scripts/domain/index.ts"],
+      "@scripts/domain/*": ["./scripts/domain/*"],
       "@test/*": ["./test/*"],
       "@typechain": ["./typechain-types/*", "./typechain-types/index.ts"]
     }

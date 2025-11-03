@@ -21,9 +21,12 @@ export class AddProceedsRecipientAllocationCommandHandler
   async execute(command: AddProceedsRecipientAllocationCommand): Promise<void> {
     await this.proceedsRecipientAllocationRepository.save({
       proceedsRecipientId: command.proceedsRecipientId,
+      paymentTokenId: command.paymentTokenId,
       amount: command.amount,
     } as ProceedsRecipientAllocation)
 
-    this.eventBus.publish(new ProceedsRecipientAllocationAddedEvent(command.proceedsRecipientId, command.amount))
+    this.eventBus.publish(
+      new ProceedsRecipientAllocationAddedEvent(command.proceedsRecipientId, command.paymentTokenId, command.amount),
+    )
   }
 }

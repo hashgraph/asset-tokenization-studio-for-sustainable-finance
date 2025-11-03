@@ -56,6 +56,7 @@ describe("PauseTreasury Integration", () => {
       contractId: "0.0.5703967",
       treasuryId: treasury.id,
       treasury: treasury,
+      decimals: 8,
     } as PaymentTokenPersistence
     treasury.paymentToken = paymentToken
     treasury = await internalTreasuryRepository.save(treasury)

@@ -53,17 +53,22 @@ describe("GetTreasury API Integration", () => {
         bondContractId: "0.0.6974684",
         paused: true,
       })
+      const decimals = 8
+      const removalDate = new Date()
       const paymentToken = {
         contractId: "0.0.5703967",
         treasuryId: treasury.id,
         treasury: treasury,
-        removalDate: new Date(),
+        removalDate: removalDate,
+        decimals: decimals,
       } as PaymentTokenPersistence
       treasury.paymentToken = paymentToken
       treasury = await internalTreasuryRepository.save(treasury)
-      const balance = "8765.99998"
+      const rawBalance = "876599998000"
+      const formattedBalance = "8765.99998"
 
-      jest.spyOn(hederaPort, "getTokenBalance").mockResolvedValue(balance)
+      jest.spyOn(hederaPort, "getTokenBalance").mockResolvedValue(rawBalance)
+      jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(decimals)
       const response = await request(app.getHttpServer())
         .get(`/api/v1/treasuries/${treasury.contractId}`)
         .expect(HttpStatus.OK)
@@ -75,8 +80,8 @@ describe("GetTreasury API Integration", () => {
         paymentToken: {
           contractId: paymentToken.contractId,
           additionDate: paymentToken.createdAt.toISOString(),
-          removalDate: paymentToken.removalDate.toISOString(),
-          balance,
+          removalDate: removalDate.toISOString(),
+          balance: formattedBalance,
         },
       })
     })

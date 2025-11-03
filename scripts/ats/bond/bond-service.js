@@ -20,7 +20,7 @@ async function createBond(format) {
     externalPausesAddresses: [],
     externalControlListsAddresses: [],
     externalKycListsAddresses: [],
-    diamondOwnerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+    diamondOwnerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
     currency: "0x858368",
     numberOfUnits: "1000000",
     nominalValue: "100",

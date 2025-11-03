@@ -9,6 +9,7 @@ scripts/
 ├── ats/                          # ATS (Asset Tokenization Service) scripts
 │   └── bond/                     # Bond-related scripts
 │       ├── bond-simulator.js     # Bond creation simulator
+│       ├── set-bond-document.js  # Bond document setting simulator (create + set document)
 │       └── bond-service.js       # Bond service API client
 ├── primary-market/               # Primary Market scripts
 │   └── offering/                 # Offering-related scripts
@@ -56,6 +57,9 @@ npm run all:stop                  # Stop everything
 # ATS - Bond creation simulation
 npm run ats:bond
 
+# ATS - Bond document setting (creates bond + sets document)
+npm run ats:set-bond-document
+
 # Primary Market - Offering creation simulation
 npm run primary-market:offering
 
@@ -99,6 +103,7 @@ npm run sign-and-send             # Sign and publish transaction
 - `npm run sign` - Interactive transaction signing tool
 - `npm run sign-and-send` - Transaction signing and sending utility
 - `npm run ats:bond` - ATS Bond creation simulation workflow
+- `npm run ats:set-bond-document` - ATS Bond creation + document setting workflow (automated)
 - `npm run primary-market:offering` - Primary Market offering creation workflow
 
 ## ⚙️ **Prerequisites**
@@ -231,9 +236,25 @@ npm run apis:stop
 # Test ATS bond creation
 npm run ats:bond
 
+# Test ATS bond creation + document setting (full flow)
+npm run ats:set-bond-document
+
 # Test Primary Market offering creation
 npm run primary-market:offering
 ```
+
+**Bond Document Testing:**
+The `ats:set-bond-document` script provides a fully automated test flow:
+- Creates a new bond on the blockchain
+- Automatically fetches the created bond from the API
+- Sets a document on the bond with hardcoded test values
+- Document Name: `prospectus`
+- Document URI: `https://example.com/documents/bond-prospectus-2024.pdf`
+- Document Hash: `0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef`
+
+After running, verify in the database:
+- Check the `Bond` table for the new bond with the displayed contract ID
+- Check the `BondDocument` table for the document entry with the hardcoded values
 
 You can test different blockchain formats by changing the `BLOCKCHAIN_FORMAT` in your `.env` file:
 - Set `BLOCKCHAIN_FORMAT=hedera` to test Hedera transaction flows

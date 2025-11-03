@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity 0.8.18;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
@@ -128,9 +128,15 @@ abstract contract PortfolioStorageWrapper is
      * @dev Update the payment token
      *
      * @param paymentToken The new payment token to be set
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the old token
+     * @return oldPaymentToken The payment token existing just before the update
      */
-    function _updatePaymentToken(address paymentToken) internal {
-        _dissociateTokenAllowNotAssociated(_getPaymentToken());
+    function _updatePaymentToken(
+        address paymentToken
+    ) internal returns (int256 dissociationError, address oldPaymentToken) {
+        oldPaymentToken = _getPaymentToken();
+        dissociationError = _dissociateTokenAllowNotAssociated(oldPaymentToken);
         _portfolioStorage().paymentToken = paymentToken;
         _associateToken(paymentToken);
     }

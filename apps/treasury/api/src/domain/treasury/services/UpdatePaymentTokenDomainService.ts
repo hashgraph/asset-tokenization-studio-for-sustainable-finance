@@ -19,6 +19,8 @@ export class UpdatePaymentTokenDomainService {
   async execute(
     treasuryContractId: string,
     newPaymentTokenContractId: string,
+    decimals: number,
+    dissociationError: number,
   ): Promise<UpdatePaymentTokenDomainServiceResponse> {
     return await this.transactionManager.execute(async () => {
       const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
@@ -29,6 +31,7 @@ export class UpdatePaymentTokenDomainService {
       // Mark old payment token with removal date if exists
       if (treasury.paymentToken) {
         treasury.paymentToken.removalDate = new Date()
+        treasury.paymentToken.dissociationError = dissociationError || undefined
         await this.paymentTokenRepository.save(treasury.paymentToken)
       }
 
@@ -36,6 +39,7 @@ export class UpdatePaymentTokenDomainService {
       const newPaymentToken = new PaymentToken()
       newPaymentToken.contractId = newPaymentTokenContractId
       newPaymentToken.treasuryId = treasury.id
+      newPaymentToken.decimals = decimals
       treasury.paymentToken = newPaymentToken
 
       // Update treasury with new payment token (cascade will save the new payment token)

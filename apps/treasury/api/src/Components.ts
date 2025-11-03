@@ -33,7 +33,6 @@ import { PaymentTokenTypeOrmRepository } from "@port/persistence/paymenttoken/re
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
 import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
-import { GetTreasuryAppService } from "@app/treasury/gettreasury/service/GetTreasuryAppService"
 import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTreasuryQueryHandler"
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
@@ -97,6 +96,19 @@ import { DistributionTypeOrmRepository } from "@port/persistence/distribution/re
 import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
 import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
+import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
+import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
+import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
+import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
+import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
+import { CheckDistributionExistsDomainService } from "@domain/distribution/services/CheckDistributionExistsDomainService"
+import { GetDistributionHoldersHttpAdapter } from "@port/distribution/usecase/getdistributionholders/GetDistributionHoldersHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionHttpAdapter"
+import { ExecuteDistributionByAddressesTransactionAppService } from "@app/transaction/executedistributionbyaddresses/ExecuteDistributionByAddressesTransactionAppService"
+import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/usecase/dissociatepaymenttoken/DissociatePaymentTokenTransactionHttpAdapter"
+import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
+import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
+import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -174,6 +186,12 @@ export const CONTROLLERS = [
   PauseTreasuryTransactionHttpAdapter,
   GetProceedsRecipientAllocationsHttpAdapter,
   GetProceedsRecipientsHttpAdapter,
+  GetDistributionsHttpAdapter,
+  ExecuteDistributionTransactionHttpAdapter,
+  GetDistributionHoldersHttpAdapter,
+  ExecuteDistributionByAddressesTransactionHttpAdapter,
+  DissociatePaymentTokenTransactionHttpAdapter,
+  DissociateEnvironmentalAssetTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -192,11 +210,11 @@ export const PROVIDERS = [
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
+  CheckDistributionExistsDomainService,
   AddEnvironmentalAssetCommandHandler,
   RemoveEnvironmentalAssetCommandHandler,
   AddEnvironmentalAssetNestJSEventAdapter,
   RemoveEnvironmentalAssetNestJSEventAdapter,
-  GetTreasuryAppService,
   GetTreasuryQueryHandler,
   AddEnvironmentalAssetTransferAppService,
   AddEnvironmentalAssetTransferCommandHandler,
@@ -224,6 +242,11 @@ export const PROVIDERS = [
   SyncProceedsRecipientAppService,
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
+  ExecuteDistributionTransactionAppService,
+  GetDistributionHoldersQueryHandler,
+  ExecuteDistributionByAddressesTransactionAppService,
+  DissociatePaymentTokenTransactionAppService,
+  DissociateEnvironmentalAssetTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -235,6 +258,7 @@ export const PROVIDERS = [
   GetPaymentTokenTransfersQueryHandler,
   GetProceedsRecipientAllocationsQueryHandler,
   GetProceedsRecipientsQueryHandler,
+  GetDistributionsQueryHandler,
   {
     provide: "HederaPort",
     useClass: HederMirrorNodeAdapter,

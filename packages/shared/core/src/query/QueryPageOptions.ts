@@ -11,10 +11,12 @@ export class QueryPageOptions {
 
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   public page: number
 
   @IsInt()
   @Min(1)
+  @Type(() => Number)
   public limit: number
 
   @ValidateNested()
