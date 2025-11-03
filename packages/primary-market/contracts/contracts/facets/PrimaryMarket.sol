@@ -68,9 +68,12 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _offeringId Offering ID to check
      */
     modifier offeringExists(uint256 _offeringId) {
-        if (_offeringId == 0 || _offeringId > _getNextOfferingId()) {
-            revert OfferingDoesNotExist(_offeringId);
-        }
+        _checkOfferingExists(_offeringId);
+        _;
+    }
+
+    modifier subscriptionExists(uint256 _offeringId, uint256 _subscriptionId) {
+        _checkSubscriptionExists(_offeringId, _subscriptionId);
         _;
     }
 
@@ -242,7 +245,17 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _offeringId The offering ID
      * @param _subscriptionId The subscription ID
      */
-    function cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) external override {
+    function cancelSubscription(
+        uint256 _offeringId,
+        uint256 _subscriptionId
+    )
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        checkOfferingOperator(_offeringId)
+        subscriptionExists(_offeringId, _subscriptionId)
+    {
         _cancelSubscription(_offeringId, _subscriptionId);
     }
 

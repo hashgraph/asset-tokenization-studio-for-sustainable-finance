@@ -160,6 +160,8 @@ interface IPrimaryMarket {
     /// @notice Thrown when trying to operate on a non-existent offering
     error OfferingDoesNotExist(uint256 offeringId);
 
+    error SubscriptionDoesNotExist(uint256 offeringId, uint256 subscriptionId);
+
     /// @notice Thrown when creating an offering for an invalid asset
     error WrongAsset(address asset);
 
@@ -183,6 +185,8 @@ interface IPrimaryMarket {
 
     /// @notice Thrown when a subscription would cause the offering to exceed its target amount
     error SubscriptionExceedsTarget(uint256 currentTotal, uint256 subscriptionAmount, uint256 targetAmount);
+
+    error SubscriptionCannotBeCancelled(uint256 offeringId, uint256 subscriptionId);
 
     /// @notice Create a new offering
     /// @param _offeringInfo The details of the offering to create
