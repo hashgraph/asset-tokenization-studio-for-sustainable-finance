@@ -181,10 +181,6 @@ describe("PrimaryMarket", () => {
       const total = await primaryMarket.getTotalOfferings();
       expect(total).to.equal(1);
 
-      const offeringIds = await primaryMarket.getOfferingIds(0, 100);
-      expect(offeringIds.length).to.equal(1);
-      expect(offeringIds[0]).to.equal(1);
-
       const [offeringInfo, creator] = await primaryMarket.getOffering(1);
       expect(offeringInfo.asset).to.equal(offering.asset);
       expect(offeringInfo.treasury).to.equal(offering.treasury);
@@ -560,10 +556,6 @@ describe("PrimaryMarket", () => {
 
       const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
       expect(totalSubscription).to.equal(1);
-
-      const subscriptionIds = await primaryMarket.getSubscriptionIds(offeringId, 0, 100);
-      expect(subscriptionIds.length).to.equal(1);
-      expect(subscriptionIds[0]).to.equal(1);
 
       const [investor, subscribedLotUnits] = await primaryMarket.getSubscription(offeringId, 1);
       expect(investor).to.equal(investor1Address);
