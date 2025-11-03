@@ -506,7 +506,7 @@ describe("PrimaryMarket", () => {
       expect(status).to.equal(5); // EXECUTABLE
     });
 
-    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE_ONLY", async () => {
+    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE", async () => {
       await time.increase(61); // Move past startDate
 
       // Subscribe but don't reach target (only 30 lots out of 100)
@@ -516,7 +516,7 @@ describe("PrimaryMarket", () => {
       await time.increase(3600);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(6); // CANCELLABLE_ONLY
+      expect(status).to.equal(6); // CANCELLABLE
     });
   });
 
@@ -642,7 +642,7 @@ describe("PrimaryMarket", () => {
 
       offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
-      expect(offeringStatus).to.equal(6); //CANCELLABLE_ONLY
+      expect(offeringStatus).to.equal(6); //CANCELLABLE
     });
 
     it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {

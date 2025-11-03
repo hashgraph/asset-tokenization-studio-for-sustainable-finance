@@ -79,8 +79,29 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _offeringId Offering ID to check
      */
     modifier offeringIsOpen(uint256 _offeringId) {
-        if (_getOfferingStatus(_offeringId) != OfferingStatus.OPEN) {
+        if (!_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.OPEN)) {
             revert SubscriptionNotAcceptedForOffering(_offeringId);
+        }
+        _;
+    }
+
+    modifier offeringIsReadyForExecution(uint256 _offeringId) {
+        if (!_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.EXECUTABLE)) {
+            revert OfferingCannotBeExecuted(_offeringId);
+        }
+        _;
+    }
+
+    modifier offeringIsReadyForCancellation(uint256 _offeringId) {
+        if (!_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.CANCELLABLE)) {
+            revert OfferingCannotBeCancelled(_offeringId);
+        }
+        _;
+    }
+
+    modifier checkOfferingOperator(uint256 _offeringId) {
+        if (!_isOfferingOperator(_offeringId, _msgSender())) {
+            revert UnauthorizedAccountForOffering(_msgSender(), _offeringId);
         }
         _;
     }
@@ -164,8 +185,20 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _pageIndex Pagination index for processing subscriptions
      * @param _pageLength Number of subscriptions to process in this batch
      */
-    function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        _executeOffering(_offeringId, _pageIndex, _pageLength);
+    function executeOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    )
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        offeringIsReadyForExecution(_offeringId)
+        checkOfferingOperator(_offeringId)
+        returns (OfferingProcessResult memory executionResult)
+    {
+        return _executeOffering(_offeringId, _pageIndex, _pageLength);
     }
 
     /**
@@ -174,8 +207,20 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _pageIndex Pagination index for processing subscriptions
      * @param _pageLength Number of subscriptions to process in this batch
      */
-    function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external override {
-        _cancelOffering(_offeringId, _pageIndex, _pageLength);
+    function cancelOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    )
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        offeringIsReadyForCancellation(_offeringId)
+        checkOfferingOperator(_offeringId)
+        returns (OfferingProcessResult memory cancelResult)
+    {
+        return _cancelOffering(_offeringId, _pageIndex, _pageLength);
     }
 
     /**

@@ -6,6 +6,7 @@ import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.s
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { LibCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
 
 /**
  * @title PrimaryMarketStorageWrapper
@@ -18,6 +19,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         address investor; // Address of the investor
         uint256 lotUnits; // Number of lot units subscribed
         bool cancelled; // Flag to mark if subscription was cancelled
+        bool executed; // Flag to mark if subscription was executed
     }
 
     /**
@@ -64,6 +66,64 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         emit IPrimaryMarket.OfferingCreated(offeringId, _msgSender(), _offeringInfo);
     }
 
+    function _executeOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
+        return _processOffering(_offeringId, _pageIndex, _pageLength, true);
+    }
+
+    function _cancelOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
+        return _processOffering(_offeringId, _pageIndex, _pageLength, false);
+    }
+
+    function _processOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength,
+        bool _isExecution
+    ) internal returns (IPrimaryMarket.OfferingProcessResult memory exeuctionResult) {
+        (uint256 start, uint256 end) = LibCommon.getStartAndEnd(_pageIndex, _pageLength);
+        uint256 length = end - start;
+
+        exeuctionResult.failedSubscriptions = new uint256[](length);
+        exeuctionResult.succeededSubscriptions = new uint256[](length);
+        exeuctionResult.alreadyProcessedSubscriptions = new uint256[](length);
+        uint256 failedCount = 0;
+        uint256 succeededCount = 0;
+        uint256 alreadyProcessedCount = 0;
+
+        uint256[] memory amountsToTransfer = new uint256[](length);
+        address[] memory destinations = new address[](length);
+        uint256 amountIndex;
+
+        OfferingState storage offering = _getOfferingState(_offeringId);
+
+        for (uint256 subscriptionId = start; subscriptionId < end; subscriptionId++) {
+            Subscription storage subscription = offering.subscriptions[subscriptionId];
+
+            if (subscription.executed || subscription.cancelled) {
+                exeuctionResult.alreadyProcessedSubscriptions[alreadyProcessedCount] = subscriptionId;
+                alreadyProcessedCount++;
+                continue;
+            }
+
+            amountsToTransfer[amountIndex] =
+                subscription.lotUnits *
+                offering.info.lotSize *
+                IBondRead(offering.info.asset).getBondDetails().nominalValue;
+
+            destinations[amountIndex] = _isExecution ? offering.info.treasury : subscription.investor;
+
+            amountIndex++;
+        }
+    }
+
     /**
      * @notice Internal implementation for submitting a subscription
      * @param _offeringId The offering ID
@@ -98,13 +158,35 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         offering.subscriptions[subscriptionId] = Subscription({
             investor: _msgSender(),
             lotUnits: _lotUnits,
-            cancelled: false
+            cancelled: false,
+            executed: false
         });
 
         // Update total subscribed lots
         offering.totalSubscribedLots += _lotUnits;
 
         emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, _msgSender(), _lotUnits);
+    }
+
+    /**
+     * @notice Internal placeholder for cancelling a subscription
+     * @param _offeringId Offering ID
+     * @dev TODO: When implemented, should refund investor and mark subscription.cancelled = true
+     */
+    function _cancelSubscription(uint256 _offeringId, uint256) internal pure {
+        revert IPrimaryMarket.SubscriptionNotAcceptedForOffering(_offeringId);
+    }
+
+    /**
+     * @notice Associate token with contract (for Hedera compatibility)
+     * @param _token Token address to associate
+     * @dev This is a no-op on EVM chains
+     */
+    function _associateToken(address _token) internal pure {
+        // On Hedera, this would call the token association system contract
+        // On EVM chains, this is a no-op
+        // Implementation depends on deployment target
+        _token; // Silence unused variable warning
     }
 
     /**
@@ -168,15 +250,15 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
      *
      * 1. OVER_NOT_ALLOWED + WAIT_UNTIL_END:
      *    PENDING → OPEN → CLOSED_TARGET_WAITING (when target reached) → EXECUTABLE → EXECUTED
-     *    OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED (if target not reached after endDate)
+     *    OR: PENDING → OPEN → CANCELLABLE → CANCELLED (if target not reached after endDate)
      *
      * 2. OVER_NOT_ALLOWED + CLOSE_TARGET_REACHED:
      *    PENDING → OPEN → EXECUTABLE (when target reached, even before endDate) → EXECUTED
-     *    OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED (if target not reached after endDate)
+     *    OR: PENDING → OPEN → CANCELLABLE → CANCELLED (if target not reached after endDate)
      *
      * 3. OVER_ALLOWED + WAIT_UNTIL_END:
      *    PENDING → OPEN (accepting oversubscriptions) → EXECUTABLE → EXECUTED (after endDate if target reached)
-     *    OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED (if target not reached after endDate)
+     *    OR: PENDING → OPEN → CANCELLABLE → CANCELLED (if target not reached after endDate)
      */
     function _getOfferingStatus(uint256 _offeringId) internal view returns (IPrimaryMarket.OfferingStatus) {
         OfferingState storage offering = _getOfferingState(_offeringId);
@@ -203,7 +285,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
             if (targetReached) {
                 return IPrimaryMarket.OfferingStatus.EXECUTABLE;
             } else {
-                return IPrimaryMarket.OfferingStatus.CANCELLABLE_ONLY;
+                return IPrimaryMarket.OfferingStatus.CANCELLABLE;
             }
         }
 
@@ -311,6 +393,24 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         return _primaryMarketStorage().offerings[_offeringId];
     }
 
+    function _isOfferingStatus(
+        uint256 _offeringId,
+        IPrimaryMarket.OfferingStatus requiredStatus
+    ) internal view returns (bool) {
+        if (_getOfferingStatus(_offeringId) == requiredStatus) {
+            return true;
+        }
+        return false;
+    }
+
+    function _isOfferingOperator(uint256 _offeringId, address _account) internal view returns (bool) {
+        (, address offeringOperator) = _getOffering(_offeringId);
+        if (offeringOperator == _account) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * @notice Returns the storage
      * @return primaryMarketStorage Primary market storage
@@ -321,41 +421,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         assembly {
             primaryMarketStorage.slot := position
         }
-    }
-
-    /**
-     * @notice Internal placeholder for executing an offering
-     * @param _offeringId Offering ID
-     * @dev TODO: When implemented, this function should:
-     *      1. Verify offering.executed == false and offering.cancelled == false
-     *      2. Verify block.timestamp > endDate (offering period ended)
-     *      3. Process all subscriptions (transfer assets to investors)
-     *      4. Transfer payment tokens to treasury
-     *      5. Set offering.executed = true at the end
-     */
-    function _executeOffering(uint256 _offeringId, uint256, uint256) internal pure {
-        revert IPrimaryMarket.OfferingCannotBeExecuted(_offeringId);
-    }
-
-    /**
-     * @notice Internal placeholder for cancelling an offering
-     * @param _offeringId Offering ID
-     * @dev TODO: When implemented, this function should:
-     *      1. Verify offering.executed == false and offering.cancelled == false
-     *      2. Refund all payment tokens to investors
-     *      3. Set offering.cancelled = true at the end
-     */
-    function _cancelOffering(uint256 _offeringId, uint256, uint256) internal pure {
-        revert IPrimaryMarket.OfferingCannotBeCancelled(_offeringId);
-    }
-
-    /**
-     * @notice Internal placeholder for cancelling a subscription
-     * @param _offeringId Offering ID
-     * @dev TODO: When implemented, should refund investor and mark subscription.cancelled = true
-     */
-    function _cancelSubscription(uint256 _offeringId, uint256) internal pure {
-        revert IPrimaryMarket.SubscriptionNotAcceptedForOffering(_offeringId);
     }
 
     /**
@@ -372,17 +437,5 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon {
         _investor; // Silence unused variable warning
         _asset; // Silence unused variable warning
         return true;
-    }
-
-    /**
-     * @notice Associate token with contract (for Hedera compatibility)
-     * @param _token Token address to associate
-     * @dev This is a no-op on EVM chains
-     */
-    function _associateToken(address _token) internal pure {
-        // On Hedera, this would call the token association system contract
-        // On EVM chains, this is a no-op
-        // Implementation depends on deployment target
-        _token; // Silence unused variable warning
     }
 }

@@ -11,7 +11,7 @@ pragma solidity >=0.8.0 <0.9.0;
 ///    - Execution: ONLY allowed after endDate AND if target reached
 ///    - If target not reached after endDate: ONLY rollback/cancellation allowed
 ///    - Status flow: PENDING → OPEN → CLOSED_TARGET_WAITING → EXECUTABLE → EXECUTED
-///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///                   OR: PENDING → OPEN → CANCELLABLE → CANCELLED
 ///
 /// 2. OVERSUBSCRIPTION_NOT_ALLOWED + CLOSE_TARGET_REACHED:
 ///    - Subscriptions accepted until target reached OR endDate
@@ -19,7 +19,7 @@ pragma solidity >=0.8.0 <0.9.0;
 ///    - Execution: allowed when target reached (even before endDate) OR after endDate if target reached
 ///    - If target not reached after endDate: ONLY rollback/cancellation allowed
 ///    - Status flow: PENDING → OPEN → EXECUTABLE → EXECUTED
-///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///                   OR: PENDING → OPEN → CANCELLABLE → CANCELLED
 ///
 /// 3. OVERSUBSCRIPTION_ALLOWED + WAIT_UNTIL_END:
 ///    - Subscriptions accepted until endDate, can exceed target
@@ -27,7 +27,7 @@ pragma solidity >=0.8.0 <0.9.0;
 ///    - Execution: ONLY allowed after endDate AND if target reached
 ///    - If target not reached after endDate: ONLY rollback/cancellation allowed
 ///    - Status flow: PENDING → OPEN → EXECUTABLE → EXECUTED
-///                   OR: PENDING → OPEN → CANCELLABLE_ONLY → CANCELLED
+///                   OR: PENDING → OPEN → CANCELLABLE → CANCELLED
 ///
 /// 4. OVERSUBSCRIPTION_ALLOWED + CLOSE_TARGET_REACHED:
 ///    - INVALID COMBINATION - Rejected in createOffering validation
@@ -45,6 +45,12 @@ interface IPrimaryMarket {
         CLOSE_TARGET_REACHED
     }
 
+    struct OfferingProcessResult {
+        uint256[] failedSubscriptions;
+        uint256[] succeededSubscriptions;
+        uint256[] alreadyProcessedSubscriptions;
+    }
+
     /// @notice Calculated status of an offering (not stored, computed dynamically)
     enum OfferingStatus {
         PENDING, // Before startDate
@@ -53,7 +59,7 @@ interface IPrimaryMarket {
         CLOSED_TARGET_WAITING, // Target reached, waiting for endDate (WAIT_UNTIL_END only)
         CLOSED_DEADLINE, // Deadline reached, subscriptions closed
         EXECUTABLE, // Can be executed
-        CANCELLABLE_ONLY, // Only rollback/cancellation allowed (target not reached after deadline)
+        CANCELLABLE, // Only rollback/cancellation allowed (target not reached after deadline)
         EXECUTED, // Already executed
         CANCELLED // Already cancelled
     }
@@ -189,13 +195,21 @@ interface IPrimaryMarket {
     /// @param _offeringId The offering ID
     /// @param _pageIndex Pagination index for processing subscriptions
     /// @param _pageLength Number of subscriptions to process in this batch
-    function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external;
+    function executeOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) external returns (OfferingProcessResult memory executionResult);
 
     /// @notice Cancel an offering
     /// @param _offeringId The offering ID
     /// @param _pageIndex Pagination index for processing subscriptions
     /// @param _pageLength Number of subscriptions to process in this batch
-    function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) external;
+    function cancelOffering(
+        uint256 _offeringId,
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) external returns (OfferingProcessResult memory cancelResult);
 
     /// @notice Cancel a specific subscription (only when it blocks execution)
     /// @param _offeringId The offering ID
