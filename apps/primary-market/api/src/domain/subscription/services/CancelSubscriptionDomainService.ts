@@ -5,6 +5,7 @@ import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/ser
 import type { SubscriptionRepository } from "../repositories/SubscriptionRepository"
 import { CancelSubscriptionDomainServiceRequest } from "./model/CancelSubscriptionDomainServiceRequest"
 import { SubscriptionNotFoundError } from "../errors/SubscriptionNotFoundError"
+import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 @Singleton()
 export class CancelSubscriptionDomainService {
@@ -31,6 +32,7 @@ export class CancelSubscriptionDomainService {
       )
     }
 
-    await this.subscriptionRepository.delete(subscription)
+    subscription.status = SubscriptionStatus.CANCELLED
+    await this.subscriptionRepository.save(subscription)
   }
 }

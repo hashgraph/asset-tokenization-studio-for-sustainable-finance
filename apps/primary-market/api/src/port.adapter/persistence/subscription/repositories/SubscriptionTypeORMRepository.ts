@@ -33,10 +33,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async delete(subscription: Subscription): Promise<void> {
-    await this.repository.remove(subscription as unknown as SubscriptionPersistence)
-  }
-
   async saveAll(subscriptions: Subscription[]): Promise<Subscription[]> {
     const queryRunner = this.dataSource.createQueryRunner()
     await queryRunner.connect()

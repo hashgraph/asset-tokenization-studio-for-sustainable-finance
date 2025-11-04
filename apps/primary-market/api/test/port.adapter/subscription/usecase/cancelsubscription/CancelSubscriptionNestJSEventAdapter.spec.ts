@@ -58,7 +58,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
   })
 
   describe("CancelSubscriptionNestJSEventAdapter", () => {
-    it("should delete subscription when SubscriptionCancelledDLTEvent is published", async () => {
+    it("should cancel subscription when SubscriptionCancelledDLTEvent is published", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
@@ -96,12 +96,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
-      const deletedSubscription = await subscriptionRepository.findOne({
+      const cancelledSubscription = await subscriptionRepository.findOne({
         where: { subscriptionId: "1" },
         relations: ["offering"],
       })
 
-      expect(deletedSubscription).toBeNull()
+      expect(cancelledSubscription).toBeDefined()
+      expect(cancelledSubscription).not.toBeNull()
+      expect(cancelledSubscription!.status).toBe(SubscriptionStatus.CANCELLED)
     })
 
     it("should throw error when subscription does not exist", async () => {
@@ -187,7 +189,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
       await expect(eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)).rejects.toThrow()
     })
 
-    it("should delete only the specific subscription when multiple exist for same offering", async () => {
+    it("should cancel only the specific subscription when multiple exist for same offering", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
@@ -237,7 +239,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
-      const deletedSubscription = await subscriptionRepository.findOne({
+      const cancelledSubscription = await subscriptionRepository.findOne({
         where: { subscriptionId: "1" },
         relations: ["offering"],
       })
@@ -247,13 +249,16 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         relations: ["offering"],
       })
 
-      expect(deletedSubscription).toBeNull()
+      expect(cancelledSubscription).toBeDefined()
+      expect(cancelledSubscription).not.toBeNull()
+      expect(cancelledSubscription!.status).toBe(SubscriptionStatus.CANCELLED)
       expect(remainingSubscription).toBeDefined()
       expect(remainingSubscription).not.toBeNull()
       expect(remainingSubscription!.subscriptionId).toBe("2")
+      expect(remainingSubscription!.status).toBe(SubscriptionStatus.SUBMITTED)
     })
 
-    it("should correctly delete subscription when same subscriptionId exists in different offerings", async () => {
+    it("should correctly cancel subscription when same subscriptionId exists in different offerings", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
@@ -316,7 +321,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
-      const deletedSubscription = await subscriptionRepository.findOne({
+      const cancelledSubscription = await subscriptionRepository.findOne({
         where: { subscriptionId: "1", offering: { offeringId: "1" } },
         relations: ["offering"],
       })
@@ -326,11 +331,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         relations: ["offering"],
       })
 
-      expect(deletedSubscription).toBeNull()
+      expect(cancelledSubscription).toBeDefined()
+      expect(cancelledSubscription).not.toBeNull()
+      expect(cancelledSubscription!.status).toBe(SubscriptionStatus.CANCELLED)
       expect(remainingSubscription).toBeDefined()
       expect(remainingSubscription).not.toBeNull()
       expect(remainingSubscription!.subscriptionId).toBe("1")
       expect(remainingSubscription!.offering.offeringId).toBe("2")
+      expect(remainingSubscription!.status).toBe(SubscriptionStatus.SUBMITTED)
     })
   })
 })
