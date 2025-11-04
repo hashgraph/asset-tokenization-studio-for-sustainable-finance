@@ -119,6 +119,9 @@ import { ExecuteRedemptionTransactionHttpAdapter } from "@port/transaction/useca
 import { ExecuteRedemptionTransactionAppService } from "@app/transaction/executeredemption/ExecuteRedemptionTransactionAppService"
 import { ExecuteRedemptionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionHttpAdapter"
 import { ExecuteRedemptionByAddressesTransactionAppService } from "@app/transaction/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionAppService"
+import { SyncRedemptionNestJSEventAdapter } from "@port/redemption/usecase/syncredemption/SyncRedemptionNestJSEventAdapter"
+import { SyncRedemptionAppService } from "@app/redemption/syncredemption/SyncRedemptionAppService"
+import { AddRedemptionHolderCommandHandler } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -270,6 +273,9 @@ export const PROVIDERS = [
   DissociateEnvironmentalAssetTransactionAppService,
   ExecuteRedemptionTransactionAppService,
   ExecuteRedemptionByAddressesTransactionAppService,
+  SyncRedemptionNestJSEventAdapter,
+  SyncRedemptionAppService,
+  AddRedemptionHolderCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

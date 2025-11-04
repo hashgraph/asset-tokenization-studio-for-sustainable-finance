@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
-import { PaymentResultEventModel } from "./PaymentResultEventModel"
+import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 
 export abstract class BaseDistributionExecutedDLTEvent extends DLTEvent {
   readonly distributionId: number

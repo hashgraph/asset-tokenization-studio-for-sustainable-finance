@@ -2,13 +2,12 @@
 
 import { Command } from "@hashgraph/green-bonds-shared-core"
 import { IsIn, IsNotEmpty, IsNumberString, IsNumber, NotEquals, IsOptional } from "class-validator"
-import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
 
 export class AddDistributionHolderCommand extends Command<void> {
   @IsNotEmpty()
   holderAccountId: string
 
-  @IsIn([DistributionHolderStatus.SUCCESS, DistributionHolderStatus.FAILED])
+  @IsIn(["SUCCESS", "FAILED"])
   status: string
 
   @IsOptional()
