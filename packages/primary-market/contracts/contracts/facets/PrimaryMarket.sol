@@ -103,9 +103,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     }
 
     modifier checkOfferingOperator(uint256 _offeringId) {
-        if (!_isOfferingOperator(_offeringId, _msgSender())) {
-            revert UnauthorizedAccountForOffering(_msgSender(), _offeringId);
-        }
+        _checkOfferingOperator(_offeringId, _msgSender());
         _;
     }
 
@@ -184,8 +182,8 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         override
         onlyUnpaused
         offeringExists(_offeringId)
-        offeringIsReadyForExecution(_offeringId)
         checkOfferingOperator(_offeringId)
+        offeringIsReadyForExecution(_offeringId)
         returns (OfferingProcessResult memory executionResult)
     {
         return _executeOffering(_offeringId, _pageIndex, _pageLength);
@@ -206,8 +204,8 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         override
         onlyUnpaused
         offeringExists(_offeringId)
-        offeringIsReadyForCancellation(_offeringId)
         checkOfferingOperator(_offeringId)
+        offeringIsReadyForCancellation(_offeringId)
         returns (OfferingProcessResult memory cancelResult)
     {
         return _cancelOffering(_offeringId, _pageIndex, _pageLength);
@@ -216,14 +214,30 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     function executeOfferingBySubscriptionId(
         uint256 _offeringId,
         uint256[] calldata _subscriptionIds
-    ) external returns (OfferingProcessResult memory executionResult) {
+    )
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        checkOfferingOperator(_offeringId)
+        offeringIsReadyForExecution(_offeringId)
+        returns (OfferingProcessResult memory executionResult)
+    {
         return _executeOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
     }
 
     function cancelOfferingBySubscriptionId(
         uint256 _offeringId,
         uint256[] calldata _subscriptionIds
-    ) external returns (OfferingProcessResult memory cancelResult) {
+    )
+        external
+        override
+        onlyUnpaused
+        offeringExists(_offeringId)
+        checkOfferingOperator(_offeringId)
+        offeringIsReadyForCancellation(_offeringId)
+        returns (OfferingProcessResult memory cancelResult)
+    {
         return _cancelOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
     }
 
@@ -267,7 +281,12 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         view
         override
         offeringExists(_offeringId)
-        returns (Offering memory offeringInfo_, address offeringOperator_)
+        returns (
+            Offering memory offeringInfo_,
+            address offeringOperator_,
+            uint256 totalSubscribedLots_,
+            uint256 pendingSubscribedLots_
+        )
     {
         return _getOffering(_offeringId);
     }

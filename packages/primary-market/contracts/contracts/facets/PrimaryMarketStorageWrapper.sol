@@ -407,9 +407,18 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
      */
     function _getOffering(
         uint256 _offeringId
-    ) internal view returns (IPrimaryMarket.Offering memory offeringInfo_, address offeringOperator_) {
+    )
+        internal
+        view
+        returns (
+            IPrimaryMarket.Offering memory offeringInfo_,
+            address offeringOperator_,
+            uint256 totalSubscribedLots_,
+            uint256 pendingSubscribedLots_
+        )
+    {
         OfferingState storage offering = _getOfferingState(_offeringId);
-        return (offering.info, offering.creator);
+        return (offering.info, offering.creator, offering.totalSubscribedLots, offering.pendingSubscribedLots);
     }
 
     /**
@@ -543,7 +552,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     }
 
     function _isOfferingOperator(uint256 _offeringId, address _account) internal view returns (bool) {
-        (, address offeringOperator) = _getOffering(_offeringId);
+        (, address offeringOperator, , ) = _getOffering(_offeringId);
         if (offeringOperator == _account) {
             return true;
         }
@@ -559,6 +568,12 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     function _checkSubscriptionExists(uint256 _offeringId, uint256 _subscriptionId) internal view {
         if (_getOfferingState(_offeringId).subscriptions[_subscriptionId].investor == address(0)) {
             revert IPrimaryMarket.SubscriptionDoesNotExist(_offeringId, _subscriptionId);
+        }
+    }
+
+    function _checkOfferingOperator(uint256 _offeringId, address account) internal view {
+        if (!_isOfferingOperator(_offeringId, account)) {
+            revert IPrimaryMarket.UnauthorizedAccountForOffering(account, _offeringId);
         }
     }
 

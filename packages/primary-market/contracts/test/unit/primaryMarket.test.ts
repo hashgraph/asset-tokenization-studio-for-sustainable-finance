@@ -188,7 +188,7 @@ describe("PrimaryMarket", () => {
       const total = await primaryMarket.getTotalOfferings();
       expect(total).to.equal(1);
 
-      const [offeringInfo, creator] = await primaryMarket.getOffering(1);
+      const [offeringInfo, creator, totalLots, pendingLots] = await primaryMarket.getOffering(1);
       expect(offeringInfo.asset).to.equal(offering.asset);
       expect(offeringInfo.treasury).to.equal(offering.treasury);
       expect(offeringInfo.paymentToken).to.equal(offering.paymentToken);
@@ -201,6 +201,8 @@ describe("PrimaryMarket", () => {
       expect(offeringInfo.endDate).to.equal(offering.endDate);
       expect(offeringInfo.deadlineRule).to.equal(offering.deadlineRule);
       expect(creator).to.equal(offeringCreatorAddress);
+      expect(totalLots).to.equal(0);
+      expect(pendingLots).to.equal(0);
     });
 
     it("GIVEN paused PM WHEN creating offering THEN fail", async () => {
@@ -551,7 +553,7 @@ describe("PrimaryMarket", () => {
     let offeringId: number;
     let offering: IPrimaryMarket.OfferingStruct;
 
-    async function deployFactoryPrimaryMarket(targetQuantityRule: number, deadlineRule: number) {
+    async function createOffering(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
       offering = {
         asset: mockAsset.address,
@@ -561,10 +563,10 @@ describe("PrimaryMarket", () => {
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
-        targetQuantityRule: targetQuantityRule, // OVERSUBSCRIPTION_NOT_ALLOWED
+        targetQuantityRule: targetQuantityRule,
         startDate: now + 60,
         endDate: now + 3600,
-        deadlineRule: deadlineRule, // WAIT_UNTIL_END
+        deadlineRule: deadlineRule,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -575,7 +577,7 @@ describe("PrimaryMarket", () => {
     }
 
     beforeEach(async () => {
-      await deployFactoryPrimaryMarket(0, 0);
+      await createOffering(0, 0);
     });
 
     it("GIVEN valid subscription WHEN submitting THEN success", async () => {
@@ -603,6 +605,10 @@ describe("PrimaryMarket", () => {
 
       expect(balanceInvestorBefore.sub(balanceInvestorAfter)).to.equal(cost);
       expect(balancePMAfter.sub(balancePMBefore)).to.equal(cost);
+
+      const [, , totalLots, pendingLots] = await primaryMarket.getOffering(1);
+      expect(totalLots).to.equal(lotsUnit);
+      expect(pendingLots).to.equal(lotsUnit);
     });
 
     it("GIVEN paused PM WHEN submitting THEN fail", async () => {
@@ -711,7 +717,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN subscription for offering that has already reached its target when offerings closed on target WHEN submitting THEN fail", async () => {
-      await deployFactoryPrimaryMarket(0, 1);
+      await createOffering(0, 1);
 
       const iterations = offering.targetLots / offering.maxLots; // 100 / 50 = 2
 
@@ -749,5 +755,107 @@ describe("PrimaryMarket", () => {
     });
   });
 
-  describe("Executing & Cancelling Offerings", () => {});
+  describe("Executing Offerings", () => {
+    let offeringId: number;
+    let offering: IPrimaryMarket.OfferingStruct;
+
+    async function createOffering(targetQuantityRule: number, deadlineRule: number) {
+      const now = await time.latest();
+      offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: targetQuantityRule,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: deadlineRule,
+      };
+
+      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
+      await time.increase(61); // Move past startDate
+    }
+
+    beforeEach(async () => {
+      await createOffering(0, 0);
+    });
+
+    it("GIVEN paused PM WHEN executing THEN fail", async () => {
+      await pause.connect(admin).pause();
+
+      await expect(
+        primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+
+      await expect(
+        primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+    });
+
+    it("GIVEN non existing offering WHEN executing THEN fail", async () => {
+      const wrongOffering = offeringId + 100;
+
+      await expect(primaryMarket.connect(offeringCreator).executeOffering(wrongOffering, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(wrongOffering);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(wrongOffering, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(wrongOffering);
+    });
+
+    it("GIVEN unauthorized user WHEN executing THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      await expect(primaryMarket.connect(investor1).executeOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "UnauthorizedAccountForOffering")
+        .withArgs(investor1Address, offeringId);
+
+      await expect(primaryMarket.connect(investor1).executeOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "UnauthorizedAccountForOffering")
+        .withArgs(investor1Address, offeringId);
+    });
+
+    it("GIVEN pending offering WHEN executing THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate - 1);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN open offering WHEN executing THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate - 1);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN cancellable offering WHEN executing THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
+        .withArgs(offeringId);
+    });
+  });
 });

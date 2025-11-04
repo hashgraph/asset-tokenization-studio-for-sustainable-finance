@@ -243,10 +243,17 @@ interface IPrimaryMarket {
     /// @notice Get details of a specific offering
     /// @param _offeringId The offering ID
     /// @return offeringInfo_ Offering details
-    /// @return offeringOperator_ Operator who created the offering
     function getOffering(
         uint256 _offeringId
-    ) external view returns (Offering memory offeringInfo_, address offeringOperator_);
+    )
+        external
+        view
+        returns (
+            Offering memory offeringInfo_,
+            address offeringOperator_,
+            uint256 totalSubscribedLots_,
+            uint256 pendingSubscribedLots_
+        );
 
     /// @notice Get the current status of an offering (calculated dynamically)
     /// @param _offeringId The offering ID
