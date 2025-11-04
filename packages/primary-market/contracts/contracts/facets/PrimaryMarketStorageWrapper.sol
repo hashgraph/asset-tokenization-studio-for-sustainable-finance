@@ -602,7 +602,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 length = end - start;
         ids = new uint256[](length);
         for (uint256 i = 0; i < length; i++) {
-            ids[i] = start + i;
+            ids[i] = start + i + 1;
         }
     }
 

@@ -124,10 +124,9 @@ describe("PrimaryMarket", () => {
     await mockAsset.deployed();
 
     // Mint payment tokens to investors
-    const mintAmount = ethers.utils.parseUnits("1000000", 6); // 1M USDC
-    await mockPaymentToken.mint(investor1Address, mintAmount);
-    await mockPaymentToken.mint(investor2Address, mintAmount);
-    await mockPaymentToken.mint(investor3Address, mintAmount);
+    await mockPaymentToken.mint(investor1Address, ethers.constants.MaxUint256.div(4));
+    await mockPaymentToken.mint(investor2Address, ethers.constants.MaxUint256.div(4));
+    await mockPaymentToken.mint(investor3Address, ethers.constants.MaxUint256.div(4));
 
     // Approve Primary Market to spend payment tokens
     await mockPaymentToken.connect(investor1).approve(primaryMarket.address, ethers.constants.MaxUint256);
@@ -766,9 +765,9 @@ describe("PrimaryMarket", () => {
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
         lotSize: ethers.utils.parseUnits("1000", 6),
-        minLots: 1,
-        maxLots: 50,
-        targetLots: 100,
+        minLots: 1000,
+        maxLots: 50000,
+        targetLots: 1000000,
         targetQuantityRule: targetQuantityRule,
         startDate: now + 60,
         endDate: now + 3600,
@@ -784,6 +783,33 @@ describe("PrimaryMarket", () => {
 
     beforeEach(async () => {
       await createOffering(0, 0);
+    });
+
+    it.skip("GIVEN executable offering WHEN executing THEN success", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+
+      const iterations = offering.targetLots / offering.minLots;
+
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      const remainder = offering.targetLots - iterations * offering.minLots;
+
+      if (remainder > 0) {
+        for (let j = 0; j < remainder; j++) {
+          const investor = j % 2 == 0 ? investor1 : investor2;
+          await primaryMarket.connect(investor).submitSubscription(offeringId, 1);
+        }
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100)).to.emit(
+        primaryMarket,
+        "OfferingExecuted",
+      );
     });
 
     it("GIVEN paused PM WHEN executing THEN fail", async () => {
