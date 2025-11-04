@@ -121,8 +121,23 @@ abstract contract LifeCycleCashFlow is
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external override returns (PaymentResult memory result, bool executed) {
-        // solhint-disable-next-line no-empty-blocks
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        notAddressZero(bond)
+        isAsset(bond)
+        //onlyOnRedemptionDate(bond)
+        //returns (PaymentResult memory result, bool executed)
+    {
+        /*(result, executed) = _executeBondRedemption(
+            bond,
+            pageIndex,
+            pageLength
+        );*/
+
+        //emit RedemptionExecuted(bond, pageIndex, pageLength, result);
     }
 
     /*
@@ -138,8 +153,19 @@ abstract contract LifeCycleCashFlow is
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external override returns (PaymentResult memory result) {
-        // solhint-disable-next-line no-empty-blocks
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        notAddressZero(bond)
+        isAsset(bond)
+        onlyOnRedemptionDate(bond)
+        returns (PaymentResult memory result)
+    {
+        result = _executeBondRedemptionByAddresses(bond, holders);
+
+        emit RedemptionByAddressesExecuted(bond, holders, result);
     }
 
     /*
