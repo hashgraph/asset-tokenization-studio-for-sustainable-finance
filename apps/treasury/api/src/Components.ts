@@ -119,6 +119,8 @@ import { ExecuteRedemptionTransactionHttpAdapter } from "@port/transaction/useca
 import { ExecuteRedemptionTransactionAppService } from "@app/transaction/executeredemption/ExecuteRedemptionTransactionAppService"
 import { ExecuteRedemptionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionHttpAdapter"
 import { ExecuteRedemptionByAddressesTransactionAppService } from "@app/transaction/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionAppService"
+import { GetRedemptionHoldersQueryHandler } from "@app/redemption/getredemptionholders/query/GetRedemptionHoldersQueryHandler"
+import { GetRedemptionHoldersHttpAdapter } from "@port/redemption/usecase/getredemptionholders/GetRedemptionHoldersHttpAdapter"
 import { SyncRedemptionNestJSEventAdapter } from "@port/redemption/usecase/syncredemption/SyncRedemptionNestJSEventAdapter"
 import { SyncRedemptionAppService } from "@app/redemption/syncredemption/SyncRedemptionAppService"
 import { AddRedemptionHolderCommandHandler } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommandHandler"
@@ -212,6 +214,7 @@ export const CONTROLLERS = [
   DissociateEnvironmentalAssetTransactionHttpAdapter,
   ExecuteRedemptionTransactionHttpAdapter,
   ExecuteRedemptionByAddressesTransactionHttpAdapter,
+  GetRedemptionHoldersHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -286,6 +289,7 @@ export const PROVIDERS = [
   GetPaymentTokensQueryHandler,
   GetPaymentTokenTransfersQueryHandler,
   GetProceedsRecipientAllocationsQueryHandler,
+  GetRedemptionHoldersQueryHandler,
   GetProceedsRecipientsQueryHandler,
   GetDistributionsQueryHandler,
   {
