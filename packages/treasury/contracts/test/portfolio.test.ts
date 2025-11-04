@@ -5,7 +5,6 @@ import { ethers } from 'hardhat'
 import { AddressZero } from '@ethersproject/constants'
 import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from '../scripts/constants'
 import {
-    deployContract,
     deployPaymentToken,
     deployEnvironmentalAsset,
 } from '../scripts/test/deploy'
