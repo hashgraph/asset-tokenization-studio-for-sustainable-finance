@@ -196,11 +196,11 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /**
-     * @dev Get the total amount of environmental assets added to the treasury
+     * @dev Get the total amount of environmental asset tokens added to the treasury
      *
-     * @return total The total amount of environmental assets added to the treasury
+     * @return total The total amount of environmental asset tokens added to the treasury
      */
-    function _getTotalEnvironmentalAssets()
+    function _getTotalEnvironmentalAssetTokens()
         internal
         view
         returns (uint256 total)
@@ -209,24 +209,24 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /*
-     * @dev Get the list of environmental assets
+     * @dev Get the list of environmental asset tokens
      *
-     * @return environmentalAssets The environmental assets list
+     * @return environmentalAssetTokensPage The environmental asset tokens list
      */
-    function _getEnvironmentalAssets(
+    function _getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
-    ) internal view returns (address[] memory environmentalAssetsPage) {
+    ) internal view returns (address[] memory environmentalAssetTokensPage) {
         uint256 total = _portfolioStorage().environmentalAssets.length();
         uint256 start = pageIndex * pageLength;
         if (start >= total) return new address[](0);
 
         uint256 remaining = total - start;
         uint256 actualLength = remaining < pageLength ? remaining : pageLength;
-        environmentalAssetsPage = new address[](actualLength);
+        environmentalAssetTokensPage = new address[](actualLength);
 
         for (uint256 i; i < actualLength; ) {
-            environmentalAssetsPage[i] = _portfolioStorage()
+            environmentalAssetTokensPage[i] = _portfolioStorage()
                 .environmentalAssets
                 .at(start + i);
             unchecked {

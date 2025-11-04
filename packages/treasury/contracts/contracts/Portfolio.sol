@@ -123,13 +123,13 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      *
      * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalEnvironmentalAssets()
+    function getTotalEnvironmentalAssetTokens()
         external
         view
         override
         returns (uint256 total)
     {
-        return _getTotalEnvironmentalAssets();
+        return _getTotalEnvironmentalAssetTokens();
     }
 
     /**
@@ -141,11 +141,11 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      * @return environmentalAssets The page list of environmental asset tokens associated to the treasury
      */
 
-    function getEnvironmentalAssets(
+    function getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
     ) external view returns (address[] memory environmentalAssets) {
-        environmentalAssets = _getEnvironmentalAssets(pageIndex, pageLength);
+        environmentalAssets = _getEnvironmentalAssetTokens(pageIndex, pageLength);
     }
 
     /**
