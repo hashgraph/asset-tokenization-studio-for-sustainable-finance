@@ -35,6 +35,7 @@ import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbui
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
+import { BuildExecuteBondRedemptionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteBondRedemptionByAddressesTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -312,6 +313,41 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     }
   }
 
+  async executeBondRedemptionByAddresses(
+    request: BuildExecuteBondRedemptionByAddressesTransactionRequest,
+  ): Promise<MultipleTransactionResponse> {
+    const contractInterface = ILifeCycleCashFlow__factory.createInterface()
+    const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
+
+    const maxBatchSize = request.maxBatchSize || this.configService.get<number>(ConfigKeys.MAX_BATCH_SIZE) || 15
+    const bondAddress = await ConverterUtils.getEvmAddressFromHederaAddress(request.bondContractId)
+    const batches = Array.from({ length: Math.ceil((request.holdersAccountIds || []).length / maxBatchSize) }, (_, i) =>
+      (request.holdersAccountIds || []).slice(i * maxBatchSize, i * maxBatchSize + maxBatchSize),
+    )
+    const transactions = await Promise.all(
+      batches.map(async (batch) => {
+        return (
+          await this.buildAndSerializeTransaction({
+            contractInterface,
+            functionName: "executeBondRedemptionByAddresses" as any,
+            contractId: request.contractId,
+            gas: this.GAS,
+            environment,
+            account: request.accountId,
+            format: request.format as "hedera" | "ethereum",
+            args: [
+              bondAddress,
+              await Promise.all(batch.map((accountId) => ConverterUtils.getEvmAddressFromHederaAddress(accountId))),
+            ],
+          } as any)
+        ).unsignedTx
+      }),
+    )
+    return {
+      items: transactions,
+    }
+  }
+
   async dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse> {
     const iPortfolioInterface = IPortfolio__factory.createInterface()
     const environment = this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || "testnet"
@@ -334,7 +370,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     environment: Environment,
   ): Promise<number> {
     return (
-      await IBondRead__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalCouponHolders(distributionId)
+      await IBondRead__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalCouponHolders(
+        distributionId,
+      )
     ).toNumber()
   }
 }
