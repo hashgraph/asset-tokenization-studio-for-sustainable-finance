@@ -154,7 +154,7 @@ describe('Proceeds management operations', () => {
     })
 
     describe('transferEnvironmentalAssetToken', () => {
-          it('GIVEN a deployed Treasury contract, WHEN the contract is paused and transfers an environmental asset token, THEN a TokenIsPaused error occurs', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and transfers an environmental asset token, THEN a TokenIsPaused error occurs', async () => {
             await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 
@@ -289,7 +289,7 @@ describe('Proceeds management operations', () => {
     })
 
     describe('fundProceedsRecipient', () => {
-          it('GIVEN a deployed Treasury contract, WHEN the contract is paused and funds a proceeds recipient, THEN a TokenIsPaused error occurs', async () => {
+        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and funds a proceeds recipient, THEN a TokenIsPaused error occurs', async () => {
             await treasury.grantRole(PAUSER_ROLE, signer_A.address)
             await treasury.pause()
 

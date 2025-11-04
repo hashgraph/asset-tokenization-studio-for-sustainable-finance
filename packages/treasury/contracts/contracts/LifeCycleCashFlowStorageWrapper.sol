@@ -164,7 +164,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
             batchInfo.amounts = new int64[](holders.length);
-            uint256 nominalValue = IBondRead(asset).getBondDetails().nominalValue;
+            uint256 nominalValue = IBondRead(asset)
+                .getBondDetails()
+                .nominalValue;
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
@@ -228,7 +230,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                         payingArraysIndexes,
                         result
                     );
-                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
+                    payingArraysIndexes
+                        .succeededAddressesIndex += succeededResults;
                     payingArraysIndexes.failedAddressesIndex += failedResults;
 
                     batchInfo.holders = new address[](holders.length);
@@ -350,21 +353,15 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         BatchInfo memory batchInfo,
         PayingArraysIndexes memory payingArraysIndexes,
         PaymentResult memory result
-    )
-    private
-    returns (
-        uint256 succeededResults,
-        uint256 failedResults
-    )
-    {
+    ) private returns (uint256 succeededResults, uint256 failedResults) {
         if (
             _payBatchHoldersDistribution(
-            distributionId,
-            paymentToken,
-            batchInfo.holders,
-            batchInfo.amounts,
-            batchInfo.totalAmount
-        )
+                distributionId,
+                paymentToken,
+                batchInfo.holders,
+                batchInfo.amounts,
+                batchInfo.totalAmount
+            )
         ) {
             (
                 result.succeededAddresses,

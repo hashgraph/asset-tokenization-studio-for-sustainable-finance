@@ -114,6 +114,8 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         notAddressZero(token)
     {
         _dissociateToken(token);
+
+        emit TokenDissociated(token);
     }
 
     /**
