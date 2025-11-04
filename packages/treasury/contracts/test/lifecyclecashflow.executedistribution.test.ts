@@ -95,7 +95,7 @@ describe('LifeCycleCashFlow operations', () => {
                     .withArgs(signer_A.address, PAYOUT_ROLE)
             })
 
-            it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution of an address zero address, THEN it reverts with InvalidAddressZero error', async () => {
+            it('GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution of a zero address asset, THEN it reverts with InvalidAddressZero error', async () => {
                 await treasury.grantRole(PAYOUT_ROLE, signer_A.address)
                 await expect(
                     treasury.executeDistribution(AddressZero, 1, 1, 1)

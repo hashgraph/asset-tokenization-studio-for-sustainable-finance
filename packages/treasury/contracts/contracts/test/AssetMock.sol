@@ -46,6 +46,13 @@ contract AssetMock is IAssetMock {
         return holders;
     }
 
+    function getSecurityHolders(
+        uint256,
+        uint256
+    ) external view returns (address[] memory) {
+        return holders;
+    }
+
     function getBondDetails()
         external
         pure
@@ -73,5 +80,17 @@ contract AssetMock is IAssetMock {
 
     function isProceedRecipient(address) external view returns (bool) {
         return isProceedRecipientForTheBond;
+    }
+
+    function balanceOf(address) external view returns (uint256) {
+        return tokenBalance;
+    }
+
+    function decimals() external pure returns (uint8) {
+        return 2;
+    }
+
+    function redeemAtMaturityByPartition(address, bytes32, uint256) external pure {
+        return;
     }
 }

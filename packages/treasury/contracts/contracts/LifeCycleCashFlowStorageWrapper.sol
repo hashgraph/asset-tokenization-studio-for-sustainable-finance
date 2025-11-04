@@ -10,16 +10,29 @@ import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     LIFECYCLE_CASH_FLOW_STORAGE_POSITION
 } from './constants/storagePositions.sol';
+import {
+    _DEFAULT_PARTITION
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/values.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     Common as AtsCommon
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
 import {
+    IBond
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol';
+
+import {
     TRexIBondRead as IBondRead
 } from '@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol';
 import {
-    Pairing
-} from '@hashgraph/smart-contracts/contracts/bls-signature/Pairing.sol';
+    IERC1410
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol';
+import {
+    ERC20
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol';
+import {
+    ISecurity
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol';
 import {
     HederaResponseCodes
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol';
@@ -35,6 +48,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     struct LifeCycleCashFlowStorage {
         address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
+        mapping(address => bool) paidRedemptionAddresses;
         bool initialized;
     }
 
@@ -62,6 +76,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         _;
     }
 
+    modifier onlyOnRedemptionDate(address bond) {
+        _checkRedemptionDate(bond);
+        _;
+    }
+
     /*
      * @dev Set the asset
      *
@@ -79,7 +98,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLength The number of holders who will be paid
      *
-     * @return The array of the holders addresses whose payment were not successful
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
+     * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
      */
     function _executeDistribution(
         address asset,
@@ -109,14 +133,66 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
-     * @return The array of the holders addresses whose payment were not successful
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      */
     function _executeDistributionByAddresses(
         address asset,
         uint256 distributionId,
         address[] memory holders
     ) internal returns (PaymentResult memory result) {
-        (result) = _payHoldersDistribution(asset, distributionId, holders);
+        result = _payHoldersDistribution(asset, distributionId, holders);
+    }
+
+    /*
+     * @dev Perform a bond redemption to a page of holders
+     *
+     * @param bond The bond the redemption belongs to
+     * @param pageIndex The index of the page of holders whose redemptions will be performed
+     * @param pageLength The number of holders who own the bond to be redeemed
+     *
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
+     * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
+     */
+    function _executeBondRedemption(
+        address bond,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) internal returns (PaymentResult memory result, bool) {
+        address[] memory holders = ISecurity(bond).getSecurityHolders(
+            pageIndex,
+            pageLength
+        );
+
+        if (holders.length == 0) return (result, false);
+        result = _executeBondRedemptionByAddresses(bond, holders);
+        return (result, true);
+    }
+
+    /*
+     * @dev Perform a bond redemption to a list of holders
+     *
+     * @param bond The bond the redemption belongs to
+     * @param holders The array of holders addresses who will be paid
+     *
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
+     */
+    function _executeBondRedemptionByAddresses(
+        address bond,
+        address[] memory holders
+    ) internal returns (PaymentResult memory result) {
+        result = _payHoldersRedemption(bond, holders);
     }
 
     /*
@@ -143,13 +219,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Returns the array containing holders addresses who couldn't be paid for a distribution id
+     * @dev Pay an asset distribution for a list of holders
      *
      * @param asset The asset the distribution belongs to
      * @param distributionId The distribution identifier
      * @param holders The holders to be paid
      *
-     * @return The array of the holders addresses whose payment were not successful for the distribution
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      */
     function _payHoldersDistribution(
         address asset,
@@ -316,6 +396,28 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         }
     }
 
+    /*
+     * @dev Get the redemption amount to pay for a certain holder
+     *
+     * @param bond The bond its redemption amount is requested
+     * @param holder The holder address to be paid
+     *
+     * @return The amount to be paid
+     */
+    function _getRedemptionAmount(
+        address bond,
+        uint256 tokensAmount,
+        uint256 nominalValue,
+        address paymentToken
+    ) private returns (uint256 amount) {
+        uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
+        uint8 nominalValueDecimals = paymentTokenDecimals;
+        uint256 scaleDown = paymentTokenDecimals + nominalValueDecimals;
+        uint8 bondDecimals = ERC20(bond).decimals();
+        amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) *
+            10 ** paymentTokenDecimals);
+    }
+
     /**
      * @dev Get the payment token decimals
      *
@@ -386,6 +488,235 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
+     * @dev Pay a bond redemption for a list of holders
+     *
+     * @param bond The bond the redemption belongs to
+     * @param holders The holders to be paid
+     *
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
+     */
+    function _payHoldersRedemption(
+        address bond,
+        address[] memory holders
+    ) private returns (PaymentResult memory result) {
+        result.failedAddresses = new address[](holders.length);
+        result.succeededAddresses = new address[](holders.length);
+        result.alreadyPaidAddresses = new address[](holders.length);
+        result.paidAmounts = new uint256[](holders.length);
+
+        if (holders.length > 0) {
+            PayingArraysIndexes memory payingArraysIndexes;
+            BatchInfo memory batchInfo;
+            batchInfo.holders = new address[](holders.length);
+            batchInfo.amounts = new int64[](holders.length);
+            batchInfo.tokensAmount = new uint256[](holders.length);
+            uint256 nominalValue = IBondRead(bond)
+                .getBondDetails()
+                .nominalValue;
+
+            address paymentToken = _getPaymentToken();
+
+            for (uint256 index; index < holders.length; ) {
+                address holder = holders[index];
+                if (!_isHolderValid(holder)) {
+                    result.failedAddresses[
+                        payingArraysIndexes.failedAddressesIndex
+                    ] = holder;
+                    unchecked {
+                        ++payingArraysIndexes.failedAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                if (_isRedemptionHolderPaid(holders[index])) {
+                    result.alreadyPaidAddresses[
+                        payingArraysIndexes.alreadyPaidAddressesIndex
+                    ] = holders[index];
+                    unchecked {
+                        ++payingArraysIndexes.alreadyPaidAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                uint256 tokensAmount = _getTokensAmount(bond, holders[index]);
+                uint256 amount = _getRedemptionAmount(
+                    bond,
+                    tokensAmount,
+                    nominalValue,
+                    paymentToken
+                );
+
+                if (!_isValidAmount(amount)) {
+                    result.failedAddresses[
+                        payingArraysIndexes.failedAddressesIndex
+                    ] = holder;
+                    unchecked {
+                        ++payingArraysIndexes.failedAddressesIndex;
+                        ++index;
+                    }
+                    continue;
+                }
+
+                if (
+                    !_valueFitsInInt64(
+                        uint256(uint64(batchInfo.totalAmount)) + amount
+                    )
+                ) {
+                    // batch transfer payment
+                    uint256 succeededResults;
+                    uint256 failedResults;
+                    (succeededResults, failedResults) = _processBatchRedemption(
+                        batchInfo,
+                        paymentToken,
+                        payingArraysIndexes,
+                        result
+                    );
+
+                    if (succeededResults > 0) {
+                        _redeemBondHolders(
+                            bond,
+                            holders,
+                            batchInfo.tokensAmount
+                        );
+                    }
+                    payingArraysIndexes
+                        .succeededAddressesIndex += succeededResults;
+                    payingArraysIndexes.failedAddressesIndex += failedResults;
+
+                    batchInfo.holders = new address[](holders.length);
+                    batchInfo.amounts = new int64[](holders.length);
+                    batchInfo.tokensAmount = new uint256[](holders.length);
+                    batchInfo.totalAmount = 0;
+                    payingArraysIndexes.batchIndex = 0;
+                }
+
+                batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
+                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
+                    int256(amount)
+                );
+                batchInfo.tokensAmount[
+                    payingArraysIndexes.batchIndex
+                ] = tokensAmount;
+                batchInfo.totalAmount += batchInfo.amounts[
+                    payingArraysIndexes.batchIndex
+                ];
+                unchecked {
+                    ++payingArraysIndexes.batchIndex;
+                    ++index;
+                }
+            }
+
+            // last batch transfer payment
+            if (batchInfo.holders[0] != address(0)) {
+                uint256 succeededResults;
+                uint256 failedResults;
+                (succeededResults, failedResults) = _processBatchRedemption(
+                    batchInfo,
+                    paymentToken,
+                    payingArraysIndexes,
+                    result
+                );
+                if (succeededResults > 0) {
+                    _redeemBondHolders(bond, holders, batchInfo.tokensAmount);
+                }
+            }
+        }
+    }
+
+    /*
+     * @dev Process a batch cash out payment to a list of holders
+     *
+     * @param distributionId The distribution paid to a holder
+     * @param batchHolders The array of holders who were paid
+     * @param batchAmounts The array of amounts paid to holders
+     * @param batchTotalAmount The total amount paid to holders
+     * @param paymentToken The payment token used to pay the cash out
+     * @param resultParams The payment result parameters to be updated
+     *
+     * @return The payment result updated with the batch payment results
+     */
+    function _processBatchRedemption(
+        BatchInfo memory batchInfo,
+        address paymentToken,
+        PayingArraysIndexes memory payingArraysIndexes,
+        PaymentResult memory result
+    ) private returns (uint256 succeededResults, uint256 failedResults) {
+        if (
+            _payBatchHoldersRedemption(
+                batchInfo.holders,
+                batchInfo.amounts,
+                batchInfo.totalAmount,
+                paymentToken
+            )
+        ) {
+            (
+                result.succeededAddresses,
+                result.paidAmounts
+            ) = _populateSourceArraysFromDataArrays(
+                result.succeededAddresses,
+                payingArraysIndexes.succeededAddressesIndex,
+                batchInfo.holders,
+                result.paidAmounts,
+                batchInfo.amounts
+            );
+            return (result.succeededAddresses.length, 0);
+        } else {
+            result.failedAddresses = _populateSourceArrayFromDataArray(
+                result.failedAddresses,
+                payingArraysIndexes.failedAddressesIndex,
+                batchInfo.holders
+            );
+            return (0, result.failedAddresses.length);
+        }
+    }
+
+    /*
+     * @dev Redeem the bond tokens of a list of holders
+     *
+     * @param bond The bond the redemption belongs to
+     * @param holders The holders whose bonds will be redeemed
+     * @param tokensAmounts The amounts of tokens to be redeemed for each holder
+     */
+    function _redeemBondHolders(
+        address bond,
+        address[] memory holders,
+        uint256[] memory tokensAmounts
+    ) private {
+        for (uint256 index; index < holders.length; ) {
+            _redeemBondHolder(bond, holders[index], tokensAmounts[index]);
+
+            unchecked {
+                ++index;
+            }
+        }
+    }
+
+    /*
+     * @dev Redeem the bond tokens of a holder
+     *
+     * @param bond The bond the cash out belongs to
+     * @param holder The holder whose bonds will be redeemed
+     * @param tokensAmount The amount of tokens to be redeemed for the holder
+     */
+    function _redeemBondHolder(
+        address bond,
+        address holder,
+        uint256 tokensAmount
+    ) private {
+        IBond(bond).redeemAtMaturityByPartition(
+            holder,
+            _DEFAULT_PARTITION,
+            tokensAmount
+        );
+    }
+
+    /*
      * @dev Set the asset
      *
      * @param asset The asset to be set
@@ -395,7 +726,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
-     * @dev Pay an amount of payment tokens to a holder
+     * @dev Pay an amount of payment tokens to a holder for a distribution
      *
      * @param distributionId The distribution paid to a holder
      * @param holder The holder address to be paid
@@ -426,6 +757,35 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
+     * @dev Pay an amount of payment tokens to a holder for a redemption
+     *
+     * @param holder The holder address to be paid
+     * @param amount The amount of payment tokens to be paid to the holder
+     * @param totalAmount The total amount to be paid to the holders
+     * @paymentToken The payment token used to pay the cash out
+     *
+     * @return True if the payment succeeded, false otherwise
+     */
+    function _payBatchHoldersRedemption(
+        address[] memory holders,
+        int64[] memory amounts,
+        int64 totalAmount,
+        address paymentToken
+    ) private returns (bool) {
+        if (
+            transferTokens(
+                paymentToken,
+                _createTransferAccounts(holders, address(this)),
+                _createTransferAmounts(amounts, -totalAmount)
+            ) == HederaResponseCodes.SUCCESS
+        ) {
+            _setHoldersRedemptionPaid(holders);
+            return true;
+        }
+        return false;
+    }
+
+    /*
      * @dev Checks if a distribution was already paid to a holder
      *
      * @param distributionId The distribution identifier
@@ -441,6 +801,19 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             _lifeCycleCashFlowStorage().paidAddressesByDistribution[
                 distributionId
             ][holder];
+    }
+
+    /*
+     * @dev Check if a certain holder was already redeemed
+     *
+     * @param holder The holder to check if the redemption was already paid
+     *
+     * @return True if the holder was already redeemed, false otherwise
+     */
+    function _isRedemptionHolderPaid(
+        address holder
+    ) private view returns (bool) {
+        return _lifeCycleCashFlowStorage().paidRedemptionAddresses[holder];
     }
 
     /*
@@ -495,6 +868,45 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
+     * @dev Sets a redemption to an array of holders
+     *
+     * @param holder The array of holders who were redeemed
+     */
+    function _setHoldersRedemptionPaid(address[] memory holders) private {
+        for (uint256 index; index < holders.length; ) {
+            _setHolderRedemptionPaid(holders[index]);
+
+            unchecked {
+                ++index;
+            }
+        }
+    }
+
+    /*
+     * @dev Sets a redemption to a holder
+     *
+     * @param holder The holder who was redeemed
+     */
+    function _setHolderRedemptionPaid(address holder) private {
+        _lifeCycleCashFlowStorage().paidRedemptionAddresses[holder] = true;
+    }
+
+    /*
+     * @dev Get the amount of asset tokens of a holder
+     *
+     * @param asset The asset the holder's balance is requested
+     * @param holder The holder whose tokens are requested
+     *
+     * @return The amount of tokens
+     */
+    function _getTokensAmount(
+        address asset,
+        address holder
+    ) private view returns (uint256) {
+        return IERC1410(asset).balanceOf(holder);
+    }
+
+    /*
      * @dev Get a list of holders of a distribution by page
      *
      * @param asset The asset the holders belongs to
@@ -536,6 +948,16 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /*
+     * @dev Check that today is the maturity date of the bond
+     *
+     * @param bond The bond address
+     */
+    function _checkRedemptionDate(address bond) private view {
+        uint256 redemptionDateInit = _getRedemptionDate(bond);
+        _checkPaymentDate(redemptionDateInit, _blockTimestamp());
+    }
+
+    /*
      * @dev Get the distribution execution date
      *
      * @param asset The asset its distribution execution date is requested
@@ -548,6 +970,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 distributionId
     ) private view returns (uint256) {
         return IBondRead(asset).getCoupon(distributionId).coupon.executionDate;
+    }
+
+    /*
+     * @dev Get the bond redemption date
+     *
+     * @param bond The bond its redemption date is requested
+     *
+     * @returns The bond redemption date
+     */
+    function _getRedemptionDate(address bond) private view returns (uint256) {
+        return IBondRead(bond).getBondDetails().maturityDate;
     }
 
     /*
