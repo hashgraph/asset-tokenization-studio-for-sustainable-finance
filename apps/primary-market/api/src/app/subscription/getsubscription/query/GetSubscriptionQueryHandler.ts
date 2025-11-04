@@ -25,7 +25,7 @@ export class GetSubscriptionQueryHandler implements QueryHandler<GetSubscription
 
     const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionId, offeringId, marketId)
 
-    return {
+    return Object.assign(new SubscriptionQueryResponse(), {
       id: subscription.id,
       createdAt: subscription.createdAt,
       subscriptionId: subscription.subscriptionId,
@@ -33,6 +33,6 @@ export class GetSubscriptionQueryHandler implements QueryHandler<GetSubscription
       investorId: subscription.investor.accountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
-    }
+    })
   }
 }

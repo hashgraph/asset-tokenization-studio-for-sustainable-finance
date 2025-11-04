@@ -2,7 +2,7 @@
 
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
-export interface SubscriptionQueryResponse {
+export class SubscriptionQueryResponse {
   id: string
   createdAt: Date
   subscriptionId: string
