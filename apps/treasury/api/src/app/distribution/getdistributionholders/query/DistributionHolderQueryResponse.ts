@@ -3,5 +3,5 @@
 export class DistributionHolderQueryResponse {
   accountId: string
   status: string
-  amount?: string
+  amount: string | null
 }

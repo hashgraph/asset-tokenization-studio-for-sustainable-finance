@@ -50,7 +50,7 @@ export class GetDistributionHoldersQueryHandler
       const paymentToken = paymentTokensMap.get(distributionHolder.paymentTokenId)
       const formattedAmount = distributionHolder.amount
         ? ConverterUtils.formatNumber(distributionHolder.amount, paymentToken?.decimals || 0)
-        : undefined
+        : null
 
       return {
         accountId: distributionHolder.holderAccountId,
