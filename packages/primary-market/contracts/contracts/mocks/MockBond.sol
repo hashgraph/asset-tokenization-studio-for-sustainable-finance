@@ -13,6 +13,7 @@ contract MockBond is IBondRead {
     string public symbol;
     address public treasury;
     uint256 public nominalValue;
+    mapping(address => uint256) balance;
 
     constructor(string memory name_, string memory symbol_, address treasury_) {
         name = name_;
@@ -24,6 +25,10 @@ contract MockBond is IBondRead {
 
     function setNominalValue(uint256 nominalValue_) external {
         nominalValue = nominalValue_;
+    }
+
+    function issue(address _tokenHolder, uint256 _value, bytes calldata _data) external {
+        balance[_tokenHolder] += _value;
     }
 
     function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {

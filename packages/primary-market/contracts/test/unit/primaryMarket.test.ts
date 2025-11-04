@@ -1,7 +1,14 @@
 import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket, IPause } from "@contracts";
+import {
+  IFactoryPrimaryMarket,
+  IBusinessLogicResolver,
+  IAccessControl,
+  IPrimaryMarket,
+  IPause,
+  IPrecompiledMock,
+} from "@contracts";
 import {
   DEFAULT_ADMIN_ROLE,
   deployFactoryPrimaryMarketSystem,
@@ -23,6 +30,7 @@ import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
 // Contracts
 let primaryMarket: IPrimaryMarket;
 let primaryMarketTimeTravel: ITimeTravel;
+let primaryMarketPrecompiled: IPrecompiledMock;
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
@@ -112,6 +120,10 @@ describe("PrimaryMarket", () => {
     const primaryMarketAddress = event.args.primaryMarketAddress;
     primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
     primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
+    primaryMarketPrecompiled = (await ethers.getContractAt(
+      "IPrecompiledMock",
+      primaryMarketAddress,
+    )) as IPrecompiledMock;
     pause = (await ethers.getContractAt("Pause", primaryMarketAddress)) as IPause;
 
     // Deploy mock tokens
@@ -475,10 +487,11 @@ describe("PrimaryMarket", () => {
 
   describe("Offering Status Transitions", () => {
     let offeringId: number;
+    let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
       const now = await time.latest();
-      const offering: IPrimaryMarket.OfferingStruct = {
+      offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
@@ -498,50 +511,56 @@ describe("PrimaryMarket", () => {
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
     });
 
+    async function reachTarget() {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+
+      const iterations = offering.targetLots / offering.maxLots;
+
+      for (let i = 0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots);
+      }
+
+      const remainder = offering.targetLots - iterations * offering.maxLots;
+      if (remainder > 0) await primaryMarket.connect(investor1).submitSubscription(offeringId, remainder);
+    }
+
     it("GIVEN offering before startDate WHEN checking status THEN PENDING", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate - 1);
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(0); // PENDING
     });
 
     it("GIVEN offering after startDate WHEN checking status THEN OPEN", async () => {
-      await time.increase(61); // Move past startDate
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(1); // OPEN
     });
 
     it("GIVEN OVERSUBSCRIPTION_NOT_ALLOWED + WAIT_UNTIL_END WHEN target reached THEN CLOSED", async () => {
-      await time.increase(61); // Move past startDate
-
-      // Subscribe to reach target (100 lots * 100 tokens = 10,000 tokens)
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 50);
-      await primaryMarket.connect(investor2).submitSubscription(offeringId, 50);
+      await reachTarget();
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(2); // CLOSED
     });
 
     it("GIVEN target reached and past endDate WHEN checking status THEN EXECUTABLE", async () => {
-      await time.increase(61); // Move past startDate
-
-      // Subscribe to reach target
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 50);
-      await primaryMarket.connect(investor2).submitSubscription(offeringId, 50);
+      await reachTarget();
 
       // Move past endDate
-      await time.increase(3600);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(3); // EXECUTABLE
     });
 
     it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE", async () => {
-      await time.increase(61); // Move past startDate
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
 
       // Subscribe but don't reach target (only 30 lots out of 100)
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, 30);
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
 
       // Move past endDate
-      await time.increase(3600);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(4); // CANCELLABLE
@@ -765,9 +784,9 @@ describe("PrimaryMarket", () => {
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
         lotSize: ethers.utils.parseUnits("1000", 6),
-        minLots: 1000,
-        maxLots: 50000,
-        targetLots: 1000000,
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 1000,
         targetQuantityRule: targetQuantityRule,
         startDate: now + 60,
         endDate: now + 3600,
@@ -785,7 +804,7 @@ describe("PrimaryMarket", () => {
       await createOffering(0, 0);
     });
 
-    it.skip("GIVEN executable offering WHEN executing THEN success", async () => {
+    async function reachTarget() {
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
 
       const iterations = offering.targetLots / offering.minLots;
@@ -803,13 +822,70 @@ describe("PrimaryMarket", () => {
           await primaryMarket.connect(investor).submitSubscription(offeringId, 1);
         }
       }
+    }
 
+    it("GIVEN executable offering WHEN executing THEN success", async () => {
+      await reachTarget();
+
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
-      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100)).to.emit(
-        primaryMarket,
-        "OfferingExecuted",
-      );
+      const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
+
+      for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+        const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2);
+        const receipt = await tx.wait();
+
+        // Find the event
+        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+        expect(event).to.not.be.undefined;
+
+        // Check scalar args
+        expect(event.args.offeringId).to.equal(offeringId);
+        expect(event.args.operator).to.equal(offeringCreatorAddress);
+
+        // Convert BigNumbers to numbers for array comparison
+        const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+        expect(succeeded).to.deep.equal([i * 2 + 1, i * 2 + 2]);
+
+        const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+        expect(failed).to.deep.equal([0, 0]);
+
+        const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+        expect(alreadyProcessed).to.deep.equal([0, 0]);
+      }
+    });
+
+    it("GIVEN executable offering and not working preocmpiled WHEN executing THEN success with failures", async () => {
+      await reachTarget();
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(false);
+
+      const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
+
+      for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+        const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2);
+        const receipt = await tx.wait();
+
+        // Find the event
+        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+        expect(event).to.not.be.undefined;
+
+        // Check scalar args
+        expect(event.args.offeringId).to.equal(offeringId);
+        expect(event.args.operator).to.equal(offeringCreatorAddress);
+
+        // Convert BigNumbers to numbers for array comparison
+        const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+        expect(succeeded).to.deep.equal([0, 0]);
+
+        const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+        expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
+
+        const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+        expect(alreadyProcessed).to.deep.equal([0, 0]);
+      }
     });
 
     it("GIVEN paused PM WHEN executing THEN fail", async () => {

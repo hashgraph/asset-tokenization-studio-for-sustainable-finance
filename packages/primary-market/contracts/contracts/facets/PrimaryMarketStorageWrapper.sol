@@ -349,7 +349,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             destinations[i] = transferItems[i].destination;
         }
 
-        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
+        if (_transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
             indexCounts[uint256(CountIndex.SUCCEEDED)] = _addToList(
                 subscriptionIds,
                 processResult.succeededSubscriptions,
@@ -377,6 +377,14 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             processResult.failedSubscriptions,
             indexCounts[uint256(CountIndex.FAILED)]
         );
+    }
+
+    function _transferTokens(
+        address token,
+        address[] memory accountIds,
+        int64[] memory amounts
+    ) internal virtual returns (int responseCode) {
+        return transferTokens(token, accountIds, amounts);
     }
 
     /**

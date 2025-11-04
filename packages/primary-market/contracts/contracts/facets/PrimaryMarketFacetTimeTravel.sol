@@ -4,13 +4,16 @@ pragma solidity >=0.8.0 <0.9.0;
 import { PrimaryMarketFacet } from "./PrimaryMarketFacet.sol";
 import { TimeTravelStorageWrapper } from "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelStorageWrapper.sol";
 import { LocalContext } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/context/LocalContext.sol";
+import { PrecompiledMockStorageWrapper } from "../mocks/PrecompiledMock.sol";
+import { PrimaryMarketStorageWrapper } from "./PrimaryMarketStorageWrapper.sol";
 
 /**
  * @title PrimaryMarketFacetTimeTravel
  * @notice TimeTravel variant of PrimaryMarketFacet for testing time-dependent logic
  * @dev Extends PrimaryMarketFacet with TimeTravelStorageWrapper to override block.timestamp and block.number
+ * @dev Extends Hedera Precompiled to replace transferTokens
  */
-contract PrimaryMarketFacetTimeTravel is PrimaryMarketFacet, TimeTravelStorageWrapper {
+contract PrimaryMarketFacetTimeTravel is PrimaryMarketFacet, TimeTravelStorageWrapper, PrecompiledMockStorageWrapper {
     /**
      * @dev Override _blockTimestamp to use TimeTravel's mocked timestamp
      * @return Current timestamp (mocked if set, otherwise real block.timestamp)
@@ -25,5 +28,13 @@ contract PrimaryMarketFacetTimeTravel is PrimaryMarketFacet, TimeTravelStorageWr
      */
     function _blockNumber() internal view override(LocalContext, TimeTravelStorageWrapper) returns (uint256) {
         return TimeTravelStorageWrapper._blockNumber();
+    }
+
+    function _transferTokens(
+        address token,
+        address[] memory accountIds,
+        int64[] memory amounts
+    ) internal override(PrecompiledMockStorageWrapper, PrimaryMarketStorageWrapper) returns (int responseCode) {
+        return PrecompiledMockStorageWrapper._transferTokens(token, accountIds, amounts);
     }
 }

@@ -6,3 +6,6 @@ bytes32 constant FACTORY_PRIMARY_MARKET_RESOLVER_KEY = 0x98c9d1e17a94f8342c5219f
 
 // keccak256('green.bonds.platform.primarymarket.resolverKey');
 bytes32 constant PRIMARY_MARKET_RESOLVER_KEY = 0xcdfe5eae53e62eb0e55385ee0e010eb2376afa6690d7ed8e0266c6fa9820c082;
+
+// keccak256('green.bonds.platform.precompiled.resolverKey');
+bytes32 constant PRECOMPILED_RESOLVER_KEY = 0x580681ced25386bbb5c81fc39115f7a206519985c0d089dc4e16e54bb557e91c;

@@ -104,7 +104,12 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     info("\n📦 Step 2/4: Deploying FactoryPrimaryMarketFacet, PrimaryMarketFacet...");
 
     const facetNames = useTimeTravel
-      ? ["FactoryPrimaryMarketFacetTimeTravel", "PrimaryMarketFacetTimeTravel", "TimeTravelFacet"]
+      ? [
+          "FactoryPrimaryMarketFacetTimeTravel",
+          "PrimaryMarketFacetTimeTravel",
+          "TimeTravelFacet",
+          "PrecompiledMockFacetTimeTravel",
+        ]
       : ["FactoryPrimaryMarketFacet", "PrimaryMarketFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
@@ -159,6 +164,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
           FactoryPrimaryMarketFacetTimeTravel: newFacetAddresses.FactoryPrimaryMarketFacetTimeTravel,
           PrimaryMarketFacetTimeTravel: newFacetAddresses.PrimaryMarketFacetTimeTravel,
           TimeTravelFacet: newFacetAddresses.TimeTravelFacet,
+          PrecompiledMockFacetTimeTravel: newFacetAddresses.PrecompiledMockFacetTimeTravel,
         }
       : {
           AccessControlFacet: facets.accessControl,
@@ -192,6 +198,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     const primaryMarketConfig = await createPrimaryMarketConfiguration(
       blrContract,
       facetNamesForConfig,
+      useTimeTravel,
       useTimeTravel,
       factoryPrimaryMarketRegistry,
     );
