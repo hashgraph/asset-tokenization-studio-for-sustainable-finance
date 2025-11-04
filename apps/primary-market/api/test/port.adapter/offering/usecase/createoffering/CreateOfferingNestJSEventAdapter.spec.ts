@@ -11,7 +11,6 @@ import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPe
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingCreatedDLTEvent } from "@port/offering/usecase/createoffering/model/OfferingCreatedDLTEvent"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 
 describe("CreateOfferingNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -94,7 +93,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering!.startDate).toEqual(new Date(1640995200 * 1000))
       expect(savedOffering!.endDate).toEqual(new Date(1672531200 * 1000))
       expect(savedOffering!.deadlineRule).toBe(0)
-      expect(savedOffering!.status).toBe(OfferingStatus.CREATED)
       expect(savedOffering!.market.contractId).toBe("0.0.1234567")
     })
 
@@ -107,6 +105,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market: primaryMarket,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "500",
@@ -117,7 +116,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       await offeringRepository.save(existingOffering)

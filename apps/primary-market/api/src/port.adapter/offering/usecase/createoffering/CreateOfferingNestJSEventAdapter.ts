@@ -17,6 +17,7 @@ export class CreateOfferingNestJSEventAdapter implements CreateOfferingPort, Eve
         event.offeringId,
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.asset),
+        await ConverterUtils.getHederaAddressFromEvm(event.operator),
         await ConverterUtils.getHederaAddressFromEvm(event.treasury),
         await ConverterUtils.getHederaAddressFromEvm(event.paymentToken),
         event.lotSize,

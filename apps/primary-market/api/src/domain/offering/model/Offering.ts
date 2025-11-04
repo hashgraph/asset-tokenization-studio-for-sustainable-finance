@@ -2,9 +2,9 @@
 
 import { PrimaryMarket } from "@domain/primarymarket/model/PrimaryMarket"
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsDate, ValidateNested, IsEnum } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsDate, ValidateNested } from "class-validator"
 import { Type } from "class-transformer"
-import { OfferingStatus } from "../../shared/model/OfferingStatus"
+import { OfferingUnauthorizedOperatorError } from "../errors/OfferingUnauthorizedOperatorError"
 
 export class Offering extends BaseEntity {
   @IsNotEmpty()
@@ -21,8 +21,8 @@ export class Offering extends BaseEntity {
   bondId: string
 
   @IsNotEmpty()
-  @IsEnum(OfferingStatus)
-  status: OfferingStatus
+  @IsString()
+  operatorId: string
 
   @IsNotEmpty()
   @IsString()
@@ -63,4 +63,10 @@ export class Offering extends BaseEntity {
   @IsNotEmpty()
   @IsNumber()
   deadlineRule: number
+
+  checkOperator(operatorId: string): void {
+    if (this.operatorId !== operatorId) {
+      throw OfferingUnauthorizedOperatorError.operatorMismatchError(this.offeringId, this.operatorId, operatorId)
+    }
+  }
 }

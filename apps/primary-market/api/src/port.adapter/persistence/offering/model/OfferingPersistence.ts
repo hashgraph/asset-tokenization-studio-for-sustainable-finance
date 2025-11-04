@@ -3,7 +3,6 @@
 import { Entity, Column, ManyToOne, JoinColumn } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 
 @Entity("Offering")
 export class OfferingPersistence extends BaseEntityPersistence {
@@ -17,8 +16,8 @@ export class OfferingPersistence extends BaseEntityPersistence {
   @Column()
   bondId: string
 
-  @Column({ type: "enum", enum: OfferingStatus, default: OfferingStatus.CREATED })
-  status: OfferingStatus
+  @Column()
+  operatorId: string
 
   @Column()
   treasuryId: string

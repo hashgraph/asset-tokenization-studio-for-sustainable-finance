@@ -17,6 +17,10 @@ export class CreateOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
+  operatorId: string
+
+  @IsNotEmpty()
+  @IsString()
   treasuryId: string
 
   @IsNotEmpty()
@@ -59,6 +63,7 @@ export class CreateOfferingCommand extends Command<void> {
     offeringId: string,
     marketId: string,
     bondId: string,
+    operatorId: string,
     treasuryId: string,
     paymentTokenId: string,
     lotSize: string,
@@ -74,6 +79,7 @@ export class CreateOfferingCommand extends Command<void> {
     this.offeringId = offeringId
     this.marketId = marketId
     this.bondId = bondId
+    this.operatorId = operatorId
     this.treasuryId = treasuryId
     this.paymentTokenId = paymentTokenId
     this.lotSize = lotSize

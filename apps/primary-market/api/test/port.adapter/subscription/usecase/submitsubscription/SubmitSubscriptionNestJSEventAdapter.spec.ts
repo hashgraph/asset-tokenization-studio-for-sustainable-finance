@@ -13,7 +13,6 @@ import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPe
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { SubscriptionSubmittedDLTEvent } from "@port/subscription/usecase/submitsubscription/model/SubscriptionSubmittedDLTEvent"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
@@ -68,6 +67,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -78,7 +78,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       const event = new SubscriptionSubmittedDLTEvent(
@@ -115,6 +114,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -125,7 +125,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       const event = new SubscriptionSubmittedDLTEvent(
@@ -153,6 +152,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -163,7 +163,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       await investorRepository.save({
@@ -197,6 +196,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -207,7 +207,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       const investor = await investorRepository.save({
@@ -260,6 +259,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -270,7 +270,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       const event1 = new SubscriptionSubmittedDLTEvent(
@@ -310,6 +309,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         offeringId: "1",
         market,
         bondId: "0.0.9999999",
+        operatorId: "0.0.4660",
         treasuryId: "0.0.9999999",
         paymentTokenId: "0.0.9999999",
         lotSize: "1000",
@@ -320,7 +320,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       let publishedEvent: any

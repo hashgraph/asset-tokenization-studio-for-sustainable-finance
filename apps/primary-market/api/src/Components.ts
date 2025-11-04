@@ -19,6 +19,8 @@ import { UserMarketRoleTypeORMRepository } from "@port/persistence/usermarketrol
 import { InvestorTypeORMRepository } from "@port/persistence/investor/repositories/InvestorTypeORMRepository"
 import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
+import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
+import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
 import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
@@ -27,6 +29,8 @@ import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createo
 import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
 import { CreateOfferingCommandHandler } from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
+import { CancelOfferingCommandHandler } from "@app/offering/canceloffering/command/CancelOfferingCommandHandler"
+import { ExecuteOfferingCommandHandler } from "@app/offering/executeoffering/command/ExecuteOfferingCommandHandler"
 import { GrantRoleCommandHandler } from "@app/role/grantrole/command/GrantRoleCommandHandler"
 import { SubmitSubscriptionCommandHandler } from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
@@ -41,6 +45,8 @@ import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffe
 import { ExecuteOfferingTransactionAppService } from "@app/transaction/executeoffering/service/ExecuteOfferingTransactionAppService"
 import { CancelOfferingTransactionHttpAdapter } from "@port/transaction/usecase/cancelOffering/CancelOfferingTransactionHttpAdapter"
 import { ExecuteOfferingTransactionHttpAdapter } from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
+import { ExecuteOfferingNestJSEventAdapter } from "@port/offering/usecase/executeoffering/ExecuteOfferingNestJSEventAdapter"
+import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -89,6 +95,8 @@ export const PROVIDERS = [
   GrantRoleTransactionAppService,
   SubmitSubscriptionTransactionAppService,
   CreateOfferingDomainService,
+  CancelOfferingDomainService,
+  ExecuteOfferingDomainService,
   SubmitSubscriptionDomainService,
   CheckOfferingExistsDomainService,
   GrantUserMarketRoleDomainService,
@@ -97,10 +105,14 @@ export const PROVIDERS = [
   GrantRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,
+  CancelOfferingCommandHandler,
+  ExecuteOfferingCommandHandler,
   GrantRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
+  ExecuteOfferingNestJSEventAdapter,
+  CancelOfferingNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

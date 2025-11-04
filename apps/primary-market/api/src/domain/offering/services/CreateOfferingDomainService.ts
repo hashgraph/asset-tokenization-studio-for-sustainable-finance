@@ -5,7 +5,6 @@ import type { OfferingRepository } from "../repositories/OfferingRepository"
 import { CreateOfferingDomainServiceRequest } from "./model/CreateOfferingDomainServiceRequest"
 import { Offering } from "../model/Offering"
 import { OfferingFoundError } from "../errors/OfferingFoundError"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 
 @Singleton()
@@ -30,7 +29,7 @@ export class CreateOfferingDomainService {
       offeringId: createOfferingDomainServiceRequest.offeringId,
       market: market,
       bondId: createOfferingDomainServiceRequest.bondId,
-      status: OfferingStatus.CREATED,
+      operatorId: createOfferingDomainServiceRequest.operatorId,
       treasuryId: createOfferingDomainServiceRequest.treasuryId,
       paymentTokenId: createOfferingDomainServiceRequest.paymentTokenId,
       lotSize: createOfferingDomainServiceRequest.lotSize,
