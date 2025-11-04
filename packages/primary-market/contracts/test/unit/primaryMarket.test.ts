@@ -1,12 +1,13 @@
 import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket } from "@contracts";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket, IPause } from "@contracts";
 import {
   DEFAULT_ADMIN_ROLE,
   deployFactoryPrimaryMarketSystem,
   PM_DEPLOYER_ROLE,
   OFFERING_CREATOR_ROLE,
+  PAUSER_ROLE,
 } from "@scripts";
 import {
   ADDRESS_ZERO,
@@ -25,6 +26,7 @@ let primaryMarketTimeTravel: ITimeTravel;
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
+let pause: IPause;
 
 // Signers
 let admin: Signer;
@@ -83,6 +85,10 @@ describe("PrimaryMarket", () => {
         members: [adminAddress],
       },
       {
+        role: PAUSER_ROLE,
+        members: [adminAddress],
+      },
+      {
         role: OFFERING_CREATOR_ROLE,
         members: [offeringCreatorAddress],
       },
@@ -106,6 +112,7 @@ describe("PrimaryMarket", () => {
     const primaryMarketAddress = event.args.primaryMarketAddress;
     primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
     primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
+    pause = (await ethers.getContractAt("Pause", primaryMarketAddress)) as IPause;
 
     // Deploy mock tokens
     const MockERC20 = await ethers.getContractFactory("MockERC20");
@@ -194,6 +201,30 @@ describe("PrimaryMarket", () => {
       expect(offeringInfo.endDate).to.equal(offering.endDate);
       expect(offeringInfo.deadlineRule).to.equal(offering.deadlineRule);
       expect(creator).to.equal(offeringCreatorAddress);
+    });
+
+    it("GIVEN paused PM WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0, // OVERSUBSCRIPTION_NOT_ALLOWED
+        startDate: now + 60, // Starts in 1 minute
+        endDate: now + 3600, // Ends in 1 hour
+        deadlineRule: 0, // WAIT_UNTIL_END
+      };
+
+      await pause.connect(admin).pause();
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        pause,
+        "TokenIsPaused",
+      );
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
@@ -574,6 +605,16 @@ describe("PrimaryMarket", () => {
       expect(balancePMAfter.sub(balancePMBefore)).to.equal(cost);
     });
 
+    it("GIVEN paused PM WHEN submitting THEN fail", async () => {
+      const lotsUnit = offering.minLots + 1;
+
+      await pause.connect(admin).pause();
+
+      await expect(
+        primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+    });
+
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
       const lotsUnit = offering.minLots - 1;
 
@@ -707,4 +748,6 @@ describe("PrimaryMarket", () => {
         .withArgs(totalLots, offering.maxLots, offering.targetLots);
     });
   });
+
+  describe("Executing & Cancelling Offerings", () => {});
 });
