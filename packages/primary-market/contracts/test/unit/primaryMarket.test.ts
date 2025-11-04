@@ -550,6 +550,10 @@ describe("PrimaryMarket", () => {
     it("GIVEN valid subscription WHEN submitting THEN success", async () => {
       const lotsUnit = offering.minLots + 1;
 
+      const balanceInvestorBefore = await mockPaymentToken.balanceOf(investor1Address);
+      const balancePMBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
         .to.emit(primaryMarket, "SubscriptionSubmitted")
         .withArgs(offeringId, 1, investor1Address, lotsUnit);
@@ -560,6 +564,14 @@ describe("PrimaryMarket", () => {
       const [investor, subscribedLotUnits] = await primaryMarket.getSubscription(offeringId, 1);
       expect(investor).to.equal(investor1Address);
       expect(subscribedLotUnits).to.equal(lotsUnit);
+
+      const cost = lotsUnit * offering.lotSize * nominalValue;
+
+      const balanceInvestorAfter = await mockPaymentToken.balanceOf(investor1Address);
+      const balancePMAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      expect(balanceInvestorBefore.sub(balanceInvestorAfter)).to.equal(cost);
+      expect(balancePMAfter.sub(balancePMBefore)).to.equal(cost);
     });
 
     it("GIVEN subscription below minLots WHEN submitting THEN fail", async () => {
@@ -634,7 +646,7 @@ describe("PrimaryMarket", () => {
 
       offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
-      expect(offeringStatus).to.equal(4); //CANCELLABLE
+      expect(offeringStatus).to.equal(6); //CANCELED
     });
 
     it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {
