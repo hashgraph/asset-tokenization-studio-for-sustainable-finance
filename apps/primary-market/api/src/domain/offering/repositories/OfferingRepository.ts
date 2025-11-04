@@ -4,5 +4,5 @@ import { Offering } from "../model/Offering"
 
 export interface OfferingRepository {
   save(offering: Offering): Promise<Offering>
-  findByOfferingId(offeringId: string): Promise<Offering | null>
+  findByOfferingIdAndMarketId(offeringId: string, marketId: string): Promise<Offering | null>
 }

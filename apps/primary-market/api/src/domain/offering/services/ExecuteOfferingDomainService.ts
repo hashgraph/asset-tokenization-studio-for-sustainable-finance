@@ -24,16 +24,16 @@ export class ExecuteOfferingDomainService {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketId)
     market.checkActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingId(offeringId)
+    const existingOffering = await this.offeringRepository.findByOfferingIdAndMarketId(offeringId, marketId)
     if (!existingOffering) {
-      throw OfferingNotFoundError.offeringIdError(offeringId)
+      throw OfferingNotFoundError.offeringIdAndMarketIdError(offeringId, marketId)
     }
 
     existingOffering.checkOperator(operatorId)
 
     const subscriptionsToUpdate = [
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsSuccess, SubscriptionStatus.EXECUTED)),
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, SubscriptionStatus.FAILED)),
+      ...(await this.updateSubscriptionsStatus(subscriptionIdsSuccess, offeringId, SubscriptionStatus.EXECUTED)),
+      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, offeringId, SubscriptionStatus.FAILED)),
     ]
 
     if (subscriptionsToUpdate.length > 0) {
@@ -43,13 +43,17 @@ export class ExecuteOfferingDomainService {
 
   private async updateSubscriptionsStatus(
     subscriptionIds: string[],
+    offeringId: string,
     status: SubscriptionStatus,
   ): Promise<Subscription[]> {
     const subscriptions = await Promise.all(
       subscriptionIds.map(async (subscriptionId) => {
-        const subscription = await this.subscriptionRepository.findBySubscriptionId(subscriptionId)
+        const subscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
+          subscriptionId,
+          offeringId,
+        )
         if (!subscription) {
-          throw SubscriptionNotFoundError.subscriptionIdError(subscriptionId)
+          throw SubscriptionNotFoundError.subscriptionIdAndOfferingIdError(subscriptionId, offeringId)
         }
         subscription.status = status
         return subscription

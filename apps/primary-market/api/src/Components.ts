@@ -22,17 +22,20 @@ import { CreateOfferingDomainService } from "@domain/offering/services/CreateOff
 import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
 import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
 import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
+import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
 import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
+import { CancelSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/cancelsubscription/CancelSubscriptionNestJSEventAdapter"
 import { CreateOfferingCommandHandler } from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
 import { CancelOfferingCommandHandler } from "@app/offering/canceloffering/command/CancelOfferingCommandHandler"
 import { ExecuteOfferingCommandHandler } from "@app/offering/executeoffering/command/ExecuteOfferingCommandHandler"
 import { GrantRoleCommandHandler } from "@app/role/grantrole/command/GrantRoleCommandHandler"
 import { SubmitSubscriptionCommandHandler } from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
+import { CancelSubscriptionCommandHandler } from "@app/subscription/cancelsubscription/command/CancelSubscriptionCommandHandler"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
@@ -47,6 +50,8 @@ import { CancelOfferingTransactionHttpAdapter } from "@port/transaction/usecase/
 import { ExecuteOfferingTransactionHttpAdapter } from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
 import { ExecuteOfferingNestJSEventAdapter } from "@port/offering/usecase/executeoffering/ExecuteOfferingNestJSEventAdapter"
 import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
+import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
+import { CancelSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -84,6 +89,7 @@ export const CONTROLLERS = [
   CreateOfferingTransactionHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
+  CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
 ]
@@ -94,21 +100,25 @@ export const PROVIDERS = [
   CreateOfferingTransactionAppService,
   GrantRoleTransactionAppService,
   SubmitSubscriptionTransactionAppService,
+  CancelSubscriptionTransactionAppService,
   CreateOfferingDomainService,
   CancelOfferingDomainService,
   ExecuteOfferingDomainService,
   SubmitSubscriptionDomainService,
+  CancelSubscriptionDomainService,
   CheckOfferingExistsDomainService,
   GrantUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
+  CancelSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
   GrantRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
+  CancelSubscriptionCommandHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,

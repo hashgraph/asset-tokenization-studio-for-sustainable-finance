@@ -20,9 +20,13 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return this.toDomain(saved)
   }
 
-  async findByOfferingId(offeringId: string): Promise<Offering | null> {
+  async findByOfferingIdAndMarketId(offeringId: string, marketId: string): Promise<Offering | null> {
     const persistence = await this.repository.findOne({
-      where: { offeringId },
+      where: {
+        offeringId,
+        market: { contractId: marketId },
+      },
+      relations: ["market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
