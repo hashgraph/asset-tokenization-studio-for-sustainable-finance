@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseDistributionExecutedDLTEvent } from "./BaseDistributionExecutedDLTEvent"
-import { PaymentResultEventModel } from "./PaymentResultEventModel"
+import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 
 export class DistributionExecutedDLTEvent extends BaseDistributionExecutedDLTEvent {
   readonly pageIndex: number

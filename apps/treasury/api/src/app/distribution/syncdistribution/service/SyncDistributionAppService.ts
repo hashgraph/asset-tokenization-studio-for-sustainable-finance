@@ -23,10 +23,8 @@ export class SyncDistributionAppService {
 
     await this.ensureDistributionExists(request.distributionId, treasury.id)
 
-    const paymentTokenId = treasury.paymentToken?.id
-    if (!paymentTokenId) {
-      throw new Error(`Payment token not configured for treasury ${request.treasuryContractId}`)
-    }
+    treasury.ensurePaymentTokenConfigured()
+    const paymentTokenId = (treasury.paymentToken as any).id
 
     await this.processSuccessfulHolders(
       request.successAddresses,

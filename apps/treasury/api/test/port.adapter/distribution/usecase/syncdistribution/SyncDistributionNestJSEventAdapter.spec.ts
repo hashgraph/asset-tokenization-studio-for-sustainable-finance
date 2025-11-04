@@ -17,7 +17,7 @@ import { DistributionHolderPersistence } from "@port/persistence/distribution/mo
 import { DistributionCreatedEvent } from "@domain/distribution/event/DistributionCreatedEvent"
 import { DistributionHolderAddedEvent } from "@domain/distribution/event/DistributionHolderAddedEvent"
 import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
-import { PaymentResult } from "@port/distribution/usecase/syncdistribution/model/BaseDistributionExecutedDLTEvent"
+import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 
 describe("SyncDistribution Integration", () => {
   let app: INestApplication
@@ -85,7 +85,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress1": "0.0.100",
         "0xevmAddress2": "0.0.101",
@@ -100,7 +100,7 @@ describe("SyncDistribution Integration", () => {
     const evmFailedAddresses = ["0xevmAddress4"]
     const paidAmounts = ["1000000", "2000000", "3000000"]
 
-    const result: PaymentResult = {
+    const result: PaymentResultEventModel = {
       succeededAddresses: evmSuccessAddresses,
       failedAddresses: evmFailedAddresses,
       alreadyPaidAddresses: [],
@@ -130,7 +130,7 @@ describe("SyncDistribution Integration", () => {
     const holders = await internalDistributionHolderRepository.find()
     expect(holders).toHaveLength(4)
 
-    const successHolders = holders.filter((h) => h.status === DistributionHolderStatus.SUCCESS)
+    const successHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(3)
     expect(successHolders[0]).toMatchObject({
       holderAccountId: "0.0.100",
@@ -151,7 +151,7 @@ describe("SyncDistribution Integration", () => {
       distributionId,
     })
 
-    const failedHolders = holders.filter((h) => h.status === DistributionHolderStatus.FAILED)
+    const failedHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(1)
     expect(failedHolders[0]).toMatchObject({
       holderAccountId: "0.0.200",
@@ -173,7 +173,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress5": "0.0.300",
         "0xevmAddress6": "0.0.301",
@@ -189,7 +189,7 @@ describe("SyncDistribution Integration", () => {
     const evmFailedAddresses = ["0xevmAddress7", "0xevmAddress8"]
     const paidAmounts = ["5000000", "6000000"]
 
-    const result: PaymentResult = {
+    const result: PaymentResultEventModel = {
       succeededAddresses: evmSuccessAddresses,
       failedAddresses: evmFailedAddresses,
       alreadyPaidAddresses: [],
@@ -213,10 +213,10 @@ describe("SyncDistribution Integration", () => {
     const savedHolders = await internalDistributionHolderRepository.find()
     expect(savedHolders).toHaveLength(4)
 
-    const successHolders = savedHolders.filter((h) => h.status === DistributionHolderStatus.SUCCESS)
+    const successHolders = savedHolders.filter((h) => h.status === <string>DistributionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(2)
 
-    const failedHolders = savedHolders.filter((h) => h.status === DistributionHolderStatus.FAILED)
+    const failedHolders = savedHolders.filter((h) => h.status === <string>DistributionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(2)
     failedHolders.forEach((holder) => expect(holder.amount).toBeNull())
 
@@ -248,7 +248,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress9": "0.0.101",
       }
@@ -259,7 +259,7 @@ describe("SyncDistribution Integration", () => {
     const evmFailedAddresses: string[] = []
     const paidAmounts = ["2000000"]
 
-    const result: PaymentResult = {
+    const result: PaymentResultEventModel = {
       succeededAddresses: evmSuccessAddresses,
       failedAddresses: evmFailedAddresses,
       alreadyPaidAddresses: [],
@@ -290,7 +290,7 @@ describe("SyncDistribution Integration", () => {
   it("should filter out zero addresses from success and failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress10": "0.0.100",
         "0xevmAddress11": "0.0.101",
@@ -304,7 +304,7 @@ describe("SyncDistribution Integration", () => {
     const evmFailedAddresses = ["0x0000000000000000000000000000000000000000", "0xevmAddress12"]
     const paidAmounts = ["1000000", "0", "2000000"]
 
-    const result: PaymentResult = {
+    const result: PaymentResultEventModel = {
       succeededAddresses: evmSuccessAddresses,
       failedAddresses: evmFailedAddresses,
       alreadyPaidAddresses: [],
@@ -325,11 +325,11 @@ describe("SyncDistribution Integration", () => {
     const holders = await internalDistributionHolderRepository.find()
     expect(holders).toHaveLength(3)
 
-    const successHolders = holders.filter((h) => h.status === DistributionHolderStatus.SUCCESS)
+    const successHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(2)
     expect(successHolders.map((h) => h.holderAccountId)).toEqual(["0.0.100", "0.0.101"])
 
-    const failedHolders = holders.filter((h) => h.status === DistributionHolderStatus.FAILED)
+    const failedHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(1)
     expect(failedHolders[0].holderAccountId).toEqual("0.0.200")
   })
@@ -337,7 +337,7 @@ describe("SyncDistribution Integration", () => {
   it("should handle distribution with only failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress13": "0.0.200",
         "0xevmAddress14": "0.0.201",
@@ -351,7 +351,7 @@ describe("SyncDistribution Integration", () => {
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
     const paidAmounts: string[] = []
 
-    const result: PaymentResult = {
+    const result: PaymentResultEventModel = {
       succeededAddresses: evmSuccessAddresses,
       failedAddresses: evmFailedAddresses,
       alreadyPaidAddresses: [],
@@ -371,14 +371,14 @@ describe("SyncDistribution Integration", () => {
 
     const holders = await internalDistributionHolderRepository.find()
     expect(holders).toHaveLength(3)
-    expect(holders.every((h) => h.status === DistributionHolderStatus.FAILED)).toBe(true)
+    expect(holders.every((h) => h.status === <string>DistributionHolderStatus.FAILED)).toBe(true)
     expect(holders.every((h) => h.amount === null)).toBe(true)
   })
 
   it("should handle multiple distributions for the same treasury", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress20": "0.0.100",
         "0xevmAddress21": "0.0.200",
@@ -387,7 +387,7 @@ describe("SyncDistribution Integration", () => {
     })
 
     const distribution1Id = 10
-    const result1: PaymentResult = {
+    const result1: PaymentResultEventModel = {
       succeededAddresses: ["0xevmAddress20"],
       failedAddresses: [],
       alreadyPaidAddresses: [],
@@ -404,7 +404,7 @@ describe("SyncDistribution Integration", () => {
     )
 
     const distribution2Id = 11
-    const result2: PaymentResult = {
+    const result2: PaymentResultEventModel = {
       succeededAddresses: ["0xevmAddress21"],
       failedAddresses: [],
       alreadyPaidAddresses: [],
