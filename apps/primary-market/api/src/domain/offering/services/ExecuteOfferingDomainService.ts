@@ -3,10 +3,10 @@
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { SubscriptionRepository } from "@domain/subscription/repositories/SubscriptionRepository"
 import { Subscription } from "@domain/subscription/model/Subscription"
-import { SubscriptionNotFoundError } from "@domain/subscription/errors/SubscriptionNotFoundError"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CheckOfferingExistsDomainService } from "./CheckOfferingExistsDomainService"
+import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
 import { ExecuteOfferingDomainServiceRequest } from "./model/ExecuteOfferingDomainServiceRequest"
 
 @Singleton()
@@ -15,6 +15,7 @@ export class ExecuteOfferingDomainService {
     @Inject() private readonly subscriptionRepository: SubscriptionRepository,
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
     private readonly checkOfferingExistsDomainService: CheckOfferingExistsDomainService,
+    private readonly checkSubscriptionExistsDomainService: CheckSubscriptionExistsDomainService,
   ) {}
 
   async execute(request: ExecuteOfferingDomainServiceRequest): Promise<void> {
@@ -28,8 +29,13 @@ export class ExecuteOfferingDomainService {
     existingOffering.checkOperator(operatorId)
 
     const subscriptionsToUpdate = [
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsSuccess, offeringId, SubscriptionStatus.EXECUTED)),
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, offeringId, SubscriptionStatus.FAILED)),
+      ...(await this.updateSubscriptionsStatus(
+        subscriptionIdsSuccess,
+        offeringId,
+        marketId,
+        SubscriptionStatus.EXECUTED,
+      )),
+      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, offeringId, marketId, SubscriptionStatus.FAILED)),
     ]
 
     if (subscriptionsToUpdate.length > 0) {
@@ -40,17 +46,16 @@ export class ExecuteOfferingDomainService {
   private async updateSubscriptionsStatus(
     subscriptionIds: string[],
     offeringId: string,
+    marketId: string,
     status: SubscriptionStatus,
   ): Promise<Subscription[]> {
     const subscriptions = await Promise.all(
       subscriptionIds.map(async (subscriptionId) => {
-        const subscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
+        const subscription = await this.checkSubscriptionExistsDomainService.execute(
           subscriptionId,
           offeringId,
+          marketId,
         )
-        if (!subscription) {
-          throw SubscriptionNotFoundError.subscriptionIdAndOfferingIdError(subscriptionId, offeringId)
-        }
         subscription.status = status
         return subscription
       }),
