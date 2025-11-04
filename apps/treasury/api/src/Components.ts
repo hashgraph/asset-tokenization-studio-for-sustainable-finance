@@ -115,6 +115,8 @@ import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/
 import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
 import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
 import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
+import { ExecuteRedemptionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionHttpAdapter"
+import { ExecuteRedemptionByAddressesTransactionAppService } from "@app/transaction/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -203,6 +205,7 @@ export const CONTROLLERS = [
   ExecuteDistributionByAddressesTransactionHttpAdapter,
   DissociatePaymentTokenTransactionHttpAdapter,
   DissociateEnvironmentalAssetTransactionHttpAdapter,
+  ExecuteRedemptionByAddressesTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -262,6 +265,7 @@ export const PROVIDERS = [
   ExecuteDistributionByAddressesTransactionAppService,
   DissociatePaymentTokenTransactionAppService,
   DissociateEnvironmentalAssetTransactionAppService,
+  ExecuteRedemptionByAddressesTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

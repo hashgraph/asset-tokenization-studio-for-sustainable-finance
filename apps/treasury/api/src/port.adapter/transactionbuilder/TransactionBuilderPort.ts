@@ -16,6 +16,7 @@ import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecute
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
+import { BuildExecuteBondRedemptionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteBondRedemptionByAddressesTransactionRequest"
 
 export interface TransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
@@ -39,4 +40,7 @@ export interface TransactionBuilderPort {
     request: BuildExecuteDistributionByAddressesTransactionRequest,
   ): Promise<MultipleTransactionResponse>
   dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse>
+  executeBondRedemptionByAddresses(
+    request: BuildExecuteBondRedemptionByAddressesTransactionRequest,
+  ): Promise<MultipleTransactionResponse>
 }
