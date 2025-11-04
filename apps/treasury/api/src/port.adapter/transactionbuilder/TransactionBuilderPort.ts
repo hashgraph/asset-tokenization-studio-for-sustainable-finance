@@ -16,6 +16,7 @@ import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecute
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
+import { BuildExecuteRedemptionTransactionRequest } from "./model/BuildExecuteRedemptionTransactionRequest"
 import { BuildExecuteBondRedemptionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteBondRedemptionByAddressesTransactionRequest"
 
 export interface TransactionBuilderPort {
@@ -39,6 +40,7 @@ export interface TransactionBuilderPort {
   executeDistributionByAddresses(
     request: BuildExecuteDistributionByAddressesTransactionRequest,
   ): Promise<MultipleTransactionResponse>
+  executeRedemption(request: BuildExecuteRedemptionTransactionRequest): Promise<PageResponse<string>>
   dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse>
   executeBondRedemptionByAddresses(
     request: BuildExecuteBondRedemptionByAddressesTransactionRequest,

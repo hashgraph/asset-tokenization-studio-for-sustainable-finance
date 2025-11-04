@@ -115,6 +115,8 @@ import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/
 import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
 import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
 import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
+import { ExecuteRedemptionTransactionHttpAdapter } from "@port/transaction/usecase/executeredemption/ExecuteRedemptionTransactionHttpAdapter"
+import { ExecuteRedemptionTransactionAppService } from "@app/transaction/executeredemption/ExecuteRedemptionTransactionAppService"
 import { ExecuteRedemptionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionHttpAdapter"
 import { ExecuteRedemptionByAddressesTransactionAppService } from "@app/transaction/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionAppService"
 
@@ -205,6 +207,7 @@ export const CONTROLLERS = [
   ExecuteDistributionByAddressesTransactionHttpAdapter,
   DissociatePaymentTokenTransactionHttpAdapter,
   DissociateEnvironmentalAssetTransactionHttpAdapter,
+  ExecuteRedemptionTransactionHttpAdapter,
   ExecuteRedemptionByAddressesTransactionHttpAdapter,
 ]
 
@@ -265,6 +268,7 @@ export const PROVIDERS = [
   ExecuteDistributionByAddressesTransactionAppService,
   DissociatePaymentTokenTransactionAppService,
   DissociateEnvironmentalAssetTransactionAppService,
+  ExecuteRedemptionTransactionAppService,
   ExecuteRedemptionByAddressesTransactionAppService,
   {
     provide: "TransactionBuilderPort",
