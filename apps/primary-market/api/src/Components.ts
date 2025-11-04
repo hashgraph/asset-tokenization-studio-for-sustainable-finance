@@ -25,6 +25,7 @@ import { SubmitSubscriptionDomainService } from "@domain/subscription/services/S
 import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
+import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
@@ -112,6 +113,7 @@ export const PROVIDERS = [
   CancelSubscriptionDomainService,
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
+  UpdateSubscriptionsStatusDomainService,
   GrantUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
