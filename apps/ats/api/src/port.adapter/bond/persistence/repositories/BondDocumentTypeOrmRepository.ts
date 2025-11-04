@@ -14,8 +14,8 @@ export class BondDocumentTypeOrmRepository implements BondDocumentRepository {
     private readonly repository: Repository<BondDocumentPersistence>,
   ) {}
 
-  async save(bond: BondDocument): Promise<BondDocument> {
-    return (await this.repository.save(bond as BondDocumentPersistence)) as BondDocument
+  async save(bondDocument: BondDocument): Promise<BondDocument> {
+    return (await this.repository.save(bondDocument as BondDocumentPersistence)) as BondDocument
   }
 
   async findByContractIdAndName(contractId: string, name: string): Promise<BondDocument | null> {
@@ -39,5 +39,9 @@ export class BondDocumentTypeOrmRepository implements BondDocumentRepository {
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
+
+  async delete(bondDocument: BondDocument): Promise<void> {
+    await this.repository.delete({ contractId: bondDocument.contractId, name: bondDocument.name })
   }
 }
