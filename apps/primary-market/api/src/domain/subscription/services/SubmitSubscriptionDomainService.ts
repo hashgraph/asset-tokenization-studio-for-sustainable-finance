@@ -28,13 +28,18 @@ export class SubmitSubscriptionDomainService {
 
     const offering = await this.checkOfferingExistsDomainService.execute(
       submitSubscriptionDomainServiceRequest.offeringId,
+      submitSubscriptionDomainServiceRequest.marketId,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionId(
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
       submitSubscriptionDomainServiceRequest.subscriptionId,
+      submitSubscriptionDomainServiceRequest.offeringId,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionIdError(submitSubscriptionDomainServiceRequest.subscriptionId)
+      throw SubscriptionFoundError.subscriptionIdAndOfferingIdError(
+        submitSubscriptionDomainServiceRequest.subscriptionId,
+        submitSubscriptionDomainServiceRequest.offeringId,
+      )
     }
 
     const investor = await this.getOrCreateInvestor(submitSubscriptionDomainServiceRequest.investorId)

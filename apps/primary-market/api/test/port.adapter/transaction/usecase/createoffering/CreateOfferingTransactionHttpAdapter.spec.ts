@@ -42,7 +42,7 @@ describe("CreateOfferingTransaction API Integration", () => {
     }
   })
 
-  describe("POST /primary-markets/:marketContractId/bonds/:bondContractId", () => {
+  describe("POST /primary-markets/:marketContractId/bonds/:bondContractId/offerings", () => {
     it("should create offering transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
       const bondContractId = "0.0.54321"
@@ -62,7 +62,7 @@ describe("CreateOfferingTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`)
         .send(createOfferingRequest)
         .expect(201)
 
@@ -92,7 +92,7 @@ describe("CreateOfferingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`)
           .send(createOfferingRequest)
           .expect(201)
 
@@ -112,7 +112,7 @@ describe("CreateOfferingTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+          .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -137,7 +137,7 @@ describe("CreateOfferingTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`)
         .send(createOfferingRequest)
         .expect(400)
     })

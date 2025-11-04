@@ -9,10 +9,10 @@ import { OfferingNotFoundError } from "../errors/OfferingNotFoundError"
 export class CheckOfferingExistsDomainService {
   constructor(@Inject() private readonly offeringRepository: OfferingRepository) {}
 
-  async execute(offeringId: string): Promise<Offering> {
-    const offering = await this.offeringRepository.findByOfferingId(offeringId)
+  async execute(offeringId: string, marketId: string): Promise<Offering> {
+    const offering = await this.offeringRepository.findByOfferingIdAndMarketId(offeringId, marketId)
     if (!offering) {
-      throw OfferingNotFoundError.offeringIdError(offeringId)
+      throw OfferingNotFoundError.offeringIdAndMarketIdError(offeringId, marketId)
     }
     return offering
   }

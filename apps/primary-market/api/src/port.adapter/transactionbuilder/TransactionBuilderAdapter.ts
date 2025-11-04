@@ -15,11 +15,13 @@ import { ConfigKeys } from "@config/ConfigKeys"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
+import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
   private readonly OFFERING_CREATION_GAS = 5_000_000
   private readonly SUBSCRIPTION_SUBMIT_GAS = 700_000
+  private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
   private readonly GRANT_ROLE_GAS = 700_000
@@ -61,6 +63,17 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
       args: [request.offeringId, request.lotUnits],
+    })
+  }
+
+  async cancelSubscription(request: BuildCancelSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "cancelSubscription",
+      contractId: request.contractId,
+      gas: this.SUBSCRIPTION_CANCEL_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.subscriptionId],
     })
   }
 
