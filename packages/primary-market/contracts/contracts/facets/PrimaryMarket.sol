@@ -123,18 +123,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     }
 
     /**
-     * @notice Validates investor is compliant for the asset
-     * @param _offeringId Offering ID to get asset address
-     */
-    modifier compliantInvestor(uint256 _offeringId) {
-        address asset = _getOfferingState(_offeringId).info.asset;
-        if (!_isCompliantInvestor(_msgSender(), asset)) {
-            revert NotCompliantAccount(_msgSender(), asset);
-        }
-        _;
-    }
-
-    /**
      * @notice Validates subscription doesn't exceed target (when OVERSUBSCRIPTION_NOT_ALLOWED)
      * @param _offeringId Offering ID
      * @param _lotUnits Lot units being subscribed
@@ -175,7 +163,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         onlyUnpaused
         offeringExists(_offeringId)
         offeringIsOpen(_offeringId)
-        compliantInvestor(_offeringId)
         validLotUnits(_offeringId, _lotUnits)
         withinTargetLimit(_offeringId, _lotUnits)
     {

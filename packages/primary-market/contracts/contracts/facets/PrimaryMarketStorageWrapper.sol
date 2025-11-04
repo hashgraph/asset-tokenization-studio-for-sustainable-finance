@@ -564,22 +564,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
     }
 
-    /**
-     * @notice Check if investor is compliant with asset restrictions
-     * @param _investor Investor address
-     * @param _asset Asset address
-     * @return bool True if compliant
-     * @dev TODO: Implement proper compliance checking with T-REX identity registry
-     *      This requires calling the asset's identityRegistry and checking investor verification
-     */
-    function _isCompliantInvestor(address _investor, address _asset) internal pure returns (bool) {
-        // Simplified implementation - always returns true
-        // Full implementation should check T-REX IdentityRegistry for investor verification
-        _investor; // Silence unused variable warning
-        _asset; // Silence unused variable warning
-        return true;
-    }
-
     function _isValidAmount(uint256 amount) private pure returns (bool) {
         return amount > 0 && _valueFitsInInt64(amount);
     }

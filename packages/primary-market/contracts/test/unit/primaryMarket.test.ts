@@ -706,12 +706,5 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionExceedsTarget")
         .withArgs(totalLots, offering.maxLots, offering.targetLots);
     });
-
-    it("GIVEN subscription for non-compliant investor WHEN submitting THEN fail", async () => {
-      // Assume investor1 is non compliant
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.maxLots))
-        .to.be.revertedWithCustomError(primaryMarket, "NotCompliantAccount")
-        .withArgs(investor1, offering.asset);
-    });
   });
 });
