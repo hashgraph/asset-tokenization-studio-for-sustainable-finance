@@ -5,6 +5,7 @@ import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
+import { IERC1594 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { LibCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
 import {
@@ -355,8 +356,17 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
                 indexCounts[uint256(CountIndex.SUCCEEDED)]
             );
             for (uint256 i = 0; i < subscriptionIds.length; i++) {
-                if (_processOfferingInfo.isExecution) offering.subscriptions[subscriptionIds[i]].executed = true;
-                else offering.subscriptions[subscriptionIds[i]].cancelled = true;
+                if (_processOfferingInfo.isExecution) {
+                    offering.subscriptions[subscriptionIds[i]].executed = true;
+
+                    uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
+
+                    IERC1594(offering.info.asset).issue(
+                        offering.subscriptions[subscriptionIds[i]].investor,
+                        amountToMint,
+                        "0x"
+                    );
+                } else offering.subscriptions[subscriptionIds[i]].cancelled = true;
             }
             offering.pendingSubscribedLots -=
                 uint256(uint64(totalToTransfer)) / (offering.info.lotSize * _processOfferingInfo.nominalValue);
