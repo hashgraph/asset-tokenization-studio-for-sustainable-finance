@@ -31,14 +31,16 @@ export class SubmitSubscriptionDomainService {
       submitSubscriptionDomainServiceRequest.marketId,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
       submitSubscriptionDomainServiceRequest.subscriptionId,
       submitSubscriptionDomainServiceRequest.offeringId,
+      submitSubscriptionDomainServiceRequest.marketId,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionIdAndOfferingIdError(
+      throw SubscriptionFoundError.subscriptionIdOfferingIdAndMarketIdError(
         submitSubscriptionDomainServiceRequest.subscriptionId,
         submitSubscriptionDomainServiceRequest.offeringId,
+        submitSubscriptionDomainServiceRequest.marketId,
       )
     }
 

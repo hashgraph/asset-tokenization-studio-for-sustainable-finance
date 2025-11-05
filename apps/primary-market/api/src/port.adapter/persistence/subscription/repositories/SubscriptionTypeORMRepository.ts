@@ -21,13 +21,20 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return this.toDomain(saved)
   }
 
-  async findBySubscriptionIdAndOfferingId(subscriptionId: string, offeringId: string): Promise<Subscription | null> {
+  async findBySubscriptionIdOfferingIdAndMarketId(
+    subscriptionId: string,
+    offeringId: string,
+    marketId: string,
+  ): Promise<Subscription | null> {
     const persistence = await this.repository.findOne({
       where: {
         subscriptionId,
-        offering: { offeringId },
+        offering: {
+          offeringId,
+          market: { contractId: marketId },
+        },
       },
-      relations: ["offering", "investor"],
+      relations: ["offering", "offering.market", "investor"],
     })
 
     return persistence ? this.toDomain(persistence) : null

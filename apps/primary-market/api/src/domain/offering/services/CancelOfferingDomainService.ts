@@ -2,11 +2,10 @@
 
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { SubscriptionRepository } from "@domain/subscription/repositories/SubscriptionRepository"
-import { Subscription } from "@domain/subscription/model/Subscription"
-import { SubscriptionNotFoundError } from "@domain/subscription/errors/SubscriptionNotFoundError"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CheckOfferingExistsDomainService } from "./CheckOfferingExistsDomainService"
+import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
 import { CancelOfferingDomainServiceRequest } from "./model/CancelOfferingDomainServiceRequest"
 
 @Singleton()
@@ -15,6 +14,7 @@ export class CancelOfferingDomainService {
     @Inject() private readonly subscriptionRepository: SubscriptionRepository,
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
     private readonly checkOfferingExistsDomainService: CheckOfferingExistsDomainService,
+    private readonly updateSubscriptionsStatusDomainService: UpdateSubscriptionsStatusDomainService,
   ) {}
 
   async execute(request: CancelOfferingDomainServiceRequest): Promise<void> {
@@ -28,34 +28,22 @@ export class CancelOfferingDomainService {
     existingOffering.checkOperator(operatorId)
 
     const subscriptionsToUpdate = [
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsSuccess, offeringId, SubscriptionStatus.CANCELLED)),
-      ...(await this.updateSubscriptionsStatus(subscriptionIdsFailed, offeringId, SubscriptionStatus.FAILED)),
+      ...(await this.updateSubscriptionsStatusDomainService.execute(
+        subscriptionIdsSuccess,
+        offeringId,
+        marketId,
+        SubscriptionStatus.CANCELLED,
+      )),
+      ...(await this.updateSubscriptionsStatusDomainService.execute(
+        subscriptionIdsFailed,
+        offeringId,
+        marketId,
+        SubscriptionStatus.FAILED,
+      )),
     ]
 
     if (subscriptionsToUpdate.length > 0) {
       await this.subscriptionRepository.saveAll(subscriptionsToUpdate)
     }
-  }
-
-  private async updateSubscriptionsStatus(
-    subscriptionIds: string[],
-    offeringId: string,
-    status: SubscriptionStatus,
-  ): Promise<Subscription[]> {
-    const updated: Subscription[] = []
-
-    for (const subscriptionId of subscriptionIds) {
-      const subscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
-        subscriptionId,
-        offeringId,
-      )
-      if (!subscription) {
-        throw SubscriptionNotFoundError.subscriptionIdAndOfferingIdError(subscriptionId, offeringId)
-      }
-      subscription.status = status
-      updated.push(subscription)
-    }
-
-    return updated
   }
 }

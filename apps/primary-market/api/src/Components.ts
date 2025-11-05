@@ -24,6 +24,8 @@ import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteO
 import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
 import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
+import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
+import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
 import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
@@ -36,6 +38,7 @@ import { ExecuteOfferingCommandHandler } from "@app/offering/executeoffering/com
 import { GrantRoleCommandHandler } from "@app/role/grantrole/command/GrantRoleCommandHandler"
 import { SubmitSubscriptionCommandHandler } from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
 import { CancelSubscriptionCommandHandler } from "@app/subscription/cancelsubscription/command/CancelSubscriptionCommandHandler"
+import { GetSubscriptionQueryHandler } from "@app/subscription/getsubscription/query/GetSubscriptionQueryHandler"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
@@ -52,6 +55,7 @@ import { ExecuteOfferingNestJSEventAdapter } from "@port/offering/usecase/execut
 import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
 import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
 import { CancelSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
+import { GetSubscriptionHttpAdapter } from "@port/subscription/usecase/getsubscription/GetSubscriptionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -92,6 +96,7 @@ export const CONTROLLERS = [
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
+  GetSubscriptionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -107,6 +112,8 @@ export const PROVIDERS = [
   SubmitSubscriptionDomainService,
   CancelSubscriptionDomainService,
   CheckOfferingExistsDomainService,
+  CheckSubscriptionExistsDomainService,
+  UpdateSubscriptionsStatusDomainService,
   GrantUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
@@ -119,6 +126,7 @@ export const PROVIDERS = [
   GrantRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
+  GetSubscriptionQueryHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,
