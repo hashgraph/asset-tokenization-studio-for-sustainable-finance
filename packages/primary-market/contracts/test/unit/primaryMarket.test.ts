@@ -782,7 +782,7 @@ describe("PrimaryMarket", () => {
     type InvestorSubscription = {
       price: number;
       tokens: number;
-    }
+    };
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
@@ -852,7 +852,6 @@ describe("PrimaryMarket", () => {
 
       const investorsList: string[] = [];
 
-
       for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
         for (let j = 1; j <= 2; j++) {
           const subscription = await primaryMarket.getSubscription(offeringId, i + j);
@@ -873,7 +872,7 @@ describe("PrimaryMarket", () => {
           : await primaryMarket
               .connect(offeringCreator)
               .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
-  
+
         const receipt = await tx.wait();
 
         // Find the event
@@ -1111,8 +1110,8 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
 
-      const alreadyProcessed = event!.args!.subscriptionIdsAlreadyExecuted
-        .map((x: any) => x.toNumber())
+      const alreadyProcessed = event!
+        .args!.subscriptionIdsAlreadyExecuted.map((x: any) => x.toNumber())
         .filter((x: number) => x > 0);
       expect(alreadyProcessed).to.include(1);
     });
@@ -1135,7 +1134,9 @@ describe("PrimaryMarket", () => {
         deadlineRule: 0,
       });
 
-      const ofId = (await tx.wait()).events?.find((e: any) => e.event === "OfferingCreated")?.args?.offeringId?.toNumber();
+      const ofId = (await tx.wait()).events
+        ?.find((e: any) => e.event === "OfferingCreated")
+        ?.args?.offeringId?.toNumber();
       await time.increase(61);
       await mockAsset.setNominalValue(100);
 
@@ -1148,8 +1149,10 @@ describe("PrimaryMarket", () => {
       await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
 
       const executeTx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(ofId, [1]);
-      const failed = (await executeTx.wait()).events?.find((e) => e.event === "OfferingExecuted")?.args?.subscriptionIdsFailed
-        .map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      const failed = (await executeTx.wait()).events
+        ?.find((e) => e.event === "OfferingExecuted")
+        ?.args?.subscriptionIdsFailed.map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
 
       expect(failed).to.include(1);
       await mockAsset.setNominalValue(1);
@@ -1381,7 +1384,9 @@ describe("PrimaryMarket", () => {
       const event1 = receipt1.events?.find((e) => e.event === "OfferingCancelled");
       expect(event1).to.not.be.undefined;
 
-      const succeeded1 = event1!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      const succeeded1 = event1!
+        .args!.subscriptionIdsSuccess.map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
       expect(succeeded1).to.include(1);
 
       // Try to cancel same subscription again
@@ -1390,8 +1395,8 @@ describe("PrimaryMarket", () => {
       const event2 = receipt2.events?.find((e) => e.event === "OfferingCancelled");
       expect(event2).to.not.be.undefined;
 
-      const alreadyCancelled = event2!.args!.subscriptionIdsAlreadyCancelled
-        .map((x: any) => x.toNumber())
+      const alreadyCancelled = event2!
+        .args!.subscriptionIdsAlreadyCancelled.map((x: any) => x.toNumber())
         .filter((x: number) => x > 0);
       expect(alreadyCancelled).to.include(1);
     });
@@ -1506,8 +1511,10 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN Issuer WHEN grants OFFERING_CREATOR_ROLE to account THEN account is permitted to execute operations AND emits event", async () => {
       // Grant role and verify event emission
-      await expect(accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address))
-        .to.emit(accessControl, "RoleGranted");
+      await expect(accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address)).to.emit(
+        accessControl,
+        "RoleGranted",
+      );
 
       // Verify account has the role
       const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
@@ -1541,8 +1548,10 @@ describe("PrimaryMarket", () => {
       await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
 
       // Revoke role and verify event emission
-      await expect(accessControl.connect(admin).revokeRole(OFFERING_CREATOR_ROLE, investor1Address))
-        .to.emit(accessControl, "RoleRevoked");
+      await expect(accessControl.connect(admin).revokeRole(OFFERING_CREATOR_ROLE, investor1Address)).to.emit(
+        accessControl,
+        "RoleRevoked",
+      );
 
       // Verify account no longer has the role
       const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
