@@ -34,6 +34,8 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
 import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
 import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTreasuryQueryHandler"
+import { GetTreasuriesHttpAdapter } from "@port/treasury/usecase/gettreasuries/GetTreasuriesHttpAdapter"
+import { GetTreasuriesQueryHandler } from "@app/treasury/gettreasuries/query/GetTreasuriesQueryHandler"
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
@@ -194,6 +196,7 @@ export const CONTROLLERS = [
   GetEnvironmentalAssetsHttpAdapter,
   GetEnvironmentalAssetTransfersHttpAdapter,
   GetTreasuryHttpAdapter,
+  GetTreasuriesHttpAdapter,
   GetEnvironmentalAssetHoldingsHttpAdapter,
   ExternalTransferPaymentTokenTransactionHttpAdapter,
   UpdatePaymentTokenTransactionHttpAdapter,
@@ -236,6 +239,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetNestJSEventAdapter,
   RemoveEnvironmentalAssetNestJSEventAdapter,
   GetTreasuryQueryHandler,
+  GetTreasuriesQueryHandler,
   AddEnvironmentalAssetTransferAppService,
   AddEnvironmentalAssetTransferCommandHandler,
   AddEnvironmentalAssetTransferNestJSEventAdapter,
