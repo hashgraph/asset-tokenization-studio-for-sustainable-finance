@@ -411,9 +411,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address paymentToken
     ) private returns (uint256 amount) {
         uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
-        uint8 nominalValueDecimals = paymentTokenDecimals;
-        uint256 scaleDown = paymentTokenDecimals + nominalValueDecimals;
         uint8 bondDecimals = ERC20(bond).decimals();
+        uint8 nominalValueDecimals = bondDecimals;
+        uint256 scaleDown = bondDecimals + nominalValueDecimals;
         amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) *
             10 ** paymentTokenDecimals);
     }

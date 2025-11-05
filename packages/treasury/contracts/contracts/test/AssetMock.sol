@@ -55,13 +55,15 @@ contract AssetMock is IAssetMock {
 
     function getBondDetails()
         external
-        pure
+        view
         returns (BondDetailsData memory bondDetailsData_)
     {
         bondDetailsData_.currency = 0x555344;
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.startingDate = 1751282807;
-        bondDetailsData_.maturityDate = 1761823607;
+        bondDetailsData_.maturityDate = isToday
+            ? block.timestamp
+            : 1919590386;
     }
 
     function getCouponFor(
