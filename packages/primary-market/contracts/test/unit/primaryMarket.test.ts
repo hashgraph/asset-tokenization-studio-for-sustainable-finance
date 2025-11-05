@@ -1528,5 +1528,56 @@ describe("PrimaryMarket", () => {
       const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
       expect(hasRole).to.be.false;
     });
+
+    it("GIVEN user with no role WHEN renouncing role THEN fail", async () => {
+      // Renouncing a role you don't have should revert
+      await expect(accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE))
+        .to.be.revertedWithCustomError(accessControl, "AccountNotAssignedToRole")
+        .withArgs(OFFERING_CREATOR_ROLE, investor1Address);
+    });
+
+    it("GIVEN Issuer WHEN applies multiple roles to account THEN roles are granted/revoked AND emits events", async () => {
+      const roles = [OFFERING_CREATOR_ROLE, PAUSER_ROLE];
+      const actives = [true, true]; // Grant both roles
+
+      // Apply roles (grant)
+      const tx1 = await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
+      await tx1.wait();
+
+      // Verify both roles are granted
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
+      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
+
+      // Now revoke one role, keep the other
+      const activesRevoke = [false, true]; // Revoke OFFERING_CREATOR_ROLE, keep PAUSER_ROLE
+      const tx2 = await accessControl.connect(admin).applyRoles(roles, activesRevoke, investor1Address);
+      await tx2.wait();
+
+      // Verify OFFERING_CREATOR_ROLE is revoked, PAUSER_ROLE remains
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.false;
+      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
+    });
+
+    it("GIVEN Issuer WHEN applies roles to several accounts THEN each account receives roles", async () => {
+      const roles = [OFFERING_CREATOR_ROLE];
+      const actives = [true];
+
+      // Apply to investor1
+      await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
+
+      // Apply to investor2
+      await accessControl.connect(admin).applyRoles(roles, actives, investor2Address);
+
+      // Verify both accounts have the role
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.true;
+    });
+
+    it("GIVEN non-admin account WHEN applies roles THEN fail", async () => {
+      const roles = [OFFERING_CREATOR_ROLE];
+      const actives = [true];
+
+      await expect(accessControl.connect(investor1).applyRoles(roles, actives, investor2Address)).to.be.reverted;
+    });
   });
 });
