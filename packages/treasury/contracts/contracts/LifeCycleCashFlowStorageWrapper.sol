@@ -10,9 +10,6 @@ import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     LIFECYCLE_CASH_FLOW_STORAGE_POSITION
 } from './constants/storagePositions.sol';
-import {
-    _DEFAULT_PARTITION
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/values.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     Common as AtsCommon
@@ -27,6 +24,9 @@ import {
 import {
     IERC1410
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol';
+import {
+    IERC1410Read
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol';
 import {
     ERC20
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol';
@@ -709,11 +709,24 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address holder,
         uint256 tokensAmount
     ) private {
-        IBond(bond).redeemAtMaturityByPartition(
-            holder,
-            _DEFAULT_PARTITION,
-            tokensAmount
-        );
+        bytes32[] memory partitions = IERC1410Read(bond).partitionsOf(holder);
+        for (uint256 i; i < partitions.length; ) {
+            bytes32 partition = partitions[i];
+            uint256 partitionBalance = IERC1410Read(bond).balanceOfByPartition(
+                partition,
+                holder
+            );
+
+            IBond(bond).redeemAtMaturityByPartition(
+                holder,
+                partition,
+                partitionBalance
+            );
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /*

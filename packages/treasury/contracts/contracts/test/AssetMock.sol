@@ -61,9 +61,7 @@ contract AssetMock is IAssetMock {
         bondDetailsData_.currency = 0x555344;
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.startingDate = 1751282807;
-        bondDetailsData_.maturityDate = isToday
-            ? block.timestamp
-            : 1919590386;
+        bondDetailsData_.maturityDate = isToday ? block.timestamp : 1919590386;
     }
 
     function getCouponFor(
@@ -92,7 +90,11 @@ contract AssetMock is IAssetMock {
         return 2;
     }
 
-    function redeemAtMaturityByPartition(address, bytes32, uint256) external pure {
+    function redeemAtMaturityByPartition(
+        address,
+        bytes32,
+        uint256
+    ) external pure {
         return;
     }
 }
