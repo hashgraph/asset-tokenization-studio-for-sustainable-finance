@@ -5,9 +5,10 @@ import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgra
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetRedemptionHoldersQuery } from "@app/redemption/getredemptionholders/query/GetRedemptionHoldersQuery"
 import { RedemptionHolderResponse } from "./model/RedemptionHolderResponse"
+import { GetRedemptionHoldersPort } from "./GetRedemptionHoldersPort"
 
 @RestController("treasuries")
-export class GetRedemptionHoldersHttpAdapter {
+export class GetRedemptionHoldersHttpAdapter implements GetRedemptionHoldersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get(":treasuryContractId/redemptions")
