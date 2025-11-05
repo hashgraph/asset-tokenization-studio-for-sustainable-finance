@@ -17,5 +17,9 @@ export class PaymentToken extends BaseEntity {
   @IsOptional()
   @IsInt()
   @Min(1)
-  dissociationError?: number
+  dissociationError?: number | null
+
+  clearDissociationError(): void {
+    this.dissociationError = null
+  }
 }

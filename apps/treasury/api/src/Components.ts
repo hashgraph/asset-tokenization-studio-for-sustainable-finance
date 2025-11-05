@@ -126,6 +126,10 @@ import { GetRedemptionHoldersHttpAdapter } from "@port/redemption/usecase/getred
 import { SyncRedemptionNestJSEventAdapter } from "@port/redemption/usecase/syncredemption/SyncRedemptionNestJSEventAdapter"
 import { SyncRedemptionAppService } from "@app/redemption/syncredemption/SyncRedemptionAppService"
 import { AddRedemptionHolderCommandHandler } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommandHandler"
+import { SyncTokenDissociationErrorNestJSEventAdapter } from "@port/treasury/usecase/synctokendissociationerror/SyncTokenDissociationErrorNestJSEventAdapter"
+import { SyncTokenDissociationErrorAppService } from "@app/treasury/synctokendissociationerror/service/SyncTokenDissociationErrorAppService"
+import { UpdatePaymentTokenDissociationErrorCommandHandler } from "@app/paymenttoken/updatepaymenttokendissociationerror/command/UpdatePaymentTokenDissociationErrorCommandHandler"
+import { UpdateEnvironmentalAssetDissociationErrorCommandHandler } from "@app/environmentalasset/updateenvironmentalassetdissociationerror/UpdateEnvironmentalAssetDissociationErrorCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -283,6 +287,10 @@ export const PROVIDERS = [
   SyncRedemptionNestJSEventAdapter,
   SyncRedemptionAppService,
   AddRedemptionHolderCommandHandler,
+  SyncTokenDissociationErrorNestJSEventAdapter,
+  SyncTokenDissociationErrorAppService,
+  UpdatePaymentTokenDissociationErrorCommandHandler,
+  UpdateEnvironmentalAssetDissociationErrorCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

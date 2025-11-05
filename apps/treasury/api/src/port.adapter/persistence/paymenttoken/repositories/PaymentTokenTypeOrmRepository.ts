@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
@@ -16,8 +17,8 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
 
   @Validate()
   async save(paymentToken: PaymentToken): Promise<PaymentToken> {
-    const persistence = await this.paymentTokenRepository.save(paymentToken as PaymentTokenPersistence)
-    return persistence as PaymentToken
+    const persistence = await this.paymentTokenRepository.save(this.fromDomain(paymentToken))
+    return this.toDomain(persistence)
   }
 
   async findById(id: string): Promise<PaymentToken | null> {
@@ -44,7 +45,7 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences as PaymentToken[]
+    const items = persistences.map((persistence) => this.toDomain(persistence))
 
     return {
       items,
@@ -99,7 +100,26 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
+  async existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean> {
+    return await this.paymentTokenRepository.exists({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: IsNull(),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+  }
+
   private toDomain(persistence: PaymentTokenPersistence): PaymentToken {
-    return { ...persistence } as PaymentToken
+    return plainToInstance(PaymentToken, persistence)
+  }
+
+  private fromDomain(domainEntity: PaymentToken): PaymentTokenPersistence {
+    return plainToInstance(PaymentTokenPersistence, domainEntity)
   }
 }
