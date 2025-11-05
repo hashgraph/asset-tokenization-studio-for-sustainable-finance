@@ -8,21 +8,19 @@ import { AddControlListMemberTransactionAppServiceRequest } from "@app/bond/tran
 
 @RestController("bonds")
 export class AddControlListMemberTransactionHttpAdapter implements AddControlListMemberTransactionPort {
-  constructor(
-    private readonly addControlListMemberTransactionAppService: AddControlListMemberTransactionAppService,
-  ) {}
+  constructor(private readonly addControlListMemberTransactionAppService: AddControlListMemberTransactionAppService) {}
 
-  @Post(":bondContractId/control-list/:holderId")
+  @Post(":bondContractId/control-list/:holderAccountId")
   async addControlListMemberTransaction(
     @Param("bondContractId") contractId: string,
-    @Param("holderId") holderId: string,
+    @Param("holderAccountId") holderAccountId: string,
     @Body() request: AddControlListMemberTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new AddControlListMemberTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       contractId,
-      holderId,
+      holderAccountId,
     )
 
     return await this.addControlListMemberTransactionAppService.execute(appServiceRequest)

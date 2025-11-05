@@ -12,6 +12,7 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 import { AddedToControlListDLTEvent } from "@port/bond/usecase/addcontrollistmember/model/AddedToControlListDLTEvent"
 import { BondNotFoundError } from "@domain/bond/errors/BondNotFoundError"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
+import { BondControlListMemberFoundError } from "@domain/bond/controllist/errors/BondControlListMemberFoundError"
 
 describe("AddControlListMemberNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
@@ -88,7 +89,7 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       expect(savedMember!.holderId).toBe("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
     })
 
-    it("should return existing member when member with same contractId and holderId already exists", async () => {
+    it("should throw BondControlListMemberFoundError when member with same contractId and holderId already exists", async () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -121,12 +122,9 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       )
 
-      await eventBus.publishSync(event, AddedToControlListDLTEvent.name)
-
-      const allMembers = await bondControlListMemberRepository.find()
-      expect(allMembers).toHaveLength(1)
-      expect(allMembers[0].contractId).toBe(existingMember.contractId)
-      expect(allMembers[0].holderId).toBe(existingMember.holderId)
+      await expect(eventBus.publishSync(event, AddedToControlListDLTEvent.name)).rejects.toThrow(
+        BondControlListMemberFoundError.contractIdAndHolderIdError(CONTRACT_ID, "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"),
+      )
     })
 
     it("should create multiple control list members for different holders successfully", async () => {

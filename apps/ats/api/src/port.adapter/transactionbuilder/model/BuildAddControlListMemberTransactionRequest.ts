@@ -5,5 +5,5 @@ import { IsNotEmpty, IsString } from "class-validator"
 export class BuildAddControlListMemberTransactionRequest extends BaseBuildTransactionRequest {
   @IsString()
   @IsNotEmpty()
-  holderId: string
+  holderAccountId: string
 }

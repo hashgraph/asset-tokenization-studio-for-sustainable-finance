@@ -205,7 +205,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_LOW_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [req.holderId],
+      [req.holderAccountId],
     )
   }
 

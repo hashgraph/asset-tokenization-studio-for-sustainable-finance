@@ -4,6 +4,7 @@ import { AddBondControlListMemberDomainServiceRequest } from "./model/AddBondCon
 import { BondControlListMember } from "@domain/bond/controllist/model/BondControlListMember"
 import type { BondControlListMemberRepository } from "../repository/BondControlListMemberRepository"
 import { CheckBondExistsDomainService } from "@domain/bond/services/CheckBondExistsDomainService"
+import { BondControlListMemberFoundError } from "@domain/bond/controllist/errors/BondControlListMemberFoundError"
 
 @Singleton()
 export class AddBondControlListMemberDomainService {
@@ -21,7 +22,7 @@ export class AddBondControlListMemberDomainService {
     )
 
     if (existingMember) {
-      return existingMember
+      throw BondControlListMemberFoundError.contractIdAndHolderIdError(request.contractId, request.holderId)
     }
 
     const member = Object.assign(new BondControlListMember(), {

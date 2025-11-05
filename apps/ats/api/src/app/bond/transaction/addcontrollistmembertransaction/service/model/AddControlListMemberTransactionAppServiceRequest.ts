@@ -5,10 +5,10 @@ import { IsNotEmpty, IsString } from "class-validator"
 export class AddControlListMemberTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsString()
   @IsNotEmpty()
-  holderId: string
+  holderAccountId: string
 
-  constructor(format: string, accountId: string, contractId: string, holderId: string) {
+  constructor(format: string, accountId: string, contractId: string, holderAccountId: string) {
     super(format, accountId, contractId)
-    this.holderId = holderId
+    this.holderAccountId = holderAccountId
   }
 }
