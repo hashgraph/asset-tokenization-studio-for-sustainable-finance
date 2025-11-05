@@ -11,6 +11,7 @@
     "ats:remove-bond-document": "node ats/bond/remove-bond-document.js",
     "ats:set-bond-cap": "node ats/bond/set-bond-cap.js",
     "ats:add-control-list-member": "node ats/bond/add-control-list-member.js",
+    "ats:remove-control-list-member": "node ats/bond/remove-control-list-member.js",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
     "all:start": "node shared/infra/infra-setup.js start",
     "all:stop": "node shared/infra/infra-setup.js stop",
