@@ -42,14 +42,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256 nominalValue;
     }
 
-    /// @notice Detailed information about a subscription
-    struct Subscription {
-        address investor; // Address of the investor
-        uint256 lotUnits; // Number of lot units subscribed
-        bool cancelled; // Flag to mark if subscription was cancelled
-        bool executed; // Flag to mark if subscription was executed
-    }
-
     /**
      * @notice Complete state of an offering including lifecycle flags and tracking
      * @dev Lifecycle is tracked with two boolean flags: executed and cancelled
@@ -59,7 +51,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         address creator; // Address that created the offering
         uint256 totalSubscribedLots; // Total lot units subscribed so far (not tokens)
         uint256 pendingSubscribedLots; // Lot units pending execution/cancellation
-        mapping(uint256 => Subscription) subscriptions; // subscriptionId => Subscription
+        mapping(uint256 => IPrimaryMarket.Subscription) subscriptions; // subscriptionId => Subscription
         uint256 nextSubscriptionId; // Counter for subscription IDs (IDs are sequential: 1, 2, 3, ...)
     }
 
@@ -125,11 +117,10 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         // Create subscription
         uint256 subscriptionId = ++offering.nextSubscriptionId;
-        offering.subscriptions[subscriptionId] = Subscription({
+        offering.subscriptions[subscriptionId] = IPrimaryMarket.Subscription({
             investor: _msgSender(),
             lotUnits: _lotUnits,
-            cancelled: false,
-            executed: false
+            status: IPrimaryMarket.SubscriptionStatus.ACTIVE
         });
 
         // Update total subscribed lots
@@ -146,15 +137,17 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
      */
     function _cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) internal {
         OfferingState storage offering = _getOfferingState(_offeringId);
-        Subscription storage subscription = offering.subscriptions[_subscriptionId];
+        IPrimaryMarket.Subscription storage subscription = offering.subscriptions[_subscriptionId];
 
-        if (subscription.cancelled) return;
+        if (subscription.status != IPrimaryMarket.SubscriptionStatus.ACTIVE) {
+            revert IPrimaryMarket.SubscriptionIsNotActive(_offeringId, _subscriptionId);
+        }
 
         uint256 amount = subscription.lotUnits *
             offering.info.lotSize *
             IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
-        subscription.cancelled = true;
+        subscription.status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
 
         offering.pendingSubscribedLots -= subscription.lotUnits;
 
@@ -272,9 +265,9 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     ) internal {
         _checkSubscriptionExists(_processOfferingInfo.offeringId, subscriptionId);
 
-        Subscription storage subscription = offering.subscriptions[subscriptionId];
+        IPrimaryMarket.Subscription storage subscription = offering.subscriptions[subscriptionId];
 
-        if (subscription.executed || subscription.cancelled) {
+        if (subscription.status != IPrimaryMarket.SubscriptionStatus.ACTIVE) {
             processResult.alreadyProcessedSubscriptions[
                 indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]
             ] = subscriptionId;
@@ -357,7 +350,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             );
             for (uint256 i = 0; i < subscriptionIds.length; i++) {
                 if (_processOfferingInfo.isExecution) {
-                    offering.subscriptions[subscriptionIds[i]].executed = true;
+                    offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
 
                     uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
 
@@ -366,7 +359,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
                         amountToMint,
                         "0x"
                     );
-                } else offering.subscriptions[subscriptionIds[i]].cancelled = true;
+                } else offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
             }
             offering.pendingSubscribedLots -=
                 uint256(uint64(totalToTransfer)) / (offering.info.lotSize * _processOfferingInfo.nominalValue);
@@ -512,24 +505,11 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         return _getOfferingState(_offeringId).nextSubscriptionId;
     }
 
-    /**
-     * @notice Internal implementation for getting subscription details
-     * @param _offeringId Offering ID
-     * @param _subscriptionId Subscription ID
-     * @return investor_ Investor address
-     * @return lotUnits_ Number of lot units
-     */
     function _getSubscription(
         uint256 _offeringId,
         uint256 _subscriptionId
-    ) internal view returns (address investor_, uint256 lotUnits_) {
-        Subscription storage sub = _getOfferingState(_offeringId).subscriptions[_subscriptionId];
-
-        if (sub.investor == address(0)) {
-            revert IPrimaryMarket.OfferingDoesNotExist(_subscriptionId); // Reusing error for subscription not found
-        }
-
-        return (sub.investor, sub.lotUnits);
+    ) internal view returns (IPrimaryMarket.Subscription memory subscription) {
+        return _getOfferingState(_offeringId).subscriptions[_subscriptionId];
     }
 
     /**
@@ -574,7 +554,10 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     }
 
     function _checkSubscriptionExists(uint256 _offeringId, uint256 _subscriptionId) internal view {
-        if (_getOfferingState(_offeringId).subscriptions[_subscriptionId].investor == address(0)) {
+        if (
+            _getOfferingState(_offeringId).subscriptions[_subscriptionId].status ==
+            IPrimaryMarket.SubscriptionStatus.NONE
+        ) {
             revert IPrimaryMarket.SubscriptionDoesNotExist(_offeringId, _subscriptionId);
         }
     }
