@@ -992,6 +992,101 @@ describe("PrimaryMarket", () => {
       await createOffering(0, 0);
     });
 
+    async function createSubscriptions(numSubscriptions: number) {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      // Enable precompiled transfer for subscriptions and cancellations to work
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      for (let i = 0; i < numSubscriptions; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+    }
+
+    it("GIVEN cancellable offering with subscriptions WHEN cancelling THEN success", async () => {
+      const numSubscriptions = 10;
+      await createSubscriptions(numSubscriptions);
+
+      // Move past endDate to make it cancellable (target not reached)
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const status = await primaryMarket.getOfferingStatus(offeringId);
+      expect(status).to.equal(4); // CANCELLABLE
+
+      // Get initial balances
+      const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+      const investor2BalanceBefore = await mockPaymentToken.balanceOf(investor2Address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      // Cancel offering (process subscriptions 0-4)
+      const tx = await primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 5);
+      const receipt = await tx.wait();
+
+      // Find the event
+      const event = receipt.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event).to.not.be.undefined;
+
+      // Check event args
+      expect(event!.args!.offeringId).to.equal(offeringId);
+      expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+
+      // Convert BigNumbers to numbers for array comparison - filter out zeros
+      const succeeded = event!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      const failed = event!.args!.subscriptionIdsFailed.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+
+      expect(succeeded.length).to.equal(5);
+      expect(succeeded).to.include.members([1, 2, 3, 4, 5]);
+      expect(failed.length).to.equal(0); // No failures expected
+
+      // Check balances - investors should be refunded
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const refundPerSubscription = offering.minLots * offering.lotSize * nominalValue;
+
+      // 3 subscriptions for investor1 (indices 0, 2, 4 -> subscription IDs 1, 3, 5)
+      const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(refundPerSubscription * 3);
+
+      // 2 subscriptions for investor2 (indices 1, 3 -> subscription IDs 2, 4)
+      const investor2BalanceAfter = await mockPaymentToken.balanceOf(investor2Address);
+      expect(investor2BalanceAfter.sub(investor2BalanceBefore)).to.equal(refundPerSubscription * 2);
+
+      // PM balance should decrease
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(refundPerSubscription * 5);
+    });
+
+    it("GIVEN cancellable offering WHEN cancelling by subscription IDs THEN success", async () => {
+      const numSubscriptions = 5;
+      await createSubscriptions(numSubscriptions);
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      // Cancel specific subscriptions by ID
+      const subscriptionIds = [1, 3, 5]; // investor1's subscriptions
+      const tx = await primaryMarket
+        .connect(offeringCreator)
+        .cancelOfferingBySubscriptionId(offeringId, subscriptionIds);
+      const receipt = await tx.wait();
+
+      const event = receipt.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event).to.not.be.undefined;
+
+      const succeeded = event!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      expect(succeeded.length).to.equal(3);
+      expect(succeeded).to.include.members([1, 3, 5]);
+
+      // Check refund
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const refundPerSubscription = offering.minLots * offering.lotSize * nominalValue;
+      const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(refundPerSubscription * 3);
+      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(refundPerSubscription * 3);
+    });
 
     it("GIVEN paused PM WHEN cancelling THEN fail", async () => {
       await pause.connect(admin).pause();
@@ -1152,7 +1247,7 @@ describe("PrimaryMarket", () => {
       const wrongSubscriptionId = 999;
 
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, wrongSubscriptionId))
-        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionDoesNotExist")
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionIsNotActive")
         .withArgs(offeringId, wrongSubscriptionId);
     });
 
@@ -1164,28 +1259,16 @@ describe("PrimaryMarket", () => {
         .withArgs(investor1Address, offeringId);
     });
 
-    it("GIVEN already cancelled subscription WHEN cancelling again THEN should handle gracefully", async () => {
+    it("GIVEN already cancelled subscription WHEN cancelling again THEN fail", async () => {
       await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
-
-      const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
       // Cancel first time
       await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
 
-      const investor1BalanceAfter1 = await mockPaymentToken.balanceOf(investor1Address);
-
-      // Cancel again
-      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
-
-      const investor1BalanceAfter2 = await mockPaymentToken.balanceOf(investor1Address);
-
-      // Balance should not change on second cancel
-      expect(investor1BalanceAfter2).to.equal(investor1BalanceAfter1);
-
-      // Check only refunded once
-      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
-      const expectedRefund = offering.minLots * offering.lotSize * nominalValue;
-      expect(investor1BalanceAfter1.sub(investor1BalanceBefore)).to.equal(expectedRefund);
+      // Cancel again should fail
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionIsNotActive")
+        .withArgs(offeringId, 1);
     });
   });
 });
