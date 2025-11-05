@@ -1,0 +1,7 @@
+// SPDX-License-Identifier: Apache-2.0
+
+export class RedemptionHolderQueryResponse {
+  accountId: string
+  status: string
+  amount: string | null
+}

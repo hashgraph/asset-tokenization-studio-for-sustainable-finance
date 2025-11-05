@@ -56,6 +56,10 @@ import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/cancelo
 import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
 import { CancelSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
 import { GetSubscriptionHttpAdapter } from "@port/subscription/usecase/getsubscription/GetSubscriptionHttpAdapter"
+import { GetPrimaryMarketHttpAdapter } from "@port/primarymarket/usecase/getprimarymarket/GetPrimaryMarketHttpAdapter"
+import { GetPrimaryMarketQueryHandler } from "@app/primarymarket/getprimarymarket/query/GetPrimaryMarketQueryHandler"
+import { GetPrimaryMarketsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarkets/GetPrimaryMarketsHttpAdapter"
+import { GetPrimaryMarketsQueryHandler } from "@app/primarymarket/getprimarymarkets/query/GetPrimaryMarketsQueryHandler"
 import { GetSubscriptionsHttpAdapter } from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
 import { GetSubscriptionsQueryHandler } from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
 
@@ -99,6 +103,8 @@ export const CONTROLLERS = [
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
+  GetPrimaryMarketHttpAdapter,
+  GetPrimaryMarketsHttpAdapter,
   GetSubscriptionsHttpAdapter,
 ]
 export const PROVIDERS = [
@@ -135,6 +141,8 @@ export const PROVIDERS = [
   ExecuteOfferingTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,
   CancelOfferingNestJSEventAdapter,
+  GetPrimaryMarketQueryHandler,
+  GetPrimaryMarketsQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
