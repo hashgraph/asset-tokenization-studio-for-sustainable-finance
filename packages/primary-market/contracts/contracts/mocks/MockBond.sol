@@ -28,7 +28,7 @@ contract MockBond is IBondRead {
         nominalValue = nominalValue_;
     }
 
-    function issue(address _tokenHolder, uint256 _value, bytes calldata _data) external {
+    function issue(address _tokenHolder, uint256 _value, bytes calldata /*_data*/) external {
         balance[_tokenHolder] += _value;
         totalSupply += _value;
     }

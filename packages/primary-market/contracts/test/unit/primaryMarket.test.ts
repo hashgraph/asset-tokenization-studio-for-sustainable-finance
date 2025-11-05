@@ -26,6 +26,7 @@ import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
+import { INT64_MAX } from "../constants";
 
 // Contracts
 let primaryMarket: IPrimaryMarket;
@@ -883,21 +884,21 @@ describe("PrimaryMarket", () => {
         expect(succeeded).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
         const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
-        expect(failed).to.deep.equal([0, 0]);
+        expect(failed).to.deep.equal([]);
 
         const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
-        expect(alreadyProcessed).to.deep.equal([0, 0]);
+        expect(alreadyProcessed).to.deep.equal([]);
       }
 
       const TreasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
       const PrimaryMarketBalanceAfter = await mockPaymentToken.balanceOf(primaryMarketAddress);
       const TotalAssetSupplyAfter = await mockAsset.getTotalSupply();
       const TotalAssets = offering.targetLots * offering.lotSize;
-      const TotalCost = TotalAssets * nominalValue;
+      const TotalCost = BigInt(TotalAssets) * BigInt(nominalValue);
 
-      expect(TreasuryBalanceBefore + TotalCost).to.equal(TreasuryBalanceAfter);
-      expect(PrimaryMarketBalanceBefore - TotalCost).to.equal(PrimaryMarketBalanceAfter);
-      expect(TotalAssetSupplyBefore + TotalAssets).to.equal(TotalAssetSupplyAfter);
+      expect(BigInt(TreasuryBalanceBefore) + BigInt(TotalCost)).to.equal(BigInt(TreasuryBalanceAfter));
+      expect(BigInt(PrimaryMarketBalanceBefore) - BigInt(TotalCost)).to.equal(BigInt(PrimaryMarketBalanceAfter));
+      expect(BigInt(TotalAssetSupplyBefore) + BigInt(TotalAssets)).to.equal(BigInt(TotalAssetSupplyAfter));
 
       for (let p = 0; p < investorsList.length; p++) {
         const InvestorAssetBalance = await mockAsset.getBalanceOf(investorsList[p]);
@@ -911,6 +912,13 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN executable offering WHEN executing non paginated method THEN success", async () => {
       await executeSuccess(false);
+    });
+
+    it("GIVEN executable offering with super large nominal value WHEN executing THEN success", async () => {
+      const tokensPerSubscription = offering.minLots * offering.lotSize;
+      const nominalValue = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
+      await mockAsset.setNominalValue(nominalValue);
+      await executeSuccess(true);
     });
 
     it("GIVEN executable offering and not working precompiled WHEN executing THEN success with failures", async () => {
@@ -942,13 +950,13 @@ describe("PrimaryMarket", () => {
 
           // Convert BigNumbers to numbers for array comparison
           const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
-          expect(succeeded).to.deep.equal([0, 0]);
+          expect(succeeded).to.deep.equal([]);
 
           const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
           expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
           const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
-          expect(alreadyProcessed).to.deep.equal([0, 0]);
+          expect(alreadyProcessed).to.deep.equal([]);
         }
       }
     });

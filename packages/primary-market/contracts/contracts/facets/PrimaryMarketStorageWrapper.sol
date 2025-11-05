@@ -235,7 +235,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
                 indexCounts,
                 subscriptionIds,
                 totalToTransfer,
-                transfersLength,
                 transferItems
             );
         }
@@ -250,6 +249,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             processResult,
             indexCounts
         );
+
+        return _resizeResults(processResult, indexCounts);
     }
 
     function _processSubscription(
@@ -260,7 +261,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         uint256[] memory indexCounts,
         uint256[] memory subscriptionIds,
         int64 totalToTransfer,
-        uint256 transfersLength,
         TransferItem[] memory transferItems
     ) internal returns (int64 totalToTransferUpdated_) {
         _checkSubscriptionExists(_processOfferingInfo.offeringId, subscriptionId);
@@ -285,9 +285,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             return totalToTransferUpdated_;
         }
 
-        subscriptionIds[indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]] = subscriptionId;
-        indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]++;
-
         if (!_valueFitsInInt64(uint256(uint64(totalToTransferUpdated_)) + amount)) {
             _payBatch(
                 offering,
@@ -303,11 +300,12 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             //reset
             totalToTransferUpdated_ = 0;
             indexCounts[uint256(CountIndex.TRANSFER_INDEX)] = 0;
-            transferItems = new TransferItem[](transfersLength);
-            subscriptionIds = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
             indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)] = 0;
             if (_processOfferingInfo.isExecution) transferItems[0].destination = offering.info.treasury;
         }
+
+        subscriptionIds[indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]] = subscriptionId;
+        indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]++;
 
         totalToTransferUpdated_ += int64(int256(amount));
 
@@ -345,10 +343,11 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         if (_transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
             indexCounts[uint256(CountIndex.SUCCEEDED)] = _addToList(
                 subscriptionIds,
+                indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
                 processResult.succeededSubscriptions,
                 indexCounts[uint256(CountIndex.SUCCEEDED)]
             );
-            for (uint256 i = 0; i < subscriptionIds.length; i++) {
+            for (uint256 i = 0; i < indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]; i++) {
                 if (_processOfferingInfo.isExecution) {
                     offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
 
@@ -367,6 +366,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
         indexCounts[uint256(CountIndex.FAILED)] = _addToList(
             subscriptionIds,
+            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
             processResult.failedSubscriptions,
             indexCounts[uint256(CountIndex.FAILED)]
         );
@@ -599,13 +599,34 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
     function _addToList(
         uint256[] memory subscriptionIds,
+        uint256 subscriptionIdLastIndex,
         uint256[] memory list,
-        uint256 listIndex
-    ) internal pure returns (uint256 newListIndex) {
-        for (uint256 i = 0; i < subscriptionIds.length; i++) {
-            list[listIndex] = subscriptionIds[i];
-            listIndex++;
+        uint256 listInitialIndex
+    ) internal pure returns (uint256 newListInitialIndex) {
+        newListInitialIndex = listInitialIndex;
+
+        for (uint256 i = 0; i < subscriptionIdLastIndex; i++) {
+            list[newListInitialIndex] = subscriptionIds[i];
+            newListInitialIndex++;
         }
-        newListIndex = listIndex;
+    }
+
+    function _resizeResults(
+        IPrimaryMarket.OfferingProcessResult memory inputResult,
+        uint256[] memory indexCounts
+    ) internal pure returns (IPrimaryMarket.OfferingProcessResult memory outputResult) {
+        outputResult.failedSubscriptions = new uint256[](indexCounts[uint256(CountIndex.FAILED)]);
+        outputResult.succeededSubscriptions = new uint256[](indexCounts[uint256(CountIndex.SUCCEEDED)]);
+        outputResult.alreadyProcessedSubscriptions = new uint256[](indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]);
+
+        for (uint256 i = 0; i < outputResult.failedSubscriptions.length; i++) {
+            outputResult.failedSubscriptions[i] = inputResult.failedSubscriptions[i];
+        }
+        for (uint256 i = 0; i < outputResult.succeededSubscriptions.length; i++) {
+            outputResult.succeededSubscriptions[i] = inputResult.succeededSubscriptions[i];
+        }
+        for (uint256 i = 0; i < outputResult.alreadyProcessedSubscriptions.length; i++) {
+            outputResult.alreadyProcessedSubscriptions[i] = inputResult.alreadyProcessedSubscriptions[i];
+        }
     }
 }
