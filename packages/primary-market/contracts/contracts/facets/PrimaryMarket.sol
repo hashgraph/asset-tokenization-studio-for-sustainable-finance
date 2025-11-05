@@ -72,11 +72,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         _;
     }
 
-    modifier subscriptionExists(uint256 _offeringId, uint256 _subscriptionId) {
-        _checkSubscriptionExists(_offeringId, _subscriptionId);
-        _;
-    }
-
     /**
      * @notice Validates offering is in OPEN status (accepting subscriptions)
      * @param _offeringId Offering ID to check
@@ -249,14 +244,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     function cancelSubscription(
         uint256 _offeringId,
         uint256 _subscriptionId
-    )
-        external
-        override
-        onlyUnpaused
-        offeringExists(_offeringId)
-        checkOfferingOperator(_offeringId)
-        subscriptionExists(_offeringId, _subscriptionId)
-    {
+    ) external override onlyUnpaused offeringExists(_offeringId) checkOfferingOperator(_offeringId) {
         _cancelSubscription(_offeringId, _subscriptionId);
     }
 
@@ -313,17 +301,10 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         return _getTotalSubscriptions(_offeringId);
     }
 
-    /**
-     * @notice Get subscription details
-     * @param _offeringId Offering ID
-     * @param _subscriptionId Subscription ID
-     * @return investor_ Investor address
-     * @return lotUnits_ Number of lot units
-     */
     function getSubscription(
         uint256 _offeringId,
         uint256 _subscriptionId
-    ) external view override offeringExists(_offeringId) returns (address investor_, uint256 lotUnits_) {
+    ) external view override offeringExists(_offeringId) returns (Subscription memory subscription) {
         return _getSubscription(_offeringId, _subscriptionId);
     }
 }

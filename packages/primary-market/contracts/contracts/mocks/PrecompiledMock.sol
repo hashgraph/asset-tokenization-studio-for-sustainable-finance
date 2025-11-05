@@ -28,12 +28,14 @@ contract PrecompiledMockStorageWrapper {
         address[] memory accountIds,
         int64[] memory amounts
     ) internal virtual returns (int responseCode) {
-        if (_getPrecompiledTransferStatus() == true) return HederaResponseCodes.SUCCESS;
-        else return HederaResponseCodes.UNKNOWN;
+        if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
 
-        /*for (uint256 index = 0; index < accountIds.length; index++) {
-            IERC20(token).transfer(accountIds[index], uint256(uint64(amounts[index])));
-        }*/
+        for (uint256 index = 0; index < accountIds.length; index++) {
+            if (!IERC20(token).transfer(accountIds[index], uint256(uint64(amounts[index]))))
+                return HederaResponseCodes.UNKNOWN;
+        }
+
+        return HederaResponseCodes.SUCCESS;
     }
 }
 

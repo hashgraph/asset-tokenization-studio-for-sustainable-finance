@@ -45,10 +45,11 @@ interface IPrimaryMarket {
         CLOSE_TARGET_REACHED
     }
 
-    struct OfferingProcessResult {
-        uint256[] failedSubscriptions;
-        uint256[] succeededSubscriptions;
-        uint256[] alreadyProcessedSubscriptions;
+    enum SubscriptionStatus {
+        NONE,
+        ACTIVE,
+        CANCELLED,
+        EXECUTED
     }
 
     /// @notice Calculated status of an offering (not stored, computed dynamically)
@@ -60,6 +61,19 @@ interface IPrimaryMarket {
         CANCELLABLE, // Only rollback/cancellation allowed (target not reached after deadline)
         EXECUTED, // Already executed
         CANCELLED // Already cancelled
+    }
+
+    /// @notice Detailed information about a subscription
+    struct Subscription {
+        address investor; // Address of the investor
+        uint256 lotUnits; // Number of lot units subscribed
+        IPrimaryMarket.SubscriptionStatus status;
+    }
+
+    struct OfferingProcessResult {
+        uint256[] failedSubscriptions;
+        uint256[] succeededSubscriptions;
+        uint256[] alreadyProcessedSubscriptions;
     }
 
     /// @notice Structure representing a market offering
@@ -186,6 +200,8 @@ interface IPrimaryMarket {
 
     error SubscriptionCannotBeCancelled(uint256 offeringId, uint256 subscriptionId);
 
+    error SubscriptionIsNotActive(uint256 offeringId, uint256 subscriptionId);
+
     /// @notice Create a new offering
     /// @param _offeringInfo The details of the offering to create
     function createOffering(Offering calldata _offeringInfo) external;
@@ -268,10 +284,9 @@ interface IPrimaryMarket {
     /// @notice Get details of a specific subscription
     /// @param _offeringId The offering ID
     /// @param _subscriptionId The subscription ID
-    /// @return investor_ Investor address
-    /// @return lotUnits_ Number of lot units subscribed
+    /// @return subscription the subscription info
     function getSubscription(
         uint256 _offeringId,
         uint256 _subscriptionId
-    ) external view returns (address investor_, uint256 lotUnits_);
+    ) external view returns (Subscription memory subscription);
 }
