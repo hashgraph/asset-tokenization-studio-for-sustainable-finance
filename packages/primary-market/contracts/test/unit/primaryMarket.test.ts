@@ -26,6 +26,7 @@ import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
+import { INT64_MAX } from "../constants";
 
 // Contracts
 let primaryMarket: IPrimaryMarket;
@@ -51,6 +52,7 @@ let investor1Address: string;
 let investor2Address: string;
 let investor3Address: string;
 let treasuryAddress: string;
+let primaryMarketAddress: string;
 let primaryMarketAddress: string;
 
 // Mock contracts
@@ -783,6 +785,11 @@ describe("PrimaryMarket", () => {
       tokens: number;
     };
 
+    type InvestorSubscription = {
+      price: number;
+      tokens: number;
+    };
+
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
       offering = {
@@ -790,7 +797,10 @@ describe("PrimaryMarket", () => {
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
         lotSize: 2,
+        lotSize: 2,
         minLots: 1,
+        maxLots: 5,
+        targetLots: 10,
         maxLots: 5,
         targetLots: 10,
         targetQuantityRule: targetQuantityRule,
@@ -831,10 +841,15 @@ describe("PrimaryMarket", () => {
     }
 
     async function executeSuccess(paginatedMethod: boolean = true) {
+    async function executeSuccess(paginatedMethod: boolean = true) {
       await reachTarget();
 
       await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
+      const PrimaryMarketBalanceBefore = await mockPaymentToken.balanceOf(primaryMarketAddress);
+      const TotalAssetSupplyBefore = await mockAsset.getTotalSupply();
 
       const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
       const PrimaryMarketBalanceBefore = await mockPaymentToken.balanceOf(primaryMarketAddress);
@@ -848,7 +863,32 @@ describe("PrimaryMarket", () => {
 
       const investorsList: string[] = [];
 
+      const investorsSubscriptions = new Map<string, InvestorSubscription>();
+
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
+      const investorsList: string[] = [];
+
       for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+        for (let j = 1; j <= 2; j++) {
+          const subscription = await primaryMarket.getSubscription(offeringId, i + j);
+
+          let tokens = 0;
+
+          if (investorsSubscriptions.get(subscription.investor)) {
+            tokens = investorsSubscriptions.get(subscription.investor).tokens;
+          } else investorsList.push(subscription.investor);
+
+          tokens += subscription.lotUnits.toNumber() * offering.lotSize;
+          const price = tokens * nominalValue;
+          investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
+        }
+
+        const tx = paginatedMethod
+          ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+          : await primaryMarket
+              .connect(offeringCreator)
+              .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
         for (let j = 1; j <= 2; j++) {
           const subscription = await primaryMarket.getSubscription(offeringId, i + j);
 
@@ -883,21 +923,21 @@ describe("PrimaryMarket", () => {
         expect(succeeded).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
         const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
-        expect(failed).to.deep.equal([0, 0]);
+        expect(failed).to.deep.equal([]);
 
         const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
-        expect(alreadyProcessed).to.deep.equal([0, 0]);
+        expect(alreadyProcessed).to.deep.equal([]);
       }
 
       const TreasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
       const PrimaryMarketBalanceAfter = await mockPaymentToken.balanceOf(primaryMarketAddress);
       const TotalAssetSupplyAfter = await mockAsset.getTotalSupply();
       const TotalAssets = offering.targetLots * offering.lotSize;
-      const TotalCost = TotalAssets * nominalValue;
+      const TotalCost = BigInt(TotalAssets) * BigInt(nominalValue);
 
-      expect(TreasuryBalanceBefore + TotalCost).to.equal(TreasuryBalanceAfter);
-      expect(PrimaryMarketBalanceBefore - TotalCost).to.equal(PrimaryMarketBalanceAfter);
-      expect(TotalAssetSupplyBefore + TotalAssets).to.equal(TotalAssetSupplyAfter);
+      expect(BigInt(TreasuryBalanceBefore) + BigInt(TotalCost)).to.equal(BigInt(TreasuryBalanceAfter));
+      expect(BigInt(PrimaryMarketBalanceBefore) - BigInt(TotalCost)).to.equal(BigInt(PrimaryMarketBalanceAfter));
+      expect(BigInt(TotalAssetSupplyBefore) + BigInt(TotalAssets)).to.equal(BigInt(TotalAssetSupplyAfter));
 
       for (let p = 0; p < investorsList.length; p++) {
         const InvestorAssetBalance = await mockAsset.getBalanceOf(investorsList[p]);
@@ -911,6 +951,46 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN executable offering WHEN executing non paginated method THEN success", async () => {
       await executeSuccess(false);
+    });
+
+    it("GIVEN executable offering with super large nominal value WHEN executing THEN success", async () => {
+      const tokensPerSubscription = offering.minLots * offering.lotSize;
+      const nominalValue = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
+      await mockAsset.setNominalValue(nominalValue);
+      await executeSuccess(true);
+    });
+
+    it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
+      await reachTarget();
+
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
+
+      await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1);
+
+      const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1);
+      const receipt = await tx.wait();
+
+      // Find the event
+      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+      expect(event).to.not.be.undefined;
+
+      // Check scalar args
+      expect(event.args.offeringId).to.equal(offeringId);
+      expect(event.args.operator).to.equal(offeringCreatorAddress);
+
+      // Convert BigNumbers to numbers for array comparison
+      const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+      expect(succeeded).to.deep.equal([]);
+
+      const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+      expect(failed).to.deep.equal([]);
+
+      const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+      const arr = Array.from({ length: totalSubscription - 1 }, (_, i) => i + 1);
+      expect(alreadyProcessed).to.deep.equal(arr);
     });
 
     it("GIVEN executable offering and not working precompiled WHEN executing THEN success with failures", async () => {
@@ -931,7 +1011,19 @@ describe("PrimaryMarket", () => {
                   .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
 
           const receipt = await tx?.wait();
+        for (let methodId = 1; methodId < 2; methodId++) {
+          const tx =
+            methodId == 1
+              ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+              : await primaryMarket
+                  .connect(offeringCreator)
+                  .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
 
+          const receipt = await tx?.wait();
+
+          // Find the event
+          const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+          expect(event).to.not.be.undefined;
           // Find the event
           const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
           expect(event).to.not.be.undefined;
@@ -939,16 +1031,21 @@ describe("PrimaryMarket", () => {
           // Check scalar args
           expect(event.args.offeringId).to.equal(offeringId);
           expect(event.args.operator).to.equal(offeringCreatorAddress);
+          // Check scalar args
+          expect(event.args.offeringId).to.equal(offeringId);
+          expect(event.args.operator).to.equal(offeringCreatorAddress);
 
           // Convert BigNumbers to numbers for array comparison
           const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
-          expect(succeeded).to.deep.equal([0, 0]);
+          expect(succeeded).to.deep.equal([]);
 
+          const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+          expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
           const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
           expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
           const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
-          expect(alreadyProcessed).to.deep.equal([0, 0]);
+          expect(alreadyProcessed).to.deep.equal([]);
         }
       }
     });

@@ -17,6 +17,7 @@ export const MOCK_ERC20_CONTRACT_NAME = "MockERC20";
 export const MOCK_ATS_FACTORY_CONTRACT_NAME = "MockAtsFactory";
 export const MOCK_BOND_CONTRACT_NAME = "MockBond";
 export const MOCK_BUSINESS_LOGIC_RESOLVER_CONTRACT_NAME = "MockBusinessLogicResolver";
+export const INT64_MAX = 9223372036854775807n;
 
 /**
  * Gas limits for test assertions
