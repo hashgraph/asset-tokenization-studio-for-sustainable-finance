@@ -6,6 +6,7 @@ import { EnvironmentalAssetRepository } from "@domain/environmentalasset/reposit
 import { EnvironmentalAssetPersistence } from "../model/EnvironmentalAssetPersistence"
 import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRepository {
@@ -16,7 +17,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
 
   @Validate()
   async save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset> {
-    const savedPersistence = await this.repository.save(environmentalAsset)
+    const savedPersistence = await this.repository.save(this.fromDomain(environmentalAsset))
     return this.toDomain(savedPersistence)
   }
 
@@ -104,6 +105,10 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   }
 
   private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {
-    return { ...persistence } as EnvironmentalAsset
+    return plainToInstance(EnvironmentalAsset, persistence)
+  }
+
+  private fromDomain(domainEntity: EnvironmentalAsset): EnvironmentalAssetPersistence {
+    return plainToInstance(EnvironmentalAssetPersistence, domainEntity)
   }
 }
