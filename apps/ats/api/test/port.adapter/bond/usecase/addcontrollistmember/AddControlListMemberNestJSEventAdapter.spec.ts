@@ -51,7 +51,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
 
   describe("AddControlListMemberNestJSEventAdapter", () => {
     it("should add a new control list member when AddedToControlListDLTEvent is published", async () => {
-      // Create a bond first
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -90,7 +89,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
     })
 
     it("should return existing member when member with same contractId and holderId already exists", async () => {
-      // Create a bond first
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -132,7 +130,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
     })
 
     it("should create multiple control list members for different holders successfully", async () => {
-      // Create a bond first
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -174,7 +171,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
     })
 
     it("should create control list members for different bonds successfully", async () => {
-      // Create multiple bonds
       const contracts = ["0.0.6974684", "0.0.6974685"]
       for (const contractId of contracts) {
         await bondRepository.save({
@@ -223,7 +219,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
     })
 
     it("should publish BondControlListMemberAddedEvent after successful member creation", async () => {
-      // Create a bond first
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
