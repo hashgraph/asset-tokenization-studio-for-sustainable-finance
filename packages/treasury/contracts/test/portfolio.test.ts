@@ -113,8 +113,10 @@ describe('Portfolio operations', () => {
                 .to.emit(treasury, 'EnvironmentalAssetAdded')
                 .withArgs(signer_B.address, environmentalAssetAddress)
 
-            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
-                1
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(1)
+
+            expect((await treasury.getEnvironmentalAssetTokens(0, 1))[0]).to.equal(
+                environmentalAssetAddress.toString()
             )
         })
 
@@ -137,8 +139,10 @@ describe('Portfolio operations', () => {
                 .to.not.emit(treasury, 'TokenAssociated')
                 .to.not.emit(treasury, 'EnvironmentalAssetAdded')
 
-            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
-                1
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(1)
+
+            expect((await treasury.getEnvironmentalAssetTokens(0, 1))[0]).to.equal(
+                environmentalAssetAddress.toString()
             )
         })
     })
@@ -190,9 +194,7 @@ describe('Portfolio operations', () => {
 
             await treasury.addEnvironmentalAssetToken(environmentalAssetAddress)
 
-            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
-                1
-            )
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(1)
 
             await expect(
                 treasury.removeEnvironmentalAssetToken(
@@ -202,9 +204,7 @@ describe('Portfolio operations', () => {
                 .to.emit(treasury, 'EnvironmentalAssetRemoved')
                 .withArgs(signer_B.address, environmentalAssetAddress, 0)
 
-            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(
-                0
-            )
+            expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(0)
         })
     })
 

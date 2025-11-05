@@ -83,16 +83,16 @@ abstract contract PortfolioStorageWrapper is
     /**
      * @dev Remove an existing EnvironmentalAsset token contract from the treasury
      *
-     * @param environmentalAssets The address of the EnvironmentalAsset token contract to remove from the treasury
+     * @param environmentalAsset The address of the EnvironmentalAsset token contract to remove from the treasury
      *
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     function _removeEnvironmentalAssetToken(
-        address environmentalAssets
+        address environmentalAsset
     ) internal returns (int256 dissociationError) {
-        _portfolioStorage().environmentalAssets.remove(environmentalAssets);
+        _portfolioStorage().environmentalAssets.remove(environmentalAsset);
         dissociationError = _dissociateTokenAllowNotAssociated(
-            environmentalAssets
+            environmentalAsset
         );
     }
 
@@ -196,9 +196,9 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /**
-     * @dev Get the total amount of EnvironmentalAsset tokens associated to the treasury
+     * @dev Get the total amount of environmental asset tokens added to the treasury
      *
-     * @return total The total amount of EnvironmentalAsset tokens associated to the treasury
+     * @return total The total amount of environmental asset tokens added to the treasury
      */
     function _getTotalEnvironmentalAssetTokens()
         internal
@@ -209,16 +209,30 @@ abstract contract PortfolioStorageWrapper is
     }
 
     /*
-     * @dev Get the list of EnvironmentalAsset tokens
+     * @dev Get the list of environmental asset tokens
      *
-     * @return environmentalAssets The EnvironmentalAsset tokens list
+     * @return environmentalAssetTokensPage The environmental asset tokens list
      */
-    function _getEnvironmentalAssets()
-        internal
-        view
-        returns (EnumerableSet.AddressSet storage environmentalAssets)
-    {
-        environmentalAssets = _portfolioStorage().environmentalAssets;
+    function _getEnvironmentalAssetTokens(
+        uint256 pageIndex,
+        uint256 pageLength
+    ) internal view returns (address[] memory environmentalAssetTokensPage) {
+        uint256 total = _portfolioStorage().environmentalAssets.length();
+        uint256 start = pageIndex * pageLength;
+        if (start >= total) return new address[](0);
+
+        uint256 remaining = total - start;
+        uint256 actualLength = remaining < pageLength ? remaining : pageLength;
+        environmentalAssetTokensPage = new address[](actualLength);
+
+        for (uint256 i; i < actualLength; ) {
+            environmentalAssetTokensPage[i] = _portfolioStorage()
+                .environmentalAssets
+                .at(start + i);
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     /*
