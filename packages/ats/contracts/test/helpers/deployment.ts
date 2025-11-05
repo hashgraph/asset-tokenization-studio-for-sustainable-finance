@@ -2,9 +2,9 @@
 
 import { ContractReceipt } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import type { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts";
 import type { IFactorySuite, MockTreasuryFacet } from "@contract-types";
 import { MockTreasuryFacet__factory } from "@contract-types";
+import type { IFactory } from "@contract-types";
 
 /**
  * Deploys a bond suite and extracts contract addresses from the BondSuiteDeployed event.
@@ -45,7 +45,7 @@ export async function deployBondSuiteAndExtractContracts(
   factorySuite: IFactorySuite,
   signer: SignerWithAddress,
   factoryAddress: string,
-  bondData: IAtsFactory.BondDataStruct,
+  bondData: IFactory.BondDataStruct,
   regulationData: any,
   treasuryData: any,
   kpiData: any,

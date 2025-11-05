@@ -1,4 +1,5 @@
-import { Kpi, Kpi__factory, IResolverProxy, ProxyAdmin } from "@contract-types";
+import { Kpi, Kpi__factory, ProxyAdmin } from "@contract-types";
+import { IResolverProxy } from "@contract-types/contracts/Kpi";
 import { configureLogger, deployProxy, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { processAddressableArgs } from "@scripts";
 import { Signer } from "ethers";

@@ -32,7 +32,7 @@ import {
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { BusinessLogicResolver__factory } from "@contract-types";
+import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
 
@@ -206,9 +206,10 @@ export async function deployFactorySuiteWithExistingInfra(
       }
     });
 
-    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
 
-    const registerResult = await registerAdditionalFacets(blrContract, {
+    const registerResult = await registerAdditionalFacets(signer, {
+      blrAddress,
       newFacets: newFacetAddresses,
       registries: [atsRegistry, factorySuiteRegistry],
     });
