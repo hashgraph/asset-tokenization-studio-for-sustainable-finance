@@ -30,11 +30,20 @@ contract PrecompiledMockStorageWrapper {
     ) internal virtual returns (int responseCode) {
         if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
 
+        uint256 totalPositive;
+        uint256 totalNegative;
+
         for (uint256 index = 0; index < accountIds.length; index++) {
+            if (amounts[index] < 0) {
+                totalNegative += uint256(uint64(-amounts[index]));
+                continue;
+            }
+            totalPositive += uint256(uint64(amounts[index]));
             if (!IERC20(token).transfer(accountIds[index], uint256(uint64(amounts[index]))))
                 return HederaResponseCodes.UNKNOWN;
         }
 
+        if (totalPositive != totalNegative) return HederaResponseCodes.UNKNOWN;
         return HederaResponseCodes.SUCCESS;
     }
 }
