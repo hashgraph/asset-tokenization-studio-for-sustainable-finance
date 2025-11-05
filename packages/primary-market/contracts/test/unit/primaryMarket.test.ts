@@ -53,6 +53,7 @@ let investor2Address: string;
 let investor3Address: string;
 let treasuryAddress: string;
 let primaryMarketAddress: string;
+let primaryMarketAddress: string;
 
 // Mock contracts
 let mockAsset: Contract;
@@ -784,6 +785,11 @@ describe("PrimaryMarket", () => {
       tokens: number;
     };
 
+    type InvestorSubscription = {
+      price: number;
+      tokens: number;
+    };
+
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
       offering = {
@@ -791,7 +797,10 @@ describe("PrimaryMarket", () => {
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
         lotSize: 2,
+        lotSize: 2,
         minLots: 1,
+        maxLots: 5,
+        targetLots: 10,
         maxLots: 5,
         targetLots: 10,
         targetQuantityRule: targetQuantityRule,
@@ -832,10 +841,15 @@ describe("PrimaryMarket", () => {
     }
 
     async function executeSuccess(paginatedMethod: boolean = true) {
+    async function executeSuccess(paginatedMethod: boolean = true) {
       await reachTarget();
 
       await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
+      const PrimaryMarketBalanceBefore = await mockPaymentToken.balanceOf(primaryMarketAddress);
+      const TotalAssetSupplyBefore = await mockAsset.getTotalSupply();
 
       const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
       const PrimaryMarketBalanceBefore = await mockPaymentToken.balanceOf(primaryMarketAddress);
@@ -849,7 +863,32 @@ describe("PrimaryMarket", () => {
 
       const investorsList: string[] = [];
 
+      const investorsSubscriptions = new Map<string, InvestorSubscription>();
+
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
+      const investorsList: string[] = [];
+
       for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+        for (let j = 1; j <= 2; j++) {
+          const subscription = await primaryMarket.getSubscription(offeringId, i + j);
+
+          let tokens = 0;
+
+          if (investorsSubscriptions.get(subscription.investor)) {
+            tokens = investorsSubscriptions.get(subscription.investor).tokens;
+          } else investorsList.push(subscription.investor);
+
+          tokens += subscription.lotUnits.toNumber() * offering.lotSize;
+          const price = tokens * nominalValue;
+          investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
+        }
+
+        const tx = paginatedMethod
+          ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+          : await primaryMarket
+              .connect(offeringCreator)
+              .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
         for (let j = 1; j <= 2; j++) {
           const subscription = await primaryMarket.getSubscription(offeringId, i + j);
 
@@ -972,11 +1011,26 @@ describe("PrimaryMarket", () => {
                   .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
 
           const receipt = await tx?.wait();
+        for (let methodId = 1; methodId < 2; methodId++) {
+          const tx =
+            methodId == 1
+              ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+              : await primaryMarket
+                  .connect(offeringCreator)
+                  .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
+
+          const receipt = await tx?.wait();
 
           // Find the event
           const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
           expect(event).to.not.be.undefined;
+          // Find the event
+          const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+          expect(event).to.not.be.undefined;
 
+          // Check scalar args
+          expect(event.args.offeringId).to.equal(offeringId);
+          expect(event.args.operator).to.equal(offeringCreatorAddress);
           // Check scalar args
           expect(event.args.offeringId).to.equal(offeringId);
           expect(event.args.operator).to.equal(offeringCreatorAddress);
@@ -985,6 +1039,8 @@ describe("PrimaryMarket", () => {
           const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
           expect(succeeded).to.deep.equal([]);
 
+          const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+          expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
           const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
           expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
@@ -1064,6 +1120,90 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]))
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
         .withArgs(offeringId);
+    });
+
+    it("GIVEN offering WHEN executing by subscription IDs with non-existing subscription THEN revert", async () => {
+      // Create and reach target first
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const iterations = offering.targetLots / offering.minLots;
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Try to execute with non-existing subscription ID - should revert
+      await expect(
+        primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [999]),
+      ).to.be.revertedWithCustomError(primaryMarket, "SubscriptionDoesNotExist");
+    });
+
+    it("GIVEN offering WHEN executing with already executed subscription THEN mark as already processed", async () => {
+      // Create and reach target
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const iterations = offering.targetLots / offering.minLots;
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Execute first subscription
+      await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
+
+      // Try to execute same subscription again
+      const tx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+
+      const alreadyProcessed = event!.args!.subscriptionIdsAlreadyExecuted
+        .map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
+      expect(alreadyProcessed).to.include(1);
+    });
+
+    it("GIVEN subscription with amount exceeding int64 max WHEN executing THEN mark as failed", async () => {
+      const now = await time.latest();
+      // lotSize * minLots * nominalValue > int64.max
+      // 2^62 * 100 * 100 > 2^63 - 1
+      const tx = await primaryMarket.connect(offeringCreator).createOffering({
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.BigNumber.from("2").pow(62),
+        minLots: 100,
+        maxLots: 200,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      });
+
+      const ofId = (await tx.wait()).events?.find((e: any) => e.event === "OfferingCreated")?.args?.offeringId?.toNumber();
+      await time.increase(61);
+      await mockAsset.setNominalValue(100);
+
+      const amount = ethers.BigNumber.from("2").pow(62).mul(100).mul(100);
+      await mockPaymentToken.mint(investor1Address, amount);
+      await mockPaymentToken.connect(investor1).approve(primaryMarket.address, amount);
+      await primaryMarket.connect(investor1).submitSubscription(ofId, 100);
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(now + 3601);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const executeTx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(ofId, [1]);
+      const failed = (await executeTx.wait()).events?.find((e) => e.event === "OfferingExecuted")?.args?.subscriptionIdsFailed
+        .map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+
+      expect(failed).to.include(1);
+      await mockAsset.setNominalValue(1);
     });
   });
 
@@ -1276,6 +1416,36 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
         .withArgs(offeringId);
     });
+
+    it("GIVEN offering WHEN cancelling by subscription IDs with already processed subscription THEN mark as already processed", async () => {
+      // Create subscription
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      // Move to cancellable state
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Cancel first time
+      const tx1 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
+      const receipt1 = await tx1.wait();
+      const event1 = receipt1.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event1).to.not.be.undefined;
+
+      const succeeded1 = event1!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      expect(succeeded1).to.include(1);
+
+      // Try to cancel same subscription again
+      const tx2 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
+      const receipt2 = await tx2.wait();
+      const event2 = receipt2.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event2).to.not.be.undefined;
+
+      const alreadyCancelled = event2!.args!.subscriptionIdsAlreadyCancelled
+        .map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
+      expect(alreadyCancelled).to.include(1);
+    });
   });
 
   describe("Cancelling Individual Subscriptions", () => {
@@ -1375,6 +1545,136 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionIsNotActive")
         .withArgs(offeringId, 1);
+    });
+  });
+
+  describe("Access Control - Roles", () => {
+    let accessControl: Contract;
+
+    beforeEach(async () => {
+      accessControl = (await ethers.getContractAt("IAccessControl", primaryMarketAddress)) as Contract;
+    });
+
+    it("GIVEN Issuer WHEN grants OFFERING_CREATOR_ROLE to account THEN account is permitted to execute operations AND emits event", async () => {
+      // Grant role and verify event emission
+      await expect(accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address))
+        .to.emit(accessControl, "RoleGranted");
+
+      // Verify account has the role
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.true;
+
+      // Verify account can execute protected operations (create offering)
+      const now = await time.latest();
+      const offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.not.be.reverted;
+    });
+
+    it("GIVEN non-admin WHEN tries to grant role THEN fail", async () => {
+      await expect(accessControl.connect(investor1).grantRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.reverted;
+    });
+
+    it("GIVEN Issuer WHEN revokes OFFERING_CREATOR_ROLE from account THEN account is NOT permitted to execute operations AND emits event", async () => {
+      // Grant role first
+      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
+
+      // Revoke role and verify event emission
+      await expect(accessControl.connect(admin).revokeRole(OFFERING_CREATOR_ROLE, investor1Address))
+        .to.emit(accessControl, "RoleRevoked");
+
+      // Verify account no longer has the role
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.false;
+
+      // Verify account CANNOT execute protected operations (create offering)
+      const now = await time.latest();
+      const offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.be.reverted;
+    });
+
+    it("GIVEN user with role WHEN renouncing role THEN success", async () => {
+      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
+      await accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE);
+
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.false;
+    });
+
+    it("GIVEN user with no role WHEN renouncing role THEN fail", async () => {
+      // Renouncing a role you don't have should revert
+      await expect(accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE))
+        .to.be.revertedWithCustomError(accessControl, "AccountNotAssignedToRole")
+        .withArgs(OFFERING_CREATOR_ROLE, investor1Address);
+    });
+
+    it("GIVEN Issuer WHEN applies multiple roles to account THEN roles are granted/revoked AND emits events", async () => {
+      const roles = [OFFERING_CREATOR_ROLE, PAUSER_ROLE];
+      const actives = [true, true]; // Grant both roles
+
+      // Apply roles (grant)
+      const tx1 = await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
+      await tx1.wait();
+
+      // Verify both roles are granted
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
+      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
+
+      // Now revoke one role, keep the other
+      const activesRevoke = [false, true]; // Revoke OFFERING_CREATOR_ROLE, keep PAUSER_ROLE
+      const tx2 = await accessControl.connect(admin).applyRoles(roles, activesRevoke, investor1Address);
+      await tx2.wait();
+
+      // Verify OFFERING_CREATOR_ROLE is revoked, PAUSER_ROLE remains
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.false;
+      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
+    });
+
+    it("GIVEN Issuer WHEN applies roles to several accounts THEN each account receives roles", async () => {
+      const roles = [OFFERING_CREATOR_ROLE];
+      const actives = [true];
+
+      // Apply to investor1
+      await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
+
+      // Apply to investor2
+      await accessControl.connect(admin).applyRoles(roles, actives, investor2Address);
+
+      // Verify both accounts have the role
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
+      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.true;
+    });
+
+    it("GIVEN non-admin account WHEN applies roles THEN fail", async () => {
+      const roles = [OFFERING_CREATOR_ROLE];
+      const actives = [true];
+
+      await expect(accessControl.connect(investor1).applyRoles(roles, actives, investor2Address)).to.be.reverted;
     });
   });
 });
