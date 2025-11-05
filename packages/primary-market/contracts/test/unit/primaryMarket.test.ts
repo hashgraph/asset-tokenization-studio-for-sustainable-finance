@@ -921,6 +921,39 @@ describe("PrimaryMarket", () => {
       await executeSuccess(true);
     });
 
+    it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
+      await reachTarget();
+
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
+
+      await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1);
+
+      const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1);
+      const receipt = await tx.wait();
+
+      // Find the event
+      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+      expect(event).to.not.be.undefined;
+
+      // Check scalar args
+      expect(event.args.offeringId).to.equal(offeringId);
+      expect(event.args.operator).to.equal(offeringCreatorAddress);
+
+      // Convert BigNumbers to numbers for array comparison
+      const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+      expect(succeeded).to.deep.equal([]);
+
+      const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+      expect(failed).to.deep.equal([]);
+
+      const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+      const arr = Array.from({ length: totalSubscription - 1 }, (_, i) => i + 1);
+      expect(alreadyProcessed).to.deep.equal(arr);
+    });
+
     it("GIVEN executable offering and not working precompiled WHEN executing THEN success with failures", async () => {
       await reachTarget();
 
