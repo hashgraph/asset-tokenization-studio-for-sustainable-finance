@@ -2,10 +2,12 @@
 import { BuildTransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
 import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
+import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
   setBondDocumentTransaction(request: BuildSetBondDocumentTransactionRequest): Promise<BuildTransactionResponse>
   removeBondDocumentTransaction(request: BuildRemoveBondDocumentTransactionRequest): Promise<BuildTransactionResponse>
+  setBondCapTransaction(request: BuildSetBondCapTransactionRequest): Promise<BuildTransactionResponse>
 }

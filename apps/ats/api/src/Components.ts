@@ -28,6 +28,11 @@ import { RemoveBondDocumentTransactionAppService } from "@app/bond/transaction/r
 import { RemoveBondDocumentCommandHandler } from "@app/bond/removebonddocument/command/RemoveBondDocumentCommandHandler"
 import { RemoveBondDocumentNestJSEventAdapter } from "@port/bond/usecase/removebonddocument/RemoveBondDocumentNestJSEventAdapter"
 import { RemoveBondDocumentDomainService } from "@domain/bond/document/service/RemoveBondDocumentDomainService"
+import { SetBondCapTransactionHttpAdapter } from "@port/transaction/usecase/setbondcaptransaction/SetBondCapTransactionHttpAdapter"
+import { SetBondCapTransactionAppService } from "@app/bond/transaction/setbondcaptransaction/service/SetBondCapTransactionAppService"
+import { SetBondCapCommandHandler } from "@app/bond/setbondcap/command/SetBondCapCommandHandler"
+import { SetBondCapNestJSEventAdapter } from "@port/bond/usecase/setbondcap/SetBondCapNestJSEventAdapter"
+import { SetBondCapDomainService } from "@domain/bond/services/cap/SetBondCapDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -47,6 +52,7 @@ export const CONTROLLERS = [
   GetBondsHttpAdapter,
   SetBondDocumentTransactionHttpAdapter,
   RemoveBondDocumentTransactionHttpAdapter,
+  SetBondCapTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -66,6 +72,10 @@ export const PROVIDERS = [
   RemoveBondDocumentCommandHandler,
   RemoveBondDocumentNestJSEventAdapter,
   RemoveBondDocumentDomainService,
+  SetBondCapTransactionAppService,
+  SetBondCapCommandHandler,
+  SetBondCapNestJSEventAdapter,
+  SetBondCapDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
