@@ -23,6 +23,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "DocumentRemoved(bytes32 indexed _name,string _uri,bytes32 _documentHash)",
         "MaxSupplySet(address indexed operator,uint256 newMaxSupply,uint256 previousMaxSupply)",
         "AddedToControlList(address indexed operator,address indexed account)",
+        "RemovedFromControlList(address indexed operator,address indexed account)",
       ]),
     )
   }

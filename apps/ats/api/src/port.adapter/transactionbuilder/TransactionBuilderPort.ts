@@ -5,6 +5,7 @@ import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder
 import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
+import { BuildDeleteControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildDeleteControlListMemberTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -13,5 +14,8 @@ export interface TransactionBuilderPort {
   setBondCapTransaction(request: BuildSetBondCapTransactionRequest): Promise<BuildTransactionResponse>
   addControlListMemberTransaction(
     request: BuildAddControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  deleteControlListMemberTransaction(
+    request: BuildDeleteControlListMemberTransactionRequest,
   ): Promise<BuildTransactionResponse>
 }
