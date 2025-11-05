@@ -3,12 +3,16 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
+import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
 import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
 
-abstract contract LifeCycleCashFlow is LifeCycleCashFlowStorageWrapper {
+abstract contract LifeCycleCashFlow is
+    ILifeCycleCashFlow,
+    LifeCycleCashFlowStorageWrapper
+{
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset

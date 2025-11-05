@@ -25,7 +25,13 @@ abstract contract ProceedsManagement is
     function transferPaymentToken(
         address to,
         uint256 amount
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PROCEEDS_FULL_MANAGER_ROLE)
+        notAddressZero(to)
+    {
         _transferPaymentToken(to, amount);
         emit PaymentTokenTransferred(to, amount);
     }
@@ -41,7 +47,14 @@ abstract contract ProceedsManagement is
         address environmentalAsset,
         address to,
         uint256 tokenId
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PROCEEDS_FULL_MANAGER_ROLE)
+        notAddressZero(environmentalAsset)
+        notAddressZero(to)
+    {
         _transferEnvironmentalAssetToken(environmentalAsset, to, tokenId);
         emit EnvironmentalAssetTokenTransferred(
             environmentalAsset,
@@ -64,6 +77,7 @@ abstract contract ProceedsManagement is
         override
         onlyUnpaused
         onlyRole(FUNDS_MANAGER_ROLE)
+        notAddressZero(proceedsRecipient)
         onlyForBondProceedsRecipients(proceedsRecipient)
     {
         _fundProceedsRecipient(proceedsRecipient, amount);
