@@ -1450,4 +1450,83 @@ describe("PrimaryMarket", () => {
         .withArgs(offeringId, 1);
     });
   });
+
+  describe("Access Control - Roles", () => {
+    let accessControl: Contract;
+
+    beforeEach(async () => {
+      accessControl = (await ethers.getContractAt("IAccessControl", primaryMarketAddress)) as Contract;
+    });
+
+    it("GIVEN Issuer WHEN grants OFFERING_CREATOR_ROLE to account THEN account is permitted to execute operations AND emits event", async () => {
+      // Grant role and verify event emission
+      await expect(accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address))
+        .to.emit(accessControl, "RoleGranted");
+
+      // Verify account has the role
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.true;
+
+      // Verify account can execute protected operations (create offering)
+      const now = await time.latest();
+      const offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.not.be.reverted;
+    });
+
+    it("GIVEN non-admin WHEN tries to grant role THEN fail", async () => {
+      await expect(accessControl.connect(investor1).grantRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.reverted;
+    });
+
+    it("GIVEN Issuer WHEN revokes OFFERING_CREATOR_ROLE from account THEN account is NOT permitted to execute operations AND emits event", async () => {
+      // Grant role first
+      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
+
+      // Revoke role and verify event emission
+      await expect(accessControl.connect(admin).revokeRole(OFFERING_CREATOR_ROLE, investor1Address))
+        .to.emit(accessControl, "RoleRevoked");
+
+      // Verify account no longer has the role
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.false;
+
+      // Verify account CANNOT execute protected operations (create offering)
+      const now = await time.latest();
+      const offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.be.reverted;
+    });
+
+    it("GIVEN user with role WHEN renouncing role THEN success", async () => {
+      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
+      await accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE);
+
+      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
+      expect(hasRole).to.be.false;
+    });
+  });
 });
