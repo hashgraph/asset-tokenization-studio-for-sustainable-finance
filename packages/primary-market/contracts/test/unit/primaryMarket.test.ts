@@ -1024,6 +1024,90 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
         .withArgs(offeringId);
     });
+
+    it("GIVEN offering WHEN executing by subscription IDs with non-existing subscription THEN revert", async () => {
+      // Create and reach target first
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const iterations = offering.targetLots / offering.minLots;
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Try to execute with non-existing subscription ID - should revert
+      await expect(
+        primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [999]),
+      ).to.be.revertedWithCustomError(primaryMarket, "SubscriptionDoesNotExist");
+    });
+
+    it("GIVEN offering WHEN executing with already executed subscription THEN mark as already processed", async () => {
+      // Create and reach target
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const iterations = offering.targetLots / offering.minLots;
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Execute first subscription
+      await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
+
+      // Try to execute same subscription again
+      const tx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+
+      const alreadyProcessed = event!.args!.subscriptionIdsAlreadyExecuted
+        .map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
+      expect(alreadyProcessed).to.include(1);
+    });
+
+    it("GIVEN subscription with amount exceeding int64 max WHEN executing THEN mark as failed", async () => {
+      const now = await time.latest();
+      // lotSize * minLots * nominalValue > int64.max
+      // 2^62 * 100 * 100 > 2^63 - 1
+      const tx = await primaryMarket.connect(offeringCreator).createOffering({
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.BigNumber.from("2").pow(62),
+        minLots: 100,
+        maxLots: 200,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      });
+
+      const ofId = (await tx.wait()).events?.find((e: any) => e.event === "OfferingCreated")?.args?.offeringId?.toNumber();
+      await time.increase(61);
+      await mockAsset.setNominalValue(100);
+
+      const amount = ethers.BigNumber.from("2").pow(62).mul(100).mul(100);
+      await mockPaymentToken.mint(investor1Address, amount);
+      await mockPaymentToken.connect(investor1).approve(primaryMarket.address, amount);
+      await primaryMarket.connect(investor1).submitSubscription(ofId, 100);
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(now + 3601);
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+
+      const executeTx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(ofId, [1]);
+      const failed = (await executeTx.wait()).events?.find((e) => e.event === "OfferingExecuted")?.args?.subscriptionIdsFailed
+        .map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+
+      expect(failed).to.include(1);
+      await mockAsset.setNominalValue(1);
+    });
   });
 
   describe("Cancelling Offerings", () => {
@@ -1234,6 +1318,36 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
         .withArgs(offeringId);
+    });
+
+    it("GIVEN offering WHEN cancelling by subscription IDs with already processed subscription THEN mark as already processed", async () => {
+      // Create subscription
+      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      // Move to cancellable state
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Cancel first time
+      const tx1 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
+      const receipt1 = await tx1.wait();
+      const event1 = receipt1.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event1).to.not.be.undefined;
+
+      const succeeded1 = event1!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      expect(succeeded1).to.include(1);
+
+      // Try to cancel same subscription again
+      const tx2 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
+      const receipt2 = await tx2.wait();
+      const event2 = receipt2.events?.find((e) => e.event === "OfferingCancelled");
+      expect(event2).to.not.be.undefined;
+
+      const alreadyCancelled = event2!.args!.subscriptionIdsAlreadyCancelled
+        .map((x: any) => x.toNumber())
+        .filter((x: number) => x > 0);
+      expect(alreadyCancelled).to.include(1);
     });
   });
 
