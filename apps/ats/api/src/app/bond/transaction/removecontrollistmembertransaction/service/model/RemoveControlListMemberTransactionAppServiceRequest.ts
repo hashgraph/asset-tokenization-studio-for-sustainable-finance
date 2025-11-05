@@ -2,7 +2,7 @@
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString } from "class-validator"
 
-export class DeleteControlListMemberTransactionAppServiceRequest extends BaseBuildTransactionRequest {
+export class RemoveControlListMemberTransactionAppServiceRequest extends BaseBuildTransactionRequest {
   @IsString()
   @IsNotEmpty()
   holderAccountId: string

@@ -9,11 +9,11 @@ import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { DeletedFromControlListDLTEvent } from "@port/bond/usecase/deletecontrollistmember/model/DeletedFromControlListDLTEvent"
+import { RemovedFromControlListDLTEvent } from "@port/bond/usecase/removecontrollistmember/model/RemovedFromControlListDLTEvent"
 import { BondNotFoundError } from "@domain/bond/errors/BondNotFoundError"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
-describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
+describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
   let app: INestApplication
   let container: PostgreSqlContainer
@@ -49,8 +49,8 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
     await app.close()
   })
 
-  describe("DeleteControlListMemberNestJSEventAdapter", () => {
-    it("should delete control list member when DeletedFromControlListDLTEvent is published", async () => {
+  describe("RemoveControlListMemberNestJSEventAdapter", () => {
+    it("should delete control list member when RemovedFromControlListDLTEvent is published", async () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -75,14 +75,14 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new DeletedFromControlListDLTEvent(
+      const event = new RemovedFromControlListDLTEvent(
         CONTRACT_ID,
         "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       )
 
-      await eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)
+      await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
       const deletedMember = await bondControlListMemberRepository.findOne({
         where: { contractId: CONTRACT_ID, holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
@@ -110,14 +110,14 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new DeletedFromControlListDLTEvent(
+      const event = new RemovedFromControlListDLTEvent(
         CONTRACT_ID,
         "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       )
 
-      await expect(eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)).rejects.toThrow()
+      await expect(eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)).rejects.toThrow()
     })
 
     it("should delete multiple control list members for different holders successfully", async () => {
@@ -149,9 +149,9 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       }
 
       for (const holder of holders) {
-        const event = new DeletedFromControlListDLTEvent(CONTRACT_ID, "0x1234567890abcdef", holder, holder)
+        const event = new RemovedFromControlListDLTEvent(CONTRACT_ID, "0x1234567890abcdef", holder, holder)
 
-        await eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)
+        await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
         const deletedMember = await bondControlListMemberRepository.findOne({
           where: { contractId: CONTRACT_ID, holderId: holder },
@@ -196,14 +196,14 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       }
 
       for (const contractId of contracts) {
-        const event = new DeletedFromControlListDLTEvent(
+        const event = new RemovedFromControlListDLTEvent(
           contractId,
           "0x1234567890abcdef",
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           holderId,
         )
 
-        await eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)
+        await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
         const deletedMember = await bondControlListMemberRepository.findOne({
           where: { contractId, holderId },
@@ -216,7 +216,7 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       expect(allMembers).toHaveLength(0)
     })
 
-    it("should publish BondControlListMemberDeletedEvent after successful member deletion", async () => {
+    it("should publish BondControlListMemberRemovedEvent after successful member deletion", async () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
@@ -240,14 +240,14 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new DeletedFromControlListDLTEvent(
+      const event = new RemovedFromControlListDLTEvent(
         CONTRACT_ID,
         "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       )
 
-      await eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)
+      await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
@@ -262,14 +262,14 @@ describe("DeleteControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new DeletedFromControlListDLTEvent(
+      const event = new RemovedFromControlListDLTEvent(
         "0.0.9999999",
         "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       )
 
-      await expect(eventBus.publishSync(event, DeletedFromControlListDLTEvent.name)).rejects.toThrow(
+      await expect(eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)).rejects.toThrow(
         BondNotFoundError.contractIdError("0.0.9999999"),
       )
     })

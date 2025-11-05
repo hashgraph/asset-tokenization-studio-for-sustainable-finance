@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
-import { DeleteControlListMemberTransactionRequest } from "./model/DeleteControlListMemberTransactionRequest"
+import { RemoveControlListMemberTransactionRequest } from "./model/RemoveControlListMemberTransactionRequest"
 
-export interface DeleteControlListMemberTransactionPort {
+export interface RemoveControlListMemberTransactionPort {
   deleteControlListMemberTransaction(
     contractId: string,
     holderId: string,
-    request: DeleteControlListMemberTransactionRequest,
+    request: RemoveControlListMemberTransactionRequest,
   ): Promise<TransactionResponse>
 }

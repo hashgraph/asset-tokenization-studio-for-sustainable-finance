@@ -2,7 +2,7 @@
 import { IsNotEmpty, IsString } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
-export class DeleteControlListMemberCommand extends Command<void> {
+export class RemoveControlListMemberCommand extends Command<void> {
   @IsString()
   @IsNotEmpty()
   contractId: string

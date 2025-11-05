@@ -7,9 +7,9 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
-import { DeleteControlListMemberTransactionRequest } from "@port/transaction/usecase/deletecontrollistmembertransaction/model/DeleteControlListMemberTransactionRequest"
+import { RemoveControlListMemberTransactionRequest } from "@port/transaction/usecase/removecontrollistmembertransaction/model/RemoveControlListMemberTransactionRequest"
 
-describe("DeleteControlListMemberTransaction API Integration", () => {
+describe("RemoveControlListMemberTransaction API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
 
@@ -44,7 +44,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
     it("should delete control list member with valid data", async () => {
       const bondContractId = "0.0.67890"
       const holderId = "0x0000000000000000000000000000000000003039" // EVM address format
-      const deleteControlListMemberRequest: DeleteControlListMemberTransactionRequest = {
+      const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
@@ -67,7 +67,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
         const format = formats[i]
         const holderId = holderIds[i]
 
-        const deleteControlListMemberRequest: DeleteControlListMemberTransactionRequest = {
+        const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
           format: format,
           accountId: "0.0.5466269",
         }
@@ -85,7 +85,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
-        const deleteControlListMemberRequest: DeleteControlListMemberTransactionRequest = {
+        const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
           format: format,
           accountId: "0.0.5466269",
         }
@@ -100,7 +100,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
     it("should return 500 for invalid bondContractId", async () => {
       const invalidBondContractId = "invalid-id"
       const holderId = "0x0000000000000000000000000000000000003039"
-      const deleteControlListMemberRequest: DeleteControlListMemberTransactionRequest = {
+      const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
@@ -114,7 +114,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
     it("should return 500 for invalid holderId", async () => {
       const bondContractId = "0.0.67890"
       const invalidHolderId = "invalid-holder"
-      const deleteControlListMemberRequest: DeleteControlListMemberTransactionRequest = {
+      const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
@@ -141,7 +141,7 @@ describe("DeleteControlListMemberTransaction API Integration", () => {
     it("should return 400 for request without accountId", async () => {
       const bondContractId = "0.0.67890"
       const holderId = "0x0000000000000000000000000000000000003039"
-      const deleteControlListMemberRequest: Partial<DeleteControlListMemberTransactionRequest> = {
+      const deleteControlListMemberRequest: Partial<RemoveControlListMemberTransactionRequest> = {
         format: "hedera",
       }
 

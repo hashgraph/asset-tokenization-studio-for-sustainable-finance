@@ -18,7 +18,7 @@ import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder
 import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
-import { BuildDeleteControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildDeleteControlListMemberTransactionRequest"
+import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveControlListMemberTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -211,7 +211,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   async deleteControlListMemberTransaction(
-    req: BuildDeleteControlListMemberTransactionRequest,
+    req: BuildRemoveControlListMemberTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     return await this.buildAndReturnTransactionResponse(
       IControlList__factory.createInterface(),
