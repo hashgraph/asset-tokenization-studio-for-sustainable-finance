@@ -4,6 +4,7 @@ import { deployProxyAdmin } from "@scripts";
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
+import { KpiTimeTravel__factory, TransparentUpgradeableProxy__factory } from "@contract-types";
 
 /**
  * TimeTravel tests for KPI contract - validates time-dependent logic with deterministic timestamps
@@ -35,17 +36,17 @@ describe("Kpi - TimeTravel Tests", () => {
     ];
 
     const proxyAdmin = await deployProxyAdmin();
-    const KpiTimeTravelFactory = await ethers.getContractFactory("KpiTimeTravel");
-    const kpiLogic = await KpiTimeTravelFactory.deploy();
-    await kpiLogic.deployed();
+    const kpiLogic = await new KpiTimeTravel__factory(owner).deploy();
 
     const initData = kpiLogic.interface.encodeFunctionData("initialize", [rbac]);
 
-    const TransparentUpgradeableProxy = await ethers.getContractFactory("TransparentUpgradeableProxy");
-    const proxy = await TransparentUpgradeableProxy.deploy(kpiLogic.address, proxyAdmin.address, initData);
-    await proxy.deployed();
+    const proxy = await new TransparentUpgradeableProxy__factory(owner).deploy(
+      kpiLogic.address,
+      proxyAdmin.address,
+      initData,
+    );
 
-    const kpiProxy = KpiTimeTravelFactory.attach(proxy.address);
+    const kpiProxy = KpiTimeTravel__factory.connect(proxy.address, owner);
     await kpiProxy.changeSystemTimestamp(MOCK_CURRENT_TIME);
 
     return kpiProxy;

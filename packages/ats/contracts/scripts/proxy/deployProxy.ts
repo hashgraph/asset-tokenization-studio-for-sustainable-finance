@@ -1,8 +1,9 @@
-import { ProxyAdmin } from "@contracts";
+import { ProxyAdmin } from "@contract-types";
 import { getProxyAdminOwnerEnv } from "@scripts";
 import { BaseContract } from "ethers";
 import { Interface } from "ethers/lib/utils";
 import { ethers } from "hardhat";
+import { TransparentUpgradeableProxy__factory, ProxyAdmin__factory } from "@contract-types";
 
 interface ProxyOptions {
   initializer?: string | false;
@@ -21,11 +22,11 @@ export async function deployProxy<C extends BaseContract>(
 
   const initializeData = getInitializerData(contractInterface, args, opts.initializer);
 
-  const transparentProxy = await (
-    await ethers.getContractFactory("TransparentUpgradeableProxy")
-  ).deploy(logicAddress.address, proxyAdmin.address, initializeData);
-
-  await transparentProxy.deployed();
+  const transparentProxy = await new TransparentUpgradeableProxy__factory(await proxyAdmin.signer).deploy(
+    logicAddress.address,
+    proxyAdmin.address,
+    initializeData,
+  );
 
   return ethers.getContractAt(instanceOf, transparentProxy.address);
 }
@@ -33,9 +34,7 @@ export async function deployProxy<C extends BaseContract>(
 export async function deployProxyAdmin(): Promise<ProxyAdmin> {
   const owner = await getProxyAdminOwnerEnv();
 
-  const proxyAdmin = await (await ethers.getContractFactory("ProxyAdmin", owner)).deploy();
-
-  await proxyAdmin.deployed();
+  const proxyAdmin = await new ProxyAdmin__factory(owner).deploy();
 
   return proxyAdmin;
 }

@@ -10,7 +10,14 @@
  */
 
 /**
- * Mock contract names for ethers.getContractFactory()
+ * Mock contract names (legacy - prefer TypeChain factories)
+ *
+ * @deprecated Use TypeChain factories from @contract-types instead:
+ * - MockERC721__factory
+ * - MockERC20__factory
+ * - MockAtsFactory__factory
+ * - MockBond__factory
+ * - MockBusinessLogicResolver__factory
  */
 export const MOCK_ERC721_CONTRACT_NAME = "MockERC721";
 export const MOCK_ERC20_CONTRACT_NAME = "MockERC20";

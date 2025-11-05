@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-11-03T10:57:07.829Z
+ * Generated: 2025-11-05T11:11:53.283Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6
@@ -23,6 +23,16 @@ import {
   ContractDefinition,
   StorageWrapperDefinition,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import {
+  FactorySuiteFacet__factory,
+  FactorySuiteFacetTimeTravel__factory,
+  MockAtsFactory__factory,
+  MockBond__factory,
+  MockBusinessLogicResolver__factory,
+  MockERC20__factory,
+  MockERC721__factory,
+  MockTreasuryFacet__factory,
+} from "@contract-types";
 
 /**
  * Registry of all facet contracts.
@@ -52,37 +62,15 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
     ],
     errors: [
-      {
-        name: "BondDeploymentFailed",
-        signature: "BondDeploymentFailed()",
-        selector: "0xbe94552d",
-      },
-      {
-        name: "InvalidContractAddress",
-        signature: "InvalidContractAddress(address)",
-        selector: "0x19bb4029",
-      },
-      {
-        name: "InvalidKpiData",
-        signature: "InvalidKpiData()",
-        selector: "0xa3442b7f",
-      },
-      {
-        name: "InvalidTreasuryData",
-        signature: "InvalidTreasuryData()",
-        selector: "0xb153e4d6",
-      },
-      {
-        name: "KpiDeploymentFailed",
-        signature: "KpiDeploymentFailed()",
-        selector: "0x0fb0be11",
-      },
-      {
-        name: "TreasuryDeploymentFailed",
-        signature: "TreasuryDeploymentFailed()",
-        selector: "0xc340e5b3",
-      },
+      { name: "BondDeploymentFailed", signature: "BondDeploymentFailed()", selector: "0xbe94552d" },
+      { name: "InvalidContractAddress", signature: "InvalidContractAddress(address)", selector: "0x19bb4029" },
+      { name: "InvalidKpiData", signature: "InvalidKpiData()", selector: "0xa3442b7f" },
+      { name: "InvalidTreasuryData", signature: "InvalidTreasuryData()", selector: "0xb153e4d6" },
+      { name: "KpiDeploymentFailed", signature: "KpiDeploymentFailed()", selector: "0x0fb0be11" },
+      { name: "TreasuryDeploymentFailed", signature: "TreasuryDeploymentFailed()", selector: "0xc340e5b3" },
     ],
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel ? new FactorySuiteFacetTimeTravel__factory(signer) : new FactorySuiteFacet__factory(signer),
   },
 };
 
@@ -124,11 +112,7 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
         signature: "_deployBondContract(address,IAtsFactory.BondData,AtsFactoryRegulationData,address)",
         selector: "0x63a506c4",
       },
-      {
-        name: "_deployKpiContract",
-        signature: "_deployKpiContract(IFactorySuite.KpiData)",
-        selector: "0x5af90fdb",
-      },
+      { name: "_deployKpiContract", signature: "_deployKpiContract(IFactorySuite.KpiData)", selector: "0x5af90fdb" },
       {
         name: "_deployTreasuryContract",
         signature: "_deployTreasuryContract(IFactorySuite.TreasuryData,address)",
@@ -160,21 +144,9 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         signature: "deployBond(IAtsFactory.BondData,AtsFactoryRegulationData)",
         selector: "0xd977b657",
       },
-      {
-        name: "setNextBondAddress",
-        signature: "setNextBondAddress(address)",
-        selector: "0xf8a9043c",
-      },
-      {
-        name: "setShouldReturnZeroAddress",
-        signature: "setShouldReturnZeroAddress(bool)",
-        selector: "0xce40c8da",
-      },
-      {
-        name: "setShouldRevert",
-        signature: "setShouldRevert(bool)",
-        selector: "0x6813d787",
-      },
+      { name: "setNextBondAddress", signature: "setNextBondAddress(address)", selector: "0xf8a9043c" },
+      { name: "setShouldReturnZeroAddress", signature: "setShouldReturnZeroAddress(bool)", selector: "0xce40c8da" },
+      { name: "setShouldRevert", signature: "setShouldRevert(bool)", selector: "0x6813d787" },
     ],
     events: [
       {
@@ -183,62 +155,40 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         topic0: "0x64a13e075654865871ffb29405741a6dfe43d9f0b26c347081e7f2d1be70816b",
       },
     ],
-    errors: [
-      {
-        name: "DeployBondFailed",
-        signature: "DeployBondFailed()",
-        selector: "0x50257673",
-      },
-    ],
+    errors: [{ name: "DeployBondFailed", signature: "DeployBondFailed()", selector: "0x50257673" }],
+    factory: (signer) => new MockAtsFactory__factory(signer),
   },
 
   MockBond: {
     name: "MockBond",
     description: "Minimal mock bond contract for testing FactorySuite deployment",
-    methods: [],
+    factory: (signer) => new MockBond__factory(signer),
   },
 
   MockBusinessLogicResolver: {
     name: "MockBusinessLogicResolver",
     description: "Simplified mock implementation of Business Logic Resolver for testing",
     methods: [
-      {
-        name: "getImplementation",
-        signature: "getImplementation(bytes32)",
-        selector: "0x3c2e0828",
-      },
-      {
-        name: "setImplementation",
-        signature: "setImplementation(bytes32,address)",
-        selector: "0x4640e9f2",
-      },
+      { name: "getImplementation", signature: "getImplementation(bytes32)", selector: "0x3c2e0828" },
+      { name: "setImplementation", signature: "setImplementation(bytes32,address)", selector: "0x4640e9f2" },
     ],
+    factory: (signer) => new MockBusinessLogicResolver__factory(signer),
   },
 
   MockERC20: {
     name: "MockERC20",
     description: "Mock ERC20 token for testing purposes",
     inheritance: ["ERC20"],
-    methods: [
-      {
-        name: "mint",
-        signature: "mint(address,uint256)",
-        selector: "0x40c10f19",
-      },
-    ],
+    methods: [{ name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" }],
+    factory: (signer) => new MockERC20__factory(signer),
   },
 
   MockERC721: {
     name: "MockERC721",
     description: "Mock ERC721 token for environmental assets testing",
     inheritance: ["ERC721"],
-    methods: [
-      {
-        name: "mint",
-        signature: "mint(address)",
-        selector: "0x6a627842",
-      },
-    ],
+    methods: [{ name: "mint", signature: "mint(address)", selector: "0x6a627842" }],
+    factory: (signer) => new MockERC721__factory(signer),
   },
 
   MockTreasuryFacet: {
@@ -250,22 +200,15 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     },
     inheritance: ["IStaticFunctionSelectors"],
     methods: [
-      {
-        name: "getEnvironmentalAssetsCount",
-        signature: "getEnvironmentalAssetsCount()",
-        selector: "0x3c61f750",
-      },
+      { name: "getEnvironmentalAssetsCount", signature: "getEnvironmentalAssetsCount()", selector: "0x3c61f750" },
       {
         name: "initialize_LifeCycleCashFlow",
         signature: "initialize_LifeCycleCashFlow(address)",
         selector: "0x211afa54",
       },
-      {
-        name: "initialize_Portfolio",
-        signature: "initialize_Portfolio(address,address[])",
-        selector: "0xde73748f",
-      },
+      { name: "initialize_Portfolio", signature: "initialize_Portfolio(address,address[])", selector: "0xde73748f" },
     ],
+    factory: (signer) => new MockTreasuryFacet__factory(signer),
   },
 };
 

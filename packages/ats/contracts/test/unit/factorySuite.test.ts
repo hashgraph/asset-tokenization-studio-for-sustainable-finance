@@ -4,7 +4,6 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import {
   createTestDataSets,
-  MOCK_ERC721_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
   MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT,
   hashRole,
@@ -16,6 +15,7 @@ import {
   deployBondSuiteAndExtractContracts,
 } from "@test";
 import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
+import { MockERC721__factory } from "@contract-types";
 
 describe("FactorySuite - Business Logic Tests", () => {
   async function setupFixture() {
@@ -335,12 +335,10 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validKpiData } = testData;
 
-      // Create array with multiple environmental asset tokens
+      // Create array with multiple environmental asset tokens using TypeChain factory
       const environmentalAssetAddresses = [];
       for (let i = 0; i < 5; i++) {
-        const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-        const token = await MockERC721.deploy(`Token${i}`, `T${i}`);
-        await token.deployed();
+        const token = await new MockERC721__factory(admin).deploy(`Token${i}`, `T${i}`);
         environmentalAssetAddresses.push(token.address);
       }
 

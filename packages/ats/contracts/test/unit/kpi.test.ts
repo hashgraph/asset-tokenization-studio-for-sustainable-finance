@@ -1,16 +1,11 @@
-import { Kpi } from "@contracts/contracts";
-import { ProxyAdmin } from "@contracts";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { ROLES, PAUSER_ROLE } from "@scripts/domain";
-import { deployProxyAdmin } from "@scripts";
-import { getImplementationAddress } from "@scripts";
-import { IResolverProxy } from "@contracts/contracts/Kpi";
-import { expect } from "chai";
-import { Signer } from "ethers";
 import { ethers } from "hardhat";
-import { upgradeKpiProxy } from "@scripts/domain";
-import { deployKpi } from "@scripts/domain";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Signer } from "ethers";
+import { expect } from "chai";
+import { ProxyAdmin, Kpi } from "@contract-types";
+import { IResolverProxy } from "@contract-types/contracts/Kpi";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { ROLES, PAUSER_ROLE, upgradeKpiProxy, deployKpi } from "@scripts/domain";
+import { deployProxyAdmin, getImplementationAddress } from "@scripts";
 
 describe("Kpi", () => {
   let kpi: Kpi;
@@ -29,8 +24,7 @@ describe("Kpi", () => {
     ];
     proxyAdmin = await deployProxyAdmin();
 
-    const provider = new HardhatProvider();
-    kpi = (await deployKpi(provider, proxyAdmin, rbac)).kpi;
+    kpi = (await deployKpi(owner, proxyAdmin, rbac)).kpi;
   }
   before(async () => {
     const signers = await ethers.getSigners();
@@ -151,7 +145,7 @@ describe("Kpi", () => {
       expect(before.kpiAggregatedValue).to.equal(123);
       const originalImplementationAddress = await getImplementationAddress(kpi.address);
 
-      await upgradeKpiProxy(new HardhatProvider(), proxyAdmin, kpi.address);
+      await upgradeKpiProxy(owner, proxyAdmin, kpi.address);
 
       const newImplementationAddress = await getImplementationAddress(kpi.address);
 

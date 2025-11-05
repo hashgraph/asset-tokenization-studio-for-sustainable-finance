@@ -17,7 +17,8 @@
  * @module workflows/deployFactorySuiteSystem
  */
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts/typechain-types";
+import { Signer, ContractFactory } from "ethers";
 import {
   deployProxyAdmin,
   deployBlr,
@@ -30,7 +31,6 @@ import {
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { BusinessLogicResolver__factory } from "@contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 
 /**
@@ -120,20 +120,20 @@ export interface DeployFactorySuiteSystemOptions {
  *
  * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
  *
- * @param provider - Deployment provider (HardhatProvider or StandaloneProvider)
+ * @param signer - Ethers.js signer
  * @param network - Network name (testnet, mainnet, hardhat, etc.)
  * @param options - Deployment options
  * @returns Promise resolving to complete deployment output
  *
  * @example
  * ```typescript
- * import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts/infrastructure'
+ * import { ethers } from 'hardhat'
  *
- * // Create provider
- * const provider = new HardhatProvider()
+ * // Get signer
+ * const [deployer] = await ethers.getSigners()
  *
  * // Deploy complete system to hardhat network
- * const output = await deployFactorySuiteSystem(provider, 'hardhat', {
+ * const output = await deployFactorySuiteSystem(deployer, 'hardhat', {
  *     useTimeTravel: false,
  *     saveOutput: true
  * })
@@ -144,14 +144,13 @@ export interface DeployFactorySuiteSystemOptions {
  * ```
  */
 export async function deployFactorySuiteSystem(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   options: DeployFactorySuiteSystemOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
 
   section("FactorySuite System Deployment");
@@ -163,17 +162,13 @@ export async function deployFactorySuiteSystem(
 
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
-    const proxyAdminResult = await deployProxyAdmin(provider);
+    const proxyAdmin = await deployProxyAdmin(signer);
 
-    if (!proxyAdminResult.success) {
-      throw new Error(`ProxyAdmin deployment failed: ${proxyAdminResult.error}`);
-    }
-
-    info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
+    info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
-    const blrResult = await deployBlr(provider, {
-      proxyAdminAddress: proxyAdminResult.proxyAdminAddress,
+    const blrResult = await deployBlr(signer, {
+      proxyAdminAddress: proxyAdmin.address,
     });
 
     if (!blrResult.success) {
@@ -191,11 +186,19 @@ export async function deployFactorySuiteSystem(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [atsRegistry, factorySuiteRegistry],
-    });
+    // Create TypeChain factories from registry
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = factorySuiteRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories);
 
     if (!facetsResult.success) {
       throw new Error("Facet deployment had failures");
@@ -212,8 +215,9 @@ export async function deployFactorySuiteSystem(
       }
     });
 
-    const registerResult = await registerFacets(provider, {
-      blrAddress: blrResult.blrAddress,
+    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
+
+    const registerResult = await registerFacets(blrContract, {
       facets: facetAddresses,
       registries: [atsRegistry, factorySuiteRegistry],
     });
@@ -225,8 +229,6 @@ export async function deployFactorySuiteSystem(
     info(`✅ Registered ${registerResult.registered.length} facets in BLR`);
 
     info("\n💼 Step 5/6: Creating FactorySuite configuration...");
-
-    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
 
     const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel, [
       atsRegistry,
@@ -245,7 +247,7 @@ export async function deployFactorySuiteSystem(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const factorySuiteProxyResult = await deployResolverProxy(provider, {
+    const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: fsConfig.data.configurationId,
       version: fsConfig.data.version,
@@ -279,7 +281,7 @@ export async function deployFactorySuiteSystem(
 
       infrastructure: {
         proxyAdmin: {
-          address: proxyAdminResult.proxyAdminAddress,
+          address: proxyAdmin.address,
         },
         blr: {
           implementation: blrResult.implementationAddress,

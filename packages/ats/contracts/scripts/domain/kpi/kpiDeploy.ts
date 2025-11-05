@@ -1,26 +1,18 @@
-import { Kpi } from "@contracts/contracts";
-import { IResolverProxy } from "@contracts/contracts/Kpi";
-import { ProxyAdmin } from "@contracts/index";
-import {
-  configureLogger,
-  DeploymentProvider,
-  deployProxy,
-  LogLevel,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Kpi, Kpi__factory, IResolverProxy, ProxyAdmin } from "@contract-types";
+import { configureLogger, deployProxy, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { processAddressableArgs } from "@scripts";
-
-import { ethers } from "hardhat";
+import { Signer } from "ethers";
 
 /**
  * Deploy KPI contract with proxy pattern.
  *
- * @param provider - Deployment provider
+ * @param signer - Ethers.js signer
  * @param proxyAdmin - ProxyAdmin contract for upgrade control
  * @param rbac - Role-based access control configuration
  * @returns Promise resolving to KPI proxy and implementation contracts
  */
 export async function deployKpi(
-  provider: DeploymentProvider,
+  signer: Signer,
   proxyAdmin: ProxyAdmin,
   rbac: IResolverProxy.RbacStruct[],
 ): Promise<{
@@ -28,16 +20,18 @@ export async function deployKpi(
   kpiLogic: Kpi;
 }> {
   configureLogger({ level: LogLevel.SILENT });
-  const kpiLogic = await deployKpiLogic();
+  const kpiLogic = await deployKpiLogic(signer);
   const processedRbac = (await processAddressableArgs(rbac)) as IResolverProxy.RbacStruct[];
   const initData = kpiLogic.interface.encodeFunctionData("initialize", [processedRbac]);
 
-  const result = await deployProxy(provider, {
-    implementationContract: "Kpi",
+  const kpiFactory = new Kpi__factory(signer);
+  const result = await deployProxy(signer, {
+    implementationFactory: kpiFactory,
     proxyAdminAddress: proxyAdmin.address,
     initData,
   });
-  const kpi = await ethers.getContractAt("Kpi", result.proxy.address);
+
+  const kpi = Kpi__factory.connect(result.proxyAddress, signer);
 
   return { kpi, kpiLogic };
 }
@@ -45,10 +39,12 @@ export async function deployKpi(
 /**
  * Deploy KPI implementation contract (logic).
  *
+ * @param signer - Ethers.js signer
  * @returns Promise resolving to deployed KPI implementation
  */
-export async function deployKpiLogic() {
-  const kpiLogic = await (await ethers.getContractFactory("Kpi")).deploy();
+export async function deployKpiLogic(signer: Signer): Promise<Kpi> {
+  const kpiFactory = new Kpi__factory(signer);
+  const kpiLogic = await kpiFactory.deploy();
   await kpiLogic.deployed();
 
   return kpiLogic;

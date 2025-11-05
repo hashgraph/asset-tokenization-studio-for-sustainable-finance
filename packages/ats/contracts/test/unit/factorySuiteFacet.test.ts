@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { deployFactorySuiteInfrastructureFixture } from "@test";
 import { getFacetDefinition } from "@scripts/domain";
-import { FactorySuiteFacet__factory } from "@contracts";
+import { FactorySuiteFacet__factory } from "@contract-types";
 
 describe("FactorySuiteFacet", () => {
   async function setupFixture() {
@@ -47,7 +47,7 @@ describe("FactorySuiteFacet", () => {
       const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
       const actualKey = await factorySuiteFacet.getStaticResolverKey();
-      const expectedKey = getFacetDefinition("FactorySuiteFacet")!.resolverKey.value;
+      const expectedKey = getFacetDefinition("FactorySuiteFacet")!.resolverKey!.value;
       expect(actualKey).to.equal(expectedKey);
     });
 

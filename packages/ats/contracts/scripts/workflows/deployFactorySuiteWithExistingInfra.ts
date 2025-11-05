@@ -21,7 +21,7 @@
  * @module workflows/deployFactorySuiteWithExistingInfra
  */
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Signer, ContractFactory } from "ethers";
 import {
   deployFacets,
   registerAdditionalFacets,
@@ -32,7 +32,7 @@ import {
   section,
   error as logError,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { BusinessLogicResolver__factory } from "@contracts";
+import { BusinessLogicResolver__factory } from "@contract-types";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
 
@@ -85,7 +85,7 @@ export interface DeployWithExistingInfraOptions {
  *
  * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
  *
- * @param provider - Deployment provider (HardhatProvider or StandaloneProvider)
+ * @param signer - Ethers.js signer
  * @param network - Network name (testnet, mainnet, hardhat, etc.)
  * @param existingInfra - Existing infrastructure addresses
  * @param options - Deployment options
@@ -93,14 +93,17 @@ export interface DeployWithExistingInfraOptions {
  *
  * @example
  * ```typescript
- * import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts/infrastructure'
+ * import { ethers } from 'hardhat'
+ *
+ * // Get signer
+ * const [deployer] = await ethers.getSigners()
  *
  * // First, deploy shared ATS infrastructure
- * const atsInfra = await deployAtsSystem(provider, 'testnet')
+ * const atsInfra = await deployAtsSystem(deployer, 'testnet')
  *
  * // Then deploy FactorySuite using existing infrastructure
  * const factorySuite = await deployFactorySuiteWithExistingInfra(
- *   provider,
+ *   deployer,
  *   'testnet',
  *   {
  *     blrAddress: atsInfra.blr.proxy,
@@ -118,7 +121,7 @@ export interface DeployWithExistingInfraOptions {
  * ```
  */
 export async function deployFactorySuiteWithExistingInfra(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
@@ -126,7 +129,6 @@ export async function deployFactorySuiteWithExistingInfra(
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
 
   section("FactorySuite Deployment (Existing Infrastructure)");
@@ -172,11 +174,19 @@ export async function deployFactorySuiteWithExistingInfra(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [atsRegistry, factorySuiteRegistry],
-    });
+    // Create TypeChain factories from registry
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = factorySuiteRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories);
 
     if (!facetsResult.success) {
       throw new Error("FactorySuiteFacet deployment failed");
@@ -196,8 +206,9 @@ export async function deployFactorySuiteWithExistingInfra(
       }
     });
 
-    const registerResult = await registerAdditionalFacets(provider, {
-      blrAddress,
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+
+    const registerResult = await registerAdditionalFacets(blrContract, {
       newFacets: newFacetAddresses,
       registries: [atsRegistry, factorySuiteRegistry],
     });
@@ -212,8 +223,6 @@ export async function deployFactorySuiteWithExistingInfra(
     // STEP 4: Create FactorySuite configuration
     // ========================================
     info("\n💼 Step 4/4: Creating FactorySuite configuration...");
-
-    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     // Combine existing + new facets for configuration
     const facetNamesForConfig: Record<string, string> = useTimeTravel
@@ -251,7 +260,7 @@ export async function deployFactorySuiteWithExistingInfra(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const factorySuiteProxyResult = await deployResolverProxy(provider, {
+    const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress,
       configurationId: fsConfig.data.configurationId,
       version: fsConfig.data.version,

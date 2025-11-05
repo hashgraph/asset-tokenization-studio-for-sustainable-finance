@@ -261,12 +261,12 @@ struct KpiStorage {
 Use when deploying to a new network without existing infrastructure.
 
 ```typescript
+import { ethers } from 'hardhat';
 import { deployFactorySuiteSystem } from '@scripts/workflows';
-import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts';
 
-const provider = new HardhatProvider();
+const [deployer] = await ethers.getSigners();
 
-const output = await deployFactorySuiteSystem(provider, 'testnet', {
+const output = await deployFactorySuiteSystem(deployer, 'testnet', {
   useTimeTravel: false,
   saveOutput: true
 });
@@ -287,10 +287,13 @@ console.log('BLR Proxy:', output.infrastructure.blr.proxy);
 Use when ATS or other domains already deployed shared infrastructure.
 
 ```typescript
+import { ethers } from 'hardhat';
 import { deployFactorySuiteWithExistingInfra } from '@scripts/workflows';
 
+const [deployer] = await ethers.getSigners();
+
 const output = await deployFactorySuiteWithExistingInfra(
-  provider,
+  deployer,
   'testnet',
   {
     blrAddress: '0x...',              // Existing BLR
@@ -373,6 +376,7 @@ npm run coverage:kpi
 **Pattern**: Fixture-based testing using `loadFixture` for performance
 
 ```typescript
+import { ethers } from 'hardhat';
 import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
 import { deployFactorySuiteWithMocksForBusinessLogic } from '@test/fixtures';
 
@@ -495,12 +499,23 @@ npm run generate:registry -- --verbose  # Detailed output
 **Multi-Registry Usage:**
 
 ```typescript
+import { ethers } from 'hardhat';
+import { deployFacets } from '@hashgraph/asset-tokenization-contracts/scripts';
 import { atsRegistry } from '@hashgraph/asset-tokenization-contracts/scripts';
 import { factorySuiteRegistry } from '@scripts/domain';
+import { AccessControlFacet__factory, FactorySuiteFacet__factory } from '@contract-types';
 
-// Pass array of registries to deployment operations
-await deployFacets(provider, {
-  facetNames: ['AccessControlFacet', 'FactorySuiteFacet'],
+const [deployer] = await ethers.getSigners();
+
+// Create TypeChain factories
+const facetFactories = {
+  AccessControlFacet: new AccessControlFacet__factory(deployer),
+  FactorySuiteFacet: new FactorySuiteFacet__factory(deployer)
+};
+
+// Pass array of registries for facet metadata lookup
+await deployFacets(facetFactories, {
+  confirmations: 1,
   registries: [atsRegistry, factorySuiteRegistry]
 });
 ```
