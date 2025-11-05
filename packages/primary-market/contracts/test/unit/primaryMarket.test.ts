@@ -960,4 +960,232 @@ describe("PrimaryMarket", () => {
         .withArgs(offeringId);
     });
   });
+
+  describe("Cancelling Offerings", () => {
+    let offeringId: number;
+    let offering: IPrimaryMarket.OfferingStruct;
+
+    async function createOffering(targetQuantityRule: number, deadlineRule: number) {
+      const now = await time.latest();
+      offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 1000,
+        targetQuantityRule: targetQuantityRule,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: deadlineRule,
+      };
+
+      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      offeringId = event?.args?.offeringId?.toNumber() || 0;
+      await time.increase(61); // Move past startDate
+    }
+
+    beforeEach(async () => {
+      await createOffering(0, 0);
+    });
+
+
+    it("GIVEN paused PM WHEN cancelling THEN fail", async () => {
+      await pause.connect(admin).pause();
+
+      await expect(
+        primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 100),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+
+      await expect(
+        primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+    });
+
+    it("GIVEN non existing offering WHEN cancelling THEN fail", async () => {
+      const wrongOffering = offeringId + 100;
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOffering(wrongOffering, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(wrongOffering);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(wrongOffering, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(wrongOffering);
+    });
+
+    it("GIVEN unauthorized user WHEN cancelling THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      await expect(primaryMarket.connect(investor1).cancelOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "UnauthorizedAccountForOffering")
+        .withArgs(investor1Address, offeringId);
+
+      await expect(primaryMarket.connect(investor1).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "UnauthorizedAccountForOffering")
+        .withArgs(investor1Address, offeringId);
+    });
+
+    it("GIVEN pending offering WHEN cancelling THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate - 1);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN open offering WHEN cancelling THEN fail", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+    });
+
+    it("GIVEN executable offering WHEN cancelling THEN fail", async () => {
+      // Reach target
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+      const iterations = offering.targetLots / offering.minLots;
+      for (let i = 0; i < iterations; i++) {
+        const investor = i % 2 == 0 ? investor1 : investor2;
+        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+      }
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      const status = await primaryMarket.getOfferingStatus(offeringId);
+      expect(status).to.equal(3); // EXECUTABLE
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 100))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+
+      await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
+        .withArgs(offeringId);
+    });
+  });
+
+  describe("Cancelling Individual Subscriptions", () => {
+    let offeringId: number;
+    let offering: IPrimaryMarket.OfferingStruct;
+
+    beforeEach(async () => {
+      const now = await time.latest();
+      offering = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      offeringId = event?.args?.offeringId?.toNumber() || 0;
+      await time.increase(61);
+    });
+
+    it("GIVEN valid subscription WHEN cancelling individual subscription THEN success", async () => {
+      // Create subscription
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      const subscriptionId = 1;
+      const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      // Cancel subscription
+      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, subscriptionId);
+
+      // Check refund
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const expectedRefund = offering.minLots * offering.lotSize * nominalValue;
+
+      const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+
+      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(expectedRefund);
+      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(expectedRefund);
+
+      // Check pending lots updated
+      const [, , , pendingLots] = await primaryMarket.getOffering(offeringId);
+      expect(pendingLots).to.equal(0);
+    });
+
+    it("GIVEN paused PM WHEN cancelling subscription THEN fail", async () => {
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      await pause.connect(admin).pause();
+
+      await expect(
+        primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+    });
+
+    it("GIVEN non existing offering WHEN cancelling subscription THEN fail", async () => {
+      const wrongOffering = offeringId + 100;
+
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(wrongOffering, 1))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(wrongOffering);
+    });
+
+    it("GIVEN non existing subscription WHEN cancelling THEN fail", async () => {
+      const wrongSubscriptionId = 999;
+
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, wrongSubscriptionId))
+        .to.be.revertedWithCustomError(primaryMarket, "SubscriptionDoesNotExist")
+        .withArgs(offeringId, wrongSubscriptionId);
+    });
+
+    it("GIVEN unauthorized user WHEN cancelling subscription THEN fail", async () => {
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      await expect(primaryMarket.connect(investor1).cancelSubscription(offeringId, 1))
+        .to.be.revertedWithCustomError(primaryMarket, "UnauthorizedAccountForOffering")
+        .withArgs(investor1Address, offeringId);
+    });
+
+    it("GIVEN already cancelled subscription WHEN cancelling again THEN should handle gracefully", async () => {
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+
+      // Cancel first time
+      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+
+      const investor1BalanceAfter1 = await mockPaymentToken.balanceOf(investor1Address);
+
+      // Cancel again
+      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+
+      const investor1BalanceAfter2 = await mockPaymentToken.balanceOf(investor1Address);
+
+      // Balance should not change on second cancel
+      expect(investor1BalanceAfter2).to.equal(investor1BalanceAfter1);
+
+      // Check only refunded once
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const expectedRefund = offering.minLots * offering.lotSize * nominalValue;
+      expect(investor1BalanceAfter1.sub(investor1BalanceBefore)).to.equal(expectedRefund);
+    });
+  });
 });
