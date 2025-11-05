@@ -2,7 +2,7 @@
 
 import { Handler, QueryHandler, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { GetSubscriptionQuery } from "./GetSubscriptionQuery"
-import { SubscriptionQueryResponse } from "./SubscriptionQueryResponse"
+import { SubscriptionQueryResponse } from "../../shared/model/SubscriptionQueryResponse"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"

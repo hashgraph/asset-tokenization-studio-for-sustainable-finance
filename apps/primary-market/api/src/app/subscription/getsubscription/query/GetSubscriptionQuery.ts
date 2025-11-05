@@ -2,20 +2,20 @@
 
 import { Query } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsNumberString, IsString } from "class-validator"
-import { SubscriptionQueryResponse } from "./SubscriptionQueryResponse"
+import { SubscriptionQueryResponse } from "../../shared/model/SubscriptionQueryResponse"
 
 export class GetSubscriptionQuery extends Query<SubscriptionQueryResponse> {
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  readonly marketId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  readonly offeringId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  subscriptionId: string
+  readonly subscriptionId: string
 
   constructor(marketId: string, offeringId: string, subscriptionId: string) {
     super()

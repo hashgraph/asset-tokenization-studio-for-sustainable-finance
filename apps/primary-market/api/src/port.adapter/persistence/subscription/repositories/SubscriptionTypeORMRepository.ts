@@ -7,6 +7,7 @@ import { SubscriptionRepository } from "@domain/subscription/repositories/Subscr
 import { Subscription } from "@domain/subscription/model/Subscription"
 import { SubscriptionPersistence } from "../model/SubscriptionPersistence"
 import { plainToInstance } from "class-transformer"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class SubscriptionTypeORMRepository implements SubscriptionRepository {
@@ -57,6 +58,37 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
       throw error
     } finally {
       await queryRunner.release()
+    }
+  }
+
+  async findByOfferingIdAndMarketId(
+    offeringId: string,
+    marketId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<Subscription>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.repository.findAndCount({
+      where: {
+        offering: {
+          offeringId,
+          market: { contractId: marketId },
+        },
+      },
+      relations: ["offering", "offering.market", "investor"],
+      order: { [pageOptions.order.orderBy]: orderDirection },
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+      take: pageOptions.limit,
+    })
+
+    const items = persistences.map((p) => p as unknown as Subscription)
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
     }
   }
 

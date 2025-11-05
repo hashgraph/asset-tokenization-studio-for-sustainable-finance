@@ -56,6 +56,8 @@ import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/cancelo
 import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
 import { CancelSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
 import { GetSubscriptionHttpAdapter } from "@port/subscription/usecase/getsubscription/GetSubscriptionHttpAdapter"
+import { GetSubscriptionsHttpAdapter } from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
+import { GetSubscriptionsQueryHandler } from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -97,6 +99,7 @@ export const CONTROLLERS = [
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
+  GetSubscriptionsHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -127,6 +130,7 @@ export const PROVIDERS = [
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
   GetSubscriptionQueryHandler,
+  GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,
