@@ -51,6 +51,7 @@ let investor1Address: string;
 let investor2Address: string;
 let investor3Address: string;
 let treasuryAddress: string;
+let primaryMarketAddress: string;
 
 // Mock contracts
 let mockAsset: Contract;
@@ -117,7 +118,7 @@ describe("PrimaryMarket", () => {
       throw new Error("PrimaryMarketDeployed event not found");
     }
 
-    const primaryMarketAddress = event.args.primaryMarketAddress;
+    primaryMarketAddress = event.args.primaryMarketAddress;
     primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
     primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
     primaryMarketPrecompiled = (await ethers.getContractAt(
@@ -777,13 +778,18 @@ describe("PrimaryMarket", () => {
     let offeringId: number;
     let offering: IPrimaryMarket.OfferingStruct;
 
+    type InvestorSubscription = {
+      price: number;
+      tokens: number;
+    };
+
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
       const now = await time.latest();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: 2,
         minLots: 1,
         maxLots: 50,
         targetLots: 1000,
@@ -824,16 +830,44 @@ describe("PrimaryMarket", () => {
       }
     }
 
-    it("GIVEN executable offering WHEN executing THEN success", async () => {
+    async function executeSuccess(paginatedMethod: boolean = true) {
       await reachTarget();
 
       await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
+      const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
+      const PrimaryMarketBalanceBefore = await mockPaymentToken.balanceOf(primaryMarketAddress);
+      const TotalAssetSupplyBefore = await mockAsset.getTotalSupply();
+
       const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
 
+      const investorsSubscriptions = new Map<string, InvestorSubscription>();
+
+      const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+
+      const investorsList: string[] = [];
+
       for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
-        const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2);
+        for (let j = 1; j <= 2; j++) {
+          const subscription = await primaryMarket.getSubscription(offeringId, i + j);
+
+          let tokens = 0;
+
+          if (investorsSubscriptions.get(subscription.investor)) {
+            tokens = investorsSubscriptions.get(subscription.investor).tokens;
+          } else investorsList.push(subscription.investor);
+
+          tokens += subscription.lotUnits.toNumber() * offering.lotSize;
+          const price = tokens * nominalValue;
+          investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
+        }
+
+        const tx = paginatedMethod
+          ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+          : await primaryMarket
+              .connect(offeringCreator)
+              .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
         const receipt = await tx.wait();
 
         // Find the event
@@ -854,9 +888,32 @@ describe("PrimaryMarket", () => {
         const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
         expect(alreadyProcessed).to.deep.equal([0, 0]);
       }
+
+      const TreasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
+      const PrimaryMarketBalanceAfter = await mockPaymentToken.balanceOf(primaryMarketAddress);
+      const TotalAssetSupplyAfter = await mockAsset.getTotalSupply();
+      const TotalAssets = offering.targetLots * offering.lotSize;
+      const TotalCost = TotalAssets * nominalValue;
+
+      expect(TreasuryBalanceBefore + TotalCost).to.equal(TreasuryBalanceAfter);
+      expect(PrimaryMarketBalanceBefore - TotalCost).to.equal(PrimaryMarketBalanceAfter);
+      expect(TotalAssetSupplyBefore + TotalAssets).to.equal(TotalAssetSupplyAfter);
+
+      for (let p = 0; p < investorsList.length; p++) {
+        const InvestorAssetBalance = await mockAsset.getBalanceOf(investorsList[p]);
+        expect(InvestorAssetBalance).to.equal(investorsSubscriptions.get(investorsList[p])?.tokens);
+      }
+    }
+
+    it("GIVEN executable offering WHEN executing paginated method THEN success", async () => {
+      await executeSuccess(true);
     });
 
-    it("GIVEN executable offering and not working preocmpiled WHEN executing THEN success with failures", async () => {
+    it("GIVEN executable offering WHEN executing non paginated method THEN success", async () => {
+      await executeSuccess(false);
+    });
+
+    it("GIVEN executable offering and not working precompiled WHEN executing THEN success with failures", async () => {
       await reachTarget();
 
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
@@ -865,26 +922,34 @@ describe("PrimaryMarket", () => {
       const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
 
       for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
-        const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2);
-        const receipt = await tx.wait();
+        for (let methodId = 1; methodId < 2; methodId++) {
+          const tx =
+            methodId == 1
+              ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, i, 2)
+              : await primaryMarket
+                  .connect(offeringCreator)
+                  .executeOfferingBySubscriptionId(offeringId, [i * 2 + 1, i * 2 + 2]);
 
-        // Find the event
-        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
-        expect(event).to.not.be.undefined;
+          const receipt = await tx?.wait();
 
-        // Check scalar args
-        expect(event.args.offeringId).to.equal(offeringId);
-        expect(event.args.operator).to.equal(offeringCreatorAddress);
+          // Find the event
+          const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+          expect(event).to.not.be.undefined;
 
-        // Convert BigNumbers to numbers for array comparison
-        const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
-        expect(succeeded).to.deep.equal([0, 0]);
+          // Check scalar args
+          expect(event.args.offeringId).to.equal(offeringId);
+          expect(event.args.operator).to.equal(offeringCreatorAddress);
 
-        const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
-        expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
+          // Convert BigNumbers to numbers for array comparison
+          const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+          expect(succeeded).to.deep.equal([0, 0]);
 
-        const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
-        expect(alreadyProcessed).to.deep.equal([0, 0]);
+          const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+          expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
+
+          const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+          expect(alreadyProcessed).to.deep.equal([0, 0]);
+        }
       }
     });
 
