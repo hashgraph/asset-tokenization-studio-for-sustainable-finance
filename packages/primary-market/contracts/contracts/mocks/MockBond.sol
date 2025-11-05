@@ -14,13 +14,14 @@ contract MockBond is IBondRead {
     address public treasury;
     uint256 public nominalValue;
     mapping(address => uint256) balance;
+    uint256 totalSupply;
 
     constructor(string memory name_, string memory symbol_, address treasury_) {
         name = name_;
         symbol = symbol_;
         treasury = treasury_;
         // For simplicity in tests, we use 1 to mean 1 USDC per 10^12 bond wei
-        nominalValue = 1; // This means subscriptionAmount (in wei) * 1 = payment (in smallest unit)
+        nominalValue = 3; // This means subscriptionAmount (in wei) * 1 = payment (in smallest unit)
     }
 
     function setNominalValue(uint256 nominalValue_) external {
@@ -29,6 +30,7 @@ contract MockBond is IBondRead {
 
     function issue(address _tokenHolder, uint256 _value, bytes calldata _data) external {
         balance[_tokenHolder] += _value;
+        totalSupply += _value;
     }
 
     function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
@@ -38,6 +40,14 @@ contract MockBond is IBondRead {
             startingDate: block.timestamp,
             maturityDate: block.timestamp + 365 days
         });
+    }
+
+    function getTotalSupply() external view returns (uint256) {
+        return totalSupply;
+    }
+
+    function getBalanceOf(address account) external view returns (uint256) {
+        return balance[account];
     }
 
     function getCoupon(uint256) external pure override returns (RegisteredCoupon memory) {
