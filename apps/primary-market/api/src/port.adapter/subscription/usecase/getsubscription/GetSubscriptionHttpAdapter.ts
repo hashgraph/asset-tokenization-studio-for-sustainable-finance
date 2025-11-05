@@ -4,7 +4,7 @@ import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param } from "@nestjs/common"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetSubscriptionPort } from "./GetSubscriptionPort"
-import { SubscriptionResponse } from "./model/SubscriptionResponse"
+import { SubscriptionResponse } from "../../shared/model/SubscriptionResponse"
 import { GetSubscriptionQuery } from "@app/subscription/getsubscription/query/GetSubscriptionQuery"
 
 @RestController("primary-markets")

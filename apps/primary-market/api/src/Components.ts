@@ -60,6 +60,8 @@ import { GetPrimaryMarketHttpAdapter } from "@port/primarymarket/usecase/getprim
 import { GetPrimaryMarketQueryHandler } from "@app/primarymarket/getprimarymarket/query/GetPrimaryMarketQueryHandler"
 import { GetPrimaryMarketsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarkets/GetPrimaryMarketsHttpAdapter"
 import { GetPrimaryMarketsQueryHandler } from "@app/primarymarket/getprimarymarkets/query/GetPrimaryMarketsQueryHandler"
+import { GetSubscriptionsHttpAdapter } from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
+import { GetSubscriptionsQueryHandler } from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -103,6 +105,7 @@ export const CONTROLLERS = [
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
+  GetSubscriptionsHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -133,6 +136,7 @@ export const PROVIDERS = [
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
   GetSubscriptionQueryHandler,
+  GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,
