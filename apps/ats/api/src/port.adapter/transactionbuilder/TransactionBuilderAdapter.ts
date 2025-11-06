@@ -5,13 +5,19 @@ import {
   Environment,
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
-import { ICap__factory, IERC1643__factory, IFactory__factory } from "@hashgraph/asset-tokenization-contracts"
+import {
+  IERC1643__factory,
+  IFactory__factory,
+  IControlList__factory,
+  ICap__factory,
+} from "@hashgraph/asset-tokenization-contracts"
 import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
 import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
+import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -20,6 +26,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly EVM_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
   private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
   private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
+  private readonly CONTROL_LIST_ROLE = "0xca537e1c88c9f52dc5692c96c482841c3bea25aafc5f3bfe96f645b5f800cac3"
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -47,6 +54,12 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
           },
           {
             role: this.DOCUMENTER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.CONTROL_LIST_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
@@ -179,6 +192,20 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.newMaxSupply],
+    )
+  }
+
+  async addControlListMemberTransaction(
+    req: BuildAddControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IControlList__factory.createInterface(),
+      "addToControlList",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.holderAccountId],
     )
   }
 

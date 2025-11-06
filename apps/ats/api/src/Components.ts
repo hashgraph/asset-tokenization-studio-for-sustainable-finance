@@ -33,6 +33,13 @@ import { SetBondCapTransactionAppService } from "@app/bond/transaction/setbondca
 import { SetBondCapCommandHandler } from "@app/bond/setbondcap/command/SetBondCapCommandHandler"
 import { SetBondCapNestJSEventAdapter } from "@port/bond/usecase/setbondcap/SetBondCapNestJSEventAdapter"
 import { SetBondCapDomainService } from "@domain/bond/services/cap/SetBondCapDomainService"
+import { AddControlListMemberTransactionHttpAdapter } from "@port/transaction/usecase/addcontrollistmembertransaction/AddControlListMemberTransactionHttpAdapter"
+import { AddControlListMemberTransactionAppService } from "@app/bond/transaction/addcontrollistmembertransaction/service/AddControlListMemberTransactionAppService"
+import { AddControlListMemberCommandHandler } from "@app/bond/addcontrollistmember/command/AddControlListMemberCommandHandler"
+import { AddControlListMemberNestJSEventAdapter } from "@port/bond/usecase/addcontrollistmember/AddControlListMemberNestJSEventAdapter"
+import { AddBondControlListMemberDomainService } from "@domain/bond/controllist/service/AddBondControlListMemberDomainService"
+import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
+import { BondControlListMemberTypeOrmRepository } from "@port/bond/persistence/repositories/BondControlListMemberTypeOrmRepository"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -42,6 +49,10 @@ const REPOSITORIES: Provider[] = [
   {
     provide: "BondDocumentRepository",
     useClass: BondDocumentTypeOrmRepository,
+  },
+  {
+    provide: "BondControlListMemberRepository",
+    useClass: BondControlListMemberTypeOrmRepository,
   },
 ]
 
@@ -53,6 +64,7 @@ export const CONTROLLERS = [
   SetBondDocumentTransactionHttpAdapter,
   RemoveBondDocumentTransactionHttpAdapter,
   SetBondCapTransactionHttpAdapter,
+  AddControlListMemberTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -76,6 +88,10 @@ export const PROVIDERS = [
   SetBondCapCommandHandler,
   SetBondCapNestJSEventAdapter,
   SetBondCapDomainService,
+  AddControlListMemberTransactionAppService,
+  AddControlListMemberCommandHandler,
+  AddControlListMemberNestJSEventAdapter,
+  AddBondControlListMemberDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
@@ -83,4 +99,4 @@ export const PROVIDERS = [
   },
 ]
 
-export const ENTITIES = [...EVENT_LISTENER_ENTITIES, BondPersistence, BondDocumentPersistence]
+export const ENTITIES = [...EVENT_LISTENER_ENTITIES, BondPersistence, BondDocumentPersistence, BondControlListMemberPersistence]
