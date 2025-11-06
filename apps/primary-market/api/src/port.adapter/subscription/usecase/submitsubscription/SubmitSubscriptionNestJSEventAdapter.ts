@@ -16,9 +16,9 @@ export class SubmitSubscriptionNestJSEventAdapter
   async handle(event: SubscriptionSubmittedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new SubmitSubscriptionCommand(
-        event.offeringDltId,
+        event.offeringId,
         event.contractId,
-        event.subscriptionDltId,
+        event.subscriptionId,
         await ConverterUtils.getHederaAddressFromEvm(event.investor),
         event.lotUnits,
       ),

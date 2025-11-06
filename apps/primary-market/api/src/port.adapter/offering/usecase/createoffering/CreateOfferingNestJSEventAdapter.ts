@@ -14,7 +14,7 @@ export class CreateOfferingNestJSEventAdapter implements CreateOfferingPort, Eve
   async handle(event: OfferingCreatedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateOfferingCommand(
-        event.offeringDltId,
+        event.offeringId,
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.asset),
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
