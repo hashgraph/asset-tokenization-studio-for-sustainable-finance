@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { EventBus } from "@hashgraph/green-bonds-shared-core"
+import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { UpdatePaymentTokenDissociationErrorCommand } from "@app/paymenttoken/updatepaymenttokendissociationerror/command/UpdatePaymentTokenDissociationErrorCommand"
 import type { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
-import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
 import { PaymentTokenDissociationErrorUpdatedEvent } from "@domain/paymenttoken/event/PaymentTokenDissociationErrorUpdatedEvent"
 
 @Singleton()
@@ -13,20 +12,25 @@ export class UpdatePaymentTokenDissociationErrorCommandHandler
   implements CommandHandler<UpdatePaymentTokenDissociationErrorCommand, void>
 {
   constructor(
-    private readonly checkPaymentTokenExistsDomainService: CheckPaymentTokenExistsDomainService,
     @Inject() private readonly paymentTokenRepository: PaymentTokenRepository,
     @Inject() private readonly eventBus: EventBus,
+    @Inject() private readonly transactionManager: TransactionManager,
   ) {}
 
   @Validate()
   async execute(command: UpdatePaymentTokenDissociationErrorCommand): Promise<void> {
-    const paymentToken = await this.checkPaymentTokenExistsDomainService.executeByTreasuryContractId(
-      command.paymentTokenContractId,
-      command.treasuryContractId,
+    await this.transactionManager.execute(async () => {
+      const tokens = await this.paymentTokenRepository.findAllRemovedByContractIdAndTreasuryContractId(
+        command.paymentTokenContractId,
+        command.treasuryContractId,
+      )
+      for (const token of tokens) {
+        token.clearDissociationError()
+        await this.paymentTokenRepository.save(token)
+      }
+    })
+    this.eventBus.publish(
+      new PaymentTokenDissociationErrorUpdatedEvent(command.treasuryContractId, command.paymentTokenContractId),
     )
-    paymentToken.clearDissociationError()
-
-    await this.paymentTokenRepository.save(paymentToken)
-    this.eventBus.publish(new PaymentTokenDissociationErrorUpdatedEvent(paymentToken.treasuryId, paymentToken.id))
   }
 }

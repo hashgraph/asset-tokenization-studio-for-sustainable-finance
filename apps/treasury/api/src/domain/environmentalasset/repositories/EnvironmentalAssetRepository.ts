@@ -11,10 +11,19 @@ export interface EnvironmentalAssetRepository {
 
   findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<EnvironmentalAsset>>
 
-  existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean>
+  existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean>
 
   findByContractIdAndTreasuryContractId(
     contractId: string,
     treasuryContractId: string,
   ): Promise<EnvironmentalAsset | null>
+
+  findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<EnvironmentalAsset[]>
 }

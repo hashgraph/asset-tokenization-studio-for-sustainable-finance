@@ -16,5 +16,14 @@ export interface PaymentTokenRepository {
 
   findByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<PaymentToken | null>
 
-  existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean>
+  findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<PaymentToken[]>
+
+  existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean>
 }
