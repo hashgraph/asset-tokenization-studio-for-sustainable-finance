@@ -66,6 +66,8 @@ import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/ge
 import { GetPrimaryMarketBondsQueryHandler } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
 import { GetPrimaryMarketBondOfferingsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
 import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
+import { GetSubscriptionsByInvestorHttpAdapter } from "@port/subscription/usecase/getsubscriptionsbyinvestor/GetSubscriptionsByInvestorHttpAdapter"
+import { GetSubscriptionsByInvestorQueryHandler } from "@app/subscription/getsubscriptionsbyinvestor/query/GetSubscriptionsByInvestorQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -112,6 +114,7 @@ export const CONTROLLERS = [
   GetPrimaryMarketBondsHttpAdapter,
   GetPrimaryMarketBondOfferingsHttpAdapter,
   GetSubscriptionsHttpAdapter,
+  GetSubscriptionsByInvestorHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -151,6 +154,7 @@ export const PROVIDERS = [
   GetPrimaryMarketsQueryHandler,
   GetPrimaryMarketBondsQueryHandler,
   GetPrimaryMarketBondOfferingsQueryHandler,
+  GetSubscriptionsByInvestorQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
