@@ -268,7 +268,6 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         external
         view
         override
-        offeringExists(_offeringId)
         returns (
             Offering memory offeringInfo_,
             address offeringOperator_,
@@ -284,9 +283,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _offeringId Offering ID
      * @return status_ Current offering status
      */
-    function getOfferingStatus(
-        uint256 _offeringId
-    ) external view override offeringExists(_offeringId) returns (OfferingStatus status_) {
+    function getOfferingStatus(uint256 _offeringId) external view override returns (OfferingStatus status_) {
         return _getOfferingStatus(_offeringId);
     }
 
@@ -295,16 +292,14 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
      * @param _offeringId Offering ID
      * @return total_ Total subscriptions
      */
-    function getTotalSubscriptions(
-        uint256 _offeringId
-    ) external view override offeringExists(_offeringId) returns (uint256 total_) {
+    function getTotalSubscriptions(uint256 _offeringId) external view override returns (uint256 total_) {
         return _getTotalSubscriptions(_offeringId);
     }
 
     function getSubscription(
         uint256 _offeringId,
         uint256 _subscriptionId
-    ) external view override offeringExists(_offeringId) returns (Subscription memory subscription) {
+    ) external view override returns (Subscription memory subscription) {
         return _getSubscription(_offeringId, _subscriptionId);
     }
 }

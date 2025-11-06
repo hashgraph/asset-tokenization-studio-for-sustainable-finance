@@ -305,9 +305,9 @@ describe("PrimaryMarket", () => {
         .withArgs(offering.paymentToken);
     });
 
-    it("GIVEN star date bigger than end date address WHEN creating offering THEN fail", async () => {
+    it("GIVEN star date bigger or equal than end date address WHEN creating offering THEN fail", async () => {
       const now = await time.latest();
-      const offering: IPrimaryMarket.OfferingStruct = {
+      const offering_1: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
@@ -321,9 +321,27 @@ describe("PrimaryMarket", () => {
         deadlineRule: 0,
       };
 
-      await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering_1))
         .to.be.revertedWithCustomError(primaryMarket, "WrongDates")
-        .withArgs(offering.startDate, offering.endDate);
+        .withArgs(offering_1.startDate, offering_1.endDate);
+
+      const offering_2: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0,
+        startDate: now + 3600,
+        endDate: now + 3600,
+        deadlineRule: 0,
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2))
+        .to.be.revertedWithCustomError(primaryMarket, "WrongDates")
+        .withArgs(offering_2.startDate, offering_2.endDate);
     });
 
     it("GIVEN start date less than current date address WHEN creating offering THEN fail", async () => {
@@ -629,6 +647,16 @@ describe("PrimaryMarket", () => {
       const [, , totalLots, pendingLots] = await primaryMarket.getOffering(1);
       expect(totalLots).to.equal(lotsUnit);
       expect(pendingLots).to.equal(lotsUnit);
+    });
+
+    it("GIVEN valid subscription for an offering that accepts over subscription WHEN submitting THEN success", async () => {
+      await createOffering(1, 0);
+
+      const lotsUnit = offering.minLots + 1;
+
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
+        .to.emit(primaryMarket, "SubscriptionSubmitted")
+        .withArgs(offeringId, 1, investor1Address, lotsUnit);
     });
 
     it("GIVEN paused PM WHEN submitting THEN fail", async () => {
