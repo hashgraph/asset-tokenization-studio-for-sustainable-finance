@@ -66,6 +66,9 @@ import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/ge
 import { GetPrimaryMarketBondsQueryHandler } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
 import { GetPrimaryMarketBondOfferingsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
 import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
+import { GetRoleMembersHttpAdapter } from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetRoleMembersQueryHandler } from "@app/role/getrolemembers/query/GetRoleMembersQueryHandler"
+import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExistsDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -112,6 +115,7 @@ export const CONTROLLERS = [
   GetPrimaryMarketBondsHttpAdapter,
   GetPrimaryMarketBondOfferingsHttpAdapter,
   GetSubscriptionsHttpAdapter,
+  GetRoleMembersHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -151,6 +155,8 @@ export const PROVIDERS = [
   GetPrimaryMarketsQueryHandler,
   GetPrimaryMarketBondsQueryHandler,
   GetPrimaryMarketBondOfferingsQueryHandler,
+  GetRoleMembersQueryHandler,
+  CheckRoleExistsDomainService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

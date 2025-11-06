@@ -7,6 +7,7 @@ import { UserMarketRoleRepository } from "@domain/usermarketrole/repositories/Us
 import { UserMarketRole } from "@domain/usermarketrole/model/UserMarketRole"
 import { UserMarketRolePersistence } from "../model/UserMarketRolePersistence"
 import { plainToInstance } from "class-transformer"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class UserMarketRoleTypeORMRepository implements UserMarketRoleRepository {
@@ -30,6 +31,35 @@ export class UserMarketRoleTypeORMRepository implements UserMarketRoleRepository
     })
 
     return persistence ? this.toDomain(persistence) : null
+  }
+
+  async findByMarketIdAndRoleId(
+    marketId: string,
+    roleId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<UserMarketRole>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.repository.findAndCount({
+      where: {
+        market: { id: marketId },
+        role: { id: roleId },
+      },
+      relations: ["user", "role", "market"],
+      order: { [pageOptions.order.orderBy]: orderDirection },
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+      take: pageOptions.limit,
+    })
+
+    const items = persistences.map((p) => p as unknown as UserMarketRole)
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
   }
 
   private toDomain(persistence: UserMarketRolePersistence): UserMarketRole {
