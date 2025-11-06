@@ -16,7 +16,7 @@ export interface TransactionBuilderPort {
   addControlListMemberTransaction(
     request: BuildAddControlListMemberTransactionRequest,
   ): Promise<BuildTransactionResponse>
-  deleteControlListMemberTransaction(
+  removeControlListMemberTransaction(
     request: BuildRemoveControlListMemberTransactionRequest,
   ): Promise<BuildTransactionResponse>
   setBondCouponTransaction(request: BuildSetCouponTransactionRequest): Promise<BuildTransactionResponse>

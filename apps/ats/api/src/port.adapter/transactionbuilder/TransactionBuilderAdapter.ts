@@ -220,7 +220,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async deleteControlListMemberTransaction(
+  async removeControlListMemberTransaction(
     req: BuildRemoveControlListMemberTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     return await this.buildAndReturnTransactionResponse(

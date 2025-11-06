@@ -8,6 +8,6 @@ export class RemoveControlListMemberTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
   async execute(request: RemoveControlListMemberTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
-    return await this.transactionBuilderPort.deleteControlListMemberTransaction(request)
+    return await this.transactionBuilderPort.removeControlListMemberTransaction(request)
   }
 }

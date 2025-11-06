@@ -125,13 +125,6 @@ export const PROVIDERS = [
     useClass: TransactionBuilderAdapter,
   },
 ]
-
-export const ENTITIES = [
-  ...EVENT_LISTENER_ENTITIES,
-  BondPersistence,
-  BondDocumentPersistence,
-  BondControlListMemberPersistence,
-]
 export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
   BondPersistence,
