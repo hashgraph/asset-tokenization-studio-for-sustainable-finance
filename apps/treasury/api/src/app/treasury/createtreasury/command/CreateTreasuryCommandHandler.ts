@@ -21,9 +21,7 @@ export class CreateTreasuryCommandHandler implements CommandHandler<CreateTreasu
     const treasury = await this.treasuryRepository.save({
       contractId: command.treasuryContractId,
       bondContractId: command.bondContractId,
-      paused: false,
-      createdAt: now,
-      updatedAt: now,
+      paused: false
     } as Treasury)
 
     this.eventBus.publish(new TreasuryCreatedEvent(treasury.contractId))

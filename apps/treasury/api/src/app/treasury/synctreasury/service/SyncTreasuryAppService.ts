@@ -35,12 +35,12 @@ export class SyncTreasuryAppService {
   }
 
   private async ensurePaymentTokenExists(treasuryContractId: string, paymentTokenContractId: string): Promise<void> {
-    const existingToken = await this.paymentTokenRepository.findByContractIdAndTreasuryContractId(
+    const paymentTokenExists = await this.paymentTokenRepository.existsByContractIdAndTreasuryContractId(
       paymentTokenContractId,
       treasuryContractId,
     )
 
-    if (!existingToken) {
+    if (!paymentTokenExists) {
       await this.commandBus.execute(new AddPaymentTokenCommand(treasuryContractId, paymentTokenContractId))
     }
   }
@@ -50,12 +50,12 @@ export class SyncTreasuryAppService {
     environmentalAssets: string[],
   ): Promise<void> {
     for (const assetContractId of environmentalAssets) {
-      const existingAsset = await this.environmentalAssetRepository.findByContractIdAndTreasuryContractId(
+      const environmentalAssetTokenExists = await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
         assetContractId,
         treasuryContractId,
       )
 
-      if (!existingAsset) {
+      if (!environmentalAssetTokenExists) {
         await this.commandBus.execute(new AddEnvironmentalAssetCommand(treasuryContractId, assetContractId))
       }
     }
