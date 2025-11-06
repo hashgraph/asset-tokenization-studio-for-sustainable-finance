@@ -28,10 +28,10 @@ abstract contract FactoryPrimaryMarket is IFactoryPrimaryMarket, FactoryPrimaryM
                             break;
                         }
                     }
-                    if (adminFound) {
-                        break;
-                    }
                 }
+            }
+            if (adminFound) {
+                break;
             }
         }
 

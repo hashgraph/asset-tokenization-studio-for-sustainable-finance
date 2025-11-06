@@ -10,6 +10,7 @@ import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
  */
 contract MockERC20 is ERC20 {
     uint8 private _decimals;
+    bool transferFromFail;
 
     constructor(string memory name, string memory symbol, uint8 decimals_) ERC20(name, symbol) {
         _decimals = decimals_;
@@ -21,5 +22,18 @@ contract MockERC20 is ERC20 {
 
     function decimals() public view virtual override returns (uint8) {
         return _decimals;
+    }
+
+    function setTransferFromFail(bool _transferFromFail) external {
+        transferFromFail = _transferFromFail;
+    }
+
+    function getTransferFromFail() external view returns (bool) {
+        return transferFromFail;
+    }
+
+    function transferFrom(address from, address to, uint256 amount) public virtual override returns (bool) {
+        if (transferFromFail) return false;
+        return super.transferFrom(from, to, amount);
     }
 }

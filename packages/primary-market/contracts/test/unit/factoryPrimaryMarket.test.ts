@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contracts";
-import { DEFAULT_ADMIN_ROLE, deployFactoryPrimaryMarketSystem, PM_DEPLOYER_ROLE } from "@scripts";
+import { DEFAULT_ADMIN_ROLE, deployFactoryPrimaryMarketSystem, PAUSER_ROLE, PM_DEPLOYER_ROLE } from "@scripts";
 import {
   ADDRESS_ZERO,
   HardhatProvider,
@@ -60,6 +60,10 @@ describe("FactoryPrimaryMarket", () => {
         role: DEFAULT_ADMIN_ROLE,
         members: [adminAddress],
       },
+      {
+        role: PAUSER_ROLE,
+        members: [adminAddress],
+      },
     ];
     RESOLVER_PROXY_CONFIG = {
       key: PRIMARY_MARKET_CONFIG_ID,
@@ -84,6 +88,40 @@ describe("FactoryPrimaryMarket", () => {
       ).to.be.revertedWithCustomError(factoryPrimaryMarket, "InvalidResolverAddress");
     });
 
+    it("GIVEN an rbac with empty/zero admin WHEN deploying new primary market THEN fail", async () => {
+      const wrongRbac: any = [
+        {
+          role: DEFAULT_ADMIN_ROLE,
+          members: [ADDRESS_ZERO],
+        },
+        {
+          role: PAUSER_ROLE,
+          members: [adminAddress],
+        },
+        {
+          role: DEFAULT_ADMIN_ROLE,
+          members: [],
+        },
+      ];
+
+      await expect(
+        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, wrongRbac),
+      ).to.be.revertedWithCustomError(factoryPrimaryMarket, "NoInitialAdmins");
+    });
+
+    it("GIVEN an rbac with no admin WHEN deploying new primary market THEN fail", async () => {
+      const wrongRbac: any = [
+        {
+          role: PAUSER_ROLE,
+          members: [adminAddress],
+        },
+      ];
+
+      await expect(
+        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, wrongRbac),
+      ).to.be.revertedWithCustomError(factoryPrimaryMarket, "NoInitialAdmins");
+    });
+
     it("GIVEN an empty rbac WHEN deploying new primary market THEN fail", async () => {
       const wrongRbac: any = [];
 
@@ -93,9 +131,26 @@ describe("FactoryPrimaryMarket", () => {
     });
 
     it("GIVEN an authorized user WHEN deploying new primary market THEN success", async () => {
-      await expect(factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS))
-        .to.emit(factoryPrimaryMarket, "PrimaryMarketDeployed")
-        .withArgs(adminAddress, anyValue, blr.address, anyValue, anyValue);
+      const primaryMarketAddress = await factoryPrimaryMarket
+        .connect(admin)
+        .callStatic.deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS);
+
+      const tx = await factoryPrimaryMarket
+        .connect(admin)
+        .deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "PrimaryMarketDeployed");
+
+      expect(event).to.not.be.undefined;
+      expect(event.args.operator).to.equal(adminAddress);
+      expect(event.args.primaryMarketAddress).to.equal(primaryMarketAddress);
+      expect(event.args.resolver).to.equal(blr.address);
+      expect(event.args.resolverProxyConfiguration.key).to.equal(RESOLVER_PROXY_CONFIG.key);
+      expect(event.args.resolverProxyConfiguration.version).to.equal(RESOLVER_PROXY_CONFIG.version);
+      for (let i = 0; i < RBACS.length; i++) {
+        expect(event.args.rbacs[i].role).to.equal(RBACS[i].role);
+        expect(event.args.rbacs[i].members).to.deep.equal(RBACS[i].members);
+      }
     });
   });
 });

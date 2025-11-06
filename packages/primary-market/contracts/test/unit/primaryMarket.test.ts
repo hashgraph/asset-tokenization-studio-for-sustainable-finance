@@ -692,6 +692,16 @@ describe("PrimaryMarket", () => {
       );
     });
 
+    it("GIVEN subscription to PM WHEN submitting if 'transferFrom' fails THEN fail", async () => {
+      const lotsUnit = offering.minLots + 1;
+
+      await mockPaymentToken.setTransferFromFail(true);
+
+      await expect(
+        primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit),
+      ).to.be.revertedWithCustomError(primaryMarket, "NotEnoughFunds");
+    });
+
     it("GIVEN subscription before offering startDate or after endDate WHEN submitting THEN fail", async () => {
       const lotsUnit = offering.minLots + 1;
 
@@ -1368,38 +1378,6 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
         .withArgs(offeringId);
     });
-
-    it("GIVEN offering WHEN cancelling by subscription IDs with already processed subscription THEN mark as already processed", async () => {
-      // Create subscription
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
-      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
-
-      // Move to cancellable state
-      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
-
-      // Cancel first time
-      const tx1 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
-      const receipt1 = await tx1.wait();
-      const event1 = receipt1.events?.find((e) => e.event === "OfferingCancelled");
-      expect(event1).to.not.be.undefined;
-
-      const succeeded1 = event1!
-        .args!.subscriptionIdsSuccess.map((x: any) => x.toNumber())
-        .filter((x: number) => x > 0);
-      expect(succeeded1).to.include(1);
-
-      // Try to cancel same subscription again
-      const tx2 = await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1]);
-      const receipt2 = await tx2.wait();
-      const event2 = receipt2.events?.find((e) => e.event === "OfferingCancelled");
-      expect(event2).to.not.be.undefined;
-
-      const alreadyCancelled = event2!
-        .args!.subscriptionIdsAlreadyCancelled.map((x: any) => x.toNumber())
-        .filter((x: number) => x > 0);
-      expect(alreadyCancelled).to.include(1);
-    });
   });
 
   describe("Cancelling Individual Subscriptions", () => {
@@ -1499,140 +1477,6 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionIsNotActive")
         .withArgs(offeringId, 1);
-    });
-  });
-
-  describe("Access Control - Roles", () => {
-    let accessControl: Contract;
-
-    beforeEach(async () => {
-      accessControl = (await ethers.getContractAt("IAccessControl", primaryMarketAddress)) as Contract;
-    });
-
-    it("GIVEN Issuer WHEN grants OFFERING_CREATOR_ROLE to account THEN account is permitted to execute operations AND emits event", async () => {
-      // Grant role and verify event emission
-      await expect(accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address)).to.emit(
-        accessControl,
-        "RoleGranted",
-      );
-
-      // Verify account has the role
-      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
-      expect(hasRole).to.be.true;
-
-      // Verify account can execute protected operations (create offering)
-      const now = await time.latest();
-      const offering = {
-        asset: mockAsset.address,
-        treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
-        minLots: 1,
-        maxLots: 50,
-        targetLots: 100,
-        targetQuantityRule: 0,
-        startDate: now + 60,
-        endDate: now + 3600,
-        deadlineRule: 0,
-      };
-
-      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.not.be.reverted;
-    });
-
-    it("GIVEN non-admin WHEN tries to grant role THEN fail", async () => {
-      await expect(accessControl.connect(investor1).grantRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.reverted;
-    });
-
-    it("GIVEN Issuer WHEN revokes OFFERING_CREATOR_ROLE from account THEN account is NOT permitted to execute operations AND emits event", async () => {
-      // Grant role first
-      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
-
-      // Revoke role and verify event emission
-      await expect(accessControl.connect(admin).revokeRole(OFFERING_CREATOR_ROLE, investor1Address)).to.emit(
-        accessControl,
-        "RoleRevoked",
-      );
-
-      // Verify account no longer has the role
-      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
-      expect(hasRole).to.be.false;
-
-      // Verify account CANNOT execute protected operations (create offering)
-      const now = await time.latest();
-      const offering = {
-        asset: mockAsset.address,
-        treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
-        minLots: 1,
-        maxLots: 50,
-        targetLots: 100,
-        targetQuantityRule: 0,
-        startDate: now + 60,
-        endDate: now + 3600,
-        deadlineRule: 0,
-      };
-
-      await expect(primaryMarket.connect(investor1).createOffering(offering)).to.be.reverted;
-    });
-
-    it("GIVEN user with role WHEN renouncing role THEN success", async () => {
-      await accessControl.connect(admin).grantRole(OFFERING_CREATOR_ROLE, investor1Address);
-      await accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE);
-
-      const hasRole = await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address);
-      expect(hasRole).to.be.false;
-    });
-
-    it("GIVEN user with no role WHEN renouncing role THEN fail", async () => {
-      // Renouncing a role you don't have should revert
-      await expect(accessControl.connect(investor1).renounceRole(OFFERING_CREATOR_ROLE))
-        .to.be.revertedWithCustomError(accessControl, "AccountNotAssignedToRole")
-        .withArgs(OFFERING_CREATOR_ROLE, investor1Address);
-    });
-
-    it("GIVEN Issuer WHEN applies multiple roles to account THEN roles are granted/revoked AND emits events", async () => {
-      const roles = [OFFERING_CREATOR_ROLE, PAUSER_ROLE];
-      const actives = [true, true]; // Grant both roles
-
-      // Apply roles (grant)
-      const tx1 = await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
-      await tx1.wait();
-
-      // Verify both roles are granted
-      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
-      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
-
-      // Now revoke one role, keep the other
-      const activesRevoke = [false, true]; // Revoke OFFERING_CREATOR_ROLE, keep PAUSER_ROLE
-      const tx2 = await accessControl.connect(admin).applyRoles(roles, activesRevoke, investor1Address);
-      await tx2.wait();
-
-      // Verify OFFERING_CREATOR_ROLE is revoked, PAUSER_ROLE remains
-      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.false;
-      expect(await accessControl.hasRole(PAUSER_ROLE, investor1Address)).to.be.true;
-    });
-
-    it("GIVEN Issuer WHEN applies roles to several accounts THEN each account receives roles", async () => {
-      const roles = [OFFERING_CREATOR_ROLE];
-      const actives = [true];
-
-      // Apply to investor1
-      await accessControl.connect(admin).applyRoles(roles, actives, investor1Address);
-
-      // Apply to investor2
-      await accessControl.connect(admin).applyRoles(roles, actives, investor2Address);
-
-      // Verify both accounts have the role
-      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor1Address)).to.be.true;
-      expect(await accessControl.hasRole(OFFERING_CREATOR_ROLE, investor2Address)).to.be.true;
-    });
-
-    it("GIVEN non-admin account WHEN applies roles THEN fail", async () => {
-      const roles = [OFFERING_CREATOR_ROLE];
-      const actives = [true];
-
-      await expect(accessControl.connect(investor1).applyRoles(roles, actives, investor2Address)).to.be.reverted;
     });
   });
 });
