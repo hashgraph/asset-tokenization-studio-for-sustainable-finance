@@ -6,10 +6,11 @@ import {
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import {
+  IBond__factory,
+  ICap__factory,
+  IControlList__factory,
   IERC1643__factory,
   IFactory__factory,
-  IControlList__factory,
-  ICap__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
@@ -19,6 +20,7 @@ import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/mode
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
 import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveControlListMemberTransactionRequest"
+import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model/BuildSetCouponTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -221,6 +223,24 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.holderAccountId],
+    )
+  }
+
+  async setBondCouponTransaction(req: BuildSetCouponTransactionRequest): Promise<BuildTransactionResponse> {
+    const coupon = {
+      recordDate: req.recordDate,
+      executionDate: req.executionDate,
+      rate: req.rate,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IBond__factory.createInterface(),
+      "setCoupon",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [coupon],
     )
   }
 
