@@ -152,5 +152,18 @@ describe("FactoryPrimaryMarket", () => {
         expect(event.args.rbacs[i].members).to.deep.equal(RBACS[i].members);
       }
     });
+
+    it("GIVEN paused factory WHEN deploying new primary market THEN fail", async () => {
+      // Grant PAUSER_ROLE to admin
+      await accessControl.grantRole(PAUSER_ROLE, adminAddress);
+
+      // Pause the factory
+      const pause = await ethers.getContractAt("Pause", factoryPrimaryMarket.address);
+      await pause.connect(admin).pause();
+
+      await expect(
+        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS),
+      ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
+    });
   });
 });
