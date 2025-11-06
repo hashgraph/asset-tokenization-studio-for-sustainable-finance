@@ -198,8 +198,6 @@ interface IPrimaryMarket {
     /// @notice Thrown when a subscription would cause the offering to exceed its target amount
     error SubscriptionExceedsTarget(uint256 currentTotal, uint256 subscriptionAmount, uint256 targetAmount);
 
-    error SubscriptionCannotBeCancelled(uint256 offeringId, uint256 subscriptionId);
-
     error SubscriptionIsNotActive(uint256 offeringId, uint256 subscriptionId);
 
     error AssociationFailed(address paymentToken);
