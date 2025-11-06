@@ -67,7 +67,7 @@ interface IPrimaryMarket {
     struct Subscription {
         address investor; // Address of the investor
         uint256 lotUnits; // Number of lot units subscribed
-        IPrimaryMarket.SubscriptionStatus status;
+        SubscriptionStatus status;
     }
 
     struct OfferingProcessResult {

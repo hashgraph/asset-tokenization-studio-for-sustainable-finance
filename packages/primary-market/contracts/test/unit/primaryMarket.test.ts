@@ -761,9 +761,9 @@ describe("PrimaryMarket", () => {
 
       await mockPaymentToken.setTransferFromFail(true);
 
-      await expect(
-        primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit),
-      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit)).to.be.revertedWith(
+        "SafeERC20: ERC20 operation did not succeed",
+      );
     });
 
     it("GIVEN subscription before offering startDate or after endDate WHEN submitting THEN fail", async () => {
@@ -1238,7 +1238,9 @@ describe("PrimaryMarket", () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       // Execute all subscriptions by ID (targeting is 10 lots, minLots is 1, so we have 10 subscriptions)
-      await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      await primaryMarket
+        .connect(offeringCreator)
+        .executeOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
       // Check status should be EXECUTED (pendingSubscribedLots = 0)
       const status = await primaryMarket.getOfferingStatus(offeringId);
