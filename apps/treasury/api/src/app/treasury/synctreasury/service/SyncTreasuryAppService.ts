@@ -38,6 +38,7 @@ export class SyncTreasuryAppService {
     const paymentTokenExists = await this.paymentTokenRepository.existsByContractIdAndTreasuryContractId(
       paymentTokenContractId,
       treasuryContractId,
+      false
     )
 
     if (!paymentTokenExists) {
@@ -53,6 +54,7 @@ export class SyncTreasuryAppService {
       const environmentalAssetTokenExists = await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
         assetContractId,
         treasuryContractId,
+        false
       )
 
       if (!environmentalAssetTokenExists) {
