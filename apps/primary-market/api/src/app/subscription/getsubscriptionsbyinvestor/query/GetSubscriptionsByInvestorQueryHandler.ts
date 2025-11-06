@@ -34,8 +34,8 @@ export class GetSubscriptionsByInvestorQueryHandler
       throw InvestorNotFoundError.accountIdError(investorAccountId)
     }
 
-    const subscriptionsPage = await this.subscriptionRepository.findByInvestorAccountId(
-      investorAccountId,
+    const subscriptionsPage = await this.subscriptionRepository.findByInvestorId(
+      investor.id,
       pageOptions.toPageOptions(),
     )
 

@@ -81,13 +81,13 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
+  async findByInvestorId(investorId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
         investor: {
-          accountId: investorAccountId,
+          id: investorId,
         },
       },
       relations: ["offering", "offering.market", "investor"],
