@@ -99,12 +99,11 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     function _submitSubscription(uint256 _offeringId, uint256 _lotUnits) internal {
         OfferingState storage offering = _getOfferingState(_offeringId);
 
-        // Calculate required payment: lotUnits * lotSize (tokens) * nominalValue (price per token)
+        // CHECKS: Calculate required payment and validate allowance
         uint256 requiredPayment = _lotUnits *
             offering.info.lotSize *
             IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
-        // Check investor has approved enough payment tokens
         if (IERC20(offering.info.paymentToken).allowance(_msgSender(), address(this)) < requiredPayment) {
             revert IPrimaryMarket.NotEnoughFunds(
                 _msgSender(),
@@ -114,12 +113,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             );
         }
 
-        // Transfer payment tokens from investor to this contract
-        if (!IERC20(offering.info.paymentToken).transferFrom(_msgSender(), address(this), requiredPayment)) {
-            revert IPrimaryMarket.NotEnoughFunds(_msgSender(), requiredPayment, 0, offering.info.paymentToken);
-        }
-
-        // Create subscription
+        // EFFECTS: Update state before external calls
         uint256 subscriptionId = ++offering.nextSubscriptionId;
         offering.subscriptions[subscriptionId] = IPrimaryMarket.Subscription({
             investor: _msgSender(),
@@ -127,9 +121,12 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             status: IPrimaryMarket.SubscriptionStatus.ACTIVE
         });
 
-        // Update total subscribed lots
         offering.totalSubscribedLots += _lotUnits;
         offering.pendingSubscribedLots += _lotUnits;
+
+        // INTERACTIONS: External call last
+        IERC20 token = IERC20(offering.info.paymentToken);
+        token.safeTransferFrom(_msgSender(), address(this), requiredPayment);
 
         emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, _msgSender(), _lotUnits);
     }
@@ -137,7 +134,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     /**
      * @notice Internal placeholder for cancelling a subscription
      * @param _offeringId Offering ID
-     * @dev TODO: When implemented, should refund investor and mark subscription.cancelled = true
      */
     function _cancelSubscription(uint256 _offeringId, uint256 _subscriptionId) internal {
         OfferingState storage offering = _getOfferingState(_offeringId);

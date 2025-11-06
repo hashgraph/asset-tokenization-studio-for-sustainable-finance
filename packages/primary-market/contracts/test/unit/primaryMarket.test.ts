@@ -763,7 +763,7 @@ describe("PrimaryMarket", () => {
 
       await expect(
         primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit),
-      ).to.be.revertedWithCustomError(primaryMarket, "NotEnoughFunds");
+      ).to.be.revertedWith("SafeERC20: ERC20 operation did not succeed");
     });
 
     it("GIVEN subscription before offering startDate or after endDate WHEN submitting THEN fail", async () => {
