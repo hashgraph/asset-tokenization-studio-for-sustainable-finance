@@ -135,6 +135,7 @@ import { SyncTreasuryNestJSEventAdapter } from "@port/treasury/usecase/synctreas
 import { SyncTreasuryAppService } from "@app/treasury/synctreasury/service/SyncTreasuryAppService"
 import { CreateTreasuryCommandHandler } from "@app/treasury/createtreasury/command/CreateTreasuryCommandHandler"
 import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/command/AddPaymentTokenCommandHandler"
+import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -322,4 +323,5 @@ export const PROVIDERS = [
     provide: "TransactionManager",
     useClass: TypeOrmTransactionManager,
   },
+  CreateTreasuryFiltersNestJSEventAdapter
 ]
