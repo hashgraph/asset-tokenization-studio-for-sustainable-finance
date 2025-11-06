@@ -13,20 +13,16 @@ interface IPrecompiledMock {
         address[] memory accountIds,
         int64[] memory amounts
     ) external returns (int32 responseCode);
+    function associateToken(address account, address token) external returns (int32 responseCode);
     function setPrecompiledTransferStatus(bool _success) external;
     function getPrecompiledTransferStatus() external view returns (bool);
+    function setPrecompiledAssociationStatus(bool _success) external;
+    function getPrecompiledAssociationStatus() external view returns (bool);
 }
 
 contract PrecompiledMockStorageWrapper {
-    bool success;
-
-    function _setPrecompiledTransferStatus(bool _success) internal {
-        success = _success;
-    }
-
-    function _getPrecompiledTransferStatus() internal view returns (bool) {
-        return success;
-    }
+    bool transferSuccess;
+    bool associationSuccess;
 
     function _transferTokens(
         address token,
@@ -53,6 +49,27 @@ contract PrecompiledMockStorageWrapper {
         if (totalPositive != totalNegative) return HederaResponseCodes.UNKNOWN;
         return HederaResponseCodes.SUCCESS;
     }
+
+    function _associateToken(address account, address token) internal returns (int32 responseCode) {
+        if (_getPrecompiledAssociationStatus()) return HederaResponseCodes.SUCCESS;
+        else return HederaResponseCodes.UNKNOWN;
+    }
+
+    function _setPrecompiledTransferStatus(bool _success) internal {
+        transferSuccess = _success;
+    }
+
+    function _getPrecompiledTransferStatus() internal view returns (bool) {
+        return transferSuccess;
+    }
+
+    function _setPrecompiledAssociationStatus(bool _success) internal {
+        associationSuccess = _success;
+    }
+
+    function _getPrecompiledAssociationStatus() internal view returns (bool) {
+        return associationSuccess;
+    }
 }
 
 contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
@@ -64,11 +81,23 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _transferTokens(token, accountIds, amounts);
     }
 
+    function associateToken(address account, address token) external returns (int32 responseCode) {
+        return _associateToken(account, token);
+    }
+
     function setPrecompiledTransferStatus(bool _success) external {
         _setPrecompiledTransferStatus(_success);
     }
 
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
+    }
+
+    function setPrecompiledAssociationStatus(bool _success) external {
+        _setPrecompiledAssociationStatus(_success);
+    }
+
+    function getPrecompiledAssociationStatus() external view returns (bool) {
+        return _getPrecompiledAssociationStatus();
     }
 }

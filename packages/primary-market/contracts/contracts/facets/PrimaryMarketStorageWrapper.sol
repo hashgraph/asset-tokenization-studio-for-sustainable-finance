@@ -83,8 +83,9 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         offering.nextSubscriptionId = 0;
 
         // Associate payment token with this contract (Hedera token association)
-        // This is a no-op on EVM chains but required on Hedera
-        _associateToken(_offeringInfo.paymentToken);
+        if (associateToken(address(this), _offeringInfo.paymentToken) != HederaResponseCodes.SUCCESS) {
+            revert IPrimaryMarket.AssociationFailed(_offeringInfo.paymentToken);
+        }
 
         emit IPrimaryMarket.OfferingCreated(offeringId, _msgSender(), _offeringInfo);
     }
@@ -373,18 +374,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             processResult.failedSubscriptions,
             indexCounts[uint256(CountIndex.FAILED)]
         );
-    }
-
-    /**
-     * @notice Associate token with contract (for Hedera compatibility)
-     * @param _token Token address to associate
-     * @dev This is a no-op on EVM chains
-     */
-    function _associateToken(address _token) internal pure {
-        // On Hedera, this would call the token association system contract
-        // On EVM chains, this is a no-op
-        // Implementation depends on deployment target
-        _token; // Silence unused variable warning
     }
 
     /**

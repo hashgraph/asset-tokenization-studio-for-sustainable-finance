@@ -63,6 +63,9 @@ describe("PrimaryMarket", () => {
     const runtimeBytecode = await ethers.provider.getCode(deployed.address);
     await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
     mockPrecompiled = await ethers.getContractAt("PrecompiledMock", HEDERA_PRECOMPILED_ADDRESS);
+
+    await mockPrecompiled.setPrecompiledTransferStatus(true);
+    await mockPrecompiled.setPrecompiledAssociationStatus(true);
   }
 
   async function deployFixture() {
@@ -218,6 +221,31 @@ describe("PrimaryMarket", () => {
       expect(creator).to.equal(offeringCreatorAddress);
       expect(totalLots).to.equal(0);
       expect(pendingLots).to.equal(0);
+    });
+
+    it("GIVEN an offering with a payment token that cannot be associated WHEN creating offering THEN fail", async () => {
+      const now = await time.latest();
+
+      await mockPrecompiled.setPrecompiledAssociationStatus(false);
+
+      const offering: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 0, // OVERSUBSCRIPTION_NOT_ALLOWED
+        startDate: now + 60, // Starts in 1 minute
+        endDate: now + 3600, // Ends in 1 hour
+        deadlineRule: 0, // WAIT_UNTIL_END
+      };
+
+      await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
+        primaryMarket,
+        "AssociationFailed",
+      );
     });
 
     it("GIVEN paused PM WHEN creating offering THEN fail", async () => {
@@ -877,7 +905,6 @@ describe("PrimaryMarket", () => {
     async function executeSuccess(paginatedMethod: boolean = true) {
       await reachTarget();
 
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
@@ -968,7 +995,6 @@ describe("PrimaryMarket", () => {
     it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
       await reachTarget();
 
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
@@ -1114,7 +1140,6 @@ describe("PrimaryMarket", () => {
     it("GIVEN offering WHEN executing by subscription IDs with non-existing subscription THEN revert", async () => {
       // Create and reach target first
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       const iterations = offering.targetLots / offering.minLots;
       for (let i = 0; i < iterations; i++) {
@@ -1133,7 +1158,6 @@ describe("PrimaryMarket", () => {
     it("GIVEN offering WHEN executing with already executed subscription THEN mark as already processed", async () => {
       // Create and reach target
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       const iterations = offering.targetLots / offering.minLots;
       for (let i = 0; i < iterations; i++) {
@@ -1159,44 +1183,47 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN subscription with amount exceeding int64 max WHEN executing THEN mark as failed", async () => {
       const now = await time.latest();
-      // lotSize * minLots * nominalValue > int64.max
-      // 2^62 * 100 * 100 > 2^63 - 1
-      const tx = await primaryMarket.connect(offeringCreator).createOffering({
+
+      const offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.BigNumber.from("2").pow(62),
-        minLots: 100,
-        maxLots: 200,
-        targetLots: 100,
+        lotSize: 1,
+        minLots: 1,
+        maxLots: 1,
+        targetLots: 1,
         targetQuantityRule: 0,
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
-      });
+      };
 
-      const ofId = (await tx.wait()).events
-        ?.find((e: any) => e.event === "OfferingCreated")
-        ?.args?.offeringId?.toNumber();
-      await time.increase(61);
-      await mockAsset.setNominalValue(100);
+      let tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+      let receipt = await tx.wait();
+      let event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
 
-      const amount = ethers.BigNumber.from("2").pow(62).mul(100).mul(100);
-      await mockPaymentToken.mint(investor1Address, amount);
-      await mockPaymentToken.connect(investor1).approve(primaryMarket.address, amount);
-      await primaryMarket.connect(investor1).submitSubscription(ofId, 100);
+      await mockAsset.setNominalValue(BigInt(INT64_MAX) + BigInt(1));
 
-      await primaryMarketTimeTravel.changeSystemTimestamp(now + 3601);
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
 
-      const executeTx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(ofId, [1]);
-      const failed = (await executeTx.wait()).events
-        ?.find((e) => e.event === "OfferingExecuted")
-        ?.args?.subscriptionIdsFailed.map((x: any) => x.toNumber())
-        .filter((x: number) => x > 0);
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
 
-      expect(failed).to.include(1);
-      await mockAsset.setNominalValue(1);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      tx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
+      receipt = await tx.wait();
+      event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+      expect(event).to.not.be.undefined;
+
+      const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+      expect(succeeded).to.deep.equal([]);
+
+      const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+      expect(failed).to.deep.equal([1]);
+
+      const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+      expect(alreadyProcessed).to.deep.equal([]);
     });
   });
 
@@ -1233,8 +1260,6 @@ describe("PrimaryMarket", () => {
 
     async function createSubscriptions(numSubscriptions: number) {
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      // Enable precompiled transfer for subscriptions and cancellations to work
-      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       for (let i = 0; i < numSubscriptions; i++) {
         const investor = i % 2 == 0 ? investor1 : investor2;

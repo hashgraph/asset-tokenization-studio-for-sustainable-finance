@@ -202,6 +202,8 @@ interface IPrimaryMarket {
 
     error SubscriptionIsNotActive(uint256 offeringId, uint256 subscriptionId);
 
+    error AssociationFailed(address paymentToken);
+
     /// @notice Create a new offering
     /// @param _offeringInfo The details of the offering to create
     function createOffering(Offering calldata _offeringInfo) external;
