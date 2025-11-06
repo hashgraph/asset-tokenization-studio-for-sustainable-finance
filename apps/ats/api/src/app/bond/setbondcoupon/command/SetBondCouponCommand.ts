@@ -1,13 +1,37 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Command } from "@hashgraph/green-bonds-shared-core"
+import { IsNotEmpty, IsString, IsDate, IsNumberString } from "class-validator"
+import { Type } from "class-transformer"
 
 export class SetBondCouponCommand extends Command<void> {
+  @IsNotEmpty()
+  @IsString()
   readonly contractId: string
+
+  @IsNotEmpty()
+  @IsString()
   readonly corporateActionId: string
+
+  @IsNotEmpty()
+  @IsString()
   readonly couponId: string
+
+  @IsNotEmpty()
+  @IsString()
   readonly operator: string
-  readonly recordDate: string
-  readonly executionDate: string
+
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  readonly recordDate: Date
+
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  readonly executionDate: Date
+
+  @IsNotEmpty()
+  @IsNumberString()
   readonly rate: string
 
   constructor(
@@ -15,8 +39,8 @@ export class SetBondCouponCommand extends Command<void> {
     corporateActionId: string,
     couponId: string,
     operator: string,
-    recordDate: string,
-    executionDate: string,
+    recordDate: Date,
+    executionDate: Date,
     rate: string,
   ) {
     super()

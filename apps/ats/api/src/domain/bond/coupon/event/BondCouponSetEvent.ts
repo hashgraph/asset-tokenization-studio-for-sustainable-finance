@@ -7,8 +7,8 @@ export class BondCouponSetEvent extends Event {
     public readonly corporateActionId: string,
     public readonly couponId: string,
     public readonly operator: string,
-    public readonly recordDate: string,
-    public readonly executionDate: string,
+    public readonly recordDate: Date,
+    public readonly executionDate: Date,
     public readonly rate: string,
   ) {
     super()

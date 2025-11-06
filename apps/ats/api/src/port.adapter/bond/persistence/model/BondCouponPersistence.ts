@@ -16,11 +16,11 @@ export class BondCouponPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })
   operator: string
 
-  @Column({ type: "varchar" })
-  recordDate: string
+  @Column({ type: "timestamp" })
+  recordDate: Date
 
-  @Column({ type: "varchar" })
-  executionDate: string
+  @Column({ type: "timestamp" })
+  executionDate: Date
 
   @Column({ type: "varchar" })
   rate: string

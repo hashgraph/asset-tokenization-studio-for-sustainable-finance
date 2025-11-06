@@ -4,8 +4,8 @@ export class SetBondCouponDomainServiceRequest {
   readonly corporateActionId: string
   readonly couponId: string
   readonly operator: string
-  readonly recordDate: string
-  readonly executionDate: string
+  readonly recordDate: Date
+  readonly executionDate: Date
   readonly rate: string
 
   constructor(
@@ -13,8 +13,8 @@ export class SetBondCouponDomainServiceRequest {
     corporateActionId: string,
     couponId: string,
     operator: string,
-    recordDate: string,
-    executionDate: string,
+    recordDate: Date,
+    executionDate: Date,
     rate: string,
   ) {
     this.contractId = contractId

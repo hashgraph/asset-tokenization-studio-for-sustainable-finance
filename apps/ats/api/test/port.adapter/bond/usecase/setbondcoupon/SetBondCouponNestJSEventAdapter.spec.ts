@@ -92,8 +92,8 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       expect(savedCoupon!.corporateActionId).toBe(CORPORATE_ACTION_ID)
       expect(savedCoupon!.couponId).toBe("1")
       expect(savedCoupon!.operator).toBe(OPERATOR)
-      expect(savedCoupon!.recordDate).toBe("1704067200")
-      expect(savedCoupon!.executionDate).toBe("1704153600")
+      expect(savedCoupon!.recordDate).toEqual(new Date(1704067200 * 1000))
+      expect(savedCoupon!.executionDate).toEqual(new Date(1704153600 * 1000))
       expect(savedCoupon!.rate).toBe("500")
     })
 
@@ -224,8 +224,8 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           corporateActionId: CORPORATE_ACTION_ID,
           couponId: "1",
           operator: OPERATOR,
-          recordDate: "1704067200",
-          executionDate: "1704153600",
+          recordDate: new Date(1704067200 * 1000),
+          executionDate: new Date(1704153600 * 1000),
           rate: "500",
           timestamp: expect.any(Number),
         }),
@@ -303,8 +303,8 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       })
 
       expect(allCoupons).toHaveLength(3)
-      expect(Number(allCoupons[0].recordDate)).toBeLessThan(Number(allCoupons[1].recordDate))
-      expect(Number(allCoupons[1].recordDate)).toBeLessThan(Number(allCoupons[2].recordDate))
+      expect(allCoupons[0].recordDate.getTime()).toBeLessThan(allCoupons[1].recordDate.getTime())
+      expect(allCoupons[1].recordDate.getTime()).toBeLessThan(allCoupons[2].recordDate.getTime())
     })
   })
 })
