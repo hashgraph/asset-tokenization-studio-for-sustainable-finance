@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class BondControlListMemberNotFoundError extends EntityNotFoundError {
