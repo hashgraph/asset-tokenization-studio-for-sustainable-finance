@@ -10,20 +10,24 @@ export class GetPrimaryMarketBondOfferingsQuery extends Query<
 > {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @IsNotEmpty()
   @IsString()
-  readonly bondId: string
+  readonly bondContractId: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketId: string, bondId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(
+    marketContractId: string,
+    bondContractId: string,
+    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+  ) {
     super()
-    this.marketId = marketId
-    this.bondId = bondId
+    this.marketContractId = marketContractId
+    this.bondContractId = bondContractId
     this.pageOptions = pageOptions
   }
 }

@@ -21,7 +21,7 @@ export class CancelSubscriptionTransactionHttpAdapter implements CancelSubscript
       request.accountId ?? "",
       marketContractId,
       offeringId,
-      request.subscriptionId,
+      request.subscriptionDltId,
     )
     return await this.cancelSubscriptionTransactionAppService.execute(appServiceRequest)
   }

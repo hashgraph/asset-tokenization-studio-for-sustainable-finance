@@ -28,22 +28,22 @@ export class GetPrimaryMarketBondOfferingsQueryHandler
   async execute(
     query: GetPrimaryMarketBondOfferingsQuery,
   ): Promise<QueryPageResponse<PrimaryMarketBondOfferingQueryResponse>> {
-    const { marketId, bondId, pageOptions } = query
+    const { marketContractId, bondContractId, pageOptions } = query
 
-    await this.checkPrimaryMarketExistsDomainService.execute(marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
 
-    const offeringsPage = await this.offeringRepository.findByMarketIdAndBondId(
-      marketId,
-      bondId,
+    const offeringsPage = await this.offeringRepository.findByMarketIdAndBondContractId(
+      market.id,
+      bondContractId,
       pageOptions.toPageOptions(),
     )
 
     return QueryPageResponse.fromPage(offeringsPage, (offering: Offering) => ({
-      offeringId: offering.offeringId,
-      bondId: offering.bondId,
+      offeringDltId: offering.offeringDltId,
+      bondContractId: offering.bondContractId,
       operatorId: offering.operatorId,
-      treasuryId: offering.treasuryId,
-      paymentTokenId: offering.paymentTokenId,
+      treasuryContractId: offering.treasuryContractId,
+      paymentTokenContractId: offering.paymentTokenContractId,
       lotSize: offering.lotSize,
       minQuantity: offering.minQuantity,
       maxQuantity: offering.maxQuantity,

@@ -22,18 +22,14 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return this.toDomain(saved)
   }
 
-  async findBySubscriptionIdOfferingIdAndMarketId(
-    subscriptionId: string,
+  async findBySubscriptionDltIdAndOfferingId(
+    subscriptionDltId: string,
     offeringId: string,
-    marketId: string,
   ): Promise<Subscription | null> {
     const persistence = await this.repository.findOne({
       where: {
-        subscriptionId,
-        offering: {
-          offeringId,
-          market: { contractId: marketId },
-        },
+        subscriptionDltId,
+        offering: { id: offeringId },
       },
       relations: ["offering", "offering.market", "investor"],
     })
@@ -61,19 +57,12 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByOfferingIdAndMarketId(
-    offeringId: string,
-    marketId: string,
-    pageOptions: PageOptions,
-  ): Promise<Page<Subscription>> {
+  async findByOfferingId(offeringId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        offering: {
-          offeringId,
-          market: { contractId: marketId },
-        },
+        offering: { id: offeringId },
       },
       relations: ["offering", "offering.market", "investor"],
       order: { [pageOptions.order.orderBy]: orderDirection },
@@ -92,13 +81,13 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
+  async findByInvestorId(investorId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
         investor: {
-          accountId: investorAccountId,
+          id: investorId,
         },
       },
       relations: ["offering", "offering.market", "investor"],

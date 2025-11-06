@@ -58,19 +58,19 @@ describe("GetSubscription API Integration", () => {
     await app.close()
   })
 
-  describe("GET /primary-markets/:marketContractId/offerings/:offeringId/subscriptions/:subscriptionId", () => {
+  describe("GET /primary-markets/:marketContractId/offerings/:offeringDltId/subscriptions/:subscriptionDltId", () => {
     it("should return subscription with valid parameters", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -85,8 +85,8 @@ describe("GetSubscription API Integration", () => {
         accountId: "0.0.1111",
       })
 
-      const subscription = await subscriptionRepository.save({
-        subscriptionId: "1",
+      await subscriptionRepository.save({
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor,
         lotUnits: "5",
@@ -98,9 +98,8 @@ describe("GetSubscription API Integration", () => {
         .expect(200)
 
       expect(response.body).toMatchObject({
-        id: subscription.id,
-        subscriptionId: "1",
-        offeringId: "1",
+        subscriptionDltId: "1",
+        offeringDltId: "1",
         investorId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
@@ -114,12 +113,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -143,7 +142,7 @@ describe("GetSubscription API Integration", () => {
 
       for (const [index, status] of statuses.entries()) {
         await subscriptionRepository.save({
-          subscriptionId: String(index + 1),
+          subscriptionDltId: String(index + 1),
           offering: offering,
           investor: investor,
           lotUnits: "5",
@@ -164,12 +163,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -207,12 +206,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -228,7 +227,7 @@ describe("GetSubscription API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor,
         lotUnits: "5",
@@ -236,7 +235,7 @@ describe("GetSubscription API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering,
         investor: investor,
         lotUnits: "10",
@@ -251,11 +250,11 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/1/subscriptions/2`)
         .expect(200)
 
-      expect(response1.body.subscriptionId).toBe("1")
+      expect(response1.body.subscriptionDltId).toBe("1")
       expect(response1.body.lotUnits).toBe("5")
       expect(response1.body.status).toBe(SubscriptionStatus.SUBMITTED)
 
-      expect(response2.body.subscriptionId).toBe("2")
+      expect(response2.body.subscriptionDltId).toBe("2")
       expect(response2.body.lotUnits).toBe("10")
       expect(response2.body.status).toBe(SubscriptionStatus.EXECUTED)
     })
@@ -266,12 +265,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering1 = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -283,12 +282,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering2 = await offeringRepository.save({
-        offeringId: "2",
+        offeringDltId: "2",
         market,
-        bondId: "0.0.8888888",
+        bondContractId: "0.0.8888888",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -304,7 +303,7 @@ describe("GetSubscription API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering1,
         investor: investor,
         lotUnits: "5",
@@ -312,7 +311,7 @@ describe("GetSubscription API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering2,
         investor: investor,
         lotUnits: "10",
@@ -327,11 +326,11 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/2/subscriptions/1`)
         .expect(200)
 
-      expect(response1.body.offeringId).toBe("1")
+      expect(response1.body.offeringDltId).toBe("1")
       expect(response1.body.lotUnits).toBe("5")
       expect(response1.body.status).toBe(SubscriptionStatus.SUBMITTED)
 
-      expect(response2.body.offeringId).toBe("2")
+      expect(response2.body.offeringDltId).toBe("2")
       expect(response2.body.lotUnits).toBe("10")
       expect(response2.body.status).toBe(SubscriptionStatus.EXECUTED)
     })
@@ -342,12 +341,12 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -363,7 +362,7 @@ describe("GetSubscription API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "999999999",
+        subscriptionDltId: "999999999",
         offering: offering,
         investor: investor,
         lotUnits: "5",
@@ -374,7 +373,7 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/1/subscriptions/999999999`)
         .expect(200)
 
-      expect(response.body.subscriptionId).toBe("999999999")
+      expect(response.body.subscriptionDltId).toBe("999999999")
     })
   })
 })

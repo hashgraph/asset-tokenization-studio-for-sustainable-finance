@@ -17,6 +17,6 @@ export class CancelSubscriptionCommandHandler implements CommandHandler<CancelSu
   @Validate()
   async execute(command: CancelSubscriptionCommand): Promise<void> {
     await this.cancelSubscriptionDomainService.execute(command)
-    this.eventBus.publish(new SubscriptionCancelledEvent(command.offeringId, command.subscriptionId))
+    this.eventBus.publish(new SubscriptionCancelledEvent(command.offeringDltId, command.subscriptionDltId))
   }
 }

@@ -8,15 +8,15 @@ import { Type } from "class-transformer"
 export class GetPrimaryMarketBondsQuery extends Query<QueryPageResponse<PrimaryMarketBondQueryResponse>> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(marketContractId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
     super()
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.pageOptions = pageOptions
   }
 }

@@ -26,10 +26,9 @@ export class GetPrimaryMarketsQueryHandler
     const primaryMarketsPage = await this.primaryMarketRepository.findAll(pageOptions)
 
     return QueryPageResponse.fromPage(primaryMarketsPage, (primaryMarket: PrimaryMarket) => ({
-      id: primaryMarket.id,
-      createdAt: primaryMarket.createdAt,
       contractId: primaryMarket.contractId,
       isPaused: primaryMarket.isPaused,
+      createdAt: primaryMarket.createdAt,
     }))
   }
 }

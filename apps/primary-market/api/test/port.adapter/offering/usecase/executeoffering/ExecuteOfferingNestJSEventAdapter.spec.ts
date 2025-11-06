@@ -64,12 +64,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -93,7 +93,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor1,
         lotUnits: "1000",
@@ -101,7 +101,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering,
         investor: investor2,
         lotUnits: "2000",
@@ -109,7 +109,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "3",
+        subscriptionDltId: "3",
         offering: offering,
         investor: investor3,
         lotUnits: "500",
@@ -127,9 +127,9 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, OfferingExecutedDLTEvent.name)
 
-      const subscription1 = await subscriptionRepository.findOne({ where: { subscriptionId: "1" } })
-      const subscription2 = await subscriptionRepository.findOne({ where: { subscriptionId: "2" } })
-      const subscription3 = await subscriptionRepository.findOne({ where: { subscriptionId: "3" } })
+      const subscription1 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "1" } })
+      const subscription2 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "2" } })
+      const subscription3 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "3" } })
 
       expect(subscription1!.status).toBe(SubscriptionStatus.EXECUTED)
       expect(subscription2!.status).toBe(SubscriptionStatus.EXECUTED)
@@ -159,12 +159,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -193,12 +193,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -227,12 +227,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -261,12 +261,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -288,7 +288,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       await Promise.all(
         investors.map((investor, index) =>
           subscriptionRepository.save({
-            subscriptionId: `${index + 1}`,
+            subscriptionDltId: `${index + 1}`,
             offering: offering,
             investor: investor,
             lotUnits: `${(index + 1) * 1000}`,
@@ -308,7 +308,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, OfferingExecutedDLTEvent.name)
 
-      const subscriptions = await subscriptionRepository.find({ order: { subscriptionId: "ASC" } })
+      const subscriptions = await subscriptionRepository.find({ order: { subscriptionDltId: "ASC" } })
 
       expect(subscriptions[0].status).toBe(SubscriptionStatus.EXECUTED)
       expect(subscriptions[1].status).toBe(SubscriptionStatus.EXECUTED)

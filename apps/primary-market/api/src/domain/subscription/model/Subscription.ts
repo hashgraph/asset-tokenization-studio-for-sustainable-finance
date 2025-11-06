@@ -10,7 +10,7 @@ import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 export class Subscription extends BaseEntity {
   @IsNotEmpty()
   @IsNumberString()
-  subscriptionId: string
+  subscriptionDltId: string
 
   @IsNotEmpty()
   @ValidateNested()

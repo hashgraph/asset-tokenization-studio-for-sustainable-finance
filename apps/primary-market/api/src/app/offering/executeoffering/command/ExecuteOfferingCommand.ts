@@ -5,11 +5,11 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class ExecuteOfferingCommand extends Command<void> {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -17,24 +17,24 @@ export class ExecuteOfferingCommand extends Command<void> {
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsSuccess: string[]
+  subscriptionDltIdsSuccess: string[]
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsFailed: string[]
+  subscriptionDltIdsFailed: string[]
 
   constructor(
-    offeringId: string,
-    marketId: string,
+    offeringDltId: string,
+    marketContractId: string,
     operatorId: string,
-    subscriptionIdsSuccess: string[],
-    subscriptionIdsFailed: string[],
+    subscriptionDltIdsSuccess: string[],
+    subscriptionDltIdsFailed: string[],
   ) {
     super()
-    this.offeringId = offeringId
-    this.marketId = marketId
+    this.offeringDltId = offeringDltId
+    this.marketContractId = marketContractId
     this.operatorId = operatorId
-    this.subscriptionIdsSuccess = subscriptionIdsSuccess
-    this.subscriptionIdsFailed = subscriptionIdsFailed
+    this.subscriptionDltIdsSuccess = subscriptionDltIdsSuccess
+    this.subscriptionDltIdsFailed = subscriptionDltIdsFailed
   }
 }

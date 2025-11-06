@@ -4,12 +4,12 @@ import { DomainError } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingUnauthorizedOperatorError extends DomainError {
   static operatorMismatchError(
-    offeringId: string,
+    offeringDltId: string,
     expectedOperator: string,
     providedOperator: string,
   ): OfferingUnauthorizedOperatorError {
     return new OfferingUnauthorizedOperatorError(
-      `Unauthorized operator for offering ${offeringId}. Expected: ${expectedOperator}, Provided: ${providedOperator}`,
+      `Unauthorized operator for offering ${offeringDltId}. Expected: ${expectedOperator}, Provided: ${providedOperator}`,
     )
   }
 

@@ -5,7 +5,11 @@ import { Offering } from "../model/Offering"
 
 export interface OfferingRepository {
   save(offering: Offering): Promise<Offering>
-  findByOfferingIdAndMarketId(offeringId: string, marketId: string): Promise<Offering | null>
-  findUniqueBondIdsByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<string>>
-  findByMarketIdAndBondId(marketId: string, bondId: string, pageOptions: PageOptions): Promise<Page<Offering>>
+  findByOfferingDltIdAndMarketId(offeringDltId: string, marketId: string): Promise<Offering | null>
+  findUniqueBondContractIdsByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<string>>
+  findByMarketIdAndBondContractId(
+    marketId: string,
+    bondContractId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<Offering>>
 }

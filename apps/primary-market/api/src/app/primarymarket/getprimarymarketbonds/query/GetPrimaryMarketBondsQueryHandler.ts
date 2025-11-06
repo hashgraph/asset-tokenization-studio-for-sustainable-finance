@@ -25,14 +25,17 @@ export class GetPrimaryMarketBondsQueryHandler
 
   @Validate()
   async execute(query: GetPrimaryMarketBondsQuery): Promise<QueryPageResponse<PrimaryMarketBondQueryResponse>> {
-    const { marketId, pageOptions } = query
+    const { marketContractId, pageOptions } = query
 
-    await this.checkPrimaryMarketExistsDomainService.execute(marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
 
-    const bondsPage = await this.offeringRepository.findUniqueBondIdsByMarketId(marketId, pageOptions.toPageOptions())
+    const bondsPage = await this.offeringRepository.findUniqueBondContractIdsByMarketId(
+      market.id,
+      pageOptions.toPageOptions(),
+    )
 
-    return QueryPageResponse.fromPage(bondsPage, (bondId: string) => ({
-      bondId: bondId,
+    return QueryPageResponse.fromPage(bondsPage, (bondContractId: string) => ({
+      bondContractId: bondContractId,
     }))
   }
 }

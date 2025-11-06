@@ -6,15 +6,15 @@ import { IsNotEmpty, IsNumberString } from "class-validator"
 export class CancelSubscriptionTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  readonly offeringId: string
+  readonly offeringDltId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly subscriptionId: string
+  readonly subscriptionDltId: string
 
-  constructor(format: string, accountId: string, contractId: string, offeringId: string, subscriptionId: string) {
+  constructor(format: string, accountId: string, contractId: string, offeringDltId: string, subscriptionDltId: string) {
     super(format, accountId, contractId)
-    this.offeringId = offeringId
-    this.subscriptionId = subscriptionId
+    this.offeringDltId = offeringDltId
+    this.subscriptionDltId = subscriptionDltId
   }
 }

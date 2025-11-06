@@ -7,20 +7,20 @@ import { SubscriptionQueryResponse } from "../../shared/model/SubscriptionQueryR
 export class GetSubscriptionQuery extends Query<SubscriptionQueryResponse> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly offeringId: string
+  readonly offeringDltId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly subscriptionId: string
+  readonly subscriptionDltId: string
 
-  constructor(marketId: string, offeringId: string, subscriptionId: string) {
+  constructor(marketContractId: string, offeringDltId: string, subscriptionDltId: string) {
     super()
-    this.marketId = marketId
-    this.offeringId = offeringId
-    this.subscriptionId = subscriptionId
+    this.marketContractId = marketContractId
+    this.offeringDltId = offeringDltId
+    this.subscriptionDltId = subscriptionDltId
   }
 }

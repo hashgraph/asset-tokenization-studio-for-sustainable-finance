@@ -5,15 +5,15 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class CreateOfferingCommand extends Command<void> {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()
-  bondId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -21,11 +21,11 @@ export class CreateOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  treasuryId: string
+  treasuryContractId: string
 
   @IsNotEmpty()
   @IsString()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
@@ -60,12 +60,12 @@ export class CreateOfferingCommand extends Command<void> {
   deadlineRule: number
 
   constructor(
-    offeringId: string,
-    marketId: string,
-    bondId: string,
+    offeringDltId: string,
+    marketContractId: string,
+    bondContractId: string,
     operatorId: string,
-    treasuryId: string,
-    paymentTokenId: string,
+    treasuryContractId: string,
+    paymentTokenContractId: string,
     lotSize: string,
     minQuantity: string,
     maxQuantity: string,
@@ -76,12 +76,12 @@ export class CreateOfferingCommand extends Command<void> {
     deadlineRule: number,
   ) {
     super()
-    this.offeringId = offeringId
-    this.marketId = marketId
-    this.bondId = bondId
+    this.offeringDltId = offeringDltId
+    this.marketContractId = marketContractId
+    this.bondContractId = bondContractId
     this.operatorId = operatorId
-    this.treasuryId = treasuryId
-    this.paymentTokenId = paymentTokenId
+    this.treasuryContractId = treasuryContractId
+    this.paymentTokenContractId = paymentTokenContractId
     this.lotSize = lotSize
     this.minQuantity = minQuantity
     this.maxQuantity = maxQuantity

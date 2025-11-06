@@ -8,20 +8,24 @@ import { Type } from "class-transformer"
 export class GetSubscriptionsQuery extends Query<QueryPageResponse<SubscriptionQueryResponse>> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly offeringId: string
+  readonly offeringDltId: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketId: string, offeringId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(
+    marketContractId: string,
+    offeringDltId: string,
+    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+  ) {
     super()
-    this.marketId = marketId
-    this.offeringId = offeringId
+    this.marketContractId = marketContractId
+    this.offeringDltId = offeringDltId
     this.pageOptions = pageOptions
   }
 }

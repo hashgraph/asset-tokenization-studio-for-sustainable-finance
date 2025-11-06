@@ -6,7 +6,7 @@ import { CancelOfferingTransactionRequest } from "./model/CancelOfferingTransact
 export interface CancelOfferingTransactionPort {
   cancelOfferingTransaction(
     marketContractId: string,
-    offeringId: string,
+    offeringDltId: string,
     request: CancelOfferingTransactionRequest,
   ): Promise<TransactionResponse>
 }

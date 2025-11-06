@@ -4,11 +4,11 @@ import { IsNotEmpty, IsString, IsNumberString, IsArray } from "class-validator"
 export class CancelOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -16,9 +16,9 @@ export class CancelOfferingDomainServiceRequest {
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsSuccess: string[]
+  subscriptionDltIdsSuccess: string[]
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsFailed: string[]
+  subscriptionDltIdsFailed: string[]
 }

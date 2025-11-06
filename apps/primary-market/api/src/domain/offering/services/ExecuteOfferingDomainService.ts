@@ -18,26 +18,24 @@ export class ExecuteOfferingDomainService {
   ) {}
 
   async execute(request: ExecuteOfferingDomainServiceRequest): Promise<void> {
-    const { marketId, offeringId, operatorId, subscriptionIdsSuccess, subscriptionIdsFailed } = request
+    const { marketContractId, offeringDltId, operatorId, subscriptionDltIdsSuccess, subscriptionDltIdsFailed } = request
 
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
     market.checkActive()
 
-    const existingOffering = await this.checkOfferingExistsDomainService.execute(offeringId, marketId)
+    const existingOffering = await this.checkOfferingExistsDomainService.execute(offeringDltId, market)
 
     existingOffering.checkOperator(operatorId)
 
     const subscriptionsToUpdate = [
       ...(await this.updateSubscriptionsStatusDomainService.execute(
-        subscriptionIdsSuccess,
-        offeringId,
-        marketId,
+        subscriptionDltIdsSuccess,
+        existingOffering,
         SubscriptionStatus.EXECUTED,
       )),
       ...(await this.updateSubscriptionsStatusDomainService.execute(
-        subscriptionIdsFailed,
-        offeringId,
-        marketId,
+        subscriptionDltIdsFailed,
+        existingOffering,
         SubscriptionStatus.FAILED,
       )),
     ]

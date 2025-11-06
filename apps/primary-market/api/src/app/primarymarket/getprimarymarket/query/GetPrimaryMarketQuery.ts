@@ -7,10 +7,10 @@ import { PrimaryMarketQueryResponse } from "@app/primarymarket/shared/model/Prim
 export class GetPrimaryMarketQuery extends Query<PrimaryMarketQueryResponse> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
-  constructor(marketId: string) {
+  constructor(marketContractId: string) {
     super()
-    this.marketId = marketId
+    this.marketContractId = marketContractId
   }
 }

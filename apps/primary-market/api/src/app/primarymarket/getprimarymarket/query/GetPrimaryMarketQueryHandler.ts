@@ -12,14 +12,13 @@ export class GetPrimaryMarketQueryHandler implements QueryHandler<GetPrimaryMark
 
   @Validate()
   async execute(query: GetPrimaryMarketQuery): Promise<PrimaryMarketQueryResponse> {
-    const { marketId } = query
-    const primaryMarket = await this.checkPrimaryMarketExistsDomainService.execute(marketId)
+    const { marketContractId } = query
+    const primaryMarket = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
 
     return Object.assign(new PrimaryMarketQueryResponse(), {
-      id: primaryMarket.id,
-      createdAt: primaryMarket.createdAt,
       contractId: primaryMarket.contractId,
       isPaused: primaryMarket.isPaused,
+      createdAt: primaryMarket.createdAt,
     })
   }
 }

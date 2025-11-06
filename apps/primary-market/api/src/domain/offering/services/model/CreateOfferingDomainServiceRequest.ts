@@ -4,15 +4,15 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-va
 export class CreateOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()
-  bondId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -20,11 +20,11 @@ export class CreateOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  treasuryId: string
+  treasuryContractId: string
 
   @IsNotEmpty()
   @IsString()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsNumberString()

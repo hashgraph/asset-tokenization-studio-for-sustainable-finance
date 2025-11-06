@@ -9,7 +9,7 @@ import { OfferingUnauthorizedOperatorError } from "../errors/OfferingUnauthorize
 export class Offering extends BaseEntity {
   @IsNotEmpty()
   @IsString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @ValidateNested()
@@ -18,7 +18,7 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  bondId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -26,11 +26,11 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  treasuryId: string
+  treasuryContractId: string
 
   @IsNotEmpty()
   @IsString()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -66,7 +66,7 @@ export class Offering extends BaseEntity {
 
   checkOperator(operatorId: string): void {
     if (this.operatorId !== operatorId) {
-      throw OfferingUnauthorizedOperatorError.operatorMismatchError(this.offeringId, this.operatorId, operatorId)
+      throw OfferingUnauthorizedOperatorError.operatorMismatchError(this.offeringDltId, this.operatorId, operatorId)
     }
   }
 }

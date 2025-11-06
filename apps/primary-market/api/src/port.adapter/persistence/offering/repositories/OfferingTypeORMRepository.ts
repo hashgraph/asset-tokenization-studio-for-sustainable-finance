@@ -21,11 +21,11 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return this.toDomain(saved)
   }
 
-  async findByOfferingIdAndMarketId(offeringId: string, marketId: string): Promise<Offering | null> {
+  async findByOfferingDltIdAndMarketId(offeringDltId: string, marketId: string): Promise<Offering | null> {
     const persistence = await this.repository.findOne({
       where: {
-        offeringId,
-        market: { contractId: marketId },
+        offeringDltId,
+        market: { id: marketId },
       },
       relations: ["market"],
     })
@@ -33,26 +33,28 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async findUniqueBondIdsByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<string>> {
+  async findUniqueBondContractIdsByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<string>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const baseQuery = this.repository
       .createQueryBuilder("offering")
       .innerJoin("offering.market", "market")
-      .where("market.contractId = :marketId", { marketId })
+      .where("market.id = :marketId", { marketId })
 
-    const result = await baseQuery.select("COUNT(DISTINCT offering.bondId)", "count").getRawOne<{ count: string }>()
+    const result = await baseQuery
+      .select("COUNT(DISTINCT offering.bondContractId)", "count")
+      .getRawOne<{ count: string }>()
     const total = Number(result?.count ?? 0)
 
-    const paginatedBondIds = await baseQuery
-      .select("DISTINCT offering.bondId", "bondId")
-      .orderBy("offering.bondId", orderDirection)
+    const paginatedBondContractIds = await baseQuery
+      .select("DISTINCT offering.bondContractId", "bondContractId")
+      .orderBy("offering.bondContractId", orderDirection)
       .offset((pageOptions.page - 1) * pageOptions.limit)
       .limit(pageOptions.limit)
       .getRawMany()
 
     return {
-      items: paginatedBondIds.map((row) => row.bondId),
+      items: paginatedBondContractIds.map((row) => row.bondContractId),
       total,
       page: pageOptions.page,
       limit: pageOptions.limit,
@@ -60,13 +62,17 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     }
   }
 
-  async findByMarketIdAndBondId(marketId: string, bondId: string, pageOptions: PageOptions): Promise<Page<Offering>> {
+  async findByMarketIdAndBondContractId(
+    marketId: string,
+    bondContractId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<Offering>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        market: { contractId: marketId },
-        bondId,
+        market: { id: marketId },
+        bondContractId,
       },
       relations: ["market"],
       order: { [pageOptions.order.orderBy]: orderDirection },

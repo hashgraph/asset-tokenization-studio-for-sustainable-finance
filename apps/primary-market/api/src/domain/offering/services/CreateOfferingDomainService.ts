@@ -15,27 +15,29 @@ export class CreateOfferingDomainService {
   ) {}
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(createOfferingDomainServiceRequest.marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(
+      createOfferingDomainServiceRequest.marketContractId,
+    )
     market.checkActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingIdAndMarketId(
-      createOfferingDomainServiceRequest.offeringId,
-      createOfferingDomainServiceRequest.marketId,
+    const existingOffering = await this.offeringRepository.findByOfferingDltIdAndMarketId(
+      createOfferingDomainServiceRequest.offeringDltId,
+      market.id,
     )
     if (existingOffering) {
-      throw OfferingFoundError.offeringIdAndMarketIdError(
-        createOfferingDomainServiceRequest.offeringId,
-        createOfferingDomainServiceRequest.marketId,
+      throw OfferingFoundError.offeringDltIdAndMarketContractIdError(
+        createOfferingDomainServiceRequest.offeringDltId,
+        createOfferingDomainServiceRequest.marketContractId,
       )
     }
 
     const offering = Object.assign(new Offering(), {
-      offeringId: createOfferingDomainServiceRequest.offeringId,
+      offeringDltId: createOfferingDomainServiceRequest.offeringDltId,
       market: market,
-      bondId: createOfferingDomainServiceRequest.bondId,
+      bondContractId: createOfferingDomainServiceRequest.bondContractId,
       operatorId: createOfferingDomainServiceRequest.operatorId,
-      treasuryId: createOfferingDomainServiceRequest.treasuryId,
-      paymentTokenId: createOfferingDomainServiceRequest.paymentTokenId,
+      treasuryContractId: createOfferingDomainServiceRequest.treasuryContractId,
+      paymentTokenContractId: createOfferingDomainServiceRequest.paymentTokenContractId,
       lotSize: createOfferingDomainServiceRequest.lotSize,
       minQuantity: createOfferingDomainServiceRequest.minQuantity,
       maxQuantity: createOfferingDomainServiceRequest.maxQuantity,

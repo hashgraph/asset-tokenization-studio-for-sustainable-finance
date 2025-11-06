@@ -22,32 +22,31 @@ export class SubmitSubscriptionDomainService {
 
   async execute(submitSubscriptionDomainServiceRequest: SubmitSubscriptionDomainServiceRequest): Promise<Subscription> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.marketId,
+      submitSubscriptionDomainServiceRequest.marketContractId,
     )
     market.checkActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.offeringId,
-      submitSubscriptionDomainServiceRequest.marketId,
+      submitSubscriptionDomainServiceRequest.offeringDltId,
+      market,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
-      submitSubscriptionDomainServiceRequest.subscriptionId,
-      submitSubscriptionDomainServiceRequest.offeringId,
-      submitSubscriptionDomainServiceRequest.marketId,
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionDltIdAndOfferingId(
+      submitSubscriptionDomainServiceRequest.subscriptionDltId,
+      offering.id,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionIdOfferingIdAndMarketIdError(
-        submitSubscriptionDomainServiceRequest.subscriptionId,
-        submitSubscriptionDomainServiceRequest.offeringId,
-        submitSubscriptionDomainServiceRequest.marketId,
+      throw SubscriptionFoundError.subscriptionDltIdOfferingDltIdAndMarketContractIdError(
+        submitSubscriptionDomainServiceRequest.subscriptionDltId,
+        submitSubscriptionDomainServiceRequest.offeringDltId,
+        submitSubscriptionDomainServiceRequest.marketContractId,
       )
     }
 
     const investor = await this.getOrCreateInvestor(submitSubscriptionDomainServiceRequest.investorId)
 
     const subscription = Object.assign(new Subscription(), {
-      subscriptionId: submitSubscriptionDomainServiceRequest.subscriptionId,
+      subscriptionDltId: submitSubscriptionDomainServiceRequest.subscriptionDltId,
       offering: offering,
       investor: investor,
       lotUnits: submitSubscriptionDomainServiceRequest.lotUnits,

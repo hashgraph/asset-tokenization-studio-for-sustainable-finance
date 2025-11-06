@@ -6,25 +6,31 @@ import type { SubscriptionRepository } from "../repositories/SubscriptionReposit
 import { CancelSubscriptionDomainServiceRequest } from "./model/CancelSubscriptionDomainServiceRequest"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 import { CheckSubscriptionExistsDomainService } from "./CheckSubscriptionExistsDomainService"
+import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 
 @Singleton()
 export class CancelSubscriptionDomainService {
   constructor(
     @Inject() private readonly subscriptionRepository: SubscriptionRepository,
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
+    private readonly checkOfferingExistsDomainService: CheckOfferingExistsDomainService,
     private readonly checkSubscriptionExistsDomainService: CheckSubscriptionExistsDomainService,
   ) {}
 
   async execute(cancelSubscriptionDomainServiceRequest: CancelSubscriptionDomainServiceRequest): Promise<void> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.marketId,
+      cancelSubscriptionDomainServiceRequest.marketContractId,
     )
     market.checkActive()
 
+    const offering = await this.checkOfferingExistsDomainService.execute(
+      cancelSubscriptionDomainServiceRequest.offeringDltId,
+      market,
+    )
+
     const subscription = await this.checkSubscriptionExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.subscriptionId,
-      cancelSubscriptionDomainServiceRequest.offeringId,
-      cancelSubscriptionDomainServiceRequest.marketId,
+      cancelSubscriptionDomainServiceRequest.subscriptionDltId,
+      offering,
     )
 
     subscription.status = SubscriptionStatus.CANCELLED

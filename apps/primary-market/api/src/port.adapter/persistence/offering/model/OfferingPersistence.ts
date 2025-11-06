@@ -5,26 +5,26 @@ import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 
 @Entity("Offering")
-@Unique(["offeringId", "market"])
+@Unique(["offeringDltId", "market"])
 export class OfferingPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar" })
-  offeringId: string
+  offeringDltId: string
 
   @ManyToOne(() => PrimaryMarketPersistence, (market) => market.offerings, { eager: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "marketId" })
   market: PrimaryMarketPersistence
 
   @Column()
-  bondId: string
+  bondContractId: string
 
   @Column()
   operatorId: string
 
   @Column()
-  treasuryId: string
+  treasuryContractId: string
 
   @Column()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @Column({ type: "varchar" })
   lotSize: string

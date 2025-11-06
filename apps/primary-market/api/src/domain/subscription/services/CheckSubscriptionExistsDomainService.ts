@@ -4,19 +4,23 @@ import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import type { SubscriptionRepository } from "../repositories/SubscriptionRepository"
 import { Subscription } from "../model/Subscription"
 import { SubscriptionNotFoundError } from "../errors/SubscriptionNotFoundError"
+import { Offering } from "@domain/offering/model/Offering"
 
 @Singleton()
 export class CheckSubscriptionExistsDomainService {
   constructor(@Inject() private readonly subscriptionRepository: SubscriptionRepository) {}
 
-  async execute(subscriptionId: string, offeringId: string, marketId: string): Promise<Subscription> {
-    const subscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
-      subscriptionId,
-      offeringId,
-      marketId,
+  async execute(subscriptionDltId: string, offering: Offering): Promise<Subscription> {
+    const subscription = await this.subscriptionRepository.findBySubscriptionDltIdAndOfferingId(
+      subscriptionDltId,
+      offering.id,
     )
     if (!subscription) {
-      throw SubscriptionNotFoundError.subscriptionIdOfferingIdAndMarketIdError(subscriptionId, offeringId, marketId)
+      throw SubscriptionNotFoundError.subscriptionDltIdOfferingDltIdAndMarketContractIdError(
+        subscriptionDltId,
+        offering.offeringDltId,
+        offering.market.contractId,
+      )
     }
     return subscription
   }
