@@ -3,7 +3,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
@@ -53,8 +53,8 @@ describe("SyncTreasury Integration", () => {
 
   afterEach(async () => {
     await internalEnvironmentalAssetRepository.deleteAll()
-    await internalPaymentTokenRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()
+    await internalPaymentTokenRepository.deleteAll()
   })
 
   it("should create treasury, payment token and environmental assets on BondSuiteDeployed event", async () => {
@@ -64,6 +64,8 @@ describe("SyncTreasury Integration", () => {
     })
 
     jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(6)
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
 
     const treasuryData: TreasuryDataEventModel = {
       paymentToken: "0.0.1000",
@@ -130,6 +132,8 @@ describe("SyncTreasury Integration", () => {
       publishedEvents.push(event)
     })
 
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+
     jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(6)
 
     const treasuryData: TreasuryDataEventModel = {
@@ -162,38 +166,6 @@ describe("SyncTreasury Integration", () => {
     expect(publishedEvents).toHaveLength(0)
   })
 
-  it("should handle empty environmental assets array", async () => {
-    const publishedEvents: any[] = []
-    jest.spyOn(eventBus, "publish").mockImplementation((event) => {
-      publishedEvents.push(event)
-    })
-
-    jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(18)
-
-    const treasuryData: TreasuryDataEventModel = {
-      paymentToken: "0.0.3000",
-      environmentalAssets: [],
-    }
-
-    const event = new BondSuiteDeployedDLTEvent("0.0.9999", "testTransactionHash", "0.0.300", "0.0.400", treasuryData)
-
-    await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
-
-    const treasuries = await internalTreasuryRepository.find()
-    expect(treasuries).toHaveLength(1)
-
-    const paymentTokens = await internalPaymentTokenRepository.find()
-    expect(paymentTokens).toHaveLength(1)
-
-    const environmentalAssets = await internalEnvironmentalAssetRepository.find()
-    expect(environmentalAssets).toHaveLength(0)
-
-    // Only 2 events: TreasuryCreated + PaymentTokenAdded
-    expect(publishedEvents).toHaveLength(2)
-    expect(publishedEvents[0]).toBeInstanceOf(TreasuryCreatedEvent)
-    expect(publishedEvents[1]).toBeInstanceOf(PaymentTokenAddedEvent)
-  })
-
   it("should add new environmental assets to existing treasury", async () => {
     // Pre-create treasury and payment token
     const treasury = await internalTreasuryRepository.save({
@@ -214,6 +186,8 @@ describe("SyncTreasury Integration", () => {
     })
 
     const publishedEvents: any[] = []
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+
     jest.spyOn(eventBus, "publish").mockImplementation((event) => {
       publishedEvents.push(event)
     })
@@ -234,6 +208,8 @@ describe("SyncTreasury Integration", () => {
     expect(environmentalAssets).toHaveLength(3)
 
     // Only 2 new EnvironmentalAssetAdded events (the first one already existed)
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+
     expect(publishedEvents).toHaveLength(2)
     expect(publishedEvents.every((e) => e instanceof EnvironmentalAssetAddedEvent)).toBe(true)
   })
@@ -244,7 +220,7 @@ describe("SyncTreasury Integration", () => {
 
     const treasuryData: TreasuryDataEventModel = {
       paymentToken: "0.0.7000",
-      environmentalAssets: [],
+      environmentalAssets: ["0.0.8000"],
     }
 
     const bondAddress = "0.0.BOND123"

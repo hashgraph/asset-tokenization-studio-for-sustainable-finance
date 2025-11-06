@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsNotEmpty } from "class-validator"
+import { ArrayMinSize, IsNotEmpty } from "class-validator"
 
 export class SyncTreasuryAppServiceRequest {
   @IsNotEmpty()
@@ -12,6 +12,7 @@ export class SyncTreasuryAppServiceRequest {
   @IsNotEmpty()
   readonly paymentToken: string
 
-  @IsNotEmpty()
+  @ArrayMinSize(1)
+  @IsNotEmpty({ each: true })
   readonly environmentalAssets: string[]
 }
