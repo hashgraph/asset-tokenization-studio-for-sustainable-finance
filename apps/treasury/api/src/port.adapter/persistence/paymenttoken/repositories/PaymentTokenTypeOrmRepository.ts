@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Validate, Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { Repository, IsNull } from "typeorm"
+import { Repository, IsNull, Not } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
@@ -100,14 +100,37 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
-  async existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean> {
+  async findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<PaymentToken[]> {
+    const persistences = await this.paymentTokenRepository.find({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: Not(IsNull()),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+    return persistences.map((persistence) => this.toDomain(persistence))
+  }
+
+  async existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean> {
     return await this.paymentTokenRepository.exists({
       relations: {
         treasury: true,
       },
       where: {
         contractId,
-        removalDate: IsNull(),
+        removalDate: removed ? Not(IsNull()) : IsNull(),
         treasury: {
           contractId: treasuryContractId,
         },

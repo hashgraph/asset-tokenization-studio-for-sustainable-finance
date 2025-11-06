@@ -22,6 +22,7 @@ export class SyncTokenDissociationErrorAppService {
       await this.paymentTokenRepository.existsByContractIdAndTreasuryContractId(
         request.tokenContractId,
         request.treasuryContractId,
+        true,
       )
     ) {
       await this.commandBus.execute(
@@ -31,6 +32,7 @@ export class SyncTokenDissociationErrorAppService {
       await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
         request.tokenContractId,
         request.treasuryContractId,
+        true,
       )
     ) {
       await this.commandBus.execute(
