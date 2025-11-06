@@ -11,16 +11,16 @@ export class GetSubscriptionQuery extends Query<SubscriptionQueryResponse> {
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly offeringId: string
+  readonly offeringDltId: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly subscriptionId: string
+  readonly subscriptionDltId: string
 
-  constructor(marketContractId: string, offeringId: string, subscriptionId: string) {
+  constructor(marketContractId: string, offeringDltId: string, subscriptionDltId: string) {
     super()
     this.marketContractId = marketContractId
-    this.offeringId = offeringId
-    this.subscriptionId = subscriptionId
+    this.offeringDltId = offeringDltId
+    this.subscriptionDltId = subscriptionDltId
   }
 }

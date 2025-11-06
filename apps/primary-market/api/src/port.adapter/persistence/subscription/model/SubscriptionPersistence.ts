@@ -7,13 +7,13 @@ import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPe
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 @Entity("Subscription")
-@Unique(["subscriptionId", "offering"])
+@Unique(["subscriptionDltId", "offering"])
 export class SubscriptionPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar" })
-  subscriptionId: string
+  subscriptionDltId: string
 
   @ManyToOne(() => OfferingPersistence, { eager: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "offeringId" })
+  @JoinColumn({ name: "offeringDltId" })
   offering: OfferingPersistence
 
   @ManyToOne(() => InvestorPersistence, (investor) => investor.subscriptions, { eager: true, onDelete: "CASCADE" })

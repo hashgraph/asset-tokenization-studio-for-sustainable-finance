@@ -40,8 +40,8 @@ export class GetSubscriptionsByInvestorQueryHandler
     )
 
     return QueryPageResponse.fromPage(subscriptionsPage, (subscription: Subscription) => ({
-      subscriptionId: subscription.subscriptionId,
-      offeringId: subscription.offering.offeringId,
+      subscriptionDltId: subscription.subscriptionDltId,
+      offeringDltId: subscription.offering.offeringDltId,
       investorId: subscription.investor.accountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,

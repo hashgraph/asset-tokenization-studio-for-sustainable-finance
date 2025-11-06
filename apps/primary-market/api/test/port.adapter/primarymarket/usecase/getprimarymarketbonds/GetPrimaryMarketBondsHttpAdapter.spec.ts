@@ -73,7 +73,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.111",
         operatorId: "0.0.4660",
@@ -90,7 +90,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "2",
+        offeringDltId: "2",
         market,
         bondContractId: "0.0.222",
         operatorId: "0.0.4660",
@@ -127,7 +127,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
 
       // Create 3 offerings for the same bond
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.111",
         operatorId: "0.0.4660",
@@ -144,7 +144,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "2",
+        offeringDltId: "2",
         market,
         bondContractId: "0.0.111", // Same bondId
         operatorId: "0.0.4660",
@@ -161,7 +161,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "3",
+        offeringDltId: "3",
         market,
         bondContractId: "0.0.111", // Same bondId again
         operatorId: "0.0.4660",
@@ -206,7 +206,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       // Create 5 offerings with different bondIds
       for (let i = 1; i <= 5; i++) {
         await offeringRepository.save({
-          offeringId: String(i),
+          offeringDltId: String(i),
           market,
           bondContractId: `0.0.${100 + i}`,
           operatorId: "0.0.4660",
@@ -248,7 +248,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: market1,
         bondContractId: "0.0.111",
         operatorId: "0.0.4660",
@@ -265,7 +265,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "2",
+        offeringDltId: "2",
         market: market2,
         bondContractId: "0.0.222",
         operatorId: "0.0.4660",
@@ -298,7 +298,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.111",
         operatorId: "0.0.4660",

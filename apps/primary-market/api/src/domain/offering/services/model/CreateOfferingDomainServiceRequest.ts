@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-va
 export class CreateOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()

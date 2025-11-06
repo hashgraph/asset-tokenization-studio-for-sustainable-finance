@@ -13,8 +13,8 @@ export class UpdateSubscriptionsStatusDomainService {
   async execute(subscriptionIds: string[], offering: Offering, status: SubscriptionStatus): Promise<Subscription[]> {
     const updated: Subscription[] = []
 
-    for (const subscriptionId of subscriptionIds) {
-      const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionId, offering)
+    for (const subscriptionDltId of subscriptionIds) {
+      const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionDltId, offering)
       subscription.status = status
       updated.push(subscription)
     }

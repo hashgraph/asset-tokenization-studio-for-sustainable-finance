@@ -62,7 +62,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.SUBSCRIPTION_SUBMIT_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringId, request.lotUnits],
+      args: [request.offeringDltId, request.lotUnits],
     })
   }
 
@@ -73,7 +73,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.SUBSCRIPTION_CANCEL_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringId, request.subscriptionId],
+      args: [request.offeringDltId, request.subscriptionDltId],
     })
   }
 
@@ -84,7 +84,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.EXECUTE_OFFERING_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringId, request.start, request.end],
+      args: [request.offeringDltId, request.start, request.end],
     })
   }
 
@@ -95,7 +95,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.CANCEL_OFFERING_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringId, request.start, request.end],
+      args: [request.offeringDltId, request.start, request.end],
     })
   }
 

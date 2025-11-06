@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export class PrimaryMarketBondOfferingQueryResponse {
-  offeringId: string
+  offeringDltId: string
   bondContractId: string
   operatorId: string
   treasuryContractId: string

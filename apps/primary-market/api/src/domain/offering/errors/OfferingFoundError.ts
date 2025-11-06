@@ -3,9 +3,9 @@
 import { EntityFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingFoundError extends EntityFoundError {
-  static offeringIdAndMarketContractIdError(offeringId: string, marketContractId: string): OfferingFoundError {
+  static offeringDltIdAndMarketContractIdError(offeringDltId: string, marketContractId: string): OfferingFoundError {
     return new OfferingFoundError(
-      `Offering with offeringId ${offeringId} and marketContractId ${marketContractId} already exists.`,
+      `Offering with offeringDltId ${offeringDltId} and marketContractId ${marketContractId} already exists.`,
     )
   }
 

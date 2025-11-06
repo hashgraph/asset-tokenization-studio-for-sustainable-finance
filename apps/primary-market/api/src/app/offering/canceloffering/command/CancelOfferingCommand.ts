@@ -5,7 +5,7 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class CancelOfferingCommand extends Command<void> {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
@@ -24,14 +24,14 @@ export class CancelOfferingCommand extends Command<void> {
   subscriptionIdsFailed: string[]
 
   constructor(
-    offeringId: string,
+    offeringDltId: string,
     marketContractId: string,
     operatorId: string,
     subscriptionIdsSuccess: string[],
     subscriptionIdsFailed: string[],
   ) {
     super()
-    this.offeringId = offeringId
+    this.offeringDltId = offeringDltId
     this.marketContractId = marketContractId
     this.operatorId = operatorId
     this.subscriptionIdsSuccess = subscriptionIdsSuccess

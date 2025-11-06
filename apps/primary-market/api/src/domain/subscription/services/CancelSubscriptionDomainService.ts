@@ -24,12 +24,12 @@ export class CancelSubscriptionDomainService {
     market.checkActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.offeringId,
+      cancelSubscriptionDomainServiceRequest.offeringDltId,
       market,
     )
 
     const subscription = await this.checkSubscriptionExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.subscriptionId,
+      cancelSubscriptionDomainServiceRequest.subscriptionDltId,
       offering,
     )
 

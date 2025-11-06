@@ -64,7 +64,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -93,7 +93,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor1,
         lotUnits: "1000",
@@ -101,7 +101,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering,
         investor: investor2,
         lotUnits: "2000",
@@ -109,7 +109,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "3",
+        subscriptionDltId: "3",
         offering: offering,
         investor: investor3,
         lotUnits: "500",
@@ -127,9 +127,9 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, OfferingCancelledDLTEvent.name)
 
-      const subscription1 = await subscriptionRepository.findOne({ where: { subscriptionId: "1" } })
-      const subscription2 = await subscriptionRepository.findOne({ where: { subscriptionId: "2" } })
-      const subscription3 = await subscriptionRepository.findOne({ where: { subscriptionId: "3" } })
+      const subscription1 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "1" } })
+      const subscription2 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "2" } })
+      const subscription3 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "3" } })
 
       expect(subscription1!.status).toBe(SubscriptionStatus.CANCELLED)
       expect(subscription2!.status).toBe(SubscriptionStatus.CANCELLED)
@@ -159,7 +159,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -193,7 +193,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -227,7 +227,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",

@@ -21,10 +21,10 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return this.toDomain(saved)
   }
 
-  async findByOfferingIdAndMarketId(offeringId: string, marketId: string): Promise<Offering | null> {
+  async findByOfferingDltIdAndMarketId(offeringDltId: string, marketId: string): Promise<Offering | null> {
     const persistence = await this.repository.findOne({
       where: {
-        offeringId,
+        offeringDltId,
         market: { id: marketId },
       },
       relations: ["market"],

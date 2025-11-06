@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsNumberString } from "class-validator"
 export class SubmitSubscriptionDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
@@ -12,7 +12,7 @@ export class SubmitSubscriptionDomainServiceRequest {
 
   @IsNotEmpty()
   @IsNumberString()
-  subscriptionId: string
+  subscriptionDltId: string
 
   @IsNotEmpty()
   @IsString()

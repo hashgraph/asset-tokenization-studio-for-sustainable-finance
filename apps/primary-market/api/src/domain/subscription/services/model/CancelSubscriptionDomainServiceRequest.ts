@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsNumberString } from "class-validator"
 export class CancelSubscriptionDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()
@@ -12,5 +12,5 @@ export class CancelSubscriptionDomainServiceRequest {
 
   @IsNotEmpty()
   @IsNumberString()
-  subscriptionId: string
+  subscriptionDltId: string
 }

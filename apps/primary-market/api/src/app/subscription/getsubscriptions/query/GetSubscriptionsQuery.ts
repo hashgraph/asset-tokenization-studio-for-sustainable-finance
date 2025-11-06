@@ -12,16 +12,20 @@ export class GetSubscriptionsQuery extends Query<QueryPageResponse<SubscriptionQ
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly offeringId: string
+  readonly offeringDltId: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketContractId: string, offeringId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(
+    marketContractId: string,
+    offeringDltId: string,
+    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+  ) {
     super()
     this.marketContractId = marketContractId
-    this.offeringId = offeringId
+    this.offeringDltId = offeringDltId
     this.pageOptions = pageOptions
   }
 }

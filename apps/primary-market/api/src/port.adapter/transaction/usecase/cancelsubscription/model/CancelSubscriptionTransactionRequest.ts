@@ -5,5 +5,5 @@ import { IsNotEmpty, IsNumberString } from "class-validator"
 export class CancelSubscriptionTransactionRequest extends BaseTransactionRequest {
   @IsNotEmpty()
   @IsNumberString()
-  subscriptionId: string
+  subscriptionDltId: string
 }

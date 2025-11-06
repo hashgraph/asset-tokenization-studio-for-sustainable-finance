@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString, IsNumberString, IsArray } from "class-validator"
 export class ExecuteOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @IsString()

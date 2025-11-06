@@ -58,14 +58,14 @@ describe("GetSubscriptions API Integration", () => {
     await app.close()
   })
 
-  describe("GET /primary-markets/:marketContractId/offerings/:offeringId/subscriptions", () => {
+  describe("GET /primary-markets/:marketContractId/offerings/:offeringDltId/subscriptions", () => {
     it("should return empty list when offering has no subscriptions", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",
       })
 
       await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -104,7 +104,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -129,7 +129,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor1,
         lotUnits: "5",
@@ -137,7 +137,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering,
         investor: investor2,
         lotUnits: "10",
@@ -155,12 +155,12 @@ describe("GetSubscriptions API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      const item1 = response.body.items.find((item: any) => item.subscriptionId === "1")
-      const item2 = response.body.items.find((item: any) => item.subscriptionId === "2")
+      const item1 = response.body.items.find((item: any) => item.subscriptionDltId === "1")
+      const item2 = response.body.items.find((item: any) => item.subscriptionDltId === "2")
 
       expect(item1).toMatchObject({
-        subscriptionId: "1",
-        offeringId: "1",
+        subscriptionDltId: "1",
+        offeringDltId: "1",
         investorId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
@@ -168,8 +168,8 @@ describe("GetSubscriptions API Integration", () => {
       expect(item1).toHaveProperty("createdAt")
 
       expect(item2).toMatchObject({
-        subscriptionId: "2",
-        offeringId: "1",
+        subscriptionDltId: "2",
+        offeringDltId: "1",
         investorId: "0.0.2222",
         lotUnits: "10",
         status: SubscriptionStatus.EXECUTED,
@@ -183,7 +183,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -205,7 +205,7 @@ describe("GetSubscriptions API Integration", () => {
 
       for (let i = 1; i <= 5; i++) {
         await subscriptionRepository.save({
-          subscriptionId: String(i),
+          subscriptionDltId: String(i),
           offering: offering,
           investor: investor,
           lotUnits: String(i * 5),
@@ -231,7 +231,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -253,7 +253,7 @@ describe("GetSubscriptions API Integration", () => {
 
       for (let i = 1; i <= 5; i++) {
         await subscriptionRepository.save({
-          subscriptionId: String(i),
+          subscriptionDltId: String(i),
           offering: offering,
           investor: investor,
           lotUnits: String(i * 5),
@@ -301,7 +301,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -330,7 +330,7 @@ describe("GetSubscriptions API Integration", () => {
 
       for (const [index, status] of statuses.entries()) {
         await subscriptionRepository.save({
-          subscriptionId: String(index + 1),
+          subscriptionDltId: String(index + 1),
           offering: offering,
           investor: investor,
           lotUnits: "5",
@@ -362,7 +362,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering1 = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -379,7 +379,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering2 = await offeringRepository.save({
-        offeringId: "2",
+        offeringDltId: "2",
         market,
         bondContractId: "0.0.8888888",
         operatorId: "0.0.4660",
@@ -400,7 +400,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering1,
         investor: investor,
         lotUnits: "5",
@@ -408,7 +408,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering1,
         investor: investor,
         lotUnits: "10",
@@ -416,7 +416,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "3",
+        subscriptionDltId: "3",
         offering: offering2,
         investor: investor,
         lotUnits: "15",
@@ -430,7 +430,7 @@ describe("GetSubscriptions API Integration", () => {
 
       expect(response.body.total).toBe(2)
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items.every((item: any) => item.offeringId === "1")).toBe(true)
+      expect(response.body.items.every((item: any) => item.offeringDltId === "1")).toBe(true)
     })
 
     it("should return subscriptions for different investors", async () => {
@@ -439,7 +439,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringId: "1",
+        offeringDltId: "1",
         market,
         bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
@@ -468,7 +468,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "1",
+        subscriptionDltId: "1",
         offering: offering,
         investor: investor1,
         lotUnits: "5",
@@ -476,7 +476,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "2",
+        subscriptionDltId: "2",
         offering: offering,
         investor: investor2,
         lotUnits: "10",
@@ -484,7 +484,7 @@ describe("GetSubscriptions API Integration", () => {
       })
 
       await subscriptionRepository.save({
-        subscriptionId: "3",
+        subscriptionDltId: "3",
         offering: offering,
         investor: investor3,
         lotUnits: "15",

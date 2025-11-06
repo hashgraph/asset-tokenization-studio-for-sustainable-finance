@@ -18,12 +18,12 @@ export class ExecuteOfferingDomainService {
   ) {}
 
   async execute(request: ExecuteOfferingDomainServiceRequest): Promise<void> {
-    const { marketContractId, offeringId, operatorId, subscriptionIdsSuccess, subscriptionIdsFailed } = request
+    const { marketContractId, offeringDltId, operatorId, subscriptionIdsSuccess, subscriptionIdsFailed } = request
 
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
     market.checkActive()
 
-    const existingOffering = await this.checkOfferingExistsDomainService.execute(offeringId, market)
+    const existingOffering = await this.checkOfferingExistsDomainService.execute(offeringDltId, market)
 
     existingOffering.checkOperator(operatorId)
 

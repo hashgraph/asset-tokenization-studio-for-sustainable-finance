@@ -20,19 +20,19 @@ export class CreateOfferingDomainService {
     )
     market.checkActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingIdAndMarketId(
-      createOfferingDomainServiceRequest.offeringId,
+    const existingOffering = await this.offeringRepository.findByOfferingDltIdAndMarketId(
+      createOfferingDomainServiceRequest.offeringDltId,
       market.id,
     )
     if (existingOffering) {
-      throw OfferingFoundError.offeringIdAndMarketContractIdError(
-        createOfferingDomainServiceRequest.offeringId,
+      throw OfferingFoundError.offeringDltIdAndMarketContractIdError(
+        createOfferingDomainServiceRequest.offeringDltId,
         createOfferingDomainServiceRequest.marketContractId,
       )
     }
 
     const offering = Object.assign(new Offering(), {
-      offeringId: createOfferingDomainServiceRequest.offeringId,
+      offeringDltId: createOfferingDomainServiceRequest.offeringDltId,
       market: market,
       bondContractId: createOfferingDomainServiceRequest.bondContractId,
       operatorId: createOfferingDomainServiceRequest.operatorId,

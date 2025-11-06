@@ -10,15 +10,15 @@ import { Offering } from "@domain/offering/model/Offering"
 export class CheckSubscriptionExistsDomainService {
   constructor(@Inject() private readonly subscriptionRepository: SubscriptionRepository) {}
 
-  async execute(subscriptionId: string, offering: Offering): Promise<Subscription> {
-    const subscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
-      subscriptionId,
+  async execute(subscriptionDltId: string, offering: Offering): Promise<Subscription> {
+    const subscription = await this.subscriptionRepository.findBySubscriptionDltIdAndOfferingId(
+      subscriptionDltId,
       offering.id,
     )
     if (!subscription) {
-      throw SubscriptionNotFoundError.subscriptionIdOfferingIdAndMarketContractIdError(
-        subscriptionId,
-        offering.offeringId,
+      throw SubscriptionNotFoundError.subscriptionDltIdOfferingDltIdAndMarketContractIdError(
+        subscriptionDltId,
+        offering.offeringDltId,
         offering.market.contractId,
       )
     }

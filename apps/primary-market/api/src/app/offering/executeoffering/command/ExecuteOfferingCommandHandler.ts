@@ -19,7 +19,7 @@ export class ExecuteOfferingCommandHandler implements CommandHandler<ExecuteOffe
     await this.executeOfferingDomainService.execute(command)
     this.eventBus.publish(
       new OfferingExecutedEvent(
-        command.offeringId,
+        command.offeringDltId,
         command.marketContractId,
         command.operatorId,
         command.subscriptionIdsSuccess,
