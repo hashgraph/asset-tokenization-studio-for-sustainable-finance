@@ -21,6 +21,7 @@ import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environme
 import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
 import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
+import { AddPaymentTokenDomainService } from "@domain/paymenttoken/services/AddPaymentTokenDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
@@ -130,6 +131,10 @@ import { SyncTokenDissociationErrorNestJSEventAdapter } from "@port/treasury/use
 import { SyncTokenDissociationErrorAppService } from "@app/treasury/synctokendissociationerror/service/SyncTokenDissociationErrorAppService"
 import { UpdatePaymentTokenDissociationErrorCommandHandler } from "@app/paymenttoken/updatepaymenttokendissociationerror/command/UpdatePaymentTokenDissociationErrorCommandHandler"
 import { UpdateEnvironmentalAssetDissociationErrorCommandHandler } from "@app/environmentalasset/updateenvironmentalassetdissociationerror/UpdateEnvironmentalAssetDissociationErrorCommandHandler"
+import { SyncTreasuryNestJSEventAdapter } from "@port/treasury/usecase/synctreasury/SyncTreasuryNestJSEventAdapter"
+import { SyncTreasuryAppService } from "@app/treasury/synctreasury/service/SyncTreasuryAppService"
+import { CreateTreasuryCommandHandler } from "@app/treasury/createtreasury/command/CreateTreasuryCommandHandler"
+import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/command/AddPaymentTokenCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -237,6 +242,7 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetTokenExistsDomainService,
   CheckEnvironmentalAssetTokenNotExistsDomainService,
   CheckPaymentTokenExistsDomainService,
+  AddPaymentTokenDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
@@ -291,6 +297,10 @@ export const PROVIDERS = [
   SyncTokenDissociationErrorAppService,
   UpdatePaymentTokenDissociationErrorCommandHandler,
   UpdateEnvironmentalAssetDissociationErrorCommandHandler,
+  SyncTreasuryNestJSEventAdapter,
+  SyncTreasuryAppService,
+  CreateTreasuryCommandHandler,
+  AddPaymentTokenCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
