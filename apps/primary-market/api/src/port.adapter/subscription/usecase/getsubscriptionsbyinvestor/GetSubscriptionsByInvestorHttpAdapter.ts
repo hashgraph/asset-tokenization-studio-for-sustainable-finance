@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { Inject, RestController, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import type { PageResponse, QueryBus } from "@hashgraph/green-bonds-shared-core"
