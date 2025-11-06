@@ -696,6 +696,12 @@ describe("PrimaryMarket", () => {
         .withArgs(wrongOfferingId);
     });
 
+    it("GIVEN offering ID = 0 WHEN submitting subscription THEN fail", async () => {
+      await expect(primaryMarket.connect(investor1).submitSubscription(0, 1))
+        .to.be.revertedWithCustomError(primaryMarket, "OfferingDoesNotExist")
+        .withArgs(0);
+    });
+
     it("GIVEN subscription without giving allowance to PM WHEN submitting THEN fail", async () => {
       const lotsUnit = offering.minLots + 1;
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
@@ -1198,6 +1204,19 @@ describe("PrimaryMarket", () => {
       expect(failed).to.include(1);
       await mockAsset.setNominalValue(1);
     });
+
+    it("GIVEN offering after endDate with all subscriptions executed WHEN checking status THEN EXECUTED", async () => {
+      await reachTarget();
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Execute all subscriptions by ID (targeting is 10 lots, minLots is 1, so we have 10 subscriptions)
+      await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+      // Check status should be EXECUTED (pendingSubscribedLots = 0)
+      const status = await primaryMarket.getOfferingStatus(offeringId);
+      expect(status).to.equal(5); // EXECUTED
+    });
   });
 
   describe("Cancelling Offerings", () => {
@@ -1408,6 +1427,21 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2]))
         .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeCancelled")
         .withArgs(offeringId);
+    });
+
+    it("GIVEN cancellable offering with multiple subscriptions WHEN cancelling all THEN pendingLots = 0", async () => {
+      const numSubscriptions = 5;
+      await createSubscriptions(numSubscriptions);
+
+      // Move past endDate to make it cancellable (target not reached)
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Cancel all subscriptions by ID to avoid pagination issues
+      await primaryMarket.connect(offeringCreator).cancelOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5]);
+
+      // Verify all processed (pendingLots = 0)
+      const [, , , pendingLots] = await primaryMarket.getOffering(offeringId);
+      expect(pendingLots).to.equal(0);
     });
   });
 
