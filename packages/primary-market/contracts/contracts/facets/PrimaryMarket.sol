@@ -48,7 +48,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         }
 
         // Validate dates
-        if (_offeringInfo.startDate >= _offeringInfo.endDate || _offeringInfo.startDate < _blockTimestamp()) {
+        if (_offeringInfo.startDate > _offeringInfo.endDate - 1 || _offeringInfo.startDate < _blockTimestamp()) {
             revert WrongDates(_offeringInfo.startDate, _offeringInfo.endDate);
         }
 

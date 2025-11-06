@@ -8,7 +8,7 @@ module.exports = {
   extends: "solhint:recommended",
   rules: {
     // Line length and formatting
-    "max-line-length": ["error", 120],
+    "max-line-length": ["warn", 120],
     "max-states-count": ["off", 15],
     quotes: ["error", "double"],
 

@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
-import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+import {
+    HederaResponseCodes
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { PRECOMPILED_RESOLVER_KEY } from "../constants/resolverKeys.sol";
-import { TimeTravelStorageWrapper } from "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelStorageWrapper.sol";
 import { MockERC20 } from "./MockERC20.sol";
 interface IPrecompiledMock {
     function transferTokens(
@@ -15,19 +14,19 @@ interface IPrecompiledMock {
     ) external returns (int32 responseCode);
     function associateToken(address account, address token) external returns (int32 responseCode);
     function setPrecompiledTransferStatus(bool _success) external;
-    function getPrecompiledTransferStatus() external view returns (bool);
     function setPrecompiledAssociationStatus(bool _success) external;
+    function getPrecompiledTransferStatus() external view returns (bool);
     function getPrecompiledAssociationStatus() external view returns (bool);
 }
 
 contract PrecompiledMockStorageWrapper {
-    bool transferSuccess;
-    bool associationSuccess;
+    bool private _transferSuccess;
+    bool private _associationSuccess;
 
     function _transferTokens(
         address token,
-        address[] memory accountIds,
-        int64[] memory amounts
+        address[] calldata accountIds,
+        int64[] calldata amounts
     ) internal virtual returns (int32 responseCode) {
         if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
 
@@ -36,7 +35,7 @@ contract PrecompiledMockStorageWrapper {
         uint256 totalPositive;
         uint256 totalNegative;
 
-        for (uint256 index = 0; index < accountIds.length; index++) {
+        for (uint256 index = 0; index < accountIds.length; ++index) {
             if (amounts[index] < 0) {
                 totalNegative += uint256(uint64(-amounts[index]));
                 continue;
@@ -50,33 +49,33 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
-    function _associateToken(address account, address token) internal returns (int32 responseCode) {
+    function _associateToken(address, address) internal returns (int32 responseCode) {
         if (_getPrecompiledAssociationStatus()) return HederaResponseCodes.SUCCESS;
         else return HederaResponseCodes.UNKNOWN;
     }
 
-    function _setPrecompiledTransferStatus(bool _success) internal {
-        transferSuccess = _success;
+    function _setPrecompiledTransferStatus(bool success_) internal {
+        _transferSuccess = success_;
+    }
+
+    function _setPrecompiledAssociationStatus(bool success_) internal {
+        _associationSuccess = success_;
     }
 
     function _getPrecompiledTransferStatus() internal view returns (bool) {
-        return transferSuccess;
-    }
-
-    function _setPrecompiledAssociationStatus(bool _success) internal {
-        associationSuccess = _success;
+        return _transferSuccess;
     }
 
     function _getPrecompiledAssociationStatus() internal view returns (bool) {
-        return associationSuccess;
+        return _associationSuccess;
     }
 }
 
 contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
     function transferTokens(
         address token,
-        address[] memory accountIds,
-        int64[] memory amounts
+        address[] calldata accountIds,
+        int64[] calldata amounts
     ) external returns (int32 responseCode) {
         return _transferTokens(token, accountIds, amounts);
     }
@@ -85,16 +84,16 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _associateToken(account, token);
     }
 
-    function setPrecompiledTransferStatus(bool _success) external {
-        _setPrecompiledTransferStatus(_success);
+    function setPrecompiledTransferStatus(bool success_) external {
+        _setPrecompiledTransferStatus(success_);
+    }
+
+    function setPrecompiledAssociationStatus(bool success_) external {
+        _setPrecompiledAssociationStatus(success_);
     }
 
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
-    }
-
-    function setPrecompiledAssociationStatus(bool _success) external {
-        _setPrecompiledAssociationStatus(_success);
     }
 
     function getPrecompiledAssociationStatus() external view returns (bool) {

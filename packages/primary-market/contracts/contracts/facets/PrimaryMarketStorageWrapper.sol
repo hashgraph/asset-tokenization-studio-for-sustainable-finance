@@ -2,13 +2,25 @@
 pragma solidity >=0.8.0 <0.9.0;
 
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
-import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
+import {
+    PRIMARY_MARKET_STORAGE_POSITION
+} from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
-import { IERC1594 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { LibCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
+import {
+    SafeERC20
+} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {
+    IBondRead
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
+import {
+    IERC1594
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
+import {
+    Common as AtsCommon
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import {
+    LibCommon
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
 import {
     HederaTokenService,
     HederaResponseCodes
@@ -30,8 +42,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         SUBSCRIPTION_ID_INDEX,
         TRANSFER_INDEX
     }
-
-    uint256 constant COUNT_INDEX_SIZE = 5;
 
     struct TransferItem {
         int64 amount;
@@ -63,6 +73,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         mapping(uint256 => OfferingState) offerings; // offeringId => OfferingState
         uint256 nextOfferingId; // Counter for offering IDs (IDs are sequential: 1, 2, 3, ...)
     }
+
+    uint256 internal constant _COUNT_INDEX_SIZE = 5;
 
     /**
      * @notice Internal implementation for creating an offering
@@ -211,7 +223,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             _processOfferingInfo.subscriptionIdsToProcess.length
         );
         uint256[] memory subscriptionIds = new uint256[](_processOfferingInfo.subscriptionIdsToProcess.length);
-        uint256[] memory indexCounts = new uint256[](COUNT_INDEX_SIZE);
+        uint256[] memory indexCounts = new uint256[](_COUNT_INDEX_SIZE);
 
         uint256 transfersLength = _processOfferingInfo.isExecution
             ? 2
@@ -226,7 +238,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         _processOfferingInfo.nominalValue = IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
-        for (uint256 index = 0; index < _processOfferingInfo.subscriptionIdsToProcess.length; index++) {
+        for (uint256 index = 0; index < _processOfferingInfo.subscriptionIdsToProcess.length; ++index) {
             totalToTransfer = _processSubscription(
                 offering,
                 _processOfferingInfo,
@@ -253,6 +265,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         return _resizeResults(processResult, indexCounts);
     }
 
+    // solhint-disable-next-line function-max-lines
     function _processSubscription(
         OfferingState storage offering,
         ProcessOfferingInfo memory _processOfferingInfo,
@@ -273,7 +286,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             processResult.alreadyProcessedSubscriptions[
                 indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]
             ] = subscriptionId;
-            indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]++;
+            ++indexCounts[uint256(CountIndex.ALREADY_PROCESSED)];
             return totalToTransferUpdated_;
         }
 
@@ -281,7 +294,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         if (!_isValidAmount(amount)) {
             processResult.failedSubscriptions[indexCounts[uint256(CountIndex.FAILED)]] = subscriptionId;
-            indexCounts[uint256(CountIndex.FAILED)]++;
+            ++indexCounts[uint256(CountIndex.FAILED)];
             return totalToTransferUpdated_;
         }
 
@@ -305,7 +318,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         subscriptionIds[indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]] = subscriptionId;
-        indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]++;
+        ++indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)];
 
         totalToTransferUpdated_ += int64(int256(amount));
 
@@ -314,62 +327,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         } else {
             transferItems[indexCounts[uint256(CountIndex.TRANSFER_INDEX)]].amount = int64(int256(amount));
             transferItems[indexCounts[uint256(CountIndex.TRANSFER_INDEX)]].destination = subscription.investor;
-            indexCounts[uint256(CountIndex.TRANSFER_INDEX)]++;
+            ++indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
         }
-    }
-
-    function _payBatch(
-        OfferingState storage offering,
-        ProcessOfferingInfo memory _processOfferingInfo,
-        address paymentToken,
-        TransferItem[] memory transferItems,
-        int64 totalToTransfer,
-        uint256[] memory subscriptionIds,
-        IPrimaryMarket.OfferingProcessResult memory processResult,
-        uint256[] memory indexCounts
-    ) private {
-        uint256 nextIndex = _processOfferingInfo.isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
-        transferItems[nextIndex].amount = -totalToTransfer;
-        transferItems[nextIndex].destination = address(this);
-
-        int64[] memory amounts = new int64[](nextIndex + 1);
-        address[] memory destinations = new address[](nextIndex + 1);
-
-        for (uint256 i = 0; i <= nextIndex; i++) {
-            amounts[i] = transferItems[i].amount;
-            destinations[i] = transferItems[i].destination;
-        }
-
-        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
-            indexCounts[uint256(CountIndex.SUCCEEDED)] = _addToList(
-                subscriptionIds,
-                indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
-                processResult.succeededSubscriptions,
-                indexCounts[uint256(CountIndex.SUCCEEDED)]
-            );
-            for (uint256 i = 0; i < indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]; i++) {
-                if (_processOfferingInfo.isExecution) {
-                    offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
-
-                    uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
-
-                    IERC1594(offering.info.asset).issue(
-                        offering.subscriptions[subscriptionIds[i]].investor,
-                        amountToMint,
-                        "0x"
-                    );
-                } else offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
-            }
-            offering.pendingSubscribedLots -=
-                uint256(uint64(totalToTransfer)) / (offering.info.lotSize * _processOfferingInfo.nominalValue);
-            return;
-        }
-        indexCounts[uint256(CountIndex.FAILED)] = _addToList(
-            subscriptionIds,
-            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
-            processResult.failedSubscriptions,
-            indexCounts[uint256(CountIndex.FAILED)]
-        );
     }
 
     /**
@@ -435,7 +394,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         // Calculate if target is reached (comparing lots directly)
-        bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
+        bool targetReached = offering.totalSubscribedLots > offering.info.targetLots - 1;
 
         // After end date
         if (_blockTimestamp() > offering.info.endDate) {
@@ -560,19 +519,15 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
     }
 
-    function _isValidAmount(uint256 amount) private pure returns (bool) {
-        return amount > 0 && _valueFitsInInt64(amount);
-    }
-
     function _valueFitsInInt64(uint256 value) internal pure returns (bool) {
-        return value <= uint256(uint64(type(int64).max));
+        return value < uint256(uint64(type(int64).max)) + 1;
     }
 
     function _extractIds(uint256 _pageIndex, uint256 _pageLength) internal pure returns (uint256[] memory ids) {
         (uint256 start, uint256 end) = LibCommon.getStartAndEnd(_pageIndex, _pageLength);
         uint256 length = end - start;
         ids = new uint256[](length);
-        for (uint256 i = 0; i < length; i++) {
+        for (uint256 i = 0; i < length; ++i) {
             ids[i] = start + i + 1;
         }
     }
@@ -585,9 +540,9 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     ) internal pure returns (uint256 newListInitialIndex) {
         newListInitialIndex = listInitialIndex;
 
-        for (uint256 i = 0; i < subscriptionIdLastIndex; i++) {
+        for (uint256 i = 0; i < subscriptionIdLastIndex; ++i) {
             list[newListInitialIndex] = subscriptionIds[i];
-            newListInitialIndex++;
+            ++newListInitialIndex;
         }
     }
 
@@ -599,14 +554,73 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         outputResult.succeededSubscriptions = new uint256[](indexCounts[uint256(CountIndex.SUCCEEDED)]);
         outputResult.alreadyProcessedSubscriptions = new uint256[](indexCounts[uint256(CountIndex.ALREADY_PROCESSED)]);
 
-        for (uint256 i = 0; i < outputResult.failedSubscriptions.length; i++) {
+        for (uint256 i = 0; i < outputResult.failedSubscriptions.length; ++i) {
             outputResult.failedSubscriptions[i] = inputResult.failedSubscriptions[i];
         }
-        for (uint256 i = 0; i < outputResult.succeededSubscriptions.length; i++) {
+        for (uint256 i = 0; i < outputResult.succeededSubscriptions.length; ++i) {
             outputResult.succeededSubscriptions[i] = inputResult.succeededSubscriptions[i];
         }
-        for (uint256 i = 0; i < outputResult.alreadyProcessedSubscriptions.length; i++) {
+        for (uint256 i = 0; i < outputResult.alreadyProcessedSubscriptions.length; ++i) {
             outputResult.alreadyProcessedSubscriptions[i] = inputResult.alreadyProcessedSubscriptions[i];
         }
+    }
+
+    // solhint-disable-next-line function-max-lines
+    function _payBatch(
+        OfferingState storage offering,
+        ProcessOfferingInfo memory _processOfferingInfo,
+        address paymentToken,
+        TransferItem[] memory transferItems,
+        int64 totalToTransfer,
+        uint256[] memory subscriptionIds,
+        IPrimaryMarket.OfferingProcessResult memory processResult,
+        uint256[] memory indexCounts
+    ) private {
+        uint256 nextIndex = _processOfferingInfo.isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
+        transferItems[nextIndex].amount = -totalToTransfer;
+        transferItems[nextIndex].destination = address(this);
+
+        int64[] memory amounts = new int64[](nextIndex + 1);
+        address[] memory destinations = new address[](nextIndex + 1);
+
+        for (uint256 i = 0; i < nextIndex + 1; ++i) {
+            amounts[i] = transferItems[i].amount;
+            destinations[i] = transferItems[i].destination;
+        }
+
+        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
+            indexCounts[uint256(CountIndex.SUCCEEDED)] = _addToList(
+                subscriptionIds,
+                indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
+                processResult.succeededSubscriptions,
+                indexCounts[uint256(CountIndex.SUCCEEDED)]
+            );
+            for (uint256 i = 0; i < indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]; ++i) {
+                if (_processOfferingInfo.isExecution) {
+                    offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
+
+                    uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
+
+                    IERC1594(offering.info.asset).issue(
+                        offering.subscriptions[subscriptionIds[i]].investor,
+                        amountToMint,
+                        "0x"
+                    );
+                } else offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
+            }
+            offering.pendingSubscribedLots -=
+                uint256(uint64(totalToTransfer)) / (offering.info.lotSize * _processOfferingInfo.nominalValue);
+            return;
+        }
+        indexCounts[uint256(CountIndex.FAILED)] = _addToList(
+            subscriptionIds,
+            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
+            processResult.failedSubscriptions,
+            indexCounts[uint256(CountIndex.FAILED)]
+        );
+    }
+
+    function _isValidAmount(uint256 amount) private pure returns (bool) {
+        return amount > 0 && _valueFitsInInt64(amount);
     }
 }

@@ -13,8 +13,10 @@ contract MockBond is IBondRead {
     string public symbol;
     address public treasury;
     uint256 public nominalValue;
-    mapping(address => uint256) balance;
-    uint256 totalSupply;
+    mapping(address => uint256) private _balance;
+    uint256 private _totalSupply;
+
+    error NotImplemented();
 
     constructor(string memory name_, string memory symbol_, address treasury_) {
         name = name_;
@@ -29,8 +31,8 @@ contract MockBond is IBondRead {
     }
 
     function issue(address _tokenHolder, uint256 _value, bytes calldata /*_data*/) external {
-        balance[_tokenHolder] += _value;
-        totalSupply += _value;
+        _balance[_tokenHolder] += _value;
+        _totalSupply += _value;
     }
 
     function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
@@ -43,19 +45,19 @@ contract MockBond is IBondRead {
     }
 
     function getTotalSupply() external view returns (uint256) {
-        return totalSupply;
+        return _totalSupply;
     }
 
     function getBalanceOf(address account) external view returns (uint256) {
-        return balance[account];
+        return _balance[account];
     }
 
     function getCoupon(uint256) external pure override returns (RegisteredCoupon memory) {
-        revert("Not implemented");
+        revert NotImplemented();
     }
 
     function getCouponFor(uint256, address) external pure override returns (CouponFor memory) {
-        revert("Not implemented");
+        revert NotImplemented();
     }
 
     function getCouponCount() external pure override returns (uint256) {

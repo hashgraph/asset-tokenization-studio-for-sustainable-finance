@@ -11,7 +11,6 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
