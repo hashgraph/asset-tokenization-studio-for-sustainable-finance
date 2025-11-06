@@ -13,5 +13,9 @@ export class EnvironmentalAsset extends BaseEntity {
   @IsOptional()
   @IsInt()
   @Min(1)
-  dissociationError?: number
+  dissociationError?: number | null
+
+  clearDissociationError(): void {
+    this.dissociationError = null
+  }
 }

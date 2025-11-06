@@ -4,10 +4,14 @@ import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransa
 import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
 import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
+import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
   setBondDocumentTransaction(request: BuildSetBondDocumentTransactionRequest): Promise<BuildTransactionResponse>
   removeBondDocumentTransaction(request: BuildRemoveBondDocumentTransactionRequest): Promise<BuildTransactionResponse>
   setBondCapTransaction(request: BuildSetBondCapTransactionRequest): Promise<BuildTransactionResponse>
+  addControlListMemberTransaction(
+    request: BuildAddControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse>
 }

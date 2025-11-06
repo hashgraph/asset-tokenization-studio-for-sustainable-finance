@@ -15,4 +15,6 @@ export interface PaymentTokenRepository {
   findByContractId(contractId: string): Promise<PaymentToken | null>
 
   findByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<PaymentToken | null>
+
+  existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean>
 }
