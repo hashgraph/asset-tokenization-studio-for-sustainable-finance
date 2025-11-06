@@ -15,7 +15,7 @@ export class RemoveControlListMemberCommandHandler implements CommandHandler<Rem
 
   @Validate()
   async execute(command: RemoveControlListMemberCommand): Promise<void> {
-    const member = await this.deleteBondControlListMemberDomainService.execute(command)
-    this.eventBus.publish(new BondControlListMemberRemovedEvent(member.contractId, member.holderId))
+    await this.deleteBondControlListMemberDomainService.execute(command)
+    this.eventBus.publish(new BondControlListMemberRemovedEvent(command.contractId, command.holderId))
   }
 }
