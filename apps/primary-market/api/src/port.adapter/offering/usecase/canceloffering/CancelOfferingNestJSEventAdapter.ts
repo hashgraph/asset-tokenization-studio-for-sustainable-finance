@@ -17,8 +17,8 @@ export class CancelOfferingNestJSEventAdapter implements CancelOfferingPort, Eve
         event.offeringDltId,
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
-        event.subscriptionIdsSuccess,
-        event.subscriptionIdsFailed,
+        event.subscriptionDltIdsSuccess,
+        event.subscriptionDltIdsFailed,
       ),
     )
   }

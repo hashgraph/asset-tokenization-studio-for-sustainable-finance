@@ -18,7 +18,7 @@ export class CancelOfferingDomainService {
   ) {}
 
   async execute(request: CancelOfferingDomainServiceRequest): Promise<void> {
-    const { marketContractId, offeringDltId, operatorId, subscriptionIdsSuccess, subscriptionIdsFailed } = request
+    const { marketContractId, offeringDltId, operatorId, subscriptionDltIdsSuccess, subscriptionDltIdsFailed } = request
 
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
     market.checkActive()
@@ -29,12 +29,12 @@ export class CancelOfferingDomainService {
 
     const subscriptionsToUpdate = [
       ...(await this.updateSubscriptionsStatusDomainService.execute(
-        subscriptionIdsSuccess,
+        subscriptionDltIdsSuccess,
         existingOffering,
         SubscriptionStatus.CANCELLED,
       )),
       ...(await this.updateSubscriptionsStatusDomainService.execute(
-        subscriptionIdsFailed,
+        subscriptionDltIdsFailed,
         existingOffering,
         SubscriptionStatus.FAILED,
       )),

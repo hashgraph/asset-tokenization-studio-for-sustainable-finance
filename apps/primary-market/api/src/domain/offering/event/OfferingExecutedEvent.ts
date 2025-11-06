@@ -6,8 +6,8 @@ export class OfferingExecutedEvent extends Event {
     public readonly offeringDltId: string,
     public readonly marketContractId: string,
     public readonly operatorId: string,
-    public readonly subscriptionIdsSuccess: string[],
-    public readonly subscriptionIdsFailed: string[],
+    public readonly subscriptionDltIdsSuccess: string[],
+    public readonly subscriptionDltIdsFailed: string[],
   ) {
     super()
   }

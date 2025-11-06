@@ -22,8 +22,8 @@ export class CancelOfferingCommandHandler implements CommandHandler<CancelOfferi
         command.offeringDltId,
         command.marketContractId,
         command.operatorId,
-        command.subscriptionIdsSuccess,
-        command.subscriptionIdsFailed,
+        command.subscriptionDltIdsSuccess,
+        command.subscriptionDltIdsFailed,
       ),
     )
   }

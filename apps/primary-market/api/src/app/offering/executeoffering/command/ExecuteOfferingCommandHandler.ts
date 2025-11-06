@@ -22,8 +22,8 @@ export class ExecuteOfferingCommandHandler implements CommandHandler<ExecuteOffe
         command.offeringDltId,
         command.marketContractId,
         command.operatorId,
-        command.subscriptionIdsSuccess,
-        command.subscriptionIdsFailed,
+        command.subscriptionDltIdsSuccess,
+        command.subscriptionDltIdsFailed,
       ),
     )
   }

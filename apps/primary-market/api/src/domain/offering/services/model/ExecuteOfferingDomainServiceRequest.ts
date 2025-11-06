@@ -16,9 +16,9 @@ export class ExecuteOfferingDomainServiceRequest {
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsSuccess: string[]
+  subscriptionDltIdsSuccess: string[]
 
   @IsArray()
   @IsNumberString({}, { each: true })
-  subscriptionIdsFailed: string[]
+  subscriptionDltIdsFailed: string[]
 }
