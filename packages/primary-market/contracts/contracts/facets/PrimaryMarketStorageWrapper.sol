@@ -4,6 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
 import { IERC1594 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
@@ -19,6 +20,8 @@ import {
  * @dev Uses EIP-2535 Diamond Storage pattern to avoid storage collisions
  */
 abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
+    using SafeERC20 for IERC20;
+
     // only for insternal use
     enum CountIndex {
         FAILED,
@@ -147,13 +150,13 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             offering.info.lotSize *
             IBondRead(offering.info.asset).getBondDetails().nominalValue;
 
+        // EFFECTS: Update state first
         subscription.status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
-
         offering.pendingSubscribedLots -= subscription.lotUnits;
 
-        bool success = IERC20(offering.info.paymentToken).transfer(subscription.investor, amount);
-
-        if (!success) revert IPrimaryMarket.SubscriptionCannotBeCancelled(_offeringId, _subscriptionId);
+        // INTERACTIONS: External call last
+        IERC20 token = IERC20(offering.info.paymentToken);
+        token.safeTransfer(subscription.investor, amount);
     }
 
     function _executeOffering(
