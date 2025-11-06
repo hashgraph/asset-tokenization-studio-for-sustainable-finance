@@ -4,7 +4,7 @@ import { AddControlListMemberTransactionRequest } from "./model/AddControlListMe
 
 export interface AddControlListMemberTransactionPort {
   addControlListMemberTransaction(
-    bondContractId: string,
+    contractId: string,
     holderId: string,
     request: AddControlListMemberTransactionRequest,
   ): Promise<TransactionResponse>

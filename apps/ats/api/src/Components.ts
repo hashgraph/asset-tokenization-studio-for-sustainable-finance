@@ -38,6 +38,11 @@ import { AddControlListMemberTransactionAppService } from "@app/bond/transaction
 import { AddControlListMemberCommandHandler } from "@app/bond/addcontrollistmember/command/AddControlListMemberCommandHandler"
 import { AddControlListMemberNestJSEventAdapter } from "@port/bond/usecase/addcontrollistmember/AddControlListMemberNestJSEventAdapter"
 import { AddBondControlListMemberDomainService } from "@domain/bond/controllist/service/AddBondControlListMemberDomainService"
+import { RemoveControlListMemberTransactionHttpAdapter } from "@port/transaction/usecase/removecontrollistmembertransaction/RemoveControlListMemberTransactionHttpAdapter"
+import { RemoveControlListMemberTransactionAppService } from "@app/bond/transaction/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
+import { RemoveControlListMemberCommandHandler } from "@app/bond/removecontrollistmember/command/RemoveControlListMemberCommandHandler"
+import { RemoveControlListMemberNestJSEventAdapter } from "@port/bond/usecase/removecontrollistmember/RemoveControlListMemberNestJSEventAdapter"
+import { RemoveBondControlListMemberDomainService } from "@domain/bond/controllist/service/RemoveBondControlListMemberDomainService"
 import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
 import { BondControlListMemberTypeOrmRepository } from "@port/bond/persistence/repositories/BondControlListMemberTypeOrmRepository"
 
@@ -65,6 +70,7 @@ export const CONTROLLERS = [
   RemoveBondDocumentTransactionHttpAdapter,
   SetBondCapTransactionHttpAdapter,
   AddControlListMemberTransactionHttpAdapter,
+  RemoveControlListMemberTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -92,6 +98,10 @@ export const PROVIDERS = [
   AddControlListMemberCommandHandler,
   AddControlListMemberNestJSEventAdapter,
   AddBondControlListMemberDomainService,
+  RemoveControlListMemberTransactionAppService,
+  RemoveControlListMemberCommandHandler,
+  RemoveControlListMemberNestJSEventAdapter,
+  RemoveBondControlListMemberDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
@@ -99,4 +109,9 @@ export const PROVIDERS = [
   },
 ]
 
-export const ENTITIES = [...EVENT_LISTENER_ENTITIES, BondPersistence, BondDocumentPersistence, BondControlListMemberPersistence]
+export const ENTITIES = [
+  ...EVENT_LISTENER_ENTITIES,
+  BondPersistence,
+  BondDocumentPersistence,
+  BondControlListMemberPersistence,
+]

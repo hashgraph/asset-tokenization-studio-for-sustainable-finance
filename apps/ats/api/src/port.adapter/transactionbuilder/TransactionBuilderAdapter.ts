@@ -18,6 +18,7 @@ import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder
 import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
 import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
 import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
+import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveControlListMemberTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -201,6 +202,20 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     return await this.buildAndReturnTransactionResponse(
       IControlList__factory.createInterface(),
       "addToControlList",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.holderAccountId],
+    )
+  }
+
+  async deleteControlListMemberTransaction(
+    req: BuildRemoveControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IControlList__factory.createInterface(),
+      "removeFromControlList",
       req.contractId,
       this.TRANSACTIONS_LOW_GAS,
       req.accountId,
