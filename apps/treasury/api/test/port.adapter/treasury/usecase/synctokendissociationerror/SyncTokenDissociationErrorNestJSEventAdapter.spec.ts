@@ -63,6 +63,7 @@ describe("SyncTokenDissociationError Integration", () => {
       treasury: treasury,
       decimals: 8,
       dissociationError: 333,
+      removalDate: new Date(),
     } as PaymentTokenPersistence
     treasury.paymentToken = paymentToken
     treasury = await internalTreasuryRepository.save(treasury)
@@ -83,8 +84,8 @@ describe("SyncTokenDissociationError Integration", () => {
 
     expect(publishedEvent.constructor.name).toEqual(PaymentTokenDissociationErrorUpdatedEvent.name)
     expect(publishedEvent).toEqual({
-      treasuryId: treasury.id,
-      paymentTokenId: paymentToken.id,
+      treasuryContractId: treasury.contractId,
+      paymentTokenContractId: paymentToken.contractId,
       timestamp: expect.any(Number),
     })
   })
@@ -99,6 +100,7 @@ describe("SyncTokenDissociationError Integration", () => {
       contractId: "0.0.7777",
       treasuryId: treasury.id,
       dissociationError: 888,
+      removalDate: new Date(),
     })
 
     let publishedEvent
@@ -119,8 +121,8 @@ describe("SyncTokenDissociationError Integration", () => {
 
     expect(publishedEvent.constructor.name).toEqual(EnvironmentalAssetDissociationErrorUpdatedEvent.name)
     expect(publishedEvent).toEqual({
-      treasuryId: treasury.id,
-      environmentalAssetId: environmentalAsset.id,
+      treasuryContractId: treasury.contractId,
+      environmentalAssetContractId: environmentalAsset.contractId,
       timestamp: expect.any(Number),
     })
   })

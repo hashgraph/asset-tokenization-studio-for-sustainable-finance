@@ -66,6 +66,8 @@ import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/ge
 import { GetPrimaryMarketBondsQueryHandler } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
 import { GetPrimaryMarketBondOfferingsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
 import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
+import { GetSubscriptionsByInvestorHttpAdapter } from "@port/subscription/usecase/getsubscriptionsbyinvestor/GetSubscriptionsByInvestorHttpAdapter"
+import { GetSubscriptionsByInvestorQueryHandler } from "@app/subscription/getsubscriptionsbyinvestor/query/GetSubscriptionsByInvestorQueryHandler"
 import { GetRoleMembersHttpAdapter } from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 import { GetRoleMembersQueryHandler } from "@app/role/getrolemembers/query/GetRoleMembersQueryHandler"
 import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExistsDomainService"
@@ -115,6 +117,7 @@ export const CONTROLLERS = [
   GetPrimaryMarketBondsHttpAdapter,
   GetPrimaryMarketBondOfferingsHttpAdapter,
   GetSubscriptionsHttpAdapter,
+  GetSubscriptionsByInvestorHttpAdapter,
   GetRoleMembersHttpAdapter,
 ]
 export const PROVIDERS = [
@@ -155,6 +158,7 @@ export const PROVIDERS = [
   GetPrimaryMarketsQueryHandler,
   GetPrimaryMarketBondsQueryHandler,
   GetPrimaryMarketBondOfferingsQueryHandler,
+  GetSubscriptionsByInvestorQueryHandler,
   GetRoleMembersQueryHandler,
   CheckRoleExistsDomainService,
   {

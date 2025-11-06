@@ -16,4 +16,5 @@ export interface SubscriptionRepository {
     marketId: string,
     pageOptions: PageOptions,
   ): Promise<Page<Subscription>>
+  findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>>
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Repository, IsNull } from "typeorm"
+import { Repository, IsNull, Not } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
@@ -70,14 +70,18 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     }
   }
 
-  async existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean> {
+  async existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean> {
     return this.repository.exists({
       relations: {
         treasury: true,
       },
       where: {
         contractId,
-        removalDate: IsNull(),
+        removalDate: removed ? Not(IsNull()) : IsNull(),
         treasury: {
           contractId: treasuryContractId,
         },
@@ -102,6 +106,25 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
       },
     })
     return persistence ? this.toDomain(persistence) : null
+  }
+
+  async findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<EnvironmentalAsset[]> {
+    const persistences = await this.repository.find({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: Not(IsNull()),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+    return persistences.map((persistence) => this.toDomain(persistence))
   }
 
   private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {

@@ -92,6 +92,32 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
+  async findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.repository.findAndCount({
+      where: {
+        investor: {
+          accountId: investorAccountId,
+        },
+      },
+      relations: ["offering", "offering.market", "investor"],
+      order: { [pageOptions.order.orderBy]: orderDirection },
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+      take: pageOptions.limit,
+    })
+
+    const items = persistences.map((p) => p as unknown as Subscription)
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
+  }
+
   private toDomain(persistence: SubscriptionPersistence): Subscription {
     return plainToInstance(Subscription, persistence)
   }

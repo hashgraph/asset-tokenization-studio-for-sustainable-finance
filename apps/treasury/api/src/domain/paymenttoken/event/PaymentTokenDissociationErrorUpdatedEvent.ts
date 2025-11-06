@@ -3,12 +3,12 @@
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class PaymentTokenDissociationErrorUpdatedEvent extends Event {
-  readonly treasuryId: string
-  readonly paymentTokenId: string
+  readonly treasuryContractId: string
+  readonly paymentTokenContractId: string
 
-  constructor(treasuryId: string, paymentTokenId: string) {
+  constructor(treasuryContractId: string, paymentTokenContractId: string) {
     super()
-    this.treasuryId = treasuryId
-    this.paymentTokenId = paymentTokenId
+    this.treasuryContractId = treasuryContractId
+    this.paymentTokenContractId = paymentTokenContractId
   }
 }
