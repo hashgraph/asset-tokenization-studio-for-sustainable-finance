@@ -28,9 +28,9 @@ export class GetRoleMembersQueryHandler
 
   @Validate()
   async execute(query: GetRoleMembersQuery): Promise<QueryPageResponse<RoleMemberQueryResponse>> {
-    const { marketId, roleId, pageOptions } = query
+    const { marketContractId, roleId, pageOptions } = query
 
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
     const role = await this.checkRoleExistsDomainService.execute(roleId)
 
     const roleMembersPage = await this.userMarketRoleRepository.findByMarketIdAndRoleId(

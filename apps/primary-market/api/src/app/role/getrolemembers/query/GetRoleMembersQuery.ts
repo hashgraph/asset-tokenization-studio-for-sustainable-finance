@@ -8,7 +8,7 @@ import { Type } from "class-transformer"
 export class GetRoleMembersQuery extends Query<QueryPageResponse<RoleMemberQueryResponse>> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -18,9 +18,9 @@ export class GetRoleMembersQuery extends Query<QueryPageResponse<RoleMemberQuery
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketId: string, roleId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(marketContractId: string, roleId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
     super()
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.roleId = roleId
     this.pageOptions = pageOptions
   }
