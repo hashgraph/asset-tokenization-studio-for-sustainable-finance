@@ -11,14 +11,14 @@ import { GetRoleMembersQuery } from "@app/role/getrolemembers/query/GetRoleMembe
 export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":marketContractId/roles/:roleId/members")
+  @Get(":marketContractId/roles/:roleHex/members")
   async getRoleMembers(
     @Param("marketContractId") marketContractId: string,
-    @Param("roleId") roleId: string,
+    @Param("roleHex") roleHex: string,
     @Query() queryPageRequest: QueryPageRequest,
   ): Promise<PageResponse<RoleMemberResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetRoleMembersQuery(marketContractId, roleId, queryPageOptions)
+    const query = new GetRoleMembersQuery(marketContractId, roleHex, queryPageOptions)
     return await this.queryBus.execute(query)
   }
 }

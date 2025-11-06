@@ -10,17 +10,17 @@ import { ExecuteOfferingTransactionAppServiceRequest } from "@app/transaction/ex
 export class ExecuteOfferingTransactionHttpAdapter implements ExecuteOfferingTransactionPort {
   constructor(private readonly executeOfferingTransactionAppService: ExecuteOfferingTransactionAppService) {}
 
-  @Post(":marketContractId/offerings/:offeringId")
+  @Post(":marketContractId/offerings/:offeringDltId")
   async executeOfferingTransaction(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringId") offeringId: string,
+    @Param("offeringDltId") offeringDltId: string,
     @Body() request: ExecuteOfferingTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new ExecuteOfferingTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       marketContractId,
-      offeringId,
+      offeringDltId,
       request.start,
       request.end,
     )
