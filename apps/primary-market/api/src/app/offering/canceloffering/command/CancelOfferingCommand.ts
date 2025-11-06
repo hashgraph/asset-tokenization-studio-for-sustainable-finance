@@ -9,7 +9,7 @@ export class CancelOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -25,14 +25,14 @@ export class CancelOfferingCommand extends Command<void> {
 
   constructor(
     offeringId: string,
-    marketId: string,
+    marketContractId: string,
     operatorId: string,
     subscriptionIdsSuccess: string[],
     subscriptionIdsFailed: string[],
   ) {
     super()
     this.offeringId = offeringId
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.operatorId = operatorId
     this.subscriptionIdsSuccess = subscriptionIdsSuccess
     this.subscriptionIdsFailed = subscriptionIdsFailed

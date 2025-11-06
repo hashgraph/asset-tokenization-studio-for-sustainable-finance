@@ -15,27 +15,29 @@ export class CreateOfferingDomainService {
   ) {}
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(createOfferingDomainServiceRequest.marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(
+      createOfferingDomainServiceRequest.marketContractId,
+    )
     market.checkActive()
 
     const existingOffering = await this.offeringRepository.findByOfferingIdAndMarketId(
       createOfferingDomainServiceRequest.offeringId,
-      createOfferingDomainServiceRequest.marketId,
+      market.id,
     )
     if (existingOffering) {
-      throw OfferingFoundError.offeringIdAndMarketIdError(
+      throw OfferingFoundError.offeringIdAndMarketContractIdError(
         createOfferingDomainServiceRequest.offeringId,
-        createOfferingDomainServiceRequest.marketId,
+        createOfferingDomainServiceRequest.marketContractId,
       )
     }
 
     const offering = Object.assign(new Offering(), {
       offeringId: createOfferingDomainServiceRequest.offeringId,
       market: market,
-      bondId: createOfferingDomainServiceRequest.bondId,
+      bondContractId: createOfferingDomainServiceRequest.bondContractId,
       operatorId: createOfferingDomainServiceRequest.operatorId,
-      treasuryId: createOfferingDomainServiceRequest.treasuryId,
-      paymentTokenId: createOfferingDomainServiceRequest.paymentTokenId,
+      treasuryContractId: createOfferingDomainServiceRequest.treasuryContractId,
+      paymentTokenContractId: createOfferingDomainServiceRequest.paymentTokenContractId,
       lotSize: createOfferingDomainServiceRequest.lotSize,
       minQuantity: createOfferingDomainServiceRequest.minQuantity,
       maxQuantity: createOfferingDomainServiceRequest.maxQuantity,

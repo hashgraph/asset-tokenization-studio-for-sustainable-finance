@@ -3,11 +3,10 @@
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 export class SubscriptionResponse {
-  id: string
-  createdAt: Date
   subscriptionId: string
   offeringId: string
   investorId: string
   lotUnits: string
   status: SubscriptionStatus
+  createdAt: Date
 }

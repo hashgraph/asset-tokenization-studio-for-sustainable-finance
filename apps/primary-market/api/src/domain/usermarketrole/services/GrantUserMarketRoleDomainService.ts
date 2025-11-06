@@ -24,7 +24,7 @@ export class GrantUserMarketRoleDomainService {
     grantUserMarketRoleDomainServiceRequest: GrantUserMarketRoleDomainServiceRequest,
   ): Promise<UserMarketRole> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
-      grantUserMarketRoleDomainServiceRequest.marketId,
+      grantUserMarketRoleDomainServiceRequest.marketContractId,
     )
     market.checkActive()
 
@@ -67,7 +67,7 @@ export class GrantUserMarketRoleDomainService {
   ): Promise<void> {
     const existing = await this.userMarketRoleRepository.findByUserRoleAndMarket(userId, roleId, marketId)
     if (existing) {
-      throw UserMarketRoleFoundError.roleAlreadyGranted(request.accountId, request.roleHex, request.marketId)
+      throw UserMarketRoleFoundError.roleAlreadyGranted(request.accountId, request.roleHex, request.marketContractId)
     }
   }
 }

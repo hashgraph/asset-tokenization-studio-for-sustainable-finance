@@ -8,7 +8,7 @@ export class SubmitSubscriptionDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()

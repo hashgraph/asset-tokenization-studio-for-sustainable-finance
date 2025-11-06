@@ -9,16 +9,16 @@ export class CancelSubscriptionCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
   subscriptionId: string
 
-  constructor(offeringId: string, marketId: string, subscriptionId: string) {
+  constructor(offeringId: string, marketContractId: string, subscriptionId: string) {
     super()
     this.offeringId = offeringId
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.subscriptionId = subscriptionId
   }
 }

@@ -18,7 +18,7 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  bondId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -26,11 +26,11 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  treasuryId: string
+  treasuryContractId: string
 
   @IsNotEmpty()
   @IsString()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsString()

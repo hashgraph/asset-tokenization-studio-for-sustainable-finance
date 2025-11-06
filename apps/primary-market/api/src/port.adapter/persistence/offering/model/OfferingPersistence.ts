@@ -15,16 +15,16 @@ export class OfferingPersistence extends BaseEntityPersistence {
   market: PrimaryMarketPersistence
 
   @Column()
-  bondId: string
+  bondContractId: string
 
   @Column()
   operatorId: string
 
   @Column()
-  treasuryId: string
+  treasuryContractId: string
 
   @Column()
-  paymentTokenId: string
+  paymentTokenContractId: string
 
   @Column({ type: "varchar" })
   lotSize: string

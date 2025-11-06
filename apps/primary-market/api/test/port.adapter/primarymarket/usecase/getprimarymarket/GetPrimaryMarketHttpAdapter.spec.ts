@@ -47,7 +47,7 @@ describe("GetPrimaryMarket API Integration", () => {
 
   describe("GET /primary-markets/:marketContractId", () => {
     it("should return primary market with valid contract ID", async () => {
-      const market = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.12345",
         isPaused: false,
       })
@@ -55,7 +55,6 @@ describe("GetPrimaryMarket API Integration", () => {
       const response = await request(app.getHttpServer()).get(`/api/v1/primary-markets/0.0.12345`).expect(200)
 
       expect(response.body).toMatchObject({
-        id: market.id,
         contractId: "0.0.12345",
         isPaused: false,
       })
@@ -63,7 +62,7 @@ describe("GetPrimaryMarket API Integration", () => {
     })
 
     it("should return primary market with isPaused true", async () => {
-      const market = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.67890",
         isPaused: true,
       })
@@ -71,7 +70,6 @@ describe("GetPrimaryMarket API Integration", () => {
       const response = await request(app.getHttpServer()).get(`/api/v1/primary-markets/0.0.67890`).expect(200)
 
       expect(response.body).toMatchObject({
-        id: market.id,
         contractId: "0.0.67890",
         isPaused: true,
       })
@@ -85,12 +83,12 @@ describe("GetPrimaryMarket API Integration", () => {
     })
 
     it("should return different primary markets for different contract IDs", async () => {
-      const market1 = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.11111",
         isPaused: false,
       })
 
-      const market2 = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.22222",
         isPaused: true,
       })
@@ -101,15 +99,13 @@ describe("GetPrimaryMarket API Integration", () => {
 
       expect(response1.body.contractId).toBe("0.0.11111")
       expect(response1.body.isPaused).toBe(false)
-      expect(response1.body.id).toBe(market1.id)
 
       expect(response2.body.contractId).toBe("0.0.22222")
       expect(response2.body.isPaused).toBe(true)
-      expect(response2.body.id).toBe(market2.id)
     })
 
     it("should handle large contract IDs", async () => {
-      const market = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.999999999",
         isPaused: false,
       })
@@ -117,7 +113,6 @@ describe("GetPrimaryMarket API Integration", () => {
       const response = await request(app.getHttpServer()).get(`/api/v1/primary-markets/0.0.999999999`).expect(200)
 
       expect(response.body.contractId).toBe("0.0.999999999")
-      expect(response.body.id).toBe(market.id)
     })
 
     it("should return the correct primary market when multiple markets exist", async () => {
@@ -126,7 +121,7 @@ describe("GetPrimaryMarket API Integration", () => {
         isPaused: false,
       })
 
-      const targetMarket = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.22222",
         isPaused: true,
       })
@@ -138,7 +133,6 @@ describe("GetPrimaryMarket API Integration", () => {
 
       const response = await request(app.getHttpServer()).get(`/api/v1/primary-markets/0.0.22222`).expect(200)
 
-      expect(response.body.id).toBe(targetMarket.id)
       expect(response.body.contractId).toBe("0.0.22222")
       expect(response.body.isPaused).toBe(true)
     })
@@ -151,11 +145,9 @@ describe("GetPrimaryMarket API Integration", () => {
 
       const response = await request(app.getHttpServer()).get(`/api/v1/primary-markets/0.0.12345`).expect(200)
 
-      expect(response.body).toHaveProperty("id")
-      expect(response.body).toHaveProperty("createdAt")
       expect(response.body).toHaveProperty("contractId")
+      expect(response.body).toHaveProperty("createdAt")
       expect(response.body).toHaveProperty("isPaused")
-      expect(typeof response.body.id).toBe("string")
       expect(typeof response.body.createdAt).toBe("string")
       expect(typeof response.body.contractId).toBe("string")
       expect(typeof response.body.isPaused).toBe("boolean")

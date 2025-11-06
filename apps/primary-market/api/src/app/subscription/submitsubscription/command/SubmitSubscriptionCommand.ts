@@ -9,7 +9,7 @@ export class SubmitSubscriptionCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
@@ -23,10 +23,16 @@ export class SubmitSubscriptionCommand extends Command<void> {
   @IsNumberString()
   lotUnits: string
 
-  constructor(offeringId: string, marketId: string, subscriptionId: string, investorId: string, lotUnits: string) {
+  constructor(
+    offeringId: string,
+    marketContractId: string,
+    subscriptionId: string,
+    investorId: string,
+    lotUnits: string,
+  ) {
     super()
     this.offeringId = offeringId
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.subscriptionId = subscriptionId
     this.investorId = investorId
     this.lotUnits = lotUnits

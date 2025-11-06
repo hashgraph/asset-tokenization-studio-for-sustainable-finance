@@ -87,10 +87,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -105,7 +105,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         accountId: "0.0.1111",
       })
 
-      const subscription1 = await subscriptionRepository.save({
+      await subscriptionRepository.save({
         subscriptionId: "1",
         offering: offering,
         investor: investor,
@@ -113,7 +113,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         status: SubscriptionStatus.SUBMITTED,
       })
 
-      const subscription2 = await subscriptionRepository.save({
+      await subscriptionRepository.save({
         subscriptionId: "2",
         offering: offering,
         investor: investor,
@@ -136,7 +136,6 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const item2 = response.body.items.find((item: any) => item.subscriptionId === "2")
 
       expect(item1).toMatchObject({
-        id: subscription1.id,
         subscriptionId: "1",
         offeringId: "1",
         investorId: "0.0.1111",
@@ -146,7 +145,6 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       expect(item1).toHaveProperty("createdAt")
 
       expect(item2).toMatchObject({
-        id: subscription2.id,
         subscriptionId: "2",
         offeringId: "1",
         investorId: "0.0.1111",
@@ -164,10 +162,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -212,10 +210,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -269,10 +267,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -330,10 +328,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -394,10 +392,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering1 = await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -411,10 +409,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering2 = await offeringRepository.save({
         offeringId: "2",
         market,
-        bondId: "0.0.8888888",
+        bondContractId: "0.0.8888888",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -478,10 +476,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering1 = await offeringRepository.save({
         offeringId: "1",
         market: market1,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -495,10 +493,10 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       const offering2 = await offeringRepository.save({
         offeringId: "1",
         market: market2,
-        bondId: "0.0.8888888",
+        bondContractId: "0.0.8888888",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",

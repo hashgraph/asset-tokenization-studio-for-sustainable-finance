@@ -3,11 +3,9 @@
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingNotFoundError extends EntityNotFoundError {
-  static offeringIdAndMarketIdError(offeringId: string, marketId: string): OfferingNotFoundError {
-    return new OfferingNotFoundError(`Offering with offeringId ${offeringId} and marketId ${marketId} not found.`)
-  }
-
-  private constructor(message: string) {
-    super(message)
+  static offeringIdAndMarketContractIdError(offeringId: string, marketContractId: string): OfferingNotFoundError {
+    return new OfferingNotFoundError(
+      `Offering not found for offering id: ${offeringId} and market contract id: ${marketContractId}.`,
+    )
   }
 }

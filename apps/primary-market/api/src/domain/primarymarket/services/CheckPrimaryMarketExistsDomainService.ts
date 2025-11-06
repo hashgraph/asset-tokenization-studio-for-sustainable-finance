@@ -9,11 +9,13 @@ import { PrimaryMarketNotFoundError } from "../errors/PrimaryMarketNotFoundError
 export class CheckPrimaryMarketExistsDomainService {
   constructor(@Inject() private readonly primaryMarketRepository: PrimaryMarketRepository) {}
 
-  async execute(contractId: string): Promise<PrimaryMarket> {
-    const primaryMarket = await this.primaryMarketRepository.findByContractId(contractId)
-    if (!primaryMarket) {
-      throw PrimaryMarketNotFoundError.contractIdError(contractId)
+  async execute(marketContractId: string): Promise<PrimaryMarket> {
+    const market = await this.primaryMarketRepository.findByContractId(marketContractId)
+
+    if (!market) {
+      throw PrimaryMarketNotFoundError.contractIdError(marketContractId)
     }
-    return primaryMarket
+
+    return market
   }
 }

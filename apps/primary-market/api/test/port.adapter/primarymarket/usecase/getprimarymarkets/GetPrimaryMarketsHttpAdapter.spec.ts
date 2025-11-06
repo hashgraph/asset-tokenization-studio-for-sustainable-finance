@@ -65,12 +65,12 @@ describe("GetPrimaryMarkets API Integration", () => {
     })
 
     it("should return all primary markets", async () => {
-      const market1 = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.11111",
         isPaused: false,
       })
 
-      const market2 = await primaryMarketRepository.save({
+      await primaryMarketRepository.save({
         contractId: "0.0.22222",
         isPaused: true,
       })
@@ -90,14 +90,12 @@ describe("GetPrimaryMarkets API Integration", () => {
       const item2 = response.body.items.find((item: any) => item.contractId === "0.0.22222")
 
       expect(item1).toMatchObject({
-        id: market1.id,
         contractId: "0.0.11111",
         isPaused: false,
       })
       expect(item1).toHaveProperty("createdAt")
 
       expect(item2).toMatchObject({
-        id: market2.id,
         contractId: "0.0.22222",
         isPaused: true,
       })
@@ -268,11 +266,9 @@ describe("GetPrimaryMarkets API Integration", () => {
       expect(response.body.items).toHaveLength(1)
 
       const market = response.body.items[0]
-      expect(market).toHaveProperty("id")
-      expect(market).toHaveProperty("createdAt")
       expect(market).toHaveProperty("contractId")
+      expect(market).toHaveProperty("createdAt")
       expect(market).toHaveProperty("isPaused")
-      expect(typeof market.id).toBe("string")
       expect(typeof market.createdAt).toBe("string")
       expect(typeof market.contractId).toBe("string")
       expect(typeof market.isPaused).toBe("boolean")

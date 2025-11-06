@@ -8,7 +8,7 @@ export class ExecuteOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()

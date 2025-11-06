@@ -75,10 +75,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -92,10 +92,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market,
-        bondId: "0.0.222",
+        bondContractId: "0.0.222",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -114,7 +114,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
 
-      const bondIds = response.body.items.map((item: any) => item.bondId)
+      const bondIds = response.body.items.map((item: any) => item.bondContractId)
       expect(bondIds).toContain("0.0.111")
       expect(bondIds).toContain("0.0.222")
     })
@@ -129,10 +129,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -146,10 +146,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market,
-        bondId: "0.0.111", // Same bondId
+        bondContractId: "0.0.111", // Same bondId
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -163,10 +163,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "3",
         market,
-        bondId: "0.0.111", // Same bondId again
+        bondContractId: "0.0.111", // Same bondId again
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "3000",
         minQuantity: "300",
         maxQuantity: "30000",
@@ -184,7 +184,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
 
       // Should return only 1 unique bondId
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].bondId).toBe("0.0.111")
+      expect(response.body.items[0].bondContractId).toBe("0.0.111")
       expect(response.body.total).toBe(1)
     })
 
@@ -208,10 +208,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         await offeringRepository.save({
           offeringId: String(i),
           market,
-          bondId: `0.0.${100 + i}`,
+          bondContractId: `0.0.${100 + i}`,
           operatorId: "0.0.4660",
-          treasuryId: "0.0.9999999",
-          paymentTokenId: "0.0.9999999",
+          treasuryContractId: "0.0.9999999",
+          paymentTokenContractId: "0.0.9999999",
           lotSize: "1000",
           minQuantity: "100",
           maxQuantity: "10000",
@@ -250,10 +250,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market: market1,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -267,10 +267,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market: market2,
-        bondId: "0.0.222",
+        bondContractId: "0.0.222",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -287,7 +287,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].bondId).toBe("0.0.111")
+      expect(response.body.items[0].bondContractId).toBe("0.0.111")
       expect(response.body.total).toBe(1)
     })
 
@@ -300,10 +300,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -320,10 +320,10 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0]).toHaveProperty("bondId")
-      expect(typeof response.body.items[0].bondId).toBe("string")
-      // Should only have bondId, nothing else
-      expect(Object.keys(response.body.items[0])).toEqual(["bondId"])
+      expect(response.body.items[0]).toHaveProperty("bondContractId")
+      expect(typeof response.body.items[0].bondContractId).toBe("string")
+      // Should only have bondContractId, nothing else
+      expect(Object.keys(response.body.items[0])).toEqual(["bondContractId"])
     })
   })
 })

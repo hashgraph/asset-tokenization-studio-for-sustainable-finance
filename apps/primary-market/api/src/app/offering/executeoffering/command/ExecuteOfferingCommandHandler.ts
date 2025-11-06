@@ -20,7 +20,7 @@ export class ExecuteOfferingCommandHandler implements CommandHandler<ExecuteOffe
     this.eventBus.publish(
       new OfferingExecutedEvent(
         command.offeringId,
-        command.marketId,
+        command.marketContractId,
         command.operatorId,
         command.subscriptionIdsSuccess,
         command.subscriptionIdsFailed,

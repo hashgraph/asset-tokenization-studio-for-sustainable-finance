@@ -40,13 +40,12 @@ export class GetSubscriptionsByInvestorQueryHandler
     )
 
     return QueryPageResponse.fromPage(subscriptionsPage, (subscription: Subscription) => ({
-      id: subscription.id,
-      createdAt: subscription.createdAt,
       subscriptionId: subscription.subscriptionId,
       offeringId: subscription.offering.offeringId,
       investorId: subscription.investor.accountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
+      createdAt: subscription.createdAt,
     }))
   }
 }

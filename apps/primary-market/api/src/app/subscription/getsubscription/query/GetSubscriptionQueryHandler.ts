@@ -18,21 +18,20 @@ export class GetSubscriptionQueryHandler implements QueryHandler<GetSubscription
 
   @Validate()
   async execute(query: GetSubscriptionQuery): Promise<SubscriptionQueryResponse> {
-    const { marketId, offeringId, subscriptionId } = query
+    const { marketContractId, offeringId, subscriptionId } = query
 
-    await this.checkPrimaryMarketExistsDomainService.execute(marketId)
-    await this.checkOfferingExistsDomainService.execute(offeringId, marketId)
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
+    const offering = await this.checkOfferingExistsDomainService.execute(offeringId, market)
 
-    const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionId, offeringId, marketId)
+    const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionId, offering)
 
     return Object.assign(new SubscriptionQueryResponse(), {
-      id: subscription.id,
-      createdAt: subscription.createdAt,
       subscriptionId: subscription.subscriptionId,
       offeringId: subscription.offering.offeringId,
       investorId: subscription.investor.accountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
+      createdAt: subscription.createdAt,
     })
   }
 }

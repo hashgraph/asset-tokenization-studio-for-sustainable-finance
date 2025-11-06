@@ -2,10 +2,10 @@
 
 export class PrimaryMarketBondOfferingQueryResponse {
   offeringId: string
-  bondId: string
+  bondContractId: string
   operatorId: string
-  treasuryId: string
-  paymentTokenId: string
+  treasuryContractId: string
+  paymentTokenContractId: string
   lotSize: string
   minQuantity: string
   maxQuantity: string

@@ -20,7 +20,7 @@ export class CancelOfferingCommandHandler implements CommandHandler<CancelOfferi
     this.eventBus.publish(
       new OfferingCancelledEvent(
         command.offeringId,
-        command.marketId,
+        command.marketContractId,
         command.operatorId,
         command.subscriptionIdsSuccess,
         command.subscriptionIdsFailed,

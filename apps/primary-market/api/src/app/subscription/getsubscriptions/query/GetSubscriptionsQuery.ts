@@ -8,7 +8,7 @@ import { Type } from "class-transformer"
 export class GetSubscriptionsQuery extends Query<QueryPageResponse<SubscriptionQueryResponse>> {
   @IsNotEmpty()
   @IsString()
-  readonly marketId: string
+  readonly marketContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
@@ -18,9 +18,9 @@ export class GetSubscriptionsQuery extends Query<QueryPageResponse<SubscriptionQ
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketId: string, offeringId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(marketContractId: string, offeringId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
     super()
-    this.marketId = marketId
+    this.marketContractId = marketContractId
     this.offeringId = offeringId
     this.pageOptions = pageOptions
   }

@@ -8,7 +8,7 @@ export class CancelOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 
   @IsNotEmpty()
   @IsString()

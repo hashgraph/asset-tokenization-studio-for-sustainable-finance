@@ -82,9 +82,9 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering).toBeDefined()
       expect(savedOffering).not.toBeNull()
       expect(savedOffering!.offeringId).toBe("1")
-      expect(savedOffering!.bondId).toBe("0.0.4661") // Converted from EVM address
-      expect(savedOffering!.treasuryId).toBe("0.0.4662") // Converted from EVM address
-      expect(savedOffering!.paymentTokenId).toBe("0.0.4663") // Converted from EVM address
+      expect(savedOffering!.bondContractId).toBe("0.0.4661") // Converted from EVM address
+      expect(savedOffering!.treasuryContractId).toBe("0.0.4662") // Converted from EVM address
+      expect(savedOffering!.paymentTokenContractId).toBe("0.0.4663") // Converted from EVM address
       expect(savedOffering!.lotSize).toBe("1000")
       expect(savedOffering!.minQuantity).toBe("100")
       expect(savedOffering!.maxQuantity).toBe("10000")
@@ -104,10 +104,10 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const existingOffering = offeringRepository.create({
         offeringId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "500",
         minQuantity: "50",
         maxQuantity: "5000",
@@ -213,10 +213,10 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           offeringId: "1",
-          marketId: "0.0.1234567",
-          bondId: "0.0.4661", // Converted from EVM address
-          treasuryId: "0.0.4662", // Converted from EVM address
-          paymentTokenId: "0.0.4663", // Converted from EVM address
+          marketContractId: "0.0.1234567",
+          bondContractId: "0.0.4661", // Converted from EVM address
+          treasuryContractId: "0.0.4662", // Converted from EVM address
+          paymentTokenContractId: "0.0.4663", // Converted from EVM address
           lotSize: "1000",
           minQuantity: "100",
           maxQuantity: "10000",

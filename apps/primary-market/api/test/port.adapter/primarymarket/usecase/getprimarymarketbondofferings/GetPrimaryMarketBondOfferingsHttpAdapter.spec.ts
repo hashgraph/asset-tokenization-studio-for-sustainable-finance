@@ -75,10 +75,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -92,10 +92,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market,
-        bondId: "0.0.111", // Same bond
+        bondContractId: "0.0.111", // Same bond
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -120,7 +120,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
 
       // Verify response structure
       expect(response.body.items[0]).toHaveProperty("offeringId")
-      expect(response.body.items[0]).toHaveProperty("bondId")
+      expect(response.body.items[0]).toHaveProperty("bondContractId")
       expect(response.body.items[0]).toHaveProperty("operatorId")
       expect(response.body.items[0]).toHaveProperty("lotSize")
     })
@@ -145,10 +145,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         await offeringRepository.save({
           offeringId: String(i),
           market,
-          bondId: "0.0.111",
+          bondContractId: "0.0.111",
           operatorId: "0.0.4660",
-          treasuryId: "0.0.9999999",
-          paymentTokenId: "0.0.9999999",
+          treasuryContractId: "0.0.9999999",
+          paymentTokenContractId: "0.0.9999999",
           lotSize: "1000",
           minQuantity: "100",
           maxQuantity: "10000",
@@ -182,10 +182,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -199,10 +199,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market,
-        bondId: "0.0.222", // Different bond
+        bondContractId: "0.0.222", // Different bond
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",
@@ -219,7 +219,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].bondId).toBe("0.0.111")
+      expect(response.body.items[0].bondContractId).toBe("0.0.111")
       expect(response.body.items[0].offeringId).toBe("1")
     })
 
@@ -237,10 +237,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "1",
         market: market1,
-        bondId: "0.0.111",
+        bondContractId: "0.0.111",
         operatorId: "0.0.4660",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
         minQuantity: "100",
         maxQuantity: "10000",
@@ -254,10 +254,10 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       await offeringRepository.save({
         offeringId: "2",
         market: market2,
-        bondId: "0.0.111", // Same bond but different market
+        bondContractId: "0.0.111", // Same bond but different market
         operatorId: "0.0.4660",
-        treasuryId: "0.0.8888888",
-        paymentTokenId: "0.0.8888888",
+        treasuryContractId: "0.0.8888888",
+        paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
         minQuantity: "200",
         maxQuantity: "20000",

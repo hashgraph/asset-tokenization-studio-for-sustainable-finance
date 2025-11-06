@@ -22,25 +22,24 @@ export class SubmitSubscriptionDomainService {
 
   async execute(submitSubscriptionDomainServiceRequest: SubmitSubscriptionDomainServiceRequest): Promise<Subscription> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.marketId,
+      submitSubscriptionDomainServiceRequest.marketContractId,
     )
     market.checkActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
       submitSubscriptionDomainServiceRequest.offeringId,
-      submitSubscriptionDomainServiceRequest.marketId,
+      market,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingId(
       submitSubscriptionDomainServiceRequest.subscriptionId,
-      submitSubscriptionDomainServiceRequest.offeringId,
-      submitSubscriptionDomainServiceRequest.marketId,
+      offering.id,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionIdOfferingIdAndMarketIdError(
+      throw SubscriptionFoundError.subscriptionIdOfferingIdAndMarketContractIdError(
         submitSubscriptionDomainServiceRequest.subscriptionId,
         submitSubscriptionDomainServiceRequest.offeringId,
-        submitSubscriptionDomainServiceRequest.marketId,
+        submitSubscriptionDomainServiceRequest.marketContractId,
       )
     }
 

@@ -22,18 +22,11 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return this.toDomain(saved)
   }
 
-  async findBySubscriptionIdOfferingIdAndMarketId(
-    subscriptionId: string,
-    offeringId: string,
-    marketId: string,
-  ): Promise<Subscription | null> {
+  async findBySubscriptionIdAndOfferingId(subscriptionId: string, offeringId: string): Promise<Subscription | null> {
     const persistence = await this.repository.findOne({
       where: {
         subscriptionId,
-        offering: {
-          offeringId,
-          market: { contractId: marketId },
-        },
+        offering: { id: offeringId },
       },
       relations: ["offering", "offering.market", "investor"],
     })
@@ -61,19 +54,12 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByOfferingIdAndMarketId(
-    offeringId: string,
-    marketId: string,
-    pageOptions: PageOptions,
-  ): Promise<Page<Subscription>> {
+  async findByOfferingId(offeringId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        offering: {
-          offeringId,
-          market: { contractId: marketId },
-        },
+        offering: { id: offeringId },
       },
       relations: ["offering", "offering.market", "investor"],
       order: { [pageOptions.order.orderBy]: orderDirection },
