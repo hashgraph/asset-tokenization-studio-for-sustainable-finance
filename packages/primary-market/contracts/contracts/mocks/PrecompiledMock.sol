@@ -6,8 +6,13 @@ import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { PRECOMPILED_RESOLVER_KEY } from "../constants/resolverKeys.sol";
 import { TimeTravelStorageWrapper } from "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelStorageWrapper.sol";
-
+import { MockERC20 } from "./MockERC20.sol";
 interface IPrecompiledMock {
+    function transferTokens(
+        address token,
+        address[] memory accountIds,
+        int64[] memory amounts
+    ) external returns (int32 responseCode);
     function setPrecompiledTransferStatus(bool _success) external;
     function getPrecompiledTransferStatus() external view returns (bool);
 }
@@ -27,8 +32,10 @@ contract PrecompiledMockStorageWrapper {
         address token,
         address[] memory accountIds,
         int64[] memory amounts
-    ) internal virtual returns (int responseCode) {
+    ) internal virtual returns (int32 responseCode) {
         if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
+
+        MockERC20(token).approveFor(msg.sender, address(this), type(uint256).max);
 
         uint256 totalPositive;
         uint256 totalNegative;
@@ -39,7 +46,7 @@ contract PrecompiledMockStorageWrapper {
                 continue;
             }
             totalPositive += uint256(uint64(amounts[index]));
-            if (!IERC20(token).transfer(accountIds[index], uint256(uint64(amounts[index]))))
+            if (!IERC20(token).transferFrom(msg.sender, accountIds[index], uint256(uint64(amounts[index]))))
                 return HederaResponseCodes.UNKNOWN;
         }
 
@@ -48,7 +55,15 @@ contract PrecompiledMockStorageWrapper {
     }
 }
 
-contract PrecompiledMockFacet is IStaticFunctionSelectors, IPrecompiledMock, PrecompiledMockStorageWrapper {
+contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
+    function transferTokens(
+        address token,
+        address[] memory accountIds,
+        int64[] memory amounts
+    ) external returns (int32 responseCode) {
+        return _transferTokens(token, accountIds, amounts);
+    }
+
     function setPrecompiledTransferStatus(bool _success) external {
         _setPrecompiledTransferStatus(_success);
     }
@@ -56,29 +71,4 @@ contract PrecompiledMockFacet is IStaticFunctionSelectors, IPrecompiledMock, Pre
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
     }
-
-    function getStaticResolverKey() external pure virtual override returns (bytes32 staticResolverKey_) {
-        staticResolverKey_ = PRECOMPILED_RESOLVER_KEY;
-    }
-
-    function getStaticFunctionSelectors()
-        external
-        pure
-        virtual
-        override
-        returns (bytes4[] memory staticFunctionSelectors_)
-    {
-        uint256 selectorIndex;
-        staticFunctionSelectors_ = new bytes4[](2);
-        staticFunctionSelectors_[selectorIndex++] = this.setPrecompiledTransferStatus.selector;
-        staticFunctionSelectors_[selectorIndex++] = this.getPrecompiledTransferStatus.selector;
-    }
-
-    function getStaticInterfaceIds() external pure virtual override returns (bytes4[] memory staticInterfaceIds_) {
-        staticInterfaceIds_ = new bytes4[](1);
-        uint256 selectorsIndex;
-        staticInterfaceIds_[selectorsIndex++] = type(IPrecompiledMock).interfaceId;
-    }
 }
-
-contract PrecompiledMockFacetTimeTravel is TimeTravelStorageWrapper, PrecompiledMockFacet {}

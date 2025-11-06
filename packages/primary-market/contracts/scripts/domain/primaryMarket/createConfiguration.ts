@@ -28,13 +28,6 @@ import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
  */
 const PRIMARY_MARKET_FACETS = ["AccessControlFacet", "PauseFacet", "PrimaryMarketFacet"] as const;
 
-const PRIMARY_MARKET_FACETS_TEST = [
-  "AccessControlFacet",
-  "PauseFacet",
-  "PrimaryMarketFacet",
-  "PrecompiledMockFacet",
-] as const;
-
 /**
  * Create PrimaryMarket configuration in BusinessLogicResolver.
  *
@@ -77,14 +70,11 @@ export async function createPrimaryMarketConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
-  testFacets: boolean = false,
   primaryMarketRegistry: RegistryProvider,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  const FACETS = testFacets ? PRIMARY_MARKET_FACETS_TEST : PRIMARY_MARKET_FACETS;
-
   return createBatchConfiguration(blrContract, {
     configurationId: PRIMARY_MARKET_CONFIG_ID,
-    facetNames: FACETS,
+    facetNames: PRIMARY_MARKET_FACETS,
     facetAddresses,
     useTimeTravel,
     partialBatchDeploy: false,

@@ -25,14 +25,6 @@ const FACTORY_PRIMARY_MARKET_FACETS: Record<string, FacetDefinition> = {
   AccessControlFacet: ATS_REGISTRY.AccessControlFacet,
   PauseFacet: ATS_REGISTRY.PauseFacet,
   TimeTravelFacet: ATS_REGISTRY.TimeTravelFacet,
-  PrecompiledMockFacet: {
-    name: "PrecompiledMockFacet",
-    description: "Precompiled Mock operations (transferTokens)",
-    resolverKey: {
-      name: "PRECOMPILED_RESOLVER_KEY",
-      value: "0x580681ced25386bbb5c81fc39115f7a206519985c0d089dc4e16e54bb557e91c",
-    },
-  },
 
   // GBP custom facets
   FactoryPrimaryMarketFacet: {

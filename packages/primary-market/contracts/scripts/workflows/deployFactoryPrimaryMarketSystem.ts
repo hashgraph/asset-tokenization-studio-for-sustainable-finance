@@ -142,7 +142,6 @@ export async function deployFactoryPrimaryMarketSystem(
           "FactoryPrimaryMarketFacetTimeTravel",
           "PrimaryMarketFacetTimeTravel",
           "TimeTravelFacet",
-          "PrecompiledMockFacetTimeTravel",
         ]
       : ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet", "PrimaryMarketFacet"];
 
@@ -205,7 +204,6 @@ export async function deployFactoryPrimaryMarketSystem(
     const primaryMarketConfig = await createPrimaryMarketConfiguration(
       blrContract,
       facetAddresses,
-      useTimeTravel,
       useTimeTravel,
       factoryPrimaryMarketRegistry,
     );

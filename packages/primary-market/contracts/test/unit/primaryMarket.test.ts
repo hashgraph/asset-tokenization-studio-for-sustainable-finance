@@ -1,14 +1,7 @@
 import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import {
-  IFactoryPrimaryMarket,
-  IBusinessLogicResolver,
-  IAccessControl,
-  IPrimaryMarket,
-  IPause,
-  IPrecompiledMock,
-} from "@contracts";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket, IPause } from "@contracts";
 import {
   DEFAULT_ADMIN_ROLE,
   deployFactoryPrimaryMarketSystem,
@@ -26,12 +19,11 @@ import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { INT64_MAX } from "../constants";
+import { INT64_MAX, HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 
 // Contracts
 let primaryMarket: IPrimaryMarket;
 let primaryMarketTimeTravel: ITimeTravel;
-let primaryMarketPrecompiled: IPrecompiledMock;
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
@@ -57,12 +49,26 @@ let primaryMarketAddress: string;
 // Mock contracts
 let mockAsset: Contract;
 let mockPaymentToken: Contract;
+let mockPrecompiled: Contract;
 
 describe("PrimaryMarket", () => {
   configureLogger({ level: LogLevel.SILENT });
 
+  async function deployPrecompiledMock() {
+    const PrecompiledMockContract = await ethers.getContractFactory("PrecompiledMock");
+
+    const deployed = await PrecompiledMockContract.deploy();
+    await deployed.deployed();
+
+    const runtimeBytecode = await ethers.provider.getCode(deployed.address);
+    await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
+    mockPrecompiled = await ethers.getContractAt("PrecompiledMock", HEDERA_PRECOMPILED_ADDRESS);
+  }
+
   async function deployFixture() {
     const provider = new HardhatProvider();
+
+    await deployPrecompiledMock();
 
     // Deploy factory system
     const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
@@ -122,10 +128,6 @@ describe("PrimaryMarket", () => {
     primaryMarketAddress = event.args.primaryMarketAddress;
     primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
     primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
-    primaryMarketPrecompiled = (await ethers.getContractAt(
-      "IPrecompiledMock",
-      primaryMarketAddress,
-    )) as IPrecompiledMock;
     pause = (await ethers.getContractAt("Pause", primaryMarketAddress)) as IPause;
 
     // Deploy mock tokens
@@ -875,7 +877,7 @@ describe("PrimaryMarket", () => {
     async function executeSuccess(paginatedMethod: boolean = true) {
       await reachTarget();
 
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const TreasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
@@ -966,7 +968,7 @@ describe("PrimaryMarket", () => {
     it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
       await reachTarget();
 
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
 
       const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
@@ -1000,7 +1002,8 @@ describe("PrimaryMarket", () => {
       await reachTarget();
 
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(false);
+
+      await mockPrecompiled.setPrecompiledTransferStatus(false);
 
       const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
 
@@ -1111,7 +1114,7 @@ describe("PrimaryMarket", () => {
     it("GIVEN offering WHEN executing by subscription IDs with non-existing subscription THEN revert", async () => {
       // Create and reach target first
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       const iterations = offering.targetLots / offering.minLots;
       for (let i = 0; i < iterations; i++) {
@@ -1130,7 +1133,7 @@ describe("PrimaryMarket", () => {
     it("GIVEN offering WHEN executing with already executed subscription THEN mark as already processed", async () => {
       // Create and reach target
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       const iterations = offering.targetLots / offering.minLots;
       for (let i = 0; i < iterations; i++) {
@@ -1184,7 +1187,7 @@ describe("PrimaryMarket", () => {
       await primaryMarket.connect(investor1).submitSubscription(ofId, 100);
 
       await primaryMarketTimeTravel.changeSystemTimestamp(now + 3601);
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       const executeTx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(ofId, [1]);
       const failed = (await executeTx.wait()).events
@@ -1231,7 +1234,7 @@ describe("PrimaryMarket", () => {
     async function createSubscriptions(numSubscriptions: number) {
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
       // Enable precompiled transfer for subscriptions and cancellations to work
-      await primaryMarketPrecompiled.setPrecompiledTransferStatus(true);
+      await mockPrecompiled.setPrecompiledTransferStatus(true);
 
       for (let i = 0; i < numSubscriptions; i++) {
         const investor = i % 2 == 0 ? investor1 : investor2;

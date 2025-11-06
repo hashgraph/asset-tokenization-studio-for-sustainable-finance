@@ -36,4 +36,9 @@ contract MockERC20 is ERC20 {
         if (transferFromFail) return false;
         return super.transferFrom(from, to, amount);
     }
+
+    function approveFor(address owner, address spender, uint256 amount) public virtual returns (bool) {
+        _approve(owner, spender, amount);
+        return true;
+    }
 }
