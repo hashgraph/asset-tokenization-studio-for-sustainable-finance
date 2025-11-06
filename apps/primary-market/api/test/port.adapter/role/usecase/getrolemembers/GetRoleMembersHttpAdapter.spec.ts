@@ -57,7 +57,7 @@ describe("GetRoleMembers API Integration", () => {
     await app.close()
   })
 
-  describe("GET /primary-markets/:marketContractId/roles/:roleId/members", () => {
+  describe("GET /primary-markets/:marketContractId/roles/:roleHex/members", () => {
     it("should return empty list when role has no members", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",

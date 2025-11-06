@@ -11,14 +11,14 @@ import { GetSubscriptionsQuery } from "@app/subscription/getsubscriptions/query/
 export class GetSubscriptionsHttpAdapter implements GetSubscriptionsPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":marketContractId/offerings/:offeringId/subscriptions")
+  @Get(":marketContractId/offerings/:offeringDltId/subscriptions")
   async getSubscriptions(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringId") offeringId: string,
+    @Param("offeringDltId") offeringDltId: string,
     @Query() queryPageRequest: QueryPageRequest,
   ): Promise<PageResponse<SubscriptionResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetSubscriptionsQuery(marketContractId, offeringId, queryPageOptions)
+    const query = new GetSubscriptionsQuery(marketContractId, offeringDltId, queryPageOptions)
     return await this.queryBus.execute(query)
   }
 }

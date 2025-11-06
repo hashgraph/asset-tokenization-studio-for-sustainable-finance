@@ -11,13 +11,13 @@ import { GetSubscriptionQuery } from "@app/subscription/getsubscription/query/Ge
 export class GetSubscriptionHttpAdapter implements GetSubscriptionPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":marketContractId/offerings/:offeringId/subscriptions/:subscriptionId")
+  @Get(":marketContractId/offerings/:offeringDltId/subscriptions/:subscriptionDltId")
   async getSubscription(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringId") offeringId: string,
-    @Param("subscriptionId") subscriptionDltId: string,
+    @Param("offeringDltId") offeringDltId: string,
+    @Param("subscriptionDltId") subscriptionDltId: string,
   ): Promise<SubscriptionResponse> {
-    const query = new GetSubscriptionQuery(marketContractId, offeringId, subscriptionDltId)
+    const query = new GetSubscriptionQuery(marketContractId, offeringDltId, subscriptionDltId)
     return await this.queryBus.execute(query)
   }
 }

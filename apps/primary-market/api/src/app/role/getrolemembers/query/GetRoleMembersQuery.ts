@@ -12,16 +12,16 @@ export class GetRoleMembersQuery extends Query<QueryPageResponse<RoleMemberQuery
 
   @IsNotEmpty()
   @IsString()
-  readonly roleId: string
+  readonly roleHex: string
 
   @ValidateNested()
   @Type(() => QueryPageOptions)
   readonly pageOptions: QueryPageOptions
 
-  constructor(marketContractId: string, roleId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+  constructor(marketContractId: string, roleHex: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
     super()
     this.marketContractId = marketContractId
-    this.roleId = roleId
+    this.roleHex = roleHex
     this.pageOptions = pageOptions
   }
 }
