@@ -323,5 +323,5 @@ export const PROVIDERS = [
     provide: "TransactionManager",
     useClass: TypeOrmTransactionManager,
   },
-  CreateTreasuryFiltersNestJSEventAdapter
+  CreateTreasuryFiltersNestJSEventAdapter,
 ]

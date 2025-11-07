@@ -38,7 +38,7 @@ export class SyncTreasuryAppService {
     const paymentTokenExists = await this.paymentTokenRepository.existsByContractIdAndTreasuryContractId(
       paymentTokenContractId,
       treasuryContractId,
-      false
+      false,
     )
 
     if (!paymentTokenExists) {
@@ -51,11 +51,12 @@ export class SyncTreasuryAppService {
     environmentalAssets: string[],
   ): Promise<void> {
     for (const assetContractId of environmentalAssets) {
-      const environmentalAssetTokenExists = await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
-        assetContractId,
-        treasuryContractId,
-        false
-      )
+      const environmentalAssetTokenExists =
+        await this.environmentalAssetRepository.existsByContractIdAndTreasuryContractId(
+          assetContractId,
+          treasuryContractId,
+          false,
+        )
 
       if (!environmentalAssetTokenExists) {
         await this.commandBus.execute(new AddEnvironmentalAssetCommand(treasuryContractId, assetContractId))

@@ -17,11 +17,10 @@ export class CreateTreasuryCommandHandler implements CommandHandler<CreateTreasu
 
   @Validate()
   async execute(command: CreateTreasuryCommand): Promise<void> {
-    const now = new Date()
     const treasury = await this.treasuryRepository.save({
       contractId: command.treasuryContractId,
       bondContractId: command.bondContractId,
-      paused: false
+      paused: false,
     } as Treasury)
 
     this.eventBus.publish(new TreasuryCreatedEvent(treasury.contractId))

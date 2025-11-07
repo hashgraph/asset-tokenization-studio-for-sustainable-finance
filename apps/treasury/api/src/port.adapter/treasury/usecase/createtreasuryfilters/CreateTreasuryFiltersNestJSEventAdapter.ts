@@ -12,7 +12,7 @@ export class CreateTreasuryFiltersNestJSEventAdapter implements CreateTreasuryFi
   @Handler(TreasuryCreatedEvent)
   async handle(event: TreasuryCreatedEvent): Promise<void> {
     await this.commandBus.execute(
-      new AddEventFiltersCommand(await ConverterUtils.getEvmAddressFromHederaAddress(event.contractId), [
+      new AddEventFiltersCommand(await ConverterUtils.getEvmAddressFromHederaAddress(event.treasuryContractId), [
         "RoleGranted(address indexed operator, address indexed account, bytes32 indexed role)",
         "RoleRevoked(address indexed operator, address indexed account, bytes32 indexed role)",
         "RoleRenounced(address indexed account, bytes32 indexed role)",
