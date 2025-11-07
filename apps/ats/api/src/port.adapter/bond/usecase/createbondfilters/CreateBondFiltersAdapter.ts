@@ -24,6 +24,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "MaxSupplySet(address indexed operator,uint256 newMaxSupply,uint256 previousMaxSupply)",
         "AddedToControlList(address indexed operator,address indexed account)",
         "RemovedFromControlList(address indexed operator,address indexed account)",
+        "CouponSet(bytes32 corporateActionId,uint256 couponId,address indexed operator,uint256 indexed recordDate,uint256 indexed executionDate,uint256 rate)",
       ]),
     )
   }

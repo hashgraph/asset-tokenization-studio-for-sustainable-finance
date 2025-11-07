@@ -43,8 +43,15 @@ import { RemoveControlListMemberTransactionAppService } from "@app/bond/transact
 import { RemoveControlListMemberCommandHandler } from "@app/bond/removecontrollistmember/command/RemoveControlListMemberCommandHandler"
 import { RemoveControlListMemberNestJSEventAdapter } from "@port/bond/usecase/removecontrollistmember/RemoveControlListMemberNestJSEventAdapter"
 import { RemoveBondControlListMemberDomainService } from "@domain/bond/controllist/service/RemoveBondControlListMemberDomainService"
-import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
 import { BondControlListMemberTypeOrmRepository } from "@port/bond/persistence/repositories/BondControlListMemberTypeOrmRepository"
+import { SetBondCouponTransactionHttpAdapter } from "@port/transaction/usecase/setbondcoupontransaction/SetBondCouponTransactionHttpAdapter"
+import { SetBondCouponTransactionAppService } from "@app/bond/transaction/setbondcoupontransaction/service/SetBondCouponTransactionAppService"
+import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
+import { BondCouponPersistence } from "@port/bond/persistence/model/BondCouponPersistence"
+import { BondCouponTypeOrmRepository } from "@port/bond/persistence/repositories/BondCouponTypeOrmRepository"
+import { SetBondCouponCommandHandler } from "@app/bond/setbondcoupon/command/SetBondCouponCommandHandler"
+import { SetBondCouponNestJSEventAdapter } from "@port/bond/usecase/setbondcoupon/SetBondCouponNestJSEventAdapter"
+import { SetBondCouponDomainService } from "@domain/bond/coupon/service/SetBondCouponDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -59,6 +66,10 @@ const REPOSITORIES: Provider[] = [
     provide: "BondControlListMemberRepository",
     useClass: BondControlListMemberTypeOrmRepository,
   },
+  {
+    provide: "BondCouponRepository",
+    useClass: BondCouponTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -71,6 +82,7 @@ export const CONTROLLERS = [
   SetBondCapTransactionHttpAdapter,
   AddControlListMemberTransactionHttpAdapter,
   RemoveControlListMemberTransactionHttpAdapter,
+  SetBondCouponTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -98,20 +110,25 @@ export const PROVIDERS = [
   AddControlListMemberCommandHandler,
   AddControlListMemberNestJSEventAdapter,
   AddBondControlListMemberDomainService,
+  SetBondCouponTransactionAppService,
+  SetBondCouponCommandHandler,
+  SetBondCouponNestJSEventAdapter,
+  SetBondCouponDomainService,
   RemoveControlListMemberTransactionAppService,
   RemoveControlListMemberCommandHandler,
   RemoveControlListMemberNestJSEventAdapter,
   RemoveBondControlListMemberDomainService,
+  SetBondCouponTransactionAppService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
   },
 ]
-
 export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
   BondPersistence,
   BondDocumentPersistence,
   BondControlListMemberPersistence,
+  BondCouponPersistence,
 ]
