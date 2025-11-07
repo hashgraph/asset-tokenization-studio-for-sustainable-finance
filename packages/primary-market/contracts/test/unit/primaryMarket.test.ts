@@ -561,6 +561,40 @@ describe("PrimaryMarket", () => {
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
     });
 
+    it("GIVEN offering with OVERSUBSCRIPTION_ALLOWED + WAIT_UNTIL_END WHEN target reached and during offering period THEN OPEN", async () => {
+      const now = await time.latest();
+      const offering2: IPrimaryMarket.OfferingStruct = {
+        asset: mockAsset.address,
+        treasury: treasuryAddress,
+        paymentToken: mockPaymentToken.address,
+        lotSize: ethers.utils.parseUnits("1000", 6),
+        minLots: 1,
+        maxLots: 50,
+        targetLots: 100,
+        targetQuantityRule: 1, // OVERSUBSCRIPTION_ALLOWED
+        startDate: now + 60,
+        endDate: now + 3600,
+        deadlineRule: 0, // WAIT_UNTIL_END
+      };
+
+      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering2);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      const offering2Id = event?.args?.offeringId?.toNumber() || 0;
+
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering2.startDate + 1);
+
+      // Reach target
+      const iterations = offering2.targetLots / offering2.maxLots;
+      for (let i = 0; i < iterations; i++) {
+        await primaryMarket.connect(investor1).submitSubscription(offering2Id, offering2.maxLots);
+      }
+
+      // Status should still be OPEN (accepts oversubscriptions)
+      const status = await primaryMarket.getOfferingStatus(offering2Id);
+      expect(status).to.equal(1); // OPEN
+    });
+
     async function reachTarget() {
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
 
@@ -614,6 +648,23 @@ describe("PrimaryMarket", () => {
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
       expect(status).to.equal(4); // CANCELLABLE
+    });
+
+    it("GIVEN target not reached and past endDate with all subscriptions cancelled WHEN checking status THEN CANCELLED", async () => {
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
+
+      // Subscribe but don't reach target
+      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
+
+      // Cancel the subscription while offering is still active
+      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+
+      // Move past endDate
+      await primaryMarketTimeTravel.changeSystemTimestamp(offering.endDate + 1);
+
+      // Status should be CANCELLED (pendingSubscribedLots = 0)
+      const status = await primaryMarket.getOfferingStatus(offeringId);
+      expect(status).to.equal(6); // CANCELLED
     });
   });
 
