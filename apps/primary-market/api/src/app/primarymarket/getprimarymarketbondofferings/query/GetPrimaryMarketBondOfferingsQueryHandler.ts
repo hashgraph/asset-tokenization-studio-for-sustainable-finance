@@ -41,7 +41,7 @@ export class GetPrimaryMarketBondOfferingsQueryHandler
     return QueryPageResponse.fromPage(offeringsPage, (offering: Offering) => ({
       offeringDltId: offering.offeringDltId,
       bondContractId: offering.bondContractId,
-      operatorId: offering.operatorId,
+      operatorAccountId: offering.operatorAccountId,
       treasuryContractId: offering.treasuryContractId,
       paymentTokenContractId: offering.paymentTokenContractId,
       lotSize: offering.lotSize,

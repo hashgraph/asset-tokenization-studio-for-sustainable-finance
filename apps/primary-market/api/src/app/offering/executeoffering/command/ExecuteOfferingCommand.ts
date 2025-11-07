@@ -13,7 +13,7 @@ export class ExecuteOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  operatorId: string
+  operatorAccountId: string
 
   @IsArray()
   @IsNumberString({}, { each: true })
@@ -26,14 +26,14 @@ export class ExecuteOfferingCommand extends Command<void> {
   constructor(
     offeringDltId: string,
     marketContractId: string,
-    operatorId: string,
+    operatorAccountId: string,
     subscriptionDltIdsSuccess: string[],
     subscriptionDltIdsFailed: string[],
   ) {
     super()
     this.offeringDltId = offeringDltId
     this.marketContractId = marketContractId
-    this.operatorId = operatorId
+    this.operatorAccountId = operatorAccountId
     this.subscriptionDltIdsSuccess = subscriptionDltIdsSuccess
     this.subscriptionDltIdsFailed = subscriptionDltIdsFailed
   }

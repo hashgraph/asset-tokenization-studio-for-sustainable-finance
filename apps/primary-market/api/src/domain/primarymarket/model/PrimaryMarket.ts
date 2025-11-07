@@ -12,7 +12,7 @@ export class PrimaryMarket extends BaseEntity {
   @IsBoolean()
   isPaused: boolean
 
-  checkActive(): void {
+  ensureActive(): void {
     if (this.isPaused) {
       throw PrimaryMarketPausedError.pausedError(this.contractId)
     }

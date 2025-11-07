@@ -24,7 +24,7 @@ export class SubmitSubscriptionDomainService {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
       submitSubscriptionDomainServiceRequest.marketContractId,
     )
-    market.checkActive()
+    market.ensureActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
       submitSubscriptionDomainServiceRequest.offeringDltId,
