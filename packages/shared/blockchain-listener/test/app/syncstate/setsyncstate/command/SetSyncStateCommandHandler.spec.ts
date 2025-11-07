@@ -9,7 +9,7 @@ import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStat
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { CommandBus, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { SetSyncStateCommand } from "@app/syncstate/setsyncstate/command/SetSyncStateCommand"
-import { PROVIDERS } from "../../../../../src/Components"
+import { EVENT_LISTENER_PROVIDERS } from "../../../../../src/Components"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
 import { PostgresModule } from "../../../../shared/PostgresModule"
 
@@ -25,7 +25,7 @@ describe("SetSyncStateCommandHandler", () => {
   })
 
   beforeEach(async () => {
-    const providers = PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
+    const providers = EVENT_LISTENER_PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       providers,
