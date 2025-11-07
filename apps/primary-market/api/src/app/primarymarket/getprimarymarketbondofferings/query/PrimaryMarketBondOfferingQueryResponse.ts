@@ -14,4 +14,5 @@ export class PrimaryMarketBondOfferingQueryResponse {
   startDate: Date
   endDate: Date
   deadlineRule: number
+  createdAt: Date
 }

@@ -52,6 +52,7 @@ export class GetPrimaryMarketBondOfferingsQueryHandler
       startDate: offering.startDate,
       endDate: offering.endDate,
       deadlineRule: offering.deadlineRule,
+      createdAt: offering.createdAt,
     }))
   }
 }

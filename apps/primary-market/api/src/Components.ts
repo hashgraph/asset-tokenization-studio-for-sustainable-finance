@@ -71,6 +71,8 @@ import { GetSubscriptionsByInvestorQueryHandler } from "@app/subscription/getsub
 import { GetRoleMembersHttpAdapter } from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 import { GetRoleMembersQueryHandler } from "@app/role/getrolemembers/query/GetRoleMembersQueryHandler"
 import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExistsDomainService"
+import { GetOfferingHttpAdapter } from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
+import { GetOfferingQueryHandler } from "@app/offering/getoffering/query/GetOfferingQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -119,6 +121,7 @@ export const CONTROLLERS = [
   GetSubscriptionsHttpAdapter,
   GetSubscriptionsByInvestorHttpAdapter,
   GetRoleMembersHttpAdapter,
+  GetOfferingHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -161,6 +164,7 @@ export const PROVIDERS = [
   GetSubscriptionsByInvestorQueryHandler,
   GetRoleMembersQueryHandler,
   CheckRoleExistsDomainService,
+  GetOfferingQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

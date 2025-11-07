@@ -100,7 +100,7 @@ describe("GetSubscription API Integration", () => {
       expect(response.body).toMatchObject({
         subscriptionDltId: "1",
         offeringDltId: "1",
-        investorId: "0.0.1111",
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
