@@ -1,6 +1,6 @@
 import { Kpi, Kpi__factory, ProxyAdmin } from "@contract-types";
 import { IResolverProxy } from "@contract-types/contracts/Kpi";
-import { configureLogger, deployProxy, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { deployProxy } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { processAddressableArgs } from "@scripts";
 import { Signer } from "ethers";
 
@@ -20,7 +20,6 @@ export async function deployKpi(
   kpi: Kpi;
   kpiLogic: Kpi;
 }> {
-  configureLogger({ level: LogLevel.SILENT });
   const kpiLogic = await deployKpiLogic(signer);
   const processedRbac = (await processAddressableArgs(rbac)) as IResolverProxy.RbacStruct[];
   const initData = kpiLogic.interface.encodeFunctionData("initialize", [processedRbac]);
@@ -28,7 +27,7 @@ export async function deployKpi(
   const kpiFactory = new Kpi__factory(signer);
   const result = await deployProxy(signer, {
     implementationFactory: kpiFactory,
-    proxyAdminAddress: proxyAdmin.address,
+    existingProxyAdmin: proxyAdmin,
     initData,
   });
 

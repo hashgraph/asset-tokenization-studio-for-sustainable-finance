@@ -185,11 +185,24 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     }
   });
 
+  const mockFacetsWithKeys = Object.entries(mockFacetAddresses).map(([name, address]) => {
+    const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
+    if (factorySuiteFacet?.resolverKey?.value) {
+      return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
+    }
+
+    const atsFacet = atsRegistry.getFacetDefinition(name);
+    if (atsFacet?.resolverKey?.value) {
+      return { name, address, resolverKey: atsFacet.resolverKey.value };
+    }
+
+    throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+  });
+
   // Register MockTreasuryFacet in BLR using registerAdditionalFacets
   const registerResult = await registerAdditionalFacets(deployer, {
     blrAddress: blr.address,
-    newFacets: mockFacetAddresses,
-    registries: [atsRegistry, factorySuiteRegistry],
+    newFacets: mockFacetsWithKeys,
   });
 
   if (!registerResult.success) {
@@ -203,10 +216,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     MockTreasuryFacet: mockFacetAddresses.MockTreasuryFacet,
   };
 
-  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false, [
-    atsRegistry,
-    factorySuiteRegistry,
-  ]);
+  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false);
 
   if (!treasuryConfigResult.success) {
     throw new Error(`Failed to create Treasury configuration: ${treasuryConfigResult.error}`);

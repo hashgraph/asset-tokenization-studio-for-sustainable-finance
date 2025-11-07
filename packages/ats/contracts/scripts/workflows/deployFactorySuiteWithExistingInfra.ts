@@ -26,6 +26,7 @@ import {
   deployFacets,
   registerAdditionalFacets,
   deployResolverProxy,
+  LATEST_VERSION,
   atsRegistry,
   info,
   success,
@@ -208,10 +209,23 @@ export async function deployFactorySuiteWithExistingInfra(
 
     const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
 
+    const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
+      const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
+      if (factorySuiteFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+    });
+
     const registerResult = await registerAdditionalFacets(signer, {
       blrAddress,
-      newFacets: newFacetAddresses,
-      registries: [atsRegistry, factorySuiteRegistry],
+      newFacets: newFacetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -239,10 +253,7 @@ export async function deployFactorySuiteWithExistingInfra(
           FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
         };
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel, [
-      atsRegistry,
-      factorySuiteRegistry,
-    ]);
+    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
@@ -264,7 +275,7 @@ export async function deployFactorySuiteWithExistingInfra(
     const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress,
       configurationId: fsConfig.data.configurationId,
-      version: fsConfig.data.version,
+      version: LATEST_VERSION,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,

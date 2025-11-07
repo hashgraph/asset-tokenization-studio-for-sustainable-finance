@@ -5,7 +5,8 @@ import { ProxyAdmin, Kpi } from "@contract-types";
 import { IResolverProxy } from "@contract-types/contracts/Kpi";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ROLES, PAUSER_ROLE, upgradeKpiProxy, deployKpi } from "@scripts/domain";
-import { deployProxyAdmin, getImplementationAddress } from "@scripts";
+import { getImplementationAddress } from "@scripts";
+import { deployProxyAdmin } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 describe("Kpi", () => {
   let kpi: Kpi;
@@ -22,7 +23,7 @@ describe("Kpi", () => {
       },
       { role: PAUSER_ROLE, members: [await owner.getAddress()] },
     ];
-    proxyAdmin = await deployProxyAdmin();
+    proxyAdmin = await deployProxyAdmin(owner);
 
     kpi = (await deployKpi(owner, proxyAdmin, rbac)).kpi;
   }

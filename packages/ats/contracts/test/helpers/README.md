@@ -9,6 +9,7 @@ When writing tests, choosing between fixtures and helper functions is important 
 **Purpose**: Setup expensive initial state that can be snapshotted and reused across tests.
 
 **Use fixtures when:**
+
 - Deploying infrastructure (BLR, ProxyAdmin, Diamond facets) - expensive operations
 - Setting up initial contracts that remain the same across tests
 - Creating test accounts and initial data structures
@@ -17,10 +18,11 @@ When writing tests, choosing between fixtures and helper functions is important 
 **Key benefit**: State is snapshotted once and restored quickly for each test.
 
 **Examples in this codebase:**
+
 ```typescript
 // From factorySuiteFixtures.ts
-deployFactorySuiteInfrastructureFixture()  // Deploys Diamond proxy, BLR, facets
-deployFactorySuiteWithMocksForBusinessLogic()  // Deploys + configures mocks
+deployFactorySuiteInfrastructureFixture(); // Deploys Diamond proxy, BLR, facets
+deployFactorySuiteWithMocksForBusinessLogic(); // Deploys + configures mocks
 ```
 
 ### Helper Functions
@@ -28,6 +30,7 @@ deployFactorySuiteWithMocksForBusinessLogic()  // Deploys + configures mocks
 **Purpose**: Encapsulate repeated operations that happen during tests with varying parameters.
 
 **Use helper functions when:**
+
 - Operations need **different parameters** for each test
 - The operation is the actual **"Act"** being tested (not just setup)
 - Operations happen **multiple times** or **mid-test**
@@ -36,12 +39,13 @@ deployFactorySuiteWithMocksForBusinessLogic()  // Deploys + configures mocks
 **Key benefit**: DRY principle without forcing identical state across tests.
 
 **Examples in this codebase:**
+
 ```typescript
 // From data.ts
-createTestDataSets()  // Generates test data with different parameters
+createTestDataSets(); // Generates test data with different parameters
 
 // From deployment.ts
-deployBondSuiteAndExtractContracts()  // Deploys with varying parameters during test
+deployBondSuiteAndExtractContracts(); // Deploys with varying parameters during test
 ```
 
 ### Rule of Thumb

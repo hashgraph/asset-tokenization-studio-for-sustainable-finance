@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ROLES, PAUSER_ROLE } from "@scripts/domain";
-import { deployProxyAdmin } from "@scripts";
+import { deployProxyAdmin } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
@@ -35,7 +35,7 @@ describe("Kpi - TimeTravel Tests", () => {
       { role: PAUSER_ROLE, members: [ownerAddress] },
     ];
 
-    const proxyAdmin = await deployProxyAdmin();
+    const proxyAdmin = await deployProxyAdmin(owner);
     const kpiLogic = await new KpiTimeTravel__factory(owner).deploy();
 
     const initData = kpiLogic.interface.encodeFunctionData("initialize", [rbac]);

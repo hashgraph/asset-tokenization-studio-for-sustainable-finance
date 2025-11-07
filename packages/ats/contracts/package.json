@@ -5,30 +5,34 @@
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
   "files": [
-    "build/",
+    "artifacts/",
     "contracts/",
+    "typechain-types/",
+    "scripts/",
+    "build/",
+    "!artifacts/build-info/",
     "!build/**/*.map"
   ],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
+      "require": "./build/typechain-types/index.js"
     },
-    "./typechain": {
-      "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
-    },
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts/": "./scripts/index.ts",
     "./scripts": {
       "types": "./build/scripts/index.d.ts",
-      "import": "./build/scripts/index.js",
-      "require": "./build/scripts/index.js",
-      "default": "./build/scripts/index.js"
+      "require": "./build/scripts/index.js"
     },
-    "./contracts/*": "./contracts/*",
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "require": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "require": "./build/test/index.js"
+    },
     "./package.json": "./package.json"
   },
   "keywords": [

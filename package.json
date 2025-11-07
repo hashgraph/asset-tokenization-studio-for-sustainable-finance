@@ -11,9 +11,10 @@
     "apps/treasury/api",
     "packages/ats/contracts",
     "packages/primary-market/contracts",
-    "packages/treasury/contracts",
     "packages/shared/blockchain-listener",
+    "packages/shared/contracts",
     "packages/shared/core",
+    "packages/treasury/contracts",
     "scripts"
   ],
   "scripts": {

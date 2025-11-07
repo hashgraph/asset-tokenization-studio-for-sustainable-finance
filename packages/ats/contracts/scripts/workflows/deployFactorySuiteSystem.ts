@@ -25,6 +25,7 @@ import {
   deployFacets,
   registerFacets,
   deployResolverProxy,
+  LATEST_VERSION,
   atsRegistry,
   info,
   success,
@@ -168,7 +169,7 @@ export async function deployFactorySuiteSystem(
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(signer, {
-      proxyAdminAddress: proxyAdmin.address,
+      existingProxyAdmin: proxyAdmin,
     });
 
     if (!blrResult.success) {
@@ -217,9 +218,22 @@ export async function deployFactorySuiteSystem(
 
     const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
 
+    const facetsWithKeys = Object.entries(facetAddresses).map(([name, address]) => {
+      const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
+      if (factorySuiteFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+    });
+
     const registerResult = await registerFacets(blrContract, {
-      facets: facetAddresses,
-      registries: [atsRegistry, factorySuiteRegistry],
+      facets: facetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -230,10 +244,7 @@ export async function deployFactorySuiteSystem(
 
     info("\n💼 Step 5/6: Creating FactorySuite configuration...");
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel, [
-      atsRegistry,
-      factorySuiteRegistry,
-    ]);
+    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel);
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
@@ -250,7 +261,7 @@ export async function deployFactorySuiteSystem(
     const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: fsConfig.data.configurationId,
-      version: fsConfig.data.version,
+      version: LATEST_VERSION,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,
