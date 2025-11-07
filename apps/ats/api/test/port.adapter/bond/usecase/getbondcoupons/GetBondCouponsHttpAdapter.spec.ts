@@ -109,7 +109,7 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         isin: "US1234567890",
       })
 
-      const coupon1 = await internalBondCouponRepository.save({
+      await internalBondCouponRepository.save({
         contractId: bond.contractId,
         corporateActionId: `0x${Date.now().toString(16).padStart(64, "0")}`,
         couponId: "1",
@@ -119,7 +119,7 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         rate: "5.5",
       })
 
-      const coupon2 = await internalBondCouponRepository.save({
+      await internalBondCouponRepository.save({
         contractId: bond.contractId,
         corporateActionId: `0x${(Date.now() + 1).toString(16).padStart(64, "0")}`,
         couponId: "2",
