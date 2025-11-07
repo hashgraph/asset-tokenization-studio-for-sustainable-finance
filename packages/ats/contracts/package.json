@@ -4,11 +4,7 @@
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
-  "files": [
-    "build/",
-    "contracts/",
-    "!build/**/*.map"
-  ],
+  "files": ["build/", "contracts/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
@@ -31,12 +27,7 @@
     "./contracts/*": "./contracts/*",
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -56,12 +47,13 @@
     "generate:registry": "npx ts-node -r tsconfig-paths/register scripts/tools/generateRegistry.ts",
     "compile": "npx hardhat compile",
     "compile:force": "npx hardhat compile --force",
-    "test": "npx hardhat test",
-    "test:factory-suite": "npx hardhat test test/unit/factorySuite.test.ts test/unit/factorySuiteFacet.test.ts",
-    "test:kpi": "npx hardhat test test/unit/kpi.test.ts",
-    "coverage": "npx hardhat coverage",
-    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/unit/factorySuite*.test.ts'",
-    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/unit/kpi.test.ts'",
+    "test": "bash -c 'npx hardhat test test/unit/*.test.ts test/integration/*.test.ts'",
+    "test:factory-suite": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*factorySuite*.test.ts test/integration/*factorySuite*.test.ts'",
+    "test:kpi": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*kpi*.test.ts test/integration/*kpi*.test.ts'",
+    "test:integration": "bash -c 'npx hardhat test test/integration/*.test.ts'",
+    "coverage": "npx hardhat coverage --testfiles 'test/{unit,integration}/*.test.ts'",
+    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/{unit,integration}/*factorySuite*.test.ts'",
+    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
     "prepack": "npm run compile:force"
   },
   "devDependencies": {
@@ -83,9 +75,9 @@
     "eslint": "^9.36.0",
     "ethers": "^5.8.0",
     "glob": "^11.0.3",
-    "hardhat": "^v2.26.3",
+    "hardhat": "^v2.26.5",
     "hardhat-abi-exporter": "^2.11.0",
-    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-contract-sizer": "^2.10.1",
     "hardhat-dependency-compiler": "^1.2.1",
     "jiti": "^2.6.0",
     "prettier-plugin-solidity": "^2.1.0",

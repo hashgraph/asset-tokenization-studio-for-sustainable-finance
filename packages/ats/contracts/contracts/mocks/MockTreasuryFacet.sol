@@ -18,6 +18,31 @@ contract MockTreasuryFacet is IStaticFunctionSelectors {
     address public bondAddress;
     address public paymentToken;
     address[] public environmentalAssets;
+
+    /** @notice Initialize lifecycle cash flow with bond address */
+    // solhint-disable-next-line func-name-mixedcase
+    function initialize_LifeCycleCashFlow(address bond) external {
+        require(!lifeCycleCashFlowInitialized, "MockTreasuryFacet: lifecycle already initialized");
+        lifeCycleCashFlowInitialized = true;
+        bondAddress = bond;
+    }
+
+    /** @notice Initialize portfolio with payment token and environmental assets */
+    // solhint-disable-next-line func-name-mixedcase
+    function initialize_Portfolio(address _paymentToken, address[] memory _environmentalAssets) external {
+        require(!portfolioInitialized, "MockTreasuryFacet: portfolio already initialized");
+        portfolioInitialized = true;
+        paymentToken = _paymentToken;
+        for (uint256 i = 0; i < _environmentalAssets.length; i++) {
+            environmentalAssets.push(_environmentalAssets[i]);
+        }
+    }
+
+    /** @notice Get count of environmental assets */
+    function getEnvironmentalAssetsCount() external view returns (uint256) {
+        return environmentalAssets.length;
+    }
+
     function getStaticResolverKey() external pure override returns (bytes32) {
         return MOCK_TREASURY_RESOLVER_KEY;
     }
@@ -41,27 +66,5 @@ contract MockTreasuryFacet is IStaticFunctionSelectors {
         bytes4[] memory interfaceIds = new bytes4[](1);
         interfaceIds[0] = type(IStaticFunctionSelectors).interfaceId;
         return interfaceIds;
-    }
-
-    /** @notice Initialize lifecycle cash flow with bond address */
-    function initialize_LifeCycleCashFlow(address bond) external {
-        require(!lifeCycleCashFlowInitialized, "MockTreasuryFacet: lifecycle already initialized");
-        lifeCycleCashFlowInitialized = true;
-        bondAddress = bond;
-    }
-
-    /** @notice Initialize portfolio with payment token and environmental assets */
-    function initialize_Portfolio(address _paymentToken, address[] memory _environmentalAssets) external {
-        require(!portfolioInitialized, "MockTreasuryFacet: portfolio already initialized");
-        portfolioInitialized = true;
-        paymentToken = _paymentToken;
-        for (uint256 i = 0; i < _environmentalAssets.length; i++) {
-            environmentalAssets.push(_environmentalAssets[i]);
-        }
-    }
-
-    /** @notice Get count of environmental assets */
-    function getEnvironmentalAssetsCount() external view returns (uint256) {
-        return environmentalAssets.length;
     }
 }

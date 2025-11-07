@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-10-28T13:06:20.832Z
+ * Generated: 2025-11-03T10:57:07.829Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6
@@ -112,12 +112,12 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
   FactorySuiteStorageWrapper: {
     name: "FactorySuiteStorageWrapper",
     description: "Storage wrapper with deployment and configuration logic for FactorySuite",
-    inheritance: ["IFactorySuite"],
+    inheritance: ["AtsCommon"],
     methods: [
       {
         name: "_configureTreasuryContract",
-        signature: "_configureTreasuryContract(address,TreasuryData,address)",
-        selector: "0x5a42aaf6",
+        signature: "_configureTreasuryContract(address,IFactorySuite.TreasuryData,address)",
+        selector: "0xf9a24525",
       },
       {
         name: "_deployBondContract",
@@ -126,13 +126,13 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
       },
       {
         name: "_deployKpiContract",
-        signature: "_deployKpiContract(KpiData)",
-        selector: "0x24f42f9e",
+        signature: "_deployKpiContract(IFactorySuite.KpiData)",
+        selector: "0x5af90fdb",
       },
       {
         name: "_deployTreasuryContract",
-        signature: "_deployTreasuryContract(TreasuryData,address)",
-        selector: "0x4df97db0",
+        signature: "_deployTreasuryContract(IFactorySuite.TreasuryData,address)",
+        selector: "0xb63d9862",
       },
     ],
   },

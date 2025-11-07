@@ -35,6 +35,7 @@
     "ats:contracts:test": "npm run test --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:test:factory-suite": "npm run test:factory-suite --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:test:kpi": "npm run test:kpi --workspace=@hashgraph/green-bonds-platform-ats-contracts",
+    "ats:contracts:test:integration": "npm run test:integration --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:coverage": "npm run coverage --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:coverage:factory-suite": "npm run coverage:factory-suite --workspace=@hashgraph/green-bonds-platform-ats-contracts",
     "ats:contracts:coverage:kpi": "npm run coverage:kpi --workspace=@hashgraph/green-bonds-platform-ats-contracts",

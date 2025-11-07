@@ -4,8 +4,7 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { ReentrancyGuard } from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
+import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { DEPLOYER_ROLE } from "../constants/roles.sol";
 import { FactorySuiteStorageWrapper } from "./FactorySuiteStorageWrapper.sol";
 // solhint-enable max-line-length
@@ -14,7 +13,7 @@ import { FactorySuiteStorageWrapper } from "./FactorySuiteStorageWrapper.sol";
  * @title FactorySuite
  * @notice Deploys an atomic suite of Bond, Treasury, and Kpi contracts with pre-flight validation
  */
-abstract contract FactorySuite is FactorySuiteStorageWrapper, AtsCommon, ReentrancyGuard {
+abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, ReentrancyGuard {
     using Address for address;
 
     /**
@@ -64,19 +63,19 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, AtsCommon, Reentra
         validContractAddress(bondFactoryAddress)
         validTreasuryData(treasuryData)
         validKpiData(kpiData)
-        returns (address bondAddress, address treasuryAddress, address KpiAddress)
+        returns (address bondAddress, address treasuryAddress, address kpiAddress)
     {
-        KpiAddress = _deployKpiContract(kpiData);
+        kpiAddress = _deployKpiContract(kpiData);
 
-        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData, KpiAddress);
+        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData, kpiAddress);
 
         treasuryAddress = _deployTreasuryContract(treasuryData, bondAddress);
 
         emit BondSuiteDeployed(
-            msg.sender,
+            _msgSender(),
             bondAddress,
             treasuryAddress,
-            KpiAddress,
+            kpiAddress,
             bondData,
             factoryRegulationData,
             treasuryData,
