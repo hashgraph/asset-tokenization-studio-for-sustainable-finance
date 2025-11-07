@@ -8,7 +8,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { EventFilterPersistence } from "@hashgraph/green-bonds-blockchain-listener"
+import { EventFilterPersistence } from "@hashgraph/green-bonds-blockchain-listener/dist/port.adapter/persistence/eventfilter/model/EventFilterPersistence"
 import { TreasuryCreatedEvent } from "@domain/treasury/event/TreasuryCreatedEvent"
 
 describe("CreateTreasuryFilters Integration", () => {
@@ -44,6 +44,7 @@ describe("CreateTreasuryFilters Integration", () => {
 
   it("should add Treasury events to events filters", async () => {
     const treasuryContractId = "0.0.111"
+    const treasuryContractEvmAddress = "0x000000000000000000000000000000000000006f"
 
     const event = new TreasuryCreatedEvent(
       treasuryContractId
@@ -52,141 +53,158 @@ describe("CreateTreasuryFilters Integration", () => {
 
     const events = await internalEventFilterRepository.find()
     expect(events).toHaveLength(17)
-    expect(transfers[0]).toEqual({
+    expect(events[0]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RoleGranted",
       eventSignature: "RoleGranted(address indexed operator, address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[1]).toEqual({
+    expect(events[1]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RoleRevoked",
       eventSignature: "RoleRevoked(address indexed operator, address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[2]).toEqual({
+    expect(events[2]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RoleRenounced",
       eventSignature: "RoleRenounced(address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[3]).toEqual({
+    expect(events[3]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RolesApplied",
       eventSignature: "RolesApplied(bytes32[] roles, bool[] actives, address account)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[4]).toEqual({
+    expect(events[4]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "TokenPaused",
       eventSignature: "TokenPaused(address indexed operator)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[5]).toEqual({
+    expect(events[5]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "TokenUnpaused",
       eventSignature: "TokenUnpaused(address indexed operator)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[6]).toEqual({
+    expect(events[6]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetAdded",
       eventSignature: "EnvironmentalAssetAdded(address indexed operator, address environmentalAsset)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[7]).toEqual({
+    expect(events[7]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetRemoved",
       eventSignature: "EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[8]).toEqual({
+    expect(events[8]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "PaymentTokenUpdated",
       eventSignature: "PaymentTokenUpdated(address indexed operator, address newPaymentToken, address oldPaymentToken, int256 dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[9]).toEqual({
+    expect(events[9]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "TokenDissociated",
       eventSignature: "TokenDissociated(address token)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[10]).toEqual({
+    expect(events[10]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "PaymentTokenTransferred",
       eventSignature: "PaymentTokenTransferred(address to, uint256 amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[11]).toEqual({
+    expect(events[11]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetTokenTransferred",
       eventSignature: "EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[12]).toEqual({
+    expect(events[12]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "ProceedsRecipientFunded",
       eventSignature: "ProceedsRecipientFunded(address proceedsRecipient, uint256 amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[13]).toEqual({
+    expect(events[13]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "DistributionExecuted",
       eventSignature: "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[14]).toEqual({
+    expect(events[14]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "DistributionByAddressesExecuted",
       eventSignature: "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[15]).toEqual({
+    expect(events[15]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RedemptionExecuted",
       eventSignature: "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
-    expect(transfers[16]).toEqual({
+    expect(events[16]).toEqual({
       id: expect.any(String),
-      contractAddress: treasuryContractId,
+      contractAddress: treasuryContractEvmAddress,
       eventName: "RedemptionByAddressesExecuted",
       eventSignature: "RedemptionByAddressesExecuted(address[] holders, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
+      deletedAt: null
     })
   })
 })
