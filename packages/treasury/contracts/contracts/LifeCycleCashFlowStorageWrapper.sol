@@ -3,7 +3,9 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
+import {
+    ILifeCycleCashFlowStorageWrapper
+} from './interfaces/ILifeCycleCashFlowStorageWrapper.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {
     LIFECYCLE_CASH_FLOW_STORAGE_POSITION
@@ -26,7 +28,7 @@ import {
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
 
 abstract contract LifeCycleCashFlowStorageWrapper is
-    ILifeCycleCashFlow,
+    ILifeCycleCashFlowStorageWrapper,
     AtsCommon,
     PortfolioStorageWrapper
 {
@@ -301,7 +303,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
-            //return (true, 9223372036854775808);
             amount = (((couponFor.tokenBalance *
                 nominalValue *
                 couponFor.period *

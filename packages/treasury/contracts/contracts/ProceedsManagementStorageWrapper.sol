@@ -6,11 +6,12 @@ pragma solidity ^0.8.0;
 import {
     IProceedsManagementStorageWrapper
 } from './interfaces/IProceedsManagementStorageWrapper.sol';
-import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-// TODO: Waiting, to uncomment, for breaking bonds team to deliver a new release of ATS contracts package
-/*import {
+import {
+    LifeCycleCashFlowStorageWrapper
+} from './LifeCycleCashFlowStorageWrapper.sol';
+import {
     IProceedRecipients
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol';*/
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol';
 import {
     IHederaTokenService
 } from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
@@ -20,7 +21,7 @@ import {
 
 abstract contract ProceedsManagementStorageWrapper is
     IProceedsManagementStorageWrapper,
-    PortfolioStorageWrapper
+    LifeCycleCashFlowStorageWrapper
 {
     /**
      * @dev Check whether a proceeds recipient belongs to the bond
@@ -114,10 +115,17 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param proceedsRecipient The proceeds recipient to be checked
      */
     function _checkProceedRecipient(address proceedsRecipient) private view {
-        // TODO: Waiting, to uncomment, for breaking bonds team to deliver a new release of ATS contracts package
-        /*if (IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient)) {
+        try
+            IProceedRecipients(_getAsset()).isProceedRecipient(
+                proceedsRecipient
+            )
+        returns (bool proceedsRecipientBelongsToBond) {
+            if (!proceedsRecipientBelongsToBond) {
+                revert WrongProceedsRecipient(proceedsRecipient);
+            }
+        } catch {
             revert WrongProceedsRecipient(proceedsRecipient);
-        }*/
+        }
     }
 
     /*

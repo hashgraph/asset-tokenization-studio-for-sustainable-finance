@@ -145,7 +145,10 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         uint256 pageIndex,
         uint256 pageLength
     ) external view returns (address[] memory environmentalAssets) {
-        environmentalAssets = _getEnvironmentalAssetTokens(pageIndex, pageLength);
+        environmentalAssets = _getEnvironmentalAssetTokens(
+            pageIndex,
+            pageLength
+        );
     }
 
     /**

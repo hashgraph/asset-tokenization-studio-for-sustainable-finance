@@ -10,6 +10,7 @@ import {
     PROCEEDS_FULL_MANAGER_ROLE,
 } from '../scripts/constants'
 import {
+    deployContract,
     deployPaymentToken,
     deployEnvironmentalAsset,
 } from '../scripts/test/deploy'
@@ -82,6 +83,17 @@ describe('Proceeds management operations', () => {
             await expect(treasury.transferPaymentToken(AddressZero, 1))
                 .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
                 .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER_ROLE)
+        })
+
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
+
+            await expect(
+                treasury.transferPaymentToken(AddressZero, 1)
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
         })
 
         beforeEach(async () => {
@@ -202,6 +214,36 @@ describe('Proceeds management operations', () => {
                 .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER_ROLE)
         })
 
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers a zero address environmental asset token, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
+
+            await expect(
+                treasury.transferEnvironmentalAssetToken(
+                    AddressZero,
+                    AddressZero,
+                    1
+                )
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
+        })
+
+        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers an environmental asset token to a zero address, THEN an InvalidAddressZero error occurs', async () => {
+            await treasury.grantRole(
+                PROCEEDS_FULL_MANAGER_ROLE,
+                signer_A.address
+            )
+
+            await expect(
+                treasury.transferEnvironmentalAssetToken(
+                    environmentalAssetAddress,
+                    AddressZero,
+                    1
+                )
+            ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
+        })
+
         it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset the Treasury does not own, THEN a NotTokenIdOwner error occurs', async () => {
             await treasury.grantRole(
                 PROCEEDS_FULL_MANAGER_ROLE,
@@ -289,103 +331,142 @@ describe('Proceeds management operations', () => {
     })
 
     describe('fundProceedsRecipient', () => {
-        it('GIVEN a deployed Treasury contract, WHEN the contract is paused and funds a proceeds recipient, THEN a TokenIsPaused error occurs', async () => {
-            await treasury.grantRole(PAUSER_ROLE, signer_A.address)
-            await treasury.pause()
+        describe('A proceeds recipient is not needed', () => {
+            it('GIVEN a deployed Treasury contract, WHEN the contract is paused and funds a proceeds recipient, THEN a TokenIsPaused error occurs', async () => {
+                await treasury.grantRole(PAUSER_ROLE, signer_A.address)
+                await treasury.pause()
 
-            await expect(
-                treasury.fundProceedsRecipient(AddressZero, 1)
-            ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
+                await expect(
+                    treasury.fundProceedsRecipient(AddressZero, 1)
+                ).to.be.revertedWithCustomError(treasury, 'TokenIsPaused')
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
+                treasury = treasury.connect(signer_B)
+
+                await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+                    .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                    .withArgs(signer_B.address, FUNDS_MANAGER_ROLE)
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+                await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+                    .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
+                    .withArgs(signer_A.address, FUNDS_MANAGER_ROLE)
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a zero address proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                await expect(
+                    treasury.fundProceedsRecipient(AddressZero, 1)
+                ).to.be.revertedWithCustomError(treasury, 'InvalidAddressZero')
+            })
         })
 
-        it('GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
-            treasury = treasury.connect(signer_B)
-
-            await expect(treasury.fundProceedsRecipient(AddressZero, 1))
-                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
-                .withArgs(signer_B.address, FUNDS_MANAGER_ROLE)
-        })
-
-        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked funds a proceeds recipient, THEN an AccountHasNoRole error occurs', async () => {
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
-            await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address)
-
-            await expect(treasury.fundProceedsRecipient(AddressZero, 1))
-                .to.be.revertedWithCustomError(treasury, 'AccountHasNoRole')
-                .withArgs(signer_A.address, FUNDS_MANAGER_ROLE)
-        })
-
-        // Falta subir la comprobación en una nueva release de ATS
-        it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked funds a proceeds recipient that does not belong to the asset, THEN an AccountHasNoRole error occurs', async () => {
-            const proceedsRecipient = signer_A.address
-
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
-
-            await expect(treasury.fundProceedsRecipient(proceedsRecipient, 1))
-                .to.be.revertedWithCustomError(
-                    treasury,
-                    'WrongProceedsRecipient'
+        describe('The proceeds recipient does not belong to the bond', () => {
+            it('GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs', async () => {
+                const assetAddress = await deployContract(
+                    'AssetMock',
+                    signer_A,
+                    [false, 1, [], false]
                 )
-                .withArgs(proceedsRecipient)
-        })
+                await treasury.initialize_LifeCycleCashFlow(assetAddress)
 
-        beforeEach(async () => {
-            let paymentTokenFactory = await ethers.getContractAt(
-                'PaymentTokenFactory',
-                paymentTokenFactoryAddress
-            )
-            paymentTokenFactory = paymentTokenFactory.connect(signer_A)
-            await paymentTokenFactory.transferPaymentToken(
-                paymentTokenAddress,
-                treasury.address,
-                100
-            )
-        })
+                const proceedsRecipient = ethers.Wallet.createRandom()
 
-        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs', async () => {
-            // TODO: Change to a valid proceeds recipient belonging to the bond
-            const proceedsRecipient = signer_A.address
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
 
-            await expect(treasury.fundProceedsRecipient(proceedsRecipient, 200))
-                .to.be.revertedWithCustomError(treasury, 'NotEnoughBalance')
-                .withArgs(200)
-        })
-
-        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a TransferPaymentTokenFailed error occurs', async () => {
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
-
-            await expect(treasury.fundProceedsRecipient(AddressZero, 100))
-                .to.be.revertedWithCustomError(
-                    treasury,
-                    'TransferPaymentTokenFailed'
+                await expect(
+                    treasury.fundProceedsRecipient(proceedsRecipient.address, 1)
                 )
-                .withArgs(AddressZero, 100)
+                    .to.be.revertedWithCustomError(
+                        treasury,
+                        'WrongProceedsRecipient'
+                    )
+                    .withArgs(proceedsRecipient.address)
+            })
         })
 
-        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with an amount greater than 9223372036854775807, THEN a NotAllowedAmount error occurs', async () => {
-            // TODO: Change to a valid proceeds recipient belonging to the bond
-            const proceedsRecipient = signer_A.address
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
-
-            await expect(
-                treasury.fundProceedsRecipient(
-                    proceedsRecipient,
-                    BigNumber.from('9223372036854775808')
+        describe('The proceeds recipient belongs to the bond', () => {
+            beforeEach(async () => {
+                let paymentTokenFactory = await ethers.getContractAt(
+                    'PaymentTokenFactory',
+                    paymentTokenFactoryAddress
                 )
-            )
-                .to.be.revertedWithCustomError(treasury, 'NotAllowedAmount')
-                .withArgs(9223372036854775808n)
-        })
+                paymentTokenFactory = paymentTokenFactory.connect(signer_A)
+                await paymentTokenFactory.transferPaymentToken(
+                    paymentTokenAddress,
+                    treasury.address,
+                    100
+                )
 
-        it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN the proceeds recipient is funded', async () => {
-            // TODO: Change to a valid proceeds recipient belonging to the bond
-            const proceedsRecipient = signer_A.address
-            await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+                const assetAddress = await deployContract(
+                    'AssetMock',
+                    signer_A,
+                    [false, 1, [], true]
+                )
+                await treasury.initialize_LifeCycleCashFlow(assetAddress)
+            })
 
-            await expect(treasury.fundProceedsRecipient(proceedsRecipient, 100))
-                .to.emit(treasury, 'ProceedsRecipientFunded')
-                .withArgs(proceedsRecipient, 100)
+            it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                const proceedsRecipient = ethers.Wallet.createRandom()
+
+                await expect(
+                    treasury.fundProceedsRecipient(
+                        proceedsRecipient.address,
+                        200
+                    )
+                )
+                    .to.be.revertedWithCustomError(treasury, 'NotEnoughBalance')
+                    .withArgs(200)
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a TransferPaymentTokenFailed error occurs', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                await expect(treasury.fundProceedsRecipient(AddressZero, 100))
+                    .to.be.revertedWithCustomError(
+                        treasury,
+                        'TransferPaymentTokenFailed'
+                    )
+                    .withArgs(AddressZero, 100)
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with an amount greater than 9223372036854775807, THEN a NotAllowedAmount error occurs', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                const proceedsRecipient = ethers.Wallet.createRandom()
+
+                await expect(
+                    treasury.fundProceedsRecipient(
+                        proceedsRecipient.address,
+                        BigNumber.from('9223372036854775808')
+                    )
+                )
+                    .to.be.revertedWithCustomError(treasury, 'NotAllowedAmount')
+                    .withArgs(9223372036854775808n)
+            })
+
+            it('GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN the proceeds recipient is funded', async () => {
+                await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address)
+
+                const proceedsRecipient = ethers.Wallet.createRandom()
+
+                await expect(
+                    treasury.fundProceedsRecipient(
+                        proceedsRecipient.address,
+                        100
+                    )
+                )
+                    .to.emit(treasury, 'ProceedsRecipientFunded')
+                    .withArgs(proceedsRecipient.address, 100)
+            })
         })
     })
 })

@@ -10,16 +10,19 @@ contract AssetMock is IAssetMock {
     bool internal isToday;
     uint256 internal tokenBalance;
     address[] internal holders;
+    bool internal isProceedRecipientForTheBond;
 
     // solhint-disable-next-line no-empty-blocks
     constructor(
         bool todayIsExecutionDate,
         uint256 holderTokenBalance,
-        address[] memory couponHolders
+        address[] memory couponHolders,
+        bool addressIsProceedRecipient
     ) {
         isToday = todayIsExecutionDate;
         tokenBalance = holderTokenBalance;
         holders = couponHolders;
+        isProceedRecipientForTheBond = addressIsProceedRecipient;
     }
 
     function getCoupon(
@@ -66,5 +69,9 @@ contract AssetMock is IAssetMock {
         couponFor_.period = 2592000;
         couponFor_.decimals = 2;
         couponFor_.recordDateReached = true;
+    }
+
+    function isProceedRecipient(address) external view returns (bool) {
+        return isProceedRecipientForTheBond;
     }
 }
