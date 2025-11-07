@@ -197,6 +197,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60, // Starts in 1 minute
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
+        price: 0, // Will use bond's nominal value
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -240,6 +241,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60, // Starts in 1 minute
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
+        price: 0, // Will use bond's nominal value
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
@@ -262,6 +264,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60, // Starts in 1 minute
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
+        price: 0, // Will use bond's nominal value
       };
 
       await pause.connect(admin).pause();
@@ -286,6 +289,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -307,6 +311,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -328,6 +333,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -349,6 +355,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 3600,
         endDate: now + 60,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_1))
@@ -367,6 +374,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 3600,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2))
@@ -388,6 +396,7 @@ describe("PrimaryMarket", () => {
         startDate: now - 3600,
         endDate: now + 60,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -409,6 +418,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -427,6 +437,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2))
@@ -445,6 +456,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_3))
@@ -463,6 +475,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_4))
@@ -484,6 +497,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -505,6 +519,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 1, // CLOSE_TARGET_REACHED - Invalid combination
+        price: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -526,6 +541,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       await expect(primaryMarket.connect(investor1).createOffering(offering)).to.be.revertedWithCustomError(
@@ -553,6 +569,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0, // WAIT_UNTIL_END
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -575,6 +592,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0, // WAIT_UNTIL_END
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering2);
@@ -686,6 +704,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: deadlineRule,
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -923,6 +942,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: deadlineRule,
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1037,13 +1057,6 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN executable offering WHEN executing non paginated method THEN success", async () => {
       await executeSuccess(false);
-    });
-
-    it("GIVEN executable offering with super large nominal value WHEN executing THEN success", async () => {
-      const tokensPerSubscription = offering.minLots * offering.lotSize;
-      const nominalValue = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
-      await mockAsset.setNominalValue(nominalValue);
-      await executeSuccess(true);
     });
 
     it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
@@ -1250,14 +1263,13 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: BigInt(INT64_MAX) + BigInt(1), // Use custom price exceeding int64 max
       };
 
       let tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       let receipt = await tx.wait();
       let event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-
-      await mockAsset.setNominalValue(BigInt(INT64_MAX) + BigInt(1));
 
       await primaryMarketTimeTravel.changeSystemTimestamp(offering.startDate + 1);
 
@@ -1314,6 +1326,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: deadlineRule,
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1538,6 +1551,7 @@ describe("PrimaryMarket", () => {
         startDate: now + 60,
         endDate: now + 3600,
         deadlineRule: 0,
+        price: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1617,6 +1631,306 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionIsNotActive")
         .withArgs(offeringId, 1);
+    });
+  });
+
+  describe("Price Field Tests", () => {
+    describe("GIVEN price = 0", () => {
+      let offeringId: number;
+      let offering: IPrimaryMarket.OfferingStruct;
+
+      beforeEach(async () => {
+        const now = await time.latest();
+        offering = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+          minLots: 1,
+          maxLots: 50,
+          targetLots: 100,
+          targetQuantityRule: 0, // OVERSUBSCRIPTION_NOT_ALLOWED
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0, // WAIT_UNTIL_END
+          price: 0, // Will use bond's nominal value
+        };
+
+        await primaryMarket.connect(offeringCreator).createOffering(offering);
+        offeringId = 1;
+      });
+
+      it("WHEN creating offering THEN price is set to bond nominal value", async () => {
+        const [offeringInfo] = await primaryMarket.getOffering(offeringId);
+        const bondDetails = await mockAsset.getBondDetails();
+        expect(offeringInfo.price).to.equal(bondDetails.nominalValue);
+        expect(offeringInfo.price).to.equal(3); // Default nominal value in MockBond
+      });
+
+      it("WHEN submitting subscription THEN payment uses bond nominal value", async () => {
+        await time.increaseTo(offering.startDate);
+
+        const bondDetails = await mockAsset.getBondDetails();
+        const lotUnits = 5;
+        const expectedPayment = lotUnits * offering.lotSize.toNumber() * bondDetails.nominalValue.toNumber();
+
+        const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
+
+        const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+        expect(balanceBefore.sub(balanceAfter)).to.equal(expectedPayment);
+      });
+
+      it("WHEN cancelling subscription THEN refund uses bond nominal value", async () => {
+        await time.increaseTo(offering.startDate);
+
+        const bondDetails = await mockAsset.getBondDetails();
+        const lotUnits = 5;
+        const expectedPayment = lotUnits * offering.lotSize.toNumber() * bondDetails.nominalValue.toNumber();
+
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
+
+        const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+
+        await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+
+        const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+        expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);
+      });
+    });
+
+    describe("GIVEN price > 0 (custom price)", () => {
+      let offeringId: number;
+      let offering: IPrimaryMarket.OfferingStruct;
+      const customPrice = 5; // Different from bond's nominal value (3)
+
+      beforeEach(async () => {
+        const now = await time.latest();
+        offering = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+          minLots: 1,
+          maxLots: 50,
+          targetLots: 100,
+          targetQuantityRule: 0, // OVERSUBSCRIPTION_NOT_ALLOWED
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0, // WAIT_UNTIL_END
+          price: customPrice, // Custom price instead of nominal value
+        };
+
+        await primaryMarket.connect(offeringCreator).createOffering(offering);
+        offeringId = 1;
+      });
+
+      it("WHEN creating offering THEN price is kept as provided", async () => {
+        const [offeringInfo] = await primaryMarket.getOffering(offeringId);
+        const bondDetails = await mockAsset.getBondDetails();
+        expect(offeringInfo.price).to.equal(customPrice);
+        expect(offeringInfo.price).to.not.equal(bondDetails.nominalValue); // Should be different from nominal value
+      });
+
+      it("WHEN submitting subscription THEN payment uses custom price", async () => {
+        await time.increaseTo(offering.startDate);
+
+        const lotUnits = 5;
+        const expectedPayment = lotUnits * offering.lotSize.toNumber() * customPrice;
+
+        const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
+
+        const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+        expect(balanceBefore.sub(balanceAfter)).to.equal(expectedPayment);
+      });
+
+      it("WHEN cancelling subscription THEN refund uses custom price", async () => {
+        await time.increaseTo(offering.startDate);
+
+        const lotUnits = 5;
+        const expectedPayment = lotUnits * offering.lotSize.toNumber() * customPrice;
+
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
+
+        const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
+
+        await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+
+        const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
+        expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);
+      });
+
+      it("WHEN executing offering THEN calculation uses custom price", async () => {
+        await time.increaseTo(offering.startDate);
+
+        const lotUnits = offering.maxLots; // Use maxLots instead of targetLots
+        await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
+        await primaryMarket.connect(investor2).submitSubscription(offeringId, lotUnits);
+
+        await time.increaseTo(offering.endDate + 1);
+
+        const treasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
+
+        // Execute using subscription IDs instead of pagination
+        await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]);
+
+        const treasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
+        const expectedPayment = lotUnits * 2 * offering.lotSize.toNumber() * customPrice;
+
+        expect(treasuryBalanceAfter.sub(treasuryBalanceBefore)).to.equal(expectedPayment);
+      });
+    });
+
+    describe("GIVEN different prices across offerings", () => {
+      it("WHEN creating multiple offerings with different prices THEN each uses its own price", async () => {
+        const now = await time.latest();
+
+        // Offering 1 with price = 0 (uses nominal value)
+        const offering1: IPrimaryMarket.OfferingStruct = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: ethers.utils.parseUnits("1000", 6),
+          minLots: 1,
+          maxLots: 50,
+          targetLots: 100,
+          targetQuantityRule: 0,
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0,
+          price: 0,
+        };
+
+        // Offering 2 with custom price
+        const offering2: IPrimaryMarket.OfferingStruct = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: ethers.utils.parseUnits("1000", 6),
+          minLots: 1,
+          maxLots: 50,
+          targetLots: 100,
+          targetQuantityRule: 0,
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0,
+          price: 10,
+        };
+
+        await primaryMarket.connect(offeringCreator).createOffering(offering1);
+        await primaryMarket.connect(offeringCreator).createOffering(offering2);
+
+        const [offering1Info] = await primaryMarket.getOffering(1);
+        const [offering2Info] = await primaryMarket.getOffering(2);
+
+        const bondDetails = await mockAsset.getBondDetails();
+        expect(offering1Info.price).to.equal(bondDetails.nominalValue); // Uses bond nominal value
+        expect(offering2Info.price).to.equal(10); // Uses custom price
+      });
+    });
+
+    describe("GIVEN super large price values (edge cases)", () => {
+      it("WHEN executing offering with super large price THEN success with batch processing", async () => {
+        const now = await time.latest();
+
+        // Calculate super large price that will trigger batch processing
+        // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
+        const tokensPerSubscription = 1 * 1; // lotSize * minLots
+        const superLargePrice = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
+
+        // Set nominal value BEFORE creating offering so price captures it
+        await mockAsset.setNominalValue(superLargePrice);
+
+        const offering: IPrimaryMarket.OfferingStruct = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: 1, // Small lotSize for easier int64 overflow calculation
+          minLots: 1,
+          maxLots: 5,
+          targetLots: 10,
+          targetQuantityRule: 0,
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0,
+          price: 0, // Will use the super large nominal value set above
+        };
+
+        await primaryMarket.connect(offeringCreator).createOffering(offering);
+        const offeringId = 1;
+
+        // Enable precompiled mock for transfers to work
+        await mockPrecompiled.setPrecompiledTransferStatus(true);
+
+        await time.increaseTo(offering.startDate);
+
+        // Create subscriptions to reach target
+        for (let i = 0; i < 10; i++) {
+          const investor = i % 2 == 0 ? investor1 : investor2;
+          await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+        }
+
+        await time.increaseTo(offering.endDate + 1);
+
+        // Execute offering - with super large price, this triggers batch processing
+        // Need to execute all subscriptions (10 total)
+        const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
+        await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscriptions);
+
+        const status = await primaryMarket.getOfferingStatus(offeringId);
+        expect(status).to.equal(5); // EXECUTED
+      });
+
+      it("WHEN cancelling offering with super large price THEN success with batch processing", async () => {
+        const now = await time.latest();
+
+        // Set nominal value BEFORE creating offering so it captures the large value
+        const tokensPerSubscription = 2; // lotSize 2 * minLots 1
+        const nominalValue = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
+        await mockAsset.setNominalValue(nominalValue);
+
+        const offering: IPrimaryMarket.OfferingStruct = {
+          asset: mockAsset.address,
+          treasury: treasuryAddress,
+          paymentToken: mockPaymentToken.address,
+          lotSize: 2,
+          minLots: 1,
+          maxLots: 5,
+          targetLots: 100, // High target so we don't reach it
+          targetQuantityRule: 0,
+          startDate: now + 60,
+          endDate: now + 3600,
+          deadlineRule: 0,
+          price: 0, // Will use the super large nominal value set above
+        };
+
+        const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+        const receipt = await tx.wait();
+        const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+        const offeringId = event?.args?.offeringId?.toNumber() || 0;
+
+        await time.increaseTo(offering.startDate);
+
+        // Create 10 subscriptions (not reaching target of 100)
+        for (let i = 0; i < 10; i++) {
+          const investor = i % 2 == 0 ? investor1 : investor2;
+          await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+        }
+
+        // Move past endDate to make it cancellable (target not reached intentionally)
+        await time.increaseTo(offering.endDate + 1);
+
+        // Cancel offering - with super large price, this triggers the int64 overflow path during cancellation
+        await primaryMarket
+          .connect(offeringCreator)
+          .cancelOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+
+        const status = await primaryMarket.getOfferingStatus(offeringId);
+        expect(status).to.equal(6); // CANCELLED
+      });
     });
   });
 });

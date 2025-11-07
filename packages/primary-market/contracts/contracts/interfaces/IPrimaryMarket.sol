@@ -88,6 +88,7 @@ interface IPrimaryMarket {
     /// @param startDate Timestamp when offering starts
     /// @param endDate Timestamp when offering ends
     /// @param deadlineRule Rule for handling deadlines
+    /// @param price if = 0 asset nominal value will be set as the price when creating the Offering
     struct Offering {
         address asset;
         address treasury;
@@ -100,6 +101,7 @@ interface IPrimaryMarket {
         uint256 startDate;
         uint256 endDate;
         DeadlineRule deadlineRule;
+        uint256 price;
     }
 
     /// @notice Emitted when a new offering is created

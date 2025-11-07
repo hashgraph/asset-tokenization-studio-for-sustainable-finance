@@ -88,6 +88,12 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         OfferingState storage offering = s.offerings[offeringId];
         offering.info = _offeringInfo;
+
+        // If price is 0, set it to the bond's nominal value
+        if (offering.info.price == 0) {
+            offering.info.price = IBondRead(offering.info.asset).getBondDetails().nominalValue;
+        }
+
         offering.creator = _msgSender();
         // executed and cancelled default to false
         offering.totalSubscribedLots = 0;
@@ -99,7 +105,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             revert IPrimaryMarket.AssociationFailed(_offeringInfo.paymentToken);
         }
 
-        emit IPrimaryMarket.OfferingCreated(offeringId, _msgSender(), _offeringInfo);
+        emit IPrimaryMarket.OfferingCreated(offeringId, _msgSender(), offering.info);
     }
 
     /**
@@ -113,8 +119,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         // CHECKS: Calculate required payment and validate allowance
         uint256 requiredPayment = _lotUnits *
-            offering.info.lotSize *
-            IBondRead(offering.info.asset).getBondDetails().nominalValue;
+            offering.info.lotSize * offering.info.price;
 
         if (IERC20(offering.info.paymentToken).allowance(_msgSender(), address(this)) < requiredPayment) {
             revert IPrimaryMarket.NotEnoughFunds(
@@ -156,8 +161,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         uint256 amount = subscription.lotUnits *
-            offering.info.lotSize *
-            IBondRead(offering.info.asset).getBondDetails().nominalValue;
+            offering.info.lotSize * offering.info.price;
 
         // EFFECTS: Update state first
         subscription.status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
@@ -236,7 +240,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         if (_processOfferingInfo.isExecution) transferItems[0].destination = offering.info.treasury;
 
-        _processOfferingInfo.nominalValue = IBondRead(offering.info.asset).getBondDetails().nominalValue;
+        _processOfferingInfo.nominalValue = offering.info.price;
 
         for (uint256 index = 0; index < _processOfferingInfo.subscriptionIdsToProcess.length; ++index) {
             totalToTransfer = _processSubscription(
