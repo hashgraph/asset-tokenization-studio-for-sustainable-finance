@@ -18,7 +18,7 @@ export class OfferingPersistence extends BaseEntityPersistence {
   bondContractId: string
 
   @Column()
-  operatorId: string
+  operatorAccountId: string
 
   @Column()
   treasuryContractId: string

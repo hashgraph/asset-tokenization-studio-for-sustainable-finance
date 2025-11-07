@@ -105,7 +105,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         offeringDltId: "1",
         market: primaryMarket,
         bondContractId: "0.0.9999999",
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "500",

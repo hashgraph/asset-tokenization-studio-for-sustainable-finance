@@ -21,7 +21,7 @@ export class CancelOfferingCommandHandler implements CommandHandler<CancelOfferi
       new OfferingCancelledEvent(
         command.offeringDltId,
         command.marketContractId,
-        command.operatorId,
+        command.operatorAccountId,
         command.subscriptionDltIdsSuccess,
         command.subscriptionDltIdsFailed,
       ),

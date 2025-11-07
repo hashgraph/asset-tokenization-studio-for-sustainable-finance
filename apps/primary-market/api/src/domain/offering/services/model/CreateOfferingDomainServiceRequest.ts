@@ -16,7 +16,7 @@ export class CreateOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  operatorId: string
+  operatorAccountId: string
 
   @IsNotEmpty()
   @IsString()

@@ -6,7 +6,7 @@ export class OfferingCreatedEvent extends Event {
     public readonly offeringDltId: string,
     public readonly marketContractId: string,
     public readonly bondContractId: string,
-    public readonly operatorId: string,
+    public readonly operatorAccountId: string,
     public readonly treasuryContractId: string,
     public readonly paymentTokenContractId: string,
     public readonly lotSize: string,

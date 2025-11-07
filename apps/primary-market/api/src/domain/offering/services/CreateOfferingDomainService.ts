@@ -18,7 +18,7 @@ export class CreateOfferingDomainService {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
       createOfferingDomainServiceRequest.marketContractId,
     )
-    market.checkActive()
+    market.ensureActive()
 
     const existingOffering = await this.offeringRepository.findByOfferingDltIdAndMarketId(
       createOfferingDomainServiceRequest.offeringDltId,
@@ -35,7 +35,7 @@ export class CreateOfferingDomainService {
       offeringDltId: createOfferingDomainServiceRequest.offeringDltId,
       market: market,
       bondContractId: createOfferingDomainServiceRequest.bondContractId,
-      operatorId: createOfferingDomainServiceRequest.operatorId,
+      operatorAccountId: createOfferingDomainServiceRequest.operatorAccountId,
       treasuryContractId: createOfferingDomainServiceRequest.treasuryContractId,
       paymentTokenContractId: createOfferingDomainServiceRequest.paymentTokenContractId,
       lotSize: createOfferingDomainServiceRequest.lotSize,

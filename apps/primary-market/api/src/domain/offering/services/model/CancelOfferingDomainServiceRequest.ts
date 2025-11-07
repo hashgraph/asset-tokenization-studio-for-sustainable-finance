@@ -12,7 +12,7 @@ export class CancelOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  operatorId: string
+  operatorAccountId: string
 
   @IsArray()
   @IsNumberString({}, { each: true })
