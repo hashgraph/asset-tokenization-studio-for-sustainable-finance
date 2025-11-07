@@ -76,7 +76,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "1",
         market,
         bondContractId: "0.0.111",
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
@@ -93,7 +93,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "2",
         market,
         bondContractId: "0.0.111", // Same bond
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
@@ -121,7 +121,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       // Verify response structure
       expect(response.body.items[0]).toHaveProperty("offeringDltId")
       expect(response.body.items[0]).toHaveProperty("bondContractId")
-      expect(response.body.items[0]).toHaveProperty("operatorId")
+      expect(response.body.items[0]).toHaveProperty("operatorAccountId")
       expect(response.body.items[0]).toHaveProperty("lotSize")
     })
 
@@ -146,7 +146,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
           offeringDltId: String(i),
           market,
           bondContractId: "0.0.111",
-          operatorId: "0.0.4660",
+          operatorAccountId: "0.0.4660",
           treasuryContractId: "0.0.9999999",
           paymentTokenContractId: "0.0.9999999",
           lotSize: "1000",
@@ -183,7 +183,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "1",
         market,
         bondContractId: "0.0.111",
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
@@ -200,7 +200,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "2",
         market,
         bondContractId: "0.0.222", // Different bond
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
@@ -238,7 +238,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "1",
         market: market1,
         bondContractId: "0.0.111",
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
@@ -255,7 +255,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         offeringDltId: "2",
         market: market2,
         bondContractId: "0.0.111", // Same bond but different market
-        operatorId: "0.0.4660",
+        operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
