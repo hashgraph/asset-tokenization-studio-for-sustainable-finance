@@ -2,11 +2,11 @@
 
 import { Module } from "@nestjs/common"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PROVIDERS } from "./Components"
+import { EVENT_LISTENER_PROVIDERS } from "./Components"
 
 @Module({
   imports: [SharedModule],
-  providers: PROVIDERS,
-  exports: PROVIDERS,
+  providers: EVENT_LISTENER_PROVIDERS,
+  exports: EVENT_LISTENER_PROVIDERS,
 })
 export class BlockchainEventListenerModule {}

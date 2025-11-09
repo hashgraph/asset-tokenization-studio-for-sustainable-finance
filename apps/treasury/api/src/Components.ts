@@ -13,7 +13,7 @@ import { TransferPaymentTokenTransactionAppService } from "@app/transaction/tran
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { Provider } from "@nestjs/common"
 import { TreasuryTypeOrmRepository } from "@port/persistence/treasury/repositories/TreasuryTypeOrmRepository"
-import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
+import { EVENT_LISTENER_ENTITIES, EVENT_LISTENER_PROVIDERS } from "@hashgraph/green-bonds-blockchain-listener"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
@@ -135,6 +135,7 @@ import { SyncTreasuryNestJSEventAdapter } from "@port/treasury/usecase/synctreas
 import { SyncTreasuryAppService } from "@app/treasury/synctreasury/service/SyncTreasuryAppService"
 import { CreateTreasuryCommandHandler } from "@app/treasury/createtreasury/command/CreateTreasuryCommandHandler"
 import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/command/AddPaymentTokenCommandHandler"
+import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -231,6 +232,7 @@ export const CONTROLLERS = [
 
 export const PROVIDERS = [
   ...REPOSITORIES,
+  ...EVENT_LISTENER_PROVIDERS,
   FundProceedsRecipientTransactionAppService,
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,
@@ -322,4 +324,5 @@ export const PROVIDERS = [
     provide: "TransactionManager",
     useClass: TypeOrmTransactionManager,
   },
+  CreateTreasuryFiltersNestJSEventAdapter,
 ]

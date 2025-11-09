@@ -4,7 +4,7 @@ import { DynamicModule } from "@nestjs/common"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "./shared/containers/PostgresqlContainer"
 import { PostgresModule } from "./shared/PostgresModule"
-import { PROVIDERS } from "../src/Components"
+import { EVENT_LISTENER_PROVIDERS } from "../src/Components"
 
 class TestBlockchainEventListenerModule {
   static async register(): Promise<DynamicModule> {
@@ -13,7 +13,7 @@ class TestBlockchainEventListenerModule {
     return {
       module: TestBlockchainEventListenerModule,
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
-      providers: [...PROVIDERS],
+      providers: [...EVENT_LISTENER_PROVIDERS],
       exports: [],
     }
   }

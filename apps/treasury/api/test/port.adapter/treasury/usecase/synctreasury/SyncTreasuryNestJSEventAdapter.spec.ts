@@ -65,7 +65,8 @@ describe("SyncTreasury Integration", () => {
 
     jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(6)
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+    jest
+      .spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
 
     const treasuryData: TreasuryDataEventModel = {
       paymentToken: "0.0.1000",
