@@ -97,4 +97,15 @@ contract AssetMock is IAssetMock {
     ) external pure {
         return;
     }
+
+    function balanceOfByPartition(
+        bytes32,
+        address
+    ) external pure returns (uint256) {
+        return 1;
+    }
+
+    function partitionsOf(address) external pure returns (bytes32[] memory) {
+        return new bytes32[](1);
+    }
 }

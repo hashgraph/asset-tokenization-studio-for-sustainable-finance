@@ -17,7 +17,6 @@ import {
 import {
     IBond
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol';
-
 import {
     TRexIBondRead as IBondRead
 } from '@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol';
@@ -62,7 +61,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     struct BatchInfo {
         address[] holders;
         int64[] amounts;
-        uint256[] tokensAmount;
         int64 totalAmount;
     }
 
@@ -111,7 +109,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = _getHolders(
+        address[] memory holders = _getDistributionHolders(
             asset,
             distributionId,
             pageIndex,
@@ -166,7 +164,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = ISecurity(bond).getSecurityHolders(
+        address[] memory holders = _getAssetHolders(
+            bond,
             pageIndex,
             pageLength
         );
@@ -246,9 +245,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
             batchInfo.amounts = new int64[](holders.length);
-            uint256 nominalValue = IBondRead(asset)
-                .getBondDetails()
-                .nominalValue;
+            uint256 nominalValue = _getNominalValue(asset);
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
@@ -380,7 +377,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         try IBondRead(asset).getCouponFor(distributionId, holder) returns (
             IBondRead.CouponFor memory couponFor
         ) {
-            uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
+            uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
             amount = (((couponFor.tokenBalance *
@@ -410,12 +407,27 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 nominalValue,
         address paymentToken
     ) private returns (uint256 amount) {
-        uint8 paymentTokenDecimals = getPaymentTokenDecimals(paymentToken);
-        uint8 bondDecimals = ERC20(bond).decimals();
+        uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
+        uint8 bondDecimals = _getAssetDecimals(bond);
         uint8 nominalValueDecimals = bondDecimals;
         uint256 scaleDown = bondDecimals + nominalValueDecimals;
         amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) *
             10 ** paymentTokenDecimals);
+    }
+
+    /**
+     * @dev Get the asset decimals
+     *
+     * @param asset The asset address
+     *
+     * @return decimals The asset decimals
+     */
+    function _getAssetDecimals(address asset) private view returns (uint8) {
+        try ERC20(asset).decimals() returns (uint8) {
+            return ERC20(asset).decimals();
+        } catch {
+            revert GetAssetDecimalsFailed(asset);
+        }
     }
 
     /**
@@ -425,7 +437,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return decimals The payment token decimals
      */
-    function getPaymentTokenDecimals(address token) private returns (uint8) {
+    function _getPaymentTokenDecimals(address token) private returns (uint8) {
         (
             int256 responseCode,
             IHederaTokenService.FungibleTokenInfo memory info
@@ -437,6 +449,25 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             revert InvalidTokenDecimals(token, info.decimals);
         }
         revert GetTokenDecimalsFailed(token, responseCode);
+    }
+
+    /*
+     * @dev Get the nominal value of the asset
+     *
+     * @param asset The asset address
+     *
+     * @return The nominal value of the asset
+     */
+    function _getNominalValue(
+        address asset
+    ) private view returns (uint256 nominalValue) {
+        try IBondRead(asset).getBondDetails() returns (
+            IBondRead.BondDetailsData memory bondDetailsData
+        ) {
+            return bondDetailsData.nominalValue;
+        } catch {
+            revert AssetNominalValueError(asset);
+        }
     }
 
     /*
@@ -513,10 +544,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
             batchInfo.amounts = new int64[](holders.length);
-            batchInfo.tokensAmount = new uint256[](holders.length);
-            uint256 nominalValue = IBondRead(bond)
-                .getBondDetails()
-                .nominalValue;
+            uint256 nominalValue = _getNominalValue(bond);
 
             address paymentToken = _getPaymentToken();
 
@@ -579,11 +607,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     );
 
                     if (succeededResults > 0) {
-                        _redeemBondHolders(
-                            bond,
-                            holders,
-                            batchInfo.tokensAmount
-                        );
+                        _redeemBondHolders(bond, holders);
                     }
                     payingArraysIndexes
                         .succeededAddressesIndex += succeededResults;
@@ -591,7 +615,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
-                    batchInfo.tokensAmount = new uint256[](holders.length);
                     batchInfo.totalAmount = 0;
                     payingArraysIndexes.batchIndex = 0;
                 }
@@ -600,9 +623,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
                     int256(amount)
                 );
-                batchInfo.tokensAmount[
-                    payingArraysIndexes.batchIndex
-                ] = tokensAmount;
                 batchInfo.totalAmount += batchInfo.amounts[
                     payingArraysIndexes.batchIndex
                 ];
@@ -623,7 +643,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     result
                 );
                 if (succeededResults > 0) {
-                    _redeemBondHolders(bond, holders, batchInfo.tokensAmount);
+                    _redeemBondHolders(bond, holders);
                 }
             }
         }
@@ -685,11 +705,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _redeemBondHolders(
         address bond,
-        address[] memory holders,
-        uint256[] memory tokensAmounts
+        address[] memory holders
     ) private {
         for (uint256 index; index < holders.length; ) {
-            _redeemBondHolder(bond, holders[index], tokensAmounts[index]);
+            _redeemBondHolder(bond, holders[index]);
 
             unchecked {
                 ++index;
@@ -704,24 +723,29 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param holder The holder whose bonds will be redeemed
      * @param tokensAmount The amount of tokens to be redeemed for the holder
      */
-    function _redeemBondHolder(
-        address bond,
-        address holder,
-        uint256 tokensAmount
-    ) private {
+    function _redeemBondHolder(address bond, address holder) private {
         bytes32[] memory partitions = IERC1410Read(bond).partitionsOf(holder);
         for (uint256 i; i < partitions.length; ) {
             bytes32 partition = partitions[i];
-            uint256 partitionBalance = IERC1410Read(bond).balanceOfByPartition(
-                partition,
-                holder
-            );
-
-            IBond(bond).redeemAtMaturityByPartition(
-                holder,
-                partition,
-                partitionBalance
-            );
+            try
+                IERC1410Read(bond).balanceOfByPartition(partition, holder)
+            returns (uint256 partitionBalance) {
+                try
+                    IBond(bond).redeemAtMaturityByPartition(
+                        holder,
+                        partition,
+                        partitionBalance
+                    )
+                {} catch {
+                    revert RedeemAtMaturityByPartitionError(
+                        bond,
+                        holder,
+                        partition
+                    );
+                }
+            } catch {
+                revert BalanceOfByPartitionError(bond, holder, partition);
+            }
 
             unchecked {
                 ++i;
@@ -916,7 +940,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         address holder
     ) private view returns (uint256) {
-        return IERC1410(asset).balanceOf(holder);
+        try IERC1410(asset).balanceOf(holder) returns (uint256 tokensAmount) {
+            return tokensAmount;
+        } catch {
+            return 0;
+        }
     }
 
     /*
@@ -929,18 +957,46 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return The array of the holders addresses
      */
-    function _getHolders(
+    function _getDistributionHolders(
         address asset,
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) private view returns (address[] memory) {
-        return
+    ) private view returns (address[] memory holders) {
+        try
             IBondRead(asset).getCouponHolders(
                 distributionId,
                 pageIndex,
                 pageLength
-            );
+            )
+        returns (address[] memory distributionHolders) {
+            return holders = distributionHolders;
+        } catch {
+            return holders;
+        }
+    }
+
+    /*
+     * @dev Get a list of holders of an asset by page
+     *
+     * @param asset The asset the holders belongs to
+     * @param pageIndex The index of the page
+     * @param pageLength The number of holders
+     *
+     * @return The array of the holders addresses
+     */
+    function _getAssetHolders(
+        address asset,
+        uint256 pageIndex,
+        uint256 pageLength
+    ) private view returns (address[] memory holders) {
+        try ISecurity(asset).getSecurityHolders(pageIndex, pageLength) returns (
+            address[] memory assetHolders
+        ) {
+            return holders = assetHolders;
+        } catch {
+            return holders;
+        }
     }
 
     /*

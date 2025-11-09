@@ -38,6 +38,7 @@ describe('LifeCycleCashFlow operations', () => {
                 false,
                 1,
                 [],
+                false,
             ])
 
             treasury = treasury.connect(signer_A)
@@ -64,6 +65,7 @@ describe('LifeCycleCashFlow operations', () => {
                     false,
                     1,
                     [],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
             })
@@ -127,6 +129,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         1,
                         [],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
 
@@ -151,6 +154,7 @@ describe('LifeCycleCashFlow operations', () => {
                     true,
                     1,
                     [AddressZero],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
 
@@ -191,6 +195,7 @@ describe('LifeCycleCashFlow operations', () => {
                     true,
                     120,
                     [signer_B.address],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
                 ;[paymentTokenFactoryAddress, paymentTokenAddress] =
@@ -311,6 +316,7 @@ describe('LifeCycleCashFlow operations', () => {
                     true,
                     120,
                     [signer_B.address, signer_A.address],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
                 ;[paymentTokenFactoryAddress, paymentTokenAddress] =
@@ -377,6 +383,7 @@ describe('LifeCycleCashFlow operations', () => {
                     true,
                     4611686018000n,
                     [signer_B.address],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
                 ;[paymentTokenFactoryAddress, paymentTokenAddress] =
@@ -424,6 +431,7 @@ describe('LifeCycleCashFlow operations', () => {
                     false,
                     1,
                     [],
+                    false,
                 ])
                 await treasury.initialize_LifeCycleCashFlow(assetAddress)
             })
@@ -494,6 +502,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         1,
                         [],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
 
@@ -528,6 +537,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         1,
                         [AddressZero],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
 
@@ -566,6 +576,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         120,
                         [signer_B.address],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
                     ;[paymentTokenFactoryAddress, paymentTokenAddress] =
@@ -683,6 +694,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         120,
                         [signer_B.address, signer_A.address],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
                     ;[paymentTokenFactoryAddress, paymentTokenAddress] =
@@ -748,6 +760,7 @@ describe('LifeCycleCashFlow operations', () => {
                         true,
                         4611686018000n,
                         [signer_B.address],
+                        false,
                     ])
                     await treasury.initialize_LifeCycleCashFlow(assetAddress)
                     ;[paymentTokenFactoryAddress, paymentTokenAddress] =
