@@ -8,7 +8,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { EventFilterPersistence } from "@hashgraph/green-bonds-blockchain-listener/dist/port.adapter/persistence/eventfilter/model/EventFilterPersistence"
+import { EventFilterPersistence } from "@hashgraph/green-bonds-blockchain-listener"
 import { TreasuryCreatedEvent } from "@domain/treasury/event/TreasuryCreatedEvent"
 
 describe("CreateTreasuryFilters Integration", () => {
