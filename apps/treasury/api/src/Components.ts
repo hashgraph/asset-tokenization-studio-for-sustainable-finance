@@ -68,7 +68,12 @@ import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/
 import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/updatepaymenttoken/UpdatePaymentTokenNestJSEventAdapter"
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
-import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
+import {
+  GrantRoleTransactionAppService,
+  RevokeRoleTransactionAppService,
+  SHARED_ENTITIES,
+  TypeOrmTransactionManager,
+} from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
 import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
@@ -136,6 +141,8 @@ import { SyncTreasuryAppService } from "@app/treasury/synctreasury/service/SyncT
 import { CreateTreasuryCommandHandler } from "@app/treasury/createtreasury/command/CreateTreasuryCommandHandler"
 import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/command/AddPaymentTokenCommandHandler"
 import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -185,6 +192,7 @@ const REPOSITORIES: Provider[] = [
 ]
 
 export const ENTITIES = [
+  ...SHARED_ENTITIES,
   ...EVENT_LISTENER_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
@@ -228,6 +236,8 @@ export const CONTROLLERS = [
   ExecuteRedemptionTransactionHttpAdapter,
   ExecuteRedemptionByAddressesTransactionHttpAdapter,
   GetRedemptionHoldersHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RevokeRoleTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -325,4 +335,6 @@ export const PROVIDERS = [
     useClass: TypeOrmTransactionManager,
   },
   CreateTreasuryFiltersNestJSEventAdapter,
+  GrantRoleTransactionAppService,
+  RevokeRoleTransactionAppService,
 ]

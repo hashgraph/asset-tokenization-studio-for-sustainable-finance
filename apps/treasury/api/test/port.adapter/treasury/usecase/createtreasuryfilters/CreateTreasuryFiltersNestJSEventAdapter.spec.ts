@@ -46,9 +46,7 @@ describe("CreateTreasuryFilters Integration", () => {
     const treasuryContractId = "0.0.111"
     const treasuryContractEvmAddress = "0x000000000000000000000000000000000000006f"
 
-    const event = new TreasuryCreatedEvent(
-      treasuryContractId
-    )
+    const event = new TreasuryCreatedEvent(treasuryContractId)
     await eventBus.publishSync(event, TreasuryCreatedEvent.name)
 
     const events = await internalEventFilterRepository.find()
@@ -60,7 +58,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "RoleGranted(address indexed operator, address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[1]).toEqual({
       id: expect.any(String),
@@ -69,7 +67,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "RoleRevoked(address indexed operator, address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[2]).toEqual({
       id: expect.any(String),
@@ -78,7 +76,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "RoleRenounced(address indexed account, bytes32 indexed role)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[3]).toEqual({
       id: expect.any(String),
@@ -87,7 +85,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "RolesApplied(bytes32[] roles, bool[] actives, address account)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[4]).toEqual({
       id: expect.any(String),
@@ -96,7 +94,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "TokenPaused(address indexed operator)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[5]).toEqual({
       id: expect.any(String),
@@ -105,7 +103,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "TokenUnpaused(address indexed operator)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[6]).toEqual({
       id: expect.any(String),
@@ -114,25 +112,28 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "EnvironmentalAssetAdded(address indexed operator, address environmentalAsset)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[7]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetRemoved",
-      eventSignature: "EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError)",
+      eventSignature:
+        "EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[8]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "PaymentTokenUpdated",
-      eventSignature: "PaymentTokenUpdated(address indexed operator, address newPaymentToken, address oldPaymentToken, int256 dissociationError)",
+      eventSignature:
+        "PaymentTokenUpdated(address indexed operator, address newPaymentToken, address oldPaymentToken, " +
+        "int256 dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[9]).toEqual({
       id: expect.any(String),
@@ -141,7 +142,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "TokenDissociated(address token)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[10]).toEqual({
       id: expect.any(String),
@@ -150,7 +151,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "PaymentTokenTransferred(address to, uint256 amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[11]).toEqual({
       id: expect.any(String),
@@ -159,7 +160,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[12]).toEqual({
       id: expect.any(String),
@@ -168,43 +169,51 @@ describe("CreateTreasuryFilters Integration", () => {
       eventSignature: "ProceedsRecipientFunded(address proceedsRecipient, uint256 amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[13]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "DistributionExecuted",
-      eventSignature: "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
+      eventSignature:
+        "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, (address[] " +
+        "failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[14]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "DistributionByAddressesExecuted",
-      eventSignature: "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
+      eventSignature:
+        "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, (address[] failedAddresses, " +
+        "address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[15]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "RedemptionExecuted",
-      eventSignature: "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
+      eventSignature:
+        "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, (address[] failedAddresses, address[] " +
+        "succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
     expect(events[16]).toEqual({
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "RedemptionByAddressesExecuted",
-      eventSignature: "RedemptionByAddressesExecuted(address[] holders, (address[] failedAddresses, address[] succeededAddresses, address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
+      eventSignature:
+        "RedemptionByAddressesExecuted(address[] holders, (address[] failedAddresses, address[] succeededAddresses, " +
+        "address[] alreadyPaidAddresses, uint256[] paidAmounts) result)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
-      deletedAt: null
+      deletedAt: null,
     })
   })
 })

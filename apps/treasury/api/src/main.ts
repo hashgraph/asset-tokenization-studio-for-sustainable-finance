@@ -3,7 +3,7 @@
 import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./AppModule"
 import { LogLevel, LOG_LEVELS } from "@nestjs/common"
-import {DocumentBuilder, SwaggerModule} from "@nestjs/swagger";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 
 function getLogLevels(minLogLevel: LogLevel): LogLevel[] {
   const logLevels: LogLevel[] = LOG_LEVELS
@@ -25,26 +25,26 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-      .setTitle("GreenBonds ATS API")
-      .setDescription("The GreenBonds Treasury API documentation")
-      .setVersion("1.0")
-      .addGlobalResponse({
-        status: 500,
-        description: 'Internal server error',
-      })
-      .addGlobalResponse({
-        status: 401,
-        description: 'Unauthorized',
-      })
-      .addGlobalResponse({
-        status: 400,
-        description: 'Bad Request',
-      })
-      .addGlobalResponse({
-        status: 404,
-        description: 'Not Found',
-      })
-      .build()
+    .setTitle("GreenBonds ATS API")
+    .setDescription("The GreenBonds Treasury API documentation")
+    .setVersion("1.0")
+    .addGlobalResponse({
+      status: 500,
+      description: "Internal server error",
+    })
+    .addGlobalResponse({
+      status: 401,
+      description: "Unauthorized",
+    })
+    .addGlobalResponse({
+      status: 400,
+      description: "Bad Request",
+    })
+    .addGlobalResponse({
+      status: 404,
+      description: "Not Found",
+    })
+    .build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("api/v1/docs", app, documentFactory)
 
