@@ -70,3 +70,10 @@ export { QueryOrderPageOptions } from "./query/QueryOrderPageOptions"
 export { QueryPageOptions } from "./query/QueryPageOptions"
 export { QueryPageRequest } from "./query/QueryPageRequest"
 export { QueryPageResponse } from "./query/QueryPageResponse"
+
+export { RoleGrantedDLTEvent } from "./port.adapter/shared/model/RoleGrantedDLTEvent"
+export { RoleRevokedDLTEvent } from "./port.adapter/shared/model/RoleRevokedDLTEvent"
+export { RoleRenouncedDLTEvent } from "./port.adapter/shared/model/RoleRenouncedDLTEvent"
+export { RolesAppliedDLTEvent } from "./port.adapter/shared/model/RolesAppliedDLTEvent"
+
+export { SHARED_ENTITIES } from "./Components"

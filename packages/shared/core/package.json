@@ -59,6 +59,21 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
-    "preset": "../../../jest.base.config.js"
+    "preset": "../../../jest.base.config.js",
+    "moduleNameMapper": {
+      "^@command/(.*)$": "<rootDir>/src/command/$1",
+      "^@config/(.*)$": "<rootDir>/src/config/$1",
+      "^@decorators/(.*)$": "<rootDir>/src/decorators/$1",
+      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
+      "^@errors/(.*)$": "<rootDir>/src/errors/$1",
+      "^@event/(.*)$": "<rootDir>/src/event/$1",
+      "^@logger/(.*)$": "<rootDir>/src/logger/$1",
+      "^@pagination/(.*)$": "<rootDir>/src/pagination/$1",
+      "^@persistence/(.*)$": "<rootDir>/src/persistence/$1",
+      "^@query/(.*)$": "<rootDir>/src/query/$1",
+      "^@retry/(.*)$": "<rootDir>/src/retry/$1",
+      "^@transaction/(.*)$": "<rootDir>/src/transaction/$1",
+      "^@utils/(.*)$": "<rootDir>/src/utils/$1"
+    }
   }
 }
