@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { ITimeTravel } from "@typechain";
+import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
 import { BigNumber } from "ethers";
 
 export async function setBlockTimestamp(timeTravel: ITimeTravel, timestamp: number): Promise<void> {

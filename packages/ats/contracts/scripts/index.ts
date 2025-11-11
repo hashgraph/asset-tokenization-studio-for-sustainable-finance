@@ -23,11 +23,13 @@
  * // Import configuration and workflow functions
  * import { createFactorySuiteConfiguration, deployFactorySuiteSystem } from '@scripts'
  *
- * // Import ATS infrastructure directly
+ * // Import ATS infrastructure directly (includes deployProxyAdmin, deployProxy, etc.)
  * import {
  *   deployFacets,
  *   registerFacets,
- *   createBlrConfiguration
+ *   createBlrConfiguration,
+ *   deployProxyAdmin,
+ *   deployProxy
  * } from '@hashgraph/asset-tokenization-contracts/scripts'
  * ```
  */
@@ -40,9 +42,3 @@ export * from "./workflows";
 
 // Internal utilities
 export * from "./utils";
-
-// Proxy deployment utilities
-export * from "./proxy/deployProxy";
-
-// Note: Infrastructure utilities (including atsRegistry) are imported from ATS:
-// import { atsRegistry, combineRegistries, ... } from '@hashgraph/asset-tokenization-contracts/scripts'

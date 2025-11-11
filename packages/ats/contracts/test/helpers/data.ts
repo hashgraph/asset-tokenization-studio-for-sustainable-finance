@@ -2,6 +2,7 @@
 
 import { ethers } from "hardhat";
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { LATEST_VERSION } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { TREASURY_CONFIG_ID } from "@scripts";
 import { TREASURY_CONFIG_VERSION } from "@test";
 
@@ -40,7 +41,7 @@ export function createTestDataSets(fixture: {
       resolver: mockResolver.address,
       resolverProxyConfiguration: {
         key: ethers.utils.formatBytes32String("BOND"),
-        version: 1,
+        version: LATEST_VERSION,
       },
       rbacs: [],
       isControllable: true,

@@ -4,34 +4,47 @@
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
-  "files": ["build/", "contracts/", "!build/**/*.map"],
+  "files": [
+    "artifacts/",
+    "contracts/",
+    "typechain-types/",
+    "scripts/",
+    "build/",
+    "!artifacts/build-info/",
+    "!build/**/*.map"
+  ],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
+      "require": "./build/typechain-types/index.js"
     },
-    "./typechain": {
-      "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
-    },
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts/": "./scripts/index.ts",
     "./scripts": {
       "types": "./build/scripts/index.d.ts",
-      "import": "./build/scripts/index.js",
-      "require": "./build/scripts/index.js",
-      "default": "./build/scripts/index.js"
+      "require": "./build/scripts/index.js"
     },
-    "./contracts/*": "./contracts/*",
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "require": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "require": "./build/test/index.js"
+    },
     "./package.json": "./package.json"
   },
-  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
+  "keywords": [
+    "hedera",
+    "smart-contracts",
+    "tokenization",
+    "hardhat"
+  ],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.json && npx tsc-alias -p tsconfig.json",
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
     "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
     "clean:cache": "npx hardhat clean",
     "clean:build": "node -e \"const fs=require('fs'); ['dist','build','artifacts','cache','typechain-types','coverage','.nyc_output'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
@@ -58,7 +71,7 @@
   },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
+    "@hashgraph/asset-tokenization-contracts": "^1.15.2",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

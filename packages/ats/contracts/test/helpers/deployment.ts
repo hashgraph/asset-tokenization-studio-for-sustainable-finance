@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ethers } from "hardhat";
 import { ContractReceipt } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import type { IFactorySuite, MockTreasuryFacet, IAtsFactory } from "@contracts";
+import type { IFactorySuite, MockTreasuryFacet } from "@contract-types";
+import { MockTreasuryFacet__factory } from "@contract-types";
+import type { IFactory } from "@contract-types";
 
 /**
  * Deploys a bond suite and extracts contract addresses from the BondSuiteDeployed event.
@@ -44,7 +45,7 @@ export async function deployBondSuiteAndExtractContracts(
   factorySuite: IFactorySuite,
   signer: SignerWithAddress,
   factoryAddress: string,
-  bondData: IAtsFactory.BondDataStruct,
+  bondData: IFactory.BondDataStruct,
   regulationData: any,
   treasuryData: any,
   kpiData: any,
@@ -70,7 +71,7 @@ export async function deployBondSuiteAndExtractContracts(
   const treasuryAddress = event.args[2];
   const kpiAddress = event.args[3];
 
-  const treasury = (await ethers.getContractAt("MockTreasuryFacet", treasuryAddress)) as MockTreasuryFacet;
+  const treasury = MockTreasuryFacet__factory.connect(treasuryAddress, signer);
 
   return {
     bondAddress,
