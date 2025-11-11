@@ -36,9 +36,11 @@ abstract contract LifeCycleCashFlow is
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLenth The number of holders who will be paid
      *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      * @return True if ATS returns holders to be paid, and false otherwise
      */
     function executeDistribution(
@@ -78,9 +80,11 @@ abstract contract LifeCycleCashFlow is
      * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
-     * @return The array of the holders addresses whose payment were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      */
     function executeDistributionByAddresses(
         address asset,
@@ -112,17 +116,34 @@ abstract contract LifeCycleCashFlow is
      * @param pageIndex The index of the page whose redemptions will be performed
      * @param pageLenth The number of holders who owns the bond to be redeemed
      *
-     * @return The array of the holders addresses whose redemptions were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
      */
     function executeBondRedemption(
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external override returns (PaymentResult memory result, bool executed) {
-        // solhint-disable-next-line no-empty-blocks
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        notAddressZero(bond)
+        isAsset(bond)
+        onlyOnRedemptionDate(bond)
+        returns (PaymentResult memory result, bool executed)
+    {
+        (result, executed) = _executeBondRedemption(
+            bond,
+            pageIndex,
+            pageLength
+        );
+
+        emit RedemptionExecuted(pageIndex, pageLength, result);
     }
 
     /*
@@ -131,15 +152,28 @@ abstract contract LifeCycleCashFlow is
      * @param bond The address of the bond for the redemption to be performed
      * @param holders The array of holders addresses who will be paid
      *
-     * @return The array of the holders addresses whose redemptions were not successful
-     * @return The array of the holders addresses whose payment were successful
-     * @return The array of the amounts paid to holders
+     * @return An struct containing:
+     *         - The array of the holders addresses whose redemptions were not successful
+     *         - The array of the holders addresses whose payment were successful
+     *         - The array of the holders addresses who were already paid
+     *         - The array of the amounts paid to holders
      */
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external override returns (PaymentResult memory result) {
-        // solhint-disable-next-line no-empty-blocks
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PAYOUT_ROLE)
+        notAddressZero(bond)
+        isAsset(bond)
+        onlyOnRedemptionDate(bond)
+        returns (PaymentResult memory result)
+    {
+        result = _executeBondRedemptionByAddresses(bond, holders);
+
+        emit RedemptionByAddressesExecuted(holders, result);
     }
 
     /*
