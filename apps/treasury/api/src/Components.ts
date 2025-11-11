@@ -238,7 +238,7 @@ export const CONTROLLERS = [
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
-  GetUserRolesHttpAdapter
+  GetUserRolesHttpAdapter,
 ]
 
 export const PROVIDERS = [
