@@ -18,7 +18,6 @@ import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransf
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import {
-  IPause__factory,
   IPortfolio__factory,
   IProceedsManagement__factory,
   IBondRead__factory,
@@ -30,8 +29,6 @@ import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePa
 import { TransferTransaction } from "@hashgraph/sdk"
 import { utils } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
-import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
-import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionTransactionRequest"
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
@@ -188,32 +185,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     } as any)
 
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
-  }
-
-  async pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildAndSerializeTransaction({
-      contractInterface: IPause__factory.createInterface(),
-      functionName: "pause" as any,
-      contractId: request.contractId,
-      gas: this.GAS,
-      environment: this.getEnvironment(),
-      account: request.accountId,
-      format: request.format as "hedera" | "ethereum",
-      args: [],
-    } as any)
-  }
-
-  async unpauseTreasury(request: BuildUnpauseTreasuryTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildAndSerializeTransaction({
-      contractInterface: IPause__factory.createInterface(),
-      functionName: "unpause" as any,
-      contractId: request.contractId,
-      gas: this.GAS,
-      environment: this.getEnvironment(),
-      account: request.accountId,
-      format: request.format as "hedera" | "ethereum",
-      args: [],
-    } as any)
   }
 
   async executeDistribution(request: BuildExecuteDistributionTransactionRequest): Promise<PageResponse<string>> {

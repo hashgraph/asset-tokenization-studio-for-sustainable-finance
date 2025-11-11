@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
-import { EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import { TokenUnpausedDLTEvent } from "@port/treasury/usecase/unpausetreasury/model/TokenUnpausedDLTEvent"
+import { EventListener, Handler, Inject, Singleton, TokenUnpausedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 import { UnpauseTreasuryPort } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryPort"
 import { UnpauseTreasuryCommand } from "@app/treasury/unpausetreasury/command/UnpauseTreasuryCommand"
 

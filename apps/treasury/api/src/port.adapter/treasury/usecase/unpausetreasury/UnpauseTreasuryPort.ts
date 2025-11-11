@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { TokenUnpausedDLTEvent } from "@port/treasury/usecase/unpausetreasury/model/TokenUnpausedDLTEvent"
+import { TokenUnpausedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 
 export interface UnpauseTreasuryPort {
   handle(event: TokenUnpausedDLTEvent): Promise<void>
