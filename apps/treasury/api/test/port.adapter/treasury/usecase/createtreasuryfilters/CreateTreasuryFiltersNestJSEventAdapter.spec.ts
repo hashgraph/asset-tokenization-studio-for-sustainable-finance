@@ -4,6 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
 import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { BlockchainEventListenerModule } from "@hashgraph/green-bonds-blockchain-listener"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
@@ -23,7 +24,7 @@ describe("CreateTreasuryFilters Integration", () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, BlockchainEventListenerModule, PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -32,6 +33,9 @@ describe("CreateTreasuryFilters Integration", () => {
     await app.init()
     eventBus = app.get("EventBus")
     internalEventFilterRepository = app.get(getRepositoryToken(EventFilterPersistence))
+
+    const hederaPort = app.get("HederaPort")
+    jest.spyOn(hederaPort, "getBlock").mockRejectedValue(undefined)
   })
 
   afterAll(async () => {

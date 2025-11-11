@@ -13,7 +13,7 @@ import { TransferPaymentTokenTransactionAppService } from "@app/transaction/tran
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { Provider } from "@nestjs/common"
 import { TreasuryTypeOrmRepository } from "@port/persistence/treasury/repositories/TreasuryTypeOrmRepository"
-import { EVENT_LISTENER_ENTITIES, EVENT_LISTENER_PROVIDERS } from "@hashgraph/green-bonds-blockchain-listener"
+import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { CheckEnvironmentalAssetExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetExistsDomainService"
@@ -242,7 +242,6 @@ export const CONTROLLERS = [
 
 export const PROVIDERS = [
   ...REPOSITORIES,
-  ...EVENT_LISTENER_PROVIDERS,
   FundProceedsRecipientTransactionAppService,
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,

@@ -3,7 +3,7 @@
 import { type CommandBus, ConverterUtils, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { CreateTreasuryFiltersPort } from "./CreateTreasuryFiltersPort"
 import { TreasuryCreatedEvent } from "@domain/treasury/event/TreasuryCreatedEvent"
-import { AddEventFiltersCommand } from "@hashgraph/green-bonds-blockchain-listener/dist/app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
+import { AddEventFiltersCommand } from "@hashgraph/green-bonds-blockchain-listener"
 
 @Singleton()
 export class CreateTreasuryFiltersNestJSEventAdapter implements CreateTreasuryFiltersPort {
