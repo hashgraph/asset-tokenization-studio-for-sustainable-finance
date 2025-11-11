@@ -11,6 +11,7 @@ import { GrantRoleTransactionAppService } from "./app/transaction/grantrole/serv
 import { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/revokerole/service/RevokeRoleTransactionAppService"
 import { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
 import { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
+import { RenounceRoleTransactionAppService } from "./app/transaction/renouncerole/service/RenounceRoleTransactionAppService"
 
 export const PROVIDERS = [
   {
@@ -40,6 +41,7 @@ export const COMMON_FUNCTIONALITY_PROVIDERS = [
   },
   GrantRoleTransactionAppService,
   RevokeRoleTransactionAppService,
+  RenounceRoleTransactionAppService,
   PauseTransactionAppService,
   UnpauseTransactionAppService,
 ]
