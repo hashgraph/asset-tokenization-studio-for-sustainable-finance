@@ -69,9 +69,8 @@ import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/upd
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
 import {
-  GrantRoleTransactionAppService,
-  RevokeRoleTransactionAppService,
-  SHARED_ENTITIES,
+  COMMON_FUNCTIONALITY_ENTITIES,
+  COMMON_FUNCTIONALITY_PROVIDERS,
   TypeOrmTransactionManager,
 } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
@@ -80,9 +79,7 @@ import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecas
 import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymenttokentransfer/command/AddPaymentTokenTransferCommandHandler"
 import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
 import { PauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionHttpAdapter"
-import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
 import { UnpauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/unpausetreasury/UnpauseTreasuryTransactionHttpAdapter"
-import { UnpauseTreasuryTransactionAppService } from "@app/transaction/unpausetreasury/service/UnpauseTreasuryTransactionAppService"
 import { PauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/pausetreasury/PauseTreasuryNestJSEventAdapter"
 import { PauseTreasuryCommandHandler } from "@app/treasury/pausetreasury/command/PauseTreasuryCommandHandler"
 import { UnpauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryNestJSEventAdapter"
@@ -192,8 +189,8 @@ const REPOSITORIES: Provider[] = [
 ]
 
 export const ENTITIES = [
-  ...SHARED_ENTITIES,
   ...EVENT_LISTENER_ENTITIES,
+  ...COMMON_FUNCTIONALITY_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
   EnvironmentalAssetTokenPersistence,
@@ -242,6 +239,7 @@ export const CONTROLLERS = [
 
 export const PROVIDERS = [
   ...REPOSITORIES,
+  ...COMMON_FUNCTIONALITY_PROVIDERS,
   FundProceedsRecipientTransactionAppService,
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,
@@ -278,10 +276,8 @@ export const PROVIDERS = [
   UpdatePaymentTokenDomainService,
   AddPaymentTokenTransferNestJSEventAdapter,
   AddPaymentTokenTransferCommandHandler,
-  UnpauseTreasuryTransactionAppService,
   AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
-  PauseTreasuryTransactionAppService,
   PauseTreasuryNestJSEventAdapter,
   PauseTreasuryCommandHandler,
   UnpauseTreasuryNestJSEventAdapter,
@@ -334,6 +330,4 @@ export const PROVIDERS = [
     useClass: TypeOrmTransactionManager,
   },
   CreateTreasuryFiltersNestJSEventAdapter,
-  GrantRoleTransactionAppService,
-  RevokeRoleTransactionAppService,
 ]

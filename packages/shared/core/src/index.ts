@@ -77,10 +77,16 @@ export { RoleGrantedDLTEvent } from "./port.adapter/shared/model/RoleGrantedDLTE
 export { RoleRevokedDLTEvent } from "./port.adapter/shared/model/RoleRevokedDLTEvent"
 export { RoleRenouncedDLTEvent } from "./port.adapter/shared/model/RoleRenouncedDLTEvent"
 export { RolesAppliedDLTEvent } from "./port.adapter/shared/model/RolesAppliedDLTEvent"
+export { TokenPausedDLTEvent } from "./port.adapter/shared/model/TokenPausedDLTEvent"
+export { TokenUnpausedDLTEvent } from "./port.adapter/shared/model/TokenUnpausedDLTEvent"
 
 export { GrantRoleTransactionAppService } from "./app/transaction/grantrole/service/GrantRoleTransactionAppService"
 export { GrantRoleTransactionAppServiceRequest } from "./app/transaction/grantrole/service/model/GrantRoleTransactionAppServiceRequest"
 export { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/revokerole/service/RevokeRoleTransactionAppService"
 export { RevokeRoleTransactionAppServiceRequest } from "./app/transaction/revokerole/revokerole/service/model/RevokeRoleTransactionAppServiceRequest"
+export { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
+export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/service/model/PauseTransactionAppServiceRequest"
+export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
+export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/service/model/UnpauseTransactionAppServiceRequest"
 
-export { SHARED_ENTITIES } from "./Components"
+export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"

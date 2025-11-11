@@ -1,24 +1,27 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Body, Param, Post } from "@nestjs/common"
-import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import {
+  PauseTransactionAppService,
+  PauseTransactionAppServiceRequest,
+  RestController,
+  TransactionResponse,
+} from "@hashgraph/green-bonds-shared-core"
 
-import { PauseTreasuryTransactionRequest } from "./model/PauseTreasuryTransactionRequest"
-import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
-import { PauseTreasuryTransactionAppServiceRequest } from "@app/transaction/pausetreasury/service/model/PauseTreasuryTransactionAppServiceRequest"
 import { PauseTreasuryTransactionPort } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionPort"
+import { PauseTreasuryTransactionRequest } from "@port/transaction/usecase/pausetreasury/model/PauseTreasuryTransactionRequest"
 
 @RestController("treasuries")
 export class PauseTreasuryTransactionHttpAdapter implements PauseTreasuryTransactionPort {
-  constructor(private readonly pauseTreasuryTransactionAppService: PauseTreasuryTransactionAppService) {}
+  constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 
   @Post(":treasuryContractId/pause")
   async pauseTreasury(
     @Param("treasuryContractId") treasuryContractId: string,
     @Body() request: PauseTreasuryTransactionRequest,
   ): Promise<TransactionResponse> {
-    return await this.pauseTreasuryTransactionAppService.execute(
-      new PauseTreasuryTransactionAppServiceRequest(request.format, request.accountId || "", treasuryContractId),
+    return await this.pauseTransactionAppService.execute(
+      new PauseTransactionAppServiceRequest(request.format, request.accountId!, treasuryContractId),
     )
   }
 }
