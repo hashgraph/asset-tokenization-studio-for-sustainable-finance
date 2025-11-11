@@ -10,7 +10,6 @@ export interface SubscriptionRepository {
     offeringId: number,
     marketId: string,
   ): Promise<Subscription | null>
-  saveAll(subscriptions: Subscription[]): Promise<Subscription[]>
   findByOfferingIdAndMarketId(
     offeringId: number,
     marketId: string,

@@ -2,7 +2,7 @@
 
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
-import { DataSource, Repository } from "typeorm"
+import { Repository } from "typeorm"
 import { SubscriptionRepository } from "@domain/subscription/repositories/SubscriptionRepository"
 import { Subscription } from "@domain/subscription/model/Subscription"
 import { SubscriptionPersistence } from "../model/SubscriptionPersistence"
@@ -14,7 +14,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
   constructor(
     @InjectRepository(SubscriptionPersistence)
     private readonly repository: Repository<SubscriptionPersistence>,
-    private readonly dataSource: DataSource,
   ) {}
 
   async save(subscription: Subscription): Promise<Subscription> {
@@ -37,26 +36,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     })
 
     return persistence ? this.toDomain(persistence) : null
-  }
-
-  async saveAll(subscriptions: Subscription[]): Promise<Subscription[]> {
-    const queryRunner = this.dataSource.createQueryRunner()
-    await queryRunner.connect()
-    await queryRunner.startTransaction()
-
-    try {
-      const saved = await queryRunner.manager.save(
-        SubscriptionPersistence,
-        subscriptions as unknown as SubscriptionPersistence[],
-      )
-      await queryRunner.commitTransaction()
-      return saved.map((item) => this.toDomain(item))
-    } catch (error) {
-      await queryRunner.rollbackTransaction()
-      throw error
-    } finally {
-      await queryRunner.release()
-    }
   }
 
   async findByOfferingIdAndMarketId(

@@ -72,6 +72,7 @@ import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExi
 import { GetOfferingHttpAdapter } from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
 import { GetOfferingQueryHandler } from "@app/offering/getoffering/query/GetOfferingQueryHandler"
 import { BlockchainAdapter } from "@port/blockchain/BlockchainAdapter"
+import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -167,6 +168,10 @@ export const PROVIDERS = [
   {
     provide: "BlockchainAdapterPort",
     useClass: BlockchainAdapter,
+  },
+  {
+    provide: "TransactionManager",
+    useClass: TypeOrmTransactionManager,
   },
 ]
 
