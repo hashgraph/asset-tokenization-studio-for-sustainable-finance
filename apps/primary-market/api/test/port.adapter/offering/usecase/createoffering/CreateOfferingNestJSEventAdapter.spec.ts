@@ -50,14 +50,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
 
   describe("CreateOfferingNestJSEventAdapter", () => {
     it("should create a new offering when OfferingCreatedDLTEvent is published", async () => {
-      await primaryMarketRepository.save({
+      const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
 
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        "1", // offeringDltId
+        1, // offeringId (numeric)
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
@@ -75,13 +75,13 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
 
       const savedOffering = await offeringRepository.findOne({
-        where: { offeringDltId: "1" },
+        where: { id: 1, marketId: market.id },
         relations: ["market"],
       })
 
       expect(savedOffering).toBeDefined()
       expect(savedOffering).not.toBeNull()
-      expect(savedOffering!.offeringDltId).toBe("1")
+      expect(savedOffering!.id).toBe(1)
       expect(savedOffering!.bondContractId).toBe("0.0.4661") // Converted from EVM address
       expect(savedOffering!.treasuryContractId).toBe("0.0.4662") // Converted from EVM address
       expect(savedOffering!.paymentTokenContractId).toBe("0.0.4663") // Converted from EVM address
@@ -96,13 +96,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering!.market.contractId).toBe("0.0.1234567")
     })
 
-    it("should throw error when offering with same offeringDltId already exists", async () => {
+    it("should throw error when offering with same id already exists", async () => {
       const primaryMarket = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
 
       const existingOffering = offeringRepository.create({
-        offeringDltId: "1",
+        id: 1,
+        marketId: primaryMarket.id,
         market: primaryMarket,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
@@ -123,7 +124,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        "1", // Same offeringDltId
+        1, // Same offeringId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
@@ -142,17 +143,17 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
     })
 
     it("should create multiple offerings for the same market successfully", async () => {
-      await primaryMarketRepository.save({
+      const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
 
-      const offeringIds = ["1", "2", "3"]
+      const offeringIds = [1, 2, 3]
 
-      for (const offeringDltId of offeringIds) {
+      for (const offeringId of offeringIds) {
         const event = new OfferingCreatedDLTEvent(
           "0.0.1234567", // contractId (market)
           "0x123456789", // transactionHash
-          offeringDltId,
+          offeringId,
           "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
           "0x0000000000000000000000000000000000001235", // asset (bond)
           "0x0000000000000000000000000000000000001236", // treasury
@@ -170,12 +171,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
 
         const savedOffering = await offeringRepository.findOne({
-          where: { offeringDltId },
+          where: { id: offeringId, marketId: market.id },
         })
 
         expect(savedOffering).toBeDefined()
         expect(savedOffering).not.toBeNull()
-        expect(savedOffering!.offeringDltId).toBe(offeringDltId)
+        expect(savedOffering!.id).toBe(offeringId)
       }
 
       const allOfferings = await offeringRepository.find()
@@ -193,7 +194,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        "1",
+        1,
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
@@ -212,7 +213,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          offeringDltId: "1",
+          offeringId: 1,
           marketContractId: "0.0.1234567",
           bondContractId: "0.0.4661", // Converted from EVM address
           treasuryContractId: "0.0.4662", // Converted from EVM address

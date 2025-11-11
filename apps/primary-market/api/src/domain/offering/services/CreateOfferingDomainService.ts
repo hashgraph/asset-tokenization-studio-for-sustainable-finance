@@ -15,25 +15,25 @@ export class CreateOfferingDomainService {
   ) {}
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
+    const now = new Date()
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
       createOfferingDomainServiceRequest.marketContractId,
     )
     market.ensureActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingDltIdAndMarketId(
-      createOfferingDomainServiceRequest.offeringDltId,
+    const existingOffering = await this.offeringRepository.findByOfferingIdAndMarketId(
+      createOfferingDomainServiceRequest.offeringId,
       market.id,
     )
     if (existingOffering) {
-      throw OfferingFoundError.offeringDltIdAndMarketContractIdError(
-        createOfferingDomainServiceRequest.offeringDltId,
+      throw OfferingFoundError.offeringIdAndMarketContractIdError(
+        createOfferingDomainServiceRequest.offeringId,
         createOfferingDomainServiceRequest.marketContractId,
       )
     }
-
     const offering = Object.assign(new Offering(), {
-      offeringDltId: createOfferingDomainServiceRequest.offeringDltId,
-      market: market,
+      id: createOfferingDomainServiceRequest.offeringId,
+      marketId: market.id,
       bondContractId: createOfferingDomainServiceRequest.bondContractId,
       operatorAccountId: createOfferingDomainServiceRequest.operatorAccountId,
       treasuryContractId: createOfferingDomainServiceRequest.treasuryContractId,
@@ -46,6 +46,8 @@ export class CreateOfferingDomainService {
       startDate: createOfferingDomainServiceRequest.startDate,
       endDate: createOfferingDomainServiceRequest.endDate,
       deadlineRule: createOfferingDomainServiceRequest.deadlineRule,
+      createdAt: now,
+      updatedAt: now,
     })
     return await this.offeringRepository.save(offering)
   }

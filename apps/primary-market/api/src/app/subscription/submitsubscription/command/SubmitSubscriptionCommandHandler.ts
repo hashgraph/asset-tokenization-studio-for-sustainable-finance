@@ -19,11 +19,11 @@ export class SubmitSubscriptionCommandHandler implements CommandHandler<SubmitSu
     const subscription = await this.submitSubscriptionDomainService.execute(command)
     this.eventBus.publish(
       new SubscriptionSubmittedEvent(
-        subscription.offering.offeringDltId,
-        subscription.offering.market.contractId,
-        subscription.subscriptionDltId,
+        subscription.offeringId,
+        command.marketContractId,
+        subscription.id,
         subscription.status,
-        subscription.investor.accountId,
+        subscription.investorAccountId,
         subscription.lotUnits,
       ),
     )

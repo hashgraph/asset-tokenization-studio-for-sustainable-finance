@@ -10,7 +10,6 @@ import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer
 import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
-import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
@@ -20,7 +19,7 @@ describe("GetSubscription API Integration", () => {
   let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let offeringRepository: Repository<OfferingPersistence>
-  let investorRepository: Repository<InvestorPersistence>
+
   let subscriptionRepository: Repository<SubscriptionPersistence>
 
   beforeAll(async () => {
@@ -41,7 +40,6 @@ describe("GetSubscription API Integration", () => {
 
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
-    investorRepository = app.get(getRepositoryToken(InvestorPersistence))
     subscriptionRepository = app.get(getRepositoryToken(SubscriptionPersistence))
   })
 
@@ -52,21 +50,20 @@ describe("GetSubscription API Integration", () => {
   afterEach(async () => {
     const dataSource = app.get(DataSource)
     await dataSource.createQueryBuilder().delete().from("Subscription").execute()
-    await dataSource.createQueryBuilder().delete().from("Investor").execute()
     await dataSource.createQueryBuilder().delete().from("Offering").execute()
     await dataSource.createQueryBuilder().delete().from("PrimaryMarket").execute()
     await app.close()
   })
 
-  describe("GET /primary-markets/:marketContractId/offerings/:offeringDltId/subscriptions/:subscriptionDltId", () => {
+  describe("GET /primary-markets/:marketContractId/offerings/:offeringId/subscriptions/:subscriptionId", () => {
     it("should return subscription with valid parameters", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -81,14 +78,11 @@ describe("GetSubscription API Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
       await subscriptionRepository.save({
-        subscriptionDltId: "1",
-        offering: offering,
-        investor: investor,
+        id: 1,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -98,8 +92,7 @@ describe("GetSubscription API Integration", () => {
         .expect(200)
 
       expect(response.body).toMatchObject({
-        subscriptionDltId: "1",
-        offeringDltId: "1",
+        id: 1,
         investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
@@ -113,8 +106,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -129,10 +122,6 @@ describe("GetSubscription API Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
       const statuses = [
         SubscriptionStatus.SUBMITTED,
         SubscriptionStatus.EXECUTED,
@@ -142,9 +131,10 @@ describe("GetSubscription API Integration", () => {
 
       for (const [index, status] of statuses.entries()) {
         await subscriptionRepository.save({
-          subscriptionDltId: String(index + 1),
-          offering: offering,
-          investor: investor,
+          id: index + 1,
+          offeringId: offering.id,
+          marketId: offering.marketId,
+          investorAccountId: "0.0.1111",
           lotUnits: "5",
           status: status,
         })
@@ -163,8 +153,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -206,8 +196,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -222,22 +212,20 @@ describe("GetSubscription API Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
       await subscriptionRepository.save({
-        subscriptionDltId: "1",
-        offering: offering,
-        investor: investor,
+        id: 1,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
 
       await subscriptionRepository.save({
-        subscriptionDltId: "2",
-        offering: offering,
-        investor: investor,
+        id: 2,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "10",
         status: SubscriptionStatus.EXECUTED,
       })
@@ -250,11 +238,11 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/1/subscriptions/2`)
         .expect(200)
 
-      expect(response1.body.subscriptionDltId).toBe("1")
+      expect(response1.body.id).toBe(1)
       expect(response1.body.lotUnits).toBe("5")
       expect(response1.body.status).toBe(SubscriptionStatus.SUBMITTED)
 
-      expect(response2.body.subscriptionDltId).toBe("2")
+      expect(response2.body.id).toBe(2)
       expect(response2.body.lotUnits).toBe("10")
       expect(response2.body.status).toBe(SubscriptionStatus.EXECUTED)
     })
@@ -265,8 +253,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering1 = await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -282,8 +270,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering2 = await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.8888888",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -298,22 +286,20 @@ describe("GetSubscription API Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
       await subscriptionRepository.save({
-        subscriptionDltId: "1",
-        offering: offering1,
-        investor: investor,
+        id: 1,
+        offeringId: offering1.id,
+        marketId: offering1.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
 
       await subscriptionRepository.save({
-        subscriptionDltId: "1",
-        offering: offering2,
-        investor: investor,
+        id: 1,
+        offeringId: offering2.id,
+        marketId: offering2.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "10",
         status: SubscriptionStatus.EXECUTED,
       })
@@ -326,11 +312,11 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/2/subscriptions/1`)
         .expect(200)
 
-      expect(response1.body.offeringDltId).toBe("1")
+      expect(response1.body.id).toBe(1)
       expect(response1.body.lotUnits).toBe("5")
       expect(response1.body.status).toBe(SubscriptionStatus.SUBMITTED)
 
-      expect(response2.body.offeringDltId).toBe("2")
+      expect(response2.body.id).toBe(1)
       expect(response2.body.lotUnits).toBe("10")
       expect(response2.body.status).toBe(SubscriptionStatus.EXECUTED)
     })
@@ -341,8 +327,8 @@ describe("GetSubscription API Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -357,14 +343,11 @@ describe("GetSubscription API Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
       await subscriptionRepository.save({
-        subscriptionDltId: "999999999",
-        offering: offering,
-        investor: investor,
+        id: 999999999,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -373,7 +356,7 @@ describe("GetSubscription API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/1/subscriptions/999999999`)
         .expect(200)
 
-      expect(response.body.subscriptionDltId).toBe("999999999")
+      expect(response.body.id).toBe(999999999)
     })
   })
 })

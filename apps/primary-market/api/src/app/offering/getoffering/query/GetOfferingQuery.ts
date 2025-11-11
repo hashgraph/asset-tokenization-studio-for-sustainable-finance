@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsNotEmpty, IsString, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber } from "class-validator"
 import { Query } from "@hashgraph/green-bonds-shared-core"
 import { OfferingQueryResponse } from "./OfferingQueryResponse"
 
@@ -9,13 +9,13 @@ export class GetOfferingQuery extends Query<OfferingQueryResponse> {
   @IsString()
   marketContractId: string
 
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
-  constructor(marketContractId: string, offeringDltId: string) {
+  constructor(marketContractId: string, offeringId: number) {
     super()
     this.marketContractId = marketContractId
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
   }
 }

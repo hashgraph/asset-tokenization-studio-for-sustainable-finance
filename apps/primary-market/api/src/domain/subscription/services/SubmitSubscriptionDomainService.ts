@@ -5,62 +5,53 @@ import { SubmitSubscriptionDomainServiceRequest } from "./model/SubmitSubscripti
 import { SubscriptionFoundError } from "../errors/SubscriptionFoundError"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import type { SubscriptionRepository } from "../repositories/SubscriptionRepository"
-import type { InvestorRepository } from "@domain/investor/repositories/InvestorRepository"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { Subscription } from "../model/Subscription"
-import { Investor } from "@domain/investor/model/Investor"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 @Singleton()
 export class SubmitSubscriptionDomainService {
   constructor(
     @Inject() private readonly subscriptionRepository: SubscriptionRepository,
-    @Inject() private readonly investorRepository: InvestorRepository,
     private readonly checkOfferingExistsDomainService: CheckOfferingExistsDomainService,
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
   ) {}
 
   async execute(submitSubscriptionDomainServiceRequest: SubmitSubscriptionDomainServiceRequest): Promise<Subscription> {
+    const now = new Date()
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
       submitSubscriptionDomainServiceRequest.marketContractId,
     )
     market.ensureActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.offeringDltId,
+      submitSubscriptionDomainServiceRequest.offeringId,
       market,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionDltIdAndOfferingId(
-      submitSubscriptionDomainServiceRequest.subscriptionDltId,
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
+      submitSubscriptionDomainServiceRequest.subscriptionId,
       offering.id,
+      market.id,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionDltIdOfferingDltIdAndMarketContractIdError(
-        submitSubscriptionDomainServiceRequest.subscriptionDltId,
-        submitSubscriptionDomainServiceRequest.offeringDltId,
+      throw SubscriptionFoundError.subscriptionIdOfferingIdAndMarketContractIdError(
+        submitSubscriptionDomainServiceRequest.subscriptionId,
+        submitSubscriptionDomainServiceRequest.offeringId,
         submitSubscriptionDomainServiceRequest.marketContractId,
       )
     }
 
-    const investor = await this.getOrCreateInvestor(submitSubscriptionDomainServiceRequest.investorId)
-
     const subscription = Object.assign(new Subscription(), {
-      subscriptionDltId: submitSubscriptionDomainServiceRequest.subscriptionDltId,
-      offering: offering,
-      investor: investor,
+      id: submitSubscriptionDomainServiceRequest.subscriptionId,
+      offeringId: offering.id,
+      marketId: market.id,
+      investorAccountId: submitSubscriptionDomainServiceRequest.investorAccountId,
       lotUnits: submitSubscriptionDomainServiceRequest.lotUnits,
       status: SubscriptionStatus.SUBMITTED,
+      createdAt: now,
+      updatedAt: now,
     })
     return await this.subscriptionRepository.save(subscription)
-  }
-
-  private async getOrCreateInvestor(accountId: string): Promise<Investor> {
-    let investor = await this.investorRepository.findByAccountId(accountId)
-    if (!investor) {
-      investor = Object.assign(new Investor(), { accountId })
-      investor = await this.investorRepository.save(investor)
-    }
-    return investor
   }
 }

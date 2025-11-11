@@ -11,12 +11,12 @@ import { OfferingResponse } from "./model/OfferingResponse"
 export class GetOfferingHttpAdapter implements GetOfferingPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":marketContractId/offerings/:offeringDltId")
+  @Get(":marketContractId/offerings/:offeringId")
   async execute(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringDltId") offeringDltId: string,
+    @Param("offeringId") offeringId: number,
   ): Promise<OfferingResponse> {
-    const query = new GetOfferingQuery(marketContractId, offeringDltId)
+    const query = new GetOfferingQuery(marketContractId, offeringId)
     return await this.queryBus.execute(query)
   }
 }

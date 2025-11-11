@@ -19,15 +19,15 @@ export class GetOfferingQueryHandler implements QueryHandler<GetOfferingQuery, O
 
   @Validate()
   async execute(query: GetOfferingQuery): Promise<OfferingQueryResponse> {
-    const { marketContractId, offeringDltId } = query
+    const { marketContractId, offeringId } = query
 
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
-    const offering = await this.checkOfferingExistsDomainService.execute(offeringDltId, market)
+    const offering = await this.checkOfferingExistsDomainService.execute(offeringId, market)
 
-    const status = await this.blockchainAdapter.getOfferingStatus(market.contractId, offering.offeringDltId)
+    const status = await this.blockchainAdapter.getOfferingStatus(market.contractId, offering.id)
 
     return Object.assign(new OfferingQueryResponse(), {
-      offeringDltId: offering.offeringDltId,
+      id: offering.id,
       bondContractId: offering.bondContractId,
       operatorAccountId: offering.operatorAccountId,
       treasuryContractId: offering.treasuryContractId,

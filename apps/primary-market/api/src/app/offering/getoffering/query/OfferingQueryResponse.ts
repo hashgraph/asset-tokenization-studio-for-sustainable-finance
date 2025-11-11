@@ -3,7 +3,7 @@
 import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
 
 export class OfferingQueryResponse {
-  offeringDltId: string
+  id: number
   bondContractId: string
   operatorAccountId: string
   treasuryContractId: string

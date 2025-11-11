@@ -19,11 +19,11 @@ export class CancelOfferingCommandHandler implements CommandHandler<CancelOfferi
     await this.cancelOfferingDomainService.execute(command)
     this.eventBus.publish(
       new OfferingCancelledEvent(
-        command.offeringDltId,
+        command.offeringId,
         command.marketContractId,
         command.operatorAccountId,
-        command.subscriptionDltIdsSuccess,
-        command.subscriptionDltIdsFailed,
+        command.subscriptionIdsSuccess,
+        command.subscriptionIdsFailed,
       ),
     )
   }
