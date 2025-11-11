@@ -4,24 +4,27 @@ import { Handler, Inject, QueryHandler, Singleton, Validate } from "@hashgraph/g
 import { CheckBondExistsDomainService } from "@domain/bond/services/CheckBondExistsDomainService"
 import type { BondCouponRepository } from "@domain/bond/coupon/repository/BondCouponRepository"
 import { GetBondCouponsQuery } from "./GetBondCouponsQuery"
-import { GetBondCouponsQueryResponse } from "./GetBondCouponsQueryResponse"
+import { BondCouponsQueryResponse } from "./BondCouponsQueryResponse"
 
 @Singleton()
 @Handler(GetBondCouponsQuery)
-export class GetBondCouponsQueryHandler implements QueryHandler<GetBondCouponsQuery, GetBondCouponsQueryResponse> {
+export class GetBondCouponsQueryHandler implements QueryHandler<GetBondCouponsQuery, BondCouponsQueryResponse> {
   constructor(
     private readonly checkBondExistsDomainService: CheckBondExistsDomainService,
     @Inject() private readonly bondCouponRepository: BondCouponRepository,
   ) {}
 
   @Validate()
-  async execute(query: GetBondCouponsQuery): Promise<GetBondCouponsQueryResponse> {
+  async execute(query: GetBondCouponsQuery): Promise<BondCouponsQueryResponse> {
     await this.checkBondExistsDomainService.execute(query.bondContractId)
 
-    const coupons = await this.bondCouponRepository.findAllByContractId(query.bondContractId)
+    const page = await this.bondCouponRepository.findAllByContractIdPaginated(
+      query.bondContractId,
+      query.pageOptions.toPageOptions(),
+    )
 
     return {
-      couponIds: coupons.map((coupon) => coupon.couponId),
+      couponIds: page.items.map((coupon) => coupon.couponId),
     }
   }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { GetBondCouponQueryResponse } from "@app/bond/getbondcoupon/query/GetBondCouponQueryResponse"
+import { BondCouponQueryResponse } from "@app/bond/getbondcoupon/query/BondCouponQueryResponse"
 
 export class GetBondCouponResponse {
   id: string
@@ -11,7 +11,7 @@ export class GetBondCouponResponse {
   executionDate: Date
   rate: string
 
-  static fromGetBondCouponQueryResponse(queryResponse: GetBondCouponQueryResponse): GetBondCouponResponse {
+  static fromGetBondCouponQueryResponse(queryResponse: BondCouponQueryResponse): GetBondCouponResponse {
     const response = new GetBondCouponResponse()
     response.id = queryResponse.id
     response.contractId = queryResponse.contractId

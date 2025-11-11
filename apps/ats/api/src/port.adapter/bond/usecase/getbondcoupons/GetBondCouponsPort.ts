@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-import { GetBondCouponsResponse } from "./model/GetBondCouponsResponse"
+import { QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { BondCouponsResponse } from "@port/bond/usecase/getbondcoupons/model/BondCouponsResponse"
 
 export interface GetBondCouponsPort {
-  getBondCoupons(bondContractId: string): Promise<GetBondCouponsResponse>
+  getBondCoupons(bondContractId: string, queryPageRequest: QueryPageRequest): Promise<BondCouponsResponse>
 }

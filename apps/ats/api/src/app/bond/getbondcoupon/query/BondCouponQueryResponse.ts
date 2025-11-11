@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-export interface GetBondCouponQueryResponse {
+export interface BondCouponQueryResponse {
   id: string
   contractId: string
   corporateActionId: string

@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
-import { Get, Param } from "@nestjs/common"
+import { Get, Param, Query } from "@nestjs/common"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
+import { QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
 import { GetBondCouponsPort } from "./GetBondCouponsPort"
-import { GetBondCouponsResponse } from "./model/GetBondCouponsResponse"
 import { GetBondCouponsQuery } from "@app/bond/getbondcoupons/query/GetBondCouponsQuery"
-import { GetBondCouponsQueryResponse } from "@app/bond/getbondcoupons/query/GetBondCouponsQueryResponse"
+import { BondCouponsResponse } from "@port/bond/usecase/getbondcoupons/model/BondCouponsResponse"
 
 @RestController("bonds")
 export class GetBondCouponsHttpAdapter implements GetBondCouponsPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get("/:bondContractId/coupons")
-  async getBondCoupons(@Param("bondContractId") bondContractId: string): Promise<GetBondCouponsResponse> {
-    const queryResult = await this.queryBus.execute(new GetBondCouponsQuery(bondContractId))
-    return GetBondCouponsResponse.fromGetBondCouponsQueryResponse(queryResult as GetBondCouponsQueryResponse)
+  async getBondCoupons(
+    @Param("bondContractId") bondContractId: string,
+    @Query() queryPageRequest: QueryPageRequest,
+  ): Promise<BondCouponsResponse> {
+    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    return await this.queryBus.execute(new GetBondCouponsQuery(bondContractId, queryPageOptions))
   }
 }

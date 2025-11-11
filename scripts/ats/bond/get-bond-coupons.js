@@ -31,7 +31,8 @@ async function getBondCoupons(bondContractId) {
   log(`\n📋 Fetching all coupons for bond ${bondContractId}...`, colors.bright);
 
   try {
-    const response = await gatewayClient.get(`/api/v1/ats/bonds/${bondContractId}/coupons`);
+    // Fetch with high limit to get all coupons
+    const response = await gatewayClient.get(`/api/v1/ats/bonds/${bondContractId}/coupons?limit=20`);
 
     if (response.data && response.data.couponIds && response.data.couponIds.length > 0) {
       logSuccess(`Found ${response.data.couponIds.length} coupon(s)`);

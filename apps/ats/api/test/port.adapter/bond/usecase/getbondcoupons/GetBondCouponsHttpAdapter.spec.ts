@@ -57,7 +57,7 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         .expect(HttpStatus.NOT_FOUND)
     })
 
-    it("should return empty array when bond has no coupons", async () => {
+    it("should return empty paginated result when bond has no coupons", async () => {
       const startingDate = new Date("2025-01-01")
       const maturityDate = new Date("2030-01-01")
 
@@ -87,7 +87,7 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
       })
     })
 
-    it("should return list of coupon IDs", async () => {
+    it("should return paginated list of coupons with full details", async () => {
       const startingDate = new Date("2025-01-01")
       const maturityDate = new Date("2030-01-01")
       const recordDate = new Date("2025-06-01")
@@ -109,9 +109,12 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         isin: "US1234567890",
       })
 
+      const corporateActionId1 = `0x${Date.now().toString(16).padStart(64, "0")}`
+      const corporateActionId2 = `0x${(Date.now() + 1).toString(16).padStart(64, "0")}`
+
       await internalBondCouponRepository.save({
         contractId: bond.contractId,
-        corporateActionId: `0x${Date.now().toString(16).padStart(64, "0")}`,
+        corporateActionId: corporateActionId1,
         couponId: "1",
         operator: "0.0.123456",
         recordDate: recordDate,
@@ -119,13 +122,15 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         rate: "5.5",
       })
 
+      const recordDate2 = new Date("2025-12-01")
+      const executionDate2 = new Date("2025-12-15")
       await internalBondCouponRepository.save({
         contractId: bond.contractId,
-        corporateActionId: `0x${(Date.now() + 1).toString(16).padStart(64, "0")}`,
+        corporateActionId: corporateActionId2,
         couponId: "2",
         operator: "0.0.123456",
-        recordDate: new Date("2025-12-01"),
-        executionDate: new Date("2025-12-15"),
+        recordDate: recordDate2,
+        executionDate: executionDate2,
         rate: "5.5",
       })
 
@@ -134,9 +139,63 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         .send()
         .expect(HttpStatus.OK)
 
-      expect(response.body).toEqual({
-        couponIds: ["1", "2"],
+      expect(response.body.couponIds).toHaveLength(2)
+      const couponIds = response.body.couponIds.sort()
+      expect(couponIds).toEqual(["1", "2"])
+    })
+
+    it("should respect pagination parameters", async () => {
+      const startingDate = new Date("2025-01-01")
+      const maturityDate = new Date("2030-01-01")
+
+      const timestamp = Date.now() + Math.floor(Math.random() * 100000)
+      const bond = await internalBondRepository.save({
+        contractId: `0.0.${timestamp}`,
+        treasuryId: `0.0.${timestamp + 1}`,
+        kpiId: `0.0.${timestamp + 2}`,
+        name: "Green Bond",
+        symbol: "GBND",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000",
+        startingDate: startingDate,
+        maturityDate: maturityDate,
+        maxSupply: "1000000",
+        isin: "US1234567890",
       })
+
+      for (let i = 1; i <= 5; i++) {
+        await internalBondCouponRepository.save({
+          contractId: bond.contractId,
+          corporateActionId: `0x${(Date.now() + i).toString(16).padStart(64, "0")}`,
+          couponId: i.toString(),
+          operator: "0.0.123456",
+          recordDate: new Date("2025-06-01"),
+          executionDate: new Date("2025-06-15"),
+          rate: "5.5",
+        })
+      }
+
+      // This requests page 1 with limit 2
+      const response = await request(app.getHttpServer())
+        .get(`/api/v1/ats/bonds/${bond.contractId}/coupons?page=1&limit=2`)
+        .send()
+        .expect(HttpStatus.OK)
+
+      expect(response.body.couponIds).toHaveLength(2)
+
+      // This requests page 2 with limit 2
+      const response2 = await request(app.getHttpServer())
+        .get(`/api/v1/ats/bonds/${bond.contractId}/coupons?page=2&limit=2`)
+        .send()
+        .expect(HttpStatus.OK)
+
+      expect(response2.body.couponIds).toHaveLength(2)
+
+      // Verify that different pages return different coupon IDs
+      const page1Ids = response.body.couponIds.sort()
+      const page2Ids = response2.body.couponIds.sort()
+      expect(page1Ids).not.toEqual(page2Ids)
     })
   })
 })
