@@ -1,0 +1,68 @@
+{
+  "name": "@hashgraph/green-bonds-platform-shared-contracts",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "Shared infrastructure orchestration for Green Bonds Platform",
+  "main": "./build/scripts/index.js",
+  "types": "./build/scripts/index.d.ts",
+  "files": [
+    "build/",
+    "!build/**/*.map"
+  ],
+  "exports": {
+    "./scripts": {
+      "types": "./build/scripts/index.d.ts",
+      "import": "./build/scripts/index.js",
+      "require": "./build/scripts/index.js",
+      "default": "./build/scripts/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "hedera",
+    "green-bonds",
+    "infrastructure",
+    "orchestration"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
+    "clean": "npm run clean:build; npm run clean:node",
+    "clean:build": "node -e \"const fs=require('fs'); ['build'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "deploy": "npm run build && npx ts-node -r tsconfig-paths/register scripts/cli/standalone.ts",
+    "deploy:local": "NETWORK=localhost npm run deploy",
+    "deploy:local:auto": "npx hardhat node > hardhat-node.log 2>&1 & sleep 3 && npm run deploy:local; kill $!",
+    "deploy:hedera:local": "NETWORK=hedera-local npm run deploy",
+    "deploy:hedera:preview": "NETWORK=hedera-preview npm run deploy",
+    "deploy:hedera:testnet": "NETWORK=hedera-testnet npm run deploy",
+    "deploy:hedera:mainnet": "NETWORK=hedera-mainnet npm run deploy",
+    "local:hardhat": "npx hardhat node"
+  },
+  "dependencies": {
+    "@hashgraph/asset-tokenization-contracts": "^1.15.2",
+    "@hashgraph/green-bonds-platform-ats-contracts": "*",
+    "dotenv": "^16.0.0",
+    "ethers": "^5.8.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^9.36.0",
+    "hardhat": "^2.26.3",
+    "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

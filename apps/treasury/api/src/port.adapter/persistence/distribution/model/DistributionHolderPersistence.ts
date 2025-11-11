@@ -12,8 +12,8 @@ export class DistributionHolderPersistence extends BaseEntityPersistence {
   @Column()
   status: string
 
-  @Column()
-  amount: string
+  @Column({ nullable: true })
+  amount?: string
 
   @Column()
   distributionId: number

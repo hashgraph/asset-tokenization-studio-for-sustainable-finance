@@ -21,6 +21,7 @@ import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environme
 import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
 import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
+import { AddPaymentTokenDomainService } from "@domain/paymenttoken/services/AddPaymentTokenDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
 import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalasset/model/EnvironmentalAssetPersistence"
@@ -34,6 +35,8 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 import { HederMirrorNodeAdapter } from "@port/blockchain/HederMirrorNodeAdapter"
 import { GetTreasuryHttpAdapter } from "@port/treasury/usecase/gettreasury/GetTreasuryHttpAdapter"
 import { GetTreasuryQueryHandler } from "@app/treasury/gettreasury/query/GetTreasuryQueryHandler"
+import { GetTreasuriesHttpAdapter } from "@port/treasury/usecase/gettreasuries/GetTreasuriesHttpAdapter"
+import { GetTreasuriesQueryHandler } from "@app/treasury/gettreasuries/query/GetTreasuriesQueryHandler"
 
 import { GetEnvironmentalAssetsHttpAdapter } from "@port/environmentalasset/usecase/getenvironmentalassets/GetEnvironmentalAssetsHttpAdapter"
 import { GetEnvironmentalAssetsQueryHandler } from "@app/environmentalasset/getenvironmentalassets/query/GetEnvironmentalAssetsQueryHandler"
@@ -65,7 +68,12 @@ import { ExternalTransferEnvironmentalAssetTransactionHttpAdapter } from "@port/
 import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/updatepaymenttoken/UpdatePaymentTokenNestJSEventAdapter"
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
-import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
+import {
+  GrantRoleTransactionAppService,
+  RevokeRoleTransactionAppService,
+  SHARED_ENTITIES,
+  TypeOrmTransactionManager,
+} from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
 import { GetPaymentTokensQueryHandler } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQueryHandler"
 import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecase/addpaymenttokentransfer/AddPaymentTokenTransferNestJSEventAdapter"
@@ -96,8 +104,14 @@ import { DistributionTypeOrmRepository } from "@port/persistence/distribution/re
 import { DistributionHolderTypeOrmRepository } from "@port/persistence/distribution/repositories/DistributionHolderTypeOrmRepository"
 import { DistributionPersistence } from "@port/persistence/distribution/model/DistributionPersistence"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
+import { RedemptionHolderTypeOrmRepository } from "@port/persistence/redemption/repositories/RedemptionHolderTypeOrmRepository"
+import { RedemptionHolderPersistence } from "@port/persistence/redemption/model/RedemptionHolderPersistence"
 import { GetDistributionsHttpAdapter } from "@port/distribution/usecase/getdistributions/GetDistributionsHttpAdapter"
 import { GetDistributionsQueryHandler } from "@app/distribution/getdistributions/query/GetDistributionsQueryHandler"
+import { SyncDistributionNestJSEventAdapter } from "@port/distribution/usecase/syncdistribution/SyncDistributionNestJSEventAdapter"
+import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
+import { CreateDistributionCommandHandler } from "@app/distribution/createdistribution/command/CreateDistributionCommandHandler"
+import { AddDistributionHolderCommandHandler } from "@app/distribution/adddistributionholder/command/AddDistributionHolderCommandHandler"
 import { ExecuteDistributionTransactionAppService } from "@app/transaction/executedistribution/ExecuteDistributionTransactionAppService"
 import { ExecuteDistributionTransactionHttpAdapter } from "@port/transaction/usecase/executedistribution/ExecuteDistributionTransactionHttpAdapter"
 import { GetDistributionHoldersQueryHandler } from "@app/distribution/getdistributionholders/query/GetDistributionHoldersQueryHandler"
@@ -109,6 +123,26 @@ import { DissociatePaymentTokenTransactionHttpAdapter } from "@port/transaction/
 import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
 import { DissociateEnvironmentalAssetTransactionHttpAdapter } from "@port/transaction/usecase/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionHttpAdapter"
 import { DissociateEnvironmentalAssetTransactionAppService } from "@app/transaction/dissociateenvironmentalasset/DissociateEnvironmentalAssetTransactionAppService"
+import { ExecuteRedemptionTransactionHttpAdapter } from "@port/transaction/usecase/executeredemption/ExecuteRedemptionTransactionHttpAdapter"
+import { ExecuteRedemptionTransactionAppService } from "@app/transaction/executeredemption/ExecuteRedemptionTransactionAppService"
+import { ExecuteRedemptionByAddressesTransactionHttpAdapter } from "@port/transaction/usecase/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionHttpAdapter"
+import { ExecuteRedemptionByAddressesTransactionAppService } from "@app/transaction/executeredemptionbyaddresses/ExecuteRedemptionByAddressesTransactionAppService"
+import { GetRedemptionHoldersQueryHandler } from "@app/redemption/getredemptionholders/query/GetRedemptionHoldersQueryHandler"
+import { GetRedemptionHoldersHttpAdapter } from "@port/redemption/usecase/getredemptionholders/GetRedemptionHoldersHttpAdapter"
+import { SyncRedemptionNestJSEventAdapter } from "@port/redemption/usecase/syncredemption/SyncRedemptionNestJSEventAdapter"
+import { SyncRedemptionAppService } from "@app/redemption/syncredemption/SyncRedemptionAppService"
+import { AddRedemptionHolderCommandHandler } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommandHandler"
+import { SyncTokenDissociationErrorNestJSEventAdapter } from "@port/treasury/usecase/synctokendissociationerror/SyncTokenDissociationErrorNestJSEventAdapter"
+import { SyncTokenDissociationErrorAppService } from "@app/treasury/synctokendissociationerror/service/SyncTokenDissociationErrorAppService"
+import { UpdatePaymentTokenDissociationErrorCommandHandler } from "@app/paymenttoken/updatepaymenttokendissociationerror/command/UpdatePaymentTokenDissociationErrorCommandHandler"
+import { UpdateEnvironmentalAssetDissociationErrorCommandHandler } from "@app/environmentalasset/updateenvironmentalassetdissociationerror/UpdateEnvironmentalAssetDissociationErrorCommandHandler"
+import { SyncTreasuryNestJSEventAdapter } from "@port/treasury/usecase/synctreasury/SyncTreasuryNestJSEventAdapter"
+import { SyncTreasuryAppService } from "@app/treasury/synctreasury/service/SyncTreasuryAppService"
+import { CreateTreasuryCommandHandler } from "@app/treasury/createtreasury/command/CreateTreasuryCommandHandler"
+import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/command/AddPaymentTokenCommandHandler"
+import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -148,12 +182,17 @@ const REPOSITORIES: Provider[] = [
     useClass: DistributionHolderTypeOrmRepository,
   },
   {
+    provide: "RedemptionHolderRepository",
+    useClass: RedemptionHolderTypeOrmRepository,
+  },
+  {
     provide: "ProceedsRecipientAllocationRepository",
     useClass: ProceedsRecipientAllocationTypeOrmRepository,
   },
 ]
 
 export const ENTITIES = [
+  ...SHARED_ENTITIES,
   ...EVENT_LISTENER_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
@@ -165,6 +204,7 @@ export const ENTITIES = [
   ProceedsRecipientAllocationPersistence,
   DistributionPersistence,
   DistributionHolderPersistence,
+  RedemptionHolderPersistence,
 ]
 
 export const CONTROLLERS = [
@@ -176,6 +216,7 @@ export const CONTROLLERS = [
   GetEnvironmentalAssetsHttpAdapter,
   GetEnvironmentalAssetTransfersHttpAdapter,
   GetTreasuryHttpAdapter,
+  GetTreasuriesHttpAdapter,
   GetEnvironmentalAssetHoldingsHttpAdapter,
   ExternalTransferPaymentTokenTransactionHttpAdapter,
   UpdatePaymentTokenTransactionHttpAdapter,
@@ -192,6 +233,11 @@ export const CONTROLLERS = [
   ExecuteDistributionByAddressesTransactionHttpAdapter,
   DissociatePaymentTokenTransactionHttpAdapter,
   DissociateEnvironmentalAssetTransactionHttpAdapter,
+  ExecuteRedemptionTransactionHttpAdapter,
+  ExecuteRedemptionByAddressesTransactionHttpAdapter,
+  GetRedemptionHoldersHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RevokeRoleTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -207,6 +253,7 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetTokenExistsDomainService,
   CheckEnvironmentalAssetTokenNotExistsDomainService,
   CheckPaymentTokenExistsDomainService,
+  AddPaymentTokenDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
   CheckProceedsRecipientExistsDomainService,
@@ -216,6 +263,7 @@ export const PROVIDERS = [
   AddEnvironmentalAssetNestJSEventAdapter,
   RemoveEnvironmentalAssetNestJSEventAdapter,
   GetTreasuryQueryHandler,
+  GetTreasuriesQueryHandler,
   AddEnvironmentalAssetTransferAppService,
   AddEnvironmentalAssetTransferCommandHandler,
   AddEnvironmentalAssetTransferNestJSEventAdapter,
@@ -242,11 +290,28 @@ export const PROVIDERS = [
   SyncProceedsRecipientAppService,
   CreateProceedsRecipientCommandHandler,
   AddProceedsRecipientAllocationCommandHandler,
+  SyncDistributionNestJSEventAdapter,
+  SyncDistributionAppService,
+  CreateDistributionCommandHandler,
+  AddDistributionHolderCommandHandler,
   ExecuteDistributionTransactionAppService,
   GetDistributionHoldersQueryHandler,
   ExecuteDistributionByAddressesTransactionAppService,
   DissociatePaymentTokenTransactionAppService,
   DissociateEnvironmentalAssetTransactionAppService,
+  ExecuteRedemptionTransactionAppService,
+  ExecuteRedemptionByAddressesTransactionAppService,
+  SyncRedemptionNestJSEventAdapter,
+  SyncRedemptionAppService,
+  AddRedemptionHolderCommandHandler,
+  SyncTokenDissociationErrorNestJSEventAdapter,
+  SyncTokenDissociationErrorAppService,
+  UpdatePaymentTokenDissociationErrorCommandHandler,
+  UpdateEnvironmentalAssetDissociationErrorCommandHandler,
+  SyncTreasuryNestJSEventAdapter,
+  SyncTreasuryAppService,
+  CreateTreasuryCommandHandler,
+  AddPaymentTokenCommandHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -257,6 +322,7 @@ export const PROVIDERS = [
   GetPaymentTokensQueryHandler,
   GetPaymentTokenTransfersQueryHandler,
   GetProceedsRecipientAllocationsQueryHandler,
+  GetRedemptionHoldersQueryHandler,
   GetProceedsRecipientsQueryHandler,
   GetDistributionsQueryHandler,
   {
@@ -267,4 +333,7 @@ export const PROVIDERS = [
     provide: "TransactionManager",
     useClass: TypeOrmTransactionManager,
   },
+  CreateTreasuryFiltersNestJSEventAdapter,
+  GrantRoleTransactionAppService,
+  RevokeRoleTransactionAppService,
 ]

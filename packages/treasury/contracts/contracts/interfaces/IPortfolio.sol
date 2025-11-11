@@ -32,11 +32,22 @@ interface IPortfolio {
      *
      * @param operator The operator who call the function to update the payment token
      * @param newPaymentToken The new payment token
+     * @param oldPaymentToken The previous payment token existing just before the update
+     * @param dissociationError The possible error code happened when trying to dissociate the token
      */
     event PaymentTokenUpdated(
         address indexed operator,
-        address newPaymentToken
+        address newPaymentToken,
+        address oldPaymentToken,
+        int256 dissociationError
     );
+
+    /**
+     * @dev Emitted when a token is dissociated
+     *
+     * @param token The dissociated token
+     */
+    event TokenDissociated(address token);
 
     /**
      * @dev Initialize the portfolio facet
@@ -72,8 +83,12 @@ interface IPortfolio {
      * @dev Update the payment token associated to the treasury
      *
      * @param paymentToken The new payment token to associate to the treasury
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function updatePaymentToken(address paymentToken) external;
+    function updatePaymentToken(
+        address paymentToken
+    ) external returns (int256 dissociationError);
 
     /**
      * @dev Dissociate an environmental asset token or a payment token from the treasury
@@ -83,9 +98,9 @@ interface IPortfolio {
     function dissociateToken(address token) external;
 
     /**
-     * @dev Get the total amount of environmental asset tokens associated to the treasury
+     * @dev Get the total amount of environmental asset tokens added to the treasury
      *
-     * @return total The total amount of environmental asset tokens associated to the treasury
+     * @return total The total amount of environmental asset tokens added to the treasury
      */
     function getTotalEnvironmentalAssetTokens()
         external
@@ -93,17 +108,17 @@ interface IPortfolio {
         returns (uint256 total);
 
     /**
-     * @dev Get a page list of environmental asset tokens associated to the treasury
+     * @dev Get a page list of environmental asset tokens added to the treasury
      *
-     * @param pageIndex The page index of environmental asset tokens associated to the treasury
-     * @param pageLength The page length of environmental asset tokens associated to the treasury
+     * @param pageIndex The page index of environmental asset tokens added to the treasury
+     * @param pageLength The page length of environmental asset tokens added to the treasury
      *
-     * @return environmentalAsset The page list of environmental asset tokens associated to the treasury
+     * @return environmentalAssetTokensPage The page list of environmental asset tokens added to the treasury
      */
     function getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
-    ) external view returns (address[] memory environmentalAsset);
+    ) external view returns (address[] memory environmentalAssetTokensPage);
 
     /**
      * @dev Get the payment token associated to the treasury

@@ -17,9 +17,10 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@hashgraph/green-bonds-shared-core": "*",
     "@hashgraph/green-bonds-blockchain-listener": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
+    "@hashgraph/green-bonds-shared-core": "*",
+    "@nestjs/swagger": "11.2.0",
     "pg": "^8.16.3",
     "typeorm": "^0.3.27"
   },

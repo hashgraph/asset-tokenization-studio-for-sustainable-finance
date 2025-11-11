@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { BuildTransactionResponse, PageResponse } from "@hashgraph/green-bonds-shared-core"
+import { BaseTransactionBuilderPort, BuildTransactionResponse, PageResponse } from "@hashgraph/green-bonds-shared-core"
 
 import { BuildFundProceedsRecipientTransactionRequest } from "./model/BuildFundProceedsRecipientTransactionRequest"
 import { BuildAddEnvironmentalAssetTransactionRequest } from "./model/BuildAddEnvironmentalAssetTransactionRequest"
@@ -16,8 +16,10 @@ import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecute
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
 import { BuildDissociateTokenTransactionRequest } from "./model/BuildDissociateTokenTransactionRequest"
+import { BuildExecuteRedemptionTransactionRequest } from "./model/BuildExecuteRedemptionTransactionRequest"
+import { BuildExecuteBondRedemptionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteBondRedemptionByAddressesTransactionRequest"
 
-export interface TransactionBuilderPort {
+export interface TransactionBuilderPort extends BaseTransactionBuilderPort {
   fundProceedsRecipient(request: BuildFundProceedsRecipientTransactionRequest): Promise<BuildTransactionResponse>
   addEnvironmentalAsset(request: BuildAddEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
   removeEnvironmentalAsset(request: BuildRemoveEnvironmentalAssetTransactionRequest): Promise<BuildTransactionResponse>
@@ -38,5 +40,9 @@ export interface TransactionBuilderPort {
   executeDistributionByAddresses(
     request: BuildExecuteDistributionByAddressesTransactionRequest,
   ): Promise<MultipleTransactionResponse>
+  executeRedemption(request: BuildExecuteRedemptionTransactionRequest): Promise<PageResponse<string>>
   dissociateToken(request: BuildDissociateTokenTransactionRequest): Promise<BuildTransactionResponse>
+  executeBondRedemptionByAddresses(
+    request: BuildExecuteBondRedemptionByAddressesTransactionRequest,
+  ): Promise<MultipleTransactionResponse>
 }

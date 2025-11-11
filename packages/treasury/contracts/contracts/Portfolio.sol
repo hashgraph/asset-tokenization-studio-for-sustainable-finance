@@ -5,26 +5,9 @@ pragma solidity ^0.8.0;
 
 import {IPortfolio} from './interfaces/IPortfolio.sol';
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {
-    PORTFOLIO_MANAGER_ROLE,
-    DEFAULT_ADMIN_ROLE,
-    PROCEEDS_FULL_MANAGER_ROLE,
-    FUNDS_MANAGER_ROLE,
-    PAUSER_ROLE
-} from './constants/roles.sol';
-import {
-    Pause
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol';
-import {
-    AccessControl
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol';
+import {PORTFOLIO_MANAGER_ROLE} from './constants/roles.sol';
 
-abstract contract Portfolio is
-    IPortfolio,
-    PortfolioStorageWrapper,
-    Pause,
-    AccessControl
-{
+abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
@@ -39,11 +22,6 @@ abstract contract Portfolio is
         PortfolioStorage storage portfolioStorage = _portfolioStorage();
         _setEnvironmentalAssets(environmentalAssets);
         _setPaymentToken(paymentToken);
-        _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _grantRole(PORTFOLIO_MANAGER_ROLE, _msgSender());
-        _grantRole(PROCEEDS_FULL_MANAGER_ROLE, _msgSender());
-        _grantRole(FUNDS_MANAGER_ROLE, _msgSender());
-        _grantRole(PAUSER_ROLE, _msgSender());
         portfolioStorage.initialized = true;
     }
 
@@ -96,6 +74,8 @@ abstract contract Portfolio is
      * @dev Update the payment token associated to the treasury
      *
      * @param paymentToken The new payment token to associate to the treasury
+     *
+     * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     function updatePaymentToken(
         address paymentToken
@@ -105,9 +85,18 @@ abstract contract Portfolio is
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         notAddressZero(paymentToken)
+        returns (int256 dissociationError)
     {
-        _updatePaymentToken(paymentToken);
-        emit PaymentTokenUpdated(msg.sender, paymentToken);
+        address currentPaymentToken;
+        (dissociationError, currentPaymentToken) = _updatePaymentToken(
+            paymentToken
+        );
+        emit PaymentTokenUpdated(
+            msg.sender,
+            paymentToken,
+            currentPaymentToken,
+            dissociationError
+        );
     }
 
     /**
@@ -125,6 +114,8 @@ abstract contract Portfolio is
         notAddressZero(token)
     {
         _dissociateToken(token);
+
+        emit TokenDissociated(token);
     }
 
     /**
@@ -147,13 +138,18 @@ abstract contract Portfolio is
      * @param pageIndex The page index of environmental asset tokens associated to the treasury
      * @param pageLength The page length of ER721 tokens associated to the treasury
      *
-     * @return environmentalAsset The page list of environmental asset tokens associated to the treasury
+     * @return environmentalAssets The page list of environmental asset tokens associated to the treasury
      */
 
     function getEnvironmentalAssetTokens(
         uint256 pageIndex,
         uint256 pageLength
-    ) external view returns (address[] memory environmentalAsset) {}
+    ) external view returns (address[] memory environmentalAssets) {
+        environmentalAssets = _getEnvironmentalAssetTokens(
+            pageIndex,
+            pageLength
+        );
+    }
 
     /**
      * @dev Get the payment token associated to the treasury

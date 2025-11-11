@@ -16,21 +16,16 @@
  */
 
 import { ethers } from "hardhat";
+import { ContractFactory } from "ethers";
 import {
-  HardhatProvider,
   configureLogger,
   LogLevel,
   deployFacets,
   registerAdditionalFacets,
   atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import {
-  deployFactorySuiteSystem,
-  factorySuiteRegistry,
-  TREASURY_CONFIG_ID,
-  DEPLOYER_ROLE,
-  PAUSER_ROLE,
-} from "@scripts";
+import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
+import { deployFactorySuiteSystem, factorySuiteRegistry, TREASURY_CONFIG_ID, ROLES } from "@scripts";
 import {
   createTreasuryConfiguration,
   MOCK_ERC20_CONTRACT_NAME,
@@ -38,7 +33,8 @@ import {
   MOCK_ATS_FACTORY_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
 } from "@test";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, ITimeTravel } from "@contracts";
+import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin } from "@contract-types";
+import { MockAtsFactory__factory, MockERC20__factory, MockERC721__factory } from "@contract-types";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
@@ -52,12 +48,11 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
   // Configure logger to SILENT for tests (suppress all deployment logs)
   configureLogger({ level: LogLevel.SILENT });
 
-  const provider = new HardhatProvider();
   const signers = await ethers.getSigners();
   const [deployer, admin, user, unauthorized] = signers;
 
   // Deploy complete system using workflow
-  const deployment = await deployFactorySuiteSystem(provider, "hardhat", {
+  const deployment = await deployFactorySuiteSystem(deployer, "hardhat", {
     useTimeTravel,
     saveOutput: false, // Don't save deployment files during tests
   });
@@ -85,8 +80,7 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
     : undefined;
 
   return {
-    // Provider & signers
-    provider,
+    // Signers
     signers,
     deployer,
     admin,
@@ -132,20 +126,14 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // Configure logger to SILENT for tests
   configureLogger({ level: LogLevel.SILENT });
 
-  const provider = new HardhatProvider();
   const signers = await ethers.getSigners();
   const [deployer, admin, user, unauthorized] = signers;
 
   // Deploy complete Diamond system
-  const deployment = await deployFactorySuiteSystem(provider, "hardhat", {
+  const deployment = await deployFactorySuiteSystem(deployer, "hardhat", {
     useTimeTravel: false, // Don't need TimeTravel for business logic tests
     saveOutput: false,
   });
-
-  // IMPORTANT: The deployment uses HardhatProvider which internally uses ethers.provider.getSigner(0)
-  // This corresponds to the first Hardhat account (index 0 from ethers.getSigners())
-  // We need to ensure this matches our deployer signer
-  const deployerAddress = deployment.deployer;
 
   // Get typed contract instances for Diamond proxy
   const factorySuite = (await ethers.getContractAt(
@@ -169,11 +157,21 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // No need for manual mock registry creation!
 
   // Deploy ONLY MockTreasuryFacet (AccessControl already exists from FactorySuite deployment)
-  const mockFacetsResult = await deployFacets(provider, {
-    facetNames: ["MockTreasuryFacet"],
-    useTimeTravel: false,
-    registries: [atsRegistry, factorySuiteRegistry],
-  });
+  const facetNames = ["MockTreasuryFacet"];
+
+  // Create TypeChain factories from registry
+  const facetFactories: Record<string, ContractFactory> = {};
+  for (const facetName of facetNames) {
+    const facetDef = factorySuiteRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+    if (!facetDef?.factory) {
+      throw new Error(`No factory found for facet: ${facetName}`);
+    }
+
+    facetFactories[facetName] = facetDef.factory(deployer, false);
+  }
+
+  const mockFacetsResult = await deployFacets(facetFactories);
 
   if (!mockFacetsResult.success || mockFacetsResult.deployed.size !== 1) {
     throw new Error("Failed to deploy MockTreasuryFacet");
@@ -187,11 +185,24 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     }
   });
 
+  const mockFacetsWithKeys = Object.entries(mockFacetAddresses).map(([name, address]) => {
+    const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
+    if (factorySuiteFacet?.resolverKey?.value) {
+      return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
+    }
+
+    const atsFacet = atsRegistry.getFacetDefinition(name);
+    if (atsFacet?.resolverKey?.value) {
+      return { name, address, resolverKey: atsFacet.resolverKey.value };
+    }
+
+    throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+  });
+
   // Register MockTreasuryFacet in BLR using registerAdditionalFacets
-  const registerResult = await registerAdditionalFacets(provider, {
+  const registerResult = await registerAdditionalFacets(deployer, {
     blrAddress: blr.address,
-    newFacets: mockFacetAddresses,
-    registries: [atsRegistry, factorySuiteRegistry],
+    newFacets: mockFacetsWithKeys,
   });
 
   if (!registerResult.success) {
@@ -205,10 +216,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     MockTreasuryFacet: mockFacetAddresses.MockTreasuryFacet,
   };
 
-  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false, [
-    atsRegistry,
-    factorySuiteRegistry,
-  ]);
+  const treasuryConfigResult = await createTreasuryConfiguration(blr, facetAddressesForConfig, false);
 
   if (!treasuryConfigResult.success) {
     throw new Error(`Failed to create Treasury configuration: ${treasuryConfigResult.error}`);
@@ -225,29 +233,17 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // The deployer account has DEFAULT_ADMIN_ROLE (set during proxy deployment)
   // Grant DEPLOYER_ROLE to both deployer and admin signers for testing flexibility
   // The deployer signer (first account) has DEFAULT_ADMIN_ROLE from deployment
-  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, deployer.address);
-  await accessControl.connect(deployer).grantRole(DEPLOYER_ROLE, admin.address);
+  await accessControl.connect(deployer).grantRole(ROLES.DEPLOYER_ROLE, deployer.address);
+  await accessControl.connect(deployer).grantRole(ROLES.DEPLOYER_ROLE, admin.address);
 
-  // Deploy mock contracts for business logic testing
-  const MockAtsFactory = await ethers.getContractFactory(MOCK_ATS_FACTORY_CONTRACT_NAME);
-  const mockAtsFactory = await MockAtsFactory.deploy();
-  await mockAtsFactory.deployed();
-
-  const MockERC20 = await ethers.getContractFactory(MOCK_ERC20_CONTRACT_NAME);
-  const paymentToken = await MockERC20.deploy("Payment Token", "PAY");
-  await paymentToken.deployed();
-
-  const MockERC721 = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const environmentalAssetToken1 = await MockERC721.deploy("NFT 1", "NFT1");
-  await environmentalAssetToken1.deployed();
-
-  const environmentalAssetToken2Factory = await ethers.getContractFactory(MOCK_ERC721_CONTRACT_NAME);
-  const environmentalAssetToken2 = await environmentalAssetToken2Factory.deploy("NFT 2", "NFT2");
-  await environmentalAssetToken2.deployed();
+  // Deploy mock contracts for business logic testing using TypeChain factories
+  const mockAtsFactory = await new MockAtsFactory__factory(deployer).deploy();
+  const paymentToken = await new MockERC20__factory(deployer).deploy("Payment Token", "PAY");
+  const environmentalAssetToken1 = await new MockERC721__factory(deployer).deploy("NFT 1", "NFT1");
+  const environmentalAssetToken2 = await new MockERC721__factory(deployer).deploy("NFT 2", "NFT2");
 
   return {
-    // Provider & signers
-    provider,
+    // Signers
     signers,
     deployer,
     admin,

@@ -18,7 +18,7 @@ export class UpdatePaymentTokenNestJSEventAdapter
       new UpdatePaymentTokenCommand(
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.newPaymentToken),
-        event.dissociationError,
+        +event.dissociationError,
       ),
     )
   }

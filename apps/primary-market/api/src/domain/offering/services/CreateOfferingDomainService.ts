@@ -5,7 +5,6 @@ import type { OfferingRepository } from "../repositories/OfferingRepository"
 import { CreateOfferingDomainServiceRequest } from "./model/CreateOfferingDomainServiceRequest"
 import { Offering } from "../model/Offering"
 import { OfferingFoundError } from "../errors/OfferingFoundError"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 
 @Singleton()
@@ -16,23 +15,29 @@ export class CreateOfferingDomainService {
   ) {}
 
   async execute(createOfferingDomainServiceRequest: CreateOfferingDomainServiceRequest): Promise<Offering> {
-    const market = await this.checkPrimaryMarketExistsDomainService.execute(createOfferingDomainServiceRequest.marketId)
-    market.checkActive()
+    const market = await this.checkPrimaryMarketExistsDomainService.execute(
+      createOfferingDomainServiceRequest.marketContractId,
+    )
+    market.ensureActive()
 
-    const existingOffering = await this.offeringRepository.findByOfferingId(
-      createOfferingDomainServiceRequest.offeringId,
+    const existingOffering = await this.offeringRepository.findByOfferingDltIdAndMarketId(
+      createOfferingDomainServiceRequest.offeringDltId,
+      market.id,
     )
     if (existingOffering) {
-      throw OfferingFoundError.offeringIdError(createOfferingDomainServiceRequest.offeringId)
+      throw OfferingFoundError.offeringDltIdAndMarketContractIdError(
+        createOfferingDomainServiceRequest.offeringDltId,
+        createOfferingDomainServiceRequest.marketContractId,
+      )
     }
 
     const offering = Object.assign(new Offering(), {
-      offeringId: createOfferingDomainServiceRequest.offeringId,
+      offeringDltId: createOfferingDomainServiceRequest.offeringDltId,
       market: market,
-      bondId: createOfferingDomainServiceRequest.bondId,
-      status: OfferingStatus.CREATED,
-      treasuryId: createOfferingDomainServiceRequest.treasuryId,
-      paymentTokenId: createOfferingDomainServiceRequest.paymentTokenId,
+      bondContractId: createOfferingDomainServiceRequest.bondContractId,
+      operatorAccountId: createOfferingDomainServiceRequest.operatorAccountId,
+      treasuryContractId: createOfferingDomainServiceRequest.treasuryContractId,
+      paymentTokenContractId: createOfferingDomainServiceRequest.paymentTokenContractId,
       lotSize: createOfferingDomainServiceRequest.lotSize,
       minQuantity: createOfferingDomainServiceRequest.minQuantity,
       maxQuantity: createOfferingDomainServiceRequest.maxQuantity,

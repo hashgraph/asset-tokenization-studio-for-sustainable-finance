@@ -11,7 +11,6 @@ import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPe
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingCreatedDLTEvent } from "@port/offering/usecase/createoffering/model/OfferingCreatedDLTEvent"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 
 describe("CreateOfferingNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -58,7 +57,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        "1", // offeringId
+        "1", // offeringDltId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
@@ -76,16 +75,16 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
 
       const savedOffering = await offeringRepository.findOne({
-        where: { offeringId: "1" },
+        where: { offeringDltId: "1" },
         relations: ["market"],
       })
 
       expect(savedOffering).toBeDefined()
       expect(savedOffering).not.toBeNull()
-      expect(savedOffering!.offeringId).toBe("1")
-      expect(savedOffering!.bondId).toBe("0.0.4661") // Converted from EVM address
-      expect(savedOffering!.treasuryId).toBe("0.0.4662") // Converted from EVM address
-      expect(savedOffering!.paymentTokenId).toBe("0.0.4663") // Converted from EVM address
+      expect(savedOffering!.offeringDltId).toBe("1")
+      expect(savedOffering!.bondContractId).toBe("0.0.4661") // Converted from EVM address
+      expect(savedOffering!.treasuryContractId).toBe("0.0.4662") // Converted from EVM address
+      expect(savedOffering!.paymentTokenContractId).toBe("0.0.4663") // Converted from EVM address
       expect(savedOffering!.lotSize).toBe("1000")
       expect(savedOffering!.minQuantity).toBe("100")
       expect(savedOffering!.maxQuantity).toBe("10000")
@@ -94,21 +93,21 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering!.startDate).toEqual(new Date(1640995200 * 1000))
       expect(savedOffering!.endDate).toEqual(new Date(1672531200 * 1000))
       expect(savedOffering!.deadlineRule).toBe(0)
-      expect(savedOffering!.status).toBe(OfferingStatus.CREATED)
       expect(savedOffering!.market.contractId).toBe("0.0.1234567")
     })
 
-    it("should throw error when offering with same offeringId already exists", async () => {
+    it("should throw error when offering with same offeringDltId already exists", async () => {
       const primaryMarket = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
 
       const existingOffering = offeringRepository.create({
-        offeringId: "1",
+        offeringDltId: "1",
         market: primaryMarket,
-        bondId: "0.0.9999999",
-        treasuryId: "0.0.9999999",
-        paymentTokenId: "0.0.9999999",
+        bondContractId: "0.0.9999999",
+        operatorAccountId: "0.0.4660",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
         lotSize: "500",
         minQuantity: "50",
         maxQuantity: "5000",
@@ -117,7 +116,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-        status: OfferingStatus.CREATED,
       })
 
       await offeringRepository.save(existingOffering)
@@ -125,7 +123,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        "1", // Same offeringId
+        "1", // Same offeringDltId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
@@ -150,11 +148,11 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
 
       const offeringIds = ["1", "2", "3"]
 
-      for (const offeringId of offeringIds) {
+      for (const offeringDltId of offeringIds) {
         const event = new OfferingCreatedDLTEvent(
           "0.0.1234567", // contractId (market)
           "0x123456789", // transactionHash
-          offeringId,
+          offeringDltId,
           "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
           "0x0000000000000000000000000000000000001235", // asset (bond)
           "0x0000000000000000000000000000000000001236", // treasury
@@ -172,12 +170,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
 
         const savedOffering = await offeringRepository.findOne({
-          where: { offeringId },
+          where: { offeringDltId },
         })
 
         expect(savedOffering).toBeDefined()
         expect(savedOffering).not.toBeNull()
-        expect(savedOffering!.offeringId).toBe(offeringId)
+        expect(savedOffering!.offeringDltId).toBe(offeringDltId)
       }
 
       const allOfferings = await offeringRepository.find()
@@ -214,11 +212,11 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          offeringId: "1",
-          marketId: "0.0.1234567",
-          bondId: "0.0.4661", // Converted from EVM address
-          treasuryId: "0.0.4662", // Converted from EVM address
-          paymentTokenId: "0.0.4663", // Converted from EVM address
+          offeringDltId: "1",
+          marketContractId: "0.0.1234567",
+          bondContractId: "0.0.4661", // Converted from EVM address
+          treasuryContractId: "0.0.4662", // Converted from EVM address
+          paymentTokenContractId: "0.0.4663", // Converted from EVM address
           lotSize: "1000",
           minQuantity: "100",
           maxQuantity: "10000",

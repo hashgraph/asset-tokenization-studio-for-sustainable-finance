@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
@@ -24,9 +24,11 @@ contract FactorySuiteFacet is IStaticFunctionSelectors, FactorySuite {
 
     function getStaticFunctionSelectors() external pure returns (bytes4[] memory staticFunctionSelectors) {
         staticFunctionSelectors = new bytes4[](1);
-        uint256 selectorIndex = 0;
-
-        staticFunctionSelectors[selectorIndex++] = this.deployBondSuite.selector;
+        // ! When adding more selectors, update the array size above and uncomment the lines below
+        // uint256 selectorIndex = 0;
+        // staticFunctionSelectors[0] = this.deployBondSuite.selector;
+        // staticFunctionSelectors[++selectorIndex] = this.<<anotherMethod>>.selector;
+        staticFunctionSelectors[0] = this.deployBondSuite.selector;
     }
 
     function getStaticInterfaceIds() external pure returns (bytes4[] memory staticInterfaceIds) {

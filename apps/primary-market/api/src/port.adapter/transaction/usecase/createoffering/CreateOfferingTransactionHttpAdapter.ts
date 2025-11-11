@@ -10,7 +10,7 @@ import { CreateOfferingTransactionAppServiceRequest } from "@app/transaction/cre
 export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTransactionPort {
   constructor(private readonly createOfferingTransactionAppService: CreateOfferingTransactionAppService) {}
 
-  @Post(":marketContractId/bonds/:bondContractId")
+  @Post(":marketContractId/bonds/:bondContractId/offerings")
   async createOfferingTransaction(
     @Param("marketContractId") marketContractId: string,
     @Param("bondContractId") bondContractId: string,

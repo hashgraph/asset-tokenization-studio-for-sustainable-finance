@@ -18,12 +18,7 @@ export class GrantRoleCommandHandler implements CommandHandler<GrantRoleCommand,
   async execute(command: GrantRoleCommand): Promise<void> {
     const userMarketRole = await this.grantUserMarketRoleDomainService.execute(command)
     this.eventBus.publish(
-      new RoleGrantedEvent(
-        userMarketRole.id,
-        userMarketRole.user.accountId,
-        userMarketRole.role.hex,
-        userMarketRole.market.contractId,
-      ),
+      new RoleGrantedEvent(userMarketRole.user.accountId, userMarketRole.role.hex, userMarketRole.market.contractId),
     )
   }
 }

@@ -140,32 +140,28 @@ FactorySuite leverages **shared infrastructure** from ATS while adding custom fa
 
 ```solidity
 function deployBondSuite(
-    address bondFactoryAddress,
-    IAtsFactory.BondData calldata bondData,
-    AtsFactoryRegulationData calldata factoryRegulationData,
-    TreasuryData calldata treasuryData,
-    KpiData calldata kpiData
-) external returns (
-    address bondAddress,
-    address treasuryAddress,
-    address kpiAddress
-);
+  address bondFactoryAddress,
+  IAtsFactory.BondData calldata bondData,
+  AtsFactoryRegulationData calldata factoryRegulationData,
+  TreasuryData calldata treasuryData,
+  KpiData calldata kpiData
+) external returns (address bondAddress, address treasuryAddress, address kpiAddress);
 ```
 
 **Data Structures:**
 
 ```solidity
 struct TreasuryData {
-    IBusinessLogicResolver resolver;
-    IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration;
-    IResolverProxy.Rbac[] rbacs;
-    address paymentToken;
-    address[] environmentalAssets;
+  IBusinessLogicResolver resolver;
+  IAtsFactory.ResolverProxyConfiguration resolverProxyConfiguration;
+  IResolverProxy.Rbac[] rbacs;
+  address paymentToken;
+  address[] environmentalAssets;
 }
 
 struct KpiData {
-    address admin;
-    IResolverProxy.Rbac[] rbacs;
+  address admin;
+  IResolverProxy.Rbac[] rbacs;
 }
 ```
 
@@ -189,9 +185,7 @@ struct KpiData {
 ```solidity
 function addKpiData(uint256 date, uint256 kpiValue) external;
 
-function getKpiData(uint256 fromDate, uint256 toDate)
-    external view
-    returns (uint256 kpiAggregatedValue, bool exists);
+function getKpiData(uint256 fromDate, uint256 toDate) external view returns (uint256 kpiAggregatedValue, bool exists);
 
 function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 ```
@@ -200,13 +194,13 @@ function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 
 ```solidity
 struct KpiEntry {
-    uint256 value;
-    bool exists;
+  uint256 value;
+  bool exists;
 }
 
 struct KpiStorage {
-    mapping(uint256 timestamp => KpiEntry) kpiData;
-    bool initialized;
+  mapping(uint256 timestamp => KpiEntry) kpiData;
+  bool initialized;
 }
 ```
 
@@ -261,21 +255,22 @@ struct KpiStorage {
 Use when deploying to a new network without existing infrastructure.
 
 ```typescript
-import { deployFactorySuiteSystem } from '@scripts/workflows';
-import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts';
+import { ethers } from "hardhat";
+import { deployFactorySuiteSystem } from "@scripts/workflows";
 
-const provider = new HardhatProvider();
+const [deployer] = await ethers.getSigners();
 
-const output = await deployFactorySuiteSystem(provider, 'testnet', {
+const output = await deployFactorySuiteSystem(deployer, "testnet", {
   useTimeTravel: false,
-  saveOutput: true
+  saveOutput: true,
 });
 
-console.log('FactorySuite Proxy:', output.infrastructure.factorySuite.proxy);
-console.log('BLR Proxy:', output.infrastructure.blr.proxy);
+console.log("FactorySuite Proxy:", output.infrastructure.factorySuite.proxy);
+console.log("BLR Proxy:", output.infrastructure.blr.proxy);
 ```
 
 **Deploys:**
+
 - ProxyAdmin
 - BusinessLogicResolver (implementation + proxy)
 - Facets (AccessControl, Pause, FactorySuite)
@@ -287,24 +282,28 @@ console.log('BLR Proxy:', output.infrastructure.blr.proxy);
 Use when ATS or other domains already deployed shared infrastructure.
 
 ```typescript
-import { deployFactorySuiteWithExistingInfra } from '@scripts/workflows';
+import { ethers } from "hardhat";
+import { deployFactorySuiteWithExistingInfra } from "@scripts/workflows";
+
+const [deployer] = await ethers.getSigners();
 
 const output = await deployFactorySuiteWithExistingInfra(
-  provider,
-  'testnet',
+  deployer,
+  "testnet",
   {
-    blrAddress: '0x...',              // Existing BLR
-    proxyAdminAddress: '0x...',       // Existing ProxyAdmin
+    blrAddress: "0x...", // Existing BLR
+    proxyAdminAddress: "0x...", // Existing ProxyAdmin
     facets: {
-      accessControl: '0x...',         // Existing facet
-      pause: '0x...'                  // Existing facet
-    }
+      accessControl: "0x...", // Existing facet
+      pause: "0x...", // Existing facet
+    },
   },
-  { useTimeTravel: false }
+  { useTimeTravel: false },
 );
 ```
 
 **Deploys:**
+
 - FactorySuiteFacet only (new)
 - FactorySuite configuration (combines existing + new facets)
 - FactorySuite ResolverProxy
@@ -314,26 +313,29 @@ const output = await deployFactorySuiteWithExistingInfra(
 #### Calling deployBondSuite()
 
 ```typescript
-import { ethers } from 'hardhat';
+import { ethers } from "hardhat";
+import { LATEST_VERSION } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 // Prepare data structures
 const treasuryData = {
   resolver: blrAddress,
   resolverProxyConfiguration: {
-    key: '0x0000000000000000000000000000000000000000000000000000000000004e20', // 20'000
-    version: 1
+    key: "0x0000000000000000000000000000000000000000000000000000000000004e20", // 20'000
+    version: LATEST_VERSION, // Auto-updates to latest BLR version (use specific version for production)
   },
   rbacs: [],
   paymentToken: usdcAddress,
-  environmentalAssets: [carbonCreditNftAddress]
+  environmentalAssets: [carbonCreditNftAddress],
 };
 
 const kpiData = {
   admin: adminAddress,
-  rbacs: [{
-    role: KPI_DATA_MANAGER_ROLE,
-    members: [managerAddress]
-  }]
+  rbacs: [
+    {
+      role: KPI_DATA_MANAGER_ROLE,
+      members: [managerAddress],
+    },
+  ],
 };
 
 // Deploy bond suite
@@ -342,11 +344,11 @@ const tx = await factorySuite.deployBondSuite(
   bondData,
   factoryRegulationData,
   treasuryData,
-  kpiData
+  kpiData,
 );
 
 const receipt = await tx.wait();
-const event = receipt.events.find(e => e.event === 'BondSuiteDeployed');
+const event = receipt.events.find((e) => e.event === "BondSuiteDeployed");
 const { bondAddress, treasuryAddress, kpiAddress } = event.args;
 ```
 
@@ -373,13 +375,13 @@ npm run coverage:kpi
 **Pattern**: Fixture-based testing using `loadFixture` for performance
 
 ```typescript
-import { loadFixture } from '@nomicfoundation/hardhat-network-helpers';
-import { deployFactorySuiteWithMocksForBusinessLogic } from '@test/fixtures';
+import { ethers } from "hardhat";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { deployFactorySuiteWithMocksForBusinessLogic } from "@test/fixtures";
 
-describe('FactorySuite', () => {
-  it('should deploy bond suite successfully', async () => {
-    const { factorySuite, mockAtsFactory, admin } =
-      await loadFixture(deployFactorySuiteWithMocksForBusinessLogic);
+describe("FactorySuite", () => {
+  it("should deploy bond suite successfully", async () => {
+    const { factorySuite, mockAtsFactory, admin } = await loadFixture(deployFactorySuiteWithMocksForBusinessLogic);
 
     // Test logic here - fixture executed once, state snapshotted
   });
@@ -396,6 +398,7 @@ describe('FactorySuite', () => {
 **Mock Contracts:**
 
 Tests use lightweight mocks for fast execution:
+
 - `MockAtsFactory` - Bond deployment without full implementation
 - `MockTreasuryFacet` - Minimal Treasury for testing FactorySuite logic
 - `MockERC20` / `MockERC721` - Test tokens
@@ -445,25 +448,25 @@ npm run clean                      # Clean build artifacts
 
 ### Config IDs
 
-| Domain | Config ID | Hex Value | Description |
-|--------|-----------|-----------|-------------|
-| Primary Market | 10'000 | `0x...2710` | Primary market configuration |
-| Treasury | 20'000 | `0x...4e20` | Treasury facets configuration |
-| FactorySuite | 30'000 | `0x...7530` | FactorySuite facets configuration |
+| Domain         | Config ID | Hex Value   | Description                       |
+| -------------- | --------- | ----------- | --------------------------------- |
+| Primary Market | 10'000    | `0x...2710` | Primary market configuration      |
+| Treasury       | 20'000    | `0x...4e20` | Treasury facets configuration     |
+| FactorySuite   | 30'000    | `0x...7530` | FactorySuite facets configuration |
 
 ### Role Constants
 
-| Role | Keccak256 Hash | Usage |
-|------|----------------|-------|
-| `DEPLOYER_ROLE` | `0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283` | Deploy bond suites via FactorySuite |
-| `KPI_DATA_MANAGER_ROLE` | `0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e` | Add KPI data to KPI contract |
-| `PAUSER_ROLE` | Inherited from ATS | Pause/unpause contracts |
-| `DEFAULT_ADMIN_ROLE` | `0x0000000000000000000000000000000000000000000000000000000000000000` | Grant/revoke roles |
+| Role                    | Keccak256 Hash                                                       | Usage                               |
+| ----------------------- | -------------------------------------------------------------------- | ----------------------------------- |
+| `DEPLOYER_ROLE`         | `0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283` | Deploy bond suites via FactorySuite |
+| `KPI_DATA_MANAGER_ROLE` | `0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e` | Add KPI data to KPI contract        |
+| `PAUSER_ROLE`           | Inherited from ATS                                                   | Pause/unpause contracts             |
+| `DEFAULT_ADMIN_ROLE`    | `0x0000000000000000000000000000000000000000000000000000000000000000` | Grant/revoke roles                  |
 
 ### Resolver Keys
 
-| Contract | Resolver Key | Usage |
-|----------|--------------|-------|
+| Contract          | Resolver Key                                                         | Usage                |
+| ----------------- | -------------------------------------------------------------------- | -------------------- |
 | FactorySuiteFacet | `0xcf89d9e351b154ec73d93d535b6701c171db4dd978aa2e8967ef3aae7d45453f` | BLR registration key |
 
 ## Registry Generation
@@ -486,6 +489,7 @@ npm run generate:registry -- --verbose  # Detailed output
 **Generated File:** `scripts/domain/factorySuiteRegistry.data.ts`
 
 **Contents:**
+
 - Facet definitions with methods, events, errors
 - Selectors and topic0 hashes
 - Inheritance chains
@@ -495,13 +499,24 @@ npm run generate:registry -- --verbose  # Detailed output
 **Multi-Registry Usage:**
 
 ```typescript
-import { atsRegistry } from '@hashgraph/asset-tokenization-contracts/scripts';
-import { factorySuiteRegistry } from '@scripts/domain';
+import { ethers } from "hardhat";
+import { deployFacets } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { atsRegistry } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { factorySuiteRegistry } from "@scripts/domain";
+import { AccessControlFacet__factory, FactorySuiteFacet__factory } from "@contract-types";
 
-// Pass array of registries to deployment operations
-await deployFacets(provider, {
-  facetNames: ['AccessControlFacet', 'FactorySuiteFacet'],
-  registries: [atsRegistry, factorySuiteRegistry]
+const [deployer] = await ethers.getSigners();
+
+// Create TypeChain factories
+const facetFactories = {
+  AccessControlFacet: new AccessControlFacet__factory(deployer),
+  FactorySuiteFacet: new FactorySuiteFacet__factory(deployer),
+};
+
+// Pass array of registries for facet metadata lookup
+await deployFacets(facetFactories, {
+  confirmations: 1,
+  registries: [atsRegistry, factorySuiteRegistry],
 });
 ```
 
@@ -512,15 +527,17 @@ await deployFacets(provider, {
 **Issue**: `InvalidTreasuryData` error when calling deployBondSuite
 
 **Solution**: Ensure Treasury configuration exists in BLR before calling deployBondSuite:
+
 ```typescript
 // Verify Treasury config exists
-const configExists = await blr.getConfiguration('0x...4e20', 1);
+const configExists = await blr.getConfiguration("0x...4e20", 1);
 // If not, deploy and register Treasury facets first
 ```
 
 **Issue**: `AccountHasNoRole` when deploying
 
 **Solution**: Grant DEPLOYER_ROLE to your address:
+
 ```typescript
 await factorySuite.grantRole(DEPLOYER_ROLE, myAddress);
 ```
@@ -528,6 +545,7 @@ await factorySuite.grantRole(DEPLOYER_ROLE, myAddress);
 **Issue**: Test failures with "contract not found"
 
 **Solution**: Ensure contracts are compiled before running tests:
+
 ```bash
 npm run compile
 npm run test
@@ -536,6 +554,7 @@ npm run test
 **Issue**: Registry generation fails
 
 **Solution**: Compile contracts first, then regenerate:
+
 ```bash
 npm run compile:force
 npm run generate:registry

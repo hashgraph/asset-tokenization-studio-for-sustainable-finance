@@ -6,4 +6,5 @@ export interface BondDocumentRepository {
   save(bondDocument: BondDocument): Promise<BondDocument>
   findByContractIdAndName(contractId: string, name: string): Promise<BondDocument | null>
   findAll(pageOptions: PageOptions): Promise<Page<BondDocument>>
+  delete(bondDocument: BondDocument): Promise<void>
 }

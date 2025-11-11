@@ -3,10 +3,21 @@
 /**
  * Domain-specific constants for Green Bonds Platform FactorySuite.
  *
- * These constants are specific to FactorySuite business logic and should not
- * be moved to infrastructure.
+ * Contains only configuration IDs and re-exported convenience constants.
+ * For roles and resolver keys, use the auto-generated registry data.
  *
  * @module domain/constants
+ *
+ * @example
+ * ```typescript
+ * // Configuration IDs (from this module)
+ * import { FACTORY_SUITE_CONFIG_ID } from '@scripts/domain'
+ *
+ * // Roles and resolver keys (from auto-generated registry)
+ * import { ROLES, getFacetDefinition } from '@scripts/domain'
+ * const deployerRole = ROLES.DEPLOYER_ROLE
+ * const resolverKey = getFacetDefinition('FactorySuiteFacet').resolverKey.value
+ * ```
  */
 
 // Import commonly used ATS roles from their domain registry
@@ -23,23 +34,3 @@ export const TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000
 
 /** FactorySuite configuration ID - bytes32(uint256(30000)) */
 export const FACTORY_SUITE_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000007530";
-
-// Access Control Roles
-
-/** FactorySuite role identifiers (keccak256 hashes) */
-export const FACTORY_SUITE_ROLES = {
-  /** keccak256('green.bonds.platform.role.deployer') */
-  DEPLOYER: "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283",
-
-  /** keccak256('green.bonds.platform.role.kpi_data_manager') */
-  KPI_DATA_MANAGER: "0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e",
-} as const;
-
-// Convenience exports for direct role access
-export const DEPLOYER_ROLE = FACTORY_SUITE_ROLES.DEPLOYER;
-export const KPI_DATA_MANAGER_ROLE = FACTORY_SUITE_ROLES.KPI_DATA_MANAGER;
-
-// Resolver Keys
-
-/** FactorySuite facet registration key - keccak256('green.bonds.platform.factorysuite.resolverKey') */
-export const FACTORY_SUITE_RESOLVER_KEY = "0xcf89d9e351b154ec73d93d535b6701c171db4dd978aa2e8967ef3aae7d45453f";

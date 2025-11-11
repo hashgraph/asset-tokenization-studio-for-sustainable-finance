@@ -49,6 +49,8 @@ export { RetryOptions, DEFAULT_RETRY_OPTIONS } from "./retry/RetryOptions"
 export { RetryPort } from "./retry/RetryPort"
 
 export { BaseTransactionBuilder } from "./transaction/BaseTransactionBuilder"
+export { BaseTransactionBuilderPort } from "./transaction/BaseTransactionBuilderPort"
+
 export { Environment, getHederaClient, getEthereumProvider } from "./transaction/Environment"
 
 export { BaseTransactionRequest } from "./transaction/model/BaseTransactionRequest"
@@ -70,3 +72,15 @@ export { QueryOrderPageOptions } from "./query/QueryOrderPageOptions"
 export { QueryPageOptions } from "./query/QueryPageOptions"
 export { QueryPageRequest } from "./query/QueryPageRequest"
 export { QueryPageResponse } from "./query/QueryPageResponse"
+
+export { RoleGrantedDLTEvent } from "./port.adapter/shared/model/RoleGrantedDLTEvent"
+export { RoleRevokedDLTEvent } from "./port.adapter/shared/model/RoleRevokedDLTEvent"
+export { RoleRenouncedDLTEvent } from "./port.adapter/shared/model/RoleRenouncedDLTEvent"
+export { RolesAppliedDLTEvent } from "./port.adapter/shared/model/RolesAppliedDLTEvent"
+
+export { GrantRoleTransactionAppService } from "./app/transaction/grantrole/service/GrantRoleTransactionAppService"
+export { GrantRoleTransactionAppServiceRequest } from "./app/transaction/grantrole/service/model/GrantRoleTransactionAppServiceRequest"
+export { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/revokerole/service/RevokeRoleTransactionAppService"
+export { RevokeRoleTransactionAppServiceRequest } from "./app/transaction/revokerole/revokerole/service/model/RevokeRoleTransactionAppServiceRequest"
+
+export { SHARED_ENTITIES } from "./Components"

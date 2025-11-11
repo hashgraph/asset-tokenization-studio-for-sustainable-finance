@@ -78,8 +78,9 @@ The project adheres to Hexagonal Architecture and DDD:
    ```
 
 2. Change to develop branch (temporal)
+
    ```bash
-   git checkout develop 
+   git checkout develop
    ```
 
 3. Install dependencies
@@ -125,9 +126,10 @@ The project adheres to Hexagonal Architecture and DDD:
    ```
 
 # Build shared packages
-   ```bash
-   npm run shared:build
-   ```
+
+```bash
+npm run shared:build
+```
 
 # Green Bond Platform demo
 
@@ -145,6 +147,7 @@ In scripts folder there are some tools for helping demos and testing end-to-end.
 
 2. Configure scripts/.env properties:
    If you are going to use an **ED25519** Hedera address to sign transactions, configure .env in this way:
+
    ```bash
    BLOCKCHAIN_FORMAT=hedera
    HEDERA_PRIVATE_KEY=\<add here the ED25519 private key in DER format\>
@@ -152,6 +155,7 @@ In scripts folder there are some tools for helping demos and testing end-to-end.
    ```
 
    If you are going to use an **ECDSA** Hedera address to sign transactions, configure .env in this way:
+
    ```bash
    BLOCKCHAIN_FORMAT=ethereum
    ETHEREUM_PRIVATE_KEY=\<add here the ECDSA private key in HEX format\>
@@ -167,6 +171,7 @@ npm run scripts:gbp:start
 ```
 
 When the script finishes you will see this message:
+
 ```bash
 🎉 Infrastructure startup complete!
 
@@ -192,7 +197,7 @@ When the script finishes you will see this message:
 
 ## Test GBP demo
 
-These tests will test the Green Bond Platform end-to-end. 
+These tests will test the Green Bond Platform end-to-end.
 You can execute them in a different terminal than the one where you started the platform.
 
 - Each test calls API Gateway, the API Gateway calls the API backend and returns the unsigned transaction.
@@ -209,6 +214,7 @@ npm run scripts:test:bond
 ```
 
 When the script finishes, you will see this message in the console where you executed the command:
+
 ```bash
 ℹ️  Using ETHEREUM blockchain format
 ✅ ETHEREUM bond transaction signed successfully!
@@ -223,7 +229,9 @@ When the script finishes, you will see this message in the console where you exe
 ✅ Created and signed ETHEREUM bond transaction
 ✅ Published signed transaction to message queue
 ```
+
 You will see these logs in the console where you started the Green Bond Platform:
+
 ```bash
 [ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [Blockchain-Listener] Processing event BondDeployed from block 26498678
 [ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSCommandBus] Executing command ProcessEventCommand
@@ -275,7 +283,8 @@ This command creates a folder inside `apps/<workspace-name>/<app-name>` with a b
 
 # Testing
 
-In each specific workspace: 
+In each specific workspace:
+
 - Unit tests: `npm run test`
 - E2E tests: `npm run test:e2e`
 - Coverage: `npm run test:cov`
@@ -294,4 +303,4 @@ In each specific workspace:
 
 # License
 
-Licensed under Apache 2.0. See [LICENSE](LICENSE)  for details.
+Licensed under Apache 2.0. See [LICENSE](LICENSE) for details.

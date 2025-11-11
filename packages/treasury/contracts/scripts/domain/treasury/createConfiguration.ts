@@ -60,8 +60,8 @@ const TREASURY_FACETS = [
  *         'AccessControlFacet': '0xabc...',
  *         'PauseFacet': '0xdef...',
  *         'LifeCycleCashFlowFacet': '0x123...',
- * *        'PortfolioFacet': '0x456...',
- * *        'ProceedsManagementFacet': '0x789...',
+ *         'PortfolioFacet': '0x456...',
+ *         'ProceedsManagementFacet': '0x789...',
  *     },
  *     false
  * )

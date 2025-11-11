@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Repository, IsNull } from "typeorm"
+import { Repository, IsNull, Not } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import { EnvironmentalAssetPersistence } from "../model/EnvironmentalAssetPersistence"
 import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRepository {
@@ -16,7 +17,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
 
   @Validate()
   async save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset> {
-    const savedPersistence = await this.repository.save(environmentalAsset)
+    const savedPersistence = await this.repository.save(this.fromDomain(environmentalAsset))
     return this.toDomain(savedPersistence)
   }
 
@@ -69,14 +70,18 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     }
   }
 
-  async existsByContractIdAndTreasuryContractId(contractId: string, treasuryContractId: string): Promise<boolean> {
+  async existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean> {
     return this.repository.exists({
       relations: {
         treasury: true,
       },
       where: {
         contractId,
-        removalDate: IsNull(),
+        removalDate: removed ? Not(IsNull()) : IsNull(),
         treasury: {
           contractId: treasuryContractId,
         },
@@ -103,7 +108,30 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     return persistence ? this.toDomain(persistence) : null
   }
 
+  async findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<EnvironmentalAsset[]> {
+    const persistences = await this.repository.find({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: Not(IsNull()),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+    return persistences.map((persistence) => this.toDomain(persistence))
+  }
+
   private toDomain(persistence: EnvironmentalAssetPersistence): EnvironmentalAsset {
-    return { ...persistence } as EnvironmentalAsset
+    return plainToInstance(EnvironmentalAsset, persistence)
+  }
+
+  private fromDomain(domainEntity: EnvironmentalAsset): EnvironmentalAssetPersistence {
+    return plainToInstance(EnvironmentalAssetPersistence, domainEntity)
   }
 }

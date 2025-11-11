@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity >=0.8.0 <0.9.0;
+pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
 import { IKpi } from "../interfaces/IKpi.sol";
+import { ILifeCycleCashFlow } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/ILifeCycleCashFlow.sol";
+import { IPortfolio } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/IPortfolio.sol";
 // solhint-enable max-line-length
 
 /**
  * @title FactorySuiteStorageWrapper
  * @notice Storage wrapper with deployment and configuration logic for FactorySuite
  */
-abstract contract FactorySuiteStorageWrapper is IFactorySuite {
+abstract contract FactorySuiteStorageWrapper is AtsCommon {
     /**
      * @notice Deploys the Bond contract using the ATS Bond Factory implementation
      * @dev KPI address parameter is reserved for future ATS Factory integration
@@ -33,7 +36,7 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
         try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
         } catch {
-            revert BondDeploymentFailed();
+            revert IFactorySuite.BondDeploymentFailed();
         }
     }
 
@@ -47,7 +50,7 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
      * @return treasuryAddress Address of the deployed Treasury contract
      */
     function _deployTreasuryContract(
-        TreasuryData calldata treasuryData,
+        IFactorySuite.TreasuryData calldata treasuryData,
         address bondAddress
     ) internal returns (address treasuryAddress) {
         // Deploy Treasury contract using ResolverProxy pattern (similar to ATS Factory)
@@ -68,11 +71,11 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
     /**
      * @notice Deploys the Kpi contract using the Transparent Upgradeable Proxy pattern
      * @param kpiData Kpi configuration data containing admin and RBAC settings
-     * @return KpiAddress Address of the deployed Kpi proxy contract
+     * @return kpiAddress Address of the deployed Kpi proxy contract
      */
-    function _deployKpiContract(KpiData calldata kpiData) internal returns (address KpiAddress) {
+    function _deployKpiContract(IFactorySuite.KpiData calldata kpiData) internal returns (address kpiAddress) {
         // Deploy Kpi logic contract
-        Kpi KpiLogic = new Kpi();
+        Kpi kpiLogic = new Kpi();
 
         // Deploy ProxyAdmin with specified admin
         ProxyAdmin proxyAdmin = new ProxyAdmin();
@@ -81,24 +84,26 @@ abstract contract FactorySuiteStorageWrapper is IFactorySuite {
         // Deploy TransparentUpgradeableProxy with initialize call
         // RBAC roles are configured during initialization via the initialize() function
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
-            address(KpiLogic),
+            address(kpiLogic),
             address(proxyAdmin),
             abi.encodeWithSelector(IKpi.initialize.selector, kpiData.rbacs)
         );
 
-        KpiAddress = address(proxy);
+        kpiAddress = address(proxy);
     }
 
     /**
-     * @notice Configures the Treasury contract - implementation pending Treasury interface
-     * @dev Parameters reserved for future Treasury configuration implementation
+     * @notice Configures the Treasury contract with lifecycle and portfolio initialization
+     * @param treasuryAddress Address of the deployed Treasury contract
+     * @param treasuryData Treasury configuration data
+     * @param bondAddress Address of the deployed Bond contract
      */
     function _configureTreasuryContract(
-        address, // treasuryAddress
-        TreasuryData calldata, // treasuryData
-        address // bondAddress
+        address treasuryAddress,
+        IFactorySuite.TreasuryData calldata treasuryData,
+        address bondAddress
     ) internal {
-        // solhint-disable-next-line no-empty-blocks
-        // TODO: Implement when Treasury contract interface is available
+        ILifeCycleCashFlow(treasuryAddress).initialize_LifeCycleCashFlow(bondAddress);
+        IPortfolio(treasuryAddress).initialize_Portfolio(treasuryData.paymentToken, treasuryData.environmentalAssets);
     }
 }

@@ -36,7 +36,7 @@ const REPOSITORIES: Provider[] = [
   },
 ]
 
-export const PROVIDERS = [
+export const EVENT_LISTENER_PROVIDERS = [
   ...REPOSITORIES,
   ProcessEventDomainService,
   ProcessEventCommandHandler,

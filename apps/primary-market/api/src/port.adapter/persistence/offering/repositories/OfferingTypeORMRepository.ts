@@ -7,6 +7,7 @@ import { OfferingRepository } from "@domain/offering/repositories/OfferingReposi
 import { Offering } from "@domain/offering/model/Offering"
 import { OfferingPersistence } from "../model/OfferingPersistence"
 import { plainToInstance } from "class-transformer"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class OfferingTypeORMRepository implements OfferingRepository {
@@ -20,12 +21,74 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return this.toDomain(saved)
   }
 
-  async findByOfferingId(offeringId: string): Promise<Offering | null> {
+  async findByOfferingDltIdAndMarketId(offeringDltId: string, marketId: string): Promise<Offering | null> {
     const persistence = await this.repository.findOne({
-      where: { offeringId },
+      where: {
+        offeringDltId,
+        market: { id: marketId },
+      },
+      relations: ["market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
+  }
+
+  async findUniqueBondContractIdsByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<string>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const baseQuery = this.repository
+      .createQueryBuilder("offering")
+      .innerJoin("offering.market", "market")
+      .where("market.id = :marketId", { marketId })
+
+    const result = await baseQuery
+      .select("COUNT(DISTINCT offering.bondContractId)", "count")
+      .getRawOne<{ count: string }>()
+    const total = Number(result?.count ?? 0)
+
+    const paginatedBondContractIds = await baseQuery
+      .select("DISTINCT offering.bondContractId", "bondContractId")
+      .orderBy("offering.bondContractId", orderDirection)
+      .offset((pageOptions.page - 1) * pageOptions.limit)
+      .limit(pageOptions.limit)
+      .getRawMany()
+
+    return {
+      items: paginatedBondContractIds.map((row) => row.bondContractId),
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
+  }
+
+  async findByMarketIdAndBondContractId(
+    marketId: string,
+    bondContractId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<Offering>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.repository.findAndCount({
+      where: {
+        market: { id: marketId },
+        bondContractId,
+      },
+      relations: ["market"],
+      order: { [pageOptions.order.orderBy]: orderDirection },
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+      take: pageOptions.limit,
+    })
+
+    const items = persistences.map((p) => this.toDomain(p))
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
   }
 
   private toDomain(persistence: OfferingPersistence): Offering {

@@ -12,5 +12,5 @@ export class GrantUserMarketRoleDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  marketId: string
+  marketContractId: string
 }

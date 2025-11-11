@@ -6,7 +6,7 @@ import { SubmitSubscriptionTransactionRequest } from "./model/SubmitSubscription
 export interface SubmitSubscriptionTransactionPort {
   submitSubscriptionTransaction(
     marketContractId: string,
-    offeringId: string,
+    offeringDltId: string,
     request: SubmitSubscriptionTransactionRequest,
   ): Promise<TransactionResponse>
 }

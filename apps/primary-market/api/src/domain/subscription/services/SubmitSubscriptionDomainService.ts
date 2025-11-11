@@ -22,25 +22,31 @@ export class SubmitSubscriptionDomainService {
 
   async execute(submitSubscriptionDomainServiceRequest: SubmitSubscriptionDomainServiceRequest): Promise<Subscription> {
     const market = await this.checkPrimaryMarketExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.marketId,
+      submitSubscriptionDomainServiceRequest.marketContractId,
     )
-    market.checkActive()
+    market.ensureActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
-      submitSubscriptionDomainServiceRequest.offeringId,
+      submitSubscriptionDomainServiceRequest.offeringDltId,
+      market,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionId(
-      submitSubscriptionDomainServiceRequest.subscriptionId,
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionDltIdAndOfferingId(
+      submitSubscriptionDomainServiceRequest.subscriptionDltId,
+      offering.id,
     )
     if (existingSubscription) {
-      throw SubscriptionFoundError.subscriptionIdError(submitSubscriptionDomainServiceRequest.subscriptionId)
+      throw SubscriptionFoundError.subscriptionDltIdOfferingDltIdAndMarketContractIdError(
+        submitSubscriptionDomainServiceRequest.subscriptionDltId,
+        submitSubscriptionDomainServiceRequest.offeringDltId,
+        submitSubscriptionDomainServiceRequest.marketContractId,
+      )
     }
 
     const investor = await this.getOrCreateInvestor(submitSubscriptionDomainServiceRequest.investorId)
 
     const subscription = Object.assign(new Subscription(), {
-      subscriptionId: submitSubscriptionDomainServiceRequest.subscriptionId,
+      subscriptionDltId: submitSubscriptionDomainServiceRequest.subscriptionDltId,
       offering: offering,
       investor: investor,
       lotUnits: submitSubscriptionDomainServiceRequest.lotUnits,

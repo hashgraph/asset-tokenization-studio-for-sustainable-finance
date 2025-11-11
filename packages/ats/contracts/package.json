@@ -5,30 +5,34 @@
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
   "files": [
-    "build/",
+    "artifacts/",
     "contracts/",
+    "typechain-types/",
+    "scripts/",
+    "build/",
+    "!artifacts/build-info/",
     "!build/**/*.map"
   ],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
+      "require": "./build/typechain-types/index.js"
     },
-    "./typechain": {
-      "types": "./build/typechain-types/index.d.ts",
-      "import": "./build/typechain-types/index.js",
-      "require": "./build/typechain-types/index.js",
-      "default": "./build/typechain-types/index.js"
-    },
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts/": "./scripts/index.ts",
     "./scripts": {
       "types": "./build/scripts/index.d.ts",
-      "import": "./build/scripts/index.js",
-      "require": "./build/scripts/index.js",
-      "default": "./build/scripts/index.js"
+      "require": "./build/scripts/index.js"
     },
-    "./contracts/*": "./contracts/*",
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "require": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "require": "./build/test/index.js"
+    },
     "./package.json": "./package.json"
   },
   "keywords": [
@@ -40,7 +44,7 @@
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.json && npx tsc-alias -p tsconfig.json",
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
     "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
     "clean:cache": "npx hardhat clean",
     "clean:build": "node -e \"const fs=require('fs'); ['dist','build','artifacts','cache','typechain-types','coverage','.nyc_output'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
@@ -56,17 +60,18 @@
     "generate:registry": "npx ts-node -r tsconfig-paths/register scripts/tools/generateRegistry.ts",
     "compile": "npx hardhat compile",
     "compile:force": "npx hardhat compile --force",
-    "test": "npx hardhat test",
-    "test:factory-suite": "npx hardhat test test/unit/factorySuite.test.ts test/unit/factorySuiteFacet.test.ts",
-    "test:kpi": "npx hardhat test test/unit/kpi.test.ts",
-    "coverage": "npx hardhat coverage",
-    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/unit/factorySuite*.test.ts'",
-    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/unit/kpi.test.ts'",
+    "test": "bash -c 'npx hardhat test test/unit/*.test.ts test/integration/*.test.ts'",
+    "test:factory-suite": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*factorySuite*.test.ts test/integration/*factorySuite*.test.ts'",
+    "test:kpi": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*kpi*.test.ts test/integration/*kpi*.test.ts'",
+    "test:integration": "bash -c 'npx hardhat test test/integration/*.test.ts'",
+    "coverage": "npx hardhat coverage --testfiles 'test/{unit,integration}/*.test.ts'",
+    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/{unit,integration}/*factorySuite*.test.ts'",
+    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
     "prepack": "npm run compile:force"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
+    "@hashgraph/green-bonds-platform-treasury-contracts": "*",
+    "@hashgraph/asset-tokenization-contracts": "^1.15.2",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
@@ -77,14 +82,15 @@
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^6.1.2",
     "@types/jest": "^29.5.14",
+    "@eslint/js": "^9.36.0",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
     "eslint": "^9.36.0",
     "ethers": "^5.8.0",
     "glob": "^11.0.3",
-    "hardhat": "^v2.26.3",
+    "hardhat": "^v2.26.5",
     "hardhat-abi-exporter": "^2.11.0",
-    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-contract-sizer": "^2.10.1",
     "hardhat-dependency-compiler": "^1.2.1",
     "jiti": "^2.6.0",
     "prettier-plugin-solidity": "^2.1.0",

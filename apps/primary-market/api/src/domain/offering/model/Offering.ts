@@ -2,14 +2,14 @@
 
 import { PrimaryMarket } from "@domain/primarymarket/model/PrimaryMarket"
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsDate, ValidateNested, IsEnum } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsDate, ValidateNested } from "class-validator"
 import { Type } from "class-transformer"
-import { OfferingStatus } from "../../shared/model/OfferingStatus"
+import { OfferingUnauthorizedOperatorError } from "../errors/OfferingUnauthorizedOperatorError"
 
 export class Offering extends BaseEntity {
   @IsNotEmpty()
   @IsString()
-  offeringId: string
+  offeringDltId: string
 
   @IsNotEmpty()
   @ValidateNested()
@@ -18,19 +18,19 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  bondId: string
-
-  @IsNotEmpty()
-  @IsEnum(OfferingStatus)
-  status: OfferingStatus
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
-  treasuryId: string
+  operatorAccountId: string
 
   @IsNotEmpty()
   @IsString()
-  paymentTokenId: string
+  treasuryContractId: string
+
+  @IsNotEmpty()
+  @IsString()
+  paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -63,4 +63,14 @@ export class Offering extends BaseEntity {
   @IsNotEmpty()
   @IsNumber()
   deadlineRule: number
+
+  ensureOperatorMatches(operatorAccountId: string): void {
+    if (this.operatorAccountId !== operatorAccountId) {
+      throw OfferingUnauthorizedOperatorError.operatorMismatchError(
+        this.offeringDltId,
+        this.operatorAccountId,
+        operatorAccountId,
+      )
+    }
+  }
 }

@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Validate, Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { Repository, IsNull } from "typeorm"
+import { Repository, IsNull, Not } from "typeorm"
 import { InjectRepository } from "@nestjs/typeorm"
 import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { PaymentTokenRepository } from "@domain/paymenttoken/repositories/PaymentTokenRepository"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
@@ -16,8 +17,8 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
 
   @Validate()
   async save(paymentToken: PaymentToken): Promise<PaymentToken> {
-    const persistence = await this.paymentTokenRepository.save(paymentToken as PaymentTokenPersistence)
-    return persistence as PaymentToken
+    const persistence = await this.paymentTokenRepository.save(this.fromDomain(paymentToken))
+    return this.toDomain(persistence)
   }
 
   async findById(id: string): Promise<PaymentToken | null> {
@@ -44,7 +45,7 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences as PaymentToken[]
+    const items = persistences.map((persistence) => this.toDomain(persistence))
 
     return {
       items,
@@ -99,7 +100,49 @@ export class PaymentTokenTypeOrmRepository implements PaymentTokenRepository {
     return persistence ? this.toDomain(persistence) : null
   }
 
+  async findAllRemovedByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+  ): Promise<PaymentToken[]> {
+    const persistences = await this.paymentTokenRepository.find({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: Not(IsNull()),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+    return persistences.map((persistence) => this.toDomain(persistence))
+  }
+
+  async existsByContractIdAndTreasuryContractId(
+    contractId: string,
+    treasuryContractId: string,
+    removed?: boolean,
+  ): Promise<boolean> {
+    return await this.paymentTokenRepository.exists({
+      relations: {
+        treasury: true,
+      },
+      where: {
+        contractId,
+        removalDate: removed ? Not(IsNull()) : IsNull(),
+        treasury: {
+          contractId: treasuryContractId,
+        },
+      },
+    })
+  }
+
   private toDomain(persistence: PaymentTokenPersistence): PaymentToken {
-    return { ...persistence } as PaymentToken
+    return plainToInstance(PaymentToken, persistence)
+  }
+
+  private fromDomain(domainEntity: PaymentToken): PaymentTokenPersistence {
+    return plainToInstance(PaymentTokenPersistence, domainEntity)
   }
 }

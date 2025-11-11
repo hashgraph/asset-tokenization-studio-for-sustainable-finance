@@ -1,0 +1,35 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./build",
+    "declaration": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@scripts": ["./scripts/index.ts"],
+      "@scripts/*": ["./scripts/*"],
+      "@hashgraph/asset-tokenization-contracts/scripts": [
+        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/index.d.ts"
+      ],
+      "@hashgraph/asset-tokenization-contracts/scripts/*": [
+        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/*"
+      ],
+      "@hashgraph/green-bonds-platform-ats-contracts/scripts": [
+        "node_modules/@hashgraph/green-bonds-platform-ats-contracts/build/scripts/index.d.ts"
+      ],
+      "@hashgraph/green-bonds-platform-ats-contracts/scripts/*": [
+        "node_modules/@hashgraph/green-bonds-platform-ats-contracts/build/scripts/*"
+      ]
+    }
+  },
+  "include": ["scripts/**/*"],
+  "exclude": [
+    "node_modules/@hashgraph/asset-tokenization-contracts/scripts",
+    "node_modules/@hashgraph/asset-tokenization-contracts/test",
+    "node_modules/@hashgraph/green-bonds-platform-ats-contracts/scripts",
+    "node_modules/@hashgraph/green-bonds-platform-ats-contracts/test",
+    "node_modules",
+    "build",
+    "dist"
+  ]
+}

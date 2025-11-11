@@ -23,6 +23,35 @@ import { SetBondDocumentDomainService } from "@domain/bond/document/service/SetB
 import { BondDocumentPersistence } from "@port/bond/persistence/model/BondDocumentPersistence"
 import { BondDocumentTypeOrmRepository } from "@port/bond/persistence/repositories/BondDocumentTypeOrmRepository"
 import { CreateBondFiltersAdapter } from "@port/bond/usecase/createbondfilters/CreateBondFiltersAdapter"
+import { RemoveBondDocumentTransactionHttpAdapter } from "@port/transaction/usecase/removebonddocumenttransaction/RemoveBondDocumentTransactionHttpAdapter"
+import { RemoveBondDocumentTransactionAppService } from "@app/bond/transaction/removebonddocumenttransaction/service/RemoveBondDocumentTransactionAppService"
+import { RemoveBondDocumentCommandHandler } from "@app/bond/removebonddocument/command/RemoveBondDocumentCommandHandler"
+import { RemoveBondDocumentNestJSEventAdapter } from "@port/bond/usecase/removebonddocument/RemoveBondDocumentNestJSEventAdapter"
+import { RemoveBondDocumentDomainService } from "@domain/bond/document/service/RemoveBondDocumentDomainService"
+import { SetBondCapTransactionHttpAdapter } from "@port/transaction/usecase/setbondcaptransaction/SetBondCapTransactionHttpAdapter"
+import { SetBondCapTransactionAppService } from "@app/bond/transaction/setbondcaptransaction/service/SetBondCapTransactionAppService"
+import { SetBondCapCommandHandler } from "@app/bond/setbondcap/command/SetBondCapCommandHandler"
+import { SetBondCapNestJSEventAdapter } from "@port/bond/usecase/setbondcap/SetBondCapNestJSEventAdapter"
+import { SetBondCapDomainService } from "@domain/bond/services/cap/SetBondCapDomainService"
+import { AddControlListMemberTransactionHttpAdapter } from "@port/transaction/usecase/addcontrollistmembertransaction/AddControlListMemberTransactionHttpAdapter"
+import { AddControlListMemberTransactionAppService } from "@app/bond/transaction/addcontrollistmembertransaction/service/AddControlListMemberTransactionAppService"
+import { AddControlListMemberCommandHandler } from "@app/bond/addcontrollistmember/command/AddControlListMemberCommandHandler"
+import { AddControlListMemberNestJSEventAdapter } from "@port/bond/usecase/addcontrollistmember/AddControlListMemberNestJSEventAdapter"
+import { AddBondControlListMemberDomainService } from "@domain/bond/controllist/service/AddBondControlListMemberDomainService"
+import { RemoveControlListMemberTransactionHttpAdapter } from "@port/transaction/usecase/removecontrollistmembertransaction/RemoveControlListMemberTransactionHttpAdapter"
+import { RemoveControlListMemberTransactionAppService } from "@app/bond/transaction/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
+import { RemoveControlListMemberCommandHandler } from "@app/bond/removecontrollistmember/command/RemoveControlListMemberCommandHandler"
+import { RemoveControlListMemberNestJSEventAdapter } from "@port/bond/usecase/removecontrollistmember/RemoveControlListMemberNestJSEventAdapter"
+import { RemoveBondControlListMemberDomainService } from "@domain/bond/controllist/service/RemoveBondControlListMemberDomainService"
+import { BondControlListMemberTypeOrmRepository } from "@port/bond/persistence/repositories/BondControlListMemberTypeOrmRepository"
+import { SetBondCouponTransactionHttpAdapter } from "@port/transaction/usecase/setbondcoupontransaction/SetBondCouponTransactionHttpAdapter"
+import { SetBondCouponTransactionAppService } from "@app/bond/transaction/setbondcoupontransaction/service/SetBondCouponTransactionAppService"
+import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
+import { BondCouponPersistence } from "@port/bond/persistence/model/BondCouponPersistence"
+import { BondCouponTypeOrmRepository } from "@port/bond/persistence/repositories/BondCouponTypeOrmRepository"
+import { SetBondCouponCommandHandler } from "@app/bond/setbondcoupon/command/SetBondCouponCommandHandler"
+import { SetBondCouponNestJSEventAdapter } from "@port/bond/usecase/setbondcoupon/SetBondCouponNestJSEventAdapter"
+import { SetBondCouponDomainService } from "@domain/bond/coupon/service/SetBondCouponDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -33,6 +62,14 @@ const REPOSITORIES: Provider[] = [
     provide: "BondDocumentRepository",
     useClass: BondDocumentTypeOrmRepository,
   },
+  {
+    provide: "BondControlListMemberRepository",
+    useClass: BondControlListMemberTypeOrmRepository,
+  },
+  {
+    provide: "BondCouponRepository",
+    useClass: BondCouponTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -41,6 +78,11 @@ export const CONTROLLERS = [
   GetBondHttpAdapter,
   GetBondsHttpAdapter,
   SetBondDocumentTransactionHttpAdapter,
+  RemoveBondDocumentTransactionHttpAdapter,
+  SetBondCapTransactionHttpAdapter,
+  AddControlListMemberTransactionHttpAdapter,
+  RemoveControlListMemberTransactionHttpAdapter,
+  SetBondCouponTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -56,11 +98,37 @@ export const PROVIDERS = [
   SetBondDocumentCommandHandler,
   SetBondDocumentNestJSEventAdapter,
   SetBondDocumentDomainService,
+  RemoveBondDocumentTransactionAppService,
+  RemoveBondDocumentCommandHandler,
+  RemoveBondDocumentNestJSEventAdapter,
+  RemoveBondDocumentDomainService,
+  SetBondCapTransactionAppService,
+  SetBondCapCommandHandler,
+  SetBondCapNestJSEventAdapter,
+  SetBondCapDomainService,
+  AddControlListMemberTransactionAppService,
+  AddControlListMemberCommandHandler,
+  AddControlListMemberNestJSEventAdapter,
+  AddBondControlListMemberDomainService,
+  SetBondCouponTransactionAppService,
+  SetBondCouponCommandHandler,
+  SetBondCouponNestJSEventAdapter,
+  SetBondCouponDomainService,
+  RemoveControlListMemberTransactionAppService,
+  RemoveControlListMemberCommandHandler,
+  RemoveControlListMemberNestJSEventAdapter,
+  RemoveBondControlListMemberDomainService,
+  SetBondCouponTransactionAppService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
   },
 ]
-
-export const ENTITIES = [...EVENT_LISTENER_ENTITIES, BondPersistence, BondDocumentPersistence]
+export const ENTITIES = [
+  ...EVENT_LISTENER_ENTITIES,
+  BondPersistence,
+  BondDocumentPersistence,
+  BondControlListMemberPersistence,
+  BondCouponPersistence,
+]

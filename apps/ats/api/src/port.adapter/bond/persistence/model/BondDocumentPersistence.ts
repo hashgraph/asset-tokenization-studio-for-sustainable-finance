@@ -2,7 +2,7 @@
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { Entity, Column, Index } from "typeorm"
 
-@Entity("BondDocument")
+@Entity("BondDocuments")
 @Index(["name", "contractId"], { unique: true })
 export class BondDocumentPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })

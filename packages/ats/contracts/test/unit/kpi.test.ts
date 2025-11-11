@@ -1,16 +1,12 @@
-import { Kpi } from "@contracts/contracts";
-import { ProxyAdmin } from "@contracts";
-import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { KPI_DATA_MANAGER_ROLE, PAUSER_ROLE } from "@scripts/domain";
-import { deployProxyAdmin } from "@scripts";
-import { getImplementationAddress } from "@scripts";
-import { IResolverProxy } from "@contracts/contracts/Kpi";
-import { expect } from "chai";
-import { Signer } from "ethers";
 import { ethers } from "hardhat";
-import { upgradeKpiProxy } from "@scripts/domain";
-import { deployKpi } from "@scripts/domain";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Signer } from "ethers";
+import { expect } from "chai";
+import { ProxyAdmin, Kpi } from "@contract-types";
+import { IResolverProxy } from "@contract-types/contracts/Kpi";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { ROLES, PAUSER_ROLE, upgradeKpiProxy, deployKpi } from "@scripts/domain";
+import { getImplementationAddress } from "@scripts";
+import { deployProxyAdmin } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 describe("Kpi", () => {
   let kpi: Kpi;
@@ -22,15 +18,14 @@ describe("Kpi", () => {
   async function deployFixture() {
     rbac = [
       {
-        role: KPI_DATA_MANAGER_ROLE,
+        role: ROLES.KPI_DATA_MANAGER_ROLE,
         members: [await owner.getAddress()],
       },
       { role: PAUSER_ROLE, members: [await owner.getAddress()] },
     ];
-    proxyAdmin = await deployProxyAdmin();
+    proxyAdmin = await deployProxyAdmin(owner);
 
-    const provider = new HardhatProvider();
-    kpi = (await deployKpi(provider, proxyAdmin, rbac)).kpi;
+    kpi = (await deployKpi(owner, proxyAdmin, rbac)).kpi;
   }
   before(async () => {
     const signers = await ethers.getSigners();
@@ -55,6 +50,7 @@ describe("Kpi", () => {
     it("GIVEN date is 0 WHEN adding KPI data THEN fail with InvalidDate", async () => {
       await expect(kpi.addKpiData(0, 100)).to.be.revertedWithCustomError(kpi, "InvalidDate");
     });
+
     it("GIVEN date is in the future WHEN adding KPI data THEN fail with InvalidDate", async () => {
       const now = Math.floor(Date.now() / 1000) + 1000;
       await expect(kpi.addKpiData(now, 100)).to.be.revertedWithCustomError(kpi, "InvalidDate");
@@ -150,7 +146,7 @@ describe("Kpi", () => {
       expect(before.kpiAggregatedValue).to.equal(123);
       const originalImplementationAddress = await getImplementationAddress(kpi.address);
 
-      await upgradeKpiProxy(new HardhatProvider(), proxyAdmin, kpi.address);
+      await upgradeKpiProxy(owner, proxyAdmin, kpi.address);
 
       const newImplementationAddress = await getImplementationAddress(kpi.address);
 

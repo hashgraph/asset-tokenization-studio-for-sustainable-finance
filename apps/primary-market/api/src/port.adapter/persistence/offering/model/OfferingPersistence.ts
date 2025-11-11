@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Entity, Column, ManyToOne, JoinColumn } from "typeorm"
+import { Entity, Column, ManyToOne, JoinColumn, Unique } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { OfferingStatus } from "@domain/shared/model/OfferingStatus"
 
 @Entity("Offering")
+@Unique(["offeringDltId", "market"])
 export class OfferingPersistence extends BaseEntityPersistence {
-  @Column({ type: "varchar", unique: true })
-  offeringId: string
+  @Column({ type: "varchar" })
+  offeringDltId: string
 
   @ManyToOne(() => PrimaryMarketPersistence, (market) => market.offerings, { eager: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "marketId" })
   market: PrimaryMarketPersistence
 
   @Column()
-  bondId: string
-
-  @Column({ type: "enum", enum: OfferingStatus, default: OfferingStatus.CREATED })
-  status: OfferingStatus
+  bondContractId: string
 
   @Column()
-  treasuryId: string
+  operatorAccountId: string
 
   @Column()
-  paymentTokenId: string
+  treasuryContractId: string
+
+  @Column()
+  paymentTokenContractId: string
 
   @Column({ type: "varchar" })
   lotSize: string
