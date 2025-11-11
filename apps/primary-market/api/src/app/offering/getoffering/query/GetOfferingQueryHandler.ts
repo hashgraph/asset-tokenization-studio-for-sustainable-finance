@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Handler, QueryHandler, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Handler, QueryHandler, Singleton, Validate, Inject } from "@hashgraph/green-bonds-shared-core"
 import { GetOfferingQuery } from "./GetOfferingQuery"
 import { OfferingQueryResponse } from "./OfferingQueryResponse"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
+import type { BlockchainAdapterPort } from "@port/blockchain/BlockchainAdapterPort"
 
 @Singleton()
 @Handler(GetOfferingQuery)
@@ -12,6 +13,8 @@ export class GetOfferingQueryHandler implements QueryHandler<GetOfferingQuery, O
   constructor(
     private readonly checkPrimaryMarketExistsDomainService: CheckPrimaryMarketExistsDomainService,
     private readonly checkOfferingExistsDomainService: CheckOfferingExistsDomainService,
+    @Inject("BlockchainAdapterPort")
+    private readonly blockchainAdapter: BlockchainAdapterPort,
   ) {}
 
   @Validate()
@@ -20,6 +23,8 @@ export class GetOfferingQueryHandler implements QueryHandler<GetOfferingQuery, O
 
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
     const offering = await this.checkOfferingExistsDomainService.execute(offeringDltId, market)
+
+    const status = await this.blockchainAdapter.getOfferingStatus(market.contractId, offering.offeringDltId)
 
     return Object.assign(new OfferingQueryResponse(), {
       offeringDltId: offering.offeringDltId,
@@ -35,6 +40,7 @@ export class GetOfferingQueryHandler implements QueryHandler<GetOfferingQuery, O
       startDate: offering.startDate,
       endDate: offering.endDate,
       deadlineRule: offering.deadlineRule,
+      status,
       createdAt: offering.createdAt,
     })
   }

@@ -73,6 +73,7 @@ import { GetRoleMembersQueryHandler } from "@app/role/getrolemembers/query/GetRo
 import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExistsDomainService"
 import { GetOfferingHttpAdapter } from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
 import { GetOfferingQueryHandler } from "@app/offering/getoffering/query/GetOfferingQueryHandler"
+import { BlockchainAdapter } from "@port/blockchain/BlockchainAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -168,6 +169,10 @@ export const PROVIDERS = [
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
+  },
+  {
+    provide: "BlockchainAdapterPort",
+    useClass: BlockchainAdapter,
   },
 ]
 

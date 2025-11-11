@@ -11,6 +11,7 @@ import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
+import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
 
 describe("GetOffering API Integration", () => {
   let app: INestApplication
@@ -89,6 +90,7 @@ describe("GetOffering API Integration", () => {
         targetQuantity: "5000",
         targetQuantityRule: 0,
         deadlineRule: 0,
+        status: OfferingStatus.OPEN,
       })
       expect(response.body).toHaveProperty("startDate")
       expect(response.body).toHaveProperty("endDate")
@@ -135,6 +137,7 @@ describe("GetOffering API Integration", () => {
       expect(response.body).toHaveProperty("startDate")
       expect(response.body).toHaveProperty("endDate")
       expect(response.body).toHaveProperty("deadlineRule")
+      expect(response.body).toHaveProperty("status")
       expect(response.body).toHaveProperty("createdAt")
     })
 
