@@ -1,110 +1,111 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { HardhatUserConfig } from 'hardhat/config'
-import 'tsconfig-paths/register'
-import '@nomicfoundation/hardhat-toolbox'
-import '@nomicfoundation/hardhat-chai-matchers'
-import '@typechain/hardhat'
-import 'hardhat-contract-sizer'
-import 'hardhat-gas-reporter'
-import 'solidity-coverage'
-import Configuration from '@configuration'
-import 'hardhat-dependency-compiler'
+import { HardhatUserConfig } from "hardhat/config";
+import "tsconfig-paths/register";
+import "@nomicfoundation/hardhat-toolbox";
+import "@nomicfoundation/hardhat-chai-matchers";
+import "@typechain/hardhat";
+import "hardhat-contract-sizer";
+import "hardhat-gas-reporter";
+import "solidity-coverage";
+import Configuration from "@configuration";
+import "hardhat-dependency-compiler";
+import "@tasks";
 
-import 'hardhat/types/config'
+import "hardhat/types/config";
 
-declare module 'hardhat/types/config' {
-    interface HardhatNetworkUserConfig {
-        usdcAddress?: string
-    }
+declare module "hardhat/types/config" {
+  interface HardhatNetworkUserConfig {
+    usdcAddress?: string;
+  }
 }
 
 const config: HardhatUserConfig = {
-    solidity: {
-        version: '0.8.28',
-        settings: {
-            optimizer: {
-                enabled: true,
-                runs: 100,
-            },
-            evmVersion: 'cancun',
-        },
+  solidity: {
+    version: "0.8.28",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 100,
+      },
+      evmVersion: "cancun",
     },
-    paths: {
-        sources: './contracts',
-        tests: './test',
-        cache: './cache',
-        artifacts: './artifacts',
+  },
+  paths: {
+    sources: "./contracts",
+    tests: "./test",
+    cache: "./cache",
+    artifacts: "./artifacts",
+  },
+  defaultNetwork: "local",
+  networks: {
+    hardhat: {
+      accounts: {
+        count: 2,
+        accountsBalance: "1000000000000000000000000",
+      },
+      chainId: 1337,
+      blockGasLimit: 30_000_000,
+      hardfork: "cancun",
+      forking: {
+        url: Configuration.endpoints.testnet.jsonRpc,
+      },
     },
-    defaultNetwork: 'local',
-    networks: {
-        hardhat: {
-            accounts: {
-                count: 2,
-                accountsBalance: '1000000000000000000000000',
-            },
-            chainId: 1337,
-            blockGasLimit: 30_000_000,
-            hardfork: 'cancun',
-            forking: {
-                url: Configuration.endpoints.testnet.jsonRpc,
-            },
-        },
-        local: {
-            url: Configuration.endpoints.local.jsonRpc,
-            accounts: Configuration.privateKeys.local,
-            timeout: 60_000,
-        },
-        previewnet: {
-            url: Configuration.endpoints.previewnet.jsonRpc,
-            accounts: Configuration.privateKeys.previewnet,
-            timeout: 120_000,
-        },
-        testnet: {
-            url: Configuration.endpoints.testnet.jsonRpc,
-            accounts: Configuration.privateKeys.testnet,
-            timeout: 120_000,
-        },
-        mainnet: {
-            url: Configuration.endpoints.mainnet.jsonRpc,
-            accounts: Configuration.privateKeys.mainnet,
-            timeout: 120_000,
-        },
+    local: {
+      url: Configuration.endpoints.local.jsonRpc,
+      accounts: Configuration.privateKeys.local,
+      timeout: 60_000,
     },
-    contractSizer: {
-        alphaSort: true,
-        disambiguatePaths: false,
-        runOnCompile: Configuration.contractSizerRunOnCompile,
-        strict: true,
+    previewnet: {
+      url: Configuration.endpoints.previewnet.jsonRpc,
+      accounts: Configuration.privateKeys.previewnet,
+      timeout: 120_000,
     },
-    gasReporter: {
-        enabled: Configuration.reportGas,
-        showTimeSpent: true,
-        outputFile: 'gas-report.txt', // Force output to a file
-        noColors: true, // Recommended for file output
+    testnet: {
+      url: Configuration.endpoints.testnet.jsonRpc,
+      accounts: Configuration.privateKeys.testnet,
+      timeout: 120_000,
     },
-    typechain: {
-        outDir: './typechain-types',
-        target: 'ethers-v5',
+    mainnet: {
+      url: Configuration.endpoints.mainnet.jsonRpc,
+      accounts: Configuration.privateKeys.mainnet,
+      timeout: 120_000,
     },
-    mocha: {
-        timeout: 3_000_000,
-    },
-    dependencyCompiler: {
-        paths: [
-            '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol',
-            '@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/resolver/BusinessLogicResolver.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/unstructured/ResolverProxyUnstructured.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControlFacet.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/PauseFacet.sol',
-            // TimeTravel contracts for testing
-            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelFacet.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/AccessControlFacetTimeTravel.sol',
-            '@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/PauseFacetTimeTravel.sol',
-        ],
-    },
-}
+  },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: Configuration.contractSizerRunOnCompile,
+    strict: true,
+  },
+  gasReporter: {
+    enabled: Configuration.reportGas,
+    showTimeSpent: true,
+    outputFile: "gas-report.txt", // Force output to a file
+    noColors: true, // Recommended for file output
+  },
+  typechain: {
+    outDir: "./typechain-types",
+    target: "ethers-v5",
+  },
+  mocha: {
+    timeout: 3_000_000,
+  },
+  dependencyCompiler: {
+    paths: [
+      "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol",
+      "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/resolver/BusinessLogicResolver.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/unstructured/ResolverProxyUnstructured.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControlFacet.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/PauseFacet.sol",
+      // TimeTravel contracts for testing
+      "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/timeTravel/TimeTravelFacet.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/AccessControlFacetTimeTravel.sol",
+      "@hashgraph/asset-tokenization-contracts/contracts/test/testTimeTravel/facetsTimeTravel/PauseFacetTimeTravel.sol",
+    ],
+  },
+};
 
-export default config
+export default config;

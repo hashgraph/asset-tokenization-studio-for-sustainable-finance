@@ -2,9 +2,7 @@
 
 pragma solidity ^0.8.0;
 
-import {
-    ILifeCycleCashFlowStorageWrapper
-} from './ILifeCycleCashFlowStorageWrapper.sol';
+import { ILifeCycleCashFlowStorageWrapper } from "./ILifeCycleCashFlowStorageWrapper.sol";
 
 interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
     /*
@@ -17,12 +15,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionExecuted(
-        uint256 distributionID,
-        uint256 pageIndex,
-        uint256 pageLength,
-        PaymentResult result
-    );
+    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult result);
 
     /*
      * @dev Emitted when a distribution by addresses is executed
@@ -33,11 +26,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionByAddressesExecuted(
-        uint256 distributionID,
-        address[] holders,
-        PaymentResult result
-    );
+    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult result);
 
     /*
      * @dev Emitted when a redemption by page is executed
@@ -48,11 +37,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionExecuted(
-        uint256 pageIndex,
-        uint256 pageLength,
-        PaymentResult result
-    );
+    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult result);
 
     /*
      * @dev Emitted when a redemption by addresses is executed
@@ -62,10 +47,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionByAddressesExecuted(
-        address[] holders,
-        PaymentResult result
-    );
+    event RedemptionByAddressesExecuted(address[] holders, PaymentResult result);
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase

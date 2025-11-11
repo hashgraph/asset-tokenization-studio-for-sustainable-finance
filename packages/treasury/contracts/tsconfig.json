@@ -15,17 +15,15 @@
     "resolveJsonModule": true,
     "paths": {
       "@configuration": ["./Configuration"],
-      "@contracts": ["./typechain-types/index.ts"],
-      "@contracts/*": ["./typechain-types/*"],
+      "@contract-types": ["./typechain-types/index.ts"],
+      "@contract-types/*": ["./typechain-types/*"],
       "@scripts": ["./scripts/index.ts"],
       "@scripts/*": ["./scripts/*"],
       "@scripts/domain": ["./scripts/domain/index.ts"],
       "@scripts/domain/*": ["./scripts/domain/*"],
-      "@test/*": ["./test/*"],
-      "@typechain": ["./typechain-types/*", "./typechain-types/index.ts"]
+      "@tasks": ["./tasks/index.ts"],
+      "@tasks/*": ["./tasks/*"],
+      "@test/*": ["./test/*"]
     }
   }
 }
-
-
-

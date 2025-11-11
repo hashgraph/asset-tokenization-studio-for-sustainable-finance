@@ -2,31 +2,22 @@
 
 pragma solidity ^0.8.0;
 
-import {
-    IEnvironmentalAssetFactory
-} from '../interfaces/IEnvironmentalAssetFactory.sol';
+import { IEnvironmentalAssetFactory } from "../interfaces/IEnvironmentalAssetFactory.sol";
 import {
     HederaTokenService,
     HederaResponseCodes
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import {
     IHederaTokenService
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
-import '@openzeppelin/contracts/utils/Strings.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import {
     ExpiryHelper
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol';
-import {
-    KeyHelper
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol";
+import { KeyHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol";
 
-contract EnvironmentalAssetFactory is
-    IEnvironmentalAssetFactory,
-    ExpiryHelper,
-    KeyHelper,
-    HederaTokenService
-{
-    bytes private constant DEFAULT_METADATA = hex'01';
+contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, KeyHelper, HederaTokenService {
+    bytes private constant DEFAULT_METADATA = hex"01";
 
     /**
      * @dev Create an environmental asset
@@ -48,15 +39,14 @@ contract EnvironmentalAssetFactory is
         tokenData.tokenSupplyType = false;
         tokenData.maxSupply = 0;
         tokenData.freezeDefault = false;
-        IHederaTokenService.TokenKey[]
-            memory keys = new IHederaTokenService.TokenKey[](1);
+        IHederaTokenService.TokenKey[] memory keys = new IHederaTokenService.TokenKey[](1);
         keys[0] = IHederaTokenService.TokenKey({
             keyType: 16,
             key: IHederaTokenService.KeyValue({
                 inheritAccountKey: false,
                 contractId: address(this),
-                ed25519: bytes(''),
-                ECDSA_secp256k1: bytes(''),
+                ed25519: bytes(""),
+                ECDSA_secp256k1: bytes(""),
                 delegatableContractId: address(0)
             })
         });
@@ -84,18 +74,10 @@ contract EnvironmentalAssetFactory is
      * @param to The address of the environmental asset token destination
      * @param serialNumber The serial number of the environmental asset token to be transferred
      */
-    function transferEnvironmentalAssetToken(
-        address token,
-        address to,
-        int64 serialNumber
-    ) external {
+    function transferEnvironmentalAssetToken(address token, address to, int64 serialNumber) external {
         int responseCode = transferNFT(token, address(this), to, serialNumber);
         if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert EnvironmentalAssetTokenTransferError(
-                token,
-                to,
-                serialNumber
-            );
+            revert EnvironmentalAssetTokenTransferError(token, to, serialNumber);
         }
     }
 
@@ -108,11 +90,7 @@ contract EnvironmentalAssetFactory is
     function mintNFT(address token, bytes memory metadata) private {
         bytes[] memory arr = new bytes[](1);
         arr[0] = metadata;
-        (int responseCode, , int64[] memory serialNumbers) = mintToken(
-            token,
-            0,
-            arr
-        );
+        (int responseCode, , int64[] memory serialNumbers) = mintToken(token, 0, arr);
         if (responseCode == HederaResponseCodes.SUCCESS) {
             emit NFTMinted(serialNumbers[0]);
         }

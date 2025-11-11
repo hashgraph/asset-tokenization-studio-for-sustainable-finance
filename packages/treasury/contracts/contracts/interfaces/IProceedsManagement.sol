@@ -18,11 +18,7 @@ interface IProceedsManagement {
      * @param to The address the payment tokens were transferred to
      * @param tokenId The tokenId of the environmental asset token
      */
-    event EnvironmentalAssetTokenTransferred(
-        address environmentalAsset,
-        address to,
-        uint256 tokenId
-    );
+    event EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId);
 
     /*
      * @dev Emitted when a proceeds recipient was funded with an amount
@@ -47,11 +43,7 @@ interface IProceedsManagement {
      * @param to The address the environmental asset token is transferred to
      * @param tokenId The tokenId of the environmental asset token
      */
-    function transferEnvironmentalAssetToken(
-        address environmentalAsset,
-        address to,
-        uint256 tokenId
-    ) external;
+    function transferEnvironmentalAssetToken(address environmentalAsset, address to, uint256 tokenId) external;
 
     /*
      * @dev Funds a proceeds recipient with an amount of tokens
@@ -59,8 +51,5 @@ interface IProceedsManagement {
      * @param recipient The address of the proceeds recipient that is funded
      * @param token The amount the proceeds recipient is funded with
      */
-    function fundProceedsRecipient(
-        address proceedsRecipient,
-        uint256 amount
-    ) external;
+    function fundProceedsRecipient(address proceedsRecipient, uint256 amount) external;
 }

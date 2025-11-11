@@ -2,7 +2,7 @@ import type { Signer } from "ethers";
 import {
   deployProxyAdmin,
   deployBlr,
-  deployWithExistingBlr,
+  deploySystemWithExistingBlr,
   info,
   success,
   error as logError,
@@ -120,7 +120,7 @@ export async function deployGbpInfrastructure(
     info("  - Create BOND configuration (config ID: 2)");
     info("  - Deploy ATS Factory");
 
-    const bondResult = await deployWithExistingBlr(signer, network, blrAddress, {
+    const bondResult = await deploySystemWithExistingBlr(signer, network, blrAddress, {
       existingProxyAdminAddress: proxyAdminAddress,
       deployFacets: true,
       createConfigurations: true,
