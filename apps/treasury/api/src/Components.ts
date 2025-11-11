@@ -21,6 +21,7 @@ import { CheckEnvironmentalAssetNotExistsDomainService } from "@domain/environme
 import { CheckEnvironmentalAssetTokenExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenExistsDomainService"
 import { CheckEnvironmentalAssetTokenNotExistsDomainService } from "@domain/environmentalasset/services/CheckEnvironmentalAssetTokenNotExistsDomainService"
 import { CheckPaymentTokenExistsDomainService } from "@domain/paymenttoken/services/CheckPaymentTokenExistsDomainService"
+import { CheckUserRoleExistsDomainService } from "@domain/userrole/services/CheckUserRoleExistsDomainService"
 import { AddPaymentTokenDomainService } from "@domain/paymenttoken/services/AddPaymentTokenDomainService"
 import { AddEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/AddEnvironmentalAssetDomainService"
 import { RemoveEnvironmentalAssetDomainService } from "@domain/environmentalasset/services/RemoveEnvironmentalAssetDomainService"
@@ -143,6 +144,10 @@ import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revo
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/treasury/usecase/getuserroles/GetUserRolesHttpAdapter"
 import { GetRoleMembersHttpAdapter } from "@port/treasury/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/role/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { GrantRoleCommandHandler } from "@app/role/grantrole/command/GrantRoleCommandHandler"
+import { RevokeRoleCommandHandler } from "@app/role/revokerole/command/RevokeRoleCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -240,7 +245,7 @@ export const CONTROLLERS = [
   RevokeRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
   GetUserRolesHttpAdapter,
-  GetRoleMembersHttpAdapter
+  GetRoleMembersHttpAdapter,
 ]
 
 export const PROVIDERS = [
@@ -257,6 +262,7 @@ export const PROVIDERS = [
   CheckEnvironmentalAssetTokenExistsDomainService,
   CheckEnvironmentalAssetTokenNotExistsDomainService,
   CheckPaymentTokenExistsDomainService,
+  CheckUserRoleExistsDomainService,
   AddPaymentTokenDomainService,
   AddEnvironmentalAssetDomainService,
   RemoveEnvironmentalAssetDomainService,
@@ -336,4 +342,8 @@ export const PROVIDERS = [
     useClass: TypeOrmTransactionManager,
   },
   CreateTreasuryFiltersNestJSEventAdapter,
+  GrantRoleNestJSEventAdapter,
+  GrantRoleCommandHandler,
+  RevokeRoleNestJSEventAdapter,
+  RevokeRoleCommandHandler,
 ]
