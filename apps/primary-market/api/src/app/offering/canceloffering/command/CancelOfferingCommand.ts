@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumberString, IsArray } from "class-validator"
+import { IsNotEmpty, IsString, IsArray, IsNumber } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CancelOfferingCommand extends Command<void> {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
@@ -16,25 +16,25 @@ export class CancelOfferingCommand extends Command<void> {
   operatorAccountId: string
 
   @IsArray()
-  @IsNumberString({}, { each: true })
-  subscriptionDltIdsSuccess: string[]
+  @IsNumber({}, { each: true })
+  subscriptionIdsSuccess: number[]
 
   @IsArray()
-  @IsNumberString({}, { each: true })
-  subscriptionDltIdsFailed: string[]
+  @IsNumber({}, { each: true })
+  subscriptionIdsFailed: number[]
 
   constructor(
-    offeringDltId: string,
+    offeringId: number,
     marketContractId: string,
     operatorAccountId: string,
-    subscriptionDltIdsSuccess: string[],
-    subscriptionDltIdsFailed: string[],
+    subscriptionIdsSuccess: number[],
+    subscriptionIdsFailed: number[],
   ) {
     super()
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
     this.marketContractId = marketContractId
     this.operatorAccountId = operatorAccountId
-    this.subscriptionDltIdsSuccess = subscriptionDltIdsSuccess
-    this.subscriptionDltIdsFailed = subscriptionDltIdsFailed
+    this.subscriptionIdsSuccess = subscriptionIdsSuccess
+    this.subscriptionIdsFailed = subscriptionIdsFailed
   }
 }

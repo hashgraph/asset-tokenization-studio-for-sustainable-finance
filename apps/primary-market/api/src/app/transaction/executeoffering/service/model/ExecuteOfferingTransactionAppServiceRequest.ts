@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsNumber, IsNumberString } from "class-validator"
 
 export class ExecuteOfferingTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  readonly offeringDltId: string
+  readonly offeringId: number
 
   @IsNotEmpty()
   @IsNumberString()
@@ -16,16 +16,9 @@ export class ExecuteOfferingTransactionAppServiceRequest extends BaseTransaction
   @IsNumberString()
   readonly end: string
 
-  constructor(
-    format: string,
-    accountId: string,
-    contractId: string,
-    offeringDltId: string,
-    start: string,
-    end: string,
-  ) {
+  constructor(format: string, accountId: string, contractId: string, offeringId: number, start: string, end: string) {
     super(format, accountId, contractId)
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
     this.start = start
     this.end = end
   }

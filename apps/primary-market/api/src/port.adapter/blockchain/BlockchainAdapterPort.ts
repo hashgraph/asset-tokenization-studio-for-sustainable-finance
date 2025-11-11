@@ -3,5 +3,5 @@
 import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
 
 export interface BlockchainAdapterPort {
-  getOfferingStatus(contractId: string, offeringDltId: string): Promise<OfferingStatus>
+  getOfferingStatus(contractId: string, offeringId: number): Promise<OfferingStatus>
 }

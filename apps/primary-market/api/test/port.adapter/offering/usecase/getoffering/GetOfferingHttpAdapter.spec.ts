@@ -50,7 +50,7 @@ describe("GetOffering API Integration", () => {
     await app.close()
   })
 
-  describe("GET /primary-markets/:marketContractId/offerings/:offeringDltId", () => {
+  describe("GET /primary-markets/:marketContractId/offerings/:offeringId", () => {
     it("should return offering with valid parameters", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",
@@ -58,8 +58,8 @@ describe("GetOffering API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -79,7 +79,7 @@ describe("GetOffering API Integration", () => {
         .expect(200)
 
       expect(response.body).toMatchObject({
-        offeringDltId: "1",
+        id: 1,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -104,8 +104,8 @@ describe("GetOffering API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.222",
@@ -124,7 +124,7 @@ describe("GetOffering API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/2`)
         .expect(200)
 
-      expect(response.body).toHaveProperty("offeringDltId")
+      expect(response.body).toHaveProperty("id")
       expect(response.body).toHaveProperty("bondContractId")
       expect(response.body).toHaveProperty("operatorAccountId")
       expect(response.body).toHaveProperty("treasuryContractId")
@@ -160,7 +160,7 @@ describe("GetOffering API Integration", () => {
         .expect(404)
 
       expect(response.body.message).toContain(
-        "Offering not found for offering dlt id: 999 and market contract id: 0.0.12345",
+        "Offering not found for offering id: 999 and market contract id: 0.0.12345",
       )
     })
 
@@ -176,8 +176,8 @@ describe("GetOffering API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: market2,
+        id: 1,
+        marketId: market2.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -196,9 +196,7 @@ describe("GetOffering API Integration", () => {
         .get(`/api/v1/primary-markets/0.0.12345/offerings/1`)
         .expect(404)
 
-      expect(response.body.message).toContain(
-        "Offering not found for offering dlt id: 1 and market contract id: 0.0.12345",
-      )
+      expect(response.body.message).toContain("Offering not found for offering id: 1 and market contract id: 0.0.12345")
     })
   })
 })

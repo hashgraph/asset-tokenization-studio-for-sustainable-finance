@@ -74,8 +74,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -91,9 +91,9 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
-        bondContractId: "0.0.111", // Same bond
+        id: 2,
+        marketId: market.id,
+        bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
@@ -115,12 +115,12 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
 
-      const offeringIds = response.body.items.map((item: any) => item.offeringDltId)
-      expect(offeringIds).toContain("1")
-      expect(offeringIds).toContain("2")
+      const offeringIds = response.body.items.map((item: any) => item.id)
+      expect(offeringIds).toContain(1)
+      expect(offeringIds).toContain(2)
 
       // Verify response structure
-      expect(response.body.items[0]).toHaveProperty("offeringDltId")
+      expect(response.body.items[0]).toHaveProperty("id")
       expect(response.body.items[0]).toHaveProperty("bondContractId")
       expect(response.body.items[0]).toHaveProperty("operatorAccountId")
       expect(response.body.items[0]).toHaveProperty("lotSize")
@@ -146,8 +146,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       // Create 5 offerings for the same bond
       for (let i = 1; i <= 5; i++) {
         await offeringRepository.save({
-          offeringDltId: String(i),
-          market,
+          id: i,
+          marketId: market.id,
           bondContractId: "0.0.111",
           operatorAccountId: "0.0.4660",
           treasuryContractId: "0.0.9999999",
@@ -183,8 +183,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
 
       // Create offerings for different bonds
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -200,8 +200,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.222", // Different bond
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -223,7 +223,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
 
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].bondContractId).toBe("0.0.111")
-      expect(response.body.items[0].offeringDltId).toBe("1")
+      expect(response.body.items[0].id).toBe(1)
     })
 
     it("should only return offerings from the specified primary market", async () => {
@@ -238,8 +238,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: market1,
+        id: 1,
+        marketId: market1.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -255,8 +255,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market: market2,
+        id: 2,
+        marketId: market2.id,
         bondContractId: "0.0.111", // Same bond but different market
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
@@ -277,7 +277,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].offeringDltId).toBe("1")
+      expect(response.body.items[0].id).toBe(1)
     })
   })
 })

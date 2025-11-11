@@ -42,18 +42,18 @@ describe("CancelSubscriptionTransaction API Integration", () => {
     }
   })
 
-  describe("DELETE /primary-markets/:marketContractId/offerings/:offeringDltId/subscriptions", () => {
+  describe("DELETE /primary-markets/:marketContractId/offerings/:offeringId/subscriptions", () => {
     it("should delete subscription transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = 1
       const cancelSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        subscriptionDltId: "1",
+        subscriptionId: 1,
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(200)
 
@@ -63,18 +63,18 @@ describe("CancelSubscriptionTransaction API Integration", () => {
 
     it("should handle different valid format values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = 1
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
         const cancelSubscriptionRequest = {
           format: format,
           accountId: "0.0.5466269",
-          subscriptionDltId: "1",
+          subscriptionId: 1,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(cancelSubscriptionRequest)
           .expect(200)
 
@@ -84,14 +84,14 @@ describe("CancelSubscriptionTransaction API Integration", () => {
 
     it("should delete subscription with ethereum format (accountId optional)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = 1
       const cancelSubscriptionRequest = {
         format: "ethereum",
-        subscriptionDltId: "1",
+        subscriptionId: 1,
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(200)
 
@@ -99,20 +99,20 @@ describe("CancelSubscriptionTransaction API Integration", () => {
       expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
 
-    it("should handle different valid subscriptionDltId values", async () => {
+    it("should handle different valid subscriptionIdValue values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
-      const subscriptionValues = ["1", "10", "100", "1000"]
+      const offeringId = 1
+      const subscriptionValues = [1, 10, 100, 1000]
 
-      for (const subscriptionDltId of subscriptionValues) {
+      for (const subscriptionIdValue of subscriptionValues) {
         const cancelSubscriptionRequest = {
           format: "hedera",
           accountId: "0.0.5466269",
-          subscriptionDltId: subscriptionDltId,
+          subscriptionId: subscriptionIdValue,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(cancelSubscriptionRequest)
           .expect(200)
 
@@ -122,78 +122,73 @@ describe("CancelSubscriptionTransaction API Integration", () => {
 
     it("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
-      const invalidRequests = [
-        {},
-        { format: "hedera" },
-        { subscriptionDltId: "10" },
-        { format: "hedera", accountId: "0.0.12345" },
-      ]
+      const offeringId = 1
+      const invalidRequests = [{}, { format: "hedera" }, { id: 10 }, { format: "hedera", accountId: "0.0.12345" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(invalidRequest)
           .expect(400)
       }
     })
 
-    it("should reject invalid subscriptionDltId (non-numeric string)", async () => {
+    it("should reject invalid subscriptionIdValue (non-numeric string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = 1
       const cancelSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.12345",
-        subscriptionDltId: "not-a-number",
+        id: "not-a-number",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(400)
     })
 
-    it("should reject invalid subscriptionDltId (empty string)", async () => {
+    it("should reject invalid subscriptionIdValue (empty string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = 1
       const cancelSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.12345",
-        subscriptionDltId: "",
+        id: "",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(400)
     })
 
     it("should reject invalid format value", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const cancelSubscriptionRequest = {
         format: "invalid-format",
         accountId: "0.0.12345",
-        subscriptionDltId: "10",
+        id: 10,
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(400)
     })
 
-    it("should handle large subscriptionDltId values", async () => {
+    it("should handle large subscriptionIdValue values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const cancelSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        subscriptionDltId: "999999999",
+        subscriptionId: 999999999,
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(cancelSubscriptionRequest)
         .expect(200)
 

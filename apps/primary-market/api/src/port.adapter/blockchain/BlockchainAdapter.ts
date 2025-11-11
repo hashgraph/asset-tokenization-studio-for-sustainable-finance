@@ -12,11 +12,11 @@ export class BlockchainAdapter implements BlockchainAdapterPort {
 
   constructor(private readonly configService: ConfigService) {}
 
-  async getOfferingStatus(contractId: string, offeringDltId: string): Promise<OfferingStatus> {
+  async getOfferingStatus(contractId: string, offeringId: number): Promise<OfferingStatus> {
     const environment = this.getEnvironment()
     const evmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(contractId)
 
-    const status = await this.getOfferingStatusFromContract(evmAddress, offeringDltId, environment)
+    const status = await this.getOfferingStatusFromContract(evmAddress, offeringId, environment)
 
     return status
   }
@@ -30,13 +30,13 @@ export class BlockchainAdapter implements BlockchainAdapterPort {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     contractAddress: string,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    offeringDltId: string,
+    offeringId: number,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     environment: Environment,
   ): Promise<OfferingStatus> {
     // TODO: Replace with actual factory when available
     // const numericStatus = await IPrimaryMarket__factory.connect(contractAddress, getEthereumProvider(environment)).getOfferingStatus(
-    //   offeringDltId,
+    //   offeringId,
     // )
     // return numericStatusToOfferingStatus(numericStatus)
 

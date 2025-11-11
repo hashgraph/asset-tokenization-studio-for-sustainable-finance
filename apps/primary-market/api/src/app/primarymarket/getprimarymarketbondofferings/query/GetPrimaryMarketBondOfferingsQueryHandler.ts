@@ -43,10 +43,10 @@ export class GetPrimaryMarketBondOfferingsQueryHandler
 
     const items = await Promise.all(
       offeringsPage.items.map(async (offering: Offering) => {
-        const status = await this.blockchainAdapter.getOfferingStatus(market.contractId, offering.offeringDltId)
+        const status = await this.blockchainAdapter.getOfferingStatus(market.contractId, offering.id)
 
         return {
-          offeringDltId: offering.offeringDltId,
+          id: offering.id,
           bondContractId: offering.bondContractId,
           operatorAccountId: offering.operatorAccountId,
           treasuryContractId: offering.treasuryContractId,

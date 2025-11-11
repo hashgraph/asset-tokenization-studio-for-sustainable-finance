@@ -10,7 +10,6 @@ import { DataSource, Repository } from "typeorm"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
-import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingCancelledDLTEvent } from "@port/offering/usecase/canceloffering/model/OfferingCancelledDLTEvent"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
@@ -22,7 +21,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
   let offeringRepository: Repository<OfferingPersistence>
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let subscriptionRepository: Repository<SubscriptionPersistence>
-  let investorRepository: Repository<InvestorPersistence>
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -41,7 +39,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     subscriptionRepository = app.get(getRepositoryToken(SubscriptionPersistence))
-    investorRepository = app.get(getRepositoryToken(InvestorPersistence))
   })
 
   afterAll(async () => {
@@ -52,7 +49,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
     const dataSource = app.get(DataSource)
     await dataSource.createQueryBuilder().delete().from("Subscription").execute()
     await dataSource.createQueryBuilder().delete().from("Offering").execute()
-    await dataSource.createQueryBuilder().delete().from("Investor").execute()
     await dataSource.createQueryBuilder().delete().from("PrimaryMarket").execute()
     await app.close()
   })
@@ -64,8 +60,8 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
-        market: primaryMarket,
+        id: 1,
+        marketId: primaryMarket.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -80,38 +76,29 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         deadlineRule: 0,
       })
 
-      const investor1 = await investorRepository.save({
-        accountId: "0.0.1111",
-      })
-
-      const investor2 = await investorRepository.save({
-        accountId: "0.0.2222",
-      })
-
-      const investor3 = await investorRepository.save({
-        accountId: "0.0.3333",
-      })
-
       await subscriptionRepository.save({
-        subscriptionDltId: "1",
-        offering: offering,
-        investor: investor1,
+        id: 1,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "1000",
         status: SubscriptionStatus.SUBMITTED,
       })
 
       await subscriptionRepository.save({
-        subscriptionDltId: "2",
-        offering: offering,
-        investor: investor2,
+        id: 2,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "2000",
         status: SubscriptionStatus.SUBMITTED,
       })
 
       await subscriptionRepository.save({
-        subscriptionDltId: "3",
-        offering: offering,
-        investor: investor3,
+        id: 3,
+        offeringId: offering.id,
+        marketId: offering.marketId,
+        investorAccountId: "0.0.1111",
         lotUnits: "500",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -119,17 +106,17 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCancelledDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        "1",
+        1,
         "0x0000000000000000000000000000000000001234",
-        ["1", "2"],
-        ["3"],
+        [1, 2],
+        [3],
       )
 
       await eventBus.publishSync(event, OfferingCancelledDLTEvent.name)
 
-      const subscription1 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "1" } })
-      const subscription2 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "2" } })
-      const subscription3 = await subscriptionRepository.findOne({ where: { subscriptionDltId: "3" } })
+      const subscription1 = await subscriptionRepository.findOne({ where: { id: 1 } })
+      const subscription2 = await subscriptionRepository.findOne({ where: { id: 2 } })
+      const subscription3 = await subscriptionRepository.findOne({ where: { id: 3 } })
 
       expect(subscription1!.status).toBe(SubscriptionStatus.CANCELLED)
       expect(subscription2!.status).toBe(SubscriptionStatus.CANCELLED)
@@ -144,7 +131,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCancelledDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        "999",
+        999,
         "0x0000000000000000000000000000000000001234",
         [],
         [],
@@ -159,8 +146,8 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: primaryMarket,
+        id: 1,
+        marketId: primaryMarket.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -178,9 +165,9 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCancelledDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        "1",
+        1,
         "0x0000000000000000000000000000000000001234",
-        ["999"],
+        [999],
         [],
       )
 
@@ -193,8 +180,8 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: primaryMarket,
+        id: 1,
+        marketId: primaryMarket.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -212,7 +199,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCancelledDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        "1",
+        1,
         "0x0000000000000000000000000000000000009999",
         [],
         [],
@@ -227,8 +214,8 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: primaryMarket,
+        id: 1,
+        marketId: primaryMarket.id,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
@@ -246,7 +233,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCancelledDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        "1",
+        1,
         "0x0000000000000000000000000000000000001234",
         [],
         [],

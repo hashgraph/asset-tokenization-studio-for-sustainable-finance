@@ -3,9 +3,9 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-va
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CreateOfferingCommand extends Command<void> {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
@@ -60,7 +60,7 @@ export class CreateOfferingCommand extends Command<void> {
   deadlineRule: number
 
   constructor(
-    offeringDltId: string,
+    offeringId: number,
     marketContractId: string,
     bondContractId: string,
     operatorAccountId: string,
@@ -76,7 +76,7 @@ export class CreateOfferingCommand extends Command<void> {
     deadlineRule: number,
   ) {
     super()
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
     this.marketContractId = marketContractId
     this.bondContractId = bondContractId
     this.operatorAccountId = operatorAccountId

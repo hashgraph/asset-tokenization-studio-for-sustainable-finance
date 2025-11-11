@@ -2,9 +2,9 @@
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-validator"
 
 export class CreateOfferingDomainServiceRequest {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()

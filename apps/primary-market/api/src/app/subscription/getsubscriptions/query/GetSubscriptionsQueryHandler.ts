@@ -28,20 +28,21 @@ export class GetSubscriptionsQueryHandler
 
   @Validate()
   async execute(query: GetSubscriptionsQuery): Promise<QueryPageResponse<SubscriptionQueryResponse>> {
-    const { marketContractId, offeringDltId, pageOptions } = query
+    const { marketContractId, offeringId, pageOptions } = query
 
     const market = await this.checkPrimaryMarketExistsDomainService.execute(marketContractId)
-    const offering = await this.checkOfferingExistsDomainService.execute(offeringDltId, market)
+    const offering = await this.checkOfferingExistsDomainService.execute(offeringId, market)
 
-    const subscriptionsPage = await this.subscriptionRepository.findByOfferingId(
+    const subscriptionsPage = await this.subscriptionRepository.findByOfferingIdAndMarketId(
       offering.id,
+      market.id,
       pageOptions.toPageOptions(),
     )
 
     return QueryPageResponse.fromPage(subscriptionsPage, (subscription: Subscription) => ({
-      subscriptionDltId: subscription.subscriptionDltId,
-      offeringDltId: subscription.offering.offeringDltId,
-      investorAccountId: subscription.investor.accountId,
+      id: subscription.id,
+      offeringId: subscription.offeringId,
+      investorAccountId: subscription.investorAccountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
       createdAt: subscription.createdAt,

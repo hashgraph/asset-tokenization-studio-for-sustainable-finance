@@ -6,7 +6,7 @@ import { SubscriptionResponse } from "../../shared/model/SubscriptionResponse"
 export interface GetSubscriptionsPort {
   getSubscriptions(
     marketContractId: string,
-    offeringDltId: string,
+    offeringId: number,
     queryPageRequest: QueryPageRequest,
   ): Promise<PageResponse<SubscriptionResponse>>
 }

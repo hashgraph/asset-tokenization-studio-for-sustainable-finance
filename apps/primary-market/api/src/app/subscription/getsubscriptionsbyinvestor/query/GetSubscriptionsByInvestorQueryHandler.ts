@@ -11,38 +11,28 @@ import {
 import { GetSubscriptionsByInvestorQuery } from "./GetSubscriptionsByInvestorQuery"
 import { SubscriptionQueryResponse } from "../../shared/model/SubscriptionQueryResponse"
 import type { SubscriptionRepository } from "@domain/subscription/repositories/SubscriptionRepository"
-import type { InvestorRepository } from "@domain/investor/repositories/InvestorRepository"
 import { Subscription } from "@domain/subscription/model/Subscription"
-import { InvestorNotFoundError } from "@domain/investor/errors/InvestorNotFoundError"
 
 @Singleton()
 @Handler(GetSubscriptionsByInvestorQuery)
 export class GetSubscriptionsByInvestorQueryHandler
   implements QueryHandler<GetSubscriptionsByInvestorQuery, QueryPageResponse<SubscriptionQueryResponse>>
 {
-  constructor(
-    @Inject() private readonly subscriptionRepository: SubscriptionRepository,
-    @Inject() private readonly investorRepository: InvestorRepository,
-  ) {}
+  constructor(@Inject() private readonly subscriptionRepository: SubscriptionRepository) {}
 
   @Validate()
   async execute(query: GetSubscriptionsByInvestorQuery): Promise<QueryPageResponse<SubscriptionQueryResponse>> {
     const { investorAccountId, pageOptions } = query
 
-    const investor = await this.investorRepository.findByAccountId(investorAccountId)
-    if (!investor) {
-      throw InvestorNotFoundError.accountIdError(investorAccountId)
-    }
-
-    const subscriptionsPage = await this.subscriptionRepository.findByInvestorId(
-      investor.id,
+    const subscriptionsPage = await this.subscriptionRepository.findByInvestorAccountId(
+      investorAccountId,
       pageOptions.toPageOptions(),
     )
 
     return QueryPageResponse.fromPage(subscriptionsPage, (subscription: Subscription) => ({
-      subscriptionDltId: subscription.subscriptionDltId,
-      offeringDltId: subscription.offering.offeringDltId,
-      investorAccountId: subscription.investor.accountId,
+      id: subscription.id,
+      offeringId: subscription.offeringId,
+      investorAccountId: subscription.investorAccountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
       createdAt: subscription.createdAt,

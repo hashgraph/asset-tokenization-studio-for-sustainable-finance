@@ -42,10 +42,10 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
     }
   })
 
-  describe("POST /primary-markets/:marketContractId/offerings/:offeringDltId/subscriptions", () => {
+  describe("POST /primary-markets/:marketContractId/offerings/:offeringId/subscriptions", () => {
     it("should submit subscription transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -53,7 +53,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(201)
 
@@ -63,7 +63,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should handle different valid format values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
@@ -74,7 +74,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(submitSubscriptionRequest)
           .expect(201)
 
@@ -84,14 +84,14 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should submit subscription with ethereum format (accountId optional)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "ethereum",
         lotUnits: "3",
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(201)
 
@@ -101,7 +101,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should handle different valid lotUnits values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const lotUnitsValues = ["1", "10", "100", "1000"]
 
       for (const lotUnits of lotUnitsValues) {
@@ -112,7 +112,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(submitSubscriptionRequest)
           .expect(201)
 
@@ -122,7 +122,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const invalidRequests = [
         {},
         { format: "hedera" },
@@ -132,7 +132,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -140,7 +140,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should reject invalid lotUnits (non-numeric string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.12345",
@@ -148,14 +148,14 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(400)
     })
 
     it("should accept negative lotUnits (validation allows numeric strings)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.12345",
@@ -163,7 +163,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(201)
 
@@ -173,7 +173,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
 
     it("should reject invalid lotUnits (empty string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.12345",
@@ -181,14 +181,14 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(400)
     })
 
     it("should reject invalid format value", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "invalid-format",
         accountId: "0.0.12345",
@@ -196,14 +196,14 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(400)
     })
 
     it("should handle large lotUnits values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "550e8400-e29b-41d4-a716-446655440000"
+      const offeringId = 1
       const submitSubscriptionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -211,7 +211,7 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}/subscriptions`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
         .send(submitSubscriptionRequest)
         .expect(201)
 

@@ -3,7 +3,7 @@
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingCreatedDLTEvent extends DLTEvent {
-  readonly offeringId: string
+  readonly offeringId: number
   readonly operator: string
   readonly asset: string
   readonly treasury: string
@@ -20,7 +20,7 @@ export class OfferingCreatedDLTEvent extends DLTEvent {
   constructor(
     contractId: string,
     transactionHash: string,
-    offeringId: string,
+    offeringId: number,
     operator: string,
     asset: string,
     treasury: string,

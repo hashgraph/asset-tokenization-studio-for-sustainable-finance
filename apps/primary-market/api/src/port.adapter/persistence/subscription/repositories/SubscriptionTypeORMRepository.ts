@@ -22,16 +22,18 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return this.toDomain(saved)
   }
 
-  async findBySubscriptionDltIdAndOfferingId(
-    subscriptionDltId: string,
-    offeringId: string,
+  async findBySubscriptionIdAndOfferingIdAndMarketId(
+    subscriptionId: number,
+    offeringId: number,
+    marketId: string,
   ): Promise<Subscription | null> {
     const persistence = await this.repository.findOne({
       where: {
-        subscriptionDltId,
-        offering: { id: offeringId },
+        id: subscriptionId,
+        offeringId,
+        marketId,
       },
-      relations: ["offering", "offering.market", "investor"],
+      relations: ["offering", "offering.market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
@@ -57,20 +59,25 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByOfferingId(offeringId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
+  async findByOfferingIdAndMarketId(
+    offeringId: number,
+    marketId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        offering: { id: offeringId },
+        offeringId,
+        marketId,
       },
-      relations: ["offering", "offering.market", "investor"],
+      relations: ["offering", "offering.market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,
     })
 
-    const items = persistences.map((p) => p as unknown as Subscription)
+    const items = persistences.map((p) => this.toDomain(p))
 
     return {
       items,
@@ -81,22 +88,20 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     }
   }
 
-  async findByInvestorId(investorId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
+  async findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        investor: {
-          id: investorId,
-        },
+        investorAccountId,
       },
-      relations: ["offering", "offering.market", "investor"],
+      relations: ["offering", "offering.market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,
     })
 
-    const items = persistences.map((p) => p as unknown as Subscription)
+    const items = persistences.map((p) => this.toDomain(p))
 
     return {
       items,

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsNumber } from "class-validator"
 
 export class CancelSubscriptionTransactionRequest extends BaseTransactionRequest {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  subscriptionDltId: string
+  subscriptionId: number
 }

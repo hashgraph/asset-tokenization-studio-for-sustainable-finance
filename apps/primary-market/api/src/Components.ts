@@ -16,7 +16,6 @@ import { OfferingTypeORMRepository } from "@port/persistence/offering/repositori
 import { RoleTypeORMRepository } from "@port/persistence/role/repositories/RoleTypeORMRepository"
 import { UserTypeORMRepository } from "@port/persistence/user/repositories/UserTypeORMRepository"
 import { UserMarketRoleTypeORMRepository } from "@port/persistence/usermarketrole/repositories/UserMarketRoleTypeORMRepository"
-import { InvestorTypeORMRepository } from "@port/persistence/investor/repositories/InvestorTypeORMRepository"
 import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
 import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
@@ -44,7 +43,6 @@ import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/
 import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
 import { UserPersistence } from "@port/persistence/user/model/UserPersistence"
 import { UserMarketRolePersistence } from "@port/persistence/usermarketrole/model/UserMarketRolePersistence"
-import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { DatabaseSeederService } from "@config/DatabaseSeederService"
 import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffering/service/CancelOfferingTransactionAppService"
@@ -95,10 +93,6 @@ const REPOSITORIES: Provider[] = [
   {
     provide: "UserMarketRoleRepository",
     useClass: UserMarketRoleTypeORMRepository,
-  },
-  {
-    provide: "InvestorRepository",
-    useClass: InvestorTypeORMRepository,
   },
   {
     provide: "SubscriptionRepository",
@@ -183,6 +177,5 @@ export const ENTITIES = [
   RolePersistence,
   UserPersistence,
   UserMarketRolePersistence,
-  InvestorPersistence,
   SubscriptionPersistence,
 ]

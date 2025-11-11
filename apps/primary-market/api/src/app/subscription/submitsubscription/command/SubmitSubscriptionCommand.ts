@@ -1,40 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsString, IsNumberString, IsNumber } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class SubmitSubscriptionCommand extends Command<void> {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
   marketContractId: string
 
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  subscriptionDltId: string
+  subscriptionId: number
 
   @IsNotEmpty()
   @IsString()
-  investorId: string
+  investorAccountId: string
 
   @IsNotEmpty()
   @IsNumberString()
   lotUnits: string
 
   constructor(
-    offeringDltId: string,
+    offeringId: number,
     marketContractId: string,
-    subscriptionDltId: string,
-    investorId: string,
+    subscriptionId: number,
+    investorAccountId: string,
     lotUnits: string,
   ) {
     super()
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
     this.marketContractId = marketContractId
-    this.subscriptionDltId = subscriptionDltId
-    this.investorId = investorId
+    this.subscriptionId = subscriptionId
+    this.investorAccountId = investorAccountId
     this.lotUnits = lotUnits
   }
 }

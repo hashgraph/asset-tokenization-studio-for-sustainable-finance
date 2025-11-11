@@ -3,13 +3,13 @@
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class SubscriptionNotFoundError extends EntityNotFoundError {
-  static subscriptionDltIdOfferingDltIdAndMarketContractIdError(
-    subscriptionDltId: string,
-    offeringDltId: string,
+  static subscriptionIdOfferingIdAndMarketContractIdError(
+    subscriptionId: number,
+    offeringId: number,
     marketContractId: string,
   ): SubscriptionNotFoundError {
     return new SubscriptionNotFoundError(
-      `Subscription with subscriptionDltId ${subscriptionDltId}, offeringDltId ${offeringDltId} and marketContractId ${marketContractId} not found.`,
+      `Subscription with subscriptionId ${subscriptionId}, offeringId ${offeringId} and marketContractId ${marketContractId} not found.`,
     )
   }
 
