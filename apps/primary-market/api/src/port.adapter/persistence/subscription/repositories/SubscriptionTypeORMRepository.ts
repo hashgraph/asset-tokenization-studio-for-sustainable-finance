@@ -32,7 +32,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
         offeringId,
         marketId,
       },
-      relations: ["offering", "offering.market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
@@ -50,7 +49,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
         offeringId,
         marketId,
       },
-      relations: ["offering", "offering.market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,
@@ -74,7 +72,6 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
       where: {
         investorAccountId,
       },
-      relations: ["offering", "offering.market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,

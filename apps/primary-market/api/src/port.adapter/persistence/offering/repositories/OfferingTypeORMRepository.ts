@@ -27,7 +27,6 @@ export class OfferingTypeORMRepository implements OfferingRepository {
         id: offeringId,
         marketId: marketId,
       },
-      relations: ["market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
@@ -73,7 +72,6 @@ export class OfferingTypeORMRepository implements OfferingRepository {
         marketId: marketId,
         bondContractId,
       },
-      relations: ["market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,
