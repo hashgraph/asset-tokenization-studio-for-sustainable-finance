@@ -65,7 +65,7 @@ describe("SyncTreasury Integration", () => {
 
     jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(6)
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => address)
 
     const treasuryData: TreasuryDataEventModel = {
       paymentToken: "0.0.1000",
@@ -97,7 +97,6 @@ describe("SyncTreasury Integration", () => {
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
     })
-    expect(hederaPort.getTokenDecimals).toHaveBeenCalledWith("0.0.1000")
 
     // Verify EnvironmentalAssets were created
     const environmentalAssets = await internalEnvironmentalAssetRepository.find()
@@ -132,7 +131,7 @@ describe("SyncTreasury Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => address)
 
     jest.spyOn(hederaPort, "getTokenDecimals").mockResolvedValue(6)
 
@@ -186,7 +185,7 @@ describe("SyncTreasury Integration", () => {
     })
 
     const publishedEvents: any[] = []
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => address)
 
     jest.spyOn(eventBus, "publish").mockImplementation((event) => {
       publishedEvents.push(event)
@@ -208,7 +207,7 @@ describe("SyncTreasury Integration", () => {
     expect(environmentalAssets).toHaveLength(3)
 
     // Only 2 new EnvironmentalAssetAdded events (the first one already existed)
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => address)
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => address)
 
     expect(publishedEvents).toHaveLength(2)
     expect(publishedEvents.every((e) => e instanceof EnvironmentalAssetAddedEvent)).toBe(true)

@@ -19,6 +19,21 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@command/*": ["src/command/*"],
+      "@config/*": ["src/config/*"],
+      "@decorators/*": ["src/decorators/*"],
+      "@domain/*": ["src/domain/*"],
+      "@errors/*": ["src/errors/*"],
+      "@event/*": ["src/event/*"],
+      "@logger/*": ["src/logger/*"],
+      "@pagination/*": ["src/pagination/*"],
+      "@persistence/*": ["src/persistence/*"],
+      "@query/*": ["src/query/*"],
+      "@retry/*": ["src/retry/*"],
+      "@transaction/*": ["src/transaction/*"],
+      "@utils/*": ["src/utils/*"]
+    }
   }
 }

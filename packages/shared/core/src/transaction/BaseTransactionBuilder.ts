@@ -5,9 +5,15 @@ import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment
 import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
-import { ConverterUtils } from "../utils/ConverterUtils"
+import { ConverterUtils } from "@utils/ConverterUtils"
+import { BuildGrantRoleTransactionRequest } from "@transaction/model/BuildGrantRoleTransactionRequest"
+import { BuildTransactionResponse } from "@transaction/model/BuildTransactionResponse"
+import { IAccessControl__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
+import { BaseTransactionBuilderPort } from "@transaction/BaseTransactionBuilderPort"
 
-export abstract class BaseTransactionBuilder {
+export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPort {
+  protected readonly GAS = 15_000_000
+
   private readonly formatSerializers: Record<
     TransactionFormat,
     (context: {
@@ -23,6 +29,32 @@ export abstract class BaseTransactionBuilder {
     ethereum: ({ tx, environment, contractEvmAddress }) => {
       return this.serializeEvmTransaction(tx, environment, contractEvmAddress)
     },
+  }
+
+  async grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IAccessControl__factory.createInterface(),
+      functionName: "grantRole" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.roleId, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+    } as any)
+  }
+
+  async revokeRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IAccessControl__factory.createInterface(),
+      functionName: "revokeRole" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.roleId, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+    } as any)
   }
 
   protected async buildAndSerializeTransaction<
@@ -81,6 +113,10 @@ export abstract class BaseTransactionBuilder {
     } catch (error) {
       throw new Error(`Failed to serialize Hedera transaction: ${(error as Error).message}`)
     }
+  }
+
+  protected getEnvironment(): Environment {
+    return <Environment>process.env.HEDERA_NETWORK || "testnet"
   }
 
   private serializeEvmTransaction(

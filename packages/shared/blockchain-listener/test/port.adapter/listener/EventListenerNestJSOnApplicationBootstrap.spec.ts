@@ -9,7 +9,7 @@ import { EventStorePersistence } from "@port/persistence/eventstore/model/EventS
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { CommandBus, Event, EventListener, Handler, SharedModule, Singleton } from "@hashgraph/green-bonds-shared-core"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
-import { PROVIDERS } from "../../../src/Components"
+import { EVENT_LISTENER_PROVIDERS } from "../../../src/Components"
 import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 import { HederaPort } from "@port/blockchain/HederaPort"
@@ -40,7 +40,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
-      providers: [...PROVIDERS, ErrorDLTEventListener],
+      providers: [...EVENT_LISTENER_PROVIDERS, ErrorDLTEventListener],
     }).compile()
 
     app = moduleFixture.createNestApplication()
