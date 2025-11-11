@@ -84,6 +84,9 @@ export { GrantRoleTransactionAppService } from "./app/transaction/grantrole/serv
 export { GrantRoleTransactionAppServiceRequest } from "./app/transaction/grantrole/service/model/GrantRoleTransactionAppServiceRequest"
 export { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/revokerole/service/RevokeRoleTransactionAppService"
 export { RevokeRoleTransactionAppServiceRequest } from "./app/transaction/revokerole/revokerole/service/model/RevokeRoleTransactionAppServiceRequest"
+export { RenounceRoleTransactionAppService } from "./app/transaction/renouncerole/service/RenounceRoleTransactionAppService"
+export { RenounceRoleTransactionAppServiceRequest } from "./app/transaction/renouncerole/service/model/RenounceRoleTransactionAppServiceRequest"
+
 export { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
 export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/service/model/PauseTransactionAppServiceRequest"
 export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"

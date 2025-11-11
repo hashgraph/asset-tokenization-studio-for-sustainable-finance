@@ -140,6 +140,7 @@ import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/com
 import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
 import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -235,6 +236,7 @@ export const CONTROLLERS = [
   GetRedemptionHoldersHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
+  RenounceRoleTransactionHttpAdapter,
 ]
 
 export const PROVIDERS = [
