@@ -52,6 +52,10 @@ import { BondCouponTypeOrmRepository } from "@port/bond/persistence/repositories
 import { SetBondCouponCommandHandler } from "@app/bond/setbondcoupon/command/SetBondCouponCommandHandler"
 import { SetBondCouponNestJSEventAdapter } from "@port/bond/usecase/setbondcoupon/SetBondCouponNestJSEventAdapter"
 import { SetBondCouponDomainService } from "@domain/bond/coupon/service/SetBondCouponDomainService"
+import { GetBondCouponsHttpAdapter } from "@port/bond/usecase/getbondcoupons/GetBondCouponsHttpAdapter"
+import { GetBondCouponsQueryHandler } from "@app/bond/getbondcoupons/query/GetBondCouponsQueryHandler"
+import { GetBondCouponHttpAdapter } from "@port/bond/usecase/getbondcoupon/GetBondCouponHttpAdapter"
+import { GetBondCouponQueryHandler } from "@app/bond/getbondcoupon/query/GetBondCouponQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -83,6 +87,8 @@ export const CONTROLLERS = [
   AddControlListMemberTransactionHttpAdapter,
   RemoveControlListMemberTransactionHttpAdapter,
   SetBondCouponTransactionHttpAdapter,
+  GetBondCouponsHttpAdapter,
+  GetBondCouponHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -94,6 +100,8 @@ export const PROVIDERS = [
   GetBondQueryHandler,
   CheckBondExistsDomainService,
   GetBondsQueryHandler,
+  GetBondCouponsQueryHandler,
+  GetBondCouponQueryHandler,
   SetBondDocumentTransactionAppService,
   SetBondDocumentCommandHandler,
   SetBondDocumentNestJSEventAdapter,

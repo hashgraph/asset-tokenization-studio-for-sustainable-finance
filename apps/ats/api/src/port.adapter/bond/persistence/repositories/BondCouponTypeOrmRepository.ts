@@ -5,6 +5,7 @@ import { Repository } from "typeorm"
 import { BondCoupon } from "@domain/bond/coupon/model/BondCoupon"
 import { BondCouponPersistence } from "../model/BondCouponPersistence"
 import { BondCouponRepository } from "@domain/bond/coupon/repository/BondCouponRepository"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class BondCouponTypeOrmRepository implements BondCouponRepository {
@@ -21,11 +22,23 @@ export class BondCouponTypeOrmRepository implements BondCouponRepository {
     return (await this.repository.findOne({ where: { contractId, couponId } })) as BondCoupon | null
   }
 
-  async findAllByContractId(contractId: string): Promise<BondCoupon[]> {
-    const persistences = await this.repository.find({
+  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondCoupon>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+    const [persistences, total] = await this.repository.findAndCount({
       where: { contractId },
-      order: { couponId: "ASC" },
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
     })
-    return persistences.map((p) => p as BondCoupon)
+
+    const items = persistences.map((p) => p as BondCoupon)
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
   }
 }
