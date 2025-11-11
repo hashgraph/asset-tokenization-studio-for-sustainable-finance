@@ -5,7 +5,7 @@ import { Subscription } from "../model/Subscription"
 
 export interface SubscriptionRepository {
   save(subscription: Subscription): Promise<Subscription>
-  findBySubscriptionIdAndOfferingIdAndMarketId(
+  findBySubscriptionIdOfferingIdAndMarketId(
     subscriptionId: number,
     offeringId: number,
     marketId: string,

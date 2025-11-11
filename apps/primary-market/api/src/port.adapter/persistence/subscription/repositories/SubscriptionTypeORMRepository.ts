@@ -21,7 +21,7 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     return this.toDomain(saved)
   }
 
-  async findBySubscriptionIdAndOfferingIdAndMarketId(
+  async findBySubscriptionIdOfferingIdAndMarketId(
     subscriptionId: number,
     offeringId: number,
     marketId: string,

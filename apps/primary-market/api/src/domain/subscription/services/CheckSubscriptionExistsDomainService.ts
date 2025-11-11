@@ -11,7 +11,7 @@ export class CheckSubscriptionExistsDomainService {
   constructor(@Inject() private readonly subscriptionRepository: SubscriptionRepository) {}
 
   async execute(subscriptionId: number, offeringId: number, market: PrimaryMarket): Promise<Subscription> {
-    const subscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingIdAndMarketId(
+    const subscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
       subscriptionId,
       offeringId,
       market.id,

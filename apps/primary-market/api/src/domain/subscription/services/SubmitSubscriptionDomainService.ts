@@ -29,7 +29,7 @@ export class SubmitSubscriptionDomainService {
       market,
     )
 
-    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdAndOfferingIdAndMarketId(
+    const existingSubscription = await this.subscriptionRepository.findBySubscriptionIdOfferingIdAndMarketId(
       submitSubscriptionDomainServiceRequest.subscriptionId,
       offering.id,
       market.id,
