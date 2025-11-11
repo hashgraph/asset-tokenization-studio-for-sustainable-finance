@@ -12,6 +12,7 @@ import { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/re
 import { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
 import { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
 import { RenounceRoleTransactionAppService } from "./app/transaction/renouncerole/service/RenounceRoleTransactionAppService"
+import { GetUserRolesQueryHandler2 } from "./app/getuserroles/query/GetUserRolesQueryHandler2"
 
 export const PROVIDERS = [
   {
@@ -44,4 +45,8 @@ export const COMMON_FUNCTIONALITY_PROVIDERS = [
   RenounceRoleTransactionAppService,
   PauseTransactionAppService,
   UnpauseTransactionAppService,
+  {
+    provide: "GetUserRolesQueryHandler2",
+    useClass: GetUserRolesQueryHandler2
+  }
 ]

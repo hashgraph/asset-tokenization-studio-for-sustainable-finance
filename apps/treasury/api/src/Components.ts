@@ -141,6 +141,7 @@ import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/
 import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
+import { GetUserRolesHttpAdapter } from "@port/treasury/usecase/getuserroles/GetUserRolesHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -237,6 +238,7 @@ export const CONTROLLERS = [
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
+  GetUserRolesHttpAdapter
 ]
 
 export const PROVIDERS = [

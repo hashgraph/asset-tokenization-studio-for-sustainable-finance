@@ -92,4 +92,10 @@ export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/servi
 export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
 export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/service/model/UnpauseTransactionAppServiceRequest"
 
+export { GetUserRolesQuery2 } from "./app/getuserroles/query/GetUserRolesQuery2"
+export { GetUserRolesQueryHandler2 } from "./app/getuserroles/query/GetUserRolesQueryHandler2"
+
+export { UserRoleRepository } from "./domain/userrole/repositories/UserRoleRepository"
+export { UserRole } from "./domain/userrole/model/UserRole"
+
 export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"
