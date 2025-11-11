@@ -18,4 +18,9 @@ export class EventStoreTypeOrmRepository implements EventStoreRepository {
     const persistence = await this.eventStoreRepository.save(eventStore as EventStorePersistence)
     return persistence as EventStore
   }
+
+  async findById(id: string): Promise<EventStore | null> {
+    const persistence = await this.eventStoreRepository.findOneBy({ id })
+    return (persistence as unknown as EventStore) || null
+  }
 }
