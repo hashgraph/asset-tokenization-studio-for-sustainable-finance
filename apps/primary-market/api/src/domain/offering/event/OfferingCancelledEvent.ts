@@ -5,7 +5,7 @@ export class OfferingCancelledEvent extends Event {
   constructor(
     public readonly offeringDltId: string,
     public readonly marketContractId: string,
-    public readonly operatorId: string,
+    public readonly operatorAccountId: string,
     public readonly subscriptionDltIdsSuccess: string[],
     public readonly subscriptionDltIdsFailed: string[],
   ) {

@@ -3,7 +3,7 @@
 export class PrimaryMarketBondOfferingQueryResponse {
   offeringDltId: string
   bondContractId: string
-  operatorId: string
+  operatorAccountId: string
   treasuryContractId: string
   paymentTokenContractId: string
   lotSize: string

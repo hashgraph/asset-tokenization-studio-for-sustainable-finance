@@ -22,7 +22,7 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  operatorId: string
+  operatorAccountId: string
 
   @IsNotEmpty()
   @IsString()
@@ -64,9 +64,13 @@ export class Offering extends BaseEntity {
   @IsNumber()
   deadlineRule: number
 
-  checkOperator(operatorId: string): void {
-    if (this.operatorId !== operatorId) {
-      throw OfferingUnauthorizedOperatorError.operatorMismatchError(this.offeringDltId, this.operatorId, operatorId)
+  ensureOperatorMatches(operatorAccountId: string): void {
+    if (this.operatorAccountId !== operatorAccountId) {
+      throw OfferingUnauthorizedOperatorError.operatorMismatchError(
+        this.offeringDltId,
+        this.operatorAccountId,
+        operatorAccountId,
+      )
     }
   }
 }

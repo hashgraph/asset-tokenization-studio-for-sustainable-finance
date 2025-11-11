@@ -18,7 +18,7 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 import { ProcessEventCommand } from "@app/eventstore/processevent/command/ProcessEventCommand"
 
-import { PROVIDERS } from "../../../../../src/Components"
+import { EVENT_LISTENER_PROVIDERS } from "../../../../../src/Components"
 import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
 import { PostgresModule } from "../../../../shared/PostgresModule"
@@ -38,7 +38,7 @@ describe("ProcessEventCommandHandler", () => {
   })
 
   beforeEach(async () => {
-    const providers = PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
+    const providers = EVENT_LISTENER_PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       providers: [...providers, TestDLTEventListener],

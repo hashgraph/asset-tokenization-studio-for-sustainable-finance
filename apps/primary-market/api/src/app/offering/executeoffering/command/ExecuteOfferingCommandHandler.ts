@@ -21,7 +21,7 @@ export class ExecuteOfferingCommandHandler implements CommandHandler<ExecuteOffe
       new OfferingExecutedEvent(
         command.offeringDltId,
         command.marketContractId,
-        command.operatorId,
+        command.operatorAccountId,
         command.subscriptionDltIdsSuccess,
         command.subscriptionDltIdsFailed,
       ),

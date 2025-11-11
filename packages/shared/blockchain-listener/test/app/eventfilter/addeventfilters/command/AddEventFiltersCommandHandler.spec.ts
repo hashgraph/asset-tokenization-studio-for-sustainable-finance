@@ -7,7 +7,7 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { CommandBus, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PROVIDERS } from "../../../../../src/Components"
+import { EVENT_LISTENER_PROVIDERS } from "../../../../../src/Components"
 import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
 import { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
@@ -25,7 +25,7 @@ describe("AddEventFiltersCommandHandler", () => {
   })
 
   beforeEach(async () => {
-    const providers = PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
+    const providers = EVENT_LISTENER_PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       providers,
