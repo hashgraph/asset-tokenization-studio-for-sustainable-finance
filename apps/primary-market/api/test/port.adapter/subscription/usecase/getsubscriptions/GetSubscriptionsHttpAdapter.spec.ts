@@ -161,7 +161,7 @@ describe("GetSubscriptions API Integration", () => {
       expect(item1).toMatchObject({
         subscriptionDltId: "1",
         offeringDltId: "1",
-        investorId: "0.0.1111",
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -170,7 +170,7 @@ describe("GetSubscriptions API Integration", () => {
       expect(item2).toMatchObject({
         subscriptionDltId: "2",
         offeringDltId: "1",
-        investorId: "0.0.2222",
+        investorAccountId: "0.0.2222",
         lotUnits: "10",
         status: SubscriptionStatus.EXECUTED,
       })
@@ -499,10 +499,10 @@ describe("GetSubscriptions API Integration", () => {
       expect(response.body.total).toBe(3)
       expect(response.body.items).toHaveLength(3)
 
-      const investorIds = response.body.items.map((item: any) => item.investorId)
-      expect(investorIds).toContain("0.0.1111")
-      expect(investorIds).toContain("0.0.2222")
-      expect(investorIds).toContain("0.0.3333")
+      const investorAccountIds = response.body.items.map((item: any) => item.investorAccountId)
+      expect(investorAccountIds).toContain("0.0.1111")
+      expect(investorAccountIds).toContain("0.0.2222")
+      expect(investorAccountIds).toContain("0.0.3333")
     })
   })
 })

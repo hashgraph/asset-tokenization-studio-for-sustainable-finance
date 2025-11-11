@@ -20,6 +20,7 @@ export class SubmitSubscriptionCommandHandler implements CommandHandler<SubmitSu
     this.eventBus.publish(
       new SubscriptionSubmittedEvent(
         subscription.offering.offeringDltId,
+        subscription.offering.market.contractId,
         subscription.subscriptionDltId,
         subscription.status,
         subscription.investor.accountId,

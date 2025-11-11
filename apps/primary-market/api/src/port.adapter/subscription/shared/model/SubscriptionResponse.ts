@@ -5,7 +5,7 @@ import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 export class SubscriptionResponse {
   subscriptionDltId: string
   offeringDltId: string
-  investorId: string
+  investorAccountId: string
   lotUnits: string
   status: SubscriptionStatus
   createdAt: Date

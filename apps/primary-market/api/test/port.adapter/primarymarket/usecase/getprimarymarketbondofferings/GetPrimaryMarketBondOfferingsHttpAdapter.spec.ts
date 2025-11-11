@@ -11,6 +11,7 @@ import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
+import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
 
 describe("GetPrimaryMarketBondOfferings API Integration", () => {
   let app: INestApplication
@@ -123,6 +124,8 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       expect(response.body.items[0]).toHaveProperty("bondContractId")
       expect(response.body.items[0]).toHaveProperty("operatorAccountId")
       expect(response.body.items[0]).toHaveProperty("lotSize")
+      expect(response.body.items[0]).toHaveProperty("status")
+      expect(response.body.items[0].status).toBe(OfferingStatus.OPEN)
     })
 
     it("should return 404 when primary market does not exist", async () => {

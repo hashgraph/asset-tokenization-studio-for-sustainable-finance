@@ -340,5 +340,55 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
       expect(remainingSubscription!.offering.offeringDltId).toBe("2")
       expect(remainingSubscription!.status).toBe(SubscriptionStatus.SUBMITTED)
     })
+
+    it("should publish SubscriptionCancelledEvent after successful subscription cancellation", async () => {
+      const market = await primaryMarketRepository.save({
+        contractId: "0.0.1234567",
+      })
+
+      const offering = await offeringRepository.save({
+        offeringDltId: "1",
+        market,
+        bondContractId: "0.0.9999999",
+        operatorAccountId: "0.0.4660",
+        treasuryContractId: "0.0.9999999",
+        paymentTokenContractId: "0.0.9999999",
+        lotSize: "1000",
+        minQuantity: "100",
+        maxQuantity: "10000",
+        targetQuantity: "5000",
+        targetQuantityRule: 0,
+        startDate: new Date("2023-01-01"),
+        endDate: new Date("2024-01-01"),
+        deadlineRule: 0,
+      })
+
+      const investor = await investorRepository.save({
+        accountId: "0.0.1111",
+      })
+
+      await subscriptionRepository.save({
+        subscriptionDltId: "1",
+        offering: offering,
+        investor: investor,
+        lotUnits: "1000",
+        status: SubscriptionStatus.SUBMITTED,
+      })
+
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
+
+      await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
+
+      expect(publishedEvent).toEqual(
+        expect.objectContaining({
+          offeringDltId: "1",
+          marketContractId: "0.0.1234567",
+          subscriptionDltId: "1",
+        }),
+      )
+    })
   })
 })

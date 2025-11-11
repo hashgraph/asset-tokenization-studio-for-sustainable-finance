@@ -339,6 +339,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           offeringDltId: "1",
+          marketContractId: "0.0.1234567",
           subscriptionDltId: "2",
           investorId: "0.0.4660",
           lotUnits: "10",

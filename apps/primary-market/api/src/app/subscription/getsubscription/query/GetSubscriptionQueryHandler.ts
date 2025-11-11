@@ -28,7 +28,7 @@ export class GetSubscriptionQueryHandler implements QueryHandler<GetSubscription
     return Object.assign(new SubscriptionQueryResponse(), {
       subscriptionDltId: subscription.subscriptionDltId,
       offeringDltId: subscription.offering.offeringDltId,
-      investorId: subscription.investor.accountId,
+      investorAccountId: subscription.investor.accountId,
       lotUnits: subscription.lotUnits,
       status: subscription.status,
       createdAt: subscription.createdAt,

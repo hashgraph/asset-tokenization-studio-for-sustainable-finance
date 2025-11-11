@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
+
 export class PrimaryMarketBondOfferingResponse {
   offeringDltId: string
   bondContractId: string
@@ -14,4 +16,6 @@ export class PrimaryMarketBondOfferingResponse {
   startDate: Date
   endDate: Date
   deadlineRule: number
+  status: OfferingStatus
+  createdAt: Date
 }

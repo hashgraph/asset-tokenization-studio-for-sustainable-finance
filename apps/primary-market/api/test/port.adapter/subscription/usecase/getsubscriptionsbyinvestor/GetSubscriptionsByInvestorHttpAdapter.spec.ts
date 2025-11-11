@@ -138,7 +138,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       expect(item1).toMatchObject({
         subscriptionDltId: "1",
         offeringDltId: "1",
-        investorId: "0.0.1111",
+        investorAccountId: "0.0.1111",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -147,7 +147,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
       expect(item2).toMatchObject({
         subscriptionDltId: "2",
         offeringDltId: "1",
-        investorId: "0.0.1111",
+        investorAccountId: "0.0.1111",
         lotUnits: "10",
         status: SubscriptionStatus.EXECUTED,
       })
@@ -381,7 +381,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
 
       expect(response.body.total).toBe(2)
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items.every((item: any) => item.investorId === "0.0.1111")).toBe(true)
+      expect(response.body.items.every((item: any) => item.investorAccountId === "0.0.1111")).toBe(true)
     })
 
     it("should return subscriptions from multiple offerings for the same investor", async () => {
@@ -534,7 +534,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
 
       expect(response.body.total).toBe(2)
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items.every((item: any) => item.investorId === "0.0.1111")).toBe(true)
+      expect(response.body.items.every((item: any) => item.investorAccountId === "0.0.1111")).toBe(true)
     })
   })
 })
