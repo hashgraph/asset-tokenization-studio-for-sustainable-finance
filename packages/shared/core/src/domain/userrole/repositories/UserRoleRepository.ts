@@ -8,4 +8,6 @@ export interface UserRoleRepository {
   save(userRole: UserRole): Promise<UserRole>
 
   findAllByUserAccountIdAndContractId(userAccountId: string, contractId: string, options: PageOptions): Promise<Page<UserRole>>
+
+  findAllByRoleIdAndContractId(userAccountId: string, contractId: string, options: PageOptions): Promise<Page<UserRole>>
 }

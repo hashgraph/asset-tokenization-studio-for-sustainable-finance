@@ -93,6 +93,7 @@ export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/
 export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/service/model/UnpauseTransactionAppServiceRequest"
 
 export { GetUserRolesQuery } from "./app/getuserroles/query/GetUserRolesQuery"
+export { GetRoleMembersQuery } from "./app/getrolemembers/query/GetRoleMembersQuery"
 export { UserRolePersistence } from "./port.adapter/persistence/userrole/model/UserRolePersistence"
 
 export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"

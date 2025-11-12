@@ -43,4 +43,28 @@ export class UserRoleTypeOrmRepository implements UserRoleRepository {
       totalPages: Math.ceil(total / options.limit),
     }
   }
+
+  async findAllByRoleIdAndContractId(roleId: string, contractId: string, options: PageOptions): Promise<Page<UserRole>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const whereCondition: any = { roleId }
+    whereCondition.contractId = contractId
+
+    const [persistences, total] = await this.userRoleRepository.findAndCount({
+      where: whereCondition,
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
+    })
+
+    const items = persistences.map((p) => p as UserRole)
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
+  }
 }

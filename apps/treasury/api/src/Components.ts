@@ -142,6 +142,7 @@ import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grant
 import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/treasury/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GetRoleMembersHttpAdapter } from "@port/treasury/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -239,6 +240,7 @@ export const CONTROLLERS = [
   RevokeRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
   GetUserRolesHttpAdapter,
+  GetRoleMembersHttpAdapter
 ]
 
 export const PROVIDERS = [
