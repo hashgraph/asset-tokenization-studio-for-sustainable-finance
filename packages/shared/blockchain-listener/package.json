@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
-    "@hashgraph/sdk": "2.66.0",
+    "@hashgraph/sdk": "2.76.0",
     "ethereum-bloom-filters": "^1.2.0",
     "pg": "8.16.0",
     "typeorm": "^0.3.27"

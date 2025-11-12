@@ -72,7 +72,7 @@
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "@hashgraph/asset-tokenization-contracts": "^1.15.2",
-    "@hashgraph/sdk": "^2.62.0",
+    "@hashgraph/sdk": "2.76.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
