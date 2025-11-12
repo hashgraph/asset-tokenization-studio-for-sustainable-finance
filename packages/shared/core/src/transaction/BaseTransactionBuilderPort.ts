@@ -4,6 +4,7 @@ import { BuildRevokeRoleTransactionRequest } from "@transaction/model/BuildRevok
 import { BuildPauseTransactionRequest } from "@transaction/model/BuildPauseTransactionRequest"
 import { BuildUnpauseTransactionRequest } from "@transaction/model/BuildUnpauseTransactionRequest"
 import { BuildRenounceRoleTransactionRequest } from "@transaction/model/BuildRenounceRoleTransactionRequest"
+import { BuildApplyRolesTransactionRequest } from "@transaction/model/BuildApplyRolesTransactionRequest"
 
 export interface BaseTransactionBuilderPort {
   grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse>
@@ -15,4 +16,6 @@ export interface BaseTransactionBuilderPort {
   pause(request: BuildPauseTransactionRequest): Promise<BuildTransactionResponse>
 
   unpause(request: BuildUnpauseTransactionRequest): Promise<BuildTransactionResponse>
+
+  applyRoles(request: BuildApplyRolesTransactionRequest): Promise<BuildTransactionResponse>
 }
