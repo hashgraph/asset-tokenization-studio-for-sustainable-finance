@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { CreateBondLockDomainService } from "@domain/bond/lock/service/CreateBondLockDomainService"
