@@ -6,9 +6,10 @@ import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
 import { ConverterUtils, EventBus, SharedModule, RoleRevokedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
+import { CqrsModule } from "@nestjs/cqrs"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { RoleRevokedEvent } from "@domain/role/event/RoleRevokedEvent"
+import { RevokeRoleCommandHandler, CheckUserRoleExistsDomainService } from "@hashgraph/green-bonds-shared-core"
 import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core/dist/port.adapter/persistence/userrole/model/UserRolePersistence"
 
 describe("RevokeRole Integration", () => {
@@ -23,9 +24,14 @@ describe("RevokeRole Integration", () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: PROVIDERS,
+      providers: [
+        ...PROVIDERS,
+        RevokeRoleCommandHandler,
+        CheckUserRoleExistsDomainService,
+        { provide: "CheckUserRoleExists", useClass: CheckUserRoleExistsDomainService },
+      ],
     }).compile()
 
     app = moduleFixture.createNestApplication()
@@ -39,7 +45,7 @@ describe("RevokeRole Integration", () => {
   })
 
   afterEach(async () => {
-    await internalUserRoleRepository.deleteAll()
+    await internalUserRoleRepository.clear()
   })
 
   it("should revoke role: soft delete UserRole and publish RoleRevokedEvent", async () => {
@@ -66,11 +72,11 @@ describe("RevokeRole Integration", () => {
     const roles = await internalUserRoleRepository.find()
     expect(roles).toHaveLength(0)
 
-    expect(publishedEvent?.constructor?.name).toEqual(RoleRevokedEvent.name)
+    expect(publishedEvent?.constructor?.name).toEqual("RoleRevokedEvent")
     expect(publishedEvent).toEqual({
-      accountId: hederaAccountId,
+      userAccountId: hederaAccountId,
       roleId,
-      treasuryContractId,
+      contractId: treasuryContractId,
       timestamp: expect.any(Number),
     })
   })

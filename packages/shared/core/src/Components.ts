@@ -47,5 +47,5 @@ export const COMMON_FUNCTIONALITY_PROVIDERS = [
   PauseTransactionAppService,
   UnpauseTransactionAppService,
   GetUserRolesQueryHandler,
-  GetRoleMembersQueryHandler
+  GetRoleMembersQueryHandler,
 ]

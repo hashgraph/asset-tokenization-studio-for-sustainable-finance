@@ -10,7 +10,7 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 
 import { GrantRolePort } from "./GrantRolePort"
-import { GrantRoleCommand } from "@app/role/grantrole/command/GrantRoleCommand"
+import { GrantRoleCommand } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class GrantRoleNestJSEventAdapter implements GrantRolePort, EventListener<RoleGrantedDLTEvent> {

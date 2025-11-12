@@ -6,9 +6,10 @@ import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
 import { ConverterUtils, EventBus, SharedModule, RoleGrantedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
+import { CqrsModule } from "@nestjs/cqrs"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { RoleGrantedEvent } from "@domain/role/event/RoleGrantedEvent"
+import { GrantRoleCommandHandler } from "@hashgraph/green-bonds-shared-core"
 import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core/dist/port.adapter/persistence/userrole/model/UserRolePersistence"
 
 describe("GrantRole Integration", () => {
@@ -23,9 +24,9 @@ describe("GrantRole Integration", () => {
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: PROVIDERS,
+      providers: [...PROVIDERS, GrantRoleCommandHandler],
     }).compile()
 
     app = moduleFixture.createNestApplication()
@@ -64,11 +65,11 @@ describe("GrantRole Integration", () => {
       contractId: treasuryContractId,
     })
 
-    expect(publishedEvent?.constructor?.name).toEqual(RoleGrantedEvent.name)
+    expect(publishedEvent?.constructor?.name).toEqual("RoleGrantedEvent")
     expect(publishedEvent).toEqual({
-      accountId: hederaAccountId,
+      userAccountId: hederaAccountId,
       roleId,
-      treasuryContractId,
+      contractId: treasuryContractId,
       timestamp: expect.any(Number),
     })
   })

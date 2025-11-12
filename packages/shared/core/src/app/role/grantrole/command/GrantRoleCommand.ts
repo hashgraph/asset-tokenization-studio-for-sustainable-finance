@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
+
 import { IsNotEmpty, IsString } from "class-validator"
-import { Command } from "@hashgraph/green-bonds-shared-core"
+import { Command } from "../../../../command/Command"
 
 export class GrantRoleCommand extends Command<void> {
   @IsNotEmpty()

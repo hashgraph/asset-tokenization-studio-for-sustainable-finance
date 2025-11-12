@@ -97,3 +97,12 @@ export { GetRoleMembersQuery } from "./app/getrolemembers/query/GetRoleMembersQu
 export { UserRolePersistence } from "./port.adapter/persistence/userrole/model/UserRolePersistence"
 
 export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"
+
+export { GrantRoleCommand } from "./app/role/grantrole/command/GrantRoleCommand"
+export { GrantRoleCommandHandler } from "./app/role/grantrole/command/GrantRoleCommandHandler"
+export { RevokeRoleCommand } from "./app/role/revokerole/command/RevokeRoleCommand"
+export { RevokeRoleCommandHandler } from "./app/role/revokerole/command/RevokeRoleCommandHandler"
+export { CheckUserRoleExistsDomainService } from "./domain/userrole/services/CheckUserRoleExistsDomainService"
+export { UserRoleNotFoundError } from "./domain/userrole/errors/UserRoleNotFoundError"
+export { RoleGrantedEvent } from "./domain/userrole/event/RoleGrantedEvent"
+export { RoleRevokedEvent } from "./domain/userrole/event/RoleRevokedEvent"

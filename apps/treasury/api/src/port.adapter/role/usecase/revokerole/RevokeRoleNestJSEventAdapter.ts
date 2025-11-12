@@ -4,7 +4,7 @@ import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { ConverterUtils, EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { RoleRevokedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 import { RevokeRolePort } from "./RevokeRolePort"
-import { RevokeRoleCommand } from "@app/role/revokerole/command/RevokeRoleCommand"
+import { RevokeRoleCommand } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
 export class RevokeRoleNestJSEventAdapter implements RevokeRolePort, EventListener<RoleRevokedDLTEvent> {
