@@ -3,7 +3,7 @@ import { registerDecorator, ValidationOptions, ValidationArguments } from "class
 import { ethers } from "ethers"
 
 export function IsBytes32(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
       name: "isBytes32",
       target: object.constructor,
