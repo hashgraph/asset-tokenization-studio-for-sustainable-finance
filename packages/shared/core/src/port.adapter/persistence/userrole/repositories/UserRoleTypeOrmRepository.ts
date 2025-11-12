@@ -5,9 +5,10 @@ import { UserRoleRepository } from "@domain/userrole/repositories/UserRoleReposi
 import { Page } from "@pagination/Page"
 import { PageOptions } from "@pagination/PageOptions"
 import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
+import { IsNull, Repository } from "typeorm"
 import { UserRolePersistence } from "../model/UserRolePersistence"
 import { UserRole } from "@domain/userrole/model/UserRole"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class UserRoleTypeOrmRepository implements UserRoleRepository {
@@ -20,7 +21,11 @@ export class UserRoleTypeOrmRepository implements UserRoleRepository {
     return await this.userRoleRepository.save(userRole as UserRolePersistence)
   }
 
-  async findAllByUserAccountIdAndContractId(userAccountId: string, contractId: string, options: PageOptions): Promise<Page<UserRole>> {
+  async findAllByUserAccountIdAndContractId(
+    userAccountId: string,
+    contractId: string,
+    options: PageOptions,
+  ): Promise<Page<UserRole>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 
     const whereCondition: any = { userAccountId }
@@ -44,7 +49,11 @@ export class UserRoleTypeOrmRepository implements UserRoleRepository {
     }
   }
 
-  async findAllByRoleIdAndContractId(roleId: string, contractId: string, options: PageOptions): Promise<Page<UserRole>> {
+  async findAllByRoleIdAndContractId(
+    roleId: string,
+    contractId: string,
+    options: PageOptions,
+  ): Promise<Page<UserRole>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 
     const whereCondition: any = { roleId }
@@ -66,5 +75,20 @@ export class UserRoleTypeOrmRepository implements UserRoleRepository {
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
+
+  async delete(userRole: UserRole): Promise<void> {
+    await this.userRoleRepository.softDelete({ id: userRole.id })
+  }
+
+  async findByUserAccountIdRoleIdAndContractId(
+    userAccountId: string,
+    roleId: string,
+    contractId: string,
+  ): Promise<UserRole | null> {
+    const persistence = await this.userRoleRepository.findOne({
+      where: { userAccountId, roleId, contractId, deletedAt: IsNull() },
+    })
+    return persistence ? plainToInstance(UserRole, persistence) : null
   }
 }
