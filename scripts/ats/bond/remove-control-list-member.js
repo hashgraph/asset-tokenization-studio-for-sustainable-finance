@@ -7,7 +7,7 @@ const { gatewayClient } = require("../../shared/lib/gateway-client");
 const { getLatestBond } = require("./set-bond-document");
 const { addControlListMember } = require("./add-control-list-member");
 
-function getHolderIdFromEnv() {
+function getHolderAccountIdFromEnv() {
   const evmAddress = process.env.ACCOUNT_EVM_ADDRESS;
   if (!evmAddress) {
     logError("ACCOUNT_EVM_ADDRESS not found in .env file");
@@ -17,7 +17,7 @@ function getHolderIdFromEnv() {
   return evmAddress;
 }
 
-async function removeControlListMember(bondContractId, holderId, format) {
+async function removeControlListMember(bondContractId, holderAccountId, format) {
   log(`\n=👥 Removing holder from control list for bond ${bondContractId}...`, colors.bright);
 
   const removeControlListMemberRequest = {
@@ -27,16 +27,16 @@ async function removeControlListMember(bondContractId, holderId, format) {
 
   try {
     const response = await gatewayClient.delete(
-      `/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`,
+      `/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`,
       { data: removeControlListMemberRequest },
     );
 
     logSuccess("Remove control list member transaction created successfully!");
     logInfo(`Bond Contract ID: ${bondContractId}`);
-    logInfo(`Holder ID: ${holderId}`);
+    logInfo(`Holder Account ID: ${holderAccountId}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
 
-    return { ...removeControlListMemberRequest, holderId, unsignedTx: response.data.unsignedTx };
+    return { ...removeControlListMemberRequest, holderAccountId, unsignedTx: response.data.unsignedTx };
   } catch (error) {
     logError(`Failed to remove control list member: ${error.message}`);
     if (error.response?.data) {
@@ -46,13 +46,13 @@ async function removeControlListMember(bondContractId, holderId, format) {
   }
 }
 
-async function verifyControlListMemberRemovalInDatabase(bondContractId, holderId) {
+async function verifyControlListMemberRemovalInDatabase(bondContractId, holderAccountId) {
   log(`\n=🔍 Control list member removal verification:`, colors.bright);
   logSuccess(`Remove control list member transaction has been sent successfully`);
   logInfo(`The RemoveControlListMemberEvent should have been processed`);
   logInfo(`=✅ To verify the holder was removed, run a database query`);
   logInfo(
-    `Expected result: Bond with contractId "${bondContractId}" should NOT have holder "${holderId}" in the control list registry`,
+    `Expected result: Bond with contractId "${bondContractId}" should NOT have holder "${holderAccountId}" in the control list registry`,
   );
   logInfo(`You should also see a RemoveControlListMemberEvent in the events table\n`);
 }
@@ -98,11 +98,11 @@ async function runDeleteControlListMemberSimulator() {
 
     logHeader("=👥 Step 3: Adding Holder to Control List...");
 
-    const holderId = getHolderIdFromEnv();
-    logInfo(`Holder ID to add: ${holderId}`);
+    const holderAccountId = getHolderAccountIdFromEnv();
+    logInfo(`Holder Account ID to add: ${holderAccountId}`);
     logInfo(`Using EVM address from ACCOUNT_EVM_ADDRESS in .env file`);
 
-    const addControlListTransaction = await addControlListMember(bondContractId, holderId, format);
+    const addControlListTransaction = await addControlListMember(bondContractId, holderAccountId, format);
 
     const signedAddControlListTx = await signTransaction(addControlListTransaction.unsignedTx);
     logSuccess("Add control list member transaction signed successfully!");
@@ -118,7 +118,7 @@ async function runDeleteControlListMemberSimulator() {
 
     logHeader("=🗑️  Step 4: Removing Holder from Control List...");
 
-    const deleteControlListTransaction = await removeControlListMember(bondContractId, holderId, format);
+    const deleteControlListTransaction = await removeControlListMember(bondContractId, holderAccountId, format);
 
     const signedDeleteControlListTx = await signTransaction(deleteControlListTransaction.unsignedTx);
     logSuccess("Remove control list member transaction signed successfully!");
@@ -133,15 +133,15 @@ async function runDeleteControlListMemberSimulator() {
     await new Promise((resolve) => setTimeout(resolve, 10000));
 
     logHeader("=✅ Step 5: Verifying Control List Removal...");
-    await verifyControlListMemberRemovalInDatabase(bondContractId, holderId);
+    await verifyControlListMemberRemovalInDatabase(bondContractId, holderAccountId);
 
     logHeader("=🎉 Remove Control List Member Simulation Completed!");
     logSuccess(`Created bond with contract ID: ${bondContractId}`);
-    logSuccess(`Added holder ${holderId} to control list registry`);
-    logSuccess(`Removed holder ${holderId} from control list registry`);
+    logSuccess(`Added holder ${holderAccountId} to control list registry`);
+    logSuccess(`Removed holder ${holderAccountId} from control list registry`);
     logSuccess("= Check the database to verify:");
     logInfo(`   = Bond table for contract ID: ${bondContractId}`);
-    logInfo(`   = Control list registry should NOT contain holder: ${holderId}`);
+    logInfo(`   = Control list registry should NOT contain holder: ${holderAccountId}`);
     logInfo(`   = RemoveControlListMemberEvent should be in the events table`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
@@ -151,7 +151,7 @@ async function runDeleteControlListMemberSimulator() {
     logError("   = For Ethereum: ETHEREUM_PRIVATE_KEY should be in hex format");
     logError("   = Gateway API is running and accessible");
     logError("   = Database is accessible and properly configured");
-    logError("   = Holder ID is valid for the selected blockchain format");
+    logError("   = Holder Account ID is valid for the selected blockchain format");
     logError(`   = For Hedera: Should be in format "0.0.xxxxx"`);
     logError(`   = For Ethereum: Should be a valid EVM address (0x...)`);
   }
@@ -162,7 +162,7 @@ async function main() {
     logHeader("=🏦 Evercity Remove Control List Member Simulator");
     log("============================================\n", colors.bright);
     log(`=📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
-    log(`=👤 Holder ID: ${config.ACCOUNT_EVM_ADDRESS || "Not set in .env"}`, colors.cyan);
+    log(`=👤 Holder Account ID: ${config.ACCOUNT_EVM_ADDRESS || "Not set in .env"}`, colors.cyan);
     log(`=📝 This will create a bond, add a holder to control list, then remove it\n`, colors.cyan);
 
     await runDeleteControlListMemberSimulator();
