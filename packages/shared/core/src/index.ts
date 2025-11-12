@@ -95,7 +95,4 @@ export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/s
 export { GetUserRolesQuery } from "./app/getuserroles/query/GetUserRolesQuery"
 export { UserRolePersistence } from "./port.adapter/persistence/userrole/model/UserRolePersistence"
 
-export { UserRoleRepository } from "./domain/userrole/repositories/UserRoleRepository"
-export { UserRole } from "./domain/userrole/model/UserRole"
-
 export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"
