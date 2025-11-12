@@ -8,8 +8,8 @@ import {
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import { CreatedBondEvent } from "@domain/bond/events/CreatedBondEvent"
-import { AddEventFiltersCommand } from "@hashgraph/green-bonds-blockchain-listener/dist/app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
 import { CreateBondFiltersPort } from "@port/bond/usecase/createbondfilters/CreateBondFiltersPort"
+import { AddEventFiltersCommand } from "@hashgraph/green-bonds-blockchain-listener"
 
 @Singleton()
 export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventListener<CreatedBondEvent> {
@@ -24,7 +24,9 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "MaxSupplySet(address indexed operator,uint256 newMaxSupply,uint256 previousMaxSupply)",
         "AddedToControlList(address indexed operator,address indexed account)",
         "RemovedFromControlList(address indexed operator,address indexed account)",
-        "CouponSet(bytes32 corporateActionId,uint256 couponId,address indexed operator,uint256 indexed recordDate,uint256 indexed executionDate,uint256 rate)",
+        "CouponSet(bytes32 corporateActionId,uint256 couponId,address indexed operator,uint256 indexed recordDate,uint256 indexed executionDate,uint256 rate,uint256 rateDecimals,uint256 period)",
+        "IssuedByPartition(bytes32 indexed partition,address indexed operator,address indexed to,uint256 value,bytes data)",
+        "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
       ]),
     )
   }

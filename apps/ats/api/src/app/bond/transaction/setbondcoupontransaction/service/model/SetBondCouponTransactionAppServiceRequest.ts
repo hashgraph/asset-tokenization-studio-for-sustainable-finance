@@ -15,6 +15,14 @@ export class SetBondCouponTransactionAppServiceRequest extends BaseTransactionAp
   @IsNotEmpty()
   rate: string
 
+  @IsNumberString()
+  @IsNotEmpty()
+  rateDecimals: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  period: string
+
   constructor(
     format: string,
     accountId: string,
@@ -22,10 +30,14 @@ export class SetBondCouponTransactionAppServiceRequest extends BaseTransactionAp
     recordDate: string,
     executionDate: string,
     rate: string,
+    rateDecimals: string,
+    period: string,
   ) {
     super(format, accountId, contractId)
     this.recordDate = recordDate
     this.executionDate = executionDate
     this.rate = rate
+    this.rateDecimals = rateDecimals
+    this.period = period
   }
 }

@@ -8,4 +8,6 @@ export interface BondCouponQueryResponse {
   recordDate: Date
   executionDate: Date
   rate: string
+  rateDecimals: string
+  period: string
 }

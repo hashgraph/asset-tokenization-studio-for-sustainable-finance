@@ -24,4 +24,10 @@ export class BondCouponPersistence extends BaseEntityPersistence {
 
   @Column({ type: "varchar" })
   rate: string
+
+  @Column({ type: "varchar" })
+  rateDecimals: string
+
+  @Column({ type: "varchar" })
+  period: string
 }

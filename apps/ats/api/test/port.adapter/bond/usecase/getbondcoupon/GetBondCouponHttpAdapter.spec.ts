@@ -116,6 +116,8 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
         recordDate: recordDate,
         executionDate: executionDate,
         rate: "5.5",
+        rateDecimals: "2",
+        period: "2592000",
       })
 
       const response = await request(app.getHttpServer())
@@ -132,6 +134,8 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
         recordDate: recordDate.toISOString(),
         executionDate: executionDate.toISOString(),
         rate: coupon.rate,
+        rateDecimals: coupon.rateDecimals,
+        period: coupon.period,
       })
     })
   })
