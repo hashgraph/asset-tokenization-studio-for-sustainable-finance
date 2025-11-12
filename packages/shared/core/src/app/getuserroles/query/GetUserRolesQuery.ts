@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Query } from "@query/Query"
+import { Query } from "../../../query/Query"
 import { QueryPageOptions } from "@query/QueryPageOptions"
 import { QueryPageResponse } from "@query/QueryPageResponse"
 import { UserRoleQueryResponse } from "./UserRoleQueryResponse"
