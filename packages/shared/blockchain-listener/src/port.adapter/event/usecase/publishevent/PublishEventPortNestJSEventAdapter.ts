@@ -14,7 +14,7 @@ import type { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 export class PublishEventPortNestJSEventAdapter implements PublishEventPort {
   constructor(@Inject("EventPublisherPort") private readonly eventPublisher: EventPublisherPort) {}
 
-  @OnEvent("*DLTEvent")
+  @OnEvent("*.DLTEvent")
   async handle(event: DLTEvent): Promise<void> {
     await this.eventPublisher.publish(event)
   }

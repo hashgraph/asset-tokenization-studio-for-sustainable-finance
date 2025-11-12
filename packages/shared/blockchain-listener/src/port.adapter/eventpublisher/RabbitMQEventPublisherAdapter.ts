@@ -42,7 +42,7 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
       const routingKey = `${this.routingKeyBase}.${payload.eventName}`
       await this.amqpConnection.publish(this.exchangeName, routingKey, payload, options as any)
     } catch (err) {
-      this.logger.error(`Failed to publish DLT event to RabbitMQ: ${err?.message}`, err?.stack)
+      this.logger.error(`Failed to publish DLT event to RabbitMQ: ${err?.message}`)
     }
   }
 }
