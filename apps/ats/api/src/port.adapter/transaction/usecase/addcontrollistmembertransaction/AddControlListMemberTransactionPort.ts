@@ -5,7 +5,7 @@ import { AddControlListMemberTransactionRequest } from "./model/AddControlListMe
 export interface AddControlListMemberTransactionPort {
   addControlListMemberTransaction(
     contractId: string,
-    holderId: string,
+    holderAccountId: string,
     request: AddControlListMemberTransactionRequest,
   ): Promise<TransactionResponse>
 }
