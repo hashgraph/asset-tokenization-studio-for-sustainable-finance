@@ -1,54 +1,45 @@
 # Blockchain Listener
 
-This package listens to on-chain events from Hedera Mirror Node and persists them into the EventStore. It also exposes a configurable RabbitMQ publisher to forward processed events to your message bus.
+This package listens to on-chain events from Hedera Mirror Node and persists them into the EventStore. It also exposes a configurable RabbitMQ publisher (via `@golevelup/nestjs-rabbitmq`) to forward domain DLT events to your message bus.
 
 ## RabbitMQ Publishing
 
-When an on-chain event is processed and stored, an `EventProcessedEvent` is emitted. The `BlockchainEventsRabbitPublisher` listens for this event and publishes a JSON message to a RabbitMQ exchange.
-
-By default, only the processed summary is published. Optionally, you can enable publishing of the raw event payload stored in the EventStore.
+Inbound publishing uses `PublishEventPortNestJSEventAdapter`, which listens to `*DLTEvent` via NestJS EventEmitter and delegates to the outbound `EventPublisherPort` implemented by `RabbitMQEventPublisherAdapter`. Messages are published as JSON to a configured exchange and routing key composed by a base plus the `eventName`.
 
 ### Environment Variables
 
 These variables follow the same conventions as the `transaction-sender` package where possible:
 
-- `RABBITMQ_URI` or `RABBITMQ_URL`: RabbitMQ connection URI (e.g., `amqp://localhost:5672`). If not provided, publishing is disabled gracefully.
+- `RABBITMQ_URI` or `RABBITMQ_URL`: RabbitMQ connection URI (e.g., `amqp://localhost:5672`).
 - `RABBITMQ_EXCHANGE_NAME`: Exchange name to publish to (default: `greenbond.events`).
-- `RABBITMQ_EXCHANGE_TYPE`: Exchange type (default: `topic`).
-- `RABBITMQ_BLOCKCHAIN_EVENTS_ROUTING_KEY`: Routing key for processed events (default: `blockchain.events.processed`).
-- `BLOCKCHAIN_LISTENER_RABBITMQ_PUBLISH_RAW`: Set to `true` to also publish raw event payload (default: `false`).
-- `RABBITMQ_BLOCKCHAIN_EVENTS_RAW_ROUTING_KEY`: Routing key for raw events (default: `blockchain.events.raw`).
-- `BLOCKCHAIN_LISTENER_RABBITMQ_PERSISTENT`: Set to `false` to disable persistent messages (default: `true`).
+- `RABBITMQ_CONNECTION_WAIT`: Whether to wait for connection on bootstrap (`true|false`, default: `false`).
+- `RABBITMQ_BLOCKCHAIN_ROUTING_KEY`: Base routing key for blockchain events (default: `blockchain.events`).
+- `RABBITMQ_PUBLISH_ENABLED`: Toggle to enable/disable publishing (`true|false`, default: `true`).
 
 ### Message Format
 
-Processed event message:
+Published message (generic DLT event):
 ```
 {
-  "id": "<eventStoreId>",
   "eventName": "<name>",
-  "status": "PROCESSED|FAILED",
-  "errorReason": "<string|null>",
+  ...eventFields,
   "timestamp": "<ISO8601>"
 }
 ```
-
-Raw event message (when enabled):
-```
-{
-  "id": "<eventStoreId>",
-  "eventName": "<name>",
-  "raw": "<JSON string as saved in EventStore>",
-  "timestamp": "<ISO8601>"
-}
-```
+Routing key is composed as: `<RABBITMQ_BLOCKCHAIN_ROUTING_KEY>.<eventName>`; for example: `blockchain.events.roleGranted`.
 
 ### Usage
 
-Import `BlockchainEventListenerModule` in your NestJS AppModule. The publisher is included as a provider and will be automatically activated:
+Import `BlockchainEventListenerModule` in your NestJS AppModule. The publisher and its RabbitMQ configuration are included and activated according to environment variables:
 
 ```
 imports: [SharedModule, BlockchainEventListenerModule]
 ```
 
-Ensure your application has the required environment variables set so the publisher can connect to RabbitMQ.
+Ensure your application has the required environment variables set so the publisher can connect to RabbitMQ. If `RABBITMQ_PUBLISH_ENABLED=false`, events will not be published.
+
+### Testing
+
+An end-to-end test is provided that uses Testcontainers to start a RabbitMQ container, publishes an event through `RabbitMQEventPublisherAdapter`, and validates receipt via a bound queue:
+
+- `test/port.adapter/eventpublisher/RabbitMQEventPublisherAdapter.spec.ts`
