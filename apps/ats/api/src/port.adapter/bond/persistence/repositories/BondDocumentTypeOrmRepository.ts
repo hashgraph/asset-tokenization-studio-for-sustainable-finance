@@ -5,7 +5,7 @@ import { Repository } from "typeorm"
 import { BondDocument } from "@domain/bond/document/model/BondDocument"
 import { BondDocumentPersistence } from "../model/BondDocumentPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { BondDocumentRepository } from "@domain/bond/document/repository/BondDocumentRepository"
+import type { BondDocumentRepository } from "@domain/bond/document/repository/BondDocumentRepository"
 
 @Injectable()
 export class BondDocumentTypeOrmRepository implements BondDocumentRepository {

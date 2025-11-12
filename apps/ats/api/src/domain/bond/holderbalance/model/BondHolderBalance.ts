@@ -22,4 +22,8 @@ export class BondHolderBalance extends BaseEntity {
   @IsNotEmpty()
   @IsNumberString()
   lockedBalance: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  clearingBalance: string
 }
