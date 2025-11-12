@@ -26,7 +26,7 @@ Published message (generic DLT event):
   "timestamp": "<ISO8601>"
 }
 ```
-Routing key is composed as: `<RABBITMQ_BLOCKCHAIN_ROUTING_KEY>.<eventName>`; for example: `blockchain.events.roleGranted`.
+Routing key is composed as: `<RABBITMQ_BLOCKCHAIN_ROUTING_KEY>.<eventName>`; for example: `blockchain.events.RoleGranted`.
 
 ### Usage
 
@@ -37,9 +37,3 @@ imports: [SharedModule, BlockchainEventListenerModule]
 ```
 
 Ensure your application has the required environment variables set so the publisher can connect to RabbitMQ. If `RABBITMQ_PUBLISH_ENABLED=false`, events will not be published.
-
-### Testing
-
-An end-to-end test is provided that uses Testcontainers to start a RabbitMQ container, publishes an event through `RabbitMQEventPublisherAdapter`, and validates receipt via a bound queue:
-
-- `test/port.adapter/eventpublisher/RabbitMQEventPublisherAdapter.spec.ts`

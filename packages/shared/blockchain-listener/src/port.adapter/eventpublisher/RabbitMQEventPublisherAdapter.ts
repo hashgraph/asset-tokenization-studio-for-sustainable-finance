@@ -4,7 +4,7 @@ import { AmqpConnection } from "@golevelup/nestjs-rabbitmq"
 import { Logger, Singleton } from "@hashgraph/green-bonds-shared-core"
 
 import type { Event } from "@hashgraph/green-bonds-shared-core"
-import { EventPublisherPort } from "@domain/eventpublisher/ports/EventPublisherPort"
+import { EventPublisherPort } from "@port/eventpublisher/EventPublisherPort"
 
 /**
  * RabbitMQ adapter implementing EventPublisherPort.
@@ -15,6 +15,7 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
   private readonly exchangeName: string
   private readonly routingKeyBase: string
   private readonly publishEnabled: boolean
+  private readonly logger = new Logger(RabbitMQEventPublisherAdapter.name)
 
   constructor(private readonly amqpConnection: AmqpConnection) {
     this.exchangeName = process.env.RABBITMQ_EXCHANGE_NAME || "greenbond.events"
@@ -28,9 +29,8 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
         return
       }
       const payload = {
-        eventName: (event as any)?.constructor?.name || "UnknownDLTEvent",
+        eventName: ((event as any)?.constructor?.name || "Unknown").replace(/DLTEvent$/, ""),
         ...event,
-        timestamp: new Date().toISOString(),
       }
 
       const options = {
@@ -42,7 +42,7 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
       const routingKey = `${this.routingKeyBase}.${payload.eventName}`
       await this.amqpConnection.publish(this.exchangeName, routingKey, payload, options as any)
     } catch (err) {
-      Logger.error(`Failed to publish DLT event to RabbitMQ: ${err?.message}`, RabbitMQEventPublisherAdapter.name)
+      this.logger.error(`Failed to publish DLT event to RabbitMQ: ${err?.message}`, err?.stack)
     }
   }
 }
