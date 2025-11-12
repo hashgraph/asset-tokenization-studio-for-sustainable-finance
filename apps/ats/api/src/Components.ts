@@ -56,6 +56,22 @@ import { GetBondCouponsHttpAdapter } from "@port/bond/usecase/getbondcoupons/Get
 import { GetBondCouponsQueryHandler } from "@app/bond/getbondcoupons/query/GetBondCouponsQueryHandler"
 import { GetBondCouponHttpAdapter } from "@port/bond/usecase/getbondcoupon/GetBondCouponHttpAdapter"
 import { GetBondCouponQueryHandler } from "@app/bond/getbondcoupon/query/GetBondCouponQueryHandler"
+import { CreateBondLockTransactionHttpAdapter } from "@port/transaction/usecase/createbondlocktransaction/CreateBondLockTransactionHttpAdapter"
+import { CreateBondLockTransactionAppService } from "@app/bond/transaction/createbondlocktransaction/service/CreateBondLockTransactionAppService"
+import { CreateBondLockCommandHandler } from "@app/bond/createbondlock/command/CreateBondLockCommandHandler"
+import { CreateBondLockNestJSEventAdapter } from "@port/bond/usecase/createbondlock/CreateBondLockNestJSEventAdapter"
+import { CreateBondLockDomainService } from "@domain/bond/lock/service/CreateBondLockDomainService"
+import { BondLockPersistence } from "@port/bond/persistence/model/BondLockPersistence"
+import { BondLockTypeOrmRepository } from "@port/bond/persistence/repositories/BondLockTypeOrmRepository"
+import { MintBondTransactionHttpAdapter } from "@port/transaction/usecase/mintbondtransaction/MintBondTransactionHttpAdapter"
+import { MintBondTransactionAppService } from "@app/bond/transaction/mintbondtransaction/service/MintBondTransactionAppService"
+import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { BondHolderBalanceTypeOrmRepository } from "@port/bond/persistence/repositories/BondHolderBalanceTypeOrmRepository"
+import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/updatebondholderbalance/UpdateBondHolderBalanceNestJSEventAdapter"
+import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
+import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
+import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
+import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -74,6 +90,14 @@ const REPOSITORIES: Provider[] = [
     provide: "BondCouponRepository",
     useClass: BondCouponTypeOrmRepository,
   },
+  {
+    provide: "BondLockRepository",
+    useClass: BondLockTypeOrmRepository,
+  },
+  {
+    provide: "BondHolderBalanceRepository",
+    useClass: BondHolderBalanceTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -89,6 +113,8 @@ export const CONTROLLERS = [
   SetBondCouponTransactionHttpAdapter,
   GetBondCouponsHttpAdapter,
   GetBondCouponHttpAdapter,
+  CreateBondLockTransactionHttpAdapter,
+  MintBondTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -126,11 +152,23 @@ export const PROVIDERS = [
   RemoveControlListMemberCommandHandler,
   RemoveControlListMemberNestJSEventAdapter,
   RemoveBondControlListMemberDomainService,
-  SetBondCouponTransactionAppService,
+  CreateBondLockTransactionAppService,
+  CreateBondLockCommandHandler,
+  CreateBondLockNestJSEventAdapter,
+  CreateBondLockDomainService,
+  MintBondTransactionAppService,
+  UpdateBondHolderBalanceNestJSEventAdapter,
+  UpdateBondHolderBalanceDomainService,
+  UpdateBondHolderBalanceCommandHandler,
+  LockBondHolderBalanceDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
+  },
+  {
+    provide: "TransactionManager",
+    useClass: TypeOrmTransactionManager,
   },
 ]
 export const ENTITIES = [
@@ -139,4 +177,6 @@ export const ENTITIES = [
   BondDocumentPersistence,
   BondControlListMemberPersistence,
   BondCouponPersistence,
+  BondLockPersistence,
+  BondHolderBalancePersistence,
 ]

@@ -9,8 +9,10 @@ import {
   IBond__factory,
   ICap__factory,
   IControlList__factory,
+  IERC1410Issuer__factory,
   IERC1643__factory,
   IFactory__factory,
+  ILock__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
@@ -21,6 +23,8 @@ import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuil
 import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
 import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveControlListMemberTransactionRequest"
 import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model/BuildSetCouponTransactionRequest"
+import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
+import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -32,6 +36,10 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
   private readonly CONTROL_LIST_ROLE = "0xca537e1c88c9f52dc5692c96c482841c3bea25aafc5f3bfe96f645b5f800cac3"
   private readonly CORPORATE_ACTION_ROLE = "0x8a139eeb747b9809192ae3de1b88acfd2568c15241a5c4f85db0443a536d77d6"
+  private readonly LOCKER_ROLE = "0xd8aa8c6f92fe8ac3f3c0f88216e25f7c08b3a6c374b4452a04d200c29786ce88"
+  private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
+
+  private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -71,6 +79,18 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
           },
           {
             role: this.CORPORATE_ACTION_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.LOCKER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.ISSUER_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
@@ -249,6 +269,35 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [coupon],
+    )
+  }
+
+  async createBondLockTransaction(req: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+
+    return await this.buildAndReturnTransactionResponse(
+      ILock__factory.createInterface(),
+      "lockByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.amount, req.holderAccountId, req.expirationTimestamp],
+    )
+  }
+
+  async mintBondTransaction(req: BuildMintBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410Issuer__factory.createInterface(),
+      "issueByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.holderAccountId, req.amount, data],
     )
   }
 
