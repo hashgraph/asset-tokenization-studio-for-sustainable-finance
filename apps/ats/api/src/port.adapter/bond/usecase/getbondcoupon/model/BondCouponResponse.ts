@@ -9,4 +9,6 @@ export class BondCouponResponse {
   recordDate: Date
   executionDate: Date
   rate: string
+  rateDecimals: string
+  period: string
 }

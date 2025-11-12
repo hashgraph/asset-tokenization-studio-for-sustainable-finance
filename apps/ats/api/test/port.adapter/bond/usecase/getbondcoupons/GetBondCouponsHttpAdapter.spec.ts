@@ -120,6 +120,8 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         recordDate: recordDate,
         executionDate: executionDate,
         rate: "5.5",
+        rateDecimals: "2",
+        period: "2592000",
       })
 
       const recordDate2 = new Date("2025-12-01")
@@ -132,6 +134,8 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
         recordDate: recordDate2,
         executionDate: executionDate2,
         rate: "5.5",
+        rateDecimals: "2",
+        period: "2592000",
       })
 
       const response = await request(app.getHttpServer())
@@ -173,6 +177,8 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
           recordDate: new Date("2025-06-01"),
           executionDate: new Date("2025-06-15"),
           rate: "5.5",
+          rateDecimals: "2",
+          period: "2592000",
         })
       }
 

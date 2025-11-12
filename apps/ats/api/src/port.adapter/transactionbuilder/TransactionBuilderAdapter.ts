@@ -2,6 +2,7 @@
 import {
   BaseTransactionBuilder,
   BuildTransactionResponse,
+  ConverterUtils,
   Environment,
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
@@ -126,15 +127,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         startingDate: parseInt(req.securityTokenToCreate.startingDate).toString(),
         maturityDate: parseInt(req.securityTokenToCreate.maturityDate).toString(),
       },
-      //TODO remove this when contracts are updated
-      couponDetails: {
-        couponFrequency: "2592000",
-        couponRate: "1000",
-        firstCouponDate: "1970997600",
-      },
-      // proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
-      // proceedRecipientsData:
-      //   req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
+      proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
+      proceedRecipientsData:
+        req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
     }
 
     const factoryRegulationData = {
@@ -259,6 +254,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       recordDate: req.recordDate,
       executionDate: req.executionDate,
       rate: req.rate,
+      rateDecimals: req.rateDecimals,
+      period: req.period,
     }
 
     return await this.buildAndReturnTransactionResponse(
@@ -290,6 +287,13 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const partition = req.partition ?? this.DEFAULT_PARTITION
     const data = req.data ?? "0x"
 
+    const issueData = {
+      partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      value: req.amount,
+      data,
+    }
+
     return await this.buildAndReturnTransactionResponse(
       IERC1410Issuer__factory.createInterface(),
       "issueByPartition",
@@ -297,7 +301,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [partition, req.holderAccountId, req.amount, data],
+      [issueData],
     )
   }
 
