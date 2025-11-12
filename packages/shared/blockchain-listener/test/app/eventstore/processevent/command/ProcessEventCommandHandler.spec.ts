@@ -38,7 +38,9 @@ describe("ProcessEventCommandHandler", () => {
   })
 
   beforeEach(async () => {
-    const providers = EVENT_LISTENER_PROVIDERS.filter((provider) => provider !== EventListenerNestJSOnApplicationBootstrap)
+    const providers = EVENT_LISTENER_PROVIDERS.filter(
+      (provider) => provider !== EventListenerNestJSOnApplicationBootstrap,
+    )
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       providers: [...providers, TestDLTEventListener],

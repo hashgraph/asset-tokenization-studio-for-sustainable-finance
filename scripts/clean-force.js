@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 /**
  * Comprehensive cleanup script for the Green Bonds Platform monorepo
@@ -45,9 +46,9 @@ const contractTempDirs = [
 ];
 
 // Files to remove from root
-const rootFilesToRemove = [
-  'package-lock.json'
-];
+// const rootFilesToRemove = [
+//   'package-lock.json'
+// ];
 
 /**
  * Safely remove a file or directory
@@ -112,9 +113,19 @@ commonTempDirs.forEach(dir => {
   remove(dir);
 });
 
-rootFilesToRemove.forEach(file => {
-  remove(file, true);
-});
+// Commented out - not removing package-lock.json
+// rootFilesToRemove.forEach(file => {
+//   remove(file, true);
+// });
+
+// Clean npm cache
+console.log('\n🗑️  Cleaning npm cache...');
+try {
+  execSync('npm cache clean --force', { stdio: 'inherit', cwd: rootDir });
+  console.log('✓ npm cache cleaned');
+} catch (error) {
+  console.error('✗ Failed to clean npm cache:', error.message);
+}
 
 console.log('\n✨ Cleanup complete!\n');
 console.log('💡 Run "npm ci" to reinstall dependencies\n');

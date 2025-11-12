@@ -20,6 +20,8 @@ import { EventStorePersistence } from "@port/persistence/eventstore/model/EventS
 import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
 import { CreateSchema1759133092414 } from "./migrations/1759133092414-CreateSchema"
+import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
+import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -47,6 +49,7 @@ export const EVENT_LISTENER_PROVIDERS = [
   GetEventFiltersQueryHandler,
   ProcessBlocksAppService,
   EventListenerNestJSOnApplicationBootstrap,
+  PublishEventPortNestJSEventAdapter,
   {
     provide: "ConfigService",
     useClass: NestJSConfigService,
@@ -54,6 +57,10 @@ export const EVENT_LISTENER_PROVIDERS = [
   {
     provide: "HederaPort",
     useClass: HederaMirrorNodeAdapter,
+  },
+  {
+    provide: "EventPublisherPort",
+    useClass: RabbitMQEventPublisherAdapter,
   },
 ]
 
