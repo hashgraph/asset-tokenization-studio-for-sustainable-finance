@@ -4,14 +4,11 @@ import {
   BaseTransactionBuilder,
   BuildTransactionResponse,
   ConverterUtils,
-  Environment,
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
 import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
-import { ConfigService } from "@nestjs/config"
-import { ConfigKeys } from "@config/ConfigKeys"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
@@ -25,9 +22,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
   private readonly GRANT_ROLE_GAS = 700_000
-  private readonly DEFAULT_ENVIRONMENT = "testnet" as const
 
-  constructor(private readonly configService: ConfigService) {
+  constructor() {
     super()
   }
 
@@ -97,10 +93,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       format: request.format as "hedera" | "ethereum",
       args: [request.offeringId, request.start, request.end],
     })
-  }
-
-  private getEnvironment(): Environment {
-    return this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || this.DEFAULT_ENVIRONMENT
   }
 
   private getPrimaryMarketInterface() {
