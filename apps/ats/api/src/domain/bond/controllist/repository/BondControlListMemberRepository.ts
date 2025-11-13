@@ -4,7 +4,7 @@ import { BondControlListMember } from "../model/BondControlListMember"
 
 export interface BondControlListMemberRepository {
   save(member: BondControlListMember): Promise<BondControlListMember>
-  findByContractIdAndHolderId(contractId: string, holderId: string): Promise<BondControlListMember | null>
+  findByContractIdAndHolderAccountId(contractId: string, holderAccountId: string): Promise<BondControlListMember | null>
   findAllByContractId(contractId: string, pageOptions: PageOptions): Promise<Page<BondControlListMember>>
   delete(member: BondControlListMember): Promise<void>
 }

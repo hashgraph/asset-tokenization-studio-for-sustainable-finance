@@ -1,28 +1,39 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Entity, Column, ManyToOne, JoinColumn, Unique } from "typeorm"
-import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
-import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 @Entity("Subscription")
-@Unique(["subscriptionDltId", "offering"])
-export class SubscriptionPersistence extends BaseEntityPersistence {
-  @Column({ type: "varchar" })
-  subscriptionDltId: string
+export class SubscriptionPersistence {
+  @PrimaryColumn()
+  id: number
+
+  @PrimaryColumn()
+  offeringId: number
+
+  @PrimaryColumn({ type: "varchar" })
+  marketId: string
 
   @ManyToOne(() => OfferingPersistence, { eager: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "offeringDltId" })
+  @JoinColumn([
+    { name: "offeringId", referencedColumnName: "id" },
+    { name: "marketId", referencedColumnName: "marketId" },
+  ])
   offering: OfferingPersistence
 
-  @ManyToOne(() => InvestorPersistence, (investor) => investor.subscriptions, { eager: true, onDelete: "CASCADE" })
-  @JoinColumn({ name: "investorId" })
-  investor: InvestorPersistence
+  @Column()
+  investorAccountId: string
 
   @Column({ type: "varchar" })
   lotUnits: string
 
   @Column({ type: "enum", enum: SubscriptionStatus, default: SubscriptionStatus.SUBMITTED })
   status: SubscriptionStatus
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt: Date
 }

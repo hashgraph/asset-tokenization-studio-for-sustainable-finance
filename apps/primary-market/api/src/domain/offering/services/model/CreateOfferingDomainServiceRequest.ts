@@ -2,9 +2,9 @@
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-validator"
 
 export class CreateOfferingDomainServiceRequest {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
@@ -32,15 +32,15 @@ export class CreateOfferingDomainServiceRequest {
 
   @IsNotEmpty()
   @IsNumberString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -57,4 +57,8 @@ export class CreateOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumber()
   deadlineRule: number
+
+  @IsNotEmpty()
+  @IsNumberString()
+  price: string
 }

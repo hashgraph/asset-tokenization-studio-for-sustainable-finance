@@ -3,7 +3,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { BuildTransactionResponse, ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
@@ -25,9 +25,6 @@ describe("GrantRoleTransaction API Integration", () => {
 
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1/")
-    jest
-      .spyOn(ConverterUtils, "getEvmAddressFromHederaAddress")
-      .mockResolvedValue("0x1dC69e700e3fF1Cd7ca407DcCC6f8061D260F1E7")
     app.useLogger(false)
     await app.init()
   })
@@ -43,9 +40,9 @@ describe("GrantRoleTransaction API Integration", () => {
   })
 
   describe("POST /primary-markets/:marketContractId/roles/:roleId/users/:userAccountId", () => {
-    it("should grant role transaction with valid request data", async () => {
+    it("should create grant role transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
-      const roleId = "ADMIN_ROLE"
+      const roleId = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
       const userAccountId = "0.0.12345"
       const grantRoleRequest = {
         format: "hedera",
@@ -63,7 +60,7 @@ describe("GrantRoleTransaction API Integration", () => {
 
     it("should handle different valid format values", async () => {
       const marketContractId = "0.0.67890"
-      const roleId = "USER_ROLE"
+      const roleId = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
       const userAccountId = "0.0.12345"
       const formats = ["hedera", "ethereum"]
 
@@ -84,9 +81,9 @@ describe("GrantRoleTransaction API Integration", () => {
 
     it("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.67890"
-      const roleId = "ADMIN_ROLE"
+      const roleId = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
       const userAccountId = "0.0.12345"
-      const invalidRequests = [{}, { accountId: "0.0.12345" }, { format: "" }]
+      const invalidRequests = [{}, { format: "hedera" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
@@ -94,6 +91,21 @@ describe("GrantRoleTransaction API Integration", () => {
           .send(invalidRequest)
           .expect(400)
       }
+    })
+
+    it("should reject invalid format", async () => {
+      const marketContractId = "0.0.67890"
+      const roleId = "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      const userAccountId = "0.0.12345"
+      const grantRoleRequest = {
+        format: "invalid",
+        accountId: "0.0.12345",
+      }
+
+      await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/roles/${roleId}/users/${userAccountId}`)
+        .send(grantRoleRequest)
+        .expect(400)
     })
   })
 })

@@ -3,37 +3,18 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
-  "types": "./build/typechain-types/index.d.ts",
+  "types": "build/typechain-types/index.d.ts",
   "files": [
-    "artifacts/",
-    "contracts/",
-    "typechain-types/",
-    "scripts/",
     "build/",
-    "!artifacts/build-info/",
-    "!build/**/*.map"
+    "contracts/"
   ],
   "exports": {
     ".": {
-      "types": "./build/typechain-types/index.d.ts",
-      "require": "./build/typechain-types/index.js"
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
     },
-    "./artifacts/*": "./artifacts/*",
-    "./contracts/*": "./contracts/*",
-    "./scripts/": "./scripts/index.ts",
-    "./scripts": {
-      "types": "./build/scripts/index.d.ts",
-      "require": "./build/scripts/index.js"
-    },
-    "./typechain-types": {
-      "types": "./build/typechain-types/index.d.ts",
-      "require": "./build/typechain-types/index.js"
-    },
-    "./test": {
-      "types": "./build/test/index.d.ts",
-      "require": "./build/test/index.js"
-    },
-    "./package.json": "./package.json"
+    "./typechain-types/index.js": "./build/typechain-types/index.js"
   },
   "keywords": [
     "hedera",
@@ -44,28 +25,27 @@
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
+    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
     "clean": "npx hardhat clean",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "npm run lint:sol; npm run lint:js",
-    "lint:fix": "npm run lint:sol:fix; npm run lint:js:fix",
-    "lint:sol": "solhint --config solhint.config.js 'contracts/**/*.sol'",
-    "lint:sol:fix": "solhint --config solhint.config.js 'contracts/**/*.sol' --fix",
-    "lint:js": "eslint .",
-    "lint:js:fix": "eslint . --fix",
-    "fix": "npm run format; npm run lint:fix",
-    "generate:registry": "npx ts-node -r tsconfig-paths/register scripts/tools/generateRegistry.ts",
     "compile": "npx hardhat compile",
-    "compile:force": "npx hardhat compile --force",
-    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
-    "test": "npx hardhat test",
+    "compile:force": "npm run clean && npm run compile && npx tsc",
+    "test": "hedera start -d && npx hardhat test; hedera stop",
+    "test:lifecyclecashflow:distribution": "hedera start -d && npx hardhat test test/lifecyclecashflow.executedistribution.test.ts; hedera stop",
+    "test:lifecyclecashflow:redemption": "hedera start -d && npx hardhat test test/lifecyclecashflow.executebondredemption.test.ts; hedera stop",
+    "test:portfolio": "hedera start -d && npx hardhat test test/portfolio.test.ts; hedera stop",
+    "test:proceedsmanagement": "hedera start -d && npx hardhat test test/proceedsmanagement.test.ts; hedera stop",
     "test:coverage": "npx hardhat coverage",
-    "prepack": "npm run build"
+    "lint": "npx eslint .  && solhint 'contracts/**/*.sol'",
+    "lint:fix": "npx eslint . --fix && solhint 'contracts/**/*.sol' --fix --noPrompt",
+    "format": "prettier --check \"**/*.{ts,js,sol}\"",
+    "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
+    "fix": "npm run format:fix; npm run lint:fix",
+    "coverage": "npx hardhat coverage"
   },
   "devDependencies": {
     "@eslint/js": "^9.24.0",
-    "@hashgraph/asset-tokenization-contracts": "https://gitpkg.vercel.app/hashgraph/asset-tokenization-studio/packages/ats/contracts?refactor/EVRCT-147-modularize-simplify-contract-scripts-build",
-    "@hashgraph/sdk": "2.66.0",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
+    "@hashgraph/sdk": "2.76.0",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

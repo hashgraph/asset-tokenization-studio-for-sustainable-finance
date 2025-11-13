@@ -14,4 +14,12 @@ export class BuildSetCouponTransactionRequest extends BaseBuildTransactionReques
   @IsNumberString()
   @IsNotEmpty()
   rate: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  rateDecimals: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  period: string
 }

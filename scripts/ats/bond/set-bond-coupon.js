@@ -47,20 +47,13 @@ async function getCouponsForBond(bondContractId) {
   log(`\n🔍 Fetching coupons for bond ${bondContractId}...`, colors.bright);
 
   try {
-    const response = await gatewayClient.get(`/api/v1/ats/bonds/${bondContractId}/coupons`);
+    // Fetch all coupons (with a high limit to get all)
+    const response = await gatewayClient.get(`/api/v1/ats/bonds/${bondContractId}/coupons?limit=20`);
 
-    if (response.data && response.data.length > 0) {
-      logSuccess(`Found ${response.data.length} coupon(s) for bond ${bondContractId}`);
-      response.data.forEach((coupon, index) => {
-        logInfo(`\nCoupon ${index + 1}:`);
-        logInfo(`  • Coupon ID: ${coupon.couponId}`);
-        logInfo(`  • Corporate Action ID: ${coupon.corporateActionId}`);
-        logInfo(`  • Record Date: ${new Date(coupon.recordDate * 1000).toISOString()}`);
-        logInfo(`  • Execution Date: ${new Date(coupon.executionDate * 1000).toISOString()}`);
-        logInfo(`  • Rate: ${coupon.rate} basis points (${coupon.rate / 100}%)`);
-        logInfo(`  • Operator: ${coupon.operator}`);
-      });
-      return response.data;
+    if (response.data && response.data.couponIds && response.data.couponIds.length > 0) {
+      logSuccess(`Found ${response.data.couponIds.length} coupon(s) for bond ${bondContractId}`);
+      logInfo(`Coupon IDs: ${response.data.couponIds.join(", ")}`);
+      return response.data.couponIds;
     } else {
       logInfo("No coupons found for this bond yet");
       return [];

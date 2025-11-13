@@ -80,13 +80,13 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, AddedToControlListDLTEvent.name)
 
       const savedMember = await bondControlListMemberRepository.findOne({
-        where: { contractId: CONTRACT_ID, holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
+        where: { contractId: CONTRACT_ID, holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
       })
 
       expect(savedMember).toBeDefined()
       expect(savedMember).not.toBeNull()
       expect(savedMember!.contractId).toBe(CONTRACT_ID)
-      expect(savedMember!.holderId).toBe("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
+      expect(savedMember!.holderAccountId).toBe("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
     })
 
     it("should throw BondControlListMemberFoundError when member with same contractId and holderId already exists", async () => {
@@ -110,7 +110,7 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
 
       const existingMember = {
         contractId: CONTRACT_ID,
-        holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       }
 
       await bondControlListMemberRepository.save(existingMember)
@@ -123,7 +123,10 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       )
 
       await expect(eventBus.publishSync(event, AddedToControlListDLTEvent.name)).rejects.toThrow(
-        BondControlListMemberFoundError.contractIdAndHolderIdError(CONTRACT_ID, "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"),
+        BondControlListMemberFoundError.contractIdAndHolderAccountIdError(
+          CONTRACT_ID,
+          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        ),
       )
     })
 
@@ -155,13 +158,13 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, AddedToControlListDLTEvent.name)
 
         const savedMember = await bondControlListMemberRepository.findOne({
-          where: { contractId, holderId: holder },
+          where: { contractId, holderAccountId: holder },
         })
 
         expect(savedMember).toBeDefined()
         expect(savedMember).not.toBeNull()
         expect(savedMember!.contractId).toBe(contractId)
-        expect(savedMember!.holderId).toBe(holder)
+        expect(savedMember!.holderAccountId).toBe(holder)
       }
 
       const allMembers = await bondControlListMemberRepository.find()
@@ -190,26 +193,26 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const holderId = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const holderAccountId = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
 
       for (const contractId of contracts) {
         const event = new AddedToControlListDLTEvent(
           contractId,
           "0x1234567890abcdef",
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          holderId,
+          holderAccountId,
         )
 
         await eventBus.publishSync(event, AddedToControlListDLTEvent.name)
 
         const savedMember = await bondControlListMemberRepository.findOne({
-          where: { contractId, holderId },
+          where: { contractId, holderAccountId },
         })
 
         expect(savedMember).toBeDefined()
         expect(savedMember).not.toBeNull()
         expect(savedMember!.contractId).toBe(contractId)
-        expect(savedMember!.holderId).toBe(holderId)
+        expect(savedMember!.holderAccountId).toBe(holderAccountId)
       }
 
       const allMembers = await bondControlListMemberRepository.find()
@@ -247,7 +250,7 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           contractId: "0.0.6974684",
-          holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
           timestamp: expect.any(Number),
         }),
       )

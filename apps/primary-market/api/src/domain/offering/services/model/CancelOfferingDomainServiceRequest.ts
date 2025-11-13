@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumberString, IsArray } from "class-validator"
+import { IsNotEmpty, IsString, IsArray, IsNumber } from "class-validator"
 
 export class CancelOfferingDomainServiceRequest {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
@@ -15,10 +15,10 @@ export class CancelOfferingDomainServiceRequest {
   operatorAccountId: string
 
   @IsArray()
-  @IsNumberString({}, { each: true })
-  subscriptionDltIdsSuccess: string[]
+  @IsNumber({}, { each: true })
+  subscriptionIdsSuccess: number[]
 
   @IsArray()
-  @IsNumberString({}, { each: true })
-  subscriptionDltIdsFailed: string[]
+  @IsNumber({}, { each: true })
+  subscriptionIdsFailed: number[]
 }

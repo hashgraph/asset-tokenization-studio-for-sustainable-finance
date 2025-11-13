@@ -25,22 +25,22 @@ async function bootstrap() {
     .setTitle("GreenBonds Primary Market API")
     .setDescription("The GreenBonds Primary Market API documentation")
     .setVersion("1.0")
-      .addGlobalResponse({
-        status: 500,
-        description: 'Internal server error',
-      })
-      .addGlobalResponse({
-        status: 401,
-        description: 'Unauthorized',
-      })
-      .addGlobalResponse({
-        status: 400,
-        description: 'Bad Request',
-      })
-      .addGlobalResponse({
-        status: 404,
-        description: 'Not Found',
-      })
+    .addGlobalResponse({
+      status: 500,
+      description: "Internal server error",
+    })
+    .addGlobalResponse({
+      status: 401,
+      description: "Unauthorized",
+    })
+    .addGlobalResponse({
+      status: 400,
+      description: "Bad Request",
+    })
+    .addGlobalResponse({
+      status: 404,
+      description: "Not Found",
+    })
     .build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("api/v1/docs", app, documentFactory)

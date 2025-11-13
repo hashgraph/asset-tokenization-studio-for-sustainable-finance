@@ -9,7 +9,6 @@ import { PostgresModule } from "@config/PostgresModule"
 import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
-import { InvestorPersistence } from "@port/persistence/investor/model/InvestorPersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { SubscriptionSubmittedDLTEvent } from "@port/subscription/usecase/submitsubscription/model/SubscriptionSubmittedDLTEvent"
@@ -21,7 +20,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
   let eventBus: EventBus
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let offeringRepository: Repository<OfferingPersistence>
-  let investorRepository: Repository<InvestorPersistence>
   let subscriptionRepository: Repository<SubscriptionPersistence>
 
   beforeAll(async () => {
@@ -40,7 +38,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
     eventBus = app.get("EventBus")
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
-    investorRepository = app.get(getRepositoryToken(InvestorPersistence))
     subscriptionRepository = app.get(getRepositoryToken(SubscriptionPersistence))
   })
 
@@ -51,7 +48,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
   afterEach(async () => {
     const dataSource = app.get(DataSource)
     await dataSource.createQueryBuilder().delete().from("Subscription").execute()
-    await dataSource.createQueryBuilder().delete().from("Investor").execute()
     await dataSource.createQueryBuilder().delete().from("Offering").execute()
     await dataSource.createQueryBuilder().delete().from("PrimaryMarket").execute()
     await app.close()
@@ -64,27 +60,29 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
+        id: 1,
+        marketId: market.id,
         market,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        "1",
-        "2",
+        1,
+        2,
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -92,131 +90,49 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, SubscriptionSubmittedDLTEvent.name)
 
       const savedSubscription = await subscriptionRepository.findOne({
-        where: { subscriptionDltId: "2" },
-        relations: ["offering", "investor"],
+        where: { id: 2, offeringId: 1, marketId: market.id },
+        relations: ["offering", "offering.market"],
       })
 
       expect(savedSubscription).toBeDefined()
       expect(savedSubscription).not.toBeNull()
-      expect(savedSubscription!.subscriptionDltId).toBe("2")
-      expect(savedSubscription!.offering.offeringDltId).toBe("1")
-      expect(savedSubscription!.investor.accountId).toBe("0.0.4660")
+      expect(savedSubscription!.id).toBe(2)
+      expect(savedSubscription!.offering.id).toBe(1)
+      expect(savedSubscription!.investorAccountId).toBe("0.0.4660")
       expect(savedSubscription!.lotUnits).toBe("10")
       expect(savedSubscription!.status).toBe(SubscriptionStatus.SUBMITTED)
     })
 
-    it("should create investor if it does not exist", async () => {
-      const market = await primaryMarketRepository.save({
-        contractId: "0.0.1234567",
-      })
-
-      await offeringRepository.save({
-        offeringDltId: "1",
-        market,
-        bondContractId: "0.0.9999999",
-        operatorAccountId: "0.0.4660",
-        treasuryContractId: "0.0.9999999",
-        paymentTokenContractId: "0.0.9999999",
-        lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
-        targetQuantityRule: 0,
-        startDate: new Date("2023-01-01"),
-        endDate: new Date("2024-01-01"),
-        deadlineRule: 0,
-      })
-
-      const event = new SubscriptionSubmittedDLTEvent(
-        "0.0.1234567",
-        "0x123456789abcdef",
-        "1",
-        "2",
-        "0x0000000000000000000000000000000000001234",
-        "10",
-      )
-
-      await eventBus.publishSync(event, SubscriptionSubmittedDLTEvent.name)
-
-      const investors = await investorRepository.find()
-      expect(investors).toHaveLength(1)
-      expect(investors[0].accountId).toBe("0.0.4660")
-    })
-
-    it("should reuse existing investor when creating subscription", async () => {
-      const market = await primaryMarketRepository.save({
-        contractId: "0.0.1234567",
-      })
-
-      await offeringRepository.save({
-        offeringDltId: "1",
-        market,
-        bondContractId: "0.0.9999999",
-        operatorAccountId: "0.0.4660",
-        treasuryContractId: "0.0.9999999",
-        paymentTokenContractId: "0.0.9999999",
-        lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
-        targetQuantityRule: 0,
-        startDate: new Date("2023-01-01"),
-        endDate: new Date("2024-01-01"),
-        deadlineRule: 0,
-      })
-
-      await investorRepository.save({
-        accountId: "0.0.4660",
-      })
-
-      const event = new SubscriptionSubmittedDLTEvent(
-        "0.0.1234567",
-        "0x123456789abcdef",
-        "1",
-        "2",
-        "0x0000000000000000000000000000000000001234",
-        "10",
-      )
-
-      await eventBus.publishSync(event, SubscriptionSubmittedDLTEvent.name)
-
-      const investors = await investorRepository.find()
-      expect(investors).toHaveLength(1)
-
-      const subscriptions = await subscriptionRepository.find()
-      expect(subscriptions).toHaveLength(1)
-    })
-
-    it("should throw error when subscription with same subscriptionDltId already exists", async () => {
+    it("should throw error when subscription with same id already exists", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
 
       const offering = await offeringRepository.save({
-        offeringDltId: "1",
+        id: 1,
+        marketId: market.id,
         market,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
-      })
-
-      const investor = await investorRepository.save({
-        accountId: "0.0.4660",
+        price: "100",
       })
 
       await subscriptionRepository.save({
-        subscriptionDltId: "2",
+        id: 2,
+        offeringId: offering.id,
+        marketId: market.id,
         offering,
-        investor,
+        investorAccountId: "0.0.4660",
         lotUnits: "5",
         status: SubscriptionStatus.SUBMITTED,
       })
@@ -224,8 +140,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        "1",
-        "2",
+        1,
+        2,
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -241,8 +157,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        "999",
-        "2",
+        999,
+        2,
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -256,27 +172,29 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
+        id: 1,
+        marketId: market.id,
         market,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const event1 = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        "1",
-        "2",
+        1,
+        2,
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -284,8 +202,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event2 = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0xabcdef123456789",
-        "1",
-        "3",
+        1,
+        3,
         "0x0000000000000000000000000000000000005678",
         "20",
       )
@@ -295,9 +213,6 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
 
       const subscriptions = await subscriptionRepository.find()
       expect(subscriptions).toHaveLength(2)
-
-      const investors = await investorRepository.find()
-      expect(investors).toHaveLength(2)
     })
 
     it("should publish SubscriptionSubmittedEvent after successful subscription creation", async () => {
@@ -306,20 +221,22 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
+        id: 1,
+        marketId: market.id,
         market,
         bondContractId: "0.0.9999999",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       let publishedEvent: any
@@ -328,8 +245,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        "1",
-        "2",
+        1,
+        2,
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -338,9 +255,10 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          offeringDltId: "1",
-          subscriptionDltId: "2",
-          investorId: "0.0.4660",
+          offeringId: 1,
+          marketContractId: "0.0.1234567",
+          subscriptionId: 2,
+          investorAccountId: "0.0.4660",
           lotUnits: "10",
           status: SubscriptionStatus.SUBMITTED,
         }),

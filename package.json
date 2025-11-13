@@ -19,7 +19,7 @@
   ],
   "scripts": {
     "clean": "npm run ats:contracts:clean; node -e \"const fs=require('fs'); fs.rmSync('node_modules', {recursive:true, force:true})\"",
-    "clean:force": "npm run clean; node -e \"const fs=require('fs'); fs.rmSync('package-lock.json', {force:true})\"",
+    "clean:force": "node scripts/clean-force.js",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",

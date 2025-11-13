@@ -49,6 +49,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "1704067200",
         executionDate: "1704153600",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       const response = await request(app.getHttpServer())
@@ -72,6 +74,8 @@ describe("SetBondCouponTransaction API Integration", () => {
           recordDate: "1704067200",
           executionDate: "1704153600",
           rate: "500",
+          rateDecimals: "2",
+          period: "2592000",
         }
 
         const response = await request(app.getHttpServer())
@@ -94,6 +98,8 @@ describe("SetBondCouponTransaction API Integration", () => {
           recordDate: "1704067200",
           executionDate: "1704153600",
           rate: rate,
+          rateDecimals: "2",
+          period: "2592000",
         }
 
         const response = await request(app.getHttpServer())
@@ -117,6 +123,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: oneMonthLater.toString(),
         executionDate: twoMonthsLater.toString(),
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       const response = await request(app.getHttpServer())
@@ -138,6 +146,8 @@ describe("SetBondCouponTransaction API Integration", () => {
           recordDate: "1704067200",
           executionDate: "1704153600",
           rate: "500",
+          rateDecimals: "2",
+          period: "2592000",
         }
 
         await request(app.getHttpServer())
@@ -155,6 +165,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "invalid-date",
         executionDate: "1704153600",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       await request(app.getHttpServer())
@@ -171,6 +183,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "1704067200",
         executionDate: "not-a-timestamp",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       await request(app.getHttpServer())
@@ -202,6 +216,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         accountId: "0.0.5466269",
         executionDate: "1704153600",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       await request(app.getHttpServer())
@@ -217,6 +233,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         accountId: "0.0.5466269",
         recordDate: "1704067200",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       await request(app.getHttpServer())
@@ -247,6 +265,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "1704067200",
         executionDate: "1704153600",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       await request(app.getHttpServer())
@@ -279,6 +299,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "1704067200",
         executionDate: "1704153600",
         rate: "0",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       const response = await request(app.getHttpServer())
@@ -297,6 +319,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "1704067200",
         executionDate: "1704153600",
         rate: "10000",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       const response = await request(app.getHttpServer())
@@ -317,6 +341,8 @@ describe("SetBondCouponTransaction API Integration", () => {
           recordDate: "1704067200",
           executionDate: "1704153600",
           rate: "500",
+          rateDecimals: "2",
+          period: "2592000",
         }
 
         const response = await request(app.getHttpServer())
@@ -336,6 +362,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: "9999999999",
         executionDate: "9999999999",
         rate: "500",
+        rateDecimals: "2",
+        period: "2592000",
       }
 
       const response = await request(app.getHttpServer())

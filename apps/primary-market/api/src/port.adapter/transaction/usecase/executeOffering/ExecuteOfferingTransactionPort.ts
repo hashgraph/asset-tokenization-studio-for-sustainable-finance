@@ -6,7 +6,7 @@ import { ExecuteOfferingTransactionRequest } from "./model/ExecuteOfferingTransa
 export interface ExecuteOfferingTransactionPort {
   executeOfferingTransaction(
     marketContractId: string,
-    offeringDltId: string,
+    offeringId: number,
     request: ExecuteOfferingTransactionRequest,
   ): Promise<TransactionResponse>
 }

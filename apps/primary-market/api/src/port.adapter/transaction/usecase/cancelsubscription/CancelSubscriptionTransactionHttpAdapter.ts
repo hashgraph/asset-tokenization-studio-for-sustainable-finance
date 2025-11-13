@@ -10,18 +10,18 @@ import { CancelSubscriptionTransactionAppServiceRequest } from "@app/transaction
 export class CancelSubscriptionTransactionHttpAdapter implements CancelSubscriptionTransactionPort {
   constructor(private readonly cancelSubscriptionTransactionAppService: CancelSubscriptionTransactionAppService) {}
 
-  @Delete(":marketContractId/offerings/:offeringDltId/subscriptions")
+  @Delete(":marketContractId/offerings/:offeringId/subscriptions")
   async cancelSubscriptionTransaction(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringDltId") offeringDltId: string,
+    @Param("offeringId") offeringId: number,
     @Body() request: CancelSubscriptionTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new CancelSubscriptionTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       marketContractId,
-      offeringDltId,
-      request.subscriptionDltId,
+      offeringId,
+      request.subscriptionId,
     )
     return await this.cancelSubscriptionTransactionAppService.execute(appServiceRequest)
   }

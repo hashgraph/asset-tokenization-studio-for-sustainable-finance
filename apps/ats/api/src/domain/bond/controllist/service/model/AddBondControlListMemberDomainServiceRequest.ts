@@ -8,5 +8,5 @@ export class AddBondControlListMemberDomainServiceRequest {
 
   @IsString()
   @IsNotEmpty()
-  holderId: string
+  holderAccountId: string
 }

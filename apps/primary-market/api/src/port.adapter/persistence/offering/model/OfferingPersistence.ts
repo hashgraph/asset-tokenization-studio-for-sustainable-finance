@@ -1,14 +1,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Entity, Column, ManyToOne, JoinColumn, Unique } from "typeorm"
-import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 
 @Entity("Offering")
-@Unique(["offeringDltId", "market"])
-export class OfferingPersistence extends BaseEntityPersistence {
-  @Column({ type: "varchar" })
-  offeringDltId: string
+export class OfferingPersistence {
+  @PrimaryColumn()
+  id: number
+
+  @PrimaryColumn()
+  marketId: string
 
   @ManyToOne(() => PrimaryMarketPersistence, (market) => market.offerings, { eager: true, onDelete: "CASCADE" })
   @JoinColumn({ name: "marketId" })
@@ -30,13 +31,13 @@ export class OfferingPersistence extends BaseEntityPersistence {
   lotSize: string
 
   @Column({ type: "varchar" })
-  minQuantity: string
+  minLots: string
 
   @Column({ type: "varchar" })
-  maxQuantity: string
+  maxLots: string
 
   @Column({ type: "varchar" })
-  targetQuantity: string
+  targetLots: string
 
   @Column({ type: "int" })
   targetQuantityRule: number
@@ -49,4 +50,13 @@ export class OfferingPersistence extends BaseEntityPersistence {
 
   @Column({ type: "int" })
   deadlineRule: number
+
+  @Column({ type: "varchar" })
+  price: string
+
+  @CreateDateColumn({ type: "timestamp" })
+  createdAt: Date
+
+  @UpdateDateColumn({ type: "timestamp" })
+  updatedAt: Date
 }

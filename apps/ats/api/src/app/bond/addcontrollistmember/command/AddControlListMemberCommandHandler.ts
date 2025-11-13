@@ -16,6 +16,6 @@ export class AddControlListMemberCommandHandler implements CommandHandler<AddCon
   @Validate()
   async execute(command: AddControlListMemberCommand): Promise<void> {
     const member = await this.addBondControlListMemberDomainService.execute(command)
-    this.eventBus.publish(new BondControlListMemberAddedEvent(member.contractId, member.holderId))
+    this.eventBus.publish(new BondControlListMemberAddedEvent(member.contractId, member.holderAccountId))
   }
 }

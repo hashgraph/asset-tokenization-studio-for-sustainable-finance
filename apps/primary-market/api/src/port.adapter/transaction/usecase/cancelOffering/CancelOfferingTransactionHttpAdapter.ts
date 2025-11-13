@@ -10,17 +10,17 @@ import { CancelOfferingTransactionAppServiceRequest } from "@app/transaction/can
 export class CancelOfferingTransactionHttpAdapter implements CancelOfferingTransactionPort {
   constructor(private readonly cancelOfferingTransactionAppService: CancelOfferingTransactionAppService) {}
 
-  @Delete(":marketContractId/offerings/:offeringDltId")
+  @Delete(":marketContractId/offerings/:offeringId")
   async cancelOfferingTransaction(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringDltId") offeringDltId: string,
+    @Param("offeringId") offeringId: number,
     @Body() request: CancelOfferingTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new CancelOfferingTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       marketContractId,
-      offeringDltId,
+      offeringId,
       request.start,
       request.end,
     )

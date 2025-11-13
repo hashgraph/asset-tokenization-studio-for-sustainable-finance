@@ -3,6 +3,6 @@
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
 export class BuildCancelSubscriptionTransactionRequest extends BaseBuildTransactionRequest {
-  offeringDltId: string
-  subscriptionDltId: string
+  offeringId: number
+  subscriptionId: number
 }

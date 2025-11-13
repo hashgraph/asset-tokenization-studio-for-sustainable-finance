@@ -1,20 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PrimaryMarket } from "@domain/primarymarket/model/PrimaryMarket"
-import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsDate, ValidateNested } from "class-validator"
-import { Type } from "class-transformer"
+import { IsNotEmpty, IsString, IsNumber, IsDate } from "class-validator"
 import { OfferingUnauthorizedOperatorError } from "../errors/OfferingUnauthorizedOperatorError"
 
-export class Offering extends BaseEntity {
+export class Offering {
+  @IsNumber()
   @IsNotEmpty()
-  @IsString()
-  offeringDltId: string
+  id: number
 
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => PrimaryMarket)
-  market: PrimaryMarket
+  @IsString()
+  marketId: string
 
   @IsNotEmpty()
   @IsString()
@@ -38,15 +34,15 @@ export class Offering extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -64,13 +60,19 @@ export class Offering extends BaseEntity {
   @IsNumber()
   deadlineRule: number
 
+  @IsNotEmpty()
+  @IsString()
+  price: string
+
+  @IsDate()
+  createdAt: Date
+
+  @IsDate()
+  updatedAt: Date
+
   ensureOperatorMatches(operatorAccountId: string): void {
     if (this.operatorAccountId !== operatorAccountId) {
-      throw OfferingUnauthorizedOperatorError.operatorMismatchError(
-        this.offeringDltId,
-        this.operatorAccountId,
-        operatorAccountId,
-      )
+      throw OfferingUnauthorizedOperatorError.operatorMismatchError(this.id, this.operatorAccountId, operatorAccountId)
     }
   }
 }

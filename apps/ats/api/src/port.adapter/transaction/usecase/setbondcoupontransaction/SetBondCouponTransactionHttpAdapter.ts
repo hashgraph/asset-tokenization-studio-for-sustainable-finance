@@ -22,6 +22,8 @@ export class SetBondCouponTransactionHttpAdapter implements SetBondCouponTransac
       request.recordDate,
       request.executionDate,
       request.rate,
+      request.rateDecimals,
+      request.period,
     )
 
     return await this.setCouponTransactionAppService.execute(appServiceRequest)

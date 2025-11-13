@@ -69,9 +69,8 @@ import { UpdatePaymentTokenNestJSEventAdapter } from "@port/treasury/usecase/upd
 import { UpdatePaymentTokenCommandHandler } from "@app/treasury/updatepaymenttoken/command/UpdatePaymentTokenCommandHandler"
 import { UpdatePaymentTokenDomainService } from "@domain/treasury/services/UpdatePaymentTokenDomainService"
 import {
-  GrantRoleTransactionAppService,
-  RevokeRoleTransactionAppService,
-  SHARED_ENTITIES,
+  COMMON_FUNCTIONALITY_ENTITIES,
+  COMMON_FUNCTIONALITY_PROVIDERS,
   TypeOrmTransactionManager,
 } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensHttpAdapter } from "@port/paymenttoken/usecase/getpaymenttokens/GetPaymentTokensHttpAdapter"
@@ -80,9 +79,7 @@ import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecas
 import { AddPaymentTokenTransferCommandHandler } from "@app/treasury/addpaymenttokentransfer/command/AddPaymentTokenTransferCommandHandler"
 import { AddPaymentTokenTransferAppService } from "@app/treasury/addpaymenttokentransfer/service/AddPaymentTokenTransferAppService"
 import { PauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionHttpAdapter"
-import { PauseTreasuryTransactionAppService } from "@app/transaction/pausetreasury/service/PauseTreasuryTransactionAppService"
 import { UnpauseTreasuryTransactionHttpAdapter } from "@port/transaction/usecase/unpausetreasury/UnpauseTreasuryTransactionHttpAdapter"
-import { UnpauseTreasuryTransactionAppService } from "@app/transaction/unpausetreasury/service/UnpauseTreasuryTransactionAppService"
 import { PauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/pausetreasury/PauseTreasuryNestJSEventAdapter"
 import { PauseTreasuryCommandHandler } from "@app/treasury/pausetreasury/command/PauseTreasuryCommandHandler"
 import { UnpauseTreasuryNestJSEventAdapter } from "@port/treasury/usecase/unpausetreasury/UnpauseTreasuryNestJSEventAdapter"
@@ -143,6 +140,14 @@ import { AddPaymentTokenCommandHandler } from "@app/treasury/addpaymenttoken/com
 import { CreateTreasuryFiltersNestJSEventAdapter } from "@port/treasury/usecase/createtreasuryfilters/CreateTreasuryFiltersNestJSEventAdapter"
 import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
+import { GetUserRolesHttpAdapter } from "@port/treasury/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GetRoleMembersHttpAdapter } from "@port/treasury/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/treasury/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/treasury/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { RenounceRoleNestJSEventAdapter } from "@port/treasury/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
+import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
+import { SyncUserRolesNestJSEventAdapter } from "@port/treasury/usecase/syncuserroles/SyncUserRolesNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -192,8 +197,8 @@ const REPOSITORIES: Provider[] = [
 ]
 
 export const ENTITIES = [
-  ...SHARED_ENTITIES,
   ...EVENT_LISTENER_ENTITIES,
+  ...COMMON_FUNCTIONALITY_ENTITIES,
   TreasuryPersistence,
   EnvironmentalAssetPersistence,
   EnvironmentalAssetTokenPersistence,
@@ -238,10 +243,15 @@ export const CONTROLLERS = [
   GetRedemptionHoldersHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
+  RenounceRoleTransactionHttpAdapter,
+  ApplyRolesTransactionHttpAdapter,
+  GetUserRolesHttpAdapter,
+  GetRoleMembersHttpAdapter,
 ]
 
 export const PROVIDERS = [
   ...REPOSITORIES,
+  ...COMMON_FUNCTIONALITY_PROVIDERS,
   FundProceedsRecipientTransactionAppService,
   AddEnvironmentalAssetTransactionAppService,
   RemoveEnvironmentalAssetTransactionAppService,
@@ -278,10 +288,8 @@ export const PROVIDERS = [
   UpdatePaymentTokenDomainService,
   AddPaymentTokenTransferNestJSEventAdapter,
   AddPaymentTokenTransferCommandHandler,
-  UnpauseTreasuryTransactionAppService,
   AddPaymentTokenTransferAppService,
   ExternalTransferEnvironmentalAssetTransactionAppService,
-  PauseTreasuryTransactionAppService,
   PauseTreasuryNestJSEventAdapter,
   PauseTreasuryCommandHandler,
   UnpauseTreasuryNestJSEventAdapter,
@@ -334,6 +342,8 @@ export const PROVIDERS = [
     useClass: TypeOrmTransactionManager,
   },
   CreateTreasuryFiltersNestJSEventAdapter,
-  GrantRoleTransactionAppService,
-  RevokeRoleTransactionAppService,
+  GrantRoleNestJSEventAdapter,
+  RevokeRoleNestJSEventAdapter,
+  RenounceRoleNestJSEventAdapter,
+  SyncUserRolesNestJSEventAdapter,
 ]

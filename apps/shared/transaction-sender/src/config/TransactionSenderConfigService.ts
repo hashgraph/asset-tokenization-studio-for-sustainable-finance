@@ -15,7 +15,6 @@ export class TransactionSenderConfigService extends BaseConfigService {
     return (this.getProperty(ConfigKeys.NETWORK) as string) || "testnet"
   }
 
-
   getLogLevel(): string {
     return (this.getProperty(ConfigKeys.LOG_LEVEL) as string) || "log"
   }

@@ -1,0 +1,451 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { Test, TestingModule } from "@nestjs/testing"
+import { INestApplication } from "@nestjs/common"
+import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgresModule } from "@config/PostgresModule"
+import { Repository } from "typeorm"
+import { getRepositoryToken } from "@nestjs/typeorm"
+import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { IssuedByPartitionDLTEvent } from "@port/bond/usecase/updatebondholderbalance/model/IssuedByPartitionDLTEvent"
+
+describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
+  const CONTRACT_ID = "0.0.6974684"
+  const EVM_CONTRACT_ADDRESS = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+  const HOLDER_ACCOUNT_ID = "0.0.6823801"
+  const EVM_HOLDER_ADDRESS = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
+  const PARTITION = "0x7265736572766564000000000000000000000000000000000000000000000000"
+  const OPERATOR = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
+
+  let app: INestApplication
+  let container: PostgreSqlContainer
+  let eventBus: EventBus
+  let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
+
+  beforeAll(async () => {
+    container = await PostgreSqlContainer.create()
+  })
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      controllers: CONTROLLERS,
+      providers: [...PROVIDERS],
+    }).compile()
+
+    app = moduleFixture.createNestApplication()
+    await app.init()
+    eventBus = app.get("EventBus")
+    bondHolderBalanceRepository = app.get(getRepositoryToken(BondHolderBalancePersistence))
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      const addressMap: Record<string, string> = {
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7": "0.0.6974684",
+        "0x48ca774f6942166bf37e178ccc1e861947ead8c7": "0.0.6823801",
+        "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b": "0.0.6974345",
+      }
+      return Promise.resolve(addressMap[address] || "0.0.9999999")
+    })
+  })
+
+  afterAll(async () => {
+    await container.stop()
+  })
+
+  afterEach(async () => {
+    await bondHolderBalanceRepository.clear()
+    jest.restoreAllMocks()
+    await app.close()
+  })
+
+  describe("UpdateBondHolderBalanceNestJSEventAdapter", () => {
+    it("should create a new bond holder balance when IssuedByPartitionDLTEvent is published for a new holder", async () => {
+      const event = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "1000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const savedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(savedBalance).toBeDefined()
+      expect(savedBalance).not.toBeNull()
+      expect(savedBalance!.contractId).toBe(CONTRACT_ID)
+      expect(savedBalance!.holderAccountId).toBe(HOLDER_ACCOUNT_ID)
+      expect(savedBalance!.partition).toBe(PARTITION)
+      expect(savedBalance!.availableBalance).toBe("1000")
+      expect(savedBalance!.lockedBalance).toBe("0")
+    })
+
+    it("should update existing bond holder balance when IssuedByPartitionDLTEvent is published", async () => {
+      await bondHolderBalanceRepository.save({
+        contractId: CONTRACT_ID,
+        holderAccountId: HOLDER_ACCOUNT_ID,
+        partition: PARTITION,
+        availableBalance: "500",
+        lockedBalance: "0",
+      })
+
+      const event = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "1000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const updatedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(updatedBalance).toBeDefined()
+      expect(updatedBalance).not.toBeNull()
+      expect(updatedBalance!.availableBalance).toBe("1500")
+      expect(updatedBalance!.lockedBalance).toBe("0")
+    })
+
+    it("should correctly add multiple amounts to the same holder balance", async () => {
+      const amounts = ["100", "250", "150"]
+      let expectedTotal = BigInt(0)
+
+      for (const amount of amounts) {
+        const event = new IssuedByPartitionDLTEvent(
+          EVM_CONTRACT_ADDRESS,
+          "0x1234567890abcdef",
+          PARTITION,
+          OPERATOR,
+          EVM_HOLDER_ADDRESS,
+          amount,
+          "0x",
+        )
+
+        await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+        expectedTotal += BigInt(amount)
+
+        const balance = await bondHolderBalanceRepository.findOne({
+          where: {
+            contractId: CONTRACT_ID,
+            holderAccountId: HOLDER_ACCOUNT_ID,
+            partition: PARTITION,
+          },
+        })
+
+        expect(balance).toBeDefined()
+        expect(balance!.availableBalance).toBe(expectedTotal.toString())
+      }
+    })
+
+    it("should create separate balances for different partitions", async () => {
+      const partition1 = "0x7265736572766564000000000000000000000000000000000000000000000000"
+      const partition2 = "0x697373756564000000000000000000000000000000000000000000000000000"
+
+      const event1 = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        partition1,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "1000",
+        "0x",
+      )
+
+      const event2 = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        partition2,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "2000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event1, IssuedByPartitionDLTEvent.name)
+      await eventBus.publishSync(event2, IssuedByPartitionDLTEvent.name)
+
+      const balance1 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: partition1,
+        },
+      })
+
+      const balance2 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: partition2,
+        },
+      })
+
+      expect(balance1).toBeDefined()
+      expect(balance1!.availableBalance).toBe("1000")
+
+      expect(balance2).toBeDefined()
+      expect(balance2!.availableBalance).toBe("2000")
+
+      const allBalances = await bondHolderBalanceRepository.find({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+        },
+      })
+      expect(allBalances).toHaveLength(2)
+    })
+
+    it("should create separate balances for different holders", async () => {
+      const holder1EvmAddress = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
+      const holder2EvmAddress = "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b"
+      const holder1AccountId = "0.0.6823801"
+      const holder2AccountId = "0.0.6974345"
+
+      const event1 = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        holder1EvmAddress,
+        "1000",
+        "0x",
+      )
+
+      const event2 = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        holder2EvmAddress,
+        "2000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event1, IssuedByPartitionDLTEvent.name)
+      await eventBus.publishSync(event2, IssuedByPartitionDLTEvent.name)
+
+      const balance1 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: holder1AccountId,
+          partition: PARTITION,
+        },
+      })
+
+      const balance2 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: holder2AccountId,
+          partition: PARTITION,
+        },
+      })
+
+      expect(balance1).toBeDefined()
+      expect(balance1!.holderAccountId).toBe(holder1AccountId)
+      expect(balance1!.availableBalance).toBe("1000")
+
+      expect(balance2).toBeDefined()
+      expect(balance2!.holderAccountId).toBe(holder2AccountId)
+      expect(balance2!.availableBalance).toBe("2000")
+
+      const allBalances = await bondHolderBalanceRepository.find({
+        where: {
+          contractId: CONTRACT_ID,
+          partition: PARTITION,
+        },
+      })
+      expect(allBalances).toHaveLength(2)
+    })
+
+    it("should handle large amounts correctly", async () => {
+      const largeAmount = "999999999999999999999999999"
+
+      const event = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        largeAmount,
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const savedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(savedBalance).toBeDefined()
+      expect(savedBalance!.availableBalance).toBe(largeAmount)
+    })
+
+    it("should preserve locked balance when updating available balance", async () => {
+      await bondHolderBalanceRepository.save({
+        contractId: CONTRACT_ID,
+        holderAccountId: HOLDER_ACCOUNT_ID,
+        partition: PARTITION,
+        availableBalance: "500",
+        lockedBalance: "250",
+      })
+
+      const event = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "1000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const updatedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(updatedBalance).toBeDefined()
+      expect(updatedBalance!.availableBalance).toBe("1500")
+      expect(updatedBalance!.lockedBalance).toBe("250")
+    })
+
+    it("should create balances for different contracts independently", async () => {
+      const contract1EvmAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const contract2EvmAddress = "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b"
+      const contract1Id = "0.0.6974684"
+      const contract2Id = "0.0.6974345"
+
+      const event1 = new IssuedByPartitionDLTEvent(
+        contract1EvmAddress,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "1000",
+        "0x",
+      )
+
+      const event2 = new IssuedByPartitionDLTEvent(
+        contract2EvmAddress,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "2000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event1, IssuedByPartitionDLTEvent.name)
+      await eventBus.publishSync(event2, IssuedByPartitionDLTEvent.name)
+
+      const balance1 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: contract1Id,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      const balance2 = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: contract2Id,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(balance1).toBeDefined()
+      expect(balance1!.contractId).toBe(contract1Id)
+      expect(balance1!.availableBalance).toBe("1000")
+
+      expect(balance2).toBeDefined()
+      expect(balance2!.contractId).toBe(contract2Id)
+      expect(balance2!.availableBalance).toBe("2000")
+
+      const allBalances = await bondHolderBalanceRepository.find()
+      expect(allBalances).toHaveLength(2)
+    })
+
+    it("should handle zero amount correctly", async () => {
+      const event = new IssuedByPartitionDLTEvent(
+        EVM_CONTRACT_ADDRESS,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        EVM_HOLDER_ADDRESS,
+        "0",
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const savedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          contractId: CONTRACT_ID,
+          holderAccountId: HOLDER_ACCOUNT_ID,
+          partition: PARTITION,
+        },
+      })
+
+      expect(savedBalance).toBeDefined()
+      expect(savedBalance!.availableBalance).toBe("0")
+      expect(savedBalance!.lockedBalance).toBe("0")
+    })
+
+    it("should correctly convert EVM addresses to Hedera account IDs", async () => {
+      const evmContractAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const evmHolderAddress = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
+
+      const event = new IssuedByPartitionDLTEvent(
+        evmContractAddress,
+        "0x1234567890abcdef",
+        PARTITION,
+        OPERATOR,
+        evmHolderAddress,
+        "1000",
+        "0x",
+      )
+
+      await eventBus.publishSync(event, IssuedByPartitionDLTEvent.name)
+
+      const savedBalance = await bondHolderBalanceRepository.findOne({
+        where: {
+          partition: PARTITION,
+        },
+      })
+
+      expect(savedBalance).toBeDefined()
+      expect(savedBalance!.contractId).toMatch(/^0\.0\.\d+$/)
+      expect(savedBalance!.holderAccountId).toMatch(/^0\.0\.\d+$/)
+    })
+  })
+})

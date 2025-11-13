@@ -8,8 +8,12 @@ import { TransactionResponse } from "./model/TransactionResponse"
 import { ConverterUtils } from "@utils/ConverterUtils"
 import { BuildGrantRoleTransactionRequest } from "@transaction/model/BuildGrantRoleTransactionRequest"
 import { BuildTransactionResponse } from "@transaction/model/BuildTransactionResponse"
-import { IAccessControl__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
+import { IAccessControl__factory, IPause__factory } from "@hashgraph/green-bonds-platform-treasury-contracts"
 import { BaseTransactionBuilderPort } from "@transaction/BaseTransactionBuilderPort"
+import { BuildPauseTransactionRequest } from "@transaction/model/BuildPauseTransactionRequest"
+import { BuildUnpauseTransactionRequest } from "@transaction/model/BuildUnpauseTransactionRequest"
+import { BuildRenounceRoleTransactionRequest } from "@transaction/model/BuildRenounceRoleTransactionRequest"
+import { BuildApplyRolesTransactionRequest } from "@transaction/model/BuildApplyRolesTransactionRequest"
 
 export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPort {
   protected readonly GAS = 15_000_000
@@ -54,6 +58,62 @@ export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPo
       account: request.accountId,
       format: request.format as "hedera" | "ethereum",
       args: [request.roleId, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+    } as any)
+  }
+
+  async renounceRole(request: BuildRenounceRoleTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IAccessControl__factory.createInterface(),
+      functionName: "renounceRole" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.roleId],
+    } as any)
+  }
+
+  async applyRoles(request: BuildApplyRolesTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IAccessControl__factory.createInterface(),
+      functionName: "applyRoles" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [
+        request.roles,
+        request.actives,
+        await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId),
+      ],
+    } as any)
+  }
+
+  async pause(request: BuildPauseTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IPause__factory.createInterface(),
+      functionName: "pause" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [],
+    } as any)
+  }
+
+  async unpause(request: BuildUnpauseTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IPause__factory.createInterface(),
+      functionName: "unpause" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [],
     } as any)
   }
 

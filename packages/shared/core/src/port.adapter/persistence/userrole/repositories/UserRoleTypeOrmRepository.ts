@@ -2,10 +2,13 @@
 
 import { Singleton } from "@decorators/Singleton"
 import { UserRoleRepository } from "@domain/userrole/repositories/UserRoleRepository"
+import { Page } from "@pagination/Page"
+import { PageOptions } from "@pagination/PageOptions"
 import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
+import { IsNull, Repository } from "typeorm"
 import { UserRolePersistence } from "../model/UserRolePersistence"
 import { UserRole } from "@domain/userrole/model/UserRole"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class UserRoleTypeOrmRepository implements UserRoleRepository {
@@ -16,5 +19,76 @@ export class UserRoleTypeOrmRepository implements UserRoleRepository {
 
   async save(userRole: UserRole): Promise<UserRole> {
     return await this.userRoleRepository.save(userRole as UserRolePersistence)
+  }
+
+  async findAllByUserAccountIdAndContractId(
+    userAccountId: string,
+    contractId: string,
+    options: PageOptions,
+  ): Promise<Page<UserRole>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const whereCondition: any = { userAccountId }
+    whereCondition.contractId = contractId
+
+    const [persistences, total] = await this.userRoleRepository.findAndCount({
+      where: whereCondition,
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
+    })
+
+    const items = persistences.map((p) => p as UserRole)
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
+  }
+
+  async findAllByRoleIdAndContractId(
+    roleId: string,
+    contractId: string,
+    options: PageOptions,
+  ): Promise<Page<UserRole>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const whereCondition: any = { roleId }
+    whereCondition.contractId = contractId
+
+    const [persistences, total] = await this.userRoleRepository.findAndCount({
+      where: whereCondition,
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
+    })
+
+    const items = persistences.map((p) => p as UserRole)
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
+  }
+
+  async delete(userRole: UserRole): Promise<void> {
+    await this.userRoleRepository.softDelete({ id: userRole.id })
+  }
+
+  async findByUserAccountIdRoleIdAndContractId(
+    userAccountId: string,
+    roleId: string,
+    contractId: string,
+  ): Promise<UserRole | null> {
+    const persistence = await this.userRoleRepository.findOne({
+      where: { userAccountId, roleId, contractId, deletedAt: IsNull() },
+    })
+    return persistence ? plainToInstance(UserRole, persistence) : null
   }
 }

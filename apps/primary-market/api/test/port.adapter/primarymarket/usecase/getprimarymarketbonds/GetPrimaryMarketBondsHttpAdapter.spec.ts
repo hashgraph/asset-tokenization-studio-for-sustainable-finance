@@ -73,37 +73,39 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.222",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -127,54 +129,57 @@ describe("GetPrimaryMarketBonds API Integration", () => {
 
       // Create 3 offerings for the same bond
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.111", // Same bondId
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-02-01"),
         endDate: new Date("2024-02-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "3",
-        market,
+        id: 3,
+        marketId: market.id,
         bondContractId: "0.0.111", // Same bondId again
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "3000",
-        minQuantity: "300",
-        maxQuantity: "30000",
-        targetQuantity: "15000",
+        minLots: "300",
+        maxLots: "30000",
+        targetLots: "15000",
         targetQuantityRule: 0,
         startDate: new Date("2023-03-01"),
         endDate: new Date("2024-03-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -206,20 +211,21 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       // Create 5 offerings with different bondIds
       for (let i = 1; i <= 5; i++) {
         await offeringRepository.save({
-          offeringDltId: String(i),
-          market,
+          id: i,
+          marketId: market.id,
           bondContractId: `0.0.${100 + i}`,
           operatorAccountId: "0.0.4660",
           treasuryContractId: "0.0.9999999",
           paymentTokenContractId: "0.0.9999999",
           lotSize: "1000",
-          minQuantity: "100",
-          maxQuantity: "10000",
-          targetQuantity: "5000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
           targetQuantityRule: 0,
           startDate: new Date("2023-01-01"),
           endDate: new Date("2024-01-01"),
           deadlineRule: 0,
+        price: "100",
         })
       }
 
@@ -248,37 +254,39 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: market1,
+        id: 1,
+        marketId: market1.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market: market2,
+        id: 2,
+        marketId: market2.id,
         bondContractId: "0.0.222",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -298,20 +306,21 @@ describe("GetPrimaryMarketBonds API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())

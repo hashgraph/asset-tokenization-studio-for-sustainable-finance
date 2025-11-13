@@ -3,9 +3,5 @@
 import { SubscriptionResponse } from "../../shared/model/SubscriptionResponse"
 
 export interface GetSubscriptionPort {
-  getSubscription(
-    marketContractId: string,
-    offeringDltId: string,
-    subscriptionDltId: string,
-  ): Promise<SubscriptionResponse>
+  getSubscription(marketContractId: string, offeringId: number, subscriptionId: number): Promise<SubscriptionResponse>
 }

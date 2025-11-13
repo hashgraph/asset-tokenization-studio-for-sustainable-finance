@@ -19,20 +19,21 @@ export class CreateOfferingCommandHandler implements CommandHandler<CreateOfferi
     const offering = await this.createOfferingDomainService.execute(command)
     this.eventBus.publish(
       new OfferingCreatedEvent(
-        offering.offeringDltId,
-        offering.market.contractId,
+        offering.id,
+        command.marketContractId,
         offering.bondContractId,
         offering.operatorAccountId,
         offering.treasuryContractId,
         offering.paymentTokenContractId,
         offering.lotSize,
-        offering.minQuantity,
-        offering.maxQuantity,
-        offering.targetQuantity,
+        offering.minLots,
+        offering.maxLots,
+        offering.targetLots,
         offering.targetQuantityRule,
         offering.startDate,
         offering.endDate,
         offering.deadlineRule,
+        offering.price,
       ),
     )
   }

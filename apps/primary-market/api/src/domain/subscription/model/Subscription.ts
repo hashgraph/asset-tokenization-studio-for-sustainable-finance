@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Offering } from "@domain/offering/model/Offering"
-import { Investor } from "@domain/investor/model/Investor"
-import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, ValidateNested, IsEnum, IsNumberString } from "class-validator"
-import { Type } from "class-transformer"
+import { IsNotEmpty, IsEnum, IsNumberString, IsString, IsNumber, IsDate } from "class-validator"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
-export class Subscription extends BaseEntity {
+export class Subscription {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  subscriptionDltId: string
+  id: number
+
+  @IsNumber()
+  @IsNotEmpty()
+  offeringId: number
 
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => Offering)
-  offering: Offering
+  @IsString()
+  marketId: string
 
   @IsNotEmpty()
-  @ValidateNested()
-  @Type(() => Investor)
-  investor: Investor
+  @IsString()
+  investorAccountId: string
 
   @IsNotEmpty()
   @IsNumberString()
@@ -29,4 +27,10 @@ export class Subscription extends BaseEntity {
   @IsNotEmpty()
   @IsEnum(SubscriptionStatus)
   status: SubscriptionStatus
+
+  @IsDate()
+  createdAt: Date
+
+  @IsDate()
+  updatedAt: Date
 }
