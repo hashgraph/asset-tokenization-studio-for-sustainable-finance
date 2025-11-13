@@ -9,6 +9,7 @@ import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactio
 import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model/BuildSetCouponTransactionRequest"
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
+import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -24,4 +25,5 @@ export interface TransactionBuilderPort {
   setBondCouponTransaction(request: BuildSetCouponTransactionRequest): Promise<BuildTransactionResponse>
   createBondLockTransaction(request: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse>
   mintBondTransaction(request: BuildMintBondTransactionRequest): Promise<BuildTransactionResponse>
+  releaseBondLockTransaction(request: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse>
 }

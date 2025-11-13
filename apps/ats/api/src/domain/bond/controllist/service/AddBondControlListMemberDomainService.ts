@@ -22,7 +22,10 @@ export class AddBondControlListMemberDomainService {
     )
 
     if (existingMember) {
-      throw BondControlListMemberFoundError.contractIdAndHolderAccountIdError(request.contractId, request.holderAccountId)
+      throw BondControlListMemberFoundError.contractIdAndHolderAccountIdError(
+        request.contractId,
+        request.holderAccountId,
+      )
     }
 
     const member = Object.assign(new BondControlListMember(), {
