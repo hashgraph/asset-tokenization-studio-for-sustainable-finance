@@ -45,7 +45,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     struct LifeCycleCashFlowStorage {
         address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
-        mapping(address => bool) paidRedemptionAddresses;
         bool initialized;
     }
 
@@ -106,8 +105,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = _getDistributionHolders(asset, distributionId, pageIndex, pageLength);
+    ) internal returns (DistributionPaymentResult memory result, bool) {
+        address[] memory holders = _getDistributionHolders(
+            asset,
+            distributionId,
+            pageIndex,
+            pageLength
+        );
         if (holders.length == 0) return (result, false);
         result = _executeDistributionByAddresses(asset, distributionId, holders);
         return (result, true);
@@ -130,7 +134,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         uint256 distributionId,
         address[] memory holders
-    ) internal returns (PaymentResult memory result) {
+    ) internal returns (DistributionPaymentResult memory result) {
         result = _payHoldersDistribution(asset, distributionId, holders);
     }
 
@@ -152,8 +156,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = _getAssetHolders(bond, pageIndex, pageLength);
+    ) internal returns (RedemptionPaymentResult memory result, bool) {
+        address[] memory holders = _getAssetHolders(
+            bond,
+            pageIndex,
+            pageLength
+        );
 
         if (holders.length == 0) return (result, false);
         result = _executeBondRedemptionByAddresses(bond, holders);
@@ -175,7 +183,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _executeBondRedemptionByAddresses(
         address bond,
         address[] memory holders
-    ) internal returns (PaymentResult memory result) {
+    ) internal returns (RedemptionPaymentResult memory result) {
         result = _payHoldersRedemption(bond, holders);
     }
 
@@ -219,7 +227,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address asset,
         uint256 distributionId,
         address[] memory holders
-    ) private returns (PaymentResult memory result) {
+    ) private returns (DistributionPaymentResult memory result) {
         result.failedAddresses = new address[](holders.length);
         result.succeededAddresses = new address[](holders.length);
         result.paidAmounts = new uint256[](holders.length);
@@ -438,7 +446,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address paymentToken,
         BatchInfo memory batchInfo,
         PayingArraysIndexes memory payingArraysIndexes,
-        PaymentResult memory result
+        DistributionPaymentResult memory result
     ) private returns (uint256 succeededResults, uint256 failedResults) {
         if (
             _payBatchHoldersDistribution(
@@ -482,10 +490,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _payHoldersRedemption(
         address bond,
         address[] memory holders
-    ) private returns (PaymentResult memory result) {
+    ) private returns (RedemptionPaymentResult memory result) {
         result.failedAddresses = new address[](holders.length);
         result.succeededAddresses = new address[](holders.length);
-        result.alreadyPaidAddresses = new address[](holders.length);
         result.paidAmounts = new uint256[](holders.length);
 
         if (holders.length > 0) {
@@ -503,15 +510,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
-                        ++index;
-                    }
-                    continue;
-                }
-
-                if (_isRedemptionHolderPaid(holders[index])) {
-                    result.alreadyPaidAddresses[payingArraysIndexes.alreadyPaidAddressesIndex] = holders[index];
-                    unchecked {
-                        ++payingArraysIndexes.alreadyPaidAddressesIndex;
                         ++index;
                     }
                     continue;
@@ -594,7 +592,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         BatchInfo memory batchInfo,
         address paymentToken,
         PayingArraysIndexes memory payingArraysIndexes,
-        PaymentResult memory result
+        RedemptionPaymentResult memory result
     ) private returns (uint256 succeededResults, uint256 failedResults) {
         if (_payBatchHoldersRedemption(batchInfo.holders, batchInfo.amounts, batchInfo.totalAmount, paymentToken)) {
             (result.succeededAddresses, result.paidAmounts) = _populateSourceArraysFromDataArrays(
@@ -720,7 +718,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 _createTransferAmounts(amounts, -totalAmount)
             ) == HederaResponseCodes.SUCCESS
         ) {
-            _setHoldersRedemptionPaid(holders);
             return true;
         }
         return false;
@@ -736,17 +733,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _isDistributionHolderPaid(uint256 distributionId, address holder) internal view returns (bool) {
         return _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder];
-    }
-
-    /*
-     * @dev Check if a certain holder was already redeemed
-     *
-     * @param holder The holder to check if the redemption was already paid
-     *
-     * @return True if the holder was already redeemed, false otherwise
-     */
-    function _isRedemptionHolderPaid(address holder) private view returns (bool) {
-        return _lifeCycleCashFlowStorage().paidRedemptionAddresses[holder];
     }
 
     /*
@@ -790,30 +776,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      */
     function _setDistributionHolderPaid(uint256 distributionId, address holder) private {
         _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder] = true;
-    }
-
-    /*
-     * @dev Sets a redemption to an array of holders
-     *
-     * @param holder The array of holders who were redeemed
-     */
-    function _setHoldersRedemptionPaid(address[] memory holders) private {
-        for (uint256 index; index < holders.length; ) {
-            _setHolderRedemptionPaid(holders[index]);
-
-            unchecked {
-                ++index;
-            }
-        }
-    }
-
-    /*
-     * @dev Sets a redemption to a holder
-     *
-     * @param holder The holder who was redeemed
-     */
-    function _setHolderRedemptionPaid(address holder) private {
-        _lifeCycleCashFlowStorage().paidRedemptionAddresses[holder] = true;
     }
 
     /*

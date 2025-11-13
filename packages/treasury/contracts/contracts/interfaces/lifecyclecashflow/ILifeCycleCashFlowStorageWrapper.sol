@@ -3,7 +3,14 @@
 pragma solidity ^0.8.0;
 
 interface ILifeCycleCashFlowStorageWrapper {
-    struct PaymentResult {
+    struct DistributionPaymentResult {
+        address[] failedAddresses;
+        address[] succeededAddresses;
+        address[] alreadyPaidAddresses;
+        uint256[] paidAmounts;
+    }
+
+    struct RedemptionPaymentResult {
         address[] failedAddresses;
         address[] succeededAddresses;
         address[] alreadyPaidAddresses;

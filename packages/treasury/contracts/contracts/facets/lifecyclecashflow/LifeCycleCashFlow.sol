@@ -59,7 +59,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         checkAddress(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (PaymentResult memory result, bool executed)
+        returns (DistributionPaymentResult memory result, bool executed)
     {
         (result, executed) = _executeDistribution(asset, distributionId, pageIndex, pageLength);
 
@@ -91,7 +91,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         checkAddress(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (PaymentResult memory result)
+        returns (DistributionPaymentResult memory result)
     {
         result = _executeDistributionByAddresses(asset, distributionId, holders);
 
@@ -124,7 +124,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         checkAddress(bond)
         isAsset(bond)
         onlyOnRedemptionDate(bond)
-        returns (PaymentResult memory result, bool executed)
+        returns (RedemptionPaymentResult memory result, bool executed)
     {
         (result, executed) = _executeBondRedemption(bond, pageIndex, pageLength);
 
@@ -154,7 +154,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         checkAddress(bond)
         isAsset(bond)
         onlyOnRedemptionDate(bond)
-        returns (PaymentResult memory result)
+        returns (RedemptionPaymentResult memory result)
     {
         result = _executeBondRedemptionByAddresses(bond, holders);
 

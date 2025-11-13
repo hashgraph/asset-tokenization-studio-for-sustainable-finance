@@ -15,7 +15,12 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult result);
+    event DistributionExecuted(
+        uint256 distributionID,
+        uint256 pageIndex,
+        uint256 pageLength,
+        DistributionPaymentResult result
+    );
 
     /*
      * @dev Emitted when a distribution by addresses is executed
@@ -26,7 +31,11 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult result);
+    event DistributionByAddressesExecuted(
+        uint256 distributionID,
+        address[] holders,
+        DistributionPaymentResult result
+    );
 
     /*
      * @dev Emitted when a redemption by page is executed
@@ -37,7 +46,11 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult result);
+    event RedemptionExecuted(
+        uint256 pageIndex,
+        uint256 pageLength,
+        RedemptionPaymentResult result
+    );
 
     /*
      * @dev Emitted when a redemption by addresses is executed
@@ -47,7 +60,10 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionByAddressesExecuted(address[] holders, PaymentResult result);
+    event RedemptionByAddressesExecuted(
+        address[] holders,
+        RedemptionPaymentResult result
+    );
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
@@ -71,7 +87,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult memory result, bool);
+    ) external returns (DistributionPaymentResult memory result, bool);
 
     /*
      * @dev Retry the payment of a distribution to a list of holders
@@ -88,7 +104,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         address asset,
         uint256 distributionID,
         address[] calldata holders
-    ) external returns (PaymentResult memory result);
+    ) external returns (DistributionPaymentResult memory result);
 
     /*
      * @dev Perform a bond redemption to a page of holders
@@ -106,7 +122,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult memory result, bool);
+    ) external returns (RedemptionPaymentResult memory result, bool);
 
     /*
      * @dev Perform a bond redemption to a list of holders
@@ -121,7 +137,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external returns (PaymentResult memory result);
+    ) external returns (RedemptionPaymentResult memory result);
 
     /*
      * @dev Returns the asset address
