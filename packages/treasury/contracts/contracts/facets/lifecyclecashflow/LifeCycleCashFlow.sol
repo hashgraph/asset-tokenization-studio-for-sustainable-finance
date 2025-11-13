@@ -154,7 +154,11 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         checkAddress(bond)
         isAsset(bond)
         onlyOnRedemptionDate(bond)
+<<<<<<< HEAD
         returns (PaymentResult[] memory results)
+=======
+        returns (RedemptionPaymentResult memory result)
+>>>>>>> 40784385 (Remove control of holders who the redemption was already paid for)
     {
         results = _executeBondRedemptionByAddresses(bond, holders);
 

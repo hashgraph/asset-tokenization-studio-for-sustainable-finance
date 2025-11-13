@@ -474,7 +474,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_isHolderValid(holder)) {
                     results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
-
                     unchecked {
                         ++index;
                     }
