@@ -3,9 +3,16 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IProceedsManagement } from "./interfaces/IProceedsManagement.sol";
-import { ProceedsManagementStorageWrapper } from "./ProceedsManagementStorageWrapper.sol";
-import { PROCEEDS_FULL_MANAGER_ROLE, FUNDS_MANAGER_ROLE } from "./constants/roles.sol";
+import {
+    IProceedsManagement
+} from '../../interfaces/proceedsmanagement/IProceedsManagement.sol';
+import {
+    ProceedsManagementStorageWrapper
+} from './ProceedsManagementStorageWrapper.sol';
+import {
+    PROCEEDS_FULL_MANAGER_ROLE,
+    FUNDS_MANAGER_ROLE
+} from '../../constants/roles.sol';
 
 abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementStorageWrapper {
     /*

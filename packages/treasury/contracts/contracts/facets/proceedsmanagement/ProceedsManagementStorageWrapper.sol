@@ -3,8 +3,12 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IProceedsManagementStorageWrapper } from "./interfaces/IProceedsManagementStorageWrapper.sol";
-import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
+import {
+    IProceedsManagementStorageWrapper
+} from '../../interfaces/proceedsmanagement/IProceedsManagementStorageWrapper.sol';
+import {
+    LifeCycleCashFlowStorageWrapper
+} from '../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol';
 import {
     IProceedRecipients
 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";

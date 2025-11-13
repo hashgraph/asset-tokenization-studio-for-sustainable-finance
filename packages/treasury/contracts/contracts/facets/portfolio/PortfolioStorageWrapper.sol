@@ -3,10 +3,16 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IPortfolioStorageWrapper } from "./interfaces/IPortfolioStorageWrapper.sol";
-import { PORTFOLIO_STORAGE_POSITION } from "./constants/storagePositions.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {
+    IPortfolioStorageWrapper
+} from '../../interfaces/portfolio/IPortfolioStorageWrapper.sol';
+import {PORTFOLIO_STORAGE_POSITION} from '../../constants/storagePositions.sol';
+import {
+    Common as AtsCommon
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
+import {
+    EnumerableSet
+} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
 import {
     HederaTokenService,
     HederaResponseCodes
