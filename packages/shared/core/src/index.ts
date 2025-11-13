@@ -92,6 +92,9 @@ export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/servi
 export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
 export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/service/model/UnpauseTransactionAppServiceRequest"
 
+export { ApplyRolesTransactionAppService } from "./app/transaction/applyroles/service/ApplyRolesTransactionAppService"
+export { ApplyRolesTransactionAppServiceRequest } from "./app/transaction/applyroles/service/model/ApplyRolesTransactionAppServiceRequest"
+
 export { GetUserRolesQuery } from "./app/userrole/getuserroles/query/GetUserRolesQuery"
 export { GetRoleMembersQuery } from "./app/userrole/getrolemembers/query/GetRoleMembersQuery"
 export { UserRolePersistence } from "./port.adapter/persistence/userrole/model/UserRolePersistence"
