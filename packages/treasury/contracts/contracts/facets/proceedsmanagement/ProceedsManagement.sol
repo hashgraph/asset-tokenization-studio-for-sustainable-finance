@@ -66,7 +66,7 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
         onlyUnpaused
         onlyRole(FUNDS_MANAGER_ROLE)
         checkAddress(proceedsRecipient)
-        onlyForBondProceedsRecipients(proceedsRecipient)
+        checkProceedRecipient(proceedsRecipient)
     {
         _fundProceedsRecipient(proceedsRecipient, amount);
         emit ProceedsRecipientFunded(proceedsRecipient, amount);
