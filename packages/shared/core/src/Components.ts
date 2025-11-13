@@ -19,6 +19,7 @@ import { GrantRoleCommandHandler } from "./app/userrole/grantrole/command/GrantR
 import { RevokeRoleCommandHandler } from "./app/userrole/revokerole/command/RevokeRoleCommandHandler"
 import { RenounceRoleCommandHandler } from "./app/userrole/renouncerole/command/RenounceRoleCommandHandler"
 import { CheckUserRoleExistsDomainService } from "@domain/userrole/services/CheckUserRoleExistsDomainService"
+import { SyncUserRolesAppService } from "./app/role/syncuserroles/service/SyncUserRolesAppService"
 
 export const PROVIDERS = [
   {
@@ -52,6 +53,7 @@ export const COMMON_FUNCTIONALITY_PROVIDERS = [
   ApplyRolesTransactionAppService,
   PauseTransactionAppService,
   UnpauseTransactionAppService,
+  SyncUserRolesAppService,
   GetUserRolesQueryHandler,
   GetRoleMembersQueryHandler,
   GrantRoleCommandHandler,

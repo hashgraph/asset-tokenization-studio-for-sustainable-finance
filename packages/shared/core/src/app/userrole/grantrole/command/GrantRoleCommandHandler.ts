@@ -24,10 +24,10 @@ export class GrantRoleCommandHandler implements CommandHandler<GrantRoleCommand,
     const userRole = new UserRole()
     userRole.userAccountId = command.accountId
     userRole.roleId = command.roleId
-    userRole.contractId = command.treasuryContractId
+    userRole.contractId = command.contractId
 
     await this.userRoleRepository.save(userRole)
 
-    this.eventBus.publish(new RoleGrantedEvent(command.accountId, command.roleId, command.treasuryContractId))
+    this.eventBus.publish(new RoleGrantedEvent(command.accountId, command.roleId, command.contractId))
   }
 }
