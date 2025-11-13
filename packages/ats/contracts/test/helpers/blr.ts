@@ -7,6 +7,7 @@ import {
   ConfigurationError,
   OperationResult,
   atsRegistry,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { TREASURY_CONFIG_ID, factorySuiteRegistry } from "@scripts";
 
@@ -31,6 +32,7 @@ export async function createTreasuryConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
+  batchSize: number = DEFAULT_BATCH_SIZE,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   const facets = TREASURY_FACETS.map((facetName) => {
     const address = facetAddresses[facetName];
@@ -63,6 +65,6 @@ export async function createTreasuryConfiguration(
     configurationId: TREASURY_CONFIG_ID,
     facets,
     partialBatchDeploy: false,
-    batchSize: 2,
+    batchSize,
   });
 }

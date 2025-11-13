@@ -47,6 +47,7 @@
   "dependencies": {
     "@hashgraph/asset-tokenization-contracts": "^1.15.2",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
+    "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "dotenv": "^16.0.0",
     "ethers": "^5.8.0"
   },

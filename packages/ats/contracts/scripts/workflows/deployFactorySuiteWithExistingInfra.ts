@@ -32,6 +32,10 @@ import {
   success,
   section,
   error as logError,
+  getDeploymentConfig,
+  isLocalNetwork,
+  configureLogger,
+  LogLevel,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
@@ -69,6 +73,9 @@ export interface DeployWithExistingInfraOptions {
 
   /** Path to save deployment output */
   outputPath?: string;
+
+  /** Enable verbose logging (debug level) */
+  verbose?: boolean;
 }
 
 /**
@@ -127,17 +134,33 @@ export async function deployFactorySuiteWithExistingInfra(
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
+
+  // Configure logger based on verbose flag
+  configureLogger({
+    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
+  });
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
+
   section("FactorySuite Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -187,7 +210,12 @@ export async function deployFactorySuiteWithExistingInfra(
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
 
-    const facetsResult = await deployFacets(facetFactories);
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
+    });
 
     if (!facetsResult.success) {
       throw new Error("FactorySuiteFacet deployment failed");

@@ -19,6 +19,7 @@ import {
   ConfigurationError,
   OperationResult,
   atsRegistry,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { FACTORY_SUITE_CONFIG_ID, factorySuiteRegistry } from "@scripts/domain";
 
@@ -62,6 +63,7 @@ export async function createFactorySuiteConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
+  batchSize: number = DEFAULT_BATCH_SIZE,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   const facets = FACTORY_SUITE_FACETS.map((facetName) => {
     const address = facetAddresses[facetName];
@@ -94,6 +96,6 @@ export async function createFactorySuiteConfiguration(
     configurationId: FACTORY_SUITE_CONFIG_ID,
     facets,
     partialBatchDeploy: false,
-    batchSize: 2,
+    batchSize,
   });
 }
