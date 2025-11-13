@@ -5,6 +5,7 @@ import { BondRepository } from "@domain/bond/repositories/BondRepository"
 import { Bond } from "@domain/bond/model/Bond"
 import { BondPersistence } from "../model/BondPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { plainToInstance } from "class-transformer"
 
 @Injectable()
 export class BondTypeOrmRepository implements BondRepository {
@@ -14,11 +15,13 @@ export class BondTypeOrmRepository implements BondRepository {
   ) {}
 
   async save(bond: Bond): Promise<Bond> {
-    return (await this.repository.save(bond as BondPersistence)) as Bond
+    const persistence = await this.repository.save(bond as BondPersistence)
+    return this.toDomain(persistence)!
   }
 
   async findByContractId(contractId: string): Promise<Bond | null> {
-    return (await this.repository.findOne({ where: { contractId } })) as Bond | null
+    const persistence = await this.repository.findOne({ where: { contractId } })
+    return this.toDomain(persistence)
   }
 
   async findAll(options: PageOptions): Promise<Page<Bond>> {
@@ -29,7 +32,7 @@ export class BondTypeOrmRepository implements BondRepository {
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => p as Bond)
+    const items = persistences.map((p) => this.toDomain(p)!)
 
     return {
       items,
@@ -38,5 +41,9 @@ export class BondTypeOrmRepository implements BondRepository {
       limit: options.limit,
       totalPages: Math.ceil(total / options.limit),
     }
+  }
+
+  private toDomain(persistence: BondPersistence | null): Bond | null {
+    return persistence ? plainToInstance(Bond, persistence) : null
   }
 }
