@@ -1,18 +1,26 @@
 import type { Signer } from "ethers";
+import { join } from "path";
 import {
   deployProxyAdmin,
   deployBlr,
   deploySystemWithExistingBlr,
+  CheckpointManager,
   info,
   success,
   error as logError,
   section,
+  configureLogger,
+  LogLevel,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import type { DeploymentWithExistingBlrOutput } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployFactorySuiteWithExistingInfra,
   type DeployFactorySuiteOutput,
 } from "@hashgraph/green-bonds-platform-ats-contracts/scripts";
-import type { DeploymentWithExistingBlrOutput } from "@hashgraph/asset-tokenization-contracts/scripts";
+import {
+  deployTreasuryWithExistingInfra,
+  type DeployTreasuryOutput,
+} from "@hashgraph/green-bonds-platform-treasury-contracts/scripts";
 
 /** Deployment options for GBP infrastructure orchestration */
 export interface DeploymentOptions {
@@ -22,6 +30,17 @@ export interface DeploymentOptions {
   network?: string;
   /** Verbose logging output */
   verbose?: boolean;
+  /**
+   * Custom checkpoint directory path for deployment state persistence.
+   *
+   * By default, checkpoints are saved in the project's deployments folder.
+   * Checkpoints survive npm install/ci and enable resuming failed deployments.
+   *
+   * @default './deployments/.checkpoints' (relative to package root)
+   * @example './deployments/.checkpoints'
+   * @example '/tmp/gbp-deployments/.checkpoints'
+   */
+  checkpointDir?: string;
 }
 
 /** Complete deployment result from GBP infrastructure orchestration */
@@ -32,6 +51,8 @@ export interface DeploymentResult {
   blr: string;
   /** BOND deployment result (includes facets, configurations, factory) */
   bondDeployment: DeploymentWithExistingBlrOutput;
+  /** TREASURY deployment result */
+  treasuryDeployment: DeployTreasuryOutput;
   /** FactorySuite deployment result */
   factorySuiteDeployment: DeployFactorySuiteOutput;
 }
@@ -43,18 +64,27 @@ export interface DeploymentResult {
  * 1. Deploy ProxyAdmin
  * 2. Deploy BusinessLogicResolver (BLR) with transparent proxy
  * 3. Deploy BOND configuration (uses `deployWithExistingBlr` from ATS)
- * 4. Deploy FactorySuite (uses `deployFactorySuiteWithExistingInfra` from GBP ATS)
+ * 4. Deploy TREASURY configuration (uses `deployTreasuryWithExistingInfra` from GBP Treasury)
+ * 5. Deploy FactorySuite (uses `deployFactorySuiteWithExistingInfra` from GBP ATS)
  *
  * **What Each Step Does:**
  * - Step 3: Deploys ALL BOND facets, registers them, creates BOND configuration
- * - Step 4: Deploys FactorySuite facet, registers it, creates FactorySuite configuration
+ * - Step 4: Deploys Treasury custom facets (reuses AccessControl and Pause from Step 3),
+ *   registers them, creates Treasury configuration
+ * - Step 5: Deploys FactorySuite facet, registers it, creates FactorySuite configuration
  *   (reuses AccessControl and Pause facets from Step 3)
+ *
+ * **Checkpoint System:**
+ * - Automatically saves deployment state after each major step
+ * - Checkpoints stored in `./deployments/.checkpoints/` (survives npm install)
+ * - Failed deployments can be resumed by re-running the same command
+ * - Skips already-deployed contracts to save gas and time
  *
  * @param signer - Ethers signer for deploying contracts
  * @param options - Deployment options
  * @returns Complete deployment result with all addresses and deployment details
  *
- * @example
+ * @example Basic deployment
  * ```typescript
  * import { ethers } from 'ethers'
  * import { deployGbpInfrastructure } from '@hashgraph/green-bonds-platform-shared-contracts/scripts'
@@ -62,7 +92,7 @@ export interface DeploymentResult {
  * const signer = new ethers.Wallet(privateKey, provider)
  * const result = await deployGbpInfrastructure(signer, {
  *   useTimeTravel: false,
- *   network: 'testnet',
+ *   network: 'hedera-testnet',
  *   verbose: true
  * })
  *
@@ -70,45 +100,118 @@ export interface DeploymentResult {
  * console.log('  ProxyAdmin:', result.proxyAdmin)
  * console.log('  BLR:', result.blr)
  * console.log('  BOND config version:', result.bondDeployment.configurations.bond.version)
+ * console.log('  Treasury config version:', result.treasuryDeployment.configuration.version)
  * console.log('  FactorySuite config version:', result.factorySuiteDeployment.configuration.version)
+ * ```
+ *
+ * @example Custom checkpoint directory
+ * ```typescript
+ * const result = await deployGbpInfrastructure(signer, {
+ *   network: 'hedera-testnet',
+ *   checkpointDir: '/tmp/my-deployments/.checkpoints'
+ * })
+ * ```
+ *
+ * @example Resuming failed deployment
+ * ```typescript
+ * // If previous deployment failed, simply re-run the same command:
+ * const result = await deployGbpInfrastructure(signer, {
+ *   network: 'hedera-testnet'
+ * })
+ * // Automatically detects and resumes from checkpoint
+ * // Skips already-deployed contracts
  * ```
  */
 export async function deployGbpInfrastructure(
   signer: Signer,
   options: DeploymentOptions = {},
 ): Promise<DeploymentResult> {
-  const { useTimeTravel = false, network = "testnet", verbose = false } = options;
+  const {
+    useTimeTravel = false,
+    network = "testnet",
+    verbose = false,
+    checkpointDir = join(__dirname, "../../deployments/.checkpoints"),
+  } = options;
+
+  // Configure global logger for entire orchestration
+  configureLogger({
+    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
+  });
 
   section("GBP Infrastructure Deployment - Phase 1");
   info("Orchestrating complete infrastructure deployment");
   info(`Network: ${network}`);
   info(`Time-travel mode: ${useTimeTravel ? "ENABLED" : "DISABLED"}`);
+  info(`Checkpoint directory: ${checkpointDir}`);
 
-  try {
-    // ========================================
-    // Step 1: Deploy ProxyAdmin
-    // ========================================
-    section("Step 1: Deploy ProxyAdmin");
-    const proxyAdmin = await deployProxyAdmin(signer);
-    const proxyAdminAddress = proxyAdmin.address;
-    success(`✓ ProxyAdmin deployed at: ${proxyAdminAddress}`);
+  // Log network deployment configuration
+  const { getDeploymentConfig } = await import("@hashgraph/asset-tokenization-contracts/scripts");
+  const networkConfig = getDeploymentConfig(network);
+  info(`Network timeout: ${networkConfig.timeout}ms (${networkConfig.timeout / 1000}s)`);
+  info(`Network confirmations: ${networkConfig.confirmations}`);
+  info(`Max retries: ${networkConfig.retryOptions.maxRetries}`);
 
-    // ========================================
-    // Step 2: Deploy BusinessLogicResolver with TUP
-    // ========================================
-    section("Step 2: Deploy BusinessLogicResolver with TUP");
-    const blrResult = await deployBlr(signer, {
-      existingProxyAdmin: proxyAdmin,
-      initialize: true,
-    });
+  // ========================================
+  // Check for existing checkpoint
+  // ========================================
+  const checkpointManager = new CheckpointManager(checkpointDir);
+  const incompleteCheckpoints = await checkpointManager.findCheckpoints(network, "in-progress");
 
-    if (!blrResult.success) {
-      throw new Error(`BLR deployment failed: ${blrResult.error}`);
+  let proxyAdminAddress: string;
+  let blrAddress: string;
+
+  if (incompleteCheckpoints.length > 0) {
+    const checkpoint = incompleteCheckpoints[0];
+    info(`\n🔍 Found incomplete deployment: ${checkpoint.checkpointId}`);
+    info(`   Started: ${checkpoint.startTime}`);
+    info(`   Last update: ${checkpoint.lastUpdate}`);
+    info(`   Current step: ${checkpoint.currentStep}`);
+    info(`\n⏯️  Resuming deployment from checkpoint...`);
+
+    // Use addresses from checkpoint
+    if (!checkpoint.steps.proxyAdmin || !checkpoint.steps.blr) {
+      throw new Error("Checkpoint missing ProxyAdmin or BLR addresses");
     }
 
-    const blrAddress = blrResult.blrAddress;
-    success(`✓ BLR proxy deployed at: ${blrAddress}`);
+    proxyAdminAddress = checkpoint.steps.proxyAdmin.address;
+    blrAddress = checkpoint.steps.blr.proxy;
 
+    success(`✓ Reconnecting to ProxyAdmin: ${proxyAdminAddress}`);
+    success(`✓ Reconnecting to BLR: ${blrAddress}`);
+  } else {
+    info("\n✨ Starting fresh deployment...\n");
+
+    try {
+      // ========================================
+      // Step 1: Deploy ProxyAdmin
+      // ========================================
+      section("Step 1: Deploy ProxyAdmin");
+      const proxyAdmin = await deployProxyAdmin(signer);
+      proxyAdminAddress = proxyAdmin.address;
+      success(`✓ ProxyAdmin deployed at: ${proxyAdminAddress}`);
+
+      // ========================================
+      // Step 2: Deploy BusinessLogicResolver with TUP
+      // ========================================
+      section("Step 2: Deploy BusinessLogicResolver with TUP");
+      const blrResult = await deployBlr(signer, {
+        existingProxyAdmin: proxyAdmin,
+        initialize: true,
+      });
+
+      if (!blrResult.success) {
+        throw new Error(`BLR deployment failed: ${blrResult.error}`);
+      }
+
+      blrAddress = blrResult.blrAddress;
+      success(`✓ BLR proxy deployed at: ${blrAddress}`);
+    } catch (infraError) {
+      logError("Infrastructure deployment failed:", infraError);
+      throw infraError;
+    }
+  }
+
+  try {
     // ========================================
     // Step 3: Deploy BOND Configuration (with Existing BLR)
     // ========================================
@@ -127,6 +230,8 @@ export async function deployGbpInfrastructure(
       deployFactory: true,
       useTimeTravel,
       saveOutput: false,
+      ignoreCheckpoint: false, // Enable checkpoint resume capability
+      checkpointDir, // Use project-local checkpoint directory
     });
 
     if (!bondResult.summary.success) {
@@ -139,9 +244,56 @@ export async function deployGbpInfrastructure(
     success(`  Factory deployed at: ${bondResult.infrastructure.factory.proxy}`);
 
     // ========================================
-    // Step 4: Deploy FactorySuite (with Existing Infrastructure)
+    // Extract shared facets for reuse
     // ========================================
-    section("Step 4: Deploy FactorySuite");
+    const accessControlFacet = bondResult.facets.find((f) => f.name === "AccessControlFacet");
+    const pauseFacet = bondResult.facets.find((f) => f.name === "PauseFacet");
+
+    if (!accessControlFacet || !pauseFacet) {
+      throw new Error("Required shared facets not found in BOND deployment");
+    }
+
+    // ========================================
+    // Step 4: Deploy TREASURY (with Existing Infrastructure)
+    // ========================================
+    section("Step 4: Deploy TREASURY");
+    info("Using deployTreasuryWithExistingInfra workflow from GBP Treasury");
+    info("This will:");
+    info("  - Deploy 3 Treasury facets (LifeCycleCashFlow, Portfolio, ProceedsManagement)");
+    info("  - Register facets in BLR");
+    info("  - Create TREASURY configuration (config ID: 20000)");
+    info("  - Reuse AccessControl and Pause facets from BOND deployment");
+
+    const treasuryResult = await deployTreasuryWithExistingInfra(
+      signer,
+      network,
+      {
+        blrAddress,
+        proxyAdminAddress,
+        facets: {
+          accessControl: accessControlFacet.address,
+          pause: pauseFacet.address,
+        },
+      },
+      {
+        useTimeTravel,
+        saveOutput: false,
+        verbose,
+      },
+    );
+
+    if (!treasuryResult.summary.success) {
+      throw new Error("TREASURY deployment failed");
+    }
+
+    success(`✓ TREASURY deployment completed`);
+    success(`  TREASURY config version: ${treasuryResult.configuration.version}`);
+    success(`  TREASURY facets registered and configuration created`);
+
+    // ========================================
+    // Step 5: Deploy FactorySuite (with Existing Infrastructure)
+    // ========================================
+    section("Step 5: Deploy FactorySuite");
     info("Using deployFactorySuiteWithExistingInfra workflow from GBP ATS");
     info("This will:");
     info("  - Deploy FactorySuite facet");
@@ -149,14 +301,6 @@ export async function deployGbpInfrastructure(
     info("  - Create FactorySuite configuration (config ID: 30000)");
     info("  - Reuse AccessControl and Pause facets from BOND deployment");
     info("  - Deploy FactorySuite ResolverProxy");
-
-    // Find shared facets from BOND deployment
-    const accessControlFacet = bondResult.facets.find((f) => f.name === "AccessControlFacet");
-    const pauseFacet = bondResult.facets.find((f) => f.name === "PauseFacet");
-
-    if (!accessControlFacet || !pauseFacet) {
-      throw new Error("Required shared facets not found in BOND deployment");
-    }
 
     const factorySuiteResult = await deployFactorySuiteWithExistingInfra(
       signer,
@@ -172,6 +316,7 @@ export async function deployGbpInfrastructure(
       {
         useTimeTravel,
         saveOutput: false,
+        verbose,
       },
     );
 
@@ -195,10 +340,12 @@ export async function deployGbpInfrastructure(
     info("");
     info("Configurations:");
     info(`  BOND: config ID=2, version=${bondResult.configurations.bond.version}`);
+    info(`  TREASURY: config ID=20000, version=${treasuryResult.configuration.version}`);
     info(`  FactorySuite: config ID=30000, version=${factorySuiteResult.configuration.version}`);
     info("");
     info("Facets:");
     info(`  BOND facets: ${bondResult.summary.totalFacets}`);
+    info(`  TREASURY facets: ${treasuryResult.summary.totalFacets} (new) + 2 shared`);
     info(`  FactorySuite facets: ${factorySuiteResult.summary.totalFacets}`);
     info(`  Shared facets reused: AccessControlFacet, PauseFacet`);
 
@@ -208,6 +355,7 @@ export async function deployGbpInfrastructure(
       proxyAdmin: proxyAdminAddress,
       blr: blrAddress,
       bondDeployment: bondResult,
+      treasuryDeployment: treasuryResult,
       factorySuiteDeployment: factorySuiteResult,
     };
   } catch (err) {

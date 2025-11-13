@@ -67,11 +67,11 @@
     "coverage": "npx hardhat coverage --testfiles 'test/{unit,integration}/*.test.ts'",
     "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/{unit,integration}/*factorySuite*.test.ts'",
     "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
-    "prepack": "npm run compile:force"
+    "prepack": "npm run build"
   },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/npm-registry-mock/ats/hashgraph-asset-tokenization-contracts-1.17.14.tgz",
+    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/npm-registry-mock/ats/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@hashgraph/sdk": "^2.62.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",

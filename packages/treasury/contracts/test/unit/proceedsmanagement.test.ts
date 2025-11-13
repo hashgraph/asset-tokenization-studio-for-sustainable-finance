@@ -4,11 +4,11 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { BigNumber } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { PAUSER_ROLE, FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from "../scripts/constants";
-import { deployContract, deployPaymentToken, deployEnvironmentalAsset } from "../scripts/test/deploy";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITreasury } from "@contracts";
-import { deployTreasury } from "../scripts/workflows/deployTreasury";
+import { PAUSER_ROLE, FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from "../../scripts/constants";
+import { deployContract, deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
+import type { ITreasury } from "@contract-types";
+import { deployTreasury } from "../../scripts/workflows/deployTreasury";
+import { AssetMock__factory } from "@contract-types";
 
 describe("Proceeds management operations", () => {
   let signer_A, signer_B;
@@ -21,8 +21,7 @@ describe("Proceeds management operations", () => {
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
-    const provider = new HardhatProvider();
-    const deployment = await deployTreasury(provider, "hardhat", {
+    const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
     });
@@ -248,7 +247,8 @@ describe("Proceeds management operations", () => {
 
     describe("The proceeds recipient does not belong to the bond", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs", async () => {
-        const assetAddress = await deployContract("AssetMock", signer_A, [false, 1, [], false]);
+        const assetFactory = new AssetMock__factory(signer_A);
+        const assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
         const proceedsRecipient = ethers.Wallet.createRandom();
@@ -267,7 +267,8 @@ describe("Proceeds management operations", () => {
         paymentTokenFactory = paymentTokenFactory.connect(signer_A);
         await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 100);
 
-        const assetAddress = await deployContract("AssetMock", signer_A, [false, 1, [], true]);
+        const assetFactory = new AssetMock__factory(signer_A);
+        const assetAddress = await deployContract(assetFactory, [false, 1, [], true]);
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 

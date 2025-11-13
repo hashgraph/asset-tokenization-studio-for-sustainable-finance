@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployProxyAdmin,
   deployBlr,
@@ -13,7 +12,11 @@ import {
   error as logError,
   configureLogger,
   LogLevel,
+  atsRegistry,
+  getDeploymentConfig,
+  isLocalNetwork,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Signer, ContractFactory } from "ethers";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createTreasuryConfiguration, FACET_REGISTRY } from "@scripts/domain";
 
@@ -41,7 +44,7 @@ export interface DeployTreasuryOutput {
       proxy: string;
       contractId?: string;
     };
-    treasury: {
+    treasury?: {
       implementation: string;
       proxy: string;
       contractId?: string;
@@ -92,43 +95,47 @@ export interface DeployTreasuryOptions {
 }
 
 export async function deployTreasury(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   options: DeployTreasuryOptions = {},
 ): Promise<DeployTreasuryOutput> {
   configureLogger({ level: LogLevel.SILENT });
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
+
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
 
   section("Treasury Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
-
-  // Create RegistryProvider from FACET_REGISTRY
-  const treasuryRegistry = {
-    getFacetDefinition: (name: string) => FACET_REGISTRY[name],
-    getAllFacets: () => Object.values(FACET_REGISTRY),
-  };
 
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
-    const proxyAdminResult = await deployProxyAdmin(provider);
-
-    if (!proxyAdminResult.success) {
-      throw new Error(`ProxyAdmin deployment failed: ${proxyAdminResult.error}`);
-    }
+    const proxyAdmin = await deployProxyAdmin(signer);
+    const proxyAdminResult = {
+      success: true,
+      proxyAdminAddress: proxyAdmin.address,
+    };
 
     info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
-    const blrResult = await deployBlr(provider, {
-      proxyAdminAddress: proxyAdminResult.proxyAdminAddress,
+    const blrResult = await deployBlr(signer, {
+      existingProxyAdmin: proxyAdmin,
     });
 
     if (!blrResult.success) {
@@ -153,10 +160,23 @@ export async function deployTreasury(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [treasuryRegistry],
+    // Create TypeChain factories from registry
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = FACET_REGISTRY[facetName] || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
     });
 
     if (!facetsResult.success) {
@@ -174,10 +194,24 @@ export async function deployTreasury(
       }
     });
 
-    const registerResult = await registerFacets(provider, {
-      blrAddress: blrResult.blrAddress,
-      facets: facetAddresses,
-      registries: [treasuryRegistry],
+    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
+
+    const facetsWithKeys = Object.entries(facetAddresses).map(([name, address]) => {
+      const treasuryFacet = FACET_REGISTRY[name];
+      if (treasuryFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: treasuryFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in Treasury or ATS registries`);
+    });
+
+    const registerResult = await registerFacets(blrContract, {
+      facets: facetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -188,14 +222,7 @@ export async function deployTreasury(
 
     info("\n💼 Step 5/6: Creating Treasury configuration...");
 
-    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
-
-    const treasuryConfig = await createTreasuryConfiguration(
-      blrContract,
-      facetAddresses,
-      useTimeTravel,
-      treasuryRegistry,
-    );
+    const treasuryConfig = await createTreasuryConfiguration(blrContract, facetAddresses, useTimeTravel);
 
     if (!treasuryConfig.success) {
       throw new Error("Treasury config failed");
@@ -209,7 +236,7 @@ export async function deployTreasury(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const treasuryProxyResult = await deployResolverProxy(provider, {
+    const treasuryProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: treasuryConfig.data.configurationId,
       version: treasuryConfig.data.version,

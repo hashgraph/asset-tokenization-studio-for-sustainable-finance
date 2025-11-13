@@ -3,11 +3,11 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { AddressZero } from "@ethersproject/constants";
-import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from "../scripts/constants";
-import { deployPaymentToken, deployEnvironmentalAsset } from "../scripts/test/deploy";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITreasury, IPaymentTokenFactory } from "@contracts";
-import { deployTreasury } from "../scripts/workflows/deployTreasury";
+import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from "../../scripts/constants";
+import { deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
+import type { ITreasury, IPaymentTokenFactory } from "@contract-types";
+import { deployTreasury } from "../../scripts/workflows/deployTreasury";
+import { AssetMock__factory } from "@contract-types";
 
 describe("Portfolio operations", () => {
   let signer_A, signer_B;
@@ -18,8 +18,7 @@ describe("Portfolio operations", () => {
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
-    const provider = new HardhatProvider();
-    const deployment = await deployTreasury(provider, "hardhat", {
+    const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
     });

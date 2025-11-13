@@ -35,4 +35,7 @@ coverage/
 # Deployment files - ignore local/test networks
 deployments/hardhat_*.json
 deployments/localhost_*.json
-deployments/local_*.json
+deployments/*local_*.json
+
+# Deployment checkpoints - local deployment state
+deployments/.checkpoints/*.json

@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { expect } from "chai";
 import { ethers } from "hardhat";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { deployContract, deployPaymentToken } from "../scripts/test/deploy";
-import { deployTreasury } from "../scripts/workflows/deployTreasury";
-import { HardhatProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITreasury } from "@contracts";
-import { PAYOUT_ROLE, PAUSER_ROLE } from "../scripts/constants";
+import { expect } from "chai";
+import { deployContract, deployPaymentToken } from "../helpers/deployment";
+import { deployTreasury } from "../../scripts/workflows/deployTreasury";
+import { ITreasury, ITreasury__factory } from "@contract-types";
+import { AssetMock__factory } from "@contract-types";
+import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
 
 describe("LifeCycleCashFlow operations", () => {
-  let signer_A, signer_B;
+  let signer_A: SignerWithAddress;
+  let signer_B: SignerWithAddress;
   let treasury: ITreasury;
   let assetAddress: string;
   let paymentTokenAddress: string;
@@ -20,18 +22,18 @@ describe("LifeCycleCashFlow operations", () => {
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
 
-    const provider = new HardhatProvider();
-    const deployment = await deployTreasury(provider, "hardhat", {
+    const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
     });
 
-    treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
+    treasury = ITreasury__factory.connect(deployment.infrastructure.treasury.proxy, signer_A);
   });
 
   describe("initialize_LifeCycleCashFlow", () => {
     beforeEach(async () => {
-      assetAddress = await deployContract("AssetMock", signer_A, [false, 1, [], false]);
+      const assetFactory = new AssetMock__factory(signer_A);
+      assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
 
       treasury = treasury.connect(signer_A);
       await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -55,7 +57,8 @@ describe("LifeCycleCashFlow operations", () => {
   describe("executeDistribution", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        assetAddress = await deployContract("AssetMock", signer_A, [false, 1, [], false]);
+        const assetFactory = new AssetMock__factory(signer_A);
+        assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 
@@ -118,7 +121,8 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 1, [], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 1, [], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -132,7 +136,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 1, [AddressZero], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 1, [AddressZero], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -155,7 +160,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 300000, [signer_B.address], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 300000, [signer_B.address], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
           [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
@@ -217,7 +223,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [
             true,
             300000,
             [signer_B.address, signer_A.address],
@@ -255,12 +262,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [
-            true,
-            28054423280000000000n,
-            [signer_B.address],
-            false,
-          ]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 28054423280000000000n, [signer_B.address], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
           [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 1, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
@@ -289,7 +292,8 @@ describe("LifeCycleCashFlow operations", () => {
   describe("executeDistributionByAddresses", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        assetAddress = await deployContract("AssetMock", signer_A, [false, 1, [], false]);
+        const assetFactory = new AssetMock__factory(signer_A);
+        assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 
@@ -351,7 +355,8 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 1, [], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 1, [], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -373,7 +378,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 1, [AddressZero], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 1, [AddressZero], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -395,7 +401,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [true, 300000, [signer_B.address], false]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 300000, [signer_B.address], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
           [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
@@ -454,7 +461,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [
             true,
             300000,
             [signer_B.address, signer_A.address],
@@ -495,12 +503,8 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          assetAddress = await deployContract("AssetMock", signer_A, [
-            true,
-            28054423280000000000n,
-            [signer_B.address],
-            false,
-          ]);
+          const assetFactory = new AssetMock__factory(signer_A);
+          assetAddress = await deployContract(assetFactory, [true, 28054423280000000000n, [signer_B.address], false]);
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
           [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 1, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);

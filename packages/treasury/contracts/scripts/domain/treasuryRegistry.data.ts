@@ -25,13 +25,9 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   LifeCycleCashFlowFacet__factory,
-  LifeCycleCashFlowFacetTimeTravel__factory,
   PortfolioFacet__factory,
-  PortfolioFacetTimeTravel__factory,
   ProceedsManagementFacet__factory,
-  ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
-  IAssetMock__factory,
 } from "@contract-types";
 
 /**
@@ -109,10 +105,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "InvalidTokenDecimals", signature: "InvalidTokenDecimals(address,int32)", selector: "0xf6aad11a" },
       { name: "NotPaymentDate", signature: "NotPaymentDate(uint256,uint256)", selector: "0x094c9a35" },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new LifeCycleCashFlowFacetTimeTravel__factory(signer)
-        : new LifeCycleCashFlowFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) => new LifeCycleCashFlowFacet__factory(signer),
   },
 
   PortfolioFacet: {
@@ -176,8 +169,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel ? new PortfolioFacetTimeTravel__factory(signer) : new PortfolioFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) => new PortfolioFacet__factory(signer),
   },
 
   ProceedsManagementFacet: {
@@ -242,10 +234,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
       { name: "WrongProceedsRecipient", signature: "WrongProceedsRecipient(address)", selector: "0x41d435ea" },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new ProceedsManagementFacetTimeTravel__factory(signer)
-        : new ProceedsManagementFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) => new ProceedsManagementFacet__factory(signer),
   },
 };
 
@@ -442,7 +431,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 
   IAssetMock: {
     name: "IAssetMock",
-    factory: (signer) => new IAssetMock__factory(signer),
+    factory: (signer) => new AssetMock__factory(signer),
   },
 };
 

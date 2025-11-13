@@ -19,6 +19,12 @@
       ],
       "@hashgraph/green-bonds-platform-ats-contracts/scripts/*": [
         "node_modules/@hashgraph/green-bonds-platform-ats-contracts/build/scripts/*"
+      ],
+      "@hashgraph/green-bonds-platform-treasury-contracts/scripts": [
+        "node_modules/@hashgraph/green-bonds-platform-treasury-contracts/build/scripts/index.d.ts"
+      ],
+      "@hashgraph/green-bonds-platform-treasury-contracts/scripts/*": [
+        "node_modules/@hashgraph/green-bonds-platform-treasury-contracts/build/scripts/*"
       ]
     }
   },

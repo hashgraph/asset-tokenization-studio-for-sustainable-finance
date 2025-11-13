@@ -1,17 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployFacets,
   registerAdditionalFacets,
-  deployResolverProxy,
   info,
   success,
   section,
   error as logError,
   configureLogger,
   LogLevel,
+  atsRegistry,
+  getDeploymentConfig,
+  isLocalNetwork,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { Signer, ContractFactory } from "ethers";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createTreasuryConfiguration, FACET_REGISTRY } from "@scripts/domain";
 import type { DeployTreasuryOutput } from "./deployTreasury";
@@ -48,27 +50,44 @@ export interface DeployWithExistingInfraOptions {
 
   /** Path to save deployment output */
   outputPath?: string;
+
+  /** Enable verbose logging (debug level) */
+  verbose?: boolean;
 }
 
 export async function deployTreasuryWithExistingInfra(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployTreasuryOutput> {
-  configureLogger({ level: LogLevel.SILENT });
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
+
+  // Configure logger based on verbose flag
+  configureLogger({
+    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
+  });
+
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
 
   section("Treasury Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -97,10 +116,10 @@ export async function deployTreasuryWithExistingInfra(
     info(`✅ AccessControlFacet: ${facets.accessControl}`);
     info(`✅ PauseFacet: ${facets.pause}`);
 
-    // =====================================================================================
-    // STEP 2: Deploy only LifeCycleCashFlowFacet, PortfolioFacet, ProceedsManagementFacet
-    // =====================================================================================
-    info("\n📦 Step 2/4: Deploying LifeCycleCashFlowFacet, PortfolioFacet, ProceedsManagementFacet...");
+    // ========================================
+    // STEP 2: Deploy Treasury-specific facets
+    // ========================================
+    info("\n📦 Step 2/4: Deploying Treasury-specific facets...");
 
     const facetNames = useTimeTravel
       ? [
@@ -109,24 +128,45 @@ export async function deployTreasuryWithExistingInfra(
           "ProceedsManagementFacetTimeTravel",
           "TimeTravelFacet",
         ]
-      : ["LifeCycleCashFlowFacet, PortfolioFacet, ProceedsManagementFacet"];
+      : ["LifeCycleCashFlowFacet", "PortfolioFacet", "ProceedsManagementFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    // Create RegistryProvider from FACET_REGISTRY
-    const treasuryRegistry = {
-      getFacetDefinition: (name: string) => FACET_REGISTRY[name],
-      getAllFacets: () => Object.values(FACET_REGISTRY),
-    };
+    // Create TypeChain factories from registry
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = FACET_REGISTRY[facetName] || atsRegistry.getFacetDefinition(facetName);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [treasuryRegistry],
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    // Validate all factories were created successfully
+    const factoryCount = Object.keys(facetFactories).length;
+    const expectedCount = facetNames.length;
+
+    if (factoryCount !== expectedCount) {
+      const missingFactories = facetNames.filter((name) => !facetFactories[name]);
+      throw new Error(
+        `Factory creation incomplete: expected ${expectedCount} factories, got ${factoryCount}. ` +
+          `Missing: ${missingFactories.join(", ")}`,
+      );
+    }
+
+    info(`   ✅ Created ${factoryCount} facet factories`);
+
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
     });
 
     if (!facetsResult.success) {
-      throw new Error("TreasuryFacet deployment failed");
+      throw new Error("Treasury facet deployment failed");
     }
 
     info(`✅ Deployed ${facetsResult.deployed.size} new facet(s)`);
@@ -143,9 +183,25 @@ export async function deployTreasuryWithExistingInfra(
       }
     });
 
-    const registerResult = await registerAdditionalFacets(provider, {
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+
+    const facetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
+      const treasuryFacet = FACET_REGISTRY[name];
+      if (treasuryFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: treasuryFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in Treasury or ATS registries`);
+    });
+
+    const registerResult = await registerAdditionalFacets(signer, {
       blrAddress,
-      newFacets: newFacetAddresses,
+      newFacets: facetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -159,14 +215,14 @@ export async function deployTreasuryWithExistingInfra(
     // ========================================
     info("\n💼 Step 4/4: Creating Treasury configuration...");
 
-    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+    // Merge existing shared facets with newly deployed facets for complete configuration
+    const allFacetAddresses = {
+      ...newFacetAddresses,
+      AccessControlFacet: facets.accessControl,
+      PauseFacet: facets.pause,
+    };
 
-    const treasuryConfig = await createTreasuryConfiguration(
-      blrContract,
-      newFacetAddresses,
-      useTimeTravel,
-      treasuryRegistry,
-    );
+    const treasuryConfig = await createTreasuryConfiguration(blrContract, allFacetAddresses, useTimeTravel);
 
     if (!treasuryConfig.success) {
       //throw new Error(`Treasury config failed: ${treasuryConfig.error} - ${treasuryConfig.message}`);
@@ -178,38 +234,6 @@ export async function deployTreasuryWithExistingInfra(
     info(
       `✅ Total Facets: ${treasuryConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
     );
-
-    // ========================================
-    // STEP 5: Deploy Treasury ResolverProxy
-    // ========================================
-    info("\n🏭 Step 5/5: Deploying Treasury ResolverProxy...");
-
-    const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    const treasuryProxyResult = await deployResolverProxy(provider, {
-      blrAddress,
-      configurationId: treasuryConfig.data.configurationId,
-      version: treasuryConfig.data.version,
-      rbac: [
-        {
-          role: DEFAULT_ADMIN_ROLE,
-          members: [deployer],
-        },
-      ],
-      network,
-    });
-
-    if (!treasuryProxyResult.success) {
-      throw new Error(`Treasury ResolverProxy deployment failed: ${treasuryProxyResult.error}`);
-    }
-
-    const treasuryAddress = treasuryProxyResult.proxyAddress!;
-
-    info(`✅ Treasury ResolverProxy deployed successfully`);
-    info(`   Address: ${treasuryAddress}`);
-    if (treasuryProxyResult.contractId) {
-      info(`   Contract ID: ${treasuryProxyResult.contractId}`);
-    }
 
     // ========================================
     // Build comprehensive output
@@ -229,10 +253,7 @@ export async function deployTreasuryWithExistingInfra(
           implementation: blrAddress, // We don't know the implementation address
           proxy: blrAddress,
         },
-        treasury: {
-          implementation: blrAddress, // ResolverProxy uses BLR
-          proxy: treasuryAddress,
-        },
+        // No treasury proxy - deployed via FactorySuite when creating bond suite
       },
 
       facets: [
@@ -268,7 +289,7 @@ export async function deployTreasuryWithExistingInfra(
       },
 
       summary: {
-        totalContracts: 1, // Only Treasury proxy deployed
+        totalContracts: 0, // No proxies deployed - only facets and configuration
         totalFacets: facetsResult.deployed.size, // Only new facets
         deploymentTime: endTime - startTime,
         success: true,
