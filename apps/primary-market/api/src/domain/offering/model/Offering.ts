@@ -34,15 +34,15 @@ export class Offering {
 
   @IsNotEmpty()
   @IsString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -59,6 +59,10 @@ export class Offering {
   @IsNotEmpty()
   @IsNumber()
   deadlineRule: number
+
+  @IsNotEmpty()
+  @IsString()
+  price: string
 
   @IsDate()
   createdAt: Date

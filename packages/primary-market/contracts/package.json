@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
-  "files": ["build/", "contracts/"],
+  "types": "build/typechain-types/index.d.ts",
+  "files": [
+    "build/",
+    "contracts/"
+  ],
   "exports": {
     ".": {
       "import": "./build/typechain-types/index.js",
@@ -12,14 +16,20 @@
     },
     "./typechain-types/index.js": "./build/typechain-types/index.js"
   },
-  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
+  "keywords": [
+    "hedera",
+    "smart-contracts",
+    "tokenization",
+    "hardhat"
+  ],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
+    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
     "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
     "clean:cache": "npx hardhat clean",
     "clean:build": "node -e \"const fs=require('fs'); ['build','typechain-types','artifacts'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
-    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true}))\"",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "npm run lint:sol; npm run lint:js",

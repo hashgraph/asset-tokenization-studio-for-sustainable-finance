@@ -3,24 +3,19 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { SharedModule, UserRolePersistence } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
-import { UserPersistence } from "@port/persistence/user/model/UserPersistence"
-import { UserMarketRolePersistence } from "@port/persistence/usermarketrole/model/UserMarketRolePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 
 describe("GetRoleMembers API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
-  let roleRepository: Repository<RolePersistence>
-  let userRepository: Repository<UserPersistence>
-  let userMarketRoleRepository: Repository<UserMarketRolePersistence>
+  let userRoleRepository: Repository<UserRolePersistence>
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -39,9 +34,7 @@ describe("GetRoleMembers API Integration", () => {
     await app.init()
 
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
-    roleRepository = app.get(getRepositoryToken(RolePersistence))
-    userRepository = app.get(getRepositoryToken(UserPersistence))
-    userMarketRoleRepository = app.get(getRepositoryToken(UserMarketRolePersistence))
+    userRoleRepository = app.get(getRepositoryToken(UserRolePersistence))
   })
 
   afterAll(async () => {
@@ -50,9 +43,7 @@ describe("GetRoleMembers API Integration", () => {
 
   afterEach(async () => {
     const dataSource = app.get(DataSource)
-    await dataSource.createQueryBuilder().delete().from("UserMarketRole").execute()
-    await dataSource.createQueryBuilder().delete().from("User").execute()
-    await dataSource.createQueryBuilder().delete().from("Role").execute()
+    await dataSource.createQueryBuilder().delete().from("UserRole").execute()
     await dataSource.createQueryBuilder().delete().from("PrimaryMarket").execute()
     await app.close()
   })
@@ -63,12 +54,10 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
-      })
+      const roleId = "0x9766707"
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId}/members`)
         .query({ page: 1, limit: 10 })
         .expect(200)
 
@@ -89,32 +78,22 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
+      const roleId = "0x9766707"
+
+      await userRoleRepository.save({
+        userAccountId: "0.0.1111",
+        roleId: roleId,
+        contractId: market.contractId,
       })
 
-      const user1 = await userRepository.save({
-        accountId: "0.0.1111",
-      })
-
-      const user2 = await userRepository.save({
-        accountId: "0.0.2222",
-      })
-
-      await userMarketRoleRepository.save({
-        user: user1,
-        role: role,
-        market: market,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user2,
-        role: role,
-        market: market,
+      await userRoleRepository.save({
+        userAccountId: "0.0.2222",
+        roleId: roleId,
+        contractId: market.contractId,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId}/members`)
         .query({ page: 1, limit: 10 })
         .expect(200)
 
@@ -124,7 +103,7 @@ describe("GetRoleMembers API Integration", () => {
       expect(response.body.totalPages).toBe(1)
       expect(response.body.items).toHaveLength(2)
 
-      const accountIds = response.body.items.map((item: any) => item.accountId)
+      const accountIds = response.body.items.map((item: any) => item.userAccountId)
       expect(accountIds).toContain("0.0.1111")
       expect(accountIds).toContain("0.0.2222")
     })
@@ -134,24 +113,18 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
-      })
+      const roleId = "0x9766707"
 
       for (let i = 1; i <= 5; i++) {
-        const user = await userRepository.save({
-          accountId: `0.0.${1000 + i}`,
-        })
-
-        await userMarketRoleRepository.save({
-          user: user,
-          role: role,
-          market: market,
+        await userRoleRepository.save({
+          userAccountId: `0.0.${1000 + i}`,
+          roleId: roleId,
+          contractId: market.contractId,
         })
       }
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId}/members`)
         .query({ page: 1, limit: 3 })
         .expect(200)
 
@@ -167,24 +140,18 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
-      })
+      const roleId = "0x9766707"
 
       for (let i = 1; i <= 5; i++) {
-        const user = await userRepository.save({
-          accountId: `0.0.${1000 + i}`,
-        })
-
-        await userMarketRoleRepository.save({
-          user: user,
-          role: role,
-          market: market,
+        await userRoleRepository.save({
+          userAccountId: `0.0.${1000 + i}`,
+          roleId: roleId,
+          contractId: market.contractId,
         })
       }
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId}/members`)
         .query({ page: 2, limit: 3 })
         .expect(200)
 
@@ -195,20 +162,20 @@ describe("GetRoleMembers API Integration", () => {
       expect(response.body.items).toHaveLength(2)
     })
 
-    it("should return 404 when market does not exist", async () => {
-      const role = await roleRepository.save({
-        hex: "0x9766707",
-      })
+    it("should return empty list when market does not exist", async () => {
+      const roleId = "0x9766707"
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/0.0.99999/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/0.0.99999/roles/${roleId}/members`)
         .query({ page: 1, limit: 10 })
-        .expect(404)
+        .expect(200)
 
-      expect(response.body).toHaveProperty("message")
+      expect(response.body).toHaveProperty("items")
+      expect(response.body.items).toEqual([])
+      expect(response.body.total).toBe(0)
     })
 
-    it("should return 404 when role does not exist", async () => {
+    it("should return empty list when role does not exist", async () => {
       const market = await primaryMarketRepository.save({
         contractId: "0.0.12345",
       })
@@ -216,9 +183,11 @@ describe("GetRoleMembers API Integration", () => {
       const response = await request(app.getHttpServer())
         .get(`/api/v1/primary-markets/${market.contractId}/roles/0x999999/members`)
         .query({ page: 1, limit: 10 })
-        .expect(404)
+        .expect(200)
 
-      expect(response.body).toHaveProperty("message")
+      expect(response.body).toHaveProperty("items")
+      expect(response.body.items).toEqual([])
+      expect(response.body.total).toBe(0)
     })
 
     it("should only return members for the specified role", async () => {
@@ -226,53 +195,36 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role1 = await roleRepository.save({
-        hex: "0x9766707",
+      const roleId1 = "0x9766707"
+      const roleId2 = "0x8765432"
+
+      await userRoleRepository.save({
+        userAccountId: "0.0.1111",
+        roleId: roleId1,
+        contractId: market.contractId,
       })
 
-      const role2 = await roleRepository.save({
-        hex: "0x8765432",
+      await userRoleRepository.save({
+        userAccountId: "0.0.2222",
+        roleId: roleId1,
+        contractId: market.contractId,
       })
 
-      const user1 = await userRepository.save({
-        accountId: "0.0.1111",
-      })
-
-      const user2 = await userRepository.save({
-        accountId: "0.0.2222",
-      })
-
-      const user3 = await userRepository.save({
-        accountId: "0.0.3333",
-      })
-
-      await userMarketRoleRepository.save({
-        user: user1,
-        role: role1,
-        market: market,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user2,
-        role: role1,
-        market: market,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user3,
-        role: role2,
-        market: market,
+      await userRoleRepository.save({
+        userAccountId: "0.0.3333",
+        roleId: roleId2,
+        contractId: market.contractId,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role1.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId1}/members`)
         .query({ page: 1, limit: 10 })
         .expect(200)
 
       expect(response.body.total).toBe(2)
       expect(response.body.items).toHaveLength(2)
 
-      const accountIds = response.body.items.map((item: any) => item.accountId)
+      const accountIds = response.body.items.map((item: any) => item.userAccountId)
       expect(accountIds).toContain("0.0.1111")
       expect(accountIds).toContain("0.0.2222")
       expect(accountIds).not.toContain("0.0.3333")
@@ -287,49 +239,35 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.67890",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
+      const roleId = "0x9766707"
+
+      await userRoleRepository.save({
+        userAccountId: "0.0.1111",
+        roleId: roleId,
+        contractId: market1.contractId,
       })
 
-      const user1 = await userRepository.save({
-        accountId: "0.0.1111",
+      await userRoleRepository.save({
+        userAccountId: "0.0.2222",
+        roleId: roleId,
+        contractId: market1.contractId,
       })
 
-      const user2 = await userRepository.save({
-        accountId: "0.0.2222",
-      })
-
-      const user3 = await userRepository.save({
-        accountId: "0.0.3333",
-      })
-
-      await userMarketRoleRepository.save({
-        user: user1,
-        role: role,
-        market: market1,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user2,
-        role: role,
-        market: market1,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user3,
-        role: role,
-        market: market2,
+      await userRoleRepository.save({
+        userAccountId: "0.0.3333",
+        roleId: roleId,
+        contractId: market2.contractId,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market1.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market1.contractId}/roles/${roleId}/members`)
         .query({ page: 1, limit: 10 })
         .expect(200)
 
       expect(response.body.total).toBe(2)
       expect(response.body.items).toHaveLength(2)
 
-      const accountIds = response.body.items.map((item: any) => item.accountId)
+      const accountIds = response.body.items.map((item: any) => item.userAccountId)
       expect(accountIds).toContain("0.0.1111")
       expect(accountIds).toContain("0.0.2222")
       expect(accountIds).not.toContain("0.0.3333")
@@ -340,49 +278,35 @@ describe("GetRoleMembers API Integration", () => {
         contractId: "0.0.12345",
       })
 
-      const role = await roleRepository.save({
-        hex: "0x9766707",
+      const roleId = "0x9766707"
+
+      await userRoleRepository.save({
+        userAccountId: "0.0.1111",
+        roleId: roleId,
+        contractId: market.contractId,
       })
 
-      const user1 = await userRepository.save({
-        accountId: "0.0.1111",
+      await userRoleRepository.save({
+        userAccountId: "0.0.2222",
+        roleId: roleId,
+        contractId: market.contractId,
       })
 
-      const user2 = await userRepository.save({
-        accountId: "0.0.2222",
-      })
-
-      const user3 = await userRepository.save({
-        accountId: "0.0.3333",
-      })
-
-      await userMarketRoleRepository.save({
-        user: user1,
-        role: role,
-        market: market,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user2,
-        role: role,
-        market: market,
-      })
-
-      await userMarketRoleRepository.save({
-        user: user3,
-        role: role,
-        market: market,
+      await userRoleRepository.save({
+        userAccountId: "0.0.3333",
+        roleId: roleId,
+        contractId: market.contractId,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/primary-markets/${market.contractId}/roles/${role.hex}/members`)
+        .get(`/api/v1/primary-markets/${market.contractId}/roles/${roleId}/members`)
         .query({ page: 1, limit: 10 })
         .expect(200)
 
       expect(response.body.total).toBe(3)
       expect(response.body.items).toHaveLength(3)
 
-      const accountIds = response.body.items.map((item: any) => item.accountId)
+      const accountIds = response.body.items.map((item: any) => item.userAccountId)
       expect(new Set(accountIds).size).toBe(3)
       expect(accountIds).toContain("0.0.1111")
       expect(accountIds).toContain("0.0.2222")

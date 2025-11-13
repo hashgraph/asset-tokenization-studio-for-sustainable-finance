@@ -22,15 +22,15 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly minQuantity: string
+  readonly minLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly maxQuantity: string
+  readonly maxLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  readonly targetQuantity: string
+  readonly targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -48,6 +48,10 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
   @IsNumber()
   readonly deadlineRule: number
 
+  @IsNotEmpty()
+  @IsNumberString()
+  readonly price: string
+
   constructor(
     format: string,
     accountId: string,
@@ -56,25 +60,27 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
     treasuryAddress: string,
     paymentTokenAddress: string,
     lotSize: string,
-    minQuantity: string,
-    maxQuantity: string,
-    targetQuantity: string,
+    minLots: string,
+    maxLots: string,
+    targetLots: string,
     targetQuantityRule: number,
     startDate: string,
     endDate: string,
     deadlineRule: number,
+    price: string,
   ) {
     super(format, accountId, contractId)
     this.bondContractId = bondContractId
     this.treasuryAddress = treasuryAddress
     this.paymentTokenAddress = paymentTokenAddress
     this.lotSize = lotSize
-    this.minQuantity = minQuantity
-    this.maxQuantity = maxQuantity
-    this.targetQuantity = targetQuantity
+    this.minLots = minLots
+    this.maxLots = maxLots
+    this.targetLots = targetLots
     this.targetQuantityRule = targetQuantityRule
     this.startDate = startDate
     this.endDate = endDate
     this.deadlineRule = deadlineRule
+    this.price = price
   }
 }

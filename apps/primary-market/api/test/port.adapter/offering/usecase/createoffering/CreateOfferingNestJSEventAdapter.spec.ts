@@ -63,13 +63,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "0x0000000000000000000000000000000000001236", // treasury
         "0x0000000000000000000000000000000000001237", // payment token
         "1000", // lotSize
-        "100", // minQuantity
-        "10000", // maxQuantity
-        "5000", // targetQuantity
+        "100", // minLots
+        "10000", // maxLots
+        "5000", // targetLots
         0, // targetQuantityRule
         "1640995200", // startDate
         "1672531200", // endDate
         0, // deadlineRule
+        "100", // price
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -86,13 +87,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering!.treasuryContractId).toBe("0.0.4662") // Converted from EVM address
       expect(savedOffering!.paymentTokenContractId).toBe("0.0.4663") // Converted from EVM address
       expect(savedOffering!.lotSize).toBe("1000")
-      expect(savedOffering!.minQuantity).toBe("100")
-      expect(savedOffering!.maxQuantity).toBe("10000")
-      expect(savedOffering!.targetQuantity).toBe("5000")
+      expect(savedOffering!.minLots).toBe("100")
+      expect(savedOffering!.maxLots).toBe("10000")
+      expect(savedOffering!.targetLots).toBe("5000")
       expect(savedOffering!.targetQuantityRule).toBe(0)
       expect(savedOffering!.startDate).toEqual(new Date(1640995200 * 1000))
       expect(savedOffering!.endDate).toEqual(new Date(1672531200 * 1000))
       expect(savedOffering!.deadlineRule).toBe(0)
+      expect(savedOffering!.price).toBe("100")
       expect(savedOffering!.market.contractId).toBe("0.0.1234567")
     })
 
@@ -110,13 +112,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "500",
-        minQuantity: "50",
-        maxQuantity: "5000",
-        targetQuantity: "2500",
+        minLots: "50",
+        maxLots: "5000",
+        targetLots: "2500",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save(existingOffering)
@@ -137,6 +140,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "1640995200",
         "1672531200",
         0,
+        "100",
       )
 
       await expect(eventBus.publishSync(event, OfferingCreatedDLTEvent.name)).rejects.toThrow()
@@ -166,6 +170,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           "1640995200",
           "1672531200",
           0,
+          "100",
         )
 
         await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -207,6 +212,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "1640995200",
         "1672531200",
         0,
+        "100",
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -219,13 +225,14 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           treasuryContractId: "0.0.4662", // Converted from EVM address
           paymentTokenContractId: "0.0.4663", // Converted from EVM address
           lotSize: "1000",
-          minQuantity: "100",
-          maxQuantity: "10000",
-          targetQuantity: "5000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
           targetQuantityRule: 0,
           startDate: new Date(1640995200 * 1000),
           endDate: new Date(1672531200 * 1000),
           deadlineRule: 0,
+          price: "100",
           timestamp: expect.any(Number),
         }),
       )

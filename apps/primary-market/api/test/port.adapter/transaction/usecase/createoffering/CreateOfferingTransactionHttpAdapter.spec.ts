@@ -52,13 +52,14 @@ describe("CreateOfferingTransaction API Integration", () => {
         treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 1,
         startDate: "1640995200000",
         endDate: "1672531200000",
         deadlineRule: 1,
+        price: "100",
       }
 
       const response = await request(app.getHttpServer())
@@ -82,13 +83,14 @@ describe("CreateOfferingTransaction API Integration", () => {
           treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           lotSize: "1000",
-          minQuantity: "100",
-          maxQuantity: "10000",
-          targetQuantity: "5000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
           targetQuantityRule: 1,
           startDate: "1640995200000",
           endDate: "1672531200000",
           deadlineRule: 1,
+          price: "100",
         }
 
         const response = await request(app.getHttpServer())
@@ -127,13 +129,14 @@ describe("CreateOfferingTransaction API Integration", () => {
         treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 1,
         startDate: "1640995200000",
         endDate: "1672531200000",
         deadlineRule: "-1",
+        price: "100",
       }
 
       await request(app.getHttpServer())

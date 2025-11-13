@@ -7,11 +7,12 @@ export class BuildCreateOfferingTransactionRequest extends BaseBuildTransactionR
   treasuryAddress: string
   paymentTokenAddress: string
   lotSize: string
-  minQuantity: string
-  maxQuantity: string
-  targetQuantity: string
+  minLots: string
+  maxLots: string
+  targetLots: string
   targetQuantityRule: number
   startDate: string
   endDate: string
   deadlineRule: number
+  price: string
 }

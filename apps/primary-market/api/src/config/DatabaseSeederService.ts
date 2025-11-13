@@ -4,9 +4,7 @@ import { Injectable, OnApplicationBootstrap, Logger } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { UserPersistence } from "@port/persistence/user/model/UserPersistence"
-import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
-import { UserMarketRolePersistence } from "@port/persistence/usermarketrole/model/UserMarketRolePersistence"
+import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core"
 
 //TODO Replace with real data when SC is deployed
 @Injectable()
@@ -16,12 +14,8 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(PrimaryMarketPersistence)
     private readonly primaryMarketRepository: Repository<PrimaryMarketPersistence>,
-    @InjectRepository(UserPersistence)
-    private readonly userRepository: Repository<UserPersistence>,
-    @InjectRepository(RolePersistence)
-    private readonly roleRepository: Repository<RolePersistence>,
-    @InjectRepository(UserMarketRolePersistence)
-    private readonly userMarketRoleRepository: Repository<UserMarketRolePersistence>,
+    @InjectRepository(UserRolePersistence)
+    private readonly userRoleRepository: Repository<UserRolePersistence>,
   ) {}
 
   async onApplicationBootstrap() {
@@ -34,9 +28,7 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
 
     try {
       await this.seedPrimaryMarket()
-      await this.seedDefaultRole()
-      await this.seedDefaultUser()
-      await this.seedDefaultUserMarketRole()
+      await this.seedDefaultUserRole()
 
       this.logger.log("Database seeding completed successfully")
     } catch (error) {
@@ -61,77 +53,30 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
     }
   }
 
-  private async seedDefaultRole() {
-    const roleHex = "0x0000000000000000000000000000000000000000000000000000000000000001"
-    const existing = await this.roleRepository.findOne({
-      where: { hex: roleHex },
-    })
-
-    if (!existing) {
-      await this.roleRepository.save({
-        hex: roleHex,
-      })
-      this.logger.log(`Created default Role with hex: ${roleHex}`)
-    } else {
-      this.logger.log(`Role with hex ${roleHex} already exists`)
-    }
-  }
-
-  private async seedDefaultUser() {
-    const accountId = "0.0.1234"
-    const existing = await this.userRepository.findOne({
-      where: { accountId },
-    })
-
-    if (!existing) {
-      await this.userRepository.save({
-        accountId,
-      })
-      this.logger.log(`Created default User with accountId: ${accountId}`)
-    } else {
-      this.logger.log(`User with accountId ${accountId} already exists`)
-    }
-  }
-
-  private async seedDefaultUserMarketRole() {
+  private async seedDefaultUserRole() {
+    const userAccountId = "0.0.1234"
+    const roleId = "0x0000000000000000000000000000000000000000000000000000000000000001"
     const contractId = "0.0.12345"
-    const userId = "0.0.1234"
-    const roleHex = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
-    const market = await this.primaryMarketRepository.findOne({
-      where: { contractId },
-    })
-    const role = await this.roleRepository.findOne({
-      where: { hex: roleHex },
-    })
-    const user = await this.userRepository.findOne({
-      where: { accountId: userId },
-    })
-
-    if (!market || !role || !user) {
-      this.logger.error("Cannot seed UserMarketRole: missing required entities")
-      return
-    }
-    const existing = await this.userMarketRoleRepository.findOne({
+    const existing = await this.userRoleRepository.findOne({
       where: {
-        user: { id: user.id },
-        role: { id: role.id },
-        market: { id: market.id },
+        userAccountId,
+        roleId,
+        contractId,
       },
     })
+
     if (!existing) {
-      await this.userMarketRoleRepository.save({
-        user,
-        role,
-        market,
+      await this.userRoleRepository.save({
+        userAccountId,
+        roleId,
+        contractId,
       })
       this.logger.log(
-        `Created default UserMarketRole for user ${user.accountId} with role ${role.hex} in market ${market.contractId}`,
+        `Created default UserRole for user ${userAccountId} with role ${roleId} in contract ${contractId}`,
       )
     } else {
-      this.logger.log(
-        `UserMarketRole for user ${user.accountId} with role ${role.hex} in market ${market.contractId} already exists`,
-      )
+      this.logger.log(`UserRole for user ${userAccountId} with role ${roleId} in contract ${contractId} already exists`)
     }
   }
 }
