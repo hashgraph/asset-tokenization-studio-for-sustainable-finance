@@ -56,16 +56,22 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
     /**
      * @dev Add a new EnvironmentalAsset token contract to the treasury
      *
-     * @param environmentalAssets The address of the EnvironmentalAsset token contract to add to the treasury
+     * @param environmentalAsset The address of the EnvironmentalAsset token contract to add to the treasury
+     *
+     * @return added True if the environmental asset was successfully added. False otherwise
      */
-    function _addEnvironmentalAssetToken(address environmentalAssets) internal returns (bool) {
-        if (!_portfolioStorage().environmentalAssets.contains(environmentalAssets)) {
-            if (_portfolioStorage().environmentalAssets.add(environmentalAssets)) {
-                _associateToken(environmentalAssets);
-                return true;
+    function _addEnvironmentalAssetToken(
+        address environmentalAsset
+    ) internal returns (bool added) {
+        added = false;
+        if (!_environmentalAssetExists(environmentalAsset)) {
+            if (
+                _portfolioStorage().environmentalAssets.add(environmentalAsset)
+            ) {
+                _associateToken(environmentalAsset);
+                added = true;
             }
         }
-        return false;
     }
 
     /**
@@ -73,11 +79,42 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param environmentalAsset The address of the EnvironmentalAsset token contract to remove from the treasury
      *
+     * @return removed True if the environmental asset was successfully removed. False otherwise
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function _removeEnvironmentalAssetToken(address environmentalAsset) internal returns (int256 dissociationError) {
-        _portfolioStorage().environmentalAssets.remove(environmentalAsset);
-        dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
+    function _removeEnvironmentalAssetToken(
+        address environmentalAsset
+    ) internal returns (bool removed, int256 dissociationError) {
+        removed = false;
+        dissociationError = HederaResponseCodes.OK;
+        if (_environmentalAssetExists(environmentalAsset)) {
+            if (
+                _portfolioStorage().environmentalAssets.remove(
+                    environmentalAsset
+                )
+            ) {
+                dissociationError = _dissociateTokenAllowNotAssociated(
+                    environmentalAsset
+                );
+                removed = true;
+            }
+        }
+    }
+
+    /**
+     * @dev Check if a certain environmental asset exists in the Treasury contract
+     *
+     * @param environmentalAsset The address of the EnvironmentalAsset token contract to check if exists
+     *
+     * @return exists True if the environmental asset exists in the Treasury. False, otherwise
+     */
+    function _environmentalAssetExists(
+        address environmentalAsset
+    ) internal view returns (bool exists) {
+        return
+            _portfolioStorage().environmentalAssets.contains(
+                environmentalAsset
+            );
     }
 
     /*
