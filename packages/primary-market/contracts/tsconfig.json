@@ -2,7 +2,6 @@
   "compilerOptions": {
     "target": "es2020",
     "module": "commonjs",
-    "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -22,7 +21,6 @@
       "@test/*": ["./test/*"]
     }
   },
-  "exclude": ["node_modules", "test", "scripts"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]
   }
