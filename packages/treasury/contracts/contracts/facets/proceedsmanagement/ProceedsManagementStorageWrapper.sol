@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 
 import {
-    IProceedsManagementStorageWrapper
-} from '../../interfaces/proceedsmanagement/IProceedsManagementStorageWrapper.sol';
+    IProceedsManagement
+} from '../../interfaces/IProceedsManagement.sol';
 import {
     LifeCycleCashFlowStorageWrapper
 } from '../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol';
@@ -20,7 +20,6 @@ import {
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
 abstract contract ProceedsManagementStorageWrapper is
-    IProceedsManagementStorageWrapper,
     LifeCycleCashFlowStorageWrapper
 {
     /**
@@ -41,16 +40,16 @@ abstract contract ProceedsManagementStorageWrapper is
      */
     function _transferPaymentToken(address to, uint256 amount) internal {
         if (!_uint256FitsIntoInt64(amount)) {
-            revert NotAllowedAmount(amount);
+            revert IProceedsManagement.NotAllowedAmount(amount);
         }
 
         int64 transformedAmount = int64(int256(amount));
         int256 responseCode = transferToken(_getPaymentToken(), address(this), to, transformedAmount);
         if (responseCode == HederaResponseCodes.SUCCESS) return;
         if (responseCode == HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE) {
-            revert NotEnoughBalance(amount);
+            revert IProceedsManagement.NotEnoughBalance(amount);
         }
-        revert TransferPaymentTokenFailed(to, amount);
+        revert IProceedsManagement.TransferPaymentTokenFailed(to, amount);
     }
 
     /**
@@ -62,17 +61,24 @@ abstract contract ProceedsManagementStorageWrapper is
      */
     function _transferEnvironmentalAssetToken(address environmentalAsset, address to, uint256 serialNumber) internal {
         if (!_uint256FitsIntoInt64(serialNumber)) {
-            revert NotAllowedSerialNumber(serialNumber);
+            revert IProceedsManagement.NotAllowedSerialNumber(serialNumber);
         }
 
         int64 transformedSerialNumber = int64(int256(serialNumber));
         int256 responseCode = transferNFT(environmentalAsset, address(this), to, transformedSerialNumber);
 
         if (responseCode == HederaResponseCodes.SUCCESS) return;
-        if (responseCode == HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO) {
-            revert NotTokenIdOwner(serialNumber);
+        if (
+            responseCode ==
+            HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
+        ) {
+            revert IProceedsManagement.NotTokenIdOwner(serialNumber);
         }
-        revert TransferEnvironmentalAssetTokenFailed(environmentalAsset, to, serialNumber);
+        revert IProceedsManagement.TransferEnvironmentalAssetTokenFailed(
+            environmentalAsset,
+            to,
+            serialNumber
+        );
     }
 
     /**
@@ -94,7 +100,7 @@ abstract contract ProceedsManagementStorageWrapper is
         bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset())
             .isProceedRecipient(proceedsRecipient);
         if (!proceedsRecipientBelongsToBond) {
-            revert WrongProceedsRecipient(proceedsRecipient);
+            revert IProceedsManagement.WrongProceedsRecipient(proceedsRecipient);
         }
     }
 

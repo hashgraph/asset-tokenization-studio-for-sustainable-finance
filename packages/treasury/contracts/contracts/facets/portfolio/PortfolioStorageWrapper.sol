@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    IPortfolioStorageWrapper
-} from '../../interfaces/portfolio/IPortfolioStorageWrapper.sol';
+import { IPortfolio } from '../../interfaces/IPortfolio.sol';
 import {PORTFOLIO_STORAGE_POSITION} from '../../constants/storagePositions.sol';
 import {
     Common as AtsCommon
@@ -18,7 +16,10 @@ import {
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
-abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon, HederaTokenService {
+abstract contract PortfolioStorageWrapper is
+    AtsCommon,
+    HederaTokenService
+{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct PortfolioStorage {
@@ -169,10 +170,10 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
             responseCode != HederaResponseCodes.SUCCESS &&
             responseCode != HederaResponseCodes.TOKEN_ALREADY_ASSOCIATED_TO_ACCOUNT
         ) {
-            revert AssociateTokenFailed(token);
+            revert IPortfolio.AssociateTokenFailed(token);
         }
 
-        emit TokenAssociated(token);
+        emit IPortfolio.TokenAssociated(token);
     }
 
     /*
@@ -197,7 +198,7 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
     function _dissociateToken(address token) internal {
         int256 responseCode = HederaTokenService.dissociateToken(address(this), token);
         if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert DissociateTokenFailed(token, responseCode);
+            revert IPortfolio.DissociateTokenFailed(token, responseCode);
         }
     }
 
@@ -264,7 +265,7 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      */
     function _checkAddress(address addressChecked) internal pure {
         if (addressChecked == address(0)) {
-            revert InvalidAddressZero();
+            revert IPortfolio.InvalidAddressZero();
         }
     }
 }

@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
 import {ProceedsManagement} from './ProceedsManagement.sol';
 import {
     IProceedsManagement
-} from '../../interfaces/proceedsmanagement/IProceedsManagement.sol';
+} from "../../interfaces/IProceedsManagement.sol";
 import {
     PROCEEDS_MANAGEMENT_RESOLVER_KEY
 } from '../../constants/resolverKeys.sol';
