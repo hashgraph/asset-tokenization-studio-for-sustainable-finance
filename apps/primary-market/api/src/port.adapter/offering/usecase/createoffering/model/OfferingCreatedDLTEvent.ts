@@ -9,13 +9,14 @@ export class OfferingCreatedDLTEvent extends DLTEvent {
   readonly treasury: string
   readonly paymentToken: string
   readonly lotSize: string
-  readonly minQuantity: string
-  readonly maxQuantity: string
-  readonly targetQuantity: string
+  readonly minLots: string
+  readonly maxLots: string
+  readonly targetLots: string
   readonly targetQuantityRule: number
   readonly startDate: string
   readonly endDate: string
   readonly deadlineRule: number
+  readonly price: string
 
   constructor(
     contractId: string,
@@ -26,13 +27,14 @@ export class OfferingCreatedDLTEvent extends DLTEvent {
     treasury: string,
     paymentToken: string,
     lotSize: string,
-    minQuantity: string,
-    maxQuantity: string,
-    targetQuantity: string,
+    minLots: string,
+    maxLots: string,
+    targetLots: string,
     targetQuantityRule: number,
     startDate: string,
     endDate: string,
     deadlineRule: number,
+    price: string,
   ) {
     super(contractId, transactionHash)
     this.offeringId = offeringId
@@ -41,12 +43,13 @@ export class OfferingCreatedDLTEvent extends DLTEvent {
     this.treasury = treasury
     this.paymentToken = paymentToken
     this.lotSize = lotSize
-    this.minQuantity = minQuantity
-    this.maxQuantity = maxQuantity
-    this.targetQuantity = targetQuantity
+    this.minLots = minLots
+    this.maxLots = maxLots
+    this.targetLots = targetLots
     this.targetQuantityRule = targetQuantityRule
     this.startDate = startDate
     this.endDate = endDate
     this.deadlineRule = deadlineRule
+    this.price = price
   }
 }

@@ -10,13 +10,14 @@ export class OfferingCreatedEvent extends Event {
     public readonly treasuryContractId: string,
     public readonly paymentTokenContractId: string,
     public readonly lotSize: string,
-    public readonly minQuantity: string,
-    public readonly maxQuantity: string,
-    public readonly targetQuantity: string,
+    public readonly minLots: string,
+    public readonly maxLots: string,
+    public readonly targetLots: string,
     public readonly targetQuantityRule: number,
     public readonly startDate: Date,
     public readonly endDate: Date,
     public readonly deadlineRule: number,
+    public readonly price: string,
   ) {
     super()
   }

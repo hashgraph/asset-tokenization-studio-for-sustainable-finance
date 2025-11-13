@@ -12,8 +12,12 @@ import { RevokeRoleTransactionAppService } from "./app/transaction/revokerole/re
 import { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
 import { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
 import { RenounceRoleTransactionAppService } from "./app/transaction/renouncerole/service/RenounceRoleTransactionAppService"
-import { GetUserRolesQueryHandler } from "./app/getuserroles/query/GetUserRolesQueryHandler"
-import { GetRoleMembersQueryHandler } from "./app/getrolemembers/query/GetRoleMembersQueryHandler"
+import { GetUserRolesQueryHandler } from "./app/userrole/getuserroles/query/GetUserRolesQueryHandler"
+import { GetRoleMembersQueryHandler } from "./app/userrole/getrolemembers/query/GetRoleMembersQueryHandler"
+import { GrantRoleCommandHandler } from "./app/userrole/grantrole/command/GrantRoleCommandHandler"
+import { RevokeRoleCommandHandler } from "./app/userrole/revokerole/command/RevokeRoleCommandHandler"
+import { RenounceRoleCommandHandler } from "./app/userrole/renouncerole/command/RenounceRoleCommandHandler"
+import { CheckUserRoleExistsDomainService } from "@domain/userrole/services/CheckUserRoleExistsDomainService"
 
 export const PROVIDERS = [
   {
@@ -48,4 +52,8 @@ export const COMMON_FUNCTIONALITY_PROVIDERS = [
   UnpauseTransactionAppService,
   GetUserRolesQueryHandler,
   GetRoleMembersQueryHandler,
+  GrantRoleCommandHandler,
+  RevokeRoleCommandHandler,
+  RenounceRoleCommandHandler,
+  CheckUserRoleExistsDomainService,
 ]

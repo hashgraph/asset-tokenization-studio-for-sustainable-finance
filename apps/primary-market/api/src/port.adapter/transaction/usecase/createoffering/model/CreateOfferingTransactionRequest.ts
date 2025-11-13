@@ -17,15 +17,15 @@ export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
 
   @IsNotEmpty()
   @IsNumberString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -42,4 +42,8 @@ export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
   @IsNotEmpty()
   @IsNumber()
   deadlineRule: number
+
+  @IsNotEmpty()
+  @IsNumberString()
+  price: string
 }

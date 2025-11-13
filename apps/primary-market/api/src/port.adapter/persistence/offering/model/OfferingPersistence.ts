@@ -31,13 +31,13 @@ export class OfferingPersistence {
   lotSize: string
 
   @Column({ type: "varchar" })
-  minQuantity: string
+  minLots: string
 
   @Column({ type: "varchar" })
-  maxQuantity: string
+  maxLots: string
 
   @Column({ type: "varchar" })
-  targetQuantity: string
+  targetLots: string
 
   @Column({ type: "int" })
   targetQuantityRule: number
@@ -50,6 +50,9 @@ export class OfferingPersistence {
 
   @Column({ type: "int" })
   deadlineRule: number
+
+  @Column({ type: "varchar" })
+  price: string
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date

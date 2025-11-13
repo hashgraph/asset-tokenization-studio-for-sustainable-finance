@@ -21,6 +21,7 @@ export class UpdateSubscriptionsStatusDomainService {
     for (const subscriptionId of subscriptionIds) {
       const subscription = await this.checkSubscriptionExistsDomainService.execute(subscriptionId, offeringId, market)
       subscription.status = status
+      subscription.updatedAt = new Date()
       updated.push(subscription)
     }
 

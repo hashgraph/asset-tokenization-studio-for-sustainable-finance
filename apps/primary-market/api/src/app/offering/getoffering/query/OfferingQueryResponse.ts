@@ -9,13 +9,14 @@ export class OfferingQueryResponse {
   treasuryContractId: string
   paymentTokenContractId: string
   lotSize: string
-  minQuantity: string
-  maxQuantity: string
-  targetQuantity: string
+  minLots: string
+  maxLots: string
+  targetLots: string
   targetQuantityRule: number
   startDate: Date
   endDate: Date
   deadlineRule: number
+  price: string
   status: OfferingStatus
   createdAt: Date
 }

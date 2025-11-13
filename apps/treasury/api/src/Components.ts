@@ -143,8 +143,9 @@ import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revo
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/treasury/usecase/getuserroles/GetUserRolesHttpAdapter"
 import { GetRoleMembersHttpAdapter } from "@port/treasury/usecase/getrolemembers/GetRoleMembersHttpAdapter"
-import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
-import { RevokeRoleNestJSEventAdapter } from "@port/role/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/treasury/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/treasury/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { RenounceRoleNestJSEventAdapter } from "@port/treasury/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -340,4 +341,5 @@ export const PROVIDERS = [
   CreateTreasuryFiltersNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   RevokeRoleNestJSEventAdapter,
+  RenounceRoleNestJSEventAdapter,
 ]
