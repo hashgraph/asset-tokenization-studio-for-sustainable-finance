@@ -295,9 +295,9 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
     it("should use configuration service for Hedera network", async () => {
       const { Client } = jest.requireMock("@hashgraph/sdk")
-      
+
       mockConfigService.getNetwork.mockReturnValue("mainnet")
-      
+
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
@@ -310,9 +310,9 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
     it("should use configuration service for Ethereum network and build HashIO URL", async () => {
       const { ethers } = jest.requireMock("ethers")
-      
+
       mockConfigService.getNetwork.mockReturnValue("mainnet")
-      
+
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
@@ -325,7 +325,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
     it("should handle different Hedera networks from configuration", async () => {
       const { Client } = jest.requireMock("@hashgraph/sdk")
-      
+
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
@@ -339,12 +339,14 @@ describe("BlockchainTransactionSenderAdapter", () => {
       expect(Client.forNetwork).toHaveBeenCalledWith({})
 
       mockConfigService.getNetwork.mockReturnValue("unknown")
-      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow("Unsupported network environment: unknown")
+      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow(
+        "Unsupported network environment: unknown",
+      )
     })
 
     it("should use separate network configurations for Ethereum HashIO URLs", async () => {
       const { ethers } = jest.requireMock("ethers")
-      
+
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
@@ -365,7 +367,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
     it("should handle different network configurations independently", async () => {
       const { Client } = jest.requireMock("@hashgraph/sdk")
       const { ethers } = jest.requireMock("ethers")
-      
+
       mockConfigService.getNetwork.mockReturnValue("mainnet")
 
       const hederaTransaction = new SignedTransactionRequest()

@@ -10,10 +10,10 @@ import { PrimaryMarket } from "@domain/primarymarket/model/PrimaryMarket"
 export class CheckOfferingExistsDomainService {
   constructor(@Inject() private readonly offeringRepository: OfferingRepository) {}
 
-  async execute(offeringDltId: string, market: PrimaryMarket): Promise<Offering> {
-    const offering = await this.offeringRepository.findByOfferingDltIdAndMarketId(offeringDltId, market.id)
+  async execute(offeringId: number, market: PrimaryMarket): Promise<Offering> {
+    const offering = await this.offeringRepository.findByOfferingIdAndMarketId(offeringId, market.id)
     if (!offering) {
-      throw OfferingNotFoundError.offeringDltIdAndMarketContractIdError(offeringDltId, market.contractId)
+      throw OfferingNotFoundError.offeringIdAndMarketContractIdError(offeringId, market.contractId)
     }
     return offering
   }

@@ -10,8 +10,6 @@ import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/trans
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildTransferPaymentTokenTransactionRequest } from "./model/BuildTransferPaymentTokenTransactionRequest"
-import { BuildPauseTreasuryTransactionRequest } from "./model/BuildPauseTreasuryTransactionRequest"
-import { BuildUnpauseTreasuryTransactionRequest } from "./model/BuildUnpauseTreasuryTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "./model/BuildExecuteDistributionTransactionRequest"
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
 import { MultipleTransactionResponse } from "@port/shared/model/MultipleTransactionResponse"
@@ -34,8 +32,6 @@ export interface TransactionBuilderPort extends BaseTransactionBuilderPort {
     request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
   ): Promise<BuildTransactionResponse>
   transferPaymentToken(request: BuildTransferPaymentTokenTransactionRequest): Promise<BuildTransactionResponse>
-  unpauseTreasury(request: BuildUnpauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
-  pauseTreasury(request: BuildPauseTreasuryTransactionRequest): Promise<BuildTransactionResponse>
   executeDistribution(request: BuildExecuteDistributionTransactionRequest): Promise<PageResponse<string>>
   executeDistributionByAddresses(
     request: BuildExecuteDistributionByAddressesTransactionRequest,

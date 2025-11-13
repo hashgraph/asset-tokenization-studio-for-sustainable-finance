@@ -10,17 +10,17 @@ import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submit
 export class SubmitSubscriptionTransactionHttpAdapter implements SubmitSubscriptionTransactionPort {
   constructor(private readonly createSubscriptionTransactionAppService: SubmitSubscriptionTransactionAppService) {}
 
-  @Post(":marketContractId/offerings/:offeringDltId/subscriptions")
+  @Post(":marketContractId/offerings/:offeringId/subscriptions")
   async submitSubscriptionTransaction(
     @Param("marketContractId") marketContractId: string,
-    @Param("offeringDltId") offeringDltId: string,
+    @Param("offeringId") offeringId: number,
     @Body() request: SubmitSubscriptionTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new SubmitSubscriptionTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       marketContractId,
-      offeringDltId,
+      offeringId,
       request.lotUnits,
     )
     return await this.createSubscriptionTransactionAppService.execute(appServiceRequest)

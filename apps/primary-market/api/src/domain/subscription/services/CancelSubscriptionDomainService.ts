@@ -24,16 +24,18 @@ export class CancelSubscriptionDomainService {
     market.ensureActive()
 
     const offering = await this.checkOfferingExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.offeringDltId,
+      cancelSubscriptionDomainServiceRequest.offeringId,
       market,
     )
 
     const subscription = await this.checkSubscriptionExistsDomainService.execute(
-      cancelSubscriptionDomainServiceRequest.subscriptionDltId,
-      offering,
+      cancelSubscriptionDomainServiceRequest.subscriptionId,
+      offering.id,
+      market,
     )
 
     subscription.status = SubscriptionStatus.CANCELLED
+    subscription.updatedAt = new Date()
     await this.subscriptionRepository.save(subscription)
   }
 }

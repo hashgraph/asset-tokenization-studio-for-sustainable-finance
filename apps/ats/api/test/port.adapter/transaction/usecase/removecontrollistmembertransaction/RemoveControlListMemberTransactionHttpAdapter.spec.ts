@@ -40,17 +40,17 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
     }
   })
 
-  describe("DELETE /bonds/:bondContractId/control-list/:holderId", () => {
+  describe("DELETE /bonds/:bondContractId/control-list/:holderAccountId", () => {
     it("should delete control list member with valid data", async () => {
       const bondContractId = "0.0.67890"
-      const holderId = "0x0000000000000000000000000000000000003039" // EVM address format
+      const holderAccountId = "0x0000000000000000000000000000000000003039" // EVM address format
       const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`)
         .send(deleteControlListMemberRequest)
         .expect(200)
 
@@ -61,11 +61,14 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
     it("should handle different valid format values", async () => {
       const bondContractId = "0.0.67890"
       const formats = ["hedera", "ethereum"]
-      const holderIds = ["0x0000000000000000000000000000000000003039", "0x000000000000000000000000000000000000303a"]
+      const holderAccountIds = [
+        "0x0000000000000000000000000000000000003039",
+        "0x000000000000000000000000000000000000303a",
+      ]
 
       for (let i = 0; i < formats.length; i++) {
         const format = formats[i]
-        const holderId = holderIds[i]
+        const holderAccountId = holderAccountIds[i]
 
         const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
           format: format,
@@ -73,7 +76,7 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`)
           .send(deleteControlListMemberRequest)
           .expect(200)
       }
@@ -81,7 +84,7 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
 
     it("should return 400 for invalid format values", async () => {
       const bondContractId = "0.0.67890"
-      const holderId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
@@ -91,7 +94,7 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`)
           .send(deleteControlListMemberRequest)
           .expect(400)
       }
@@ -99,54 +102,54 @@ describe("RemoveControlListMemberTransaction API Integration", () => {
 
     it("should return 500 for invalid bondContractId", async () => {
       const invalidBondContractId = "invalid-id"
-      const holderId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${invalidBondContractId}/control-list/${holderId}`)
+        .delete(`/api/v1/ats/bonds/${invalidBondContractId}/control-list/${holderAccountId}`)
         .send(deleteControlListMemberRequest)
         .expect(500)
     })
 
-    it("should return 500 for invalid holderId", async () => {
+    it("should return 500 for invalid holderAccountId", async () => {
       const bondContractId = "0.0.67890"
-      const invalidHolderId = "invalid-holder"
+      const invalidHolderAccountId = "invalid-holder"
       const deleteControlListMemberRequest: RemoveControlListMemberTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${invalidHolderId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${invalidHolderAccountId}`)
         .send(deleteControlListMemberRequest)
         .expect(500)
     })
 
     it("should return 400 for missing required fields", async () => {
       const bondContractId = "0.0.67890"
-      const holderId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const deleteControlListMemberRequest = {
         accountId: "0.0.5466269",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`)
         .send(deleteControlListMemberRequest)
         .expect(400)
     })
 
     it("should return 400 for request without accountId", async () => {
       const bondContractId = "0.0.67890"
-      const holderId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const deleteControlListMemberRequest: Partial<RemoveControlListMemberTransactionRequest> = {
         format: "hedera",
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`)
         .send(deleteControlListMemberRequest)
         .expect(400)
     })

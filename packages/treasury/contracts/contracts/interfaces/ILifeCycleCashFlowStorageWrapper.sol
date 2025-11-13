@@ -34,10 +34,50 @@ interface ILifeCycleCashFlowStorageWrapper {
     error GetTokenDecimalsFailed(address token, int256 responseCode);
 
     /**
+     * @notice Error thrown when trying to get the decimals of the asset
+     *
+     * @param asset The address of the asset whose decimals were tried to be fetched
+     */
+    error GetAssetDecimalsFailed(address asset);
+
+    /**
      * @notice Error thrown when token decimals are greater than uint8
      *
      * @param token The address of the token whose decimals are invalid
      * @param decimals The decimals value returned by the token service
      */
     error InvalidTokenDecimals(address token, int32 decimals);
+
+    /**
+     * @notice Error thrown when getting the bond token balance by partition fails
+     *
+     * @param bond The address of the bond token whose balance was tried to be fetched
+     * @param holder The address of the holder whose balance was tried to be fetched
+     * @param partition The partition of the bond token whose balance was tried to be fetched
+     */
+    error BalanceOfByPartitionError(
+        address bond,
+        address holder,
+        bytes32 partition
+    );
+
+    /**
+     * @notice Error thrown when redeeming at maturity by partition for a holder fails
+     *
+     * @param bond The address of the bond token whose balance was tried to be fetched
+     * @param holder The address of the holder whose balance was tried to be fetched
+     * @param partition The partition of the bond token whose balance was tried to be fetched
+     */
+    error RedeemAtMaturityByPartitionError(
+        address bond,
+        address holder,
+        bytes32 partition
+    );
+
+    /**
+     * @notice Error thrown when the asset nominal value could not be fetched
+     *
+     * @param asset The address of the asset whose nominal value could not be fetched
+     */
+    error AssetNominalValueError(address asset);
 }

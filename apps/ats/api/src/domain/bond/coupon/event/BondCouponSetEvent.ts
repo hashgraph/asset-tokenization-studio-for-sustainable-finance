@@ -10,6 +10,8 @@ export class BondCouponSetEvent extends Event {
     public readonly recordDate: Date,
     public readonly executionDate: Date,
     public readonly rate: string,
+    public readonly rateDecimals: string,
+    public readonly period: string,
   ) {
     super()
   }

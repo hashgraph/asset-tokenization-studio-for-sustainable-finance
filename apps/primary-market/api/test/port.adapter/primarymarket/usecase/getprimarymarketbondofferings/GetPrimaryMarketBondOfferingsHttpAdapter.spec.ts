@@ -11,6 +11,7 @@ import { DataSource, Repository } from "typeorm"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
+import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
 
 describe("GetPrimaryMarketBondOfferings API Integration", () => {
   let app: INestApplication
@@ -73,37 +74,39 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
-        bondContractId: "0.0.111", // Same bond
+        id: 2,
+        marketId: market.id,
+        bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-02-01"),
         endDate: new Date("2024-02-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -114,15 +117,17 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
 
-      const offeringIds = response.body.items.map((item: any) => item.offeringDltId)
-      expect(offeringIds).toContain("1")
-      expect(offeringIds).toContain("2")
+      const offeringIds = response.body.items.map((item: any) => item.id)
+      expect(offeringIds).toContain(1)
+      expect(offeringIds).toContain(2)
 
       // Verify response structure
-      expect(response.body.items[0]).toHaveProperty("offeringDltId")
+      expect(response.body.items[0]).toHaveProperty("id")
       expect(response.body.items[0]).toHaveProperty("bondContractId")
       expect(response.body.items[0]).toHaveProperty("operatorAccountId")
       expect(response.body.items[0]).toHaveProperty("lotSize")
+      expect(response.body.items[0]).toHaveProperty("status")
+      expect(response.body.items[0].status).toBe(OfferingStatus.OPEN)
     })
 
     it("should return 404 when primary market does not exist", async () => {
@@ -143,20 +148,21 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       // Create 5 offerings for the same bond
       for (let i = 1; i <= 5; i++) {
         await offeringRepository.save({
-          offeringDltId: String(i),
-          market,
+          id: i,
+          marketId: market.id,
           bondContractId: "0.0.111",
           operatorAccountId: "0.0.4660",
           treasuryContractId: "0.0.9999999",
           paymentTokenContractId: "0.0.9999999",
           lotSize: "1000",
-          minQuantity: "100",
-          maxQuantity: "10000",
-          targetQuantity: "5000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
           targetQuantityRule: 0,
           startDate: new Date("2023-01-01"),
           endDate: new Date("2024-01-01"),
           deadlineRule: 0,
+        price: "100",
         })
       }
 
@@ -180,37 +186,39 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
 
       // Create offerings for different bonds
       await offeringRepository.save({
-        offeringDltId: "1",
-        market,
+        id: 1,
+        marketId: market.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market,
+        id: 2,
+        marketId: market.id,
         bondContractId: "0.0.222", // Different bond
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -220,7 +228,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
 
       expect(response.body.items).toHaveLength(1)
       expect(response.body.items[0].bondContractId).toBe("0.0.111")
-      expect(response.body.items[0].offeringDltId).toBe("1")
+      expect(response.body.items[0].id).toBe(1)
     })
 
     it("should only return offerings from the specified primary market", async () => {
@@ -235,37 +243,39 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
       })
 
       await offeringRepository.save({
-        offeringDltId: "1",
-        market: market1,
+        id: 1,
+        marketId: market1.id,
         bondContractId: "0.0.111",
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await offeringRepository.save({
-        offeringDltId: "2",
-        market: market2,
+        id: 2,
+        marketId: market2.id,
         bondContractId: "0.0.111", // Same bond but different market
         operatorAccountId: "0.0.4660",
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -274,7 +284,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         .expect(200)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].offeringDltId).toBe("1")
+      expect(response.body.items[0].id).toBe(1)
     })
   })
 })

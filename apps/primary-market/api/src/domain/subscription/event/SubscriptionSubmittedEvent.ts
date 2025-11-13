@@ -4,10 +4,11 @@ import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class SubscriptionSubmittedEvent extends Event {
   constructor(
-    public readonly offeringDltId: string,
-    public readonly subscriptionDltId: string,
+    public readonly offeringId: number,
+    public readonly marketContractId: string,
+    public readonly subscriptionId: number,
     public readonly status: SubscriptionStatus,
-    public readonly investorId: string,
+    public readonly investorAccountId: string,
     public readonly lotUnits: string,
   ) {
     super()

@@ -3,18 +3,18 @@
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
 export class OfferingExecutedDLTEvent extends DLTEvent {
-  readonly offeringId: string
+  readonly offeringId: number
   readonly operator: string
-  readonly subscriptionIdsSuccess: string[]
-  readonly subscriptionIdsFailed: string[]
+  readonly subscriptionIdsSuccess: number[]
+  readonly subscriptionIdsFailed: number[]
 
   constructor(
     contractId: string,
     transactionHash: string,
-    offeringId: string,
+    offeringId: number,
     operator: string,
-    subscriptionIdsSuccess: string[],
-    subscriptionIdsFailed: string[],
+    subscriptionIdsSuccess: number[],
+    subscriptionIdsFailed: number[],
   ) {
     super(contractId, transactionHash)
     this.offeringId = offeringId

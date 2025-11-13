@@ -7,7 +7,7 @@ import { PROVIDERS } from "./Components"
 import { ConfigurationModule } from "./config/ConfigurationModule"
 
 @Module({
-  imports: [ConfigurationModule.forRoot(), CqrsModule.forRoot(), EventEmitterModule.forRoot()],
+  imports: [ConfigurationModule.forRoot(), CqrsModule.forRoot(), EventEmitterModule.forRoot({ wildcard: true })],
   controllers: [],
   providers: PROVIDERS,
   exports: PROVIDERS,

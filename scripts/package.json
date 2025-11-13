@@ -13,6 +13,7 @@
     "ats:add-control-list-member": "node ats/bond/add-control-list-member.js",
     "ats:remove-control-list-member": "node ats/bond/remove-control-list-member.js",
     "ats:set-bond-coupon": "node ats/bond/set-bond-coupon.js",
+    "ats:get-bond-coupons": "node ats/bond/get-bond-coupons.js",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
     "all:start": "node shared/infra/infra-setup.js start",
     "all:stop": "node shared/infra/infra-setup.js stop",

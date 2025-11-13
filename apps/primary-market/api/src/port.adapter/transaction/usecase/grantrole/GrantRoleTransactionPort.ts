@@ -4,7 +4,7 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { GrantRoleTransactionRequest } from "./model/GrantRoleTransactionRequest"
 
 export interface GrantRoleTransactionPort {
-  grantRoleTransaction(
+  grantRole(
     marketContractId: string,
     roleId: string,
     userAccountId: string,

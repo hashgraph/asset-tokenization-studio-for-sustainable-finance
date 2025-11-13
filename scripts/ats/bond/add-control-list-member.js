@@ -6,7 +6,7 @@ const { createBond } = require("./bond-service");
 const { gatewayClient } = require("../../shared/lib/gateway-client");
 const { getLatestBond } = require("./set-bond-document");
 
-function getHolderIdFromEnv() {
+function getHolderAccountIdFromEnv() {
   const evmAddress = process.env.ACCOUNT_EVM_ADDRESS;
   if (!evmAddress) {
     logError("ACCOUNT_EVM_ADDRESS not found in .env file");
@@ -16,7 +16,7 @@ function getHolderIdFromEnv() {
   return evmAddress;
 }
 
-async function addControlListMember(bondContractId, holderId, format) {
+async function addControlListMember(bondContractId, holderAccountId, format) {
   log(`\n=👥 Adding holder to control list for bond ${bondContractId}...`, colors.bright);
 
   const addControlListMemberRequest = {
@@ -26,16 +26,16 @@ async function addControlListMember(bondContractId, holderId, format) {
 
   try {
     const response = await gatewayClient.post(
-      `/api/v1/ats/bonds/${bondContractId}/control-list/${holderId}`,
+      `/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`,
       addControlListMemberRequest,
     );
 
     logSuccess("Add control list member transaction created successfully!");
     logInfo(`Bond Contract ID: ${bondContractId}`);
-    logInfo(`Holder ID: ${holderId}`);
+    logInfo(`Holder Account ID: ${holderAccountId}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
 
-    return { ...addControlListMemberRequest, holderId, unsignedTx: response.data.unsignedTx };
+    return { ...addControlListMemberRequest, holderAccountId, unsignedTx: response.data.unsignedTx };
   } catch (error) {
     logError(`Failed to add control list member: ${error.message}`);
     if (error.response?.data) {
@@ -45,13 +45,13 @@ async function addControlListMember(bondContractId, holderId, format) {
   }
 }
 
-async function verifyControlListMemberInDatabase(bondContractId, holderId) {
+async function verifyControlListMemberInDatabase(bondContractId, holderAccountId) {
   log(`\n=🔍 Control list member verification:`, colors.bright);
   logSuccess(`Add control list member transaction has been sent successfully`);
   logInfo(`The AddControlListMemberEvent should have been processed`);
   logInfo(`=✅ To verify the holder was added, run a database query`);
   logInfo(
-    `Expected result: Bond with contractId "${bondContractId}" should have holder "${holderId}" in the control list registry`,
+    `Expected result: Bond with contractId "${bondContractId}" should have holder "${holderAccountId}" in the control list registry`,
   );
   logInfo(`You should also see an AddControlListMemberEvent in the events table\n`);
 }
@@ -97,11 +97,11 @@ async function runAddControlListMemberSimulator() {
 
     logHeader("=👥 Step 3: Adding Holder to Control List...");
 
-    const holderId = getHolderIdFromEnv();
-    logInfo(`Holder ID to add: ${holderId}`);
+    const holderAccountId = getHolderAccountIdFromEnv();
+    logInfo(`Holder Account ID to add: ${holderAccountId}`);
     logInfo(`Using EVM address from ACCOUNT_EVM_ADDRESS in .env file`);
 
-    const controlListTransaction = await addControlListMember(bondContractId, holderId, format);
+    const controlListTransaction = await addControlListMember(bondContractId, holderAccountId, format);
 
     const signedControlListTx = await signTransaction(controlListTransaction.unsignedTx);
     logSuccess("Add control list member transaction signed successfully!");
@@ -116,14 +116,14 @@ async function runAddControlListMemberSimulator() {
     await new Promise((resolve) => setTimeout(resolve, 10000));
 
     logHeader("=✅ Step 4: Verifying Control List Update...");
-    await verifyControlListMemberInDatabase(bondContractId, holderId);
+    await verifyControlListMemberInDatabase(bondContractId, holderAccountId);
 
     logHeader("=🎉 Add Control List Member Simulation Completed!");
     logSuccess(`Created bond with contract ID: ${bondContractId}`);
-    logSuccess(`Added holder ${holderId} to control list registry`);
+    logSuccess(`Added holder ${holderAccountId} to control list registry`);
     logSuccess("= Check the database to verify:");
     logInfo(`   = Bond table for contract ID: ${bondContractId}`);
-    logInfo(`   = Control list registry should contain holder: ${holderId}`);
+    logInfo(`   = Control list registry should contain holder: ${holderAccountId}`);
     logInfo(`   = AddControlListMemberEvent should be in the events table`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
@@ -133,7 +133,7 @@ async function runAddControlListMemberSimulator() {
     logError("   = For Ethereum: ETHEREUM_PRIVATE_KEY should be in hex format");
     logError("   = Gateway API is running and accessible");
     logError("   = Database is accessible and properly configured");
-    logError("   = Holder ID is valid for the selected blockchain format");
+    logError("   = Holder Account ID is valid for the selected blockchain format");
     logError(`   = For Hedera: Should be in format "0.0.xxxxx"`);
     logError(`   = For Ethereum: Should be a valid EVM address (0x...)`);
   }
@@ -144,7 +144,7 @@ async function main() {
     logHeader("=🏦 Evercity Add Control List Member Simulator");
     log("==========================================\n", colors.bright);
     log(`=📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
-    log(`=👤 Holder ID: ${config.ACCOUNT_EVM_ADDRESS || "Not set in .env"}`, colors.cyan);
+    log(`=👤 Holder Account ID: ${config.ACCOUNT_EVM_ADDRESS || "Not set in .env"}`, colors.cyan);
     log(`=📝 This will create a new bond and add a holder to its control list\n`, colors.cyan);
 
     await runAddControlListMemberSimulator();

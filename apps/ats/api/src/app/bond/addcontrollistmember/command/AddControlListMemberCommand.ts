@@ -9,11 +9,11 @@ export class AddControlListMemberCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  holderId: string
+  holderAccountId: string
 
-  constructor(contractId: string, holderId: string) {
+  constructor(contractId: string, holderAccountId: string) {
     super()
     this.contractId = contractId
-    this.holderId = holderId
+    this.holderAccountId = holderAccountId
   }
 }

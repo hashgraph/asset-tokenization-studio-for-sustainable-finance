@@ -16,13 +16,16 @@ export class RemoveBondControlListMemberDomainService {
   async execute(request: RemoveBondControlListMemberDomainServiceRequest): Promise<void> {
     await this.checkBondExistsDomainService.execute(request.contractId)
 
-    const existingMember = await this.bondControlListMemberRepository.findByContractIdAndHolderId(
+    const existingMember = await this.bondControlListMemberRepository.findByContractIdAndHolderAccountId(
       request.contractId,
-      request.holderId,
+      request.holderAccountId,
     )
 
     if (!existingMember) {
-      throw BondControlListMemberNotFoundError.contractIdAndHolderIdError(request.contractId, request.holderId)
+      throw BondControlListMemberNotFoundError.contractIdAndHolderAccountIdError(
+        request.contractId,
+        request.holderAccountId,
+      )
     }
 
     await this.bondControlListMemberRepository.delete(existingMember)

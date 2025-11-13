@@ -34,6 +34,14 @@ export class SetBondCouponCommand extends Command<void> {
   @IsNumberString()
   readonly rate: string
 
+  @IsNotEmpty()
+  @IsNumberString()
+  readonly rateDecimals: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  readonly period: string
+
   constructor(
     contractId: string,
     corporateActionId: string,
@@ -42,6 +50,8 @@ export class SetBondCouponCommand extends Command<void> {
     recordDate: Date,
     executionDate: Date,
     rate: string,
+    rateDecimals: string,
+    period: string,
   ) {
     super()
     this.contractId = contractId
@@ -51,5 +61,7 @@ export class SetBondCouponCommand extends Command<void> {
     this.recordDate = recordDate
     this.executionDate = executionDate
     this.rate = rate
+    this.rateDecimals = rateDecimals
+    this.period = period
   }
 }

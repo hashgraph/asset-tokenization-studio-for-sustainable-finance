@@ -9,5 +9,5 @@ export class BondControlListMember extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  holderId: string
+  holderAccountId: string
 }

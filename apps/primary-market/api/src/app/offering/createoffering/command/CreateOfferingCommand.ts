@@ -3,9 +3,9 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, IsNumberString } from "class-va
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CreateOfferingCommand extends Command<void> {
+  @IsNumber()
   @IsNotEmpty()
-  @IsNumberString()
-  offeringDltId: string
+  offeringId: number
 
   @IsNotEmpty()
   @IsString()
@@ -33,15 +33,15 @@ export class CreateOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsNumberString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -59,36 +59,42 @@ export class CreateOfferingCommand extends Command<void> {
   @IsNumber()
   deadlineRule: number
 
+  @IsNotEmpty()
+  @IsNumberString()
+  price: string
+
   constructor(
-    offeringDltId: string,
+    offeringId: number,
     marketContractId: string,
     bondContractId: string,
     operatorAccountId: string,
     treasuryContractId: string,
     paymentTokenContractId: string,
     lotSize: string,
-    minQuantity: string,
-    maxQuantity: string,
-    targetQuantity: string,
+    minLots: string,
+    maxLots: string,
+    targetLots: string,
     targetQuantityRule: number,
     startDate: Date,
     endDate: Date,
     deadlineRule: number,
+    price: string,
   ) {
     super()
-    this.offeringDltId = offeringDltId
+    this.offeringId = offeringId
     this.marketContractId = marketContractId
     this.bondContractId = bondContractId
     this.operatorAccountId = operatorAccountId
     this.treasuryContractId = treasuryContractId
     this.paymentTokenContractId = paymentTokenContractId
     this.lotSize = lotSize
-    this.minQuantity = minQuantity
-    this.maxQuantity = maxQuantity
-    this.targetQuantity = targetQuantity
+    this.minLots = minLots
+    this.maxLots = maxLots
+    this.targetLots = targetLots
     this.targetQuantityRule = targetQuantityRule
     this.startDate = startDate
     this.endDate = endDate
     this.deadlineRule = deadlineRule
+    this.price = price
   }
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { DLTEvent } from "@event/DLTEvent"
+import { DLTEvent } from "../../../event/DLTEvent"
 
 export class RoleRevokedDLTEvent extends DLTEvent {
   readonly operator: string

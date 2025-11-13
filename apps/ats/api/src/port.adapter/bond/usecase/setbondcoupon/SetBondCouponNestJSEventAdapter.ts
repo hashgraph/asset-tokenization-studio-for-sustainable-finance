@@ -19,6 +19,8 @@ export class SetBondCouponNestJSEventAdapter implements SetBondCouponPort, Event
         new Date(Number(event.recordDate) * 1000),
         new Date(Number(event.executionDate) * 1000),
         event.rate,
+        event.rateDecimals,
+        event.period,
       ),
     )
   }

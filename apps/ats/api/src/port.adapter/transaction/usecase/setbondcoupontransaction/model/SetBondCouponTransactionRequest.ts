@@ -14,4 +14,12 @@ export class SetBondCouponTransactionRequest extends BaseTransactionRequest {
   @IsNumberString()
   @IsNotEmpty()
   rate: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  rateDecimals: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  period: string
 }

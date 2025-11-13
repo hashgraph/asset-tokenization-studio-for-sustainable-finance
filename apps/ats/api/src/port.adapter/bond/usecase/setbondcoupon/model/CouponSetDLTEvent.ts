@@ -8,6 +8,8 @@ export class CouponSetDLTEvent extends DLTEvent {
   readonly recordDate: string
   readonly executionDate: string
   readonly rate: string
+  readonly rateDecimals: string
+  readonly period: string
 
   constructor(
     contractId: string,
@@ -18,6 +20,8 @@ export class CouponSetDLTEvent extends DLTEvent {
     recordDate: string,
     executionDate: string,
     rate: string,
+    rateDecimals: string,
+    period: string,
   ) {
     super(contractId, transactionHash)
     this.corporateActionId = corporateActionId
@@ -26,5 +30,7 @@ export class CouponSetDLTEvent extends DLTEvent {
     this.recordDate = recordDate
     this.executionDate = executionDate
     this.rate = rate
+    this.rateDecimals = rateDecimals
+    this.period = period
   }
 }

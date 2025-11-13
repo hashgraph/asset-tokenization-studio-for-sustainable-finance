@@ -68,7 +68,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
 
       const existingMember = {
         contractId: CONTRACT_ID,
-        holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       }
       await bondControlListMemberRepository.save(existingMember)
 
@@ -85,7 +85,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
       const deletedMember = await bondControlListMemberRepository.findOne({
-        where: { contractId: CONTRACT_ID, holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
+        where: { contractId: CONTRACT_ID, holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
       })
 
       expect(deletedMember).toBeNull()
@@ -144,7 +144,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
       for (const holder of holders) {
         await bondControlListMemberRepository.save({
           contractId: CONTRACT_ID,
-          holderId: holder,
+          holderAccountId: holder,
         })
       }
 
@@ -154,7 +154,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
         const deletedMember = await bondControlListMemberRepository.findOne({
-          where: { contractId: CONTRACT_ID, holderId: holder },
+          where: { contractId: CONTRACT_ID, holderAccountId: holder },
         })
 
         expect(deletedMember).toBeNull()
@@ -186,12 +186,12 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const holderId = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const holderAccountId = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
 
       for (const contractId of contracts) {
         await bondControlListMemberRepository.save({
           contractId,
-          holderId,
+          holderAccountId,
         })
       }
 
@@ -200,13 +200,13 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
           contractId,
           "0x1234567890abcdef",
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          holderId,
+          holderAccountId,
         )
 
         await eventBus.publishSync(event, RemovedFromControlListDLTEvent.name)
 
         const deletedMember = await bondControlListMemberRepository.findOne({
-          where: { contractId, holderId },
+          where: { contractId, holderAccountId },
         })
 
         expect(deletedMember).toBeNull()
@@ -234,7 +234,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
 
       await bondControlListMemberRepository.save({
         contractId: CONTRACT_ID,
-        holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
       })
 
       let publishedEvent: any
@@ -252,7 +252,7 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           contractId: "0.0.6974684",
-          holderId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          holderAccountId: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
           timestamp: expect.any(Number),
         }),
       )

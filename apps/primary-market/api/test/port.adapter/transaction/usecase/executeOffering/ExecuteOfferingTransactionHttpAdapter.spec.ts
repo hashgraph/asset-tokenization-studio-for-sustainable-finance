@@ -42,10 +42,10 @@ describe("ExecuteOfferingTransaction API Integration", () => {
     }
   })
 
-  describe("POST /primary-markets/:marketContractId/offerings/:offeringDltId", () => {
+  describe("POST /primary-markets/:marketContractId/offerings/:offeringId", () => {
     it("should execute offering transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const executeOfferingRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -54,7 +54,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
         .send(executeOfferingRequest)
         .expect(201)
 
@@ -64,7 +64,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
     it("should handle different valid format values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
@@ -76,7 +76,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
           .send(executeOfferingRequest)
           .expect(201)
 
@@ -86,7 +86,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
     it("should execute offering with ethereum format (accountId optional)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const executeOfferingRequest = {
         format: "ethereum",
         start: "0",
@@ -94,7 +94,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
         .send(executeOfferingRequest)
         .expect(201)
 
@@ -104,7 +104,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
     it("should handle different valid start and end values", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const indexes = [
         { start: "0", end: "10" },
         { start: "10", end: "20" },
@@ -120,7 +120,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
           .send(executeOfferingRequest)
           .expect(201)
 
@@ -130,7 +130,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
     it("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const invalidRequests = [
         {},
         { format: "hedera" },
@@ -141,7 +141,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -149,7 +149,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
 
     it("should reject invalid start timestamp (non-numeric string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const executeOfferingRequest = {
         format: "hedera",
         accountId: "0.0.12345",
@@ -158,14 +158,14 @@ describe("ExecuteOfferingTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
         .send(executeOfferingRequest)
         .expect(400)
     })
 
     it("should reject invalid end timestamp (non-numeric string)", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const executeOfferingRequest = {
         format: "hedera",
         accountId: "0.0.12345",
@@ -174,14 +174,14 @@ describe("ExecuteOfferingTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
         .send(executeOfferingRequest)
         .expect(400)
     })
 
     it("should reject invalid format value", async () => {
       const marketContractId = "0.0.67890"
-      const offeringDltId = "1"
+      const offeringId = "1"
       const executeOfferingRequest = {
         format: "invalid-format",
         accountId: "0.0.12345",
@@ -190,7 +190,7 @@ describe("ExecuteOfferingTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringDltId}`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}`)
         .send(executeOfferingRequest)
         .expect(400)
     })

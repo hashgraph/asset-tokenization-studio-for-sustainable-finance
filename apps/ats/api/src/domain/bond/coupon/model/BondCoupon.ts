@@ -30,4 +30,12 @@ export class BondCoupon extends BaseEntity {
   @IsNotEmpty()
   @IsNumberString()
   rate: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  rateDecimals: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  period: string
 }

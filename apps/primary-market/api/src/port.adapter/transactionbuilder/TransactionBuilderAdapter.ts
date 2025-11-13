@@ -4,18 +4,15 @@ import {
   BaseTransactionBuilder,
   BuildTransactionResponse,
   ConverterUtils,
-  Environment,
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
-import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
-import { ConfigService } from "@nestjs/config"
-import { ConfigKeys } from "@config/ConfigKeys"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
+import { IPrimaryMarket__factory } from "@hashgraph/green-bonds-platform-primarymarket-contracts"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -24,10 +21,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
-  private readonly GRANT_ROLE_GAS = 700_000
-  private readonly DEFAULT_ENVIRONMENT = "testnet" as const
 
-  constructor(private readonly configService: ConfigService) {
+  constructor() {
     super()
   }
 
@@ -44,17 +39,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     })
   }
 
-  async grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildTransaction({
-      functionName: "grantRole",
-      contractId: request.contractId,
-      gas: this.GRANT_ROLE_GAS,
-      account: request.accountId!,
-      format: request.format as "hedera" | "ethereum",
-      args: [request.role, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
-    })
-  }
-
   async submitSubscription(request: BuildSubmitSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
     return await this.buildTransaction({
       functionName: "submitSubscription",
@@ -62,7 +46,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.SUBSCRIPTION_SUBMIT_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringDltId, request.lotUnits],
+      args: [request.offeringId, request.lotUnits],
     })
   }
 
@@ -73,7 +57,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.SUBSCRIPTION_CANCEL_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringDltId, request.subscriptionDltId],
+      args: [request.offeringId, request.subscriptionId],
     })
   }
 
@@ -84,7 +68,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.EXECUTE_OFFERING_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringDltId, request.start, request.end],
+      args: [request.offeringId, request.start, request.end],
     })
   }
 
@@ -95,23 +79,12 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.CANCEL_OFFERING_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.offeringDltId, request.start, request.end],
+      args: [request.offeringId, request.start, request.end],
     })
   }
 
-  private getEnvironment(): Environment {
-    return this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || this.DEFAULT_ENVIRONMENT
-  }
-
   private getPrimaryMarketInterface() {
-    // TODO: Replace with actual factory when available
-    // return IPrimaryMarket__factory.createInterface()
-    // Temporary mock - replace with actual interface
-    return {
-      encodeFunctionData: () => {
-        return "0xmockTransactionData"
-      },
-    } as any
+    return IPrimaryMarket__factory.createInterface()
   }
 
   private async buildTransaction(params: {
@@ -145,13 +118,14 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       treasury: request.treasuryAddress,
       paymentToken: request.paymentTokenAddress,
       lotSize: request.lotSize,
-      minQuantity: request.minQuantity,
-      maxQuantity: request.maxQuantity,
-      targetQuantity: request.targetQuantity,
+      minLots: request.minLots,
+      maxLots: request.maxLots,
+      targetLots: request.targetLots,
       targetQuantityRule: request.targetQuantityRule,
       startDate: parseInt(request.startDate).toString(),
       endDate: parseInt(request.endDate).toString(),
       deadlineRule: request.deadlineRule,
+      price: request.price,
     }
   }
 }

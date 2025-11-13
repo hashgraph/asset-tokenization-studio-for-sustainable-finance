@@ -21,13 +21,12 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     return this.toDomain(saved)
   }
 
-  async findByOfferingDltIdAndMarketId(offeringDltId: string, marketId: string): Promise<Offering | null> {
+  async findByOfferingIdAndMarketId(offeringId: number, marketId: string): Promise<Offering | null> {
     const persistence = await this.repository.findOne({
       where: {
-        offeringDltId,
-        market: { id: marketId },
+        id: offeringId,
+        marketId: marketId,
       },
-      relations: ["market"],
     })
 
     return persistence ? this.toDomain(persistence) : null
@@ -38,8 +37,7 @@ export class OfferingTypeORMRepository implements OfferingRepository {
 
     const baseQuery = this.repository
       .createQueryBuilder("offering")
-      .innerJoin("offering.market", "market")
-      .where("market.id = :marketId", { marketId })
+      .where("offering.marketId = :marketId", { marketId })
 
     const result = await baseQuery
       .select("COUNT(DISTINCT offering.bondContractId)", "count")
@@ -71,10 +69,9 @@ export class OfferingTypeORMRepository implements OfferingRepository {
 
     const [persistences, total] = await this.repository.findAndCount({
       where: {
-        market: { id: marketId },
+        marketId: marketId,
         bondContractId,
       },
-      relations: ["market"],
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,
