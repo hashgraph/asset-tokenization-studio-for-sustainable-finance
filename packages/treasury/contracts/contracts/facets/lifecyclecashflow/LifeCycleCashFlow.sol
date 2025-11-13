@@ -11,8 +11,14 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset
-    ) external override checkAddress(asset) onlyUninitialized(_lifeCycleCashFlowStorage().initialized) {
-        LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
+    )
+        external
+        override
+        checkAddress(asset)
+        onlyUninitialized(_lifeCycleCashFlowStorage().initialized)
+    {
+        LifeCycleCashFlowStorage
+            storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
     }

@@ -17,7 +17,13 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
     function transferPaymentToken(
         address to,
         uint256 amount
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) checkAddress(to) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PROCEEDS_FULL_MANAGER_ROLE)
+        checkAddress(to)
+    {
         _transferPaymentToken(to, amount);
         emit PaymentTokenTransferred(to, amount);
     }
@@ -60,7 +66,7 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
         onlyUnpaused
         onlyRole(FUNDS_MANAGER_ROLE)
         checkAddress(proceedsRecipient)
-        checkProceedRecipient(proceedsRecipient)
+        onlyForBondProceedsRecipients(proceedsRecipient)
     {
         _fundProceedsRecipient(proceedsRecipient, amount);
         emit ProceedsRecipientFunded(proceedsRecipient, amount);

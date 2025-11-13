@@ -32,7 +32,13 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function addEnvironmentalAssetToken(
         address environmentalAsset
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) checkAddress(environmentalAsset) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        checkAddress(environmentalAsset)
+    {
         bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
             emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
@@ -54,7 +60,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         checkAddress(environmentalAsset)
-        returns (int256)
+        returns (int256 dissociationError)
     {
         (bool tokenRemoved, int256 dissociationError) = _removeEnvironmentalAssetToken(environmentalAsset);
         if (tokenRemoved) {
@@ -92,7 +98,13 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function dissociateToken(
         address token
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) checkAddress(token) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        checkAddress(token)
+    {
         _dissociateToken(token);
 
         emit TokenDissociated(token);
