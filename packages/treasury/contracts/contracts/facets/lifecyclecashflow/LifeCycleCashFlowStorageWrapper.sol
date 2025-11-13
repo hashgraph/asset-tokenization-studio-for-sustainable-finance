@@ -309,11 +309,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         uint256 nominalValue,
         address paymentToken
     ) private returns (uint256 amount) {
-        IBondRead.CouponFor memory couponFor = IBondRead(asset).getCouponFor(distributionId, holder);
+        IBondRead.CouponFor memory couponFor = IBondRead(asset).getCouponFor(
+            distributionId,
+            holder
+        );
         uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
         uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
         uint256 scaleUp = paymentTokenDecimals;
-        amount = (((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
+        amount = (((couponFor.tokenBalance *
+            nominalValue *
+            couponFor.period *
+            couponFor.rate) /
             100 /
             (365 * 24 * 60 * 60) /
             10 ** scaleDown) * 10 ** scaleUp);
