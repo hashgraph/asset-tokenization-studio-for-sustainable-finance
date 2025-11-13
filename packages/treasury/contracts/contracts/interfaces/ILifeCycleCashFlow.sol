@@ -13,7 +13,6 @@ interface ILifeCycleCashFlow {
     struct RedemptionPaymentResult {
         address[] failedAddresses;
         address[] succeededAddresses;
-        address[] alreadyPaidAddresses;
         uint256[] paidAmounts;
     }
 

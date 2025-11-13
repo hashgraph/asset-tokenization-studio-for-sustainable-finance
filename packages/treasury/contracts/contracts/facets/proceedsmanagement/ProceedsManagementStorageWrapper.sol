@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    IProceedsManagement
-} from '../../interfaces/IProceedsManagement.sol';
+import {IProceedsManagement} from '../../interfaces/IProceedsManagement.sol';
 import {
     LifeCycleCashFlowStorageWrapper
 } from '../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol';
@@ -100,7 +98,9 @@ abstract contract ProceedsManagementStorageWrapper is
         bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset())
             .isProceedRecipient(proceedsRecipient);
         if (!proceedsRecipientBelongsToBond) {
-            revert IProceedsManagement.WrongProceedsRecipient(proceedsRecipient);
+            revert IProceedsManagement.WrongProceedsRecipient(
+                proceedsRecipient
+            );
         }
     }
 

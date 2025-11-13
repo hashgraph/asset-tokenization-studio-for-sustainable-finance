@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IPortfolio } from '../../interfaces/IPortfolio.sol';
+import {IPortfolio} from '../../interfaces/IPortfolio.sol';
 import {PORTFOLIO_STORAGE_POSITION} from '../../constants/storagePositions.sol';
 import {
     Common as AtsCommon
@@ -16,10 +16,7 @@ import {
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
-abstract contract PortfolioStorageWrapper is
-    AtsCommon,
-    HederaTokenService
-{
+abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct PortfolioStorage {
