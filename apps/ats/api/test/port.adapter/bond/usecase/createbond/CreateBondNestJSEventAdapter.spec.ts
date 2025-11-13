@@ -3,13 +3,13 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { BondDeployedDLTEvent } from "@port/bond/usecase/createbond/model/BondDeployedDLTEvent"
+import { BondSuiteDeployedDLTEvent } from "@port/bond/usecase/createbond/model/BondSuiteDeployedDLTEvent"
 import { BondFoundError } from "@domain/bond/errors/BondFoundError"
 
 describe("CreateBondNestJSEventAdapter Integration", () => {
@@ -68,6 +68,22 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     },
   })
 
+  const createValidTreasuryData = (): any => ({
+    resolver: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+    resolverProxyConfiguration: {
+      key: "0x0000000000000000000000000000000000000000000000000000000000000002",
+      version: "1",
+    },
+    rbacs: [],
+    paymentToken: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+    environmentalAssets: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+  })
+
+  const createValidKpiData = (): any => ({
+    admin: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+    rbacs: [],
+  })
+
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
   })
@@ -83,6 +99,22 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     await app.init()
     eventBus = app.get("EventBus")
     bondRepository = app.get(getRepositoryToken(BondPersistence))
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      const addressMap: Record<string, string> = {
+        "0xb3533f32594b689f19a94c608490451478f7197b": "0.0.6974684",
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7": "0.0.6974684",
+        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8": "0.0.6974684",
+        "0x48ca774f6942166bf37e178ccc1e861947ead8c7": "0.0.1234567",
+        "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b": "0.0.6974345",
+        "0x057e65d260bda4d653bf7726b4f92ad08db0f78f": "0.0.6974384",
+        "0x1fc2fdc1eae44f055f73469f4fe05915395c7aa1": "0.0.7974345",
+        "0x2fd3fdc1eae44f055f73469f4fe05915395c7aa2": "0.0.7974346",
+        "0x1fc2fdc1eae44f055f73469f4fe05915395c7bb1": "0.0.8974384",
+        "0x2fd3fdc1eae44f055f73469f4fe05915395c7bb2": "0.0.8974385",
+      }
+      return Promise.resolve(addressMap[address.toLowerCase()] || addressMap[address] || "0.0.9999999")
+    })
   })
 
   afterAll(async () => {
@@ -91,27 +123,33 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
 
   afterEach(async () => {
     await bondRepository.clear()
+    jest.restoreAllMocks()
     await app.close()
   })
 
   describe("CreateBondNestJSEventAdapter", () => {
-    it("should create a new bond when BondDeployedDLTEvent is published", async () => {
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+    it("should create a new bond when BondSuiteDeployedDLTEvent is published", async () => {
+      jest.spyOn(eventBus, "publish").mockImplementation(() => {})
 
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
+      const treasuryData = createValidTreasuryData()
+      const kpiData = createValidKpiData()
 
-      const event = new BondDeployedDLTEvent(
-        "0.0.6974684",
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+      const event = new BondSuiteDeployedDLTEvent(
+        "0.0.67890",
+        "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
         bondData,
         regulationData,
+        treasuryData,
+        kpiData,
       )
 
-      await eventBus.publishSync(event, BondDeployedDLTEvent.name)
+      await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
 
       const savedBond = await bondRepository.findOne({ where: { contractId: "0.0.6974684" } })
 
@@ -132,13 +170,12 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     })
 
     it("should throw BondFoundError when bond with same address already exists", async () => {
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+      jest.spyOn(eventBus, "publish").mockImplementation(() => {})
 
       const existingBond = {
-        contractId: "0.0.6823801",
-        treasuryId: "0.0.6823801",
-        kpiId: "0.0.6823801",
+        contractId: "0.0.6974684",
+        treasuryId: "0.0.6974684",
+        kpiId: "0.0.6974684",
         name: "Existing Bond",
         symbol: "EB",
         isin: "US9876543210",
@@ -154,77 +191,101 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
 
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
+      const treasuryData = createValidTreasuryData()
+      const kpiData = createValidKpiData()
 
-      const event = new BondDeployedDLTEvent(
-        "0.0.6974684",
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+      const event = new BondSuiteDeployedDLTEvent(
+        "0.0.67890",
+        "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
         bondData,
         regulationData,
+        treasuryData,
+        kpiData,
       )
 
-      await expect(eventBus.publishSync(event, BondDeployedDLTEvent.name)).rejects.toThrow(
-        BondFoundError.contractIdError(existingBond.contractId),
+      await expect(eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)).rejects.toThrow(
+        BondFoundError.contractIdError("0.0.6974684"),
       )
     })
 
     it("should create bonds with different addresses successfully", async () => {
+      jest.spyOn(eventBus, "publish").mockImplementation(() => {})
+
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
-
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+      const treasuryData = createValidTreasuryData()
+      const kpiData = createValidKpiData()
 
       const bondAddresses = [
-        "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b:0.0.6974345",
-        "0x057e65d260bda4d653bf7726b4f92ad08db0f78f:0.0.6974384",
+        {
+          bond: "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b",
+          hederaId: "0.0.6974345",
+          treasury: "0x1fc2fdc1eae44f055f73469f4fe05915395c7aa1",
+          kpi: "0x2fd3fdc1eae44f055f73469f4fe05915395c7aa2",
+        },
+        {
+          bond: "0x057e65d260bda4d653bf7726b4f92ad08db0f78f",
+          hederaId: "0.0.6974384",
+          treasury: "0x1fc2fdc1eae44f055f73469f4fe05915395c7bb1",
+          kpi: "0x2fd3fdc1eae44f055f73469f4fe05915395c7bb2",
+        },
       ]
 
-      for (const contractAddress of bondAddresses) {
-        const hederaId = contractAddress.split(":")[1]
-        const evmAddress = contractAddress.split(":")[0]
-
-        const event = new BondDeployedDLTEvent(
-          "0.0.6974684",
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+      for (const addresses of bondAddresses) {
+        const event = new BondSuiteDeployedDLTEvent(
+          "0.0.67890",
+          "0x1234567890abcdef",
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          evmAddress,
+          addresses.bond,
+          addresses.treasury,
+          addresses.kpi,
           bondData,
           regulationData,
+          treasuryData,
+          kpiData,
         )
 
-        await eventBus.publishSync(event, BondDeployedDLTEvent.name)
+        await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
 
         const savedBond = await bondRepository.findOne({
-          where: { contractId: hederaId },
+          where: { contractId: addresses.hederaId },
         })
 
         expect(savedBond).toBeDefined()
         expect(savedBond).not.toBeNull()
-        expect(savedBond!.contractId).toBe(hederaId)
+        expect(savedBond!.contractId).toBe(addresses.hederaId)
       }
       const allBonds = await bondRepository.find()
-      expect(allBonds).toHaveLength(bondAddresses.length)
+      expect(allBonds).toHaveLength(2)
     })
 
     it("should publish CreatedBondEvent after successful bond creation", async () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
+      const treasuryData = createValidTreasuryData()
+      const kpiData = createValidKpiData()
 
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new BondDeployedDLTEvent(
-        "0.0.6974684",
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+      const event = new BondSuiteDeployedDLTEvent(
+        "0.0.67890",
+        "0x1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
         bondData,
         regulationData,
+        treasuryData,
+        kpiData,
       )
 
-      await eventBus.publishSync(event, BondDeployedDLTEvent.name)
+      await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({

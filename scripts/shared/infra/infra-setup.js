@@ -89,7 +89,7 @@ const CONFIG = {
       PORT: '3000',
       LOG_LEVEL: 'log',
       PATHS: '/api/v1/ats,/api/v1/primary-markets',
-      ROUTES: 'http://localhost:3001,http://localhost:3002',
+      ROUTES: 'http://localhost:3001',
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'

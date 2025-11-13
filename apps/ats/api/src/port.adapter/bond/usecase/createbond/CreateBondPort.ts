@@ -1,5 +1,5 @@
-import { BondDeployedDLTEvent } from "@port/bond/usecase/createbond/model/BondDeployedDLTEvent"
+import { BondSuiteDeployedDLTEvent } from "@port/bond/usecase/createbond/model/BondSuiteDeployedDLTEvent"
 
 export interface CreateBondPort {
-  handle(event: BondDeployedDLTEvent): Promise<void>
+  handle(event: BondSuiteDeployedDLTEvent): Promise<void>
 }
