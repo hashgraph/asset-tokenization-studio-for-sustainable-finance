@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 
 import {Portfolio} from './Portfolio.sol';
-import {IPortfolio} from '../../interfaces/portfolio/IPortfolio.sol';
+import {IPortfolio} from "../../interfaces/IPortfolio.sol";
 import {PORTFOLIO_RESOLVER_KEY} from '../../constants/resolverKeys.sol';
 import {
     IStaticFunctionSelectors

@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 
 import {
-    ILifeCycleCashFlowStorageWrapper
-} from '../../interfaces/lifecyclecashflow/ILifeCycleCashFlowStorageWrapper.sol';
+    ILifeCycleCashFlow
+} from '../../interfaces/ILifeCycleCashFlow.sol';
 import {
     PortfolioStorageWrapper
 } from '../portfolio/PortfolioStorageWrapper.sol';
@@ -37,14 +37,10 @@ import {
     IHederaTokenService
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 
-abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorageWrapper {
-    enum CountIndex {
-        FAILED,
-        SUCCEEDED,
-        ALREADY_PAID,
-        PAID_AMOUNTS
-    }
-
+abstract contract LifeCycleCashFlowStorageWrapper is
+    AtsCommon,
+    PortfolioStorageWrapper
+{
     struct LifeCycleCashFlowStorage {
         address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;

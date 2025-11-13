@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    IPortfolioStorageWrapper
-} from '../../interfaces/portfolio/IPortfolioStorageWrapper.sol';
+import { IPortfolio } from '../../interfaces/IPortfolio.sol';
 import {PORTFOLIO_STORAGE_POSITION} from '../../constants/storagePositions.sol';
 import {
     Common as AtsCommon
@@ -88,19 +86,8 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
         removed = false;
         dissociationError = HederaResponseCodes.OK;
         if (_environmentalAssetExists(environmentalAsset)) {
-<<<<<<< HEAD
             if (_portfolioStorage().environmentalAssets.remove(environmentalAsset)) {
                 dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
-=======
-            if (
-                _portfolioStorage().environmentalAssets.remove(
-                    environmentalAsset
-                )
-            ) {
-                dissociationError = _dissociateTokenAllowNotAssociated(
-                    environmentalAsset
-                );
->>>>>>> 39ee68dc (Refactor removeEnvironmentalAssetToken function)
                 removed = true;
             }
         }
@@ -113,10 +100,6 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      *
      * @return exists True if the environmental asset exists in the Treasury. False, otherwise
      */
-<<<<<<< HEAD
-    function _environmentalAssetExists(address environmentalAsset) internal view returns (bool exists) {
-        return _portfolioStorage().environmentalAssets.contains(environmentalAsset);
-=======
     function _environmentalAssetExists(
         address environmentalAsset
     ) internal view returns (bool exists) {
@@ -124,7 +107,6 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
             _portfolioStorage().environmentalAssets.contains(
                 environmentalAsset
             );
->>>>>>> 39ee68dc (Refactor removeEnvironmentalAssetToken function)
     }
 
     /*

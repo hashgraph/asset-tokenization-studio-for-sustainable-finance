@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
 import {LifeCycleCashFlow} from './LifeCycleCashFlow.sol';
 import {
     ILifeCycleCashFlow
-} from '../../interfaces/lifecyclecashflow/ILifeCycleCashFlow.sol';
+} from "../../interfaces/ILifeCycleCashFlow.sol";
 import {
     LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY
 } from '../../constants/resolverKeys.sol';

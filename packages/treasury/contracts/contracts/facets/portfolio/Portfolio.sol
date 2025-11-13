@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable no-empty-blocks
 
-import {IPortfolio} from '../../interfaces/portfolio/IPortfolio.sol';
+import {IPortfolio} from "../../interfaces/IPortfolio.sol";
 import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
 import {PORTFOLIO_MANAGER_ROLE} from '../../constants/roles.sol';
 

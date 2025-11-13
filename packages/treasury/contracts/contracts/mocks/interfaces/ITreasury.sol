@@ -4,17 +4,11 @@ pragma solidity ^0.8.0;
 
 import {
     ILifeCycleCashFlow
-} from '../../interfaces/lifecyclecashflow/ILifeCycleCashFlow.sol';
-import {IPortfolio} from '../../interfaces/portfolio/IPortfolio.sol';
-import {
-    IPortfolioStorageWrapper
-} from '../../interfaces/portfolio/IPortfolioStorageWrapper.sol';
+} from "../../interfaces/ILifeCycleCashFlow.sol";
+import {IPortfolio} from "../../interfaces/IPortfolio.sol";
 import {
     IProceedsManagement
-} from '../../interfaces/proceedsmanagement/IProceedsManagement.sol';
-import {
-    IProceedsManagementStorageWrapper
-} from '../../interfaces/proceedsmanagement/IProceedsManagementStorageWrapper.sol';
+} from "../../interfaces/IProceedsManagement.sol";
 import {
     IPause
 } from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/pause/IPause.sol';
@@ -25,9 +19,7 @@ import {
 interface ITreasury is
     ILifeCycleCashFlow,
     IPortfolio,
-    IPortfolioStorageWrapper,
     IProceedsManagement,
-    IProceedsManagementStorageWrapper,
     IAccessControl,
     IPause
 {

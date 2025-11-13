@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import {
     IProceedsManagement
-} from '../../interfaces/proceedsmanagement/IProceedsManagement.sol';
+} from "../../interfaces/IProceedsManagement.sol";
 import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';

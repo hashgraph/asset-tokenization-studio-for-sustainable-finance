@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import {
     ILifeCycleCashFlow
-} from '../../interfaces/lifecyclecashflow/ILifeCycleCashFlow.sol';
+} from "../../interfaces/ILifeCycleCashFlow.sol";
 import {
     LifeCycleCashFlowStorageWrapper
 } from './LifeCycleCashFlowStorageWrapper.sol';
