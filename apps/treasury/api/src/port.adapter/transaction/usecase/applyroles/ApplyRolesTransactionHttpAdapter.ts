@@ -21,19 +21,13 @@ export class ApplyRolesTransactionHttpAdapter implements ApplyRolesTransactionPo
     @Param("userAccountId") userAccountId: string,
     @Body() request: ApplyRolesTransactionRequest,
   ): Promise<TransactionResponse> {
-    const roles = [...(request.rolesToGrant || []), ...(request.rolesToRevoke || [])]
-    const actives = [
-      ...Array((request.rolesToGrant || []).length).fill(true),
-      ...Array((request.rolesToRevoke || []).length).fill(false),
-    ]
-
     return await this.applyRolesTransactionAppService.execute(
       new ApplyRolesTransactionAppServiceRequest(
         request.format,
         request.accountId!,
         treasuryContractId,
-        roles,
-        actives,
+        request.rolesToGrant || [],
+        request.rolesToRevoke || [],
         userAccountId,
       ),
     )

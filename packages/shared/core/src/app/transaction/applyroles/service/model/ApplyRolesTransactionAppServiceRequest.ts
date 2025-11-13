@@ -1,16 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsArray, IsNotEmpty, IsString, ArrayNotEmpty } from "class-validator"
+import { IsArray, IsNotEmpty, IsString } from "class-validator"
 import { BaseTransactionAppServiceRequest } from "@transaction/model/BaseTransactionAppServiceRequest"
 
 export class ApplyRolesTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsArray()
-  @ArrayNotEmpty()
-  readonly roles: string[]
+  readonly rolesToGrant: string[]
 
   @IsArray()
-  @ArrayNotEmpty()
-  readonly actives: boolean[]
+  readonly rolesToRevoke: string[]
 
   @IsNotEmpty()
   @IsString()
@@ -20,13 +18,13 @@ export class ApplyRolesTransactionAppServiceRequest extends BaseTransactionAppSe
     format: string,
     accountId: string,
     contractId: string,
-    roles: string[],
-    actives: boolean[],
+    rolesToGrant: string[],
+    rolesToRevoke: string[],
     userAccountId: string,
   ) {
     super(format, accountId, contractId)
-    this.roles = roles
-    this.actives = actives
+    this.rolesToGrant = rolesToGrant || []
+    this.rolesToRevoke = rolesToRevoke || []
     this.userAccountId = userAccountId
   }
 }
