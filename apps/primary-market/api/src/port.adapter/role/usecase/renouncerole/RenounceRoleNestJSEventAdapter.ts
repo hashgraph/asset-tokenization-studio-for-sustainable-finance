@@ -8,9 +8,9 @@ import {
   Inject,
   RoleRenouncedDLTEvent,
   Singleton,
+  RenounceRoleCommand,
 } from "@hashgraph/green-bonds-shared-core"
 import { RenounceRolePort } from "./RenounceRolePort"
-import { RenounceRoleCommand } from "@app/role/renouncerole/command/RenounceRoleCommand"
 
 @Singleton()
 export class RenounceRoleNestJSEventAdapter implements RenounceRolePort, EventListener<RoleRenouncedDLTEvent> {
