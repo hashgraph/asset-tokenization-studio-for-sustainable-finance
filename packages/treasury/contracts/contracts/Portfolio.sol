@@ -15,8 +15,8 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     )
         external
         override
-        notAddressZero(paymentToken)
-        notAddressZeroInArray(environmentalAssets)
+        checkAddress(paymentToken)
+        checkAddresses(environmentalAssets)
         onlyUninitialized(_portfolioStorage().initialized)
     {
         PortfolioStorage storage portfolioStorage = _portfolioStorage();
@@ -32,7 +32,13 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function addEnvironmentalAssetToken(
         address environmentalAsset
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) notAddressZero(environmentalAsset) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        checkAddress(environmentalAsset)
+    {
         bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
             emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
@@ -53,7 +59,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         override
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
-        notAddressZero(environmentalAsset)
+        checkAddress(environmentalAsset)
         returns (int256 dissociationError)
     {
         dissociationError = _removeEnvironmentalAssetToken(environmentalAsset);
@@ -74,7 +80,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         override
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
-        notAddressZero(paymentToken)
+        checkAddress(paymentToken)
         returns (int256 dissociationError)
     {
         address currentPaymentToken;
@@ -89,7 +95,13 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function dissociateToken(
         address token
-    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) notAddressZero(token) {
+    )
+        external
+        override
+        onlyUnpaused
+        onlyRole(PORTFOLIO_MANAGER_ROLE)
+        checkAddress(token)
+    {
         _dissociateToken(token);
 
         emit TokenDissociated(token);

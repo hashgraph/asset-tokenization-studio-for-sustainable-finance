@@ -26,8 +26,8 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param checkedAddress The address to check
      */
-    modifier notAddressZero(address checkedAddress) {
-        _checkNotAddressZero(checkedAddress);
+    modifier checkAddress(address checkedAddress) {
+        _checkAddress(checkedAddress);
         _;
     }
 
@@ -36,9 +36,9 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param checkedAddress The addresses array to check
      */
-    modifier notAddressZeroInArray(address[] memory checkedAddress) {
+    modifier checkAddresses(address[] memory checkedAddress) {
         for (uint256 index; index < checkedAddress.length; ) {
-            _checkNotAddressZero(checkedAddress[index]);
+            _checkAddress(checkedAddress[index]);
 
             unchecked {
                 ++index;
@@ -219,7 +219,7 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param addressChecked The address to check
      */
-    function _checkNotAddressZero(address addressChecked) internal pure {
+    function _checkAddress(address addressChecked) internal pure {
         if (addressChecked == address(0)) {
             revert InvalidAddressZero();
         }
