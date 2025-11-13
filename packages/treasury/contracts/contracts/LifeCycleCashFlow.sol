@@ -3,27 +3,16 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {ILifeCycleCashFlow} from './interfaces/ILifeCycleCashFlow.sol';
-import {
-    LifeCycleCashFlowStorageWrapper
-} from './LifeCycleCashFlowStorageWrapper.sol';
-import {PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE} from './constants/roles.sol';
+import { ILifeCycleCashFlow } from "./interfaces/ILifeCycleCashFlow.sol";
+import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
+import { PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE } from "./constants/roles.sol";
 
-abstract contract LifeCycleCashFlow is
-    ILifeCycleCashFlow,
-    LifeCycleCashFlowStorageWrapper
-{
+abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset
-    )
-        external
-        override
-        notAddressZero(asset)
-        onlyUninitialized(_lifeCycleCashFlowStorage().initialized)
-    {
-        LifeCycleCashFlowStorage
-            storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
+    ) external override notAddressZero(asset) onlyUninitialized(_lifeCycleCashFlowStorage().initialized) {
+        LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
     }
@@ -56,19 +45,9 @@ abstract contract LifeCycleCashFlow is
         onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result, bool executed)
     {
-        (result, executed) = _executeDistribution(
-            asset,
-            distributionId,
-            pageIndex,
-            pageLength
-        );
+        (result, executed) = _executeDistribution(asset, distributionId, pageIndex, pageLength);
 
-        emit DistributionExecuted(
-            distributionId,
-            pageIndex,
-            pageLength,
-            result
-        );
+        emit DistributionExecuted(distributionId, pageIndex, pageLength, result);
     }
 
     /*
@@ -96,11 +75,7 @@ abstract contract LifeCycleCashFlow is
         onlyOnDistributionDate(asset, distributionId)
         returns (PaymentResult memory result)
     {
-        result = _executeDistributionByAddresses(
-            asset,
-            distributionId,
-            holders
-        );
+        result = _executeDistributionByAddresses(asset, distributionId, holders);
 
         emit DistributionByAddressesExecuted(distributionId, holders, result);
     }
