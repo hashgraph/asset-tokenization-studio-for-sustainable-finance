@@ -2,7 +2,6 @@
 
 import {
   BaseTransactionBuilder,
-  BuildGrantRoleTransactionRequest,
   BuildTransactionResponse,
   ConverterUtils,
   Singleton,
@@ -22,7 +21,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
-  private readonly GRANT_ROLE_GAS = 700_000
 
   constructor() {
     super()
@@ -38,17 +36,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
       args: [offering],
-    })
-  }
-
-  async grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildTransaction({
-      functionName: "grantRole",
-      contractId: request.contractId,
-      gas: this.GRANT_ROLE_GAS,
-      account: request.accountId!,
-      format: request.format as "hedera" | "ethereum",
-      args: [request.roleId, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
     })
   }
 
