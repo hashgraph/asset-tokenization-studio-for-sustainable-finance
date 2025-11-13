@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { CommandHandler, Handler, Inject, Validate } from "@hashgraph/green-bonds-shared-core"
 import { PauseBondCommand } from "@app/bond/pausebond/command/PauseBondCommand"
