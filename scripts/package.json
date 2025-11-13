@@ -15,6 +15,7 @@
     "ats:set-bond-coupon": "node ats/bond/set-bond-coupon.js",
     "ats:get-bond-coupons": "node ats/bond/get-bond-coupons.js",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
+    "primary-market:settlement": "node primary-market/offering/settlement-simulator.js",
     "all:start": "node shared/infra/infra-setup.js start",
     "all:stop": "node shared/infra/infra-setup.js stop",
     "all:status": "node shared/infra/infra-setup.js status",
