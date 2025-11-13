@@ -48,7 +48,7 @@ describe("SyncUserRoles Integration", () => {
   })
 
   it("should apply grant and revoke", async () => {
-    const treasuryContractId = "0.0.500"
+    const contractId = "0.0.500"
     const evmAccount = "0xEvmAccountABC"
     const hederaAccountId = "0.0.100"
     const roleGrant = "0xroleGRANT"
@@ -57,7 +57,7 @@ describe("SyncUserRoles Integration", () => {
     await internalUserRoleRepository.save({
       userAccountId: hederaAccountId,
       roleId: roleRevoke,
-      contractId: treasuryContractId,
+      contractId,
     })
 
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(hederaAccountId)
@@ -65,13 +65,7 @@ describe("SyncUserRoles Integration", () => {
     const publishedEvents: any[] = []
     jest.spyOn(eventBus, "publish").mockImplementation((event) => publishedEvents.push(event))
 
-    const event = new RolesAppliedDLTEvent(
-      treasuryContractId,
-      "txHash1",
-      [roleGrant, roleRevoke],
-      [true, false],
-      evmAccount,
-    )
+    const event = new RolesAppliedDLTEvent(contractId, "txHash1", [roleGrant, roleRevoke], [true, false], evmAccount)
     await eventBus.publishSync(event, RolesAppliedDLTEvent.name)
 
     const savedRoles = await internalUserRoleRepository.find()
@@ -79,7 +73,7 @@ describe("SyncUserRoles Integration", () => {
     expect(savedRoles[0]).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleGrant,
-      contractId: treasuryContractId,
+      contractId,
     })
 
     const revoked = await internalUserRoleRepository.findBy({ userAccountId: hederaAccountId, roleId: roleRevoke })
@@ -91,19 +85,19 @@ describe("SyncUserRoles Integration", () => {
     expect(grantedEvent).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleGrant,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
     expect(revokedEvent).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleRevoke,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
   })
 
   it("should apply only grants when all actives true", async () => {
-    const treasuryContractId = "0.0.600"
+    const contractId = "0.0.600"
     const evmAccount = "0xEvmAccountOnlyGrant"
     const hederaAccountId = "0.0.200"
     const roleA = "0xroleA"
@@ -114,15 +108,15 @@ describe("SyncUserRoles Integration", () => {
     const publishedEvents: any[] = []
     jest.spyOn(eventBus, "publish").mockImplementation((event) => publishedEvents.push(event))
 
-    const event = new RolesAppliedDLTEvent(treasuryContractId, "txHash3", [roleA, roleB], [true, true], evmAccount)
+    const event = new RolesAppliedDLTEvent(contractId, "txHash3", [roleA, roleB], [true, true], evmAccount)
     await eventBus.publishSync(event, RolesAppliedDLTEvent.name)
 
     const savedRoles = await internalUserRoleRepository.find()
     expect(savedRoles).toHaveLength(2)
     expect(savedRoles).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ userAccountId: hederaAccountId, roleId: roleA, contractId: treasuryContractId }),
-        expect.objectContaining({ userAccountId: hederaAccountId, roleId: roleB, contractId: treasuryContractId }),
+        expect.objectContaining({ userAccountId: hederaAccountId, roleId: roleA, contractId }),
+        expect.objectContaining({ userAccountId: hederaAccountId, roleId: roleB, contractId }),
       ]),
     )
 
@@ -132,19 +126,19 @@ describe("SyncUserRoles Integration", () => {
     expect(grantedA).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleA,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
     expect(grantedB).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleB,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
   })
 
   it("should apply only revokes when all actives false", async () => {
-    const treasuryContractId = "0.0.700"
+    const contractId = "0.0.700"
     const evmAccount = "0xEvmAccountOnlyRevoke"
     const hederaAccountId = "0.0.300"
     const roleA = "0xroleA"
@@ -153,12 +147,12 @@ describe("SyncUserRoles Integration", () => {
     await internalUserRoleRepository.save({
       userAccountId: hederaAccountId,
       roleId: roleA,
-      contractId: treasuryContractId,
+      contractId,
     })
     await internalUserRoleRepository.save({
       userAccountId: hederaAccountId,
       roleId: roleB,
-      contractId: treasuryContractId,
+      contractId,
     })
 
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(hederaAccountId)
@@ -166,7 +160,7 @@ describe("SyncUserRoles Integration", () => {
     const publishedEvents: any[] = []
     jest.spyOn(eventBus, "publish").mockImplementation((event) => publishedEvents.push(event))
 
-    const event = new RolesAppliedDLTEvent(treasuryContractId, "txHash4", [roleA, roleB], [false, false], evmAccount)
+    const event = new RolesAppliedDLTEvent(contractId, "txHash4", [roleA, roleB], [false, false], evmAccount)
     await eventBus.publishSync(event, RolesAppliedDLTEvent.name)
 
     const remaining = await internalUserRoleRepository.findBy({ userAccountId: hederaAccountId })
@@ -178,13 +172,13 @@ describe("SyncUserRoles Integration", () => {
     expect(revokedA).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleA,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
     expect(revokedB).toMatchObject({
       userAccountId: hederaAccountId,
       roleId: roleB,
-      contractId: treasuryContractId,
+      contractId,
       timestamp: expect.any(Number),
     })
   })

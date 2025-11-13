@@ -18,9 +18,9 @@ export class SyncUserRolesAppService {
       const role = request.roles[i]
       const active = request.actives[i]
       if (active) {
-        await this.commandBus.execute(new GrantRoleCommand(request.accountId, role, request.treasuryContractId))
+        await this.commandBus.execute(new GrantRoleCommand(request.accountId, role, request.contractId))
       } else {
-        await this.commandBus.execute(new RevokeRoleCommand(request.accountId, role, request.treasuryContractId))
+        await this.commandBus.execute(new RevokeRoleCommand(request.accountId, role, request.contractId))
       }
     }
   }
