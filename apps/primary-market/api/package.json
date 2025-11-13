@@ -23,6 +23,7 @@
   "dependencies": {
     "@hashgraph/asset-tokenization-contracts": "1.15.2",
     "@hashgraph/green-bonds-blockchain-listener": "*",
+    "@hashgraph/green-bonds-platform-primarymarket-contracts": "*",
     "@hashgraph/green-bonds-shared-core": "*",
     "@nestjs/config": "^4.0.2",
     "@nestjs/swagger": "^11.2.0",

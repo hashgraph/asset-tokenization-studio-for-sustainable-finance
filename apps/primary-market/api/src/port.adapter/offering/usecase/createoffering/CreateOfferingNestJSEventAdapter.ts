@@ -21,13 +21,14 @@ export class CreateOfferingNestJSEventAdapter implements CreateOfferingPort, Eve
         await ConverterUtils.getHederaAddressFromEvm(event.treasury),
         await ConverterUtils.getHederaAddressFromEvm(event.paymentToken),
         event.lotSize,
-        event.minQuantity,
-        event.maxQuantity,
-        event.targetQuantity,
+        event.minLots,
+        event.maxLots,
+        event.targetLots,
         event.targetQuantityRule,
         new Date(Number(event.startDate) * 1000),
         new Date(Number(event.endDate) * 1000),
         event.deadlineRule,
+        event.price,
       ),
     )
   }

@@ -68,13 +68,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await subscriptionRepository.save({
@@ -113,13 +114,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 999)
@@ -157,13 +159,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await subscriptionRepository.save({
@@ -193,13 +196,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await subscriptionRepository.save({
@@ -256,13 +260,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const offering2 = await offeringRepository.save({
@@ -273,13 +278,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.8888888",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await subscriptionRepository.save({
@@ -335,13 +341,14 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         treasuryContractId: "0.0.9999999",
         paymentTokenContractId: "0.0.9999999",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       await subscriptionRepository.save({

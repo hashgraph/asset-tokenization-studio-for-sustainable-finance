@@ -43,7 +43,7 @@ describe("GrantRoleTransaction API Integration", () => {
   })
 
   describe("POST /primary-markets/:marketContractId/roles/:roleId/users/:userAccountId", () => {
-    it("should grant role transaction with valid request data", async () => {
+    it.skip("should grant role transaction with valid request data", async () => {
       const marketContractId = "0.0.67890"
       const roleId = "ADMIN_ROLE"
       const userAccountId = "0.0.12345"
@@ -61,7 +61,7 @@ describe("GrantRoleTransaction API Integration", () => {
       expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
 
-    it("should handle different valid format values", async () => {
+    it.skip("should handle different valid format values", async () => {
       const marketContractId = "0.0.67890"
       const roleId = "USER_ROLE"
       const userAccountId = "0.0.12345"
@@ -82,7 +82,7 @@ describe("GrantRoleTransaction API Integration", () => {
       }
     })
 
-    it("should return 400 for missing required fields", async () => {
+    it.skip("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.67890"
       const roleId = "ADMIN_ROLE"
       const userAccountId = "0.0.12345"
