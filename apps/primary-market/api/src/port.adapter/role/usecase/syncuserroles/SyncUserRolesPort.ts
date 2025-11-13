@@ -2,6 +2,6 @@
 
 import { RolesAppliedDLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export interface ApplyRolesPort {
+export interface SyncUserRolesPort {
   handle(event: RolesAppliedDLTEvent): Promise<void>
 }
