@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import {
+  GrantRoleTransactionAppService,
+  GrantRoleTransactionAppServiceRequest,
+  RestController,
+  TransactionResponse,
+} from "@hashgraph/green-bonds-shared-core"
 import { GrantRoleTransactionRequest } from "./model/GrantRoleTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
-import { GrantRoleTransactionAppServiceRequest } from "@app/transaction/grantrole/service/model/GrantRoleTransactionAppServiceRequest"
-import { GrantRoleTransactionAppService } from "@app/transaction/grantrole/service/GrantRoleTransactionAppService"
 import { GrantRoleTransactionPort } from "./GrantRoleTransactionPort"
 
 @RestController("primary-markets")

@@ -2,13 +2,13 @@
 
 import {
   BaseTransactionBuilder,
+  BuildGrantRoleTransactionRequest,
   BuildTransactionResponse,
   ConverterUtils,
   Singleton,
 } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
-import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
@@ -47,7 +47,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       gas: this.GRANT_ROLE_GAS,
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
-      args: [request.role, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+      args: [request.roleId, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
     })
   }
 
