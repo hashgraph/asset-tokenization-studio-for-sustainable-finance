@@ -9,7 +9,6 @@ import { PostgresModule } from "@config/PostgresModule"
 import { CqrsModule } from "@nestjs/cqrs"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { GrantRoleCommandHandler } from "@hashgraph/green-bonds-shared-core"
 import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core/dist/port.adapter/persistence/userrole/model/UserRolePersistence"
 
 describe("GrantRole Integration", () => {
@@ -26,7 +25,7 @@ describe("GrantRole Integration", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: [...PROVIDERS, GrantRoleCommandHandler],
+      providers: PROVIDERS,
     }).compile()
 
     app = moduleFixture.createNestApplication()

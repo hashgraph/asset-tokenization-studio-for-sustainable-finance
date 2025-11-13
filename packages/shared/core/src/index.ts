@@ -92,17 +92,14 @@ export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/servi
 export { UnpauseTransactionAppService } from "./app/transaction/unpause/service/UnpauseTransactionAppService"
 export { UnpauseTransactionAppServiceRequest } from "./app/transaction/unpause/service/model/UnpauseTransactionAppServiceRequest"
 
-export { GetUserRolesQuery } from "./app/getuserroles/query/GetUserRolesQuery"
-export { GetRoleMembersQuery } from "./app/getrolemembers/query/GetRoleMembersQuery"
+export { GetUserRolesQuery } from "./app/userrole/getuserroles/query/GetUserRolesQuery"
+export { GetRoleMembersQuery } from "./app/userrole/getrolemembers/query/GetRoleMembersQuery"
 export { UserRolePersistence } from "./port.adapter/persistence/userrole/model/UserRolePersistence"
-
-export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"
-
-export { GrantRoleCommand } from "./app/role/grantrole/command/GrantRoleCommand"
-export { GrantRoleCommandHandler } from "./app/role/grantrole/command/GrantRoleCommandHandler"
-export { RevokeRoleCommand } from "./app/role/revokerole/command/RevokeRoleCommand"
-export { RevokeRoleCommandHandler } from "./app/role/revokerole/command/RevokeRoleCommandHandler"
-export { CheckUserRoleExistsDomainService } from "./domain/userrole/services/CheckUserRoleExistsDomainService"
+export { GrantRoleCommand } from "./app/userrole/grantrole/command/GrantRoleCommand"
+export { RevokeRoleCommand } from "./app/userrole/revokerole/command/RevokeRoleCommand"
+export { RenounceRoleCommand } from "./app/userrole/renouncerole/command/RenounceRoleCommand"
 export { UserRoleNotFoundError } from "./domain/userrole/errors/UserRoleNotFoundError"
 export { RoleGrantedEvent } from "./domain/userrole/event/RoleGrantedEvent"
 export { RoleRevokedEvent } from "./domain/userrole/event/RoleRevokedEvent"
+
+export { COMMON_FUNCTIONALITY_ENTITIES, COMMON_FUNCTIONALITY_PROVIDERS } from "./Components"
