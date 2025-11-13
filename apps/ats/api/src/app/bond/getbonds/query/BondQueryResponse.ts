@@ -14,4 +14,5 @@ export class BondQueryResponse {
   startingDate: Date
   maturityDate: Date
   maxSupply: string
+  isPaused: boolean
 }
