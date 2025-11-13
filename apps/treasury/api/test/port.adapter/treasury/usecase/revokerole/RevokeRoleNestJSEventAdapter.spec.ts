@@ -3,14 +3,19 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { ConverterUtils, EventBus, SharedModule, RoleRevokedDLTEvent } from "@hashgraph/green-bonds-shared-core"
+import {
+  ConverterUtils,
+  EventBus,
+  SharedModule,
+  RoleRevokedDLTEvent,
+  UserRolePersistence,
+  UserRoleNotFoundError,
+} from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { CqrsModule } from "@nestjs/cqrs"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { RevokeRoleCommandHandler, CheckUserRoleExistsDomainService } from "@hashgraph/green-bonds-shared-core"
-import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core/dist/port.adapter/persistence/userrole/model/UserRolePersistence"
 
 describe("RevokeRole Integration", () => {
   let app: INestApplication
@@ -26,12 +31,7 @@ describe("RevokeRole Integration", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: [
-        ...PROVIDERS,
-        RevokeRoleCommandHandler,
-        CheckUserRoleExistsDomainService,
-        { provide: "CheckUserRoleExists", useClass: CheckUserRoleExistsDomainService },
-      ],
+      providers: PROVIDERS,
     }).compile()
 
     app = moduleFixture.createNestApplication()
@@ -79,5 +79,19 @@ describe("RevokeRole Integration", () => {
       contractId: treasuryContractId,
       timestamp: expect.any(Number),
     })
+  })
+
+  it("should throw error if user role does not exist", async () => {
+    const treasuryContractId = "0.0.500"
+    const evmAccount = "0xEvmAccountXYZ"
+    const hederaAccountId = "0.0.100"
+    const roleId = "0xroleABC"
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(hederaAccountId)
+
+    const event = new RoleRevokedDLTEvent(treasuryContractId, "txHash2", "0xOperator2", evmAccount, roleId)
+    await expect(eventBus.publishSync(event, RoleRevokedDLTEvent.name)).rejects.toThrow(
+      UserRoleNotFoundError.create(hederaAccountId, roleId, treasuryContractId),
+    )
   })
 })

@@ -65,13 +65,13 @@ describe("GetUserRoles API Integration", () => {
     })
 
     it("should return user roles when they exist", async () => {
-      const treasury1 = await internalUserRoleRepository.save({
+      await internalUserRoleRepository.save({
         userAccountId: "1",
         roleId: "1",
         contractId: "0.0.123456",
       })
 
-      const treasury2 = await internalUserRoleRepository.save({
+      await internalUserRoleRepository.save({
         userAccountId: "1",
         roleId: "2",
         contractId: "0.0.123456",

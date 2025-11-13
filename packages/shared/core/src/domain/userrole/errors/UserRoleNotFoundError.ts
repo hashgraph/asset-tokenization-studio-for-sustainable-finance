@@ -13,4 +13,3 @@ export class UserRoleNotFoundError extends EntityNotFoundError {
     super(message)
   }
 }
-
