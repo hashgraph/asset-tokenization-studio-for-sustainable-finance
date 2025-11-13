@@ -24,13 +24,14 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.treasuryAddress,
       request.paymentTokenAddress,
       request.lotSize,
-      request.minQuantity,
-      request.maxQuantity,
-      request.targetQuantity,
+      request.minLots,
+      request.maxLots,
+      request.targetLots,
       request.targetQuantityRule,
       request.startDate,
       request.endDate,
       request.deadlineRule,
+      request.price,
     )
     return await this.createOfferingTransactionAppService.execute(appServiceRequest)
   }

@@ -65,13 +65,14 @@ describe("GetOffering API Integration", () => {
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.7777777",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -85,11 +86,12 @@ describe("GetOffering API Integration", () => {
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.7777777",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         deadlineRule: 0,
+        price: "100",
         status: OfferingStatus.OPEN,
       })
       expect(response.body).toHaveProperty("startDate")
@@ -111,13 +113,14 @@ describe("GetOffering API Integration", () => {
         treasuryContractId: "0.0.222",
         paymentTokenContractId: "0.0.333",
         lotSize: "2000",
-        minQuantity: "200",
-        maxQuantity: "20000",
-        targetQuantity: "10000",
+        minLots: "200",
+        maxLots: "20000",
+        targetLots: "10000",
         targetQuantityRule: 1,
         startDate: new Date("2023-02-01"),
         endDate: new Date("2024-02-01"),
         deadlineRule: 1,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())
@@ -130,13 +133,14 @@ describe("GetOffering API Integration", () => {
       expect(response.body).toHaveProperty("treasuryContractId")
       expect(response.body).toHaveProperty("paymentTokenContractId")
       expect(response.body).toHaveProperty("lotSize")
-      expect(response.body).toHaveProperty("minQuantity")
-      expect(response.body).toHaveProperty("maxQuantity")
-      expect(response.body).toHaveProperty("targetQuantity")
+      expect(response.body).toHaveProperty("minLots")
+      expect(response.body).toHaveProperty("maxLots")
+      expect(response.body).toHaveProperty("targetLots")
       expect(response.body).toHaveProperty("targetQuantityRule")
       expect(response.body).toHaveProperty("startDate")
       expect(response.body).toHaveProperty("endDate")
       expect(response.body).toHaveProperty("deadlineRule")
+      expect(response.body).toHaveProperty("price")
       expect(response.body).toHaveProperty("status")
       expect(response.body).toHaveProperty("createdAt")
     })
@@ -183,13 +187,14 @@ describe("GetOffering API Integration", () => {
         treasuryContractId: "0.0.8888888",
         paymentTokenContractId: "0.0.7777777",
         lotSize: "1000",
-        minQuantity: "100",
-        maxQuantity: "10000",
-        targetQuantity: "5000",
+        minLots: "100",
+        maxLots: "10000",
+        targetLots: "5000",
         targetQuantityRule: 0,
         startDate: new Date("2023-01-01"),
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
+        price: "100",
       })
 
       const response = await request(app.getHttpServer())

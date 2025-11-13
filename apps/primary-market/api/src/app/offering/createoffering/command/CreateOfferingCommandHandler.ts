@@ -26,13 +26,14 @@ export class CreateOfferingCommandHandler implements CommandHandler<CreateOfferi
         offering.treasuryContractId,
         offering.paymentTokenContractId,
         offering.lotSize,
-        offering.minQuantity,
-        offering.maxQuantity,
-        offering.targetQuantity,
+        offering.minLots,
+        offering.maxLots,
+        offering.targetLots,
         offering.targetQuantityRule,
         offering.startDate,
         offering.endDate,
         offering.deadlineRule,
+        offering.price,
       ),
     )
   }

@@ -137,13 +137,14 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       treasury: request.treasuryAddress,
       paymentToken: request.paymentTokenAddress,
       lotSize: request.lotSize,
-      minQuantity: request.minQuantity,
-      maxQuantity: request.maxQuantity,
-      targetQuantity: request.targetQuantity,
+      minLots: request.minLots,
+      maxLots: request.maxLots,
+      targetLots: request.targetLots,
       targetQuantityRule: request.targetQuantityRule,
       startDate: parseInt(request.startDate).toString(),
       endDate: parseInt(request.endDate).toString(),
       deadlineRule: request.deadlineRule,
+      price: request.price,
     }
   }
 }

@@ -35,6 +35,7 @@ export class CancelSubscriptionDomainService {
     )
 
     subscription.status = SubscriptionStatus.CANCELLED
+    subscription.updatedAt = new Date()
     await this.subscriptionRepository.save(subscription)
   }
 }
