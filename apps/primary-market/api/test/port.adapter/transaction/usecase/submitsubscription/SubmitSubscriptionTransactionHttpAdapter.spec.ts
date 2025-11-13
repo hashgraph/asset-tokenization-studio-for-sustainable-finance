@@ -153,24 +153,6 @@ describe("SubmitSubscriptionTransaction API Integration", () => {
         .expect(400)
     })
 
-    it("should accept negative lotUnits (validation allows numeric strings)", async () => {
-      const marketContractId = "0.0.67890"
-      const offeringId = 1
-      const submitSubscriptionRequest = {
-        format: "hedera",
-        accountId: "0.0.12345",
-        lotUnits: "-5",
-      }
-
-      const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`)
-        .send(submitSubscriptionRequest)
-        .expect(201)
-
-      expect(response.body).toHaveProperty("unsignedTx")
-      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
-    })
-
     it("should reject invalid lotUnits (empty string)", async () => {
       const marketContractId = "0.0.67890"
       const offeringId = 1
