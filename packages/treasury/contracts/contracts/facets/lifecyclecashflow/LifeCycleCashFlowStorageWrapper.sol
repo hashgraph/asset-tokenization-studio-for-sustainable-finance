@@ -3,12 +3,24 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { ILifeCycleCashFlow } from "../../interfaces/ILifeCycleCashFlow.sol";
-import { PortfolioStorageWrapper } from "../portfolio/PortfolioStorageWrapper.sol";
-import { LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../../constants/storagePositions.sol";
-import { PortfolioStorageWrapper } from "../portfolio/PortfolioStorageWrapper.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol";
+import {
+    ILifeCycleCashFlowStorageWrapper
+} from '../../interfaces/lifecyclecashflow/ILifeCycleCashFlowStorageWrapper.sol';
+import {
+    PortfolioStorageWrapper
+} from '../portfolio/PortfolioStorageWrapper.sol';
+import {
+    LIFECYCLE_CASH_FLOW_STORAGE_POSITION
+} from '../../constants/storagePositions.sol';
+import {
+    PortfolioStorageWrapper
+} from '../portfolio/PortfolioStorageWrapper.sol';
+import {
+    Common as AtsCommon
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
+import {
+    IBond
+} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol';
 import {
     TRexIBondRead as IBondRead
 } from "@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol";
