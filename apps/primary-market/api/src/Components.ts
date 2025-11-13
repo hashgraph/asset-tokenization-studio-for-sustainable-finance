@@ -5,10 +5,10 @@ import { AppController } from "./AppController"
 import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { Provider } from "@nestjs/common"
 import { CreateOfferingTransactionHttpAdapter } from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { SubmitSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
 import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
 import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
-import { GrantRoleTransactionAppService } from "@hashgraph/green-bonds-shared-core"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/repositories/PrimaryMarketTypeORMRepository"
 import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
@@ -65,6 +65,7 @@ import {
   UserRolePersistence,
   COMMON_FUNCTIONALITY_PROVIDERS,
 } from "@hashgraph/green-bonds-shared-core"
+import { GrantRoleNestJSEventAdapter } from "@port/userrole/usecase/grantrole/GrantRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -84,6 +85,7 @@ const REPOSITORIES: Provider[] = [
 export const CONTROLLERS = [
   AppController,
   CreateOfferingTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
@@ -118,6 +120,7 @@ export const PROVIDERS = [
   CreateOfferingNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
+  GrantRoleNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
