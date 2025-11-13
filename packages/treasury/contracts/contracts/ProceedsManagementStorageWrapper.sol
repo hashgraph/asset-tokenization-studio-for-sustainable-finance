@@ -24,7 +24,7 @@ abstract contract ProceedsManagementStorageWrapper is
      *
      * @param proceedsRecipient The proceeds recipient to be checked
      */
-    modifier onlyForBondProceedsRecipients(address proceedsRecipient) {
+    modifier checkProceedRecipient(address proceedsRecipient) {
         _checkProceedRecipient(proceedsRecipient);
         _;
     }
