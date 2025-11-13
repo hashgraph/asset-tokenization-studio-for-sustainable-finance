@@ -9,6 +9,7 @@ import {
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
 import { BuildCreateOfferingTransactionRequest } from "./model/BuildCreateOfferingTransactionRequest"
 import { BuildGrantRoleTransactionRequest } from "./model/BuildGrantRoleTransactionRequest"
+import { BuildRenounceRoleTransactionRequest } from "./model/BuildRenounceRoleTransactionRequest"
 import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSubscriptionTransactionRequest"
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
@@ -23,6 +24,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
   private readonly GRANT_ROLE_GAS = 700_000
+  private readonly RENOUNCE_ROLE_GAS = 700_000
 
   constructor() {
     super()
@@ -49,6 +51,17 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
       args: [request.role, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
+    })
+  }
+
+  async renounceRole(request: BuildRenounceRoleTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "renounceRole",
+      contractId: request.contractId,
+      gas: this.RENOUNCE_ROLE_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.roleId],
     })
   }
 

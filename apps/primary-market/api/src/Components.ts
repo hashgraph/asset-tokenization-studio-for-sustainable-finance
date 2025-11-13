@@ -1,69 +1,129 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { AppService } from "./AppService"
-import { AppController } from "./AppController"
-import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
-import { Provider } from "@nestjs/common"
-import { CreateOfferingTransactionHttpAdapter } from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
-import { SubmitSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
-import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
-import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
-import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
-import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/repositories/PrimaryMarketTypeORMRepository"
-import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
-import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
-import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
-import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
-import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
-import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
-import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
-import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
-import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
-import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
-import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
-import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
-import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
-import { CancelSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/cancelsubscription/CancelSubscriptionNestJSEventAdapter"
-import { CreateOfferingCommandHandler } from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
-import { CancelOfferingCommandHandler } from "@app/offering/canceloffering/command/CancelOfferingCommandHandler"
-import { ExecuteOfferingCommandHandler } from "@app/offering/executeoffering/command/ExecuteOfferingCommandHandler"
-import { SubmitSubscriptionCommandHandler } from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
-import { CancelSubscriptionCommandHandler } from "@app/subscription/cancelsubscription/command/CancelSubscriptionCommandHandler"
-import { GetSubscriptionQueryHandler } from "@app/subscription/getsubscription/query/GetSubscriptionQueryHandler"
-import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
-import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
-import { DatabaseSeederService } from "@config/DatabaseSeederService"
-import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffering/service/CancelOfferingTransactionAppService"
-import { ExecuteOfferingTransactionAppService } from "@app/transaction/executeoffering/service/ExecuteOfferingTransactionAppService"
-import { CancelOfferingTransactionHttpAdapter } from "@port/transaction/usecase/cancelOffering/CancelOfferingTransactionHttpAdapter"
-import { ExecuteOfferingTransactionHttpAdapter } from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
-import { ExecuteOfferingNestJSEventAdapter } from "@port/offering/usecase/executeoffering/ExecuteOfferingNestJSEventAdapter"
-import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
-import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
-import { CancelSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
-import { GetSubscriptionHttpAdapter } from "@port/subscription/usecase/getsubscription/GetSubscriptionHttpAdapter"
-import { GetPrimaryMarketHttpAdapter } from "@port/primarymarket/usecase/getprimarymarket/GetPrimaryMarketHttpAdapter"
-import { GetPrimaryMarketQueryHandler } from "@app/primarymarket/getprimarymarket/query/GetPrimaryMarketQueryHandler"
-import { GetPrimaryMarketsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarkets/GetPrimaryMarketsHttpAdapter"
-import { GetPrimaryMarketsQueryHandler } from "@app/primarymarket/getprimarymarkets/query/GetPrimaryMarketsQueryHandler"
-import { GetSubscriptionsHttpAdapter } from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
-import { GetSubscriptionsQueryHandler } from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
-import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbonds/GetPrimaryMarketsHttpAdapter"
-import { GetPrimaryMarketBondsQueryHandler } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
-import { GetPrimaryMarketBondOfferingsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
-import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
-import { GetSubscriptionsByInvestorHttpAdapter } from "@port/subscription/usecase/getsubscriptionsbyinvestor/GetSubscriptionsByInvestorHttpAdapter"
-import { GetSubscriptionsByInvestorQueryHandler } from "@app/subscription/getsubscriptionsbyinvestor/query/GetSubscriptionsByInvestorQueryHandler"
-import { GetRoleMembersHttpAdapter } from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
-import { GetOfferingHttpAdapter } from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
-import { GetOfferingQueryHandler } from "@app/offering/getoffering/query/GetOfferingQueryHandler"
-import { BlockchainAdapter } from "@port/blockchain/BlockchainAdapter"
+import {AppService} from "./AppService"
+import {AppController} from "./AppController"
+import {EVENT_LISTENER_ENTITIES} from "@hashgraph/green-bonds-blockchain-listener"
+import {Provider} from "@nestjs/common"
 import {
-  TypeOrmTransactionManager,
-  UserRolePersistence,
-  COMMON_FUNCTIONALITY_PROVIDERS,
+    CreateOfferingTransactionHttpAdapter
+} from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
+import {GrantRoleTransactionHttpAdapter} from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import {
+    RenounceRoleTransactionHttpAdapter
+} from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
+import {
+    SubmitSubscriptionTransactionHttpAdapter
+} from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
+import {
+    CreateOfferingTransactionAppService
+} from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
+import {
+    COMMON_FUNCTIONALITY_PROVIDERS,
+    GrantRoleTransactionAppService,
+    RenounceRoleTransactionAppService,
+    TypeOrmTransactionManager,
+    UserRolePersistence,
 } from "@hashgraph/green-bonds-shared-core"
+import {
+    SubmitSubscriptionTransactionAppService
+} from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
+import {TransactionBuilderAdapter} from "@port/transactionbuilder/TransactionBuilderAdapter"
+import {
+    PrimaryMarketTypeORMRepository
+} from "@port/persistence/primarymarket/repositories/PrimaryMarketTypeORMRepository"
+import {OfferingTypeORMRepository} from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
+import {SubscriptionTypeORMRepository} from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
+import {CreateOfferingDomainService} from "@domain/offering/services/CreateOfferingDomainService"
+import {CancelOfferingDomainService} from "@domain/offering/services/CancelOfferingDomainService"
+import {ExecuteOfferingDomainService} from "@domain/offering/services/ExecuteOfferingDomainService"
+import {SubmitSubscriptionDomainService} from "@domain/subscription/services/SubmitSubscriptionDomainService"
+import {CancelSubscriptionDomainService} from "@domain/subscription/services/CancelSubscriptionDomainService"
+import {CheckOfferingExistsDomainService} from "@domain/offering/services/CheckOfferingExistsDomainService"
+import {CheckSubscriptionExistsDomainService} from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
+import {
+    UpdateSubscriptionsStatusDomainService
+} from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
+import {GrantUserMarketRoleDomainService} from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
+import {RenounceUserMarketRoleDomainService} from "@domain/usermarketrole/services/RenounceUserMarketRoleDomainService"
+import {
+    CheckPrimaryMarketExistsDomainService
+} from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
+import {CreateOfferingNestJSEventAdapter} from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
+import {GrantRoleNestJSEventAdapter} from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import {RenounceRoleNestJSEventAdapter} from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
+import {
+    SubmitSubscriptionNestJSEventAdapter
+} from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
+import {
+    CancelSubscriptionNestJSEventAdapter
+} from "@port/subscription/usecase/cancelsubscription/CancelSubscriptionNestJSEventAdapter"
+import {CreateOfferingCommandHandler} from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
+import {CancelOfferingCommandHandler} from "@app/offering/canceloffering/command/CancelOfferingCommandHandler"
+import {ExecuteOfferingCommandHandler} from "@app/offering/executeoffering/command/ExecuteOfferingCommandHandler"
+import {GrantRoleCommandHandler} from "@app/role/grantrole/command/GrantRoleCommandHandler"
+import {RenounceRoleCommandHandler} from "@app/role/renouncerole/command/RenounceRoleCommandHandler"
+import {
+    SubmitSubscriptionCommandHandler
+} from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
+import {
+    CancelSubscriptionCommandHandler
+} from "@app/subscription/cancelsubscription/command/CancelSubscriptionCommandHandler"
+import {GetSubscriptionQueryHandler} from "@app/subscription/getsubscription/query/GetSubscriptionQueryHandler"
+import {OfferingPersistence} from "@port/persistence/offering/model/OfferingPersistence"
+import {PrimaryMarketPersistence} from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
+import {SubscriptionPersistence} from "@port/persistence/subscription/model/SubscriptionPersistence"
+import {DatabaseSeederService} from "@config/DatabaseSeederService"
+import {
+    CancelOfferingTransactionAppService
+} from "@app/transaction/canceloffering/service/CancelOfferingTransactionAppService"
+import {
+    ExecuteOfferingTransactionAppService
+} from "@app/transaction/executeoffering/service/ExecuteOfferingTransactionAppService"
+import {
+    CancelOfferingTransactionHttpAdapter
+} from "@port/transaction/usecase/cancelOffering/CancelOfferingTransactionHttpAdapter"
+import {
+    ExecuteOfferingTransactionHttpAdapter
+} from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
+import {
+    ExecuteOfferingNestJSEventAdapter
+} from "@port/offering/usecase/executeoffering/ExecuteOfferingNestJSEventAdapter"
+import {CancelOfferingNestJSEventAdapter} from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
+import {
+    CancelSubscriptionTransactionAppService
+} from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
+import {
+    CancelSubscriptionTransactionHttpAdapter
+} from "@port/transaction/usecase/cancelsubscription/CancelSubscriptionTransactionHttpAdapter"
+import {GetSubscriptionHttpAdapter} from "@port/subscription/usecase/getsubscription/GetSubscriptionHttpAdapter"
+import {GetPrimaryMarketHttpAdapter} from "@port/primarymarket/usecase/getprimarymarket/GetPrimaryMarketHttpAdapter"
+import {GetPrimaryMarketQueryHandler} from "@app/primarymarket/getprimarymarket/query/GetPrimaryMarketQueryHandler"
+import {GetPrimaryMarketsHttpAdapter} from "@port/primarymarket/usecase/getprimarymarkets/GetPrimaryMarketsHttpAdapter"
+import {GetPrimaryMarketsQueryHandler} from "@app/primarymarket/getprimarymarkets/query/GetPrimaryMarketsQueryHandler"
+import {GetSubscriptionsHttpAdapter} from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
+import {GetSubscriptionsQueryHandler} from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
+import {
+    GetPrimaryMarketBondsHttpAdapter
+} from "@port/primarymarket/usecase/getprimarymarketbonds/GetPrimaryMarketsHttpAdapter"
+import {
+    GetPrimaryMarketBondsQueryHandler
+} from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
+import {
+    GetPrimaryMarketBondOfferingsHttpAdapter
+} from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
+import {
+    GetPrimaryMarketBondOfferingsQueryHandler
+} from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
+import {
+    GetSubscriptionsByInvestorHttpAdapter
+} from "@port/subscription/usecase/getsubscriptionsbyinvestor/GetSubscriptionsByInvestorHttpAdapter"
+import {
+    GetSubscriptionsByInvestorQueryHandler
+} from "@app/subscription/getsubscriptionsbyinvestor/query/GetSubscriptionsByInvestorQueryHandler"
+import {GetRoleMembersHttpAdapter} from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import {GetOfferingHttpAdapter} from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
+import {GetOfferingQueryHandler} from "@app/offering/getoffering/query/GetOfferingQueryHandler"
+import {BlockchainAdapter} from "@port/blockchain/BlockchainAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -83,6 +143,8 @@ const REPOSITORIES: Provider[] = [
 export const CONTROLLERS = [
   AppController,
   CreateOfferingTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RenounceRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
@@ -103,6 +165,8 @@ export const PROVIDERS = [
   AppService,
   DatabaseSeederService,
   CreateOfferingTransactionAppService,
+  GrantRoleTransactionAppService,
+  RenounceRoleTransactionAppService,
   SubmitSubscriptionTransactionAppService,
   CancelSubscriptionTransactionAppService,
   CreateOfferingDomainService,
@@ -113,13 +177,19 @@ export const PROVIDERS = [
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
   UpdateSubscriptionsStatusDomainService,
+  GrantUserMarketRoleDomainService,
+  RenounceUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
+  GrantRoleNestJSEventAdapter,
+  RenounceRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
+  GrantRoleCommandHandler,
+  RenounceRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
   GetSubscriptionQueryHandler,
