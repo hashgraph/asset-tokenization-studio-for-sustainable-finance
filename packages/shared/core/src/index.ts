@@ -85,7 +85,6 @@ export { RenounceRoleTransactionAppService } from "./app/transaction/renouncerol
 export { RenounceRoleTransactionAppServiceRequest } from "./app/transaction/renouncerole/service/model/RenounceRoleTransactionAppServiceRequest"
 export { SyncUserRolesAppService } from "./app/role/syncuserroles/service/SyncUserRolesAppService"
 export { SyncUserRolesAppServiceRequest } from "./app/role/syncuserroles/service/model/SyncUserRolesAppServiceRequest"
-
 export { ApplyRolesTransactionAppService } from "./app/transaction/applyroles/service/ApplyRolesTransactionAppService"
 export { ApplyRolesTransactionAppServiceRequest } from "./app/transaction/applyroles/service/model/ApplyRolesTransactionAppServiceRequest"
 export { GetUserRolesQuery } from "./app/userrole/getuserroles/query/GetUserRolesQuery"
