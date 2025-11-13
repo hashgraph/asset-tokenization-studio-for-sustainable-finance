@@ -18,7 +18,10 @@ export class BondControlListMemberTypeOrmRepository implements BondControlListMe
     return (await this.repository.save(member as BondControlListMemberPersistence)) as BondControlListMember
   }
 
-  async findByContractIdAndHolderAccountId(contractId: string, holderAccountId: string): Promise<BondControlListMember | null> {
+  async findByContractIdAndHolderAccountId(
+    contractId: string,
+    holderAccountId: string,
+  ): Promise<BondControlListMember | null> {
     return (await this.repository.findOne({ where: { contractId, holderAccountId } })) as BondControlListMember | null
   }
 

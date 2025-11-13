@@ -61,7 +61,10 @@ describe("AddControlListMemberTransaction API Integration", () => {
     it("should handle different valid format values", async () => {
       const bondContractId = "0.0.67890"
       const formats = ["hedera", "ethereum"]
-      const holderAccountIds = ["0x0000000000000000000000000000000000003039", "0x000000000000000000000000000000000000303a"]
+      const holderAccountIds = [
+        "0x0000000000000000000000000000000000003039",
+        "0x000000000000000000000000000000000000303a",
+      ]
 
       for (let i = 0; i < formats.length; i++) {
         const format = formats[i]

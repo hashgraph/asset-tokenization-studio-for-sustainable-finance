@@ -27,6 +27,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "CouponSet(bytes32 corporateActionId,uint256 couponId,address indexed operator,uint256 indexed recordDate,uint256 indexed executionDate,uint256 rate,uint256 rateDecimals,uint256 period)",
         "IssuedByPartition(bytes32 indexed partition,address indexed operator,address indexed to,uint256 value,bytes data)",
         "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
+        "LockByPartitionReleased(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId)",
       ]),
     )
   }

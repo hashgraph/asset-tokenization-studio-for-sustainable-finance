@@ -10,7 +10,7 @@ import {
   IBond__factory,
   ICap__factory,
   IControlList__factory,
-  IERC1410Issuer__factory,
+  IERC1410__factory,
   IERC1643__factory,
   IFactory__factory,
   ILock__factory,
@@ -26,6 +26,7 @@ import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactio
 import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model/BuildSetCouponTransactionRequest"
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
+import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -295,13 +296,27 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     }
 
     return await this.buildAndReturnTransactionResponse(
-      IERC1410Issuer__factory.createInterface(),
+      IERC1410__factory.createInterface(),
       "issueByPartition",
       req.contractId,
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
       [issueData],
+    )
+  }
+
+  async releaseBondLockTransaction(req: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+
+    return await this.buildAndReturnTransactionResponse(
+      ILock__factory.createInterface(),
+      "releaseByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.lockId, req.holderAccountId],
     )
   }
 

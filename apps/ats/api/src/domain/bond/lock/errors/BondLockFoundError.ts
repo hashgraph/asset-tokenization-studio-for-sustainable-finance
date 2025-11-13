@@ -1,10 +1,8 @@
-import { DomainError } from "@hashgraph/green-bonds-shared-core"
+// SPDX-License-Identifier: Apache-2.0
 
-export class BondLockFoundError extends DomainError {
-  private constructor(message: string) {
-    super(message)
-  }
+import { EntityFoundError } from "@hashgraph/green-bonds-shared-core"
 
+export class BondLockFoundError extends EntityFoundError {
   static lockIdError(bondContractId: string, id: number): BondLockFoundError {
     return new BondLockFoundError(`Lock with bondContractId ${bondContractId} and id ${id} already exists`)
   }

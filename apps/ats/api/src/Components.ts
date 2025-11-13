@@ -72,6 +72,16 @@ import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
 import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
 import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
+import { ReleaseBondLockTransactionHttpAdapter } from "@port/transaction/usecase/releasebondlocktransaction/ReleaseBondLockTransactionHttpAdapter"
+import { ReleaseBondLockTransactionAppService } from "@app/bond/transaction/releasebondlocktransaction/service/ReleaseBondLockTransactionAppService"
+import { ReleaseBondLockCommandHandler } from "@app/bond/releasebondlock/command/ReleaseBondLockCommandHandler"
+import { ReleaseBondLockNestJSEventAdapter } from "@port/bond/usecase/releasebondlock/ReleaseBondLockNestJSEventAdapter"
+import { DeleteBondLockDomainService } from "@domain/bond/lock/service/DeleteBondLockDomainService"
+import { UnlockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UnlockBondHolderBalanceDomainService"
+import { GetBondLocksHttpAdapter } from "@port/bond/usecase/getbondlocks/GetBondLocksHttpAdapter"
+import { GetBondLocksQueryHandler } from "@app/bond/getbondlocks/query/GetBondLocksQueryHandler"
+import { GetBondLockHttpAdapter } from "@port/bond/usecase/getbondlock/GetBondLockHttpAdapter"
+import { GetBondLockQueryHandler } from "@app/bond/getbondlock/query/GetBondLockQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -113,8 +123,11 @@ export const CONTROLLERS = [
   SetBondCouponTransactionHttpAdapter,
   GetBondCouponsHttpAdapter,
   GetBondCouponHttpAdapter,
+  GetBondLocksHttpAdapter,
+  GetBondLockHttpAdapter,
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
+  ReleaseBondLockTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -128,6 +141,8 @@ export const PROVIDERS = [
   GetBondsQueryHandler,
   GetBondCouponsQueryHandler,
   GetBondCouponQueryHandler,
+  GetBondLocksQueryHandler,
+  GetBondLockQueryHandler,
   SetBondDocumentTransactionAppService,
   SetBondDocumentCommandHandler,
   SetBondDocumentNestJSEventAdapter,
@@ -161,6 +176,11 @@ export const PROVIDERS = [
   UpdateBondHolderBalanceDomainService,
   UpdateBondHolderBalanceCommandHandler,
   LockBondHolderBalanceDomainService,
+  ReleaseBondLockTransactionAppService,
+  ReleaseBondLockCommandHandler,
+  ReleaseBondLockNestJSEventAdapter,
+  DeleteBondLockDomainService,
+  UnlockBondHolderBalanceDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
