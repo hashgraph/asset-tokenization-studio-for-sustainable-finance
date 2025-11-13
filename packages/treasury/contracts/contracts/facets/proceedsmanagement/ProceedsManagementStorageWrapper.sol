@@ -81,9 +81,10 @@ abstract contract ProceedsManagementStorageWrapper is LifeCycleCashFlowStorageWr
      * @param proceedsRecipient The proceeds recipient to be checked
      */
     function _checkProceedRecipient(address proceedsRecipient) private view {
-        bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient);
+        bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset())
+            .isProceedRecipient(proceedsRecipient);
         if (!proceedsRecipientBelongsToBond) {
-            revert IProceedsManagement.WrongProceedsRecipient(proceedsRecipient);
+            revert WrongProceedsRecipient(proceedsRecipient);
         }
     }
 
