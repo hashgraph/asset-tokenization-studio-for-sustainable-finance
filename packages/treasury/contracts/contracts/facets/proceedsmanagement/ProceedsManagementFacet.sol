@@ -5,9 +5,7 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 
 import {ProceedsManagement} from './ProceedsManagement.sol';
-import {
-    IProceedsManagement
-} from "../../interfaces/IProceedsManagement.sol";
+import {IProceedsManagement} from '../../interfaces/IProceedsManagement.sol';
 import {
     PROCEEDS_MANAGEMENT_RESOLVER_KEY
 } from '../../constants/resolverKeys.sol';

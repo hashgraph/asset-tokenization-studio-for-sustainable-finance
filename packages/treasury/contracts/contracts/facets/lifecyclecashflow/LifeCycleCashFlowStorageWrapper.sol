@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    ILifeCycleCashFlow
-} from '../../interfaces/ILifeCycleCashFlow.sol';
+import {ILifeCycleCashFlow} from '../../interfaces/ILifeCycleCashFlow.sol';
 import {
     PortfolioStorageWrapper
 } from '../portfolio/PortfolioStorageWrapper.sol';
@@ -41,6 +39,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     AtsCommon,
     PortfolioStorageWrapper
 {
+    enum CountIndex {
+        FAILED,
+        SUCCEEDED,
+        ALREADY_PAID,
+        PAID_AMOUNTS
+    }
+
     struct LifeCycleCashFlowStorage {
         address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
@@ -382,7 +387,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             if (_valueFitsInUint8(info.decimals)) {
                 return uint8(uint32(info.decimals));
             }
-            revert ILifeCycleCashFlow.InvalidTokenDecimals(token, info.decimals);
+            revert ILifeCycleCashFlow.InvalidTokenDecimals(
+                token,
+                info.decimals
+            );
         }
         revert ILifeCycleCashFlow.GetTokenDecimalsFailed(token, responseCode);
     }
@@ -455,6 +463,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     ) private returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
         results = new ILifeCycleCashFlow.PaymentResult[](holders.length);
 
+        PayingArraysIndexes memory payingArraysIndexes;
+
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
@@ -517,6 +527,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 if (succeededPayment) {
                     _redeemBondHolders(bond, batchInfo.holders);
                 }
+                payingArraysIndexes.succeededAddressesIndex += succeededResults;
+                payingArraysIndexes.failedAddressesIndex += failedResults;
             }
         }
 
@@ -590,7 +602,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     revert ILifeCycleCashFlow.RedeemAtMaturityByPartitionError(bond, holder, partition);
                 }
             } catch {
-                revert ILifeCycleCashFlow.BalanceOfByPartitionError(bond, holder, partition);
+                revert ILifeCycleCashFlow.BalanceOfByPartitionError(
+                    bond,
+                    holder,
+                    partition
+                );
             }
 
             unchecked {
@@ -940,6 +956,99 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _checkPaymentDate(uint256 initialDate, uint256 currentDate) private pure {
         if (initialDate == 0 || currentDate < initialDate) {
             revert ILifeCycleCashFlow.NotPaymentDate(initialDate, currentDate);
+        }
+    }
+
+    /**
+     * @dev Resize the results of a redemption payment operation.
+     *
+     * @param inputResult The input result containing the original arrays of
+     *                    failed addresses, succeeded addresses, and paid amounts.
+     * @param payingArraysIndexes An struct containing the size of holders who were
+     *                    successfully paid and holders who don't.
+     *
+     * @return outputResult The resized result containing the updated arrays of
+     *                      failed addresses, succeeded addresses, and paid amounts.
+     */
+    function _resizeRedemptionResults(
+        ILifeCycleCashFlow.RedemptionPaymentResult memory inputResult,
+        PayingArraysIndexes memory payingArraysIndexes
+    )
+        private
+        pure
+        returns (ILifeCycleCashFlow.RedemptionPaymentResult memory outputResult)
+    {
+        outputResult.failedAddresses = new address[](
+            payingArraysIndexes.failedAddressesIndex
+        );
+        outputResult.succeededAddresses = new address[](
+            payingArraysIndexes.succeededAddressesIndex
+        );
+        outputResult.paidAmounts = new uint256[](
+            payingArraysIndexes.succeededAddressesIndex
+        );
+
+        for (uint256 i = 0; i < outputResult.failedAddresses.length; ++i) {
+            outputResult.failedAddresses[i] = inputResult.failedAddresses[i];
+        }
+        for (uint256 i = 0; i < outputResult.succeededAddresses.length; ++i) {
+            outputResult.succeededAddresses[i] = inputResult.succeededAddresses[
+                i
+            ];
+        }
+        for (uint256 i = 0; i < outputResult.paidAmounts.length; ++i) {
+            outputResult.paidAmounts[i] = inputResult.paidAmounts[i];
+        }
+    }
+
+    /**
+     * @dev Resize the results of a redemption payment operation.
+     *
+     * @param inputResult The input result containing the original arrays of
+     *                    failed addresses, succeeded addresses, and paid amounts.
+     * @param payingArraysIndexes An struct containing the size of holders who were
+     *                    successfully paid and holders who don't.
+     *
+     * @return outputResult The resized result containing the updated arrays of
+     *                      failed addresses, succeeded addresses, and paid amounts.
+     */
+    function _resizeDistributionResults(
+        ILifeCycleCashFlow.DistributionPaymentResult memory inputResult,
+        PayingArraysIndexes memory payingArraysIndexes
+    )
+        private
+        pure
+        returns (
+            ILifeCycleCashFlow.DistributionPaymentResult memory outputResult
+        )
+    {
+        outputResult.failedAddresses = new address[](
+            payingArraysIndexes.failedAddressesIndex
+        );
+        outputResult.succeededAddresses = new address[](
+            payingArraysIndexes.succeededAddressesIndex
+        );
+        outputResult.paidAmounts = new uint256[](
+            payingArraysIndexes.succeededAddressesIndex
+        );
+        outputResult.alreadyPaidAddresses = new address[](
+            payingArraysIndexes.alreadyPaidAddressesIndex
+        );
+
+        for (uint256 i = 0; i < outputResult.failedAddresses.length; ++i) {
+            outputResult.failedAddresses[i] = inputResult.failedAddresses[i];
+        }
+        for (uint256 i = 0; i < outputResult.succeededAddresses.length; ++i) {
+            outputResult.succeededAddresses[i] = inputResult.succeededAddresses[
+                i
+            ];
+        }
+        for (uint256 i = 0; i < outputResult.paidAmounts.length; ++i) {
+            outputResult.paidAmounts[i] = inputResult.paidAmounts[i];
+        }
+        for (uint256 i = 0; i < outputResult.alreadyPaidAddresses.length; ++i) {
+            outputResult.alreadyPaidAddresses[i] = inputResult
+                .alreadyPaidAddresses[i];
         }
     }
 }

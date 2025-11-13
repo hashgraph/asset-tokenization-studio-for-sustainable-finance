@@ -3,9 +3,7 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    IProceedsManagement
-} from "../../interfaces/IProceedsManagement.sol";
+import {IProceedsManagement} from '../../interfaces/IProceedsManagement.sol';
 import {
     ProceedsManagementStorageWrapper
 } from './ProceedsManagementStorageWrapper.sol';

@@ -5,9 +5,7 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 
 import {LifeCycleCashFlow} from './LifeCycleCashFlow.sol';
-import {
-    ILifeCycleCashFlow
-} from "../../interfaces/ILifeCycleCashFlow.sol";
+import {ILifeCycleCashFlow} from '../../interfaces/ILifeCycleCashFlow.sol';
 import {
     LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY
 } from '../../constants/resolverKeys.sol';
