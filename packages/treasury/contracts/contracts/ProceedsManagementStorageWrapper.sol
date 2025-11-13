@@ -87,13 +87,9 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param proceedsRecipient The proceeds recipient to be checked
      */
     function _checkProceedRecipient(address proceedsRecipient) private view {
-        try IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient) returns (
-            bool proceedsRecipientBelongsToBond
-        ) {
-            if (!proceedsRecipientBelongsToBond) {
-                revert WrongProceedsRecipient(proceedsRecipient);
-            }
-        } catch {
+        bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset())
+            .isProceedRecipient(proceedsRecipient);
+        if (!proceedsRecipientBelongsToBond) {
             revert WrongProceedsRecipient(proceedsRecipient);
         }
     }
