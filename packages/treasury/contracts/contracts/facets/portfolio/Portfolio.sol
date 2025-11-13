@@ -60,11 +60,18 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         onlyUnpaused
         onlyRole(PORTFOLIO_MANAGER_ROLE)
         checkAddress(environmentalAsset)
-        returns (int256 dissociationError)
+        returns (int256)
     {
-        (bool tokenRemoved, int256 dissociationError) = _removeEnvironmentalAssetToken(environmentalAsset);
+        (
+            bool tokenRemoved,
+            int256 dissociationError
+        ) = _removeEnvironmentalAssetToken(environmentalAsset);
         if (tokenRemoved) {
-            emit EnvironmentalAssetRemoved(msg.sender, environmentalAsset, dissociationError);
+            emit EnvironmentalAssetRemoved(
+                msg.sender,
+                environmentalAsset,
+                dissociationError
+            );
         }
         return dissociationError;
     }
