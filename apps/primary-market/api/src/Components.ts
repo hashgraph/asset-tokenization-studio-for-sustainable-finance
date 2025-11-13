@@ -5,17 +5,12 @@ import { AppController } from "./AppController"
 import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { Provider } from "@nestjs/common"
 import { CreateOfferingTransactionHttpAdapter } from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
-import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { SubmitSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
 import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
-import { GrantRoleTransactionAppService } from "@app/transaction/grantrole/service/GrantRoleTransactionAppService"
 import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/repositories/PrimaryMarketTypeORMRepository"
 import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
-import { RoleTypeORMRepository } from "@port/persistence/role/repositories/RoleTypeORMRepository"
-import { UserTypeORMRepository } from "@port/persistence/user/repositories/UserTypeORMRepository"
-import { UserMarketRoleTypeORMRepository } from "@port/persistence/usermarketrole/repositories/UserMarketRoleTypeORMRepository"
 import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
 import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
@@ -25,24 +20,18 @@ import { CancelSubscriptionDomainService } from "@domain/subscription/services/C
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
 import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
-import { GrantUserMarketRoleDomainService } from "@domain/usermarketrole/services/GrantUserMarketRoleDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
-import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
 import { CancelSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/cancelsubscription/CancelSubscriptionNestJSEventAdapter"
 import { CreateOfferingCommandHandler } from "@app/offering/createoffering/command/CreateOfferingCommandHandler"
 import { CancelOfferingCommandHandler } from "@app/offering/canceloffering/command/CancelOfferingCommandHandler"
 import { ExecuteOfferingCommandHandler } from "@app/offering/executeoffering/command/ExecuteOfferingCommandHandler"
-import { GrantRoleCommandHandler } from "@app/role/grantrole/command/GrantRoleCommandHandler"
 import { SubmitSubscriptionCommandHandler } from "@app/subscription/submitsubscription/command/SubmitSubscriptionCommandHandler"
 import { CancelSubscriptionCommandHandler } from "@app/subscription/cancelsubscription/command/CancelSubscriptionCommandHandler"
 import { GetSubscriptionQueryHandler } from "@app/subscription/getsubscription/query/GetSubscriptionQueryHandler"
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/PrimaryMarketPersistence"
-import { RolePersistence } from "@port/persistence/role/model/RolePersistence"
-import { UserPersistence } from "@port/persistence/user/model/UserPersistence"
-import { UserMarketRolePersistence } from "@port/persistence/usermarketrole/model/UserMarketRolePersistence"
 import { SubscriptionPersistence } from "@port/persistence/subscription/model/SubscriptionPersistence"
 import { DatabaseSeederService } from "@config/DatabaseSeederService"
 import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffering/service/CancelOfferingTransactionAppService"
@@ -67,12 +56,14 @@ import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/ge
 import { GetSubscriptionsByInvestorHttpAdapter } from "@port/subscription/usecase/getsubscriptionsbyinvestor/GetSubscriptionsByInvestorHttpAdapter"
 import { GetSubscriptionsByInvestorQueryHandler } from "@app/subscription/getsubscriptionsbyinvestor/query/GetSubscriptionsByInvestorQueryHandler"
 import { GetRoleMembersHttpAdapter } from "@port/role/usecase/getrolemembers/GetRoleMembersHttpAdapter"
-import { GetRoleMembersQueryHandler } from "@app/role/getrolemembers/query/GetRoleMembersQueryHandler"
-import { CheckRoleExistsDomainService } from "@domain/role/services/CheckRoleExistsDomainService"
 import { GetOfferingHttpAdapter } from "@port/offering/usecase/getoffering/GetOfferingHttpAdapter"
 import { GetOfferingQueryHandler } from "@app/offering/getoffering/query/GetOfferingQueryHandler"
 import { BlockchainAdapter } from "@port/blockchain/BlockchainAdapter"
-import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
+import {
+  TypeOrmTransactionManager,
+  UserRolePersistence,
+  COMMON_FUNCTIONALITY_PROVIDERS,
+} from "@hashgraph/green-bonds-shared-core"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -84,18 +75,6 @@ const REPOSITORIES: Provider[] = [
     useClass: OfferingTypeORMRepository,
   },
   {
-    provide: "RoleRepository",
-    useClass: RoleTypeORMRepository,
-  },
-  {
-    provide: "UserRepository",
-    useClass: UserTypeORMRepository,
-  },
-  {
-    provide: "UserMarketRoleRepository",
-    useClass: UserMarketRoleTypeORMRepository,
-  },
-  {
     provide: "SubscriptionRepository",
     useClass: SubscriptionTypeORMRepository,
   },
@@ -104,7 +83,6 @@ const REPOSITORIES: Provider[] = [
 export const CONTROLLERS = [
   AppController,
   CreateOfferingTransactionHttpAdapter,
-  GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
@@ -121,10 +99,10 @@ export const CONTROLLERS = [
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
+  ...COMMON_FUNCTIONALITY_PROVIDERS,
   AppService,
   DatabaseSeederService,
   CreateOfferingTransactionAppService,
-  GrantRoleTransactionAppService,
   SubmitSubscriptionTransactionAppService,
   CancelSubscriptionTransactionAppService,
   CreateOfferingDomainService,
@@ -135,16 +113,13 @@ export const PROVIDERS = [
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
   UpdateSubscriptionsStatusDomainService,
-  GrantUserMarketRoleDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
-  GrantRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
-  GrantRoleCommandHandler,
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
   GetSubscriptionQueryHandler,
@@ -158,8 +133,6 @@ export const PROVIDERS = [
   GetPrimaryMarketBondsQueryHandler,
   GetPrimaryMarketBondOfferingsQueryHandler,
   GetSubscriptionsByInvestorQueryHandler,
-  GetRoleMembersQueryHandler,
-  CheckRoleExistsDomainService,
   GetOfferingQueryHandler,
   {
     provide: "TransactionBuilderPort",
@@ -179,8 +152,6 @@ export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
   OfferingPersistence,
   PrimaryMarketPersistence,
-  RolePersistence,
-  UserPersistence,
-  UserMarketRolePersistence,
   SubscriptionPersistence,
+  UserRolePersistence,
 ]
