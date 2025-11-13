@@ -241,7 +241,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     continue;
                 }
 
-                (bool success, uint256 amount) = _getDistributionAmount(
+                uint256 amount = _getDistributionAmount(
                     asset,
                     distributionId,
                     holder,
@@ -249,8 +249,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     paymentToken
                 );
 
-                if (!success || !_isValidAmount(amount)) {
-                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
+                if (!_isValidAmount(amount)) {
+                    result.failedAddresses[
+                        payingArraysIndexes.failedAddressesIndex
+                    ] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
@@ -322,19 +324,21 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address holder,
         uint256 nominalValue,
         address paymentToken
-    ) private returns (bool success, uint256 amount) {
-        try IBondRead(asset).getCouponFor(distributionId, holder) returns (IBondRead.CouponFor memory couponFor) {
-            uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
-            uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
-            uint256 scaleUp = paymentTokenDecimals;
-            amount = (((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
-                100 /
-                (365 * 24 * 60 * 60) /
-                10 ** scaleDown) * 10 ** scaleUp);
-            return (true, amount);
-        } catch {
-            return (false, 0);
-        }
+    ) private returns (uint256 amount) {
+        IBondRead.CouponFor memory couponFor = IBondRead(asset).getCouponFor(
+            distributionId,
+            holder
+        );
+        uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
+        uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
+        uint256 scaleUp = paymentTokenDecimals;
+        amount = (((couponFor.tokenBalance *
+            nominalValue *
+            couponFor.period *
+            couponFor.rate) /
+            100 /
+            (365 * 24 * 60 * 60) /
+            10 ** scaleDown) * 10 ** scaleUp);
     }
 
     /*
