@@ -65,7 +65,9 @@ import {
   UserRolePersistence,
   COMMON_FUNCTIONALITY_PROVIDERS,
 } from "@hashgraph/green-bonds-shared-core"
-import { GrantRoleNestJSEventAdapter } from "@port/userrole/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
+import { RenounceRoleNestJSEventAdapter } from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -85,6 +87,8 @@ const REPOSITORIES: Provider[] = [
 export const CONTROLLERS = [
   AppController,
   CreateOfferingTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RenounceRoleTransactionHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
@@ -118,9 +122,10 @@ export const PROVIDERS = [
   UpdateSubscriptionsStatusDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
+  GrantRoleNestJSEventAdapter,
+  RenounceRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
-  GrantRoleNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,

@@ -96,6 +96,7 @@ export { RenounceRoleCommand } from "./app/userrole/renouncerole/command/Renounc
 export { UserRoleNotFoundError } from "./domain/userrole/errors/UserRoleNotFoundError"
 export { RoleGrantedEvent } from "./domain/userrole/event/RoleGrantedEvent"
 export { RoleRevokedEvent } from "./domain/userrole/event/RoleRevokedEvent"
+export { RoleRenouncedEvent } from "./domain/userrole/event/RoleRenouncedEvent"
 
 export { PauseTransactionAppService } from "./app/transaction/pause/service/PauseTransactionAppService"
 export { PauseTransactionAppServiceRequest } from "./app/transaction/pause/service/model/PauseTransactionAppServiceRequest"
