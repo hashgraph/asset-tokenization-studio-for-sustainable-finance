@@ -43,28 +43,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     })
   }
 
-  async grantRole(request: BuildGrantRoleTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildTransaction({
-      functionName: "grantRole",
-      contractId: request.contractId,
-      gas: this.GRANT_ROLE_GAS,
-      account: request.accountId!,
-      format: request.format as "hedera" | "ethereum",
-      args: [request.role, await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId)],
-    })
-  }
-
-  async renounceRole(request: BuildRenounceRoleTransactionRequest): Promise<BuildTransactionResponse> {
-    return await this.buildTransaction({
-      functionName: "renounceRole",
-      contractId: request.contractId,
-      gas: this.RENOUNCE_ROLE_GAS,
-      account: request.accountId!,
-      format: request.format as "hedera" | "ethereum",
-      args: [request.roleId],
-    })
-  }
-
   async submitSubscription(request: BuildSubmitSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
     return await this.buildTransaction({
       functionName: "submitSubscription",
@@ -75,6 +53,17 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       args: [request.offeringId, request.lotUnits],
     })
   }
+
+    async renounceRole(request: BuildRenounceRoleTransactionRequest): Promise<BuildTransactionResponse> {
+        return await this.buildTransaction({
+            functionName: "renounceRole",
+            contractId: request.contractId,
+            gas: this.RENOUNCE_ROLE_GAS,
+            account: request.accountId!,
+            format: request.format as "hedera" | "ethereum",
+            args: [request.roleId],
+        })
+    }
 
   async cancelSubscription(request: BuildCancelSubscriptionTransactionRequest): Promise<BuildTransactionResponse> {
     return await this.buildTransaction({
