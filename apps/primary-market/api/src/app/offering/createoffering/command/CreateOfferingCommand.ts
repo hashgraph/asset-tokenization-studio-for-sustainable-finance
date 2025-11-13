@@ -33,15 +33,15 @@ export class CreateOfferingCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsNumberString()
-  minQuantity: string
+  minLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  maxQuantity: string
+  maxLots: string
 
   @IsNotEmpty()
   @IsNumberString()
-  targetQuantity: string
+  targetLots: string
 
   @IsNotEmpty()
   @IsNumber()
@@ -59,6 +59,10 @@ export class CreateOfferingCommand extends Command<void> {
   @IsNumber()
   deadlineRule: number
 
+  @IsNotEmpty()
+  @IsNumberString()
+  price: string
+
   constructor(
     offeringId: number,
     marketContractId: string,
@@ -67,13 +71,14 @@ export class CreateOfferingCommand extends Command<void> {
     treasuryContractId: string,
     paymentTokenContractId: string,
     lotSize: string,
-    minQuantity: string,
-    maxQuantity: string,
-    targetQuantity: string,
+    minLots: string,
+    maxLots: string,
+    targetLots: string,
     targetQuantityRule: number,
     startDate: Date,
     endDate: Date,
     deadlineRule: number,
+    price: string,
   ) {
     super()
     this.offeringId = offeringId
@@ -83,12 +88,13 @@ export class CreateOfferingCommand extends Command<void> {
     this.treasuryContractId = treasuryContractId
     this.paymentTokenContractId = paymentTokenContractId
     this.lotSize = lotSize
-    this.minQuantity = minQuantity
-    this.maxQuantity = maxQuantity
-    this.targetQuantity = targetQuantity
+    this.minLots = minLots
+    this.maxLots = maxLots
+    this.targetLots = targetLots
     this.targetQuantityRule = targetQuantityRule
     this.startDate = startDate
     this.endDate = endDate
     this.deadlineRule = deadlineRule
+    this.price = price
   }
 }

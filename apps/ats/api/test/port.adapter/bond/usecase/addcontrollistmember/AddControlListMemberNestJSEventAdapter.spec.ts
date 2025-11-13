@@ -123,7 +123,10 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
       )
 
       await expect(eventBus.publishSync(event, AddedToControlListDLTEvent.name)).rejects.toThrow(
-        BondControlListMemberFoundError.contractIdAndHolderAccountIdError(CONTRACT_ID, "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"),
+        BondControlListMemberFoundError.contractIdAndHolderAccountIdError(
+          CONTRACT_ID,
+          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        ),
       )
     })
 

@@ -22,7 +22,10 @@ export class RemoveBondControlListMemberDomainService {
     )
 
     if (!existingMember) {
-      throw BondControlListMemberNotFoundError.contractIdAndHolderAccountIdError(request.contractId, request.holderAccountId)
+      throw BondControlListMemberNotFoundError.contractIdAndHolderAccountIdError(
+        request.contractId,
+        request.holderAccountId,
+      )
     }
 
     await this.bondControlListMemberRepository.delete(existingMember)

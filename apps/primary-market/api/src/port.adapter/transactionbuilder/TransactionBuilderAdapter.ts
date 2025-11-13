@@ -13,6 +13,7 @@ import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSu
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
+import { IPrimaryMarket__factory } from "@hashgraph/green-bonds-platform-primarymarket-contracts"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -96,14 +97,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   private getPrimaryMarketInterface() {
-    // TODO: Replace with actual factory when available
-    // return IPrimaryMarket__factory.createInterface()
-    // Temporary mock - replace with actual interface
-    return {
-      encodeFunctionData: () => {
-        return "0xmockTransactionData"
-      },
-    } as any
+    return IPrimaryMarket__factory.createInterface()
   }
 
   private async buildTransaction(params: {
@@ -137,13 +131,14 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       treasury: request.treasuryAddress,
       paymentToken: request.paymentTokenAddress,
       lotSize: request.lotSize,
-      minQuantity: request.minQuantity,
-      maxQuantity: request.maxQuantity,
-      targetQuantity: request.targetQuantity,
+      minLots: request.minLots,
+      maxLots: request.maxLots,
+      targetLots: request.targetLots,
       targetQuantityRule: request.targetQuantityRule,
       startDate: parseInt(request.startDate).toString(),
       endDate: parseInt(request.endDate).toString(),
       deadlineRule: request.deadlineRule,
+      price: request.price,
     }
   }
 }
