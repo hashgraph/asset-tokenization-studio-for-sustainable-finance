@@ -28,7 +28,7 @@ async function createBond(format) {
     maturityDate: "1980997600",
     configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
     configVersion: 0,
-    resolverAddress: "0x9c6cf2b0c034bdb9cda67d49f69223df54d35f76",
+    resolverAddress: "0x76a2e6C1DDb5dE9b4Ec52AC3C7c26aa8Cd717ba3",
     proceedRecipientAddresses: [],
     proceedRecipientsData: []
   },
@@ -40,23 +40,25 @@ async function createBond(format) {
     info: "test"
   },
   treasuryData: {
-    resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-    configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
-    configVersion: 0,
-    paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-    ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-    erc721Addresses: []
+    resolverAddress: "0x76a2e6C1DDb5dE9b4Ec52AC3C7c26aa8Cd717ba3",
+    configId: "0x0000000000000000000000000000000000000000000000000000000000004e20",
+    configVersion: 1,
+    paymentTokenAddress: "0x0000000000000000000000000000000000629238",
+    ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
+    environmentalAssetsAddresses: []
   },
   kpiData: {
-    adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-    ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
+    adminAddress: process.env.ACCOUNT_EVM_ADDRESS,
+    ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS
   },
   format: format,
-  accountId: process.env.ACCOUNT_ID
+  accountId: process.env.ACCOUNT_ID,
+  factoryAddress: "0xd269fdb53aEaA55456F99447744404f2f128F19f",
+  factorySuiteAddress: "0.0.7247643",
 };
   
   try {
-    const response = await gatewayClient.post('/api/v1/ats/bonds/factories/0.0.7048503/bond-transactions', createBondTransactionRequest);
+    const response = await gatewayClient.post('/api/v1/ats/bonds', createBondTransactionRequest);
     console.log('Response data:', response.data);
     
     logSuccess(`${format.toUpperCase()} bond created successfully!`);

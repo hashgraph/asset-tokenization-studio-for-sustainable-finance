@@ -12,9 +12,9 @@ import {
   IControlList__factory,
   IERC1410__factory,
   IERC1643__factory,
-  IFactory__factory,
   ILock__factory,
 } from "@hashgraph/asset-tokenization-contracts"
+import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
@@ -48,8 +48,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   async createBondTransaction(req: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse> {
-    //TODO change for the correct Suite Bond Factory when deployed
-    const contractInterface = IFactory__factory.createInterface()
+    const contractInterface = IFactorySuite__factory.createInterface()
 
     const securityTokenToCreate = {
       security: {
@@ -143,7 +142,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       },
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const treasuryData = {
       resolver: req.treasuryData.resolverAddress,
       resolverProxyConfiguration: {
@@ -159,10 +157,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         },
       ],
       paymentToken: req.treasuryData.paymentTokenAddress,
-      erc721s: req.treasuryData.erc721Addresses,
+      environmentalAssets: req.treasuryData.environmentalAssetsAddresses,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const kpiData = {
       admin: req.kpiData.adminAddress,
       rbacs: [
@@ -172,15 +169,14 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         },
       ],
     }
-
     return await this.buildAndReturnTransactionResponse(
       contractInterface,
-      "deployBond",
+      "deployBondSuite",
       req.contractId,
       this.TRANSACTIONS_HIGH_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [securityTokenToCreate, factoryRegulationData],
+      [req.factoryAddress, securityTokenToCreate, factoryRegulationData, treasuryData, kpiData],
     )
   }
 

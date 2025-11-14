@@ -1,72 +1,47 @@
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class BondDeployedDLTEvent extends DLTEvent {
-  readonly deployer: string
+export class BondSuiteDeployedDLTEvent extends DLTEvent {
+  readonly operator: string
   readonly bondAddress: string
+  readonly treasuryAddress: string
+  readonly kpiAddress: string
   readonly bondData: BondData
   readonly regulationData: FactoryRegulationData
+  readonly treasuryData: TreasuryData
+  readonly kpiData: KpiData
 
   constructor(
     contractId: string,
     transactionHash: string,
-    deployer: string,
+    operator: string,
     bondAddress: string,
+    treasuryAddress: string,
+    kpiAddress: string,
     bondData: BondData,
     regulationData: FactoryRegulationData,
+    treasuryData: TreasuryData,
+    kpiData: KpiData,
   ) {
     super(contractId, transactionHash)
-    this.deployer = deployer
+    this.operator = operator
     this.bondAddress = bondAddress
+    this.treasuryAddress = treasuryAddress
+    this.kpiAddress = kpiAddress
     this.bondData = bondData
     this.regulationData = regulationData
+    this.treasuryData = treasuryData
+    this.kpiData = kpiData
   }
 }
 
-//TODO: Uncomment and use when the Treasury and KPI contracts are deployed
-// export class BondDeployedDLTEvent extends DLTEvent {
-//   readonly operator: string
-//   readonly bondAddress: string
-//   readonly treasuryAddress: string
-//   readonly kpiAddress: string
-//   readonly bondData: BondData
-//   readonly regulationData: FactoryRegulationData
-//   readonly treasuryData: TreasuryData
-//   readonly kpiData: KpiData
-
-//   constructor(
-//     contractId: string,
-//     transactionHash: string,
-//     operator: string,
-//     bondAddress: string,
-//     treasuryAddress: string,
-//     kpiAddress: string,
-//     bondData: BondData,
-//     regulationData: FactoryRegulationData,
-//     treasuryData: TreasuryData,
-//     kpiData: KpiData,
-//   ) {
-//     super(contractId, transactionHash)
-//     this.operator = operator
-//     this.bondAddress = bondAddress
-//     this.treasuryAddress = treasuryAddress
-//     this.kpiAddress = kpiAddress
-//     this.bondData = bondData
-//     this.regulationData = regulationData
-//     this.treasuryData = treasuryData
-//     this.kpiData = kpiData
-//   }
-// }
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface TreasuryData {
   resolver: string
   resolverProxyConfiguration: ResolverProxyConfiguration
   rbacs: Rbac[]
   paymentToken: string
-  erc721s: string[]
+  environmentalAssets: string[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface KpiData {
   admin: string
   rbacs: Rbac[]
