@@ -225,7 +225,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
           startDate: new Date("2023-01-01"),
           endDate: new Date("2024-01-01"),
           deadlineRule: 0,
-        price: "100",
+          price: "100",
         })
       }
 
