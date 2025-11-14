@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { BondHolderBalance } from "../model/BondHolderBalance"
 
 export interface BondHolderBalanceRepository {
@@ -8,4 +9,5 @@ export interface BondHolderBalanceRepository {
     holderAccountId: string,
     partition: string,
   ): Promise<BondHolderBalance | null>
+  findAllByContractIdPaginated(contractId: string, pageOptions: PageOptions): Promise<Page<BondHolderBalance>>
 }
