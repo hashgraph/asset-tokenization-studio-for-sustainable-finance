@@ -13,7 +13,7 @@ export class UpdateClearingHoldStatusDomainService {
   ) {}
 
   async execute(request: UpdateClearingHoldStatusDomainServiceRequest): Promise<ClearingHold> {
-    const clearing = await this.clearingRepository.findByClearingId(
+    const clearing = await this.clearingRepository.findById(
       request.bondContractId,
       request.holderAccountId,
       request.clearingId,
@@ -23,7 +23,10 @@ export class UpdateClearingHoldStatusDomainService {
       throw new ClearingNotFoundError(`${request.bondContractId}/${request.holderAccountId}/${request.clearingId}`)
     }
 
+    clearing.validateNotExpired()
+
     clearing.status = request.newStatus
+    clearing.updatedAt = new Date()
 
     return await this.clearingRepository.update(clearing)
   }

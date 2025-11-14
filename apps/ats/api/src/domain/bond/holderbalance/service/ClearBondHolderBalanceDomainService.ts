@@ -70,6 +70,7 @@ export class ClearBondHolderBalanceDomainService {
         }
 
         balance.clearingBalance = (clearingBalance - amountBigInt).toString()
+        balance.lockedBalance = (BigInt(balance.lockedBalance) + amountBigInt).toString()
         break
 
       default:

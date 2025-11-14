@@ -14,22 +14,35 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     private readonly repository: Repository<BondClearingHoldPersistence>,
   ) {}
 
+  private toDomain(persistence: BondClearingHoldPersistence): ClearingHold {
+    const clearing = new ClearingHold()
+    clearing.id = persistence.id
+    clearing.bondContractId = persistence.bondContractId
+    clearing.holderAccountId = persistence.holderAccountId
+    clearing.partition = persistence.partition
+    clearing.amount = persistence.amount
+    clearing.expirationDate = persistence.expirationDate
+    clearing.status = persistence.status
+    clearing.toAddress = persistence.toAddress
+    clearing.escrowAddress = persistence.escrowAddress
+    clearing.data = persistence.data
+    clearing.operatorData = persistence.operatorData
+    clearing.operator = persistence.operator
+    clearing.createdAt = persistence.createdAt
+    clearing.updatedAt = persistence.updatedAt
+    return clearing
+  }
+
   async save(clearing: ClearingHold): Promise<ClearingHold> {
-    return (await this.repository.save(clearing as BondClearingHoldPersistence)) as ClearingHold
+    const saved = await this.repository.save(clearing as BondClearingHoldPersistence)
+    return this.toDomain(saved)
   }
 
-  async findById(id: string): Promise<ClearingHold | null> {
-    return (await this.repository.findOne({ where: { id } })) as ClearingHold | null
-  }
-
-  async findByClearingId(
-    bondContractId: string,
-    holderAccountId: string,
-    clearingId: number,
-  ): Promise<ClearingHold | null> {
-    return (await this.repository.findOne({
-      where: { bondContractId, holderAccountId, clearingId },
-    })) as ClearingHold | null
+  async findById(bondContractId: string, holderAccountId: string, clearingId: number): Promise<ClearingHold | null> {
+    const persistence = await this.repository.findOne({
+      where: { bondContractId, holderAccountId, id: clearingId },
+    })
+    return persistence ? this.toDomain(persistence) : null
   }
 
   async findAllByHolder(
@@ -45,7 +58,7 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => p as ClearingHold)
+    const items = persistences.map((p) => this.toDomain(p))
 
     return {
       items,
@@ -57,10 +70,11 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
   }
 
   async update(clearing: ClearingHold): Promise<ClearingHold> {
-    return (await this.repository.save(clearing as BondClearingHoldPersistence)) as ClearingHold
+    const updated = await this.repository.save(clearing as BondClearingHoldPersistence)
+    return this.toDomain(updated)
   }
 
-  async delete(id: string): Promise<void> {
-    await this.repository.delete({ id })
+  async deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void> {
+    await this.repository.delete({ bondContractId, holderAccountId, id: clearingId })
   }
 }

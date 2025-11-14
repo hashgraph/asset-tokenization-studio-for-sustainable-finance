@@ -10,14 +10,14 @@ import { CreateClearingHoldDomainServiceRequest } from "@domain/bond/clearinghol
 
 @Singleton()
 @Handler(CreateClearingHoldCommand)
-export class CreateClearingHoldCommandHandler implements CommandHandler<CreateClearingHoldCommand, ClearingHold> {
+export class CreateClearingHoldCommandHandler implements CommandHandler<CreateClearingHoldCommand, void> {
   constructor(
     private readonly createClearingHoldDomainService: CreateClearingHoldDomainService,
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
   @Validate()
-  async execute(command: CreateClearingHoldCommand): Promise<ClearingHold> {
+  async execute(command: CreateClearingHoldCommand): Promise<void> {
     const request = new CreateClearingHoldDomainServiceRequest()
     request.bondContractId = command.bondContractId
     request.holderAccountId = command.holderAccountId
@@ -43,7 +43,5 @@ export class CreateClearingHoldCommandHandler implements CommandHandler<CreateCl
         "CLEARING_LOCK",
       ),
     )
-
-    return savedClearing
   }
 }

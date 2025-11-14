@@ -55,7 +55,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
         .send(createClearingRequest)
 
       if (response.status !== 201) {
@@ -86,7 +86,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
           .send(createClearingRequest)
           .expect(201)
 
@@ -109,7 +109,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
           .send(createClearingRequest)
           .expect(400)
       }
@@ -127,7 +127,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -144,7 +144,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
         .send(createClearingRequest)
         .expect(201)
 
@@ -164,7 +164,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
         .send(createClearingRequest)
         .expect(400)
     })
@@ -181,7 +181,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
         .send(createClearingRequest)
         .expect(400)
     })
@@ -205,7 +205,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
           .send(createClearingRequest)
           .expect(201)
 
@@ -225,7 +225,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/hold`)
         .send(createClearingRequest)
         .expect(201)
 

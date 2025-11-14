@@ -12,8 +12,8 @@ export class DeleteClearingHoldDomainService {
     private readonly clearingRepository: ClearingHoldRepository,
   ) {}
 
-  async execute(request: DeleteClearingHoldDomainServiceRequest): Promise<ClearingHold> {
-    const clearing = await this.clearingRepository.findByClearingId(
+  async execute(request: DeleteClearingHoldDomainServiceRequest): Promise<void> {
+    const clearing = await this.clearingRepository.findById(
       request.bondContractId,
       request.holderAccountId,
       request.clearingId,
@@ -23,8 +23,10 @@ export class DeleteClearingHoldDomainService {
       throw new ClearingNotFoundError(`${request.bondContractId}/${request.holderAccountId}/${request.clearingId}`)
     }
 
-    await this.clearingRepository.delete(clearing.id)
-
-    return clearing
+    await this.clearingRepository.deleteByCompositeKey(
+      request.bondContractId,
+      request.holderAccountId,
+      request.clearingId,
+    )
   }
 }

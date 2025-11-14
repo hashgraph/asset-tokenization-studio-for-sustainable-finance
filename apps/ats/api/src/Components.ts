@@ -83,6 +83,8 @@ import { ReleaseBondLockTransactionHttpAdapter } from "@port/transaction/usecase
 import { ReleaseBondLockTransactionAppService } from "@app/bond/transaction/releasebondlocktransaction/service/ReleaseBondLockTransactionAppService"
 import { ReleaseBondLockCommandHandler } from "@app/bond/releasebondlock/command/ReleaseBondLockCommandHandler"
 import { ReleaseBondLockNestJSEventAdapter } from "@port/bond/usecase/releasebondlock/ReleaseBondLockNestJSEventAdapter"
+import { CancelClearingHoldCommandHandler } from "@app/bond/cancelclearinghold/command/CancelClearingHoldCommandHandler"
+import { ReclaimClearingHoldCommandHandler } from "@app/bond/reclaimclearinghold/command/ReclaimClearingHoldCommandHandler"
 import { DeleteBondLockDomainService } from "@domain/bond/lock/service/DeleteBondLockDomainService"
 import { UnlockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UnlockBondHolderBalanceDomainService"
 import { GetBondLocksHttpAdapter } from "@port/bond/usecase/getbondlocks/GetBondLocksHttpAdapter"
@@ -126,10 +128,10 @@ import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transf
 import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
 import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
 import { ClearingHoldTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingHoldTypeOrmRepository"
-import { CreateClearingHoldTransactionHttpAdapter } from "@port/transaction/usecase/createclearingtransaction/CreateClearingHoldTransactionHttpAdapter"
+import { CreateClearingHoldTransactionHttpAdapter } from "@port/transaction/usecase/createclearingholdtransaction/CreateClearingHoldTransactionHttpAdapter"
 import { CreateClearingTransactionAppService } from "@app/bond/transaction/createclearingtransaction/service/CreateClearingTransactionAppService"
-import { UpdateClearingStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingstatustransaction/UpdateClearingStatusTransactionHttpAdapter"
-import { UpdateClearingTransactionAppService } from "@app/bond/transaction/updateclearingtransaction/service/UpdateClearingTransactionAppService"
+import { UpdateClearingHoldStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingholdstatustransaction/UpdateClearingHoldStatusTransactionHttpAdapter"
+import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
 import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/cancelclearingtransaction/CancelClearingTransactionHttpAdapter"
 import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 import { GetClearingsHttpAdapter } from "@port/bond/usecase/getclearings/GetClearingsHttpAdapter"
@@ -145,7 +147,7 @@ import { ClearedHoldNestJSEventAdapter } from "@port/bond/usecase/clearedhold/Cl
 import {
   ClearingOperationApprovedNestJSEventAdapter,
   ClearingOperationReclaimedNestJSEventAdapter,
-} from "@port/bond/usecase/updateclearingoperation/UpdateClearingHoldOperationNestJSEventAdapter"
+} from "@port/bond/usecase/updateclearingholdoperation/UpdateClearingHoldOperationNestJSEventAdapter"
 import { CancelClearingHoldOperationNestJSEventAdapter } from "@port/bond/usecase/cancelclearingoperation/CancelClearingHoldOperationNestJSEventAdapter"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { CreateClearingHoldCommandHandler } from "@app/bond/createclearinghold/command/CreateClearingHoldCommandHandler"
@@ -214,7 +216,7 @@ export const CONTROLLERS = [
   GetBondProceedRecipientsHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
-  UpdateClearingStatusTransactionHttpAdapter,
+  UpdateClearingHoldStatusTransactionHttpAdapter,
   CancelClearingTransactionHttpAdapter,
   GetClearingsHttpAdapter,
   GetClearingHttpAdapter,
@@ -282,6 +284,8 @@ export const PROVIDERS = [
   ClearBondHolderBalanceDomainService,
   ManageClearingBalanceNestJSEventAdapter,
   UpdateClearingBalanceCommandHandler,
+  CancelClearingHoldCommandHandler,
+  ReclaimClearingHoldCommandHandler,
   PauseBondCommandHandler,
   UnpauseBondCommandHandler,
   PauseBondNestJSEventAdapter,
@@ -301,7 +305,7 @@ export const PROVIDERS = [
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
   CreateClearingTransactionAppService,
-  UpdateClearingTransactionAppService,
+  UpdateClearingHoldTransactionAppService,
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
   CreateClearingHoldCommandHandler,

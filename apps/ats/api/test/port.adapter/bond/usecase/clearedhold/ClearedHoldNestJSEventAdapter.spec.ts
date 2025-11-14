@@ -113,12 +113,12 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)
 
       const savedClearing = await clearingHoldRepository.findOne({
-        where: { clearingId: 1, bondContractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(savedClearing).toBeDefined()
       expect(savedClearing).not.toBeNull()
-      expect(savedClearing!.clearingId).toBe(1)
+      expect(savedClearing!.id).toBe(1)
       expect(savedClearing!.bondContractId).toBe("0.0.6974684")
       expect(savedClearing!.holderAccountId).toBe("0.0.7654321")
       expect(savedClearing!.partition).toBe("0x7265736572766564000000000000000000000000000000000000000000000000")
@@ -144,7 +144,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       })
 
       const existingClearing = {
-        clearingId: 1,
+        id: 1,
         bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
@@ -173,9 +173,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
         "0x5678",
       )
 
-      await expect(eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)).rejects.toThrow(
-        ClearingFoundError,
-      )
+      await expect(eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)).rejects.toThrow(ClearingFoundError)
     })
 
     it("should create multiple clearing holds with different clearingIds successfully", async () => {
@@ -210,12 +208,12 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)
 
         const savedClearing = await clearingHoldRepository.findOne({
-          where: { clearingId, bondContractId: "0.0.6974684" },
+          where: { id: clearingId, bondContractId: "0.0.6974684" },
         })
 
         expect(savedClearing).toBeDefined()
         expect(savedClearing).not.toBeNull()
-        expect(savedClearing!.clearingId).toBe(clearingId)
+        expect(savedClearing!.id).toBe(clearingId)
         expect(savedClearing!.amount).toBe(`${1000 * clearingId}`)
       }
 
@@ -252,7 +250,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)
 
       const savedClearing = await clearingHoldRepository.findOne({
-        where: { clearingId: 1, bondContractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(savedClearing).toBeDefined()
@@ -300,7 +298,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       expect(clearingCreatedEvent).toBeDefined()
       expect(clearingCreatedEvent.clearing).toEqual(
         expect.objectContaining({
-          clearingId: 1,
+          id: 1,
           bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
@@ -350,7 +348,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ClearedHoldByPartitionDLTEvent.name)
 
         const savedClearing = await clearingHoldRepository.findOne({
-          where: { clearingId: i + 1, bondContractId: "0.0.6974684" },
+          where: { id: i + 1, bondContractId: "0.0.6974684" },
         })
 
         expect(savedClearing).toBeDefined()

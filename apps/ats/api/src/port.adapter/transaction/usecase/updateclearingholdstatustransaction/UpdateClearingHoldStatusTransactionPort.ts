@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
-import { UpdateClearingStatusTransactionRequest } from "./model/UpdateClearingStatusTransactionRequest"
+import { UpdateClearingHoldStatusTransactionRequest } from "./model/UpdateClearingHoldStatusTransactionRequest"
 
-export interface UpdateClearingStatusTransactionPort {
+export interface UpdateClearingHoldStatusTransactionPort {
   updateClearingStatusTransaction(
     bondContractId: string,
     holderAccountId: string,
     clearingId: number,
-    request: UpdateClearingStatusTransactionRequest,
+    request: UpdateClearingHoldStatusTransactionRequest,
   ): Promise<TransactionResponse>
 }

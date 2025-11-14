@@ -2,7 +2,7 @@
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator"
 
-export class BuildCreateClearingTransactionRequest extends BaseBuildTransactionRequest {
+export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransactionRequest {
   @IsNotEmpty()
   @IsString()
   holderAccountId: string

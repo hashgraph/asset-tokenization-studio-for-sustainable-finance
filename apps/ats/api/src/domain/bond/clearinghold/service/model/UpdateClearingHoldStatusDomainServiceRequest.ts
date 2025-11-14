@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, IsEnum } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional } from "class-validator"
 import { ClearingStatus } from "../../model/ClearingHold"
 
 export class UpdateClearingHoldStatusDomainServiceRequest {

@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsEnum, IsOptional } from "class-validator"
 
 export enum ClearingStatus {
@@ -9,7 +8,11 @@ export enum ClearingStatus {
   RECLAIMED = "RECLAIMED",
 }
 
-export class ClearingHold extends BaseEntity {
+export class ClearingHold {
+  @IsNotEmpty()
+  @IsNumber()
+  id: number
+
   @IsNotEmpty()
   @IsString()
   bondContractId: string
@@ -17,10 +20,6 @@ export class ClearingHold extends BaseEntity {
   @IsNotEmpty()
   @IsString()
   holderAccountId: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  clearingId: number
 
   @IsNotEmpty()
   @IsString()
@@ -57,4 +56,22 @@ export class ClearingHold extends BaseEntity {
   @IsNotEmpty()
   @IsString()
   operator: string
+
+  @IsNotEmpty()
+  @IsDate()
+  createdAt: Date
+
+  @IsNotEmpty()
+  @IsDate()
+  updatedAt: Date
+
+  isExpired(): boolean {
+    return new Date() > this.expirationDate
+  }
+
+  validateNotExpired(): void {
+    if (this.isExpired()) {
+      throw new Error(`Clearing ${this.id} has expired`)
+    }
+  }
 }

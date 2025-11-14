@@ -7,7 +7,7 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
-import { ClearingActionType } from "@app/bond/transaction/updateclearingtransaction/service/model/ClearingActionType"
+import { ClearingActionType } from "@app/bond/transaction/updateclearingholdtransaction/service/model/ClearingActionType"
 
 describe("UpdateClearingStatusTransaction API Integration", () => {
   let app: INestApplication
@@ -53,7 +53,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
         .send(updateClearingRequest)
         .expect(200)
 
@@ -73,7 +73,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
         .send(updateClearingRequest)
         .expect(200)
 
@@ -96,7 +96,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(200)
 
@@ -119,7 +119,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(400)
       }
@@ -133,12 +133,16 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         {},
         { format: "hedera" },
         { format: "hedera", accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc" },
-        { format: "hedera", accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc", partition: "0x72657365727665640000000000000000" },
+        {
+          format: "hedera",
+          accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+          partition: "0x72657365727665640000000000000000",
+        },
       ]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -159,7 +163,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(400)
       }
@@ -176,7 +180,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
         .send(updateClearingRequest)
         .expect(200)
 
@@ -203,7 +207,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(200)
 
@@ -229,7 +233,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(200)
 
@@ -251,7 +255,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(200)
 
@@ -274,7 +278,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(updateClearingRequest)
           .expect(200)
 

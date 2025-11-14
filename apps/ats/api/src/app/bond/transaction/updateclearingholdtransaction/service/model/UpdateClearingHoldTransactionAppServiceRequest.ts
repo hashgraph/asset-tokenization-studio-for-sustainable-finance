@@ -3,7 +3,7 @@ import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-
 import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum } from "class-validator"
 import { ClearingActionType } from "./ClearingActionType"
 
-export class UpdateClearingTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
+export class UpdateClearingHoldTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
   @IsString()
   holderAccountId: string

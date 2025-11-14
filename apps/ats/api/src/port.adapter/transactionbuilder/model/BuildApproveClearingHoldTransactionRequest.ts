@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
-export class BuildReclaimClearingTransactionRequest extends BaseTransactionRequest {
+export class BuildApproveClearingHoldTransactionRequest extends BaseTransactionRequest {
   holderAccountId: string
   partition?: string
   clearingId: number

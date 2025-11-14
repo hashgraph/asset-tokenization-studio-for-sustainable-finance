@@ -4,13 +4,12 @@ import { ClearingHold } from "../model/ClearingHold"
 
 export interface ClearingHoldRepository {
   save(clearing: ClearingHold): Promise<ClearingHold>
-  findById(id: string): Promise<ClearingHold | null>
-  findByClearingId(
+  findById(bondContractId: string, holderAccountId: string, clearingId: number): Promise<ClearingHold | null>
+  findAllByHolder(
     bondContractId: string,
     holderAccountId: string,
-    clearingId: number,
-  ): Promise<ClearingHold | null>
-  findAllByHolder(bondContractId: string, holderAccountId: string, pageOptions: PageOptions): Promise<Page<ClearingHold>>
+    pageOptions: PageOptions,
+  ): Promise<Page<ClearingHold>>
   update(clearing: ClearingHold): Promise<ClearingHold>
-  delete(id: string): Promise<void>
+  deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void>
 }

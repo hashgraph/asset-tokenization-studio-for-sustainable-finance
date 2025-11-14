@@ -51,7 +51,7 @@ describe("CancelClearingTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
         .send(cancelClearingRequest)
         .expect(200)
 
@@ -73,7 +73,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -95,7 +95,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(400)
       }
@@ -112,7 +112,7 @@ describe("CancelClearingTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -128,7 +128,7 @@ describe("CancelClearingTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
         .send(cancelClearingRequest)
         .expect(200)
 
@@ -154,7 +154,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -175,7 +175,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -196,7 +196,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -217,7 +217,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -239,7 +239,7 @@ describe("CancelClearingTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
           .send(cancelClearingRequest)
           .expect(200)
 

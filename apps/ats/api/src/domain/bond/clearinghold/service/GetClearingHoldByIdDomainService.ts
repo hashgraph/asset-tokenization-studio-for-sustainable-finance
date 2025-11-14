@@ -11,16 +11,8 @@ export class GetClearingHoldByIdDomainService {
     private readonly clearingRepository: ClearingHoldRepository,
   ) {}
 
-  async execute(
-    bondContractId: string,
-    holderAccountId: string,
-    clearingId: number,
-  ): Promise<ClearingHold> {
-    const clearing = await this.clearingRepository.findByClearingId(
-      bondContractId,
-      holderAccountId,
-      clearingId,
-    )
+  async execute(bondContractId: string, holderAccountId: string, clearingId: number): Promise<ClearingHold> {
+    const clearing = await this.clearingRepository.findById(bondContractId, holderAccountId, clearingId)
 
     if (!clearing) {
       throw new ClearingNotFoundError(`${bondContractId}/${holderAccountId}/${clearingId}`)

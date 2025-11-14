@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString, IsNumber, IsDate, IsOptional } from "class-valida
 import { Command } from "@hashgraph/green-bonds-shared-core"
 import { ClearingHold } from "@domain/bond/clearinghold/model/ClearingHold"
 
-export class CreateClearingHoldCommand extends Command<ClearingHold> {
+export class CreateClearingHoldCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
   bondContractId: string

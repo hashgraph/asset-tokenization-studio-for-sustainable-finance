@@ -30,6 +30,10 @@ import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
+import { BuildApproveClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingHoldTransactionRequest"
+import { BuildCancelClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingHoldTransactionRequest"
+import { BuildReclaimClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingHoldTransactionRequest"
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
@@ -394,7 +398,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async createClearingTransaction(req: BuildCreateClearingTransactionRequest): Promise<BuildTransactionResponse> {
+  async createClearingHoldTransaction(
+    req: BuildCreateClearingHoldTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
     const contractInterface = IClearingHoldCreation__factory.createInterface()
@@ -428,8 +434,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async approveClearingTransaction(
-    req: BuildApproveClearingTransactionRequest,
+  async approveClearingHoldTransaction(
+    req: BuildApproveClearingHoldTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
@@ -451,8 +457,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async cancelClearingTransaction(
-    req: BuildCancelClearingTransactionRequest,
+  async cancelClearingHoldTransaction(
+    req: BuildCancelClearingHoldTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
@@ -474,8 +480,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async reclaimClearingTransaction(
-    req: BuildReclaimClearingTransactionRequest,
+  async reclaimClearingHoldTransaction(
+    req: BuildReclaimClearingHoldTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 

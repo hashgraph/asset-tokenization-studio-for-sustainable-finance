@@ -13,7 +13,7 @@ export class CreateClearingHoldDomainService {
   ) {}
 
   async execute(request: CreateClearingHoldDomainServiceRequest): Promise<ClearingHold> {
-    const existingClearing = await this.clearingRepository.findByClearingId(
+    const existingClearing = await this.clearingRepository.findById(
       request.bondContractId,
       request.holderAccountId,
       request.clearingId,
@@ -23,9 +23,9 @@ export class CreateClearingHoldDomainService {
       throw new ClearingFoundError(request.clearingId)
     }
     const clearing = new ClearingHold()
+    clearing.id = request.clearingId
     clearing.bondContractId = request.bondContractId
     clearing.holderAccountId = request.holderAccountId
-    clearing.clearingId = request.clearingId
     clearing.partition = request.partition
     clearing.amount = request.amount
     clearing.expirationDate = request.expirationDate
@@ -35,6 +35,8 @@ export class CreateClearingHoldDomainService {
     clearing.data = request.data
     clearing.operatorData = request.operatorData
     clearing.operator = request.operator
+    clearing.createdAt = new Date()
+    clearing.updatedAt = new Date()
 
     return await this.clearingRepository.save(clearing)
   }

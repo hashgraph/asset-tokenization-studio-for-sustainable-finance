@@ -42,11 +42,11 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
   }
 
   const createTestClearing = async (
-    clearingId: number = 1,
+    id: number = 1,
     status: ClearingStatus = ClearingStatus.PENDING,
   ): Promise<BondClearingHoldPersistence> => {
     const clearing = {
-      clearingId,
+      id,
       bondContractId: "0.0.6974684",
       holderAccountId: "0.0.7654321",
       partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
@@ -130,7 +130,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
 
       const canceledClearing = await clearingHoldRepository.findOne({
-        where: { clearingId: 1, bondContractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(canceledClearing).toBeNull()
@@ -154,7 +154,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       )
     })
 
-    it("should publish ClearingCanceledEvent and ClearingBalanceChangedEvent after cancellation", async () => {
+    it("should publish ClearingCanceledEvent after cancellation", async () => {
       const publishedEvents: any[] = []
       jest.spyOn(eventBus, "publish").mockImplementation((event) => {
         publishedEvents.push(event)
@@ -187,7 +187,6 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       expect(publishedEvents.length).toBeGreaterThan(0)
       expect(publishedEvents.some((e) => e.constructor.name === "ClearingCanceledEvent")).toBeTruthy()
-      expect(publishedEvents.some((e) => e.constructor.name === "ClearingBalanceChangedEvent")).toBeTruthy()
     })
 
     it("should cancel multiple clearing holds with different clearingIds successfully", async () => {
@@ -222,7 +221,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
 
         const canceledClearing = await clearingHoldRepository.findOne({
-          where: { clearingId, bondContractId: "0.0.6974684" },
+          where: { id: clearingId, bondContractId: "0.0.6974684" },
         })
 
         expect(canceledClearing).toBeNull()
@@ -259,7 +258,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       // Verify that the clearing was deleted (address conversion was successful)
       const canceledClearing = await clearingHoldRepository.findOne({
-        where: { clearingId: 1, bondContractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(canceledClearing).toBeNull()
@@ -286,7 +285,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       for (let i = 0; i < partitions.length; i++) {
         const clearing = {
-          clearingId: i + 1,
+          id: i + 1,
           bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: partitions[i],
@@ -314,7 +313,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
 
         const canceledClearing = await clearingHoldRepository.findOne({
-          where: { clearingId: i + 1, bondContractId: "0.0.6974684" },
+          where: { id: i + 1, bondContractId: "0.0.6974684" },
         })
 
         expect(canceledClearing).toBeNull()

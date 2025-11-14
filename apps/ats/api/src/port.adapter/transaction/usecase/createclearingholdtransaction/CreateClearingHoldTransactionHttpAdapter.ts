@@ -10,7 +10,7 @@ import { CreateClearingTransactionAppService } from "@app/bond/transaction/creat
 export class CreateClearingHoldTransactionHttpAdapter implements CreateClearingHoldTransactionPort {
   constructor(private readonly createClearingHoldTransactionAppService: CreateClearingTransactionAppService) {}
 
-  @Post(":bondContractId/holders/:holderAccountId/clearings")
+  @Post(":bondContractId/holders/:holderAccountId/clearings/hold")
   async createClearingTransaction(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,

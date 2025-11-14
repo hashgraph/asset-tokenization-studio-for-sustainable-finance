@@ -8,11 +8,9 @@ import { CancelClearingTransactionAppService } from "@app/bond/transaction/cance
 
 @RestController("bonds")
 export class CancelClearingTransactionHttpAdapter implements CancelClearingTransactionPort {
-  constructor(
-    private readonly cancelClearingTransactionAppService: CancelClearingTransactionAppService,
-  ) {}
+  constructor(private readonly cancelClearingTransactionAppService: CancelClearingTransactionAppService) {}
 
-  @Delete(":bondContractId/holders/:holderAccountId/clearings/:clearingId")
+  @Delete(":bondContractId/holders/:holderAccountId/clearings/:clearingId/hold")
   async cancelClearingTransaction(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
