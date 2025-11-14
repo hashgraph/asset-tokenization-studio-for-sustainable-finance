@@ -96,6 +96,11 @@ import { PauseBondNestJSEventAdapter } from "@port/bond/usecase/pausebond/PauseB
 import { UnpauseBondNestJSEventAdapter } from "@port/bond/usecase/unpausebond/UnpauseBondNestJSEventAdapter"
 import { GetControlListMembersHttpAdapter } from "@port/bond/usecase/getcontrollistmembers/GetControlListMembersHttpAdapter"
 import { GetControlListMembersQueryHandler } from "@app/bond/getcontrollistmembers/query/GetControlListMembersQueryHandler"
+import { TransferByPartitionTransactionHttpAdapter } from "@port/transaction/usecase/transferbypartitiontransaction/TransferByPartitionTransactionHttpAdapter"
+import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/transferbypartitiontransaction/service/TransferByPartitionTransactionAppService"
+import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
+import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
+import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -146,6 +151,7 @@ export const CONTROLLERS = [
   ReleaseBondLockTransactionHttpAdapter,
   PauseBondTransactionHttpAdapter,
   UnpauseBondTransactionHttpAdapter,
+  TransferByPartitionTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -206,6 +212,10 @@ export const PROVIDERS = [
   UnpauseBondCommandHandler,
   PauseBondNestJSEventAdapter,
   UnpauseBondNestJSEventAdapter,
+  TransferByPartitionTransactionAppService,
+  TransferByPartitionCommandHandler,
+  TransferByPartitionNestJSEventAdapter,
+  TransferBondHolderBalanceDomainService,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
