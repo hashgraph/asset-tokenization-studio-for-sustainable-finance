@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { IsNotEmpty } from "class-validator"
-import { Query, QueryPageOptions } from "@hashgraph/green-bonds-shared-core"
-import { BondDocumentsQueryResponse } from "./BondDocumentsQueryResponse"
+import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
+import { BondDocumentResponse } from "./BondDocumentQueryResponse"
 
-export class GetBondDocumentsQuery extends Query<BondDocumentsQueryResponse> {
+export class GetBondDocumentsQuery extends Query<QueryPageResponse<BondDocumentResponse>> {
   @IsNotEmpty()
   readonly bondContractId: string
 

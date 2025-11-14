@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-import { QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
-import { BondDocumentsResponse } from "@port/bond/usecase/getbonddocuments/model/BondDocumentsResponse"
+import { PageResponse, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { BondDocumentResponse } from "@port/bond/usecase/getbonddocuments/model/BondDocumentsResponse"
 
 export interface GetBondDocumentsPort {
-  getBondDocuments(bondContractId: string, queryPageRequest: QueryPageRequest): Promise<BondDocumentsResponse>
+  getBondDocuments(bondContractId: string, queryPageRequest: QueryPageRequest): Promise<PageResponse<BondDocumentResponse>>
 }

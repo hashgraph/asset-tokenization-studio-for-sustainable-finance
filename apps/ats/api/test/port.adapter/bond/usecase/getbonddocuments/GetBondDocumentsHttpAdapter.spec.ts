@@ -83,7 +83,11 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
-        documents: [],
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
       })
     })
 
@@ -126,10 +130,14 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
         .send()
         .expect(HttpStatus.OK)
 
-      expect(response.body.documents).toHaveLength(2)
+      expect(response.body.items).toHaveLength(2)
+      expect(response.body.total).toBe(2)
+      expect(response.body.page).toBe(1)
+      expect(response.body.limit).toBe(10)
+      expect(response.body.totalPages).toBe(1)
 
       // Sort by name to ensure consistent comparison
-      const documents = response.body.documents.sort((a: any, b: any) => a.name.localeCompare(b.name))
+      const documents = response.body.items.sort((a: any, b: any) => a.name.localeCompare(b.name))
 
       expect(documents[0]).toMatchObject({
         name: "prospectus",
@@ -178,17 +186,37 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
         .send()
         .expect(HttpStatus.OK)
 
-      expect(response.body.documents).toHaveLength(2)
+      expect(response.body.items).toHaveLength(2)
+      expect(response.body.total).toBe(5)
+      expect(response.body.page).toBe(1)
+      expect(response.body.limit).toBe(2)
+      expect(response.body.totalPages).toBe(3)
 
       const response2 = await request(app.getHttpServer())
         .get(`/api/v1/ats/bonds/${bond.contractId}/documents?page=2&limit=2`)
         .send()
         .expect(HttpStatus.OK)
 
-      expect(response2.body.documents).toHaveLength(2)
+      expect(response2.body.items).toHaveLength(2)
+      expect(response2.body.total).toBe(5)
+      expect(response2.body.page).toBe(2)
+      expect(response2.body.limit).toBe(2)
+      expect(response2.body.totalPages).toBe(3)
 
-      const page1Names = response.body.documents.map((doc: any) => doc.name).sort()
-      const page2Names = response2.body.documents.map((doc: any) => doc.name).sort()
+      // Verify page 3 has only 1 item (5 total items with limit 2)
+      const response3 = await request(app.getHttpServer())
+        .get(`/api/v1/ats/bonds/${bond.contractId}/documents?page=3&limit=2`)
+        .send()
+        .expect(HttpStatus.OK)
+
+      expect(response3.body.items).toHaveLength(1)
+      expect(response3.body.total).toBe(5)
+      expect(response3.body.page).toBe(3)
+      expect(response3.body.limit).toBe(2)
+      expect(response3.body.totalPages).toBe(3)
+
+      const page1Names = response.body.items.map((doc: any) => doc.name).sort()
+      const page2Names = response2.body.items.map((doc: any) => doc.name).sort()
       expect(page1Names).not.toEqual(page2Names)
     })
 
@@ -225,10 +253,14 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
         .send()
         .expect(HttpStatus.OK)
 
-      expect(response.body.documents).toHaveLength(1)
-      expect(response.body.documents[0].hash).toBe(expectedHash)
-      expect(response.body.documents[0].name).toBe("audit_report")
-      expect(response.body.documents[0].uri).toBe("ipfs://QmAuditReportHash")
+      expect(response.body.items).toHaveLength(1)
+      expect(response.body.total).toBe(1)
+      expect(response.body.page).toBe(1)
+      expect(response.body.limit).toBe(10)
+      expect(response.body.totalPages).toBe(1)
+      expect(response.body.items[0].hash).toBe(expectedHash)
+      expect(response.body.items[0].name).toBe("audit_report")
+      expect(response.body.items[0].uri).toBe("ipfs://QmAuditReportHash")
     })
   })
 })
