@@ -71,7 +71,11 @@ import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/up
 import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
 import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
-import { TypeOrmTransactionManager } from "@hashgraph/green-bonds-shared-core"
+import {
+  COMMON_FUNCTIONALITY_ENTITIES,
+  COMMON_FUNCTIONALITY_PROVIDERS,
+  TypeOrmTransactionManager,
+} from "@hashgraph/green-bonds-shared-core"
 import { ReleaseBondLockTransactionHttpAdapter } from "@port/transaction/usecase/releasebondlocktransaction/ReleaseBondLockTransactionHttpAdapter"
 import { ReleaseBondLockTransactionAppService } from "@app/bond/transaction/releasebondlocktransaction/service/ReleaseBondLockTransactionAppService"
 import { ReleaseBondLockCommandHandler } from "@app/bond/releasebondlock/command/ReleaseBondLockCommandHandler"
@@ -84,6 +88,12 @@ import { GetBondLockHttpAdapter } from "@port/bond/usecase/getbondlock/GetBondLo
 import { GetBondLockQueryHandler } from "@app/bond/getbondlock/query/GetBondLockQueryHandler"
 import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/GetBondHoldersHttpAdapter"
 import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
+import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
+import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
+import { PauseBondCommandHandler } from "@app/bond/pausebond/command/PauseBondCommandHandler"
+import { UnpauseBondCommandHandler } from "@app/bond/unpausebond/command/UnpauseBondCommandHandler"
+import { PauseBondNestJSEventAdapter } from "@port/bond/usecase/pausebond/PauseBondNestJSEventAdapter"
+import { UnpauseBondNestJSEventAdapter } from "@port/bond/usecase/unpausebond/UnpauseBondNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -131,9 +141,12 @@ export const CONTROLLERS = [
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
   ReleaseBondLockTransactionHttpAdapter,
+  PauseBondTransactionHttpAdapter,
+  UnpauseBondTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
+  ...COMMON_FUNCTIONALITY_PROVIDERS,
   AppService,
   CreateBondTransactionAppService,
   CreateBondNestJSEventAdapter,
@@ -185,6 +198,10 @@ export const PROVIDERS = [
   ReleaseBondLockNestJSEventAdapter,
   DeleteBondLockDomainService,
   UnlockBondHolderBalanceDomainService,
+  PauseBondCommandHandler,
+  UnpauseBondCommandHandler,
+  PauseBondNestJSEventAdapter,
+  UnpauseBondNestJSEventAdapter,
   CreateBondFiltersAdapter,
   {
     provide: "TransactionBuilderPort",
@@ -197,6 +214,7 @@ export const PROVIDERS = [
 ]
 export const ENTITIES = [
   ...EVENT_LISTENER_ENTITIES,
+  ...COMMON_FUNCTIONALITY_ENTITIES,
   BondPersistence,
   BondDocumentPersistence,
   BondControlListMemberPersistence,

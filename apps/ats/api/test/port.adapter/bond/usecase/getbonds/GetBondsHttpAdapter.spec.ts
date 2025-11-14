@@ -108,6 +108,7 @@ describe("GetBondsHttpAdapter API Integration", () => {
         maturityDate: bond.maturityDate.toISOString(),
         maxSupply: bond.maxSupply,
         isin: bond.isin,
+        isPaused: false,
       })
     })
 

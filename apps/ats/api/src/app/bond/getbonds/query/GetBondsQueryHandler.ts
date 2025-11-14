@@ -35,6 +35,7 @@ export class GetBondsQueryHandler implements QueryHandler<GetBondsQuery, QueryPa
       startingDate: bond.startingDate,
       maturityDate: bond.maturityDate,
       maxSupply: bond.maxSupply,
+      isPaused: bond.isPaused,
     }))
   }
 }

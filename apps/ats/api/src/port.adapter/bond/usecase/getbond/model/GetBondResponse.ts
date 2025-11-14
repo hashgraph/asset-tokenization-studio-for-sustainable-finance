@@ -16,6 +16,7 @@ export class GetBondResponse {
   readonly maturityDate: Date
   readonly maxSupply: string
   readonly isin: string
+  readonly isPaused: boolean
 
   static fromGetBondQueryResponse(this: void, queryResponse: GetBondQueryResponse): GetBondResponse {
     const response = new GetBondResponse()
@@ -33,6 +34,7 @@ export class GetBondResponse {
       maturityDate: queryResponse.maturityDate,
       maxSupply: queryResponse.maxSupply,
       isin: queryResponse.isin,
+      isPaused: queryResponse.isPaused,
     })
     return response
   }

@@ -38,4 +38,7 @@ export class BondPersistence extends BaseEntityPersistence {
 
   @Column({ type: "varchar" })
   maxSupply: string
+
+  @Column({ type: "boolean", default: false })
+  isPaused: boolean
 }
