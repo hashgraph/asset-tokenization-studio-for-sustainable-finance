@@ -68,6 +68,8 @@ import {
 import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 import { RenounceRoleNestJSEventAdapter } from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
+import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
+import { ApplyRolesNestJSEventAdapter } from "@port/role/usecase/applyroles/ApplyRolesNestJSEventAdapter"
 import { PausePrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/pauseprimarymarket/PausePrimaryMarketTransactionHttpAdapter"
 import { UnpausePrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarket/UnpausePrimaryMarketTransactionHttpAdapter"
 import { PausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/pauseprimarymarket/PausePrimaryMarketNestJSEventAdapter"
@@ -95,7 +97,7 @@ export const CONTROLLERS = [
   CreateOfferingTransactionHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
-  GrantRoleTransactionHttpAdapter,
+  ApplyRolesTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
@@ -132,6 +134,7 @@ export const PROVIDERS = [
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   RenounceRoleNestJSEventAdapter,
+  ApplyRolesNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
   PausePrimaryMarketNestJSEventAdapter,
