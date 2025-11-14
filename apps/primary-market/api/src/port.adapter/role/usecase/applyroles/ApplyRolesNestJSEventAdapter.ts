@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Singleton, Handler, ConverterUtils } from "@hashgraph/green-bonds-shared-core"
-import { SyncUserRolesPort } from "./SyncUserRolesPort"
+import { ApplyRolesPort } from "./ApplyRolesPort"
 import {
   RolesAppliedDLTEvent,
   SyncUserRolesAppService,
@@ -9,7 +9,7 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 
 @Singleton()
-export class SyncUserRolesNestJSEventAdapter implements SyncUserRolesPort {
+export class ApplyRolesNestJSEventAdapter implements ApplyRolesPort {
   constructor(private readonly syncUserRolesAppService: SyncUserRolesAppService) {}
 
   @Handler(RolesAppliedDLTEvent)

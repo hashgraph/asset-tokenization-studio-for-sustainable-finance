@@ -69,7 +69,7 @@ import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantR
 import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
 import { RenounceRoleNestJSEventAdapter } from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
-import { SyncUserRolesNestJSEventAdapter } from "@port/role/usecase/syncuserroles/SyncUserRolesNestJSEventAdapter"
+import { ApplyRolesNestJSEventAdapter } from "@port/role/usecase/applyroles/ApplyRolesNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -126,7 +126,7 @@ export const PROVIDERS = [
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   RenounceRoleNestJSEventAdapter,
-  SyncUserRolesNestJSEventAdapter,
+  ApplyRolesNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,

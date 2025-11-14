@@ -169,5 +169,113 @@ describe("ApplyRolesTransaction API Integration", () => {
         .send(requestBody)
         .expect(400)
     })
+
+    it("should return 400 for missing required fields", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+      const invalidRequests = [
+        {},
+        { format: "hedera" },
+        { accountId: userAccountId },
+      ]
+
+      for (const invalidRequest of invalidRequests) {
+        await request(app.getHttpServer())
+          .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+          .send(invalidRequest)
+          .expect(400)
+      }
+    })
+
+    it("should return 400 when rolesToGrant is not an array", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+
+      const requestBody = {
+        format: "hedera",
+        accountId: userAccountId,
+        rolesToGrant: "not-an-array",
+        rolesToRevoke: [],
+      }
+
+      await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+        .send(requestBody)
+        .expect(400)
+    })
+
+    it("should return 400 when rolesToRevoke is not an array", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+
+      const requestBody = {
+        format: "hedera",
+        accountId: userAccountId,
+        rolesToGrant: [],
+        rolesToRevoke: "not-an-array",
+      }
+
+      await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+        .send(requestBody)
+        .expect(400)
+    })
+
+    it("should handle both arrays empty simultaneously", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+
+      const requestBody = {
+        format: "hedera",
+        accountId: userAccountId,
+        rolesToGrant: [],
+        rolesToRevoke: [],
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+        .send(requestBody)
+        .expect(201)
+
+      expect(response.body).toHaveProperty("unsignedTx")
+    })
+
+    it("should handle missing rolesToGrant field", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+      const roleRevoke = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+
+      const requestBody = {
+        format: "hedera",
+        accountId: userAccountId,
+        rolesToRevoke: [roleRevoke],
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+        .send(requestBody)
+        .expect(201)
+
+      expect(response.body).toHaveProperty("unsignedTx")
+    })
+
+    it("should handle missing rolesToRevoke field", async () => {
+      const marketContractId = "0.0.789012"
+      const userAccountId = "0.0.123456789"
+      const roleGrant = "0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb"
+
+      const requestBody = {
+        format: "hedera",
+        accountId: userAccountId,
+        rolesToGrant: [roleGrant],
+      }
+
+      const response = await request(app.getHttpServer())
+        .post(`/api/v1/primary-markets/${marketContractId}/users/${userAccountId}/roles`)
+        .send(requestBody)
+        .expect(201)
+
+      expect(response.body).toHaveProperty("unsignedTx")
+    })
   })
 })
