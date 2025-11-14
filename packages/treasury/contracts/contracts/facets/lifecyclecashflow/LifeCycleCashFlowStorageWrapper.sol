@@ -1002,15 +1002,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     }
 
     /**
-     * @dev Resize the results of a redemption payment operation.
+     * @dev Resize the results of a distribution payment operation.
      *
      * @param inputResult The input result containing the original arrays of
-     *                    failed addresses, succeeded addresses, and paid amounts.
+     *                    failed addresses, succeeded addresses, already paid addresses
+     *                    and paid amounts.
      * @param payingArraysIndexes An struct containing the size of holders who were
-     *                    successfully paid and holders who don't.
+     *                    successfully paid, holders who don't, and holders who were already paid.
      *
      * @return outputResult The resized result containing the updated arrays of
-     *                      failed addresses, succeeded addresses, and paid amounts.
+     *                      failed addresses, succeeded addresses, already paid addresses
+     *                      and paid amounts.
      */
     function _resizeDistributionResults(
         ILifeCycleCashFlow.DistributionPaymentResult memory inputResult,
