@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString } from "class-validator"
-import { ClearingQueryResponse } from "./ClearingQueryResponse"
+import { ClearingQueryResponse } from "./ClearingHoldQueryResponse"
 
-export class GetClearingsQuery extends Query<QueryPageResponse<ClearingQueryResponse>> {
+export class GetHoldClearingsQuery extends Query<QueryPageResponse<ClearingQueryResponse>> {
   @IsString()
   @IsNotEmpty()
   bondContractId: string

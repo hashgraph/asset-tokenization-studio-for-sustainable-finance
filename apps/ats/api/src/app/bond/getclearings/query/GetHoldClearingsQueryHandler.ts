@@ -1,17 +1,26 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Handler, Inject, QueryHandler, QueryPageResponse, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { GetClearingsQuery } from "./GetClearingsQuery"
-import { ClearingQueryResponse } from "./ClearingQueryResponse"
+import {
+  Handler,
+  Inject,
+  QueryHandler,
+  QueryPageResponse,
+  Singleton,
+  Validate,
+} from "@hashgraph/green-bonds-shared-core"
+import { GetHoldClearingsQuery } from "./GetHoldClearingsQuery"
 import { GetClearingsHoldDomainService } from "@domain/bond/clearinghold/service/GetClearingsHoldDomainService"
 import { ClearingHold } from "@domain/bond/clearinghold/model/ClearingHold"
+import { ClearingHoldQueryResponse } from "@app/bond/getclearing/query/ClearingHoldQueryResponse"
 
 @Singleton()
-@Handler(GetClearingsQuery)
-export class GetClearingsQueryHandler implements QueryHandler<GetClearingsQuery, QueryPageResponse<ClearingQueryResponse>> {
+@Handler(GetHoldClearingsQuery)
+export class GetHoldClearingsQueryHandler
+  implements QueryHandler<GetHoldClearingsQuery, QueryPageResponse<ClearingHoldQueryResponse>>
+{
   constructor(private readonly getClearingsDomainService: GetClearingsHoldDomainService) {}
 
   @Validate()
-  async execute(query: GetClearingsQuery): Promise<QueryPageResponse<ClearingQueryResponse>> {
+  async execute(query: GetHoldClearingsQuery): Promise<QueryPageResponse<ClearingHoldQueryResponse>> {
     const page = await this.getClearingsDomainService.execute(
       query.bondContractId,
       query.holderAccountId,
@@ -22,7 +31,6 @@ export class GetClearingsQueryHandler implements QueryHandler<GetClearingsQuery,
       id: clearing.id,
       bondContractId: clearing.bondContractId,
       holderAccountId: clearing.holderAccountId,
-      clearingId: clearing.clearingId,
       partition: clearing.partition,
       amount: clearing.amount,
       expirationDate: clearing.expirationDate,
@@ -32,6 +40,8 @@ export class GetClearingsQueryHandler implements QueryHandler<GetClearingsQuery,
       data: clearing.data,
       operatorData: clearing.operatorData,
       operator: clearing.operator,
+      createdAt: clearing.createdAt,
+      updatedAt: clearing.updatedAt,
     }))
   }
 }

@@ -3,8 +3,8 @@ import { Inject, PageResponse, RestController, QueryPageRequest } from "@hashgra
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import { GetClearingsPort } from "./GetClearingsPort"
-import { GetClearingsQuery } from "@app/bond/getclearings/query/GetClearingsQuery"
-import { ClearingQueryResponse } from "@app/bond/getclearings/query/ClearingQueryResponse"
+import { GetHoldClearingsQuery } from "@app/bond/getclearings/query/GetHoldClearingsQuery"
+import { ClearingQueryResponse } from "@app/bond/getclearings/query/ClearingHoldQueryResponse"
 
 @RestController("bonds")
 export class GetClearingsHttpAdapter implements GetClearingsPort {
@@ -17,7 +17,7 @@ export class GetClearingsHttpAdapter implements GetClearingsPort {
     @Query() queryPageRequest: QueryPageRequest,
   ): Promise<PageResponse<ClearingQueryResponse>> {
     const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetClearingsQuery(bondContractId, holderAccountId, queryPageOptions)
+    const query = new GetHoldClearingsQuery(bondContractId, holderAccountId, queryPageOptions)
     return await this.queryBus.execute(query)
   }
 }

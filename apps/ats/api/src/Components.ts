@@ -141,8 +141,8 @@ import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearinghold
 import { DeleteClearingHoldDomainService } from "@domain/bond/clearinghold/service/DeleteClearingHoldDomainService"
 import { GetClearingsHoldDomainService } from "@domain/bond/clearinghold/service/GetClearingsHoldDomainService"
 import { GetClearingHoldByIdDomainService } from "@domain/bond/clearinghold/service/GetClearingHoldByIdDomainService"
-import { GetClearingsQueryHandler } from "@app/bond/getclearings/query/GetClearingsQueryHandler"
-import { GetClearingQueryHandler } from "@app/bond/getclearing/query/GetClearingQueryHandler"
+import { GetHoldClearingsQueryHandler } from "@app/bond/getclearings/query/GetHoldClearingsQueryHandler"
+import { GetClearingHoldQueryHandler } from "@app/bond/getclearing/query/GetClearingHoldQueryHandler"
 import { ClearedHoldNestJSEventAdapter } from "@port/bond/usecase/clearedhold/ClearedHoldNestJSEventAdapter"
 import {
   ClearingOperationApprovedNestJSEventAdapter,
@@ -313,8 +313,8 @@ export const PROVIDERS = [
   DeleteClearingHoldDomainService,
   GetClearingsHoldDomainService,
   GetClearingHoldByIdDomainService,
-  GetClearingsQueryHandler,
-  GetClearingQueryHandler,
+  GetHoldClearingsQueryHandler,
+  GetClearingHoldQueryHandler,
   ClearedHoldNestJSEventAdapter,
   ClearingOperationApprovedNestJSEventAdapter,
   CancelClearingHoldOperationNestJSEventAdapter,

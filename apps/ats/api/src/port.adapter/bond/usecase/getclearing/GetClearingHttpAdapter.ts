@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
-import {Inject, RestController} from "@hashgraph/green-bonds-shared-core"
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetClearingResponse } from "./model/GetClearingResponse"
 import { Get, Param } from "@nestjs/common"
 import { GetClearingPort } from "./GetClearingPort"
-import { GetClearingQuery } from "@app/bond/getclearing/query/GetClearingQuery"
+import { GetClearingHoldQuery } from "@app/bond/getclearing/query/GetClearingHoldQuery"
 
 @RestController("bonds")
 export class GetClearingHttpAdapter implements GetClearingPort {
@@ -17,7 +17,7 @@ export class GetClearingHttpAdapter implements GetClearingPort {
     @Param("clearingId") clearingId: number,
   ): Promise<GetClearingResponse> {
     const clearing = (await this.queryBus.execute(
-      new GetClearingQuery(bondContractId, holderAccountId, clearingId),
+      new GetClearingHoldQuery(bondContractId, holderAccountId, clearingId),
     )) as any
 
     return new GetClearingResponse(clearing)

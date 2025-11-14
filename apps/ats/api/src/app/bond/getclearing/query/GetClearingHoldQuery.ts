@@ -3,7 +3,7 @@ import { Query } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsNumber } from "class-validator"
 import { ClearingHold } from "@domain/bond/clearinghold/model/ClearingHold"
 
-export class GetClearingQuery extends Query<ClearingHold> {
+export class GetClearingHoldQuery extends Query<ClearingHold> {
   @IsString()
   @IsNotEmpty()
   bondContractId: string
