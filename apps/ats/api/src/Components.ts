@@ -96,6 +96,8 @@ import { PauseBondNestJSEventAdapter } from "@port/bond/usecase/pausebond/PauseB
 import { UnpauseBondNestJSEventAdapter } from "@port/bond/usecase/unpausebond/UnpauseBondNestJSEventAdapter"
 import { GetControlListMembersHttpAdapter } from "@port/bond/usecase/getcontrollistmembers/GetControlListMembersHttpAdapter"
 import { GetControlListMembersQueryHandler } from "@app/bond/getcontrollistmembers/query/GetControlListMembersQueryHandler"
+import { GetBondDocumentsHttpAdapter } from "@port/bond/usecase/getbonddocuments/GetBondDocumentsHttpAdapter"
+import { GetBondDocumentsQueryHandler } from "@app/bond/getbonddocuments/query/GetBondDocumentsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -137,6 +139,7 @@ export const CONTROLLERS = [
   SetBondCouponTransactionHttpAdapter,
   GetBondCouponsHttpAdapter,
   GetBondCouponHttpAdapter,
+  GetBondDocumentsHttpAdapter,
   GetBondLocksHttpAdapter,
   GetBondLockHttpAdapter,
   GetBondHoldersHttpAdapter,
@@ -160,6 +163,7 @@ export const PROVIDERS = [
   GetBondsQueryHandler,
   GetBondCouponsQueryHandler,
   GetBondCouponQueryHandler,
+  GetBondDocumentsQueryHandler,
   GetBondLocksQueryHandler,
   GetBondLockQueryHandler,
   GetBondHoldersQueryHandler,
