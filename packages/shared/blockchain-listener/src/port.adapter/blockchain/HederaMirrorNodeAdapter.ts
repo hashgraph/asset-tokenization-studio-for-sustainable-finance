@@ -218,7 +218,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     let result = param[0]
     for (let index = 1; index < param.length; index++) {
       if (param[index].indexOf(")") > -1) {
-        const paramPossibleRest = param[1].substring(param[1].indexOf(")"))
+        const paramPossibleRest = param[index].substring(param[index].indexOf(")"))
         result = result + paramPossibleRest
       }
     }
