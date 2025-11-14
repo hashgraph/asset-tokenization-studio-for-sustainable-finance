@@ -25,10 +25,10 @@ export class RevokeRoleCommandHandler implements CommandHandler<RevokeRoleComman
     const userRole = await this.checkUserRoleExistsDomainService.execute(
       command.accountId,
       command.roleId,
-      command.treasuryContractId,
+      command.contractId,
     )
     await this.userRoleRepository.delete(userRole)
 
-    this.eventBus.publish(new RoleRevokedEvent(command.accountId, command.roleId, command.treasuryContractId))
+    this.eventBus.publish(new RoleRevokedEvent(command.accountId, command.roleId, command.contractId))
   }
 }

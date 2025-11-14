@@ -86,6 +86,8 @@ import { GetBondLocksHttpAdapter } from "@port/bond/usecase/getbondlocks/GetBond
 import { GetBondLocksQueryHandler } from "@app/bond/getbondlocks/query/GetBondLocksQueryHandler"
 import { GetBondLockHttpAdapter } from "@port/bond/usecase/getbondlock/GetBondLockHttpAdapter"
 import { GetBondLockQueryHandler } from "@app/bond/getbondlock/query/GetBondLockQueryHandler"
+import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/GetBondHoldersHttpAdapter"
+import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
 import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
 import { PauseBondCommandHandler } from "@app/bond/pausebond/command/PauseBondCommandHandler"
@@ -135,6 +137,7 @@ export const CONTROLLERS = [
   GetBondCouponHttpAdapter,
   GetBondLocksHttpAdapter,
   GetBondLockHttpAdapter,
+  GetBondHoldersHttpAdapter,
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
   ReleaseBondLockTransactionHttpAdapter,
@@ -156,6 +159,7 @@ export const PROVIDERS = [
   GetBondCouponQueryHandler,
   GetBondLocksQueryHandler,
   GetBondLockQueryHandler,
+  GetBondHoldersQueryHandler,
   SetBondDocumentTransactionAppService,
   SetBondDocumentCommandHandler,
   SetBondDocumentNestJSEventAdapter,

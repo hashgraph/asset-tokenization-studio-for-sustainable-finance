@@ -13,6 +13,7 @@ import { BaseTransactionBuilderPort } from "@transaction/BaseTransactionBuilderP
 import { BuildPauseTransactionRequest } from "@transaction/model/BuildPauseTransactionRequest"
 import { BuildUnpauseTransactionRequest } from "@transaction/model/BuildUnpauseTransactionRequest"
 import { BuildRenounceRoleTransactionRequest } from "@transaction/model/BuildRenounceRoleTransactionRequest"
+import { BuildApplyRolesTransactionRequest } from "@transaction/model/BuildApplyRolesTransactionRequest"
 
 export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPort {
   protected readonly GAS = 15_000_000
@@ -70,6 +71,23 @@ export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPo
       account: request.accountId,
       format: request.format as "hedera" | "ethereum",
       args: [request.roleId],
+    } as any)
+  }
+
+  async applyRoles(request: BuildApplyRolesTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndSerializeTransaction({
+      contractInterface: IAccessControl__factory.createInterface(),
+      functionName: "applyRoles" as any,
+      contractId: request.contractId,
+      gas: this.GAS,
+      environment: this.getEnvironment(),
+      account: request.accountId,
+      format: request.format as "hedera" | "ethereum",
+      args: [
+        request.roles,
+        request.actives,
+        await ConverterUtils.getEvmAddressFromHederaAddress(request.userAccountId),
+      ],
     } as any)
   }
 

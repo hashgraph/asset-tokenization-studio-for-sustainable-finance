@@ -39,12 +39,13 @@ describe("CreateBondTransaction API Integration", () => {
     }
   })
 
-  describe("POST /bonds/factories/:factoryContractId/bond-transactions", () => {
+  describe("POST /bonds", () => {
     it("should create bond with valid request data", async () => {
-      const factoryContractId = "0.0.67890"
       const createBondRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
+        factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        factorySuiteAddress: "0.0.67890",
         securityTokenToCreate: {
           name: "Green Energy Bond",
           symbol: "GEB",
@@ -87,7 +88,7 @@ describe("CreateBondTransaction API Integration", () => {
           configVersion: 1,
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          erc721Addresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+          environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
         },
         kpiData: {
           adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -95,23 +96,21 @@ describe("CreateBondTransaction API Integration", () => {
         },
       }
 
-      const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
-        .send(createBondRequest)
-        .expect(201)
+      const response = await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(201)
 
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
 
     it("should handle different valid format values", async () => {
-      const factoryContractId = "0.0.67890"
       const formats = ["hedera", "ethereum"]
 
       for (const format of formats) {
         const createBondRequest = {
           format: format,
           accountId: "0.0.5466269",
+          factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+          factorySuiteAddress: "0.0.67890",
           securityTokenToCreate: {
             name: "Green Energy Bond",
             symbol: "GEB",
@@ -154,7 +153,7 @@ describe("CreateBondTransaction API Integration", () => {
             configVersion: 1,
             paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            erc721Addresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+            environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
           },
           kpiData: {
             adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -163,7 +162,7 @@ describe("CreateBondTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
+          .post(`/api/v1/ats/bonds`)
           .send(createBondRequest)
           .expect(201)
 
@@ -172,13 +171,14 @@ describe("CreateBondTransaction API Integration", () => {
     })
 
     it("should return 400 for invalid format values", async () => {
-      const factoryContractId = "0.0.67890"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
         const createBondRequest = {
           format,
           accountId: "0.0.12345",
+          factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+          factorySuiteAddress: "0.0.67890",
           securityTokenToCreate: {
             name: "Test Bond",
             symbol: "TB",
@@ -221,7 +221,7 @@ describe("CreateBondTransaction API Integration", () => {
             configVersion: 1,
             paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            erc721Addresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+            environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
           },
           kpiData: {
             adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -229,30 +229,24 @@ describe("CreateBondTransaction API Integration", () => {
           },
         }
 
-        await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
-          .send(createBondRequest)
-          .expect(400)
+        await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(400)
       }
     })
 
     it("should return 400 for missing required fields", async () => {
-      const factoryContractId = "0.0.67890"
       const invalidRequests = [{}, { format: "hedera" }, { name: "Test Bond" }, { format: "hedera", name: "Test Bond" }]
 
       for (const invalidRequest of invalidRequests) {
-        await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
-          .send(invalidRequest)
-          .expect(400)
+        await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(invalidRequest).expect(400)
       }
     })
 
     it("should reject invalid decimals value", async () => {
-      const factoryContractId = "0.0.67890"
       const createBondRequest = {
         format: "hedera",
         accountId: "0.0.12345",
+        factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        factorySuiteAddress: "0.0.67890",
         securityTokenToCreate: {
           name: "Test Bond",
           symbol: "TB",
@@ -295,7 +289,7 @@ describe("CreateBondTransaction API Integration", () => {
           configVersion: 1,
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          erc721Addresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+          environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
         },
         kpiData: {
           adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -303,17 +297,15 @@ describe("CreateBondTransaction API Integration", () => {
         },
       }
 
-      await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
-        .send(createBondRequest)
-        .expect(400)
+      await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(400)
     })
 
     it("should reject invalid coupon rate value", async () => {
-      const factoryContractId = "0.0.67890"
       const createBondRequest = {
         format: "hedera",
         accountId: "0.0.12345",
+        factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        factorySuiteAddress: "0.0.67890",
         securityTokenToCreate: {
           name: "Test Bond",
           symbol: "TB",
@@ -356,7 +348,7 @@ describe("CreateBondTransaction API Integration", () => {
           configVersion: 1,
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          erc721Addresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
+          environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
         },
         kpiData: {
           adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -364,10 +356,7 @@ describe("CreateBondTransaction API Integration", () => {
         },
       }
 
-      await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/factories/${factoryContractId}/bond-transactions`)
-        .send(createBondRequest)
-        .expect(400)
+      await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(400)
     })
   })
 })

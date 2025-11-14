@@ -14,12 +14,12 @@ export class GrantRoleCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  treasuryContractId: string
+  contractId: string
 
-  constructor(accountId: string, roleId: string, treasuryContractId: string) {
+  constructor(accountId: string, roleId: string, contractId: string) {
     super()
     this.accountId = accountId
     this.roleId = roleId
-    this.treasuryContractId = treasuryContractId
+    this.contractId = contractId
   }
 }

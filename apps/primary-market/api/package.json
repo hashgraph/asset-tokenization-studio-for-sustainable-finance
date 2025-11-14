@@ -21,7 +21,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "1.15.2",
     "@hashgraph/green-bonds-blockchain-listener": "*",
     "@hashgraph/green-bonds-platform-primarymarket-contracts": "*",
     "@hashgraph/green-bonds-shared-core": "*",

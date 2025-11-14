@@ -5,6 +5,7 @@ import { AppController } from "./AppController"
 import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { Provider } from "@nestjs/common"
 import { CreateOfferingTransactionHttpAdapter } from "@port/transaction/usecase/createoffering/CreateOfferingTransactionHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
 import { SubmitSubscriptionTransactionHttpAdapter } from "@port/transaction/usecase/submitsubscription/SubmitSubscriptionTransactionHttpAdapter"
 import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
 import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
@@ -64,6 +65,9 @@ import {
   UserRolePersistence,
   COMMON_FUNCTIONALITY_PROVIDERS,
 } from "@hashgraph/green-bonds-shared-core"
+import { GrantRoleNestJSEventAdapter } from "@port/role/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/renouncerole/RenounceRoleTransactionHttpAdapter"
+import { RenounceRoleNestJSEventAdapter } from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -83,6 +87,9 @@ const REPOSITORIES: Provider[] = [
 export const CONTROLLERS = [
   AppController,
   CreateOfferingTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RenounceRoleTransactionHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
   SubmitSubscriptionTransactionHttpAdapter,
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
@@ -115,6 +122,8 @@ export const PROVIDERS = [
   UpdateSubscriptionsStatusDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
+  GrantRoleNestJSEventAdapter,
+  RenounceRoleNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
   CreateOfferingCommandHandler,

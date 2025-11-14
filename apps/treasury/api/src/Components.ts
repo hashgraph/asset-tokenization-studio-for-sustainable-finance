@@ -146,6 +146,8 @@ import { GetRoleMembersHttpAdapter } from "@port/treasury/usecase/getrolemembers
 import { GrantRoleNestJSEventAdapter } from "@port/treasury/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { RevokeRoleNestJSEventAdapter } from "@port/treasury/usecase/revokerole/RevokeRoleNestJSEventAdapter"
 import { RenounceRoleNestJSEventAdapter } from "@port/treasury/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
+import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
+import { SyncUserRolesNestJSEventAdapter } from "@port/treasury/usecase/syncuserroles/SyncUserRolesNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -242,6 +244,7 @@ export const CONTROLLERS = [
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
   RenounceRoleTransactionHttpAdapter,
+  ApplyRolesTransactionHttpAdapter,
   GetUserRolesHttpAdapter,
   GetRoleMembersHttpAdapter,
 ]
@@ -342,4 +345,5 @@ export const PROVIDERS = [
   GrantRoleNestJSEventAdapter,
   RevokeRoleNestJSEventAdapter,
   RenounceRoleNestJSEventAdapter,
+  SyncUserRolesNestJSEventAdapter,
 ]
