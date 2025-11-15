@@ -23,5 +23,5 @@ export class TreasuryRequest {
   ownerAccountAddress: string
 
   @IsString({ each: true })
-  erc721Addresses: string[]
+  environmentalAssetsAddresses: string[]
 }
