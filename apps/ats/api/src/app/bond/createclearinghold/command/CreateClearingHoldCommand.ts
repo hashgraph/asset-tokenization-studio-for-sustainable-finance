@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, IsDate, IsOptional } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsDate } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CreateClearingHoldCommand extends Command<void> {

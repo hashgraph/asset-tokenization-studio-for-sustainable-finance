@@ -32,7 +32,7 @@ export class ClearingBondHolderBalanceDomainService {
     const amountBigInt = BigInt(amount)
 
     switch (operation) {
-      case "CLEARING_LOCK":
+      case "CLEARING_LOCK": {
         const available = BigInt(balance.availableBalance)
 
         if (available < amountBigInt) {
@@ -48,8 +48,8 @@ export class ClearingBondHolderBalanceDomainService {
         balance.availableBalance = (available - amountBigInt).toString()
         balance.clearingBalance = (BigInt(balance.clearingBalance) + amountBigInt).toString()
         break
-
-      case "CLEARING_UNLOCK":
+      }
+      case "CLEARING_UNLOCK": {
         const clearing = BigInt(balance.clearingBalance)
 
         if (clearing < amountBigInt) {
@@ -65,8 +65,8 @@ export class ClearingBondHolderBalanceDomainService {
         balance.clearingBalance = (clearing - amountBigInt).toString()
         balance.availableBalance = (BigInt(balance.availableBalance) + amountBigInt).toString()
         break
-
-      case "CLEARING_EXECUTE":
+      }
+      case "CLEARING_EXECUTE": {
         const clearingBalance = BigInt(balance.clearingBalance)
 
         if (clearingBalance < amountBigInt) {
@@ -82,7 +82,7 @@ export class ClearingBondHolderBalanceDomainService {
         balance.clearingBalance = (clearingBalance - amountBigInt).toString()
         balance.heldBalance = (BigInt(balance.heldBalance) + amountBigInt).toString()
         break
-
+      }
       default:
         throw InvalidClearingOperationError.unknownOperation(operation)
     }

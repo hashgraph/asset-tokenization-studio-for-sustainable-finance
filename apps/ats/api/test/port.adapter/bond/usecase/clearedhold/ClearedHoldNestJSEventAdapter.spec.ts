@@ -263,7 +263,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       const publishedEvents: any[] = []
       jest.spyOn(eventBus, "publish").mockImplementation((event) => {
         publishedEvents.push(event)
-        return Promise.resolve()
+        void Promise.resolve()
       })
 
       await createTestBond("0.0.6974684")

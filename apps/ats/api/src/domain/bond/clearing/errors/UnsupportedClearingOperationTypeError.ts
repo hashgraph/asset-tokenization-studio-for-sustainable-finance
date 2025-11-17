@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DomainError } from "@hashgraph/green-bonds-shared-core"
-import { ClearingOperationType } from "@domain/bond/model/ClearingOperationType"
+import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 
 export class UnsupportedClearingOperationTypeError extends DomainError {
   constructor(operationType: ClearingOperationType, supportedTypes: ClearingOperationType[]) {

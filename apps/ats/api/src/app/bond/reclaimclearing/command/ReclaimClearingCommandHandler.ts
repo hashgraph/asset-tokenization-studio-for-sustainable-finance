@@ -3,12 +3,10 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { ReclaimClearingCommand } from "./ReclaimClearingCommand"
-import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/DeleteClearingHoldDomainService"
-import { DeleteClearingDomainServiceRequest } from "@domain/bond/clearing/service/model/DeleteClearingDomainServiceRequest"
 import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
 import { ClearingReclaimedEvent } from "@domain/bond/clearing/event/ClearingReclaimedEvent"
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
-import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
+import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
 import { UpdateClearingStatusDomainServiceRequest } from "@domain/bond/clearing/service/model/UpdateClearingStatusDomainServiceRequest"
 import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
@@ -51,9 +49,11 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
       case ClearingOperationType.HOLD:
         return await this.updateClearingHoldStatusDomainService.execute(request)
       case ClearingOperationType.TRANSFER:
-      // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
+        // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
+        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       case ClearingOperationType.REDEEM:
-      // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
+        // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
+        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

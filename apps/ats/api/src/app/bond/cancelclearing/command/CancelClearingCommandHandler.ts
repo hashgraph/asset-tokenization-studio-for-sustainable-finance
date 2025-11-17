@@ -8,7 +8,7 @@ import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalan
 import { ClearingCanceledEvent } from "@domain/bond/clearing/event/ClearingCanceledEvent"
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
 import { CancelClearingCommand } from "@app/bond/cancelclearing/command/CancelClearingCommand"
-import { ClearingOperationType } from "@domain/bond/model/ClearingOperationType"
+import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 
 @Singleton()
 @Handler(CancelClearingCommand)
@@ -46,13 +46,12 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
     switch (command.clearingOperationType) {
       case ClearingOperationType.HOLD:
         return await this.deleteClearingHoldDomainService.execute(request)
-
       case ClearingOperationType.TRANSFER:
-      // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
-
+        // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
+        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       case ClearingOperationType.REDEEM:
-      // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
-
+        // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
+        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }
