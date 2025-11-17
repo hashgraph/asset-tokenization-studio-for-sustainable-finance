@@ -3,10 +3,10 @@ import { Request, Response, NextFunction } from "express"
 import { Logger } from "@hashgraph/green-bonds-shared-core"
 
 export class LoggerMiddleware implements NestMiddleware {
-  private readonly logger = new Logger("HTTP")
+  private readonly logger = new Logger(LoggerMiddleware.name)
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const startAt = process.hrtime()
+    const startAt = process.hrtime.bigint()
     const { method, originalUrl } = req
     const resLimit = +(process.env.LOG_RESPONSE_BODY_LIMIT ?? 500)
 
@@ -31,7 +31,7 @@ export class LoggerMiddleware implements NestMiddleware {
           bodyStr = `(non-text ${Buffer.byteLength(bodyStr)} bytes)`
         }
         if (bodyStr && bodyStr.length > resLimit) {
-          bodyStr = bodyStr.substring(0, resLimit)
+          bodyStr = bodyStr.substring(0, resLimit) + "..."
         }
         if (bodyStr) {
           ;(req as any)._resBodyLogged = bodyStr
@@ -42,12 +42,12 @@ export class LoggerMiddleware implements NestMiddleware {
 
     res.on("finish", () => {
       const { statusCode } = res
-      const contentLength = res.getHeader("content-length") as string | number | undefined
-      const diff = process.hrtime(startAt)
-      const responseTime = diff[0] * 1e3 + diff[1] * 1e-6
+      const diff = process.hrtime.bigint() - startAt
+      const responseTime = diff / BigInt(1e6)
       const bodyStr = (req as any)._resBodyLogged
       this.logger.log(
-        `RES ${method} ${originalUrl} ${statusCode} ${responseTime.toFixed(2)}ms ${contentLength ?? "-"} BODY: ${bodyStr ?? ""}`,
+        `New Request: ${method} ${originalUrl} ${statusCode} ${responseTime}ms` +
+          ` | Request Body: ${req.body ?? "{}"} | Response Body: ${bodyStr ?? ""}`,
       )
     })
 
