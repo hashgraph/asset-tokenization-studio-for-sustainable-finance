@@ -17,6 +17,7 @@ export class UpdateBondHolderBalanceDomainService {
     if (existing) {
       const amountBigInt = BigInt(amount)
       existing.availableBalance = (BigInt(existing.availableBalance) + amountBigInt).toString()
+      existing.updatedAt = new Date()
       await this.bondHolderBalanceRepository.save(existing)
     } else {
       const bondHolderBalance = new BondHolderBalance()

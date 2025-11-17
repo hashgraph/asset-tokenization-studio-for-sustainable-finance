@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Entity, Column, Index, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { ClearingStatus } from "@domain/bond/clearinghold/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
 
 @Entity("BondClearingHolds")
 @Index(["bondContractId", "holderAccountId", "id"], { unique: true })
@@ -31,10 +31,10 @@ export class BondClearingHoldPersistence {
   holdId?: string
 
   @Column({ type: "varchar", length: 255, nullable: true })
-  toAddress?: string
+  toAccountId?: string
 
   @Column({ type: "varchar", length: 255, nullable: true })
-  escrowAddress?: string
+  escrowAccountId?: string
 
   @Column({ type: "text", nullable: true })
   data?: string
@@ -43,7 +43,7 @@ export class BondClearingHoldPersistence {
   operatorData?: string
 
   @Column({ type: "varchar", length: 255 })
-  operator: string
+  operatorAccountId: string
 
   @CreateDateColumn()
   createdAt: Date

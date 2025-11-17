@@ -3,9 +3,9 @@ import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { ClearingHold } from "@domain/bond/clearinghold/model/ClearingHold"
+import { ClearingHold } from "@domain/bond/clearing/model/ClearingHold"
 import { BondClearingHoldPersistence } from "../model/BondClearingHoldPersistence"
-import { ClearingHoldRepository } from "@domain/bond/clearinghold/repository/ClearingHoldRepository"
+import { ClearingHoldRepository } from "@domain/bond/clearing/repository/ClearingHoldRepository"
 
 @Injectable()
 export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
@@ -23,22 +23,46 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     clearing.amount = persistence.amount
     clearing.expirationDate = persistence.expirationDate
     clearing.status = persistence.status
-    clearing.toAddress = persistence.toAddress
-    clearing.escrowAddress = persistence.escrowAddress
+    clearing.toAccountId = persistence.toAccountId
+    clearing.escrowAccountId = persistence.escrowAccountId
     clearing.data = persistence.data
     clearing.operatorData = persistence.operatorData
-    clearing.operator = persistence.operator
+    clearing.operatorAccountId = persistence.operatorAccountId
     clearing.createdAt = persistence.createdAt
     clearing.updatedAt = persistence.updatedAt
     return clearing
   }
 
+  private toPersistence(clearing: ClearingHold): BondClearingHoldPersistence {
+    const persistence = new BondClearingHoldPersistence()
+    persistence.id = clearing.id
+    persistence.bondContractId = clearing.bondContractId
+    persistence.holderAccountId = clearing.holderAccountId
+    persistence.partition = clearing.partition
+    persistence.amount = clearing.amount
+    persistence.expirationDate = clearing.expirationDate
+    persistence.status = clearing.status
+    persistence.toAccountId = clearing.toAccountId
+    persistence.escrowAccountId = clearing.escrowAccountId
+    persistence.data = clearing.data
+    persistence.operatorData = clearing.operatorData
+    persistence.operatorAccountId = clearing.operatorAccountId
+    persistence.createdAt = clearing.createdAt
+    persistence.updatedAt = clearing.updatedAt
+    return persistence
+  }
+
   async save(clearing: ClearingHold): Promise<ClearingHold> {
-    const saved = await this.repository.save(clearing as BondClearingHoldPersistence)
+    const persistence = this.toPersistence(clearing)
+    const saved = await this.repository.save(persistence)
     return this.toDomain(saved)
   }
 
-  async findById(bondContractId: string, holderAccountId: string, clearingId: number): Promise<ClearingHold | null> {
+  async findByContractIdHolderAccountIdAndId(
+    bondContractId: string,
+    holderAccountId: string,
+    clearingId: number,
+  ): Promise<ClearingHold | null> {
     const persistence = await this.repository.findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
     })
@@ -70,7 +94,8 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
   }
 
   async update(clearing: ClearingHold): Promise<ClearingHold> {
-    const updated = await this.repository.save(clearing as BondClearingHoldPersistence)
+    const persistence = this.toPersistence(clearing)
+    const updated = await this.repository.save(persistence)
     return this.toDomain(updated)
   }
 

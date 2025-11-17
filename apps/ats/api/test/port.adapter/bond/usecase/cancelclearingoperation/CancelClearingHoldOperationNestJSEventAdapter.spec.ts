@@ -11,8 +11,8 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 import { ClearingOperationCanceledDLTEvent } from "@port/bond/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearinghold/model/ClearingHold"
-import { ClearingNotFoundError } from "@domain/bond/clearinghold/errors/ClearingNotFoundError"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
@@ -53,9 +53,9 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       amount: "1000",
       expirationDate: new Date("2025-12-31"),
       status,
-      operator: "0.0.1234567",
-      toAddress: "0.0.8888888",
-      escrowAddress: "0.0.8888888",
+      operatorAccountId: "0.0.1234567",
+      toAccountId: "0.0.8888888",
+      escrowAccountId: "0.0.8888888",
       data: "0x1234",
       operatorData: "0x5678",
     }
@@ -115,6 +115,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
@@ -124,7 +125,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        0,
+        2, // ClearingOperationType.HOLD
       )
 
       await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
@@ -146,7 +147,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         999,
-        0,
+        2, // ClearingOperationType.HOLD
       )
 
       await expect(eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)).rejects.toThrow(
@@ -171,6 +172,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
@@ -180,7 +182,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        0,
+        2, // ClearingOperationType.HOLD
       )
 
       await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
@@ -199,6 +201,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "7000",
         lockedBalance: "0",
         clearingBalance: "3000",
+        heldBalance: "0",
       })
 
       const clearingIds = [1, 2, 3]
@@ -215,7 +218,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
           clearingId,
-          0,
+          2, // ClearingOperationType.HOLD
         )
 
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
@@ -242,6 +245,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
@@ -251,7 +255,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        0,
+        2, // ClearingOperationType.HOLD
       )
 
       await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
@@ -280,6 +284,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           availableBalance: "9000",
           lockedBalance: "0",
           clearingBalance: "1000",
+          heldBalance: "0",
         })
       }
 
@@ -292,9 +297,9 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           amount: "1000",
           expirationDate: new Date("2025-12-31"),
           status: ClearingStatus.PENDING,
-          operator: "0.0.1234567",
-          toAddress: "0.0.8888888",
-          escrowAddress: "0.0.8888888",
+          operatorAccountId: "0.0.1234567",
+          toAccountId: "0.0.8888888",
+          escrowAccountId: "0.0.8888888",
         }
         await clearingHoldRepository.save(clearing)
       }
@@ -307,7 +312,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
           i + 1,
-          0,
+          2, // ClearingOperationType.HOLD
         )
 
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
@@ -333,6 +338,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "8000",
         lockedBalance: "0",
         clearingBalance: "2000",
+        heldBalance: "0",
       })
 
       // Create clearings with different statuses
@@ -348,7 +354,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
           clearingId,
-          0,
+          2, // ClearingOperationType.HOLD
         )
 
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)

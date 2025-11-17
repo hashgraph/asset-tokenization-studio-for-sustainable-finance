@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsOptional } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
-import { ClearingHold } from "@domain/bond/clearinghold/model/ClearingHold"
 
 export class CreateClearingHoldCommand extends Command<void> {
   @IsNotEmpty()
@@ -30,11 +29,11 @@ export class CreateClearingHoldCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  toAddress: string
+  toAccountId: string
 
   @IsNotEmpty()
   @IsString()
-  escrowAddress: string
+  escrowAccountId: string
 
   @IsNotEmpty()
   @IsString()
@@ -46,7 +45,7 @@ export class CreateClearingHoldCommand extends Command<void> {
 
   @IsNotEmpty()
   @IsString()
-  operator: string
+  operatorAccountId: string
 
   constructor(
     bondContractId: string,
@@ -55,11 +54,11 @@ export class CreateClearingHoldCommand extends Command<void> {
     partition: string,
     amount: string,
     expirationDate: Date,
-    toAddress: string,
-    escrowAddress: string,
+    toAccountId: string,
+    escrowAccountId: string,
     data: string,
     operatorData: string,
-    operator: string,
+    operatorAccountId: string,
   ) {
     super()
     this.bondContractId = bondContractId
@@ -68,10 +67,10 @@ export class CreateClearingHoldCommand extends Command<void> {
     this.partition = partition
     this.amount = amount
     this.expirationDate = expirationDate
-    this.toAddress = toAddress
-    this.escrowAddress = escrowAddress
+    this.toAccountId = toAccountId
+    this.escrowAccountId = escrowAccountId
     this.data = data
     this.operatorData = operatorData
-    this.operator = operator
+    this.operatorAccountId = operatorAccountId
   }
 }

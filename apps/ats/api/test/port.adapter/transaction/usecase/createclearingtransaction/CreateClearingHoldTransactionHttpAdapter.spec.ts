@@ -141,6 +141,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         amount: "1000",
         expirationTimestamp: 1735689600000,
+        escrowAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
       }
 
       const response = await request(app.getHttpServer())
@@ -202,6 +203,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
           partition,
           amount: "1000",
           expirationTimestamp: 1735689600000,
+          escrowAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         }
 
         const response = await request(app.getHttpServer())
@@ -222,6 +224,7 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "999999999999999999",
         expirationTimestamp: 1735689600000,
+        escrowAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
       }
 
       const response = await request(app.getHttpServer())

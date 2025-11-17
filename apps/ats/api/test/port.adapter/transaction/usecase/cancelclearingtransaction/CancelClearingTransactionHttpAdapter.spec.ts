@@ -7,6 +7,7 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
+import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 
 describe("CancelClearingTransaction API Integration", () => {
   let app: INestApplication
@@ -48,10 +49,11 @@ describe("CancelClearingTransaction API Integration", () => {
         format: "hedera",
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        operationType: ClearingOperationType.HOLD,
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
         .send(cancelClearingRequest)
         .expect(200)
 
@@ -70,10 +72,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format,
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -92,10 +95,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format,
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(400)
       }
@@ -112,7 +116,7 @@ describe("CancelClearingTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -125,10 +129,11 @@ describe("CancelClearingTransaction API Integration", () => {
       const cancelClearingRequest = {
         format: "hedera",
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+        operationType: ClearingOperationType.HOLD,
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+        .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
         .send(cancelClearingRequest)
         .expect(200)
 
@@ -151,10 +156,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format: "hedera",
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -172,10 +178,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format: "hedera",
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -193,10 +200,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format: "hedera",
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -214,10 +222,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format: "hedera",
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 
@@ -236,10 +245,11 @@ describe("CancelClearingTransaction API Integration", () => {
           format,
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .delete(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}`)
           .send(cancelClearingRequest)
           .expect(200)
 

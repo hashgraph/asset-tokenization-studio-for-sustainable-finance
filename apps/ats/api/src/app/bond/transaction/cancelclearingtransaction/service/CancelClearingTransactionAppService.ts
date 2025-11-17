@@ -8,6 +8,6 @@ export class CancelClearingTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
   async execute(request: CancelClearingTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
-    return await this.transactionBuilderPort.cancelClearingHoldTransaction(request)
+    return await this.transactionBuilderPort.cancelClearingTransaction(request)
   }
 }

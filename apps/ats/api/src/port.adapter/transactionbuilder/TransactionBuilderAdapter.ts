@@ -42,6 +42,9 @@ import { BuildCreateClearingTransactionRequest } from "@port/transactionbuilder/
 import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
 import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
 import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -418,7 +421,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const hold = {
       amount: req.amount,
       expirationTimestamp: req.expirationTimestamp,
-      escrow: req.escrowAddress || this.EVM_ZERO_ADDRESS,
+      escrow: req.escrowAddress,
       to: req.toAddress || this.EVM_ZERO_ADDRESS,
       data: req.data || "0x",
     }
@@ -434,9 +437,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async approveClearingHoldTransaction(
-    req: BuildApproveClearingHoldTransactionRequest,
-  ): Promise<BuildTransactionResponse> {
+  async approveClearingTransaction(req: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
     const clearingOperationIdentifier = {
@@ -457,9 +458,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async cancelClearingHoldTransaction(
-    req: BuildCancelClearingHoldTransactionRequest,
-  ): Promise<BuildTransactionResponse> {
+  async cancelClearingTransaction(req: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
     const clearingOperationIdentifier = {
@@ -480,9 +479,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
-  async reclaimClearingHoldTransaction(
-    req: BuildReclaimClearingHoldTransactionRequest,
-  ): Promise<BuildTransactionResponse> {
+  async reclaimClearingTransaction(req: BuildReclaimClearingTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition || this.DEFAULT_PARTITION
 
     const clearingOperationIdentifier = {

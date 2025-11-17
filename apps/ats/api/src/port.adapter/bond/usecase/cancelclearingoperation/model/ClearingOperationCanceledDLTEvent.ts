@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
+import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 
 export class ClearingOperationCanceledDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
   readonly clearingId: number
-  readonly clearingOperationType: number
+  readonly clearingOperationType: ClearingOperationType
 
   constructor(
     contractId: string,
@@ -15,7 +16,7 @@ export class ClearingOperationCanceledDLTEvent extends DLTEvent {
     tokenHolder: string,
     partition: string,
     clearingId: number,
-    clearingOperationType: number,
+    clearingOperationType: ClearingOperationType,
   ) {
     super(contractId, transactionHash)
     this.operator = operator

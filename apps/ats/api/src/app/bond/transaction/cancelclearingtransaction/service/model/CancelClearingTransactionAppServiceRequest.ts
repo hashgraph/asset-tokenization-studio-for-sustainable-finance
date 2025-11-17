@@ -1,6 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsEnum } from "class-validator"
+
+export enum ClearingOperationType {
+  TRANSFER = 0,
+  REDEEM = 1,
+  HOLD = 2,
+}
 
 export class CancelClearingTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
@@ -16,8 +22,8 @@ export class CancelClearingTransactionAppServiceRequest extends BaseTransactionA
   clearingId: number
 
   @IsNotEmpty()
-  @IsNumber()
-  readonly operationType: number = 2 // Always HOLD type
+  @IsEnum(ClearingOperationType)
+  readonly operationType: ClearingOperationType
 
   constructor(
     format: string,
@@ -26,10 +32,12 @@ export class CancelClearingTransactionAppServiceRequest extends BaseTransactionA
     holderAccountId: string,
     partition: string | undefined,
     clearingId: number,
+    operationType: ClearingOperationType,
   ) {
     super(format, accountId, bondContractId)
     this.holderAccountId = holderAccountId
     this.partition = partition
     this.clearingId = clearingId
+    this.operationType = operationType
   }
 }

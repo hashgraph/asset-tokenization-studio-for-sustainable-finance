@@ -11,8 +11,8 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 import { ClearedHoldByPartitionDLTEvent } from "@port/bond/usecase/clearedhold/model/ClearedHoldByPartitionDLTEvent"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingFoundError } from "@domain/bond/clearinghold/errors/ClearingFoundError"
-import { ClearingStatus } from "@domain/bond/clearinghold/model/ClearingHold"
+import { ClearingFoundError } from "@domain/bond/clearing/errors/ClearingFoundError"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("ClearedHoldNestJSEventAdapter Integration", () => {
@@ -125,9 +125,9 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       expect(savedClearing!.amount).toBe("1000")
       expect(savedClearing!.expirationDate).toEqual(new Date(1735689600 * 1000))
       expect(savedClearing!.status).toBe(ClearingStatus.PENDING)
-      expect(savedClearing!.operator).toBe("0.0.1234567")
-      expect(savedClearing!.toAddress).toBe("0.0.8888888")
-      expect(savedClearing!.escrowAddress).toBe("0.0.8888888")
+      expect(savedClearing!.operatorAccountId).toBe("0.0.1234567")
+      expect(savedClearing!.toAccountId).toBe("0.0.8888888")
+      expect(savedClearing!.escrowAccountId).toBe("0.0.8888888")
       expect(savedClearing!.data).toBe("0x1234")
       expect(savedClearing!.operatorData).toBe("0x5678")
     })
@@ -151,9 +151,9 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
         amount: "500",
         expirationDate: new Date("2024-12-01"),
         status: ClearingStatus.PENDING,
-        operator: "0.0.1234567",
-        toAddress: "0.0.8888888",
-        escrowAddress: "0.0.8888888",
+        operatorAccountId: "0.0.1234567",
+        toAccountId: "0.0.8888888",
+        escrowAccountId: "0.0.8888888",
       }
 
       await clearingHoldRepository.save(existingClearing)
@@ -256,7 +256,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
       expect(savedClearing).toBeDefined()
       expect(savedClearing!.bondContractId).toMatch(/^0\.0\.\d+$/)
       expect(savedClearing!.holderAccountId).toMatch(/^0\.0\.\d+$/)
-      expect(savedClearing!.operator).toMatch(/^0\.0\.\d+$/)
+      expect(savedClearing!.operatorAccountId).toMatch(/^0\.0\.\d+$/)
     })
 
     it("should publish CreatedClearingEvent after successful clearing hold creation", async () => {
@@ -305,7 +305,7 @@ describe("ClearedHoldNestJSEventAdapter Integration", () => {
           amount: "1000",
           expirationDate: new Date(1735689600 * 1000),
           status: ClearingStatus.PENDING,
-          operator: "0.0.1234567",
+          operatorAccountId: "0.0.1234567",
         }),
       )
       expect(clearingCreatedEvent.timestamp).toEqual(expect.any(Number))

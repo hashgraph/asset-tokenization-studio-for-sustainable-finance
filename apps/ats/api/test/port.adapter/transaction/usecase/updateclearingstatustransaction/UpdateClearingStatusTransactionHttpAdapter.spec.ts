@@ -8,6 +8,7 @@ import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { ClearingActionType } from "@app/bond/transaction/updateclearingholdtransaction/service/model/ClearingActionType"
+import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 
 describe("UpdateClearingStatusTransaction API Integration", () => {
   let app: INestApplication
@@ -50,6 +51,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         action: ClearingActionType.APPROVE,
+        operationType: ClearingOperationType.HOLD,
       }
 
       const response = await request(app.getHttpServer())
@@ -70,6 +72,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         action: ClearingActionType.RECLAIM,
+        operationType: ClearingOperationType.HOLD,
       }
 
       const response = await request(app.getHttpServer())
@@ -93,6 +96,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           action: ClearingActionType.APPROVE,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
@@ -116,6 +120,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           action: ClearingActionType.APPROVE,
+          operationType: ClearingOperationType.HOLD,
         }
 
         await request(app.getHttpServer())
@@ -160,6 +165,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           action,
+          operationType: ClearingOperationType.HOLD,
         }
 
         await request(app.getHttpServer())
@@ -177,6 +183,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         format: "hedera",
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         action: ClearingActionType.APPROVE,
+        operationType: ClearingOperationType.HOLD,
       }
 
       const response = await request(app.getHttpServer())
@@ -204,6 +211,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition,
           action: ClearingActionType.APPROVE,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
@@ -230,6 +238,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition,
           action: ClearingActionType.RECLAIM,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
@@ -252,6 +261,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           action: ClearingActionType.APPROVE,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())
@@ -275,6 +285,7 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           action,
+          operationType: ClearingOperationType.HOLD,
         }
 
         const response = await request(app.getHttpServer())

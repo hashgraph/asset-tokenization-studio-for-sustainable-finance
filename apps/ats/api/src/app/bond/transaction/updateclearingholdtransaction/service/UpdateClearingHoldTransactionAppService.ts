@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Inject, Singleton, TransactionAppServiceResponse } from "@hashgraph/green-bonds-shared-core"
 import type { TransactionBuilderPort } from "@port/transactionbuilder/TransactionBuilderPort"
-import { UpdateClearingHoldTransactionAppServiceRequest } from "@app/bond/transaction/updateclearingholdtransaction/service/model/UpdateClearingHoldTransactionAppServiceRequest"
+import { UpdateClearingTransactionAppServiceRequest } from "@app/bond/transaction/updateclearingholdtransaction/service/model/UpdateClearingTransactionAppServiceRequest"
 import { ClearingActionType } from "@app/bond/transaction/updateclearingholdtransaction/service/model/ClearingActionType"
-import { BuildApproveClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingHoldTransactionRequest"
-import { BuildReclaimClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingHoldTransactionRequest"
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
+import { InvalidClearingActionError } from "@domain/bond/clearing/errors/InvalidClearingActionError"
 
 @Singleton()
 export class UpdateClearingHoldTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  async execute(request: UpdateClearingHoldTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+  async execute(request: UpdateClearingTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
     switch (request.action) {
       case ClearingActionType.APPROVE: {
-        const buildRequest = new BuildApproveClearingHoldTransactionRequest(
+        const buildRequest = new BuildApproveClearingTransactionRequest(
           request.format,
           request.accountId ?? "",
           request.contractId,
@@ -22,10 +23,10 @@ export class UpdateClearingHoldTransactionAppService {
           request.clearingId,
           request.operationType,
         )
-        return await this.transactionBuilderPort.approveClearingHoldTransaction(buildRequest)
+        return await this.transactionBuilderPort.approveClearingTransaction(buildRequest)
       }
       case ClearingActionType.RECLAIM: {
-        const buildRequest = new BuildReclaimClearingHoldTransactionRequest(
+        const buildRequest = new BuildReclaimClearingTransactionRequest(
           request.format,
           request.accountId ?? "",
           request.contractId,
@@ -34,10 +35,10 @@ export class UpdateClearingHoldTransactionAppService {
           request.clearingId,
           request.operationType,
         )
-        return await this.transactionBuilderPort.reclaimClearingHoldTransaction(buildRequest)
+        return await this.transactionBuilderPort.reclaimClearingTransaction(buildRequest)
       }
       default:
-        throw new Error(`Invalid clearing action: ${request.action}`)
+        throw InvalidClearingActionError.forAction(request.action)
     }
   }
 }

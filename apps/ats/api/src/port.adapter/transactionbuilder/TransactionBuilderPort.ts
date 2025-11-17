@@ -13,15 +13,16 @@ import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
-import { BuildCreateClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingTransactionRequest"
-import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
-import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
-import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
-import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
-import { BuildApproveClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingHoldTransactionRequest"
-import { BuildCancelClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingHoldTransactionRequest"
-import { BuildReclaimClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingHoldTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
+import {
+  BuildApproveClearingTransactionRequest
+} from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import {
+  BuildReclaimClearingTransactionRequest
+} from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
+import {
+  BuildCancelClearingTransactionRequest
+} from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -43,17 +44,9 @@ export interface TransactionBuilderPort {
     request: BuildRemoveProceedRecipientTransactionRequest,
   ): Promise<BuildTransactionResponse>
   transferByPartitionTransaction(request: BuildTransferByPartitionTransactionRequest): Promise<BuildTransactionResponse>
-  createClearingTransaction(request: BuildCreateClearingTransactionRequest): Promise<BuildTransactionResponse>
-  approveClearingTransaction(
-    request: BuildApproveClearingTransactionRequest,
-  ): Promise<BuildTransactionResponse>
-  cancelClearingTransaction(request: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse>
-  reclaimClearingTransaction(
-    request: BuildReclaimClearingTransactionRequest,
-  ): Promise<BuildTransactionResponse>
-  createClearingHoldTransaction(request: BuildCreateClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
-  approveClearingHoldTransaction(request: BuildApproveClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
-  cancelClearingHoldTransaction(request: BuildCancelClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
-  reclaimClearingHoldTransaction(request: BuildReclaimClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
   redeemBondTransaction(request: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse>
+  createClearingHoldTransaction(request: BuildCreateClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
+  approveClearingTransaction(request: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse>
+  reclaimClearingTransaction(request: BuildReclaimClearingTransactionRequest): Promise<BuildTransactionResponse>
+  cancelClearingTransaction(request: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse>
 }

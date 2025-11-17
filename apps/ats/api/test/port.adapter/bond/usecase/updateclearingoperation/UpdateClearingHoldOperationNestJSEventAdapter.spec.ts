@@ -8,12 +8,12 @@ import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlCon
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ClearingOperationApprovedDLTEvent } from "@port/bond/usecase/updateclearingholdoperation/model/ClearingOperationApprovedDLTEvent"
-import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updateclearingholdoperation/model/ClearingOperationReclaimedDLTEvent"
+import { ClearingOperationApprovedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationApprovedDLTEvent"
+import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearinghold/model/ClearingHold"
-import { ClearingNotFoundError } from "@domain/bond/clearinghold/errors/ClearingNotFoundError"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
@@ -55,9 +55,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       amount: "1000",
       expirationDate: new Date("2025-12-31"),
       status,
-      operator: "0.0.1234567",
-      toAddress: "0.0.8888888",
-      escrowAddress: "0.0.8888888",
+      operatorAccountId: "0.0.1234567",
+      toAccountId: "0.0.8888888",
+      escrowAccountId: "0.0.8888888",
       data: "0x1234",
       operatorData: "0x5678",
       holdId,
@@ -120,6 +120,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
@@ -129,7 +130,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        1,
+        2, // ClearingOperationType.HOLD
         "hold-id-123", // holdId from smart contract
       )
 
@@ -154,7 +155,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         999,
-        1,
+        2, // ClearingOperationType.HOLD
         undefined, // no holdId
       )
 
@@ -163,7 +164,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       )
     })
 
-    it("should publish ClearingApprovedEvent and ClearingBalanceChangedEvent after approval", async () => {
+    it("should publish ClearingApprovedEvent after approval", async () => {
       const publishedEvents: any[] = []
       jest.spyOn(eventBus, "publish").mockImplementation((event) => {
         publishedEvents.push(event)
@@ -180,6 +181,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
@@ -189,14 +191,13 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        1,
+        2, // ClearingOperationType.HOLD
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
 
       expect(publishedEvents.length).toBeGreaterThan(0)
       expect(publishedEvents.some((e) => e.constructor.name === "ClearingApprovedEvent")).toBeTruthy()
-      expect(publishedEvents.some((e) => e.constructor.name === "ClearingBalanceChangedEvent")).toBeTruthy()
     })
 
     it("should approve multiple clearing holds with different clearingIds successfully", async () => {
@@ -209,6 +210,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "7000",
         lockedBalance: "0",
         clearingBalance: "3000",
+        heldBalance: "0",
       })
 
       const clearingIds = [1, 2, 3]
@@ -225,7 +227,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
           clearingId,
-          1,
+          2, // ClearingOperationType.HOLD
         )
 
         await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -243,7 +245,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       expect(allClearings.every((c) => c.status === ClearingStatus.APPROVED)).toBeTruthy()
     })
 
-    it("should move balance from clearingBalance to lockedBalance when clearing is approved", async () => {
+    it("should move balance from clearingBalance to heldBalance when clearing is approved", async () => {
       await createTestBond("0.0.6974684")
       await createTestClearing(1, ClearingStatus.PENDING)
 
@@ -255,6 +257,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
@@ -264,7 +267,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
-        1,
+        2, // ClearingOperationType.HOLD
         "hold-id-123",
       )
 
@@ -281,11 +284,11 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         },
       })
 
-      // Balance should move from clearing to locked
+      // Balance should move from clearing to held (CLEARING_EXECUTE operation)
       expect(updatedBalance).toBeDefined()
       expect(updatedBalance!.availableBalance).toBe("9000") // unchanged
       expect(updatedBalance!.clearingBalance).toBe("0") // 1000 - 1000
-      expect(updatedBalance!.lockedBalance).toBe("1000") // 0 + 1000
+      expect(updatedBalance!.heldBalance).toBe("1000") // 0 + 1000
     })
   })
 
@@ -301,6 +304,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationReclaimedDLTEvent(
@@ -315,11 +319,12 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, ClearingOperationReclaimedDLTEvent.name)
 
-      const deletedClearing = await clearingHoldRepository.findOne({
+      const reclaimedClearing = await clearingHoldRepository.findOne({
         where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
-      expect(deletedClearing).toBeNull()
+      expect(reclaimedClearing).toBeDefined()
+      expect(reclaimedClearing!.status).toBe(ClearingStatus.RECLAIMED)
     })
 
     it("should throw ClearingNotFoundError when clearing does not exist", async () => {
@@ -357,6 +362,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "9000",
         lockedBalance: "0",
         clearingBalance: "1000",
+        heldBalance: "0",
       })
 
       const event = new ClearingOperationReclaimedDLTEvent(
@@ -385,6 +391,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         availableBalance: "7000",
         lockedBalance: "0",
         clearingBalance: "3000",
+        heldBalance: "0",
       })
 
       const clearingIds = [1, 2, 3]
@@ -406,15 +413,17 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
 
         await eventBus.publishSync(event, ClearingOperationReclaimedDLTEvent.name)
 
-        const deletedClearing = await clearingHoldRepository.findOne({
+        const reclaimedClearing = await clearingHoldRepository.findOne({
           where: { id: clearingId, bondContractId: "0.0.6974684" },
         })
 
-        expect(deletedClearing).toBeNull()
+        expect(reclaimedClearing).toBeDefined()
+        expect(reclaimedClearing!.status).toBe(ClearingStatus.RECLAIMED)
       }
 
       const allClearings = await clearingHoldRepository.find()
-      expect(allClearings).toHaveLength(0)
+      expect(allClearings).toHaveLength(clearingIds.length)
+      expect(allClearings.every((c) => c.status === ClearingStatus.RECLAIMED)).toBeTruthy()
     })
   })
 })

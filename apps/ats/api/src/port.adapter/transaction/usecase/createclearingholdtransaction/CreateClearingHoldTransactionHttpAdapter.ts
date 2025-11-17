@@ -3,12 +3,12 @@ import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shar
 import { CreateClearingHoldTransactionRequest } from "./model/CreateClearingHoldTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
 import { CreateClearingHoldTransactionPort } from "./CreateClearingHoldTransactionPort"
-import { CreateClearingHoldTransactionAppServiceRequest } from "@app/bond/transaction/createclearingtransaction/service/model/CreateClearingHoldTransactionAppServiceRequest"
-import { CreateClearingTransactionAppService } from "@app/bond/transaction/createclearingtransaction/service/CreateClearingTransactionAppService"
+import { CreateClearingHoldTransactionAppServiceRequest } from "@app/bond/transaction/createclearingholdtransaction/service/model/CreateClearingHoldTransactionAppServiceRequest"
+import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
 
 @RestController("bonds")
 export class CreateClearingHoldTransactionHttpAdapter implements CreateClearingHoldTransactionPort {
-  constructor(private readonly createClearingHoldTransactionAppService: CreateClearingTransactionAppService) {}
+  constructor(private readonly createClearingHoldTransactionAppService: CreateClearingHoldTransactionAppService) {}
 
   @Post(":bondContractId/holders/:holderAccountId/clearings/hold")
   async createClearingTransaction(
@@ -24,8 +24,8 @@ export class CreateClearingHoldTransactionHttpAdapter implements CreateClearingH
       request.partition,
       request.amount,
       request.expirationTimestamp,
-      request.toAddress,
       request.escrowAddress,
+      request.toAddress,
       request.data,
     )
 
