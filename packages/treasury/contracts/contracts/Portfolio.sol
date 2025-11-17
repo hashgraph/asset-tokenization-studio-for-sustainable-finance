@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 // solhint-disable no-empty-blocks
 
-import {IPortfolio} from './interfaces/IPortfolio.sol';
-import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {PORTFOLIO_MANAGER_ROLE} from './constants/roles.sol';
+import { IPortfolio } from "./interfaces/IPortfolio.sol";
+import { PortfolioStorageWrapper } from "./PortfolioStorageWrapper.sol";
+import { PORTFOLIO_MANAGER_ROLE } from "./constants/roles.sol";
 
 abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
@@ -32,13 +32,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function addEnvironmentalAssetToken(
         address environmentalAsset
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PORTFOLIO_MANAGER_ROLE)
-        notAddressZero(environmentalAsset)
-    {
+    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) notAddressZero(environmentalAsset) {
         bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
             emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
@@ -63,11 +57,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         returns (int256 dissociationError)
     {
         dissociationError = _removeEnvironmentalAssetToken(environmentalAsset);
-        emit EnvironmentalAssetRemoved(
-            msg.sender,
-            environmentalAsset,
-            dissociationError
-        );
+        emit EnvironmentalAssetRemoved(msg.sender, environmentalAsset, dissociationError);
     }
 
     /**
@@ -88,15 +78,8 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         returns (int256 dissociationError)
     {
         address currentPaymentToken;
-        (dissociationError, currentPaymentToken) = _updatePaymentToken(
-            paymentToken
-        );
-        emit PaymentTokenUpdated(
-            msg.sender,
-            paymentToken,
-            currentPaymentToken,
-            dissociationError
-        );
+        (dissociationError, currentPaymentToken) = _updatePaymentToken(paymentToken);
+        emit PaymentTokenUpdated(msg.sender, paymentToken, currentPaymentToken, dissociationError);
     }
 
     /**
@@ -106,13 +89,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function dissociateToken(
         address token
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PORTFOLIO_MANAGER_ROLE)
-        notAddressZero(token)
-    {
+    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) notAddressZero(token) {
         _dissociateToken(token);
 
         emit TokenDissociated(token);
@@ -123,12 +100,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      *
      * @return total The total amount of environmental asset tokens associated to the treasury
      */
-    function getTotalEnvironmentalAssetTokens()
-        external
-        view
-        override
-        returns (uint256 total)
-    {
+    function getTotalEnvironmentalAssetTokens() external view override returns (uint256 total) {
         return _getTotalEnvironmentalAssetTokens();
     }
 
@@ -145,10 +117,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         uint256 pageIndex,
         uint256 pageLength
     ) external view returns (address[] memory environmentalAssets) {
-        environmentalAssets = _getEnvironmentalAssetTokens(
-            pageIndex,
-            pageLength
-        );
+        environmentalAssets = _getEnvironmentalAssetTokens(pageIndex, pageLength);
     }
 
     /**
@@ -156,12 +125,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      *
      * @return paymentToken The payment token associated to the treasury
      */
-    function getPaymentToken()
-        external
-        view
-        override
-        returns (address paymentToken)
-    {
+    function getPaymentToken() external view override returns (address paymentToken) {
         paymentToken = _getPaymentToken();
     }
 }

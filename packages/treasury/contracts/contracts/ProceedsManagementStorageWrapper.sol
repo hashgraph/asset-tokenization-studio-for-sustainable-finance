@@ -3,21 +3,17 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    IProceedsManagementStorageWrapper
-} from './interfaces/IProceedsManagementStorageWrapper.sol';
-import {
-    LifeCycleCashFlowStorageWrapper
-} from './LifeCycleCashFlowStorageWrapper.sol';
+import { IProceedsManagementStorageWrapper } from "./interfaces/IProceedsManagementStorageWrapper.sol";
+import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
 import {
     IProceedRecipients
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol';
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
 import {
     IHederaTokenService
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 import {
     HederaResponseCodes
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
 abstract contract ProceedsManagementStorageWrapper is
     IProceedsManagementStorageWrapper,
@@ -45,12 +41,7 @@ abstract contract ProceedsManagementStorageWrapper is
         }
 
         int64 transformedAmount = int64(int256(amount));
-        int256 responseCode = transferToken(
-            _getPaymentToken(),
-            address(this),
-            to,
-            transformedAmount
-        );
+        int256 responseCode = transferToken(_getPaymentToken(), address(this), to, transformedAmount);
         if (responseCode == HederaResponseCodes.SUCCESS) return;
         if (responseCode == HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE) {
             revert NotEnoughBalance(amount);
@@ -65,35 +56,19 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param to The account the environmental asset token is transferred to
      * @param serialNumber The id of the environmental asset token being transferred
      */
-    function _transferEnvironmentalAssetToken(
-        address environmentalAsset,
-        address to,
-        uint256 serialNumber
-    ) internal {
+    function _transferEnvironmentalAssetToken(address environmentalAsset, address to, uint256 serialNumber) internal {
         if (!_uint256FitsIntoInt64(serialNumber)) {
             revert NotAllowedSerialNumber(serialNumber);
         }
 
         int64 transformedSerialNumber = int64(int256(serialNumber));
-        int256 responseCode = transferNFT(
-            environmentalAsset,
-            address(this),
-            to,
-            transformedSerialNumber
-        );
+        int256 responseCode = transferNFT(environmentalAsset, address(this), to, transformedSerialNumber);
 
         if (responseCode == HederaResponseCodes.SUCCESS) return;
-        if (
-            responseCode ==
-            HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
-        ) {
+        if (responseCode == HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO) {
             revert NotTokenIdOwner(serialNumber);
         }
-        revert TransferEnvironmentalAssetTokenFailed(
-            environmentalAsset,
-            to,
-            serialNumber
-        );
+        revert TransferEnvironmentalAssetTokenFailed(environmentalAsset, to, serialNumber);
     }
 
     /**
@@ -102,10 +77,7 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param proceedsRecipient The proceeds recipient to fund
      * @param amount The amount of payment tokens to transfer
      */
-    function _fundProceedsRecipient(
-        address proceedsRecipient,
-        uint256 amount
-    ) internal {
+    function _fundProceedsRecipient(address proceedsRecipient, uint256 amount) internal {
         _transferPaymentToken(proceedsRecipient, amount);
     }
 
@@ -115,11 +87,9 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param proceedsRecipient The proceeds recipient to be checked
      */
     function _checkProceedRecipient(address proceedsRecipient) private view {
-        try
-            IProceedRecipients(_getAsset()).isProceedRecipient(
-                proceedsRecipient
-            )
-        returns (bool proceedsRecipientBelongsToBond) {
+        try IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient) returns (
+            bool proceedsRecipientBelongsToBond
+        ) {
             if (!proceedsRecipientBelongsToBond) {
                 revert WrongProceedsRecipient(proceedsRecipient);
             }

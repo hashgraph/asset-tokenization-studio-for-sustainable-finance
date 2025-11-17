@@ -19,4 +19,10 @@ export class BondHolderBalancePersistence extends BaseEntityPersistence {
 
   @Column({ type: "varchar", default: "0" })
   lockedBalance: string
+
+  @Column({ type: "varchar", default: "0" })
+  clearingBalance: string
+
+  @Column({ type: "varchar", default: "0" })
+  heldBalance: string
 }

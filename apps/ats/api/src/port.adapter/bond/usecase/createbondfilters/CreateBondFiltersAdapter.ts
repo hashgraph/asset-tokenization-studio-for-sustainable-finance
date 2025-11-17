@@ -26,10 +26,15 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "RemovedFromControlList(address indexed operator,address indexed account)",
         "CouponSet(bytes32 corporateActionId,uint256 couponId,address indexed operator,uint256 indexed recordDate,uint256 indexed executionDate,uint256 rate,uint256 rateDecimals,uint256 period)",
         "IssuedByPartition(bytes32 indexed partition,address indexed operator,address indexed to,uint256 value,bytes data)",
+        "RedeemedByPartition(bytes32 indexed partition,address indexed operator,address indexed from,uint256 value,bytes data,bytes operatorData)",
         "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
         "LockByPartitionReleased(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId)",
         "TransferByPartition(bytes32 indexed _fromPartition,address indexed _operator,address indexed _from,address _to,uint256 _value,bytes _data,bytes _operatorData)",
         "HeldByPartition(address indexed operator,address indexed tokenHolder,bytes32 partition,uint256 holdId,(uint256 amount,uint256 expirationTimestamp,address escrow,address to,bytes data) hold,bytes operatorData)"
+        "ClearedHoldByPartition(address indexed operator,address indexed tokenHolder,bytes32 partition,uint256 clearingId,tuple hold,uint256 expirationDate,bytes data,bytes operatorData)",
+        "ClearingOperationApproved(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
+        "ClearingOperationCanceled(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
+        "ClearingOperationReclaimed(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
       ]),
     )
   }
