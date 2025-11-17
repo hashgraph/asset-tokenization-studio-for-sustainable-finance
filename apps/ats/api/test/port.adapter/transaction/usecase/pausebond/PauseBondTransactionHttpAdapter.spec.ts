@@ -67,7 +67,10 @@ describe("PauseBondTransaction API Integration", () => {
           accountId: "0.0.5466269",
         }
 
-        await request(app.getHttpServer()).post(`/api/v1/ats/bonds/${bondContractId}/pause`).send(pauseBondRequest).expect(201)
+        await request(app.getHttpServer())
+          .post(`/api/v1/ats/bonds/${bondContractId}/pause`)
+          .send(pauseBondRequest)
+          .expect(201)
       }
     })
 
@@ -81,7 +84,10 @@ describe("PauseBondTransaction API Integration", () => {
           accountId: "0.0.5466269",
         }
 
-        await request(app.getHttpServer()).post(`/api/v1/ats/bonds/${bondContractId}/pause`).send(pauseBondRequest).expect(400)
+        await request(app.getHttpServer())
+          .post(`/api/v1/ats/bonds/${bondContractId}/pause`)
+          .send(pauseBondRequest)
+          .expect(400)
       }
     })
 
@@ -89,7 +95,10 @@ describe("PauseBondTransaction API Integration", () => {
       const bondContractId = "0.0.67890"
       const pauseBondRequest = {}
 
-      await request(app.getHttpServer()).post(`/api/v1/ats/bonds/${bondContractId}/pause`).send(pauseBondRequest).expect(400)
+      await request(app.getHttpServer())
+        .post(`/api/v1/ats/bonds/${bondContractId}/pause`)
+        .send(pauseBondRequest)
+        .expect(400)
     })
   })
 })

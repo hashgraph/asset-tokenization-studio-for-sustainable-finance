@@ -90,6 +90,20 @@ import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/Get
 import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
 import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
+import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
+import { AddProceedRecipientTransactionAppService } from "@app/bond/transaction/addproceedrecipienttransaction/service/AddProceedRecipientTransactionAppService"
+import { AddProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/addproceedrecipient/AddProceedRecipientNestJSEventAdapter"
+import { AddProceedRecipientCommandHandler } from "@app/bond/addproceedrecipient/command/AddProceedRecipientCommandHandler"
+import { AddBondProceedRecipientDomainService } from "@domain/bond/proceedrecipient/service/AddBondProceedRecipientDomainService"
+import { BondProceedRecipientTypeOrmRepository } from "@port/bond/persistence/repositories/BondProceedRecipientTypeOrmRepository"
+import { BondProceedRecipientPersistence } from "@port/bond/persistence/model/BondProceedRecipientPersistence"
+import { GetBondProceedRecipientsHttpAdapter } from "@port/bond/usecase/getbondproceedrecipients/GetBondProceedRecipientsHttpAdapter"
+import { GetBondProceedRecipientsQueryHandler } from "@app/bond/getbondproceedrecipients/query/GetBondProceedRecipientsQueryHandler"
+import { RemoveProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/removeproceedrecipienttransaction/RemoveProceedRecipientTransactionHttpAdapter"
+import { RemoveProceedRecipientTransactionAppService } from "@app/bond/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppService"
+import { RemoveProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/removeproceedrecipient/RemoveProceedRecipientNestJSEventAdapter"
+import { RemoveProceedRecipientCommandHandler } from "@app/bond/removeproceedrecipient/command/RemoveProceedRecipientCommandHandler"
+import { RemoveBondProceedRecipientDomainService } from "@domain/bond/proceedrecipient/service/RemoveBondProceedRecipientDomainService"
 import { PauseBondCommandHandler } from "@app/bond/pausebond/command/PauseBondCommandHandler"
 import { UnpauseBondCommandHandler } from "@app/bond/unpausebond/command/UnpauseBondCommandHandler"
 import { PauseBondNestJSEventAdapter } from "@port/bond/usecase/pausebond/PauseBondNestJSEventAdapter"
@@ -124,6 +138,10 @@ const REPOSITORIES: Provider[] = [
     provide: "BondHolderBalanceRepository",
     useClass: BondHolderBalanceTypeOrmRepository,
   },
+  {
+    provide: "BondProceedRecipientRepository",
+    useClass: BondProceedRecipientTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -149,6 +167,9 @@ export const CONTROLLERS = [
   ReleaseBondLockTransactionHttpAdapter,
   PauseBondTransactionHttpAdapter,
   UnpauseBondTransactionHttpAdapter,
+  AddProceedRecipientTransactionHttpAdapter,
+  RemoveProceedRecipientTransactionHttpAdapter,
+  GetBondProceedRecipientsHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -211,6 +232,15 @@ export const PROVIDERS = [
   PauseBondNestJSEventAdapter,
   UnpauseBondNestJSEventAdapter,
   CreateBondFiltersAdapter,
+  AddProceedRecipientTransactionAppService,
+  AddProceedRecipientCommandHandler,
+  AddProceedRecipientNestJSEventAdapter,
+  AddBondProceedRecipientDomainService,
+  RemoveProceedRecipientTransactionAppService,
+  RemoveProceedRecipientCommandHandler,
+  RemoveProceedRecipientNestJSEventAdapter,
+  RemoveBondProceedRecipientDomainService,
+  GetBondProceedRecipientsQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -229,4 +259,5 @@ export const ENTITIES = [
   BondCouponPersistence,
   BondLockPersistence,
   BondHolderBalancePersistence,
+  BondProceedRecipientPersistence,
 ]

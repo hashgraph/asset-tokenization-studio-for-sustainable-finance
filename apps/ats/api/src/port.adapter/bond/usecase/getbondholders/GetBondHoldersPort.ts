@@ -3,8 +3,5 @@ import { PageResponse, QueryPageRequest } from "@hashgraph/green-bonds-shared-co
 import { BondHoldersResponse } from "./model/BondHoldersResponse"
 
 export interface GetBondHoldersPort {
-  getBondHolders(
-    bondContractId: string,
-    queryPageRequest: QueryPageRequest,
-  ): Promise<PageResponse<BondHoldersResponse>>
+  getBondHolders(bondContractId: string, queryPageRequest: QueryPageRequest): Promise<PageResponse<BondHoldersResponse>>
 }
