@@ -117,6 +117,13 @@ import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/
 import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
 import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
 import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
+import { CreateBondHoldTransactionHttpAdapter } from "@port/transaction/usecase/createbondholdtransaction/CreateBondHoldTransactionHttpAdapter"
+import { CreateBondHoldTransactionAppService } from "@app/bond/transaction/createbondholdtransaction/service/CreateBondHoldTransactionAppService"
+import { CreateBondHoldCommandHandler } from "@app/bond/createbondhold/command/CreateBondHoldCommandHandler"
+import { CreateBondHoldNestJSEventAdapter } from "@port/bond/usecase/createbondhold/CreateBondHoldNestJSEventAdapter"
+import { CreateBondHoldDomainService } from "@domain/bond/hold/service/CreateBondHoldDomainService"
+import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
+import { BondHoldTypeOrmRepository } from "@port/bond/persistence/repositories/BondHoldTypeOrmRepository"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -147,6 +154,10 @@ const REPOSITORIES: Provider[] = [
     provide: "BondProceedRecipientRepository",
     useClass: BondProceedRecipientTypeOrmRepository,
   },
+  {
+    provide: "BondHoldRepository",
+    useClass: BondHoldTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -176,6 +187,7 @@ export const CONTROLLERS = [
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
+  CreateBondHoldTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -241,6 +253,10 @@ export const PROVIDERS = [
   TransferByPartitionCommandHandler,
   TransferByPartitionNestJSEventAdapter,
   TransferBondHolderBalanceDomainService,
+  CreateBondHoldTransactionAppService,
+  CreateBondHoldCommandHandler,
+  CreateBondHoldNestJSEventAdapter,
+  CreateBondHoldDomainService,
   CreateBondFiltersAdapter,
   AddProceedRecipientTransactionAppService,
   AddProceedRecipientCommandHandler,
@@ -270,4 +286,5 @@ export const ENTITIES = [
   BondLockPersistence,
   BondHolderBalancePersistence,
   BondProceedRecipientPersistence,
+  BondHoldPersistence,
 ]
