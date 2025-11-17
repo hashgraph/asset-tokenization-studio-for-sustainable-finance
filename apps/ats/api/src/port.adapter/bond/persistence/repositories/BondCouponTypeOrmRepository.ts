@@ -4,7 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import { BondCoupon } from "@domain/bond/coupon/model/BondCoupon"
 import { BondCouponPersistence } from "../model/BondCouponPersistence"
-import { BondCouponRepository } from "@domain/bond/coupon/repository/BondCouponRepository"
+import type { BondCouponRepository } from "@domain/bond/coupon/repository/BondCouponRepository"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()

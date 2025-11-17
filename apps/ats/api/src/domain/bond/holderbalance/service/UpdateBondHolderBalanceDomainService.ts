@@ -15,7 +15,9 @@ export class UpdateBondHolderBalanceDomainService {
     )
 
     if (existing) {
-      existing.availableBalance = (BigInt(existing.availableBalance) + BigInt(amount)).toString()
+      const amountBigInt = BigInt(amount)
+      existing.availableBalance = (BigInt(existing.availableBalance) + amountBigInt).toString()
+      existing.updatedAt = new Date()
       await this.bondHolderBalanceRepository.save(existing)
     } else {
       const bondHolderBalance = new BondHolderBalance()
@@ -24,6 +26,7 @@ export class UpdateBondHolderBalanceDomainService {
       bondHolderBalance.partition = partition
       bondHolderBalance.availableBalance = amount
       bondHolderBalance.lockedBalance = "0"
+      bondHolderBalance.clearingBalance = "0"
       await this.bondHolderBalanceRepository.save(bondHolderBalance)
     }
   }
