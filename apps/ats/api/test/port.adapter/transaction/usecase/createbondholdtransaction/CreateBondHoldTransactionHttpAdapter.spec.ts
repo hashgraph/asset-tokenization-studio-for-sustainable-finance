@@ -41,9 +41,9 @@ describe("CreateBondHoldTransaction API Integration", () => {
   })
 
   describe("POST /bonds/:bondContractId/holders/:holderAccountId/holds", () => {
-    it("should create bond hold transaction with valid data including toAccountId", async () => {
+    it("should create bond hold transaction with valid data including toAccountId (fixed destination)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: CreateBondHoldTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -51,7 +51,6 @@ describe("CreateBondHoldTransaction API Integration", () => {
         amount: "1000",
         expirationTimestamp: "2025-12-31T23:59:59Z",
         escrowAccountId: "0.0.123456",
-        toAccountId: "0.0.654321",
         data: "0x",
       }
 
@@ -64,16 +63,16 @@ describe("CreateBondHoldTransaction API Integration", () => {
       expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
 
-    it("should create bond hold transaction without toAccountId (flexible hold)", async () => {
+    it("should create bond hold transaction without toAccountId (flexible destination)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525" // TO: destination account for the hold
       const createBondHoldRequest: Omit<CreateBondHoldTransactionRequest, "toAccountId"> = {
         format: "hedera",
-        accountId: "0.0.5466269",
+        accountId: "0.0.5466269", // Transaction signer (holds their own tokens)
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         amount: "1000",
         expirationTimestamp: "2025-12-31T23:59:59Z",
-        escrowAccountId: "0.0.123456",
+        escrowAccountId: "0.0.123456", // Who can execute/release the hold
         data: "0x",
       }
 
@@ -88,14 +87,13 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should create bond hold transaction without partition (using default)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: Omit<CreateBondHoldTransactionRequest, "partition"> = {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
         expirationTimestamp: "2025-12-31T23:59:59Z",
         escrowAccountId: "0.0.123456",
-        toAccountId: "0.0.654321",
         data: "0x",
       }
 
@@ -110,14 +108,13 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should create bond hold transaction without data (using default)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: Omit<CreateBondHoldTransactionRequest, "data"> = {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
         expirationTimestamp: "2025-12-31T23:59:59Z",
         escrowAccountId: "0.0.123456",
-        toAccountId: "0.0.654321",
       }
 
       const response = await request(app.getHttpServer())
@@ -147,7 +144,6 @@ describe("CreateBondHoldTransaction API Integration", () => {
           amount: "1000",
           expirationTimestamp: "2025-12-31T23:59:59Z",
           escrowAccountId: "0.0.123456",
-          toAccountId: "0.0.654321",
         }
 
         await request(app.getHttpServer())
@@ -159,7 +155,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for invalid format values", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
@@ -180,7 +176,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 500 for invalid bondContractId", async () => {
       const invalidBondContractId = "invalid-id"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: CreateBondHoldTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -214,7 +210,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for missing required fields", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest = {
         accountId: "0.0.5466269",
         amount: "1000",
@@ -228,7 +224,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for missing amount", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: Partial<CreateBondHoldTransactionRequest> = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -244,7 +240,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for missing expirationTimestamp", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: Partial<CreateBondHoldTransactionRequest> = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -260,7 +256,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for missing escrowAccountId", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest: Partial<CreateBondHoldTransactionRequest> = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -276,7 +272,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for invalid amount (non-numeric string)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -293,7 +289,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
 
     it("should return 400 for invalid expirationTimestamp (non-date string)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
+      const holderAccountId = "0.0.1525"
       const createBondHoldRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
