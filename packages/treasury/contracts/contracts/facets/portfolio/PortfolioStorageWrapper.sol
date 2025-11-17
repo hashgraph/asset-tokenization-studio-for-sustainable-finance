@@ -3,14 +3,10 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {IPortfolio} from '../../interfaces/IPortfolio.sol';
-import {PORTFOLIO_STORAGE_POSITION} from '../../constants/storagePositions.sol';
-import {
-    Common as AtsCommon
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
-import {
-    EnumerableSet
-} from '@openzeppelin/contracts/utils/structs/EnumerableSet.sol';
+import { IPortfolio } from "../../interfaces/IPortfolio.sol";
+import { PORTFOLIO_STORAGE_POSITION } from "../../constants/storagePositions.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {
     HederaTokenService,
     HederaResponseCodes
@@ -58,14 +54,10 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      *
      * @return added True if the environmental asset was successfully added. False otherwise
      */
-    function _addEnvironmentalAssetToken(
-        address environmentalAsset
-    ) internal returns (bool added) {
+    function _addEnvironmentalAssetToken(address environmentalAsset) internal returns (bool added) {
         added = false;
         if (!_environmentalAssetExists(environmentalAsset)) {
-            if (
-                _portfolioStorage().environmentalAssets.add(environmentalAsset)
-            ) {
+            if (_portfolioStorage().environmentalAssets.add(environmentalAsset)) {
                 _associateToken(environmentalAsset);
                 added = true;
             }
@@ -86,14 +78,8 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
         removed = false;
         dissociationError = HederaResponseCodes.OK;
         if (_environmentalAssetExists(environmentalAsset)) {
-            if (
-                _portfolioStorage().environmentalAssets.remove(
-                    environmentalAsset
-                )
-            ) {
-                dissociationError = _dissociateTokenAllowNotAssociated(
-                    environmentalAsset
-                );
+            if (_portfolioStorage().environmentalAssets.remove(environmentalAsset)) {
+                dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
                 removed = true;
             }
         }
@@ -106,13 +92,8 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      *
      * @return exists True if the environmental asset exists in the Treasury. False, otherwise
      */
-    function _environmentalAssetExists(
-        address environmentalAsset
-    ) internal view returns (bool exists) {
-        return
-            _portfolioStorage().environmentalAssets.contains(
-                environmentalAsset
-            );
+    function _environmentalAssetExists(address environmentalAsset) internal view returns (bool exists) {
+        return _portfolioStorage().environmentalAssets.contains(environmentalAsset);
     }
 
     /*

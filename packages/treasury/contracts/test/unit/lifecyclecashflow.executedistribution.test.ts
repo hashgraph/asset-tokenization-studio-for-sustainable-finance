@@ -140,7 +140,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and the holder has address zero, THEN a DistributionExecuted event is emitted with all arrays containing address zero", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and the holder has address zero, THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionExecuted");
@@ -148,10 +148,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(AddressZero);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
@@ -166,7 +165,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and there is not enough balance, THEN a DistributionExecuted event is emitted with the holder in the failed array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and there is not enough balance, THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionExecuted");
@@ -174,13 +173,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result.failedAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in the already paid array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 10000000000);
@@ -193,13 +191,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(2);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with the holder is SUCCEEDED status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
@@ -211,10 +208,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(98600));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(0);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -234,7 +230,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it.only("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
@@ -246,14 +242,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(2));
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.failedAddresses[1]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[1]).to.equal(signer_A.address);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[1]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(98600));
-          expect(event.args.result.paidAmounts[1]).to.equal(BigNumber.from(98600));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[1].holder).to.equal(signer_A.address);
+          expect(event.args.result[0].status).to.equal(0);
+          expect(event.args.result[1].status).to.equal(0);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -269,7 +263,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution to a holder so the amount to pay is greater than the max amount (int64), THEN a DistributionExecuted event is emitted with the holder in the failed array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution to a holder so the amount to pay is greater than the max amount (int64), THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionExecuted");
@@ -277,10 +271,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result.failedAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(0);
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(0);
         });
       });
     });
@@ -366,10 +359,7 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders).to.deep.equal([]);
-          expect(event.args.result.failedAddresses).to.deep.equal([]);
-          expect(event.args.result.succeededAddresses).to.deep.equal([]);
-          expect(event.args.result.alreadyPaidAddresses).to.deep.equal([]);
-          expect(event.args.result.paidAmounts).to.deep.equal([]);
+          expect(event.args.result).to.deep.equal([]);
         });
       });
 
@@ -382,17 +372,16 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and the holder has address zero, THEN a DistributionExecuted event is emitted with all arrays containing address zero", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and the holder has address zero, THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [AddressZero]);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionByAddressesExecuted");
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(AddressZero);
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(AddressZero);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
@@ -407,20 +396,19 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and there is not enough balance, THEN a DistributionExecuted event is emitted with the holder in the failed array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and there is not enough balance, THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionByAddressesExecuted");
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result.failedAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in the already paid array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 10000000000);
@@ -432,13 +420,12 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(0));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(2);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with holder in SUCCEEDED status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
@@ -449,10 +436,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(98600));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(0);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -472,7 +458,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
@@ -487,14 +473,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.holders[1]).to.equal(signer_A.address);
-          expect(event.args.result.failedAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.failedAddresses[1]).to.equal(AddressZero);
-          expect(event.args.result.succeededAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[1]).to.equal(signer_A.address);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[1]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(BigNumber.from(98600));
-          expect(event.args.result.paidAmounts[1]).to.equal(BigNumber.from(98600));
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[1].holder).to.equal(signer_A.address);
+          expect(event.args.result[0].status).to.equal(0);
+          expect(event.args.result[1].status).to.equal(0);
+          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -510,17 +494,16 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution to a holder so the amount to pay is greater than the max amount (int64), THEN a DistributionExecuted event is emitted with the holder in the failed array", async () => {
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution to a holder so the amount to pay is greater than the max amount (int64), THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionByAddressesExecuted");
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result.failedAddresses[0]).to.equal(signer_B.address);
-          expect(event.args.result.succeededAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.alreadyPaidAddresses[0]).to.equal(AddressZero);
-          expect(event.args.result.paidAmounts[0]).to.equal(0);
+          expect(event.args.result[0].holder).to.equal(signer_B.address);
+          expect(event.args.result[0].status).to.equal(1);
+          expect(event.args.result[0].amount).to.equal(0);
         });
       });
     });

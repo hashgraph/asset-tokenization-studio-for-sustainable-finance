@@ -25,12 +25,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionExecuted(
-        uint256 distributionID,
-        uint256 pageIndex,
-        uint256 pageLength,
-        PaymentResult[] result
-    );
+    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult[] result);
 
     /*
      * @dev Emitted when a distribution by addresses is executed
@@ -41,11 +36,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionByAddressesExecuted(
-        uint256 distributionID,
-        address[] holders,
-        PaymentResult[] result
-    );
+    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult[] result);
 
     /*
      * @dev Emitted when a redemption by page is executed
@@ -56,11 +47,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionExecuted(
-        uint256 pageIndex,
-        uint256 pageLength,
-        PaymentResult[] result
-    );
+    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult[] result);
 
     /*
      * @dev Emitted when a redemption by addresses is executed
@@ -70,10 +57,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionByAddressesExecuted(
-        address[] holders,
-        PaymentResult[] result
-    );
+    event RedemptionByAddressesExecuted(address[] holders, PaymentResult[] result);
 
     /**
      * @notice Error thrown when attempting to execute a payment for a asset not managed by the contract
@@ -120,11 +104,7 @@ interface ILifeCycleCashFlow {
      * @param holder The address of the holder whose balance was tried to be fetched
      * @param partition The partition of the bond token whose balance was tried to be fetched
      */
-    error BalanceOfByPartitionError(
-        address bond,
-        address holder,
-        bytes32 partition
-    );
+    error BalanceOfByPartitionError(address bond, address holder, bytes32 partition);
 
     /**
      * @notice Error thrown when redeeming at maturity by partition for a holder fails
@@ -133,11 +113,7 @@ interface ILifeCycleCashFlow {
      * @param holder The address of the holder whose balance was tried to be fetched
      * @param partition The partition of the bond token whose balance was tried to be fetched
      */
-    error RedeemAtMaturityByPartitionError(
-        address bond,
-        address holder,
-        bytes32 partition
-    );
+    error RedeemAtMaturityByPartitionError(address bond, address holder, bytes32 partition);
 
     /**
      * @notice Error thrown when the asset nominal value could not be fetched

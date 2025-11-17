@@ -71,11 +71,7 @@ interface IProceedsManagement {
      * @param to The address the payment tokens are transferred to
      * @param tokenId The tokenId of the environmental asset token
      */
-    error TransferEnvironmentalAssetTokenFailed(
-        address environmentalAsset,
-        address to,
-        uint256 tokenId
-    );
+    error TransferEnvironmentalAssetTokenFailed(address environmentalAsset, address to, uint256 tokenId);
 
     /**
      * @notice Error thrown when funding an account that is not an asset proceeds recipient

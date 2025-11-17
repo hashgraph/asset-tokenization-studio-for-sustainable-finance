@@ -3,28 +3,16 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {ILifeCycleCashFlow} from '../../interfaces/ILifeCycleCashFlow.sol';
-import {
-    LifeCycleCashFlowStorageWrapper
-} from './LifeCycleCashFlowStorageWrapper.sol';
-import {
-    PAYOUT_ROLE,
-    REDEMPTION_ROLE,
-    PAUSER_ROLE
-} from '../../constants/roles.sol';
+import { ILifeCycleCashFlow } from "../../interfaces/ILifeCycleCashFlow.sol";
+import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
+import { PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE } from "../../constants/roles.sol";
 
 abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset
-    )
-        external
-        override
-        checkAddress(asset)
-        onlyUninitialized(_lifeCycleCashFlowStorage().initialized)
-    {
-        LifeCycleCashFlowStorage
-            storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
+    ) external override checkAddress(asset) onlyUninitialized(_lifeCycleCashFlowStorage().initialized) {
+        LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
     }

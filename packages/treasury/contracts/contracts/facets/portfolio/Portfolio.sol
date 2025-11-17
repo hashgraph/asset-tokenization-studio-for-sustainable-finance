@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 // solhint-disable no-empty-blocks
 
-import {IPortfolio} from '../../interfaces/IPortfolio.sol';
-import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {PORTFOLIO_MANAGER_ROLE} from '../../constants/roles.sol';
+import { IPortfolio } from "../../interfaces/IPortfolio.sol";
+import { PortfolioStorageWrapper } from "./PortfolioStorageWrapper.sol";
+import { PORTFOLIO_MANAGER_ROLE } from "../../constants/roles.sol";
 
 abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
@@ -32,13 +32,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function addEnvironmentalAssetToken(
         address environmentalAsset
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PORTFOLIO_MANAGER_ROLE)
-        checkAddress(environmentalAsset)
-    {
+    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) checkAddress(environmentalAsset) {
         bool tokenAdded = _addEnvironmentalAssetToken(environmentalAsset);
         if (tokenAdded) {
             emit EnvironmentalAssetAdded(msg.sender, environmentalAsset);
@@ -62,16 +56,9 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
         checkAddress(environmentalAsset)
         returns (int256)
     {
-        (
-            bool tokenRemoved,
-            int256 dissociationError
-        ) = _removeEnvironmentalAssetToken(environmentalAsset);
+        (bool tokenRemoved, int256 dissociationError) = _removeEnvironmentalAssetToken(environmentalAsset);
         if (tokenRemoved) {
-            emit EnvironmentalAssetRemoved(
-                msg.sender,
-                environmentalAsset,
-                dissociationError
-            );
+            emit EnvironmentalAssetRemoved(msg.sender, environmentalAsset, dissociationError);
         }
         return dissociationError;
     }
@@ -105,13 +92,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
      */
     function dissociateToken(
         address token
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PORTFOLIO_MANAGER_ROLE)
-        checkAddress(token)
-    {
+    ) external override onlyUnpaused onlyRole(PORTFOLIO_MANAGER_ROLE) checkAddress(token) {
         _dissociateToken(token);
 
         emit TokenDissociated(token);
