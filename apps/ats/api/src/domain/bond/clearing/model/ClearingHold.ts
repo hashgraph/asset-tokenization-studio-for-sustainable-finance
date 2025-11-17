@@ -41,9 +41,9 @@ export class ClearingHold {
   @IsString()
   toAccountId?: string
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  escrowAccountId?: string
+  escrowAccountId: string
 
   @IsOptional()
   @IsString()

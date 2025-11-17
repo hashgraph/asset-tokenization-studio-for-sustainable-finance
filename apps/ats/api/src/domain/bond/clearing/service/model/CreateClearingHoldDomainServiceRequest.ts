@@ -30,9 +30,9 @@ export class CreateClearingHoldDomainServiceRequest {
   @IsString()
   toAddress?: string
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  escrowAddress?: string
+  escrowAddress: string
 
   @IsOptional()
   @IsString()

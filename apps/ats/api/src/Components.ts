@@ -303,6 +303,7 @@ export const PROVIDERS = [
   RemoveProceedRecipientNestJSEventAdapter,
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
+  CreateClearingHoldTransactionAppService,
   UpdateClearingHoldTransactionAppService,
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
