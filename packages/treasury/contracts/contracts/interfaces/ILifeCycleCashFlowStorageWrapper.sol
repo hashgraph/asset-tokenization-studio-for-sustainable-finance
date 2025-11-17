@@ -55,11 +55,7 @@ interface ILifeCycleCashFlowStorageWrapper {
      * @param holder The address of the holder whose balance was tried to be fetched
      * @param partition The partition of the bond token whose balance was tried to be fetched
      */
-    error BalanceOfByPartitionError(
-        address bond,
-        address holder,
-        bytes32 partition
-    );
+    error BalanceOfByPartitionError(address bond, address holder, bytes32 partition);
 
     /**
      * @notice Error thrown when redeeming at maturity by partition for a holder fails
@@ -68,11 +64,7 @@ interface ILifeCycleCashFlowStorageWrapper {
      * @param holder The address of the holder whose balance was tried to be fetched
      * @param partition The partition of the bond token whose balance was tried to be fetched
      */
-    error RedeemAtMaturityByPartitionError(
-        address bond,
-        address holder,
-        bytes32 partition
-    );
+    error RedeemAtMaturityByPartitionError(address bond, address holder, bytes32 partition);
 
     /**
      * @notice Error thrown when the asset nominal value could not be fetched

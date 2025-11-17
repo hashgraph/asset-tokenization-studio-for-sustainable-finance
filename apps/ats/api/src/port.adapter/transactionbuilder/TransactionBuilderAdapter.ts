@@ -31,6 +31,7 @@ import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -369,6 +370,21 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [partition, basicTransferInfo, data],
+    )
+  }
+
+  async redeemBondTransaction(req: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "redeemByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.amount, data],
     )
   }
 

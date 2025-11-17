@@ -24,11 +24,7 @@ interface IEnvironmentalAssetFactory {
      * @param symbol The symbol of the environmental asset
      * @param responseCode The response code
      */
-    error EnvironmentalAssetCreateError(
-        string name,
-        string symbol,
-        int256 responseCode
-    );
+    error EnvironmentalAssetCreateError(string name, string symbol, int256 responseCode);
 
     /**
      * @dev Error thrown when the transfer of an environmental asset token failed
@@ -37,11 +33,7 @@ interface IEnvironmentalAssetFactory {
      * @param to The address of the environmental asset token destination
      * @param serialNumber The serial number of the transferred environmental asset token
      */
-    error EnvironmentalAssetTokenTransferError(
-        address token,
-        address to,
-        int64 serialNumber
-    );
+    error EnvironmentalAssetTokenTransferError(address token, address to, int64 serialNumber);
 
     /**
      * @dev Create an environmental asset
@@ -63,9 +55,5 @@ interface IEnvironmentalAssetFactory {
      * @param to The address of the environmental asset token destination
      * @param serialNumber The serial number of the environmental asset token to be transferred
      */
-    function transferEnvironmentalAssetToken(
-        address token,
-        address to,
-        int64 serialNumber
-    ) external;
+    function transferEnvironmentalAssetToken(address token, address to, int64 serialNumber) external;
 }

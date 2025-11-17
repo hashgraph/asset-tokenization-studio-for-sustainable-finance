@@ -10,7 +10,7 @@ export function IsBytes32(validationOptions?: ValidationOptions) {
       propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, _args: ValidationArguments) {
+        validate(value: any) {
           // Must be a valid hex string exactly 32 bytes long
           return typeof value === "string" && ethers.utils.isHexString(value, 32)
         },

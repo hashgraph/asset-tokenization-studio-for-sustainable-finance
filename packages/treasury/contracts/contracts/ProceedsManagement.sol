@@ -3,19 +3,11 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {IProceedsManagement} from './interfaces/IProceedsManagement.sol';
-import {
-    ProceedsManagementStorageWrapper
-} from './ProceedsManagementStorageWrapper.sol';
-import {
-    PROCEEDS_FULL_MANAGER_ROLE,
-    FUNDS_MANAGER_ROLE
-} from './constants/roles.sol';
+import { IProceedsManagement } from "./interfaces/IProceedsManagement.sol";
+import { ProceedsManagementStorageWrapper } from "./ProceedsManagementStorageWrapper.sol";
+import { PROCEEDS_FULL_MANAGER_ROLE, FUNDS_MANAGER_ROLE } from "./constants/roles.sol";
 
-abstract contract ProceedsManagement is
-    IProceedsManagement,
-    ProceedsManagementStorageWrapper
-{
+abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementStorageWrapper {
     /*
      * @dev Transfers an amount of payment tokens to an address
      *
@@ -25,13 +17,7 @@ abstract contract ProceedsManagement is
     function transferPaymentToken(
         address to,
         uint256 amount
-    )
-        external
-        override
-        onlyUnpaused
-        onlyRole(PROCEEDS_FULL_MANAGER_ROLE)
-        notAddressZero(to)
-    {
+    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) notAddressZero(to) {
         _transferPaymentToken(to, amount);
         emit PaymentTokenTransferred(to, amount);
     }
@@ -56,11 +42,7 @@ abstract contract ProceedsManagement is
         notAddressZero(to)
     {
         _transferEnvironmentalAssetToken(environmentalAsset, to, tokenId);
-        emit EnvironmentalAssetTokenTransferred(
-            environmentalAsset,
-            to,
-            tokenId
-        );
+        emit EnvironmentalAssetTokenTransferred(environmentalAsset, to, tokenId);
     }
 
     /*

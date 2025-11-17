@@ -17,11 +17,7 @@ interface IPaymentTokenFactory {
      * @param symbol The symbol of the payment token
      * @param responseCode The response code
      */
-    error PaymentTokenCreateError(
-        string name,
-        string symbol,
-        int256 responseCode
-    );
+    error PaymentTokenCreateError(string name, string symbol, int256 responseCode);
 
     /**
      * @dev Error thrown when the transfer of the payment token failed
@@ -56,9 +52,5 @@ interface IPaymentTokenFactory {
      * @param to The address of the payment token destination
      * @param amount The amount of payment tokens to be transferred
      */
-    function transferPaymentToken(
-        address token,
-        address to,
-        int64 amount
-    ) external;
+    function transferPaymentToken(address token, address to, int64 amount) external;
 }

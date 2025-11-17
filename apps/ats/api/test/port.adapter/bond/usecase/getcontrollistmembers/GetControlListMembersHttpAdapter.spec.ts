@@ -107,12 +107,12 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
         isin: "US1234567890",
       })
 
-      const member1 = await internalControlListMemberRepository.save({
+      await internalControlListMemberRepository.save({
         contractId: bond.contractId,
         holderAccountId: "0.0.5555555",
       })
 
-      const member2 = await internalControlListMemberRepository.save({
+      await internalControlListMemberRepository.save({
         contractId: bond.contractId,
         holderAccountId: "0.0.6666666",
       })
