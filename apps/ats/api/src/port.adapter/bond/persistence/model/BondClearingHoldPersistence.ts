@@ -33,8 +33,8 @@ export class BondClearingHoldPersistence {
   @Column({ type: "varchar", length: 255, nullable: true })
   toAccountId?: string
 
-  @Column({ type: "varchar", length: 255, nullable: true })
-  escrowAccountId?: string
+  @Column({ type: "varchar", length: 255 })
+  escrowAccountId: string
 
   @Column({ type: "text", nullable: true })
   data?: string

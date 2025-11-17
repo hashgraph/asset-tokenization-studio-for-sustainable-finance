@@ -3,10 +3,6 @@ import { IsNotEmpty, IsString, IsNumber, IsEnum } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 import { ClearingOperationType } from "@domain/bond/model/ClearingOperationType"
 
-/**
- * Generic command to reclaim a clearing operation.
- * Supports HOLD, TRANSFER, and REDEEM clearing types.
- */
 export class ReclaimClearingCommand extends Command<void> {
   @IsNumber()
   clearingId: number
