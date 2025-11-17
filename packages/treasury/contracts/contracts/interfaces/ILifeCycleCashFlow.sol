@@ -3,17 +3,16 @@
 pragma solidity ^0.8.0;
 
 interface ILifeCycleCashFlow {
-    struct DistributionPaymentResult {
-        address[] failedAddresses;
-        address[] succeededAddresses;
-        address[] alreadyPaidAddresses;
-        uint256[] paidAmounts;
+    struct PaymentResult {
+        address holder;
+        PaymentStatus status;
+        int64 amount;
     }
 
-    struct RedemptionPaymentResult {
-        address[] failedAddresses;
-        address[] succeededAddresses;
-        uint256[] paidAmounts;
+    enum PaymentStatus {
+        SUCCEEDED,
+        FAILED,
+        ALREADY_PAID
     }
 
     /*
@@ -30,7 +29,7 @@ interface ILifeCycleCashFlow {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength,
-        DistributionPaymentResult result
+        PaymentResult[] result
     );
 
     /*
@@ -45,7 +44,7 @@ interface ILifeCycleCashFlow {
     event DistributionByAddressesExecuted(
         uint256 distributionID,
         address[] holders,
-        DistributionPaymentResult result
+        PaymentResult[] result
     );
 
     /*
@@ -60,7 +59,7 @@ interface ILifeCycleCashFlow {
     event RedemptionExecuted(
         uint256 pageIndex,
         uint256 pageLength,
-        RedemptionPaymentResult result
+        PaymentResult[] result
     );
 
     /*
@@ -73,7 +72,7 @@ interface ILifeCycleCashFlow {
      */
     event RedemptionByAddressesExecuted(
         address[] holders,
-        RedemptionPaymentResult result
+        PaymentResult[] result
     );
 
     /**
@@ -169,7 +168,7 @@ interface ILifeCycleCashFlow {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (DistributionPaymentResult memory result, bool);
+    ) external returns (PaymentResult[] memory result, bool);
 
     /*
      * @dev Retry the payment of a distribution to a list of holders
@@ -186,7 +185,7 @@ interface ILifeCycleCashFlow {
         address asset,
         uint256 distributionID,
         address[] calldata holders
-    ) external returns (DistributionPaymentResult memory result);
+    ) external returns (PaymentResult[] memory result);
 
     /*
      * @dev Perform a bond redemption to a page of holders
@@ -204,7 +203,7 @@ interface ILifeCycleCashFlow {
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (RedemptionPaymentResult memory result, bool);
+    ) external returns (PaymentResult[] memory result, bool);
 
     /*
      * @dev Perform a bond redemption to a list of holders
@@ -219,7 +218,7 @@ interface ILifeCycleCashFlow {
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external returns (RedemptionPaymentResult memory result);
+    ) external returns (PaymentResult[] memory result);
 
     /*
      * @dev Returns the asset address

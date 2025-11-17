@@ -112,7 +112,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     )
         internal
         returns (
-            ILifeCycleCashFlow.DistributionPaymentResult memory result,
+            ILifeCycleCashFlow.PaymentResult[] memory result,
             bool
         )
     {
@@ -146,7 +146,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory holders
     )
         internal
-        returns (ILifeCycleCashFlow.DistributionPaymentResult memory result)
+        returns (ILifeCycleCashFlow.PaymentResult[] memory result)
     {
         result = _payHoldersDistribution(asset, distributionId, holders);
     }
@@ -171,7 +171,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageLength
     )
         internal
-        returns (ILifeCycleCashFlow.RedemptionPaymentResult memory result, bool)
+        returns (ILifeCycleCashFlow.PaymentResult[] memory result, bool)
     {
         address[] memory holders = _getAssetHolders(
             bond,
@@ -201,7 +201,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory holders
     )
         internal
-        returns (ILifeCycleCashFlow.RedemptionPaymentResult memory result)
+        returns (ILifeCycleCashFlow.PaymentResult[] memory result)
     {
         result = _payHoldersRedemption(bond, holders);
     }
@@ -248,37 +248,33 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory holders
     )
         private
-        returns (ILifeCycleCashFlow.DistributionPaymentResult memory result)
+        returns (ILifeCycleCashFlow.PaymentResult[] memory result)
     {
-        result.failedAddresses = new address[](holders.length);
-        result.succeededAddresses = new address[](holders.length);
-        result.paidAmounts = new uint256[](holders.length);
-        result.alreadyPaidAddresses = new address[](holders.length);
-
-        PayingArraysIndexes memory payingArraysIndexes;
-
+        result = new ILifeCycleCashFlow.PaymentResult[](holders.length);
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
             batchInfo.amounts = new int64[](holders.length);
+            uint256 batchIndex = 0;
+            uint256 resultIndex = 0;
             uint256 nominalValue = _getNominalValue(asset);
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
+                result[index].holder = holder;
+
                 if (!_isHolderValid(holder)) {
-                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
+                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
                     unchecked {
-                        ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
                     }
                     continue;
                 }
 
                 if (_isDistributionHolderPaid(distributionId, holder)) {
-                    result.alreadyPaidAddresses[payingArraysIndexes.alreadyPaidAddressesIndex] = holder;
+                    result[index].status = ILifeCycleCashFlow.PaymentStatus.ALREADY_PAID;
                     unchecked {
-                        ++payingArraysIndexes.alreadyPaidAddressesIndex;
                         ++index;
                     }
                     continue;
@@ -293,11 +289,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 );
 
                 if (!_isValidAmount(amount)) {
-                    result.failedAddresses[
-                        payingArraysIndexes.failedAddressesIndex
-                    ] = holder;
+                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
                     unchecked {
-                        ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
                     }
                     continue;
@@ -305,39 +298,47 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
-                    uint256 succeededResults;
-                    uint256 failedResults;
-                    (succeededResults, failedResults) = _processBatchDistribution(
+                    _processBatchDistribution(
                         distributionId,
                         paymentToken,
                         batchInfo,
-                        payingArraysIndexes,
-                        result
+                        result,
+                        resultIndex
                     );
-                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
-                    payingArraysIndexes.failedAddressesIndex += failedResults;
-
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
                     batchInfo.totalAmount = 0;
-                    payingArraysIndexes.batchIndex = 0;
+                    resultIndex = index;
+                    batchIndex = 0;
                 }
-                batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
-                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(int256(amount));
-                batchInfo.totalAmount += batchInfo.amounts[payingArraysIndexes.batchIndex];
+
+                batchInfo.holders[batchIndex] = holder;
+                batchInfo.amounts[batchIndex] = int64(
+                    int256(amount)
+                );
+                batchInfo.totalAmount += batchInfo.amounts[
+                    batchIndex
+                ];
+
                 unchecked {
-                    ++payingArraysIndexes.batchIndex;
+                    ++batchIndex;
                     ++index;
                 }
             }
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                _processBatchDistribution(distributionId, paymentToken, batchInfo, payingArraysIndexes, result);
+                _processBatchDistribution(
+                    distributionId,
+                    paymentToken,
+                    batchInfo,
+                    result,
+                    resultIndex
+                );
             }
         }
 
-        return _resizeDistributionResults(result, payingArraysIndexes);
+        return result;
     }
 
     /*
@@ -473,34 +474,24 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 distributionId,
         address paymentToken,
         BatchInfo memory batchInfo,
-        PayingArraysIndexes memory payingArraysIndexes,
-        ILifeCycleCashFlow.DistributionPaymentResult memory result
-    ) private returns (uint256 succeededResults, uint256 failedResults) {
-        if (
-            _payBatchHoldersDistribution(
-                distributionId,
-                paymentToken,
-                batchInfo.holders,
-                batchInfo.amounts,
-                batchInfo.totalAmount
-            )
-        ) {
-            (result.succeededAddresses, result.paidAmounts) = _populateSourceArraysFromDataArrays(
-                result.succeededAddresses,
-                payingArraysIndexes.succeededAddressesIndex,
-                batchInfo.holders,
-                result.paidAmounts,
-                batchInfo.amounts
-            );
-            return (result.succeededAddresses.length, 0);
-        } else {
-            result.failedAddresses = _populateSourceArrayFromDataArray(
-                result.failedAddresses,
-                payingArraysIndexes.failedAddressesIndex,
-                batchInfo.holders
-            );
-            return (0, result.failedAddresses.length);
-        }
+        ILifeCycleCashFlow.PaymentResult[] memory result,
+        uint256 resultIndex
+    ) private {
+        bool succeededPayment = _payBatchHoldersDistribution(
+            distributionId,
+            paymentToken,
+            batchInfo.holders,
+            batchInfo.amounts,
+            batchInfo.totalAmount
+        );
+
+         _populateSourceArraysFromDataArrays(
+            succeededPayment,
+            batchInfo.holders,
+            batchInfo.amounts,
+            result,
+            resultIndex
+        );
     }
 
     /*
@@ -520,28 +511,27 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory holders
     )
         private
-        returns (ILifeCycleCashFlow.RedemptionPaymentResult memory result)
+        returns (ILifeCycleCashFlow.PaymentResult[] memory result)
     {
-        result.failedAddresses = new address[](holders.length);
-        result.succeededAddresses = new address[](holders.length);
-        result.paidAmounts = new uint256[](holders.length);
-
-        PayingArraysIndexes memory payingArraysIndexes;
+        result = new ILifeCycleCashFlow.PaymentResult[](holders.length);
 
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
             batchInfo.amounts = new int64[](holders.length);
+            uint256 batchIndex = 0;
+            uint256 resultIndex = 0;
             uint256 nominalValue = _getNominalValue(bond);
-
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
+                result[index].holder = holders[index];
+
                 if (!_isHolderValid(holder)) {
-                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
+                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+
                     unchecked {
-                        ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
                     }
                     continue;
@@ -551,9 +541,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 uint256 amount = _getRedemptionAmount(bond, tokensAmount, nominalValue, paymentToken);
 
                 if (!_isValidAmount(amount)) {
-                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
+                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+
                     unchecked {
-                        ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
                     }
                     continue;
@@ -561,55 +551,51 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
-                    uint256 succeededResults;
-                    uint256 failedResults;
-                    (succeededResults, failedResults) = _processBatchRedemption(
+                    bool succeededPayment = _processBatchRedemption(
                         batchInfo,
                         paymentToken,
-                        payingArraysIndexes,
-                        result
+                        result,
+                        resultIndex
                     );
 
-                    if (succeededResults > 0) {
-                        _redeemBondHolders(bond, holders);
+                    if (succeededPayment) {
+                        _redeemBondHolders(bond, batchInfo.holders);
                     }
-                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
-                    payingArraysIndexes.failedAddressesIndex += failedResults;
-
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
                     batchInfo.totalAmount = 0;
-                    payingArraysIndexes.batchIndex = 0;
+                    resultIndex = index;
+                    batchIndex = 0;
                 }
 
-                batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
-                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(int256(amount));
-                batchInfo.totalAmount += batchInfo.amounts[payingArraysIndexes.batchIndex];
+                batchInfo.holders[batchIndex] = holder;
+                batchInfo.amounts[batchIndex] = int64(
+                    int256(amount)
+                );
+                batchInfo.totalAmount += batchInfo.amounts[
+                    batchIndex
+                ];
                 unchecked {
-                    ++payingArraysIndexes.batchIndex;
+                    ++batchIndex;
                     ++index;
                 }
             }
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                uint256 succeededResults;
-                uint256 failedResults;
-                (succeededResults, failedResults) = _processBatchRedemption(
+                bool succeededPayment = _processBatchRedemption(
                     batchInfo,
                     paymentToken,
-                    payingArraysIndexes,
-                    result
+                    result,
+                    resultIndex
                 );
-                if (succeededResults > 0) {
-                    _redeemBondHolders(bond, holders);
+                if (succeededPayment) {
+                    _redeemBondHolders(bond, batchInfo.holders);
                 }
-                payingArraysIndexes.succeededAddressesIndex += succeededResults;
-                payingArraysIndexes.failedAddressesIndex += failedResults;
             }
         }
 
-        return _resizeRedemptionResults(result, payingArraysIndexes);
+        return result;
     }
 
     /*
@@ -627,26 +613,23 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _processBatchRedemption(
         BatchInfo memory batchInfo,
         address paymentToken,
-        PayingArraysIndexes memory payingArraysIndexes,
-        ILifeCycleCashFlow.RedemptionPaymentResult memory result
-    ) private returns (uint256 succeededResults, uint256 failedResults) {
-        if (_payBatchHoldersRedemption(batchInfo.holders, batchInfo.amounts, batchInfo.totalAmount, paymentToken)) {
-            (result.succeededAddresses, result.paidAmounts) = _populateSourceArraysFromDataArrays(
-                result.succeededAddresses,
-                payingArraysIndexes.succeededAddressesIndex,
-                batchInfo.holders,
-                result.paidAmounts,
-                batchInfo.amounts
-            );
-            return (result.succeededAddresses.length, 0);
-        } else {
-            result.failedAddresses = _populateSourceArrayFromDataArray(
-                result.failedAddresses,
-                payingArraysIndexes.failedAddressesIndex,
-                batchInfo.holders
-            );
-            return (0, result.failedAddresses.length);
-        }
+        ILifeCycleCashFlow.PaymentResult[] memory result,
+        uint256 resultIndex
+    ) private returns(bool succeededPayment) {
+        succeededPayment = _payBatchHoldersRedemption(
+            batchInfo.holders,
+            batchInfo.amounts,
+            batchInfo.totalAmount,
+            paymentToken
+        );
+
+        _populateSourceArraysFromDataArrays(
+            succeededPayment,
+            batchInfo.holders,
+            batchInfo.amounts,
+            result,
+            resultIndex
+        );
     }
 
     /*
@@ -955,22 +938,27 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return The index of the first address(0) found, or 0 if none is found
      */
     function _populateSourceArraysFromDataArrays(
-        address[] memory sourceAddressArray,
-        uint256 succeededAddressesIndex,
-        address[] memory dataAddressArray,
-        uint256[] memory sourceUint256Array,
-        int64[] memory dataInt64Array
-    ) private pure returns (address[] memory resultAddressArray, uint256[] memory resultUint256Array) {
-        for (uint256 index; index < dataAddressArray.length; ) {
-            sourceAddressArray[index + succeededAddressesIndex] = dataAddressArray[index];
-            sourceUint256Array[index + succeededAddressesIndex] = uint256(uint64(dataInt64Array[index]));
+        bool succeededPayment,
+        address[] memory holdersArray,
+        int64[] memory amountsArray,
+        ILifeCycleCashFlow.PaymentResult[] memory result,
+        uint256 resultIndex
+    )
+        private
+        pure
+    {
+        for (uint256 index; index < holdersArray.length; ) {
+            if (succeededPayment) {
+                result[index+resultIndex].amount = amountsArray[index];
+                result[index+resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
+            } else {
+                result[index+resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+            }
 
             unchecked {
                 ++index;
             }
         }
-        resultAddressArray = sourceAddressArray;
-        resultUint256Array = sourceUint256Array;
     }
 
     /**
@@ -1046,101 +1034,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is
     function _checkPaymentDate(uint256 initialDate, uint256 currentDate) private pure {
         if (initialDate == 0 || currentDate < initialDate) {
             revert ILifeCycleCashFlow.NotPaymentDate(initialDate, currentDate);
-        }
-    }
-
-    /**
-     * @dev Resize the results of a redemption payment operation.
-     *
-     * @param inputResult The input result containing the original arrays of
-     *                    failed addresses, succeeded addresses, and paid amounts.
-     * @param payingArraysIndexes An struct containing the size of holders who were
-     *                    successfully paid and holders who don't.
-     *
-     * @return outputResult The resized result containing the updated arrays of
-     *                      failed addresses, succeeded addresses, and paid amounts.
-     */
-    function _resizeRedemptionResults(
-        ILifeCycleCashFlow.RedemptionPaymentResult memory inputResult,
-        PayingArraysIndexes memory payingArraysIndexes
-    )
-        private
-        pure
-        returns (ILifeCycleCashFlow.RedemptionPaymentResult memory outputResult)
-    {
-        outputResult.failedAddresses = new address[](
-            payingArraysIndexes.failedAddressesIndex
-        );
-        outputResult.succeededAddresses = new address[](
-            payingArraysIndexes.succeededAddressesIndex
-        );
-        outputResult.paidAmounts = new uint256[](
-            payingArraysIndexes.succeededAddressesIndex
-        );
-
-        for (uint256 i = 0; i < outputResult.failedAddresses.length; ++i) {
-            outputResult.failedAddresses[i] = inputResult.failedAddresses[i];
-        }
-        for (uint256 i = 0; i < outputResult.succeededAddresses.length; ++i) {
-            outputResult.succeededAddresses[i] = inputResult.succeededAddresses[
-                i
-            ];
-        }
-        for (uint256 i = 0; i < outputResult.paidAmounts.length; ++i) {
-            outputResult.paidAmounts[i] = inputResult.paidAmounts[i];
-        }
-    }
-
-    /**
-     * @dev Resize the results of a distribution payment operation.
-     *
-     * @param inputResult The input result containing the original arrays of
-     *                    failed addresses, succeeded addresses, already paid addresses
-     *                    and paid amounts.
-     * @param payingArraysIndexes An struct containing the size of holders who were
-     *                    successfully paid, holders who don't, and holders who were already paid.
-     *
-     * @return outputResult The resized result containing the updated arrays of
-     *                      failed addresses, succeeded addresses, already paid addresses
-     *                      and paid amounts.
-     */
-    function _resizeDistributionResults(
-        ILifeCycleCashFlow.DistributionPaymentResult memory inputResult,
-        PayingArraysIndexes memory payingArraysIndexes
-    )
-        private
-        pure
-        returns (
-            ILifeCycleCashFlow.DistributionPaymentResult memory outputResult
-        )
-    {
-        outputResult.failedAddresses = new address[](
-            payingArraysIndexes.failedAddressesIndex
-        );
-        outputResult.succeededAddresses = new address[](
-            payingArraysIndexes.succeededAddressesIndex
-        );
-        outputResult.paidAmounts = new uint256[](
-            payingArraysIndexes.succeededAddressesIndex
-        );
-        outputResult.alreadyPaidAddresses = new address[](
-            payingArraysIndexes.alreadyPaidAddressesIndex
-        );
-
-        for (uint256 i = 0; i < outputResult.failedAddresses.length; ++i) {
-            outputResult.failedAddresses[i] = inputResult.failedAddresses[i];
-        }
-        for (uint256 i = 0; i < outputResult.succeededAddresses.length; ++i) {
-            outputResult.succeededAddresses[i] = inputResult.succeededAddresses[
-                i
-            ];
-        }
-        for (uint256 i = 0; i < outputResult.paidAmounts.length; ++i) {
-            outputResult.paidAmounts[i] = inputResult.paidAmounts[i];
-        }
-        for (uint256 i = 0; i < outputResult.alreadyPaidAddresses.length; ++i) {
-            outputResult.alreadyPaidAddresses[i] = inputResult
-                .alreadyPaidAddresses[i];
         }
     }
 }
