@@ -7,9 +7,7 @@ import { CreateClearingRedeemTransactionAppServiceRequest } from "@app/bond/tran
 export class CreateClearingRedeemTransactionAppService {
   constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
 
-  async execute(
-    request: CreateClearingRedeemTransactionAppServiceRequest,
-  ): Promise<TransactionAppServiceResponse> {
+  async execute(request: CreateClearingRedeemTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
     return await this.transactionBuilderPort.createClearingRedeemTransaction(request)
   }
 }

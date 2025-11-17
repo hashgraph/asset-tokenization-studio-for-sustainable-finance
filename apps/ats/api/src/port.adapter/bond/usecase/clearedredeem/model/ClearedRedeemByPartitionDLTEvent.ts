@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class ClearedRedeemFromByPartitionDLTEvent extends DLTEvent {
+export class ClearedRedeemByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string

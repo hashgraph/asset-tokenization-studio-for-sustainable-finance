@@ -8,9 +8,7 @@ import { CreateClearingRedeemTransactionAppService } from "@app/bond/transaction
 
 @RestController("bonds")
 export class CreateClearingRedeemTransactionHttpAdapter implements CreateClearingRedeemTransactionPort {
-  constructor(
-    private readonly createClearingRedeemTransactionAppService: CreateClearingRedeemTransactionAppService,
-  ) {}
+  constructor(private readonly createClearingRedeemTransactionAppService: CreateClearingRedeemTransactionAppService) {}
 
   @Post(":bondContractId/holders/:holderAccountId/clearings/redeem")
   async createClearingRedeemTransaction(

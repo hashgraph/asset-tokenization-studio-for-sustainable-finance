@@ -2,7 +2,7 @@
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { ClearingRedeem, ClearingRedeemStatus } from "../model/ClearingRedeem"
 import type { ClearingRedeemRepository } from "../repository/ClearingRedeemRepository"
-import { ClearingFoundError } from "../errors/ClearingFoundError"
+import { ClearingRedeemFoundError } from "../errors/ClearingRedeemFoundError"
 import { CreateClearingRedeemDomainServiceRequest } from "./model/CreateClearingRedeemDomainServiceRequest"
 
 @Singleton()
@@ -20,7 +20,7 @@ export class CreateClearingRedeemDomainService {
     )
 
     if (existingClearing) {
-      throw new ClearingFoundError(request.clearingId)
+      throw new ClearingRedeemFoundError(request.clearingId)
     }
     const clearing = new ClearingRedeem()
     const date = new Date()

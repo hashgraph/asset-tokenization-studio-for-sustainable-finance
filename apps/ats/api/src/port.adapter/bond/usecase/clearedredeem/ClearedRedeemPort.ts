@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { ClearedRedeemFromByPartitionDLTEvent } from "./model/ClearedRedeemFromByPartitionDLTEvent"
+import { ClearedRedeemByPartitionDLTEvent } from "./model/ClearedRedeemByPartitionDLTEvent"
 
 export interface ClearedRedeemPort {
-  handle(event: ClearedRedeemFromByPartitionDLTEvent): Promise<void>
+  handle(event: ClearedRedeemByPartitionDLTEvent): Promise<void>
 }

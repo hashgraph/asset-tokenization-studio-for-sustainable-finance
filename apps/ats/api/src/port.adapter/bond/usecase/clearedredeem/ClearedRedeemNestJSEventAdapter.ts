@@ -7,18 +7,18 @@ import {
   Singleton,
   Inject,
 } from "@hashgraph/green-bonds-shared-core"
-import { ClearedRedeemFromByPartitionDLTEvent } from "@port/bond/usecase/clearedredeem/model/ClearedRedeemFromByPartitionDLTEvent"
+import { ClearedRedeemByPartitionDLTEvent } from "@port/bond/usecase/clearedredeem/model/ClearedRedeemByPartitionDLTEvent"
 import { ClearedRedeemPort } from "@port/bond/usecase/clearedredeem/ClearedRedeemPort"
 import { CreateClearingRedeemCommand } from "@app/bond/createclearingredeem/command/CreateClearingRedeemCommand"
 
 @Singleton()
 export class ClearedRedeemNestJSEventAdapter
-  implements ClearedRedeemPort, EventListener<ClearedRedeemFromByPartitionDLTEvent>
+  implements ClearedRedeemPort, EventListener<ClearedRedeemByPartitionDLTEvent>
 {
   constructor(@Inject() private readonly commandBus: CommandBus) {}
 
-  @Handler(ClearedRedeemFromByPartitionDLTEvent)
-  async handle(event: ClearedRedeemFromByPartitionDLTEvent): Promise<void> {
+  @Handler(ClearedRedeemByPartitionDLTEvent)
+  async handle(event: ClearedRedeemByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateClearingRedeemCommand(
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
