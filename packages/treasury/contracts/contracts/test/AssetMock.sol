@@ -60,6 +60,7 @@ contract AssetMock is IAssetMock {
     {
         bondDetailsData_.currency = 0x555344;
         bondDetailsData_.nominalValue = 20000;
+        bondDetailsData_.nominalValueDecimals = 2;
         bondDetailsData_.startingDate = 1751282807;
         bondDetailsData_.maturityDate = isToday ? block.timestamp : 1919590386;
     }

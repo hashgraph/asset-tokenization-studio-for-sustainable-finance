@@ -4,11 +4,11 @@ import { expect } from 'chai'
 import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import { AddressZero } from '@ethersproject/constants'
-import { deployContract, deployPaymentToken } from '../scripts/test/deploy'
-import { deployTreasury } from '../scripts/workflows/deployTreasury'
-import { HardhatProvider } from '@hashgraph/asset-tokenization-contracts/scripts'
+import { PAYOUT_ROLE, PAUSER_ROLE } from '../../scripts/constants'
+import { deployContract, deployPaymentToken } from '../helpers/deployment'
+import { deployTreasury } from '../../scripts/workflows/deployTreasury'
+import { AssetMock__factory } from "@contract-types";
 import type { ITreasury } from '@contracts'
-import { PAYOUT_ROLE, PAUSER_ROLE } from '../scripts/constants'
 
 describe('LifeCycleCashFlow operations', () => {
     let signer_A, signer_B
@@ -19,12 +19,10 @@ describe('LifeCycleCashFlow operations', () => {
 
     beforeEach(async () => {
         ;[signer_A, signer_B] = await ethers.getSigners()
-
-        const provider = new HardhatProvider()
-        const deployment = await deployTreasury(provider, 'hardhat', {
-            useTimeTravel: false,
-            saveOutput: false,
-        })
+        const deployment = await deployTreasury(signer_A, "hardhat", {
+          useTimeTravel: false,
+          saveOutput: false,
+        });
 
         treasury = (await ethers.getContractAt(
             'ITreasury',
@@ -34,7 +32,8 @@ describe('LifeCycleCashFlow operations', () => {
 
     describe('initialize_LifeCycleCashFlow', () => {
         beforeEach(async () => {
-            assetAddress = await deployContract('AssetMock', signer_A, [
+            const assetFactory = new AssetMock__factory(signer_A);
+            assetAddress = await deployContract(assetFactory, [
                 false,
                 1,
                 [],
@@ -61,7 +60,8 @@ describe('LifeCycleCashFlow operations', () => {
     describe('executeBondRedemption', () => {
         describe('LifeCycleCashFlow with a redemption date that has not already arrived', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     false,
                     1,
                     [],
@@ -125,7 +125,8 @@ describe('LifeCycleCashFlow operations', () => {
         describe('LifeCycleCashFlow with a redemption date that has already arrived', () => {
             describe('Redeem a bond without holders', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         1,
                         [],
@@ -150,7 +151,8 @@ describe('LifeCycleCashFlow operations', () => {
 
         describe('Redeem a bond with an address zero holder', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     true,
                     1,
                     [AddressZero],
@@ -191,7 +193,8 @@ describe('LifeCycleCashFlow operations', () => {
 
         describe('Redeem a bond with holders', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     true,
                     120,
                     [signer_B.address],
@@ -312,7 +315,8 @@ describe('LifeCycleCashFlow operations', () => {
 
         describe('Redeem a bond with two holders', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     true,
                     120,
                     [signer_B.address, signer_A.address],
@@ -379,7 +383,8 @@ describe('LifeCycleCashFlow operations', () => {
 
         describe('Redeem a bond with holders and a great amount of tokens', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     true,
                     4611686018000n,
                     [signer_B.address],
@@ -427,7 +432,8 @@ describe('LifeCycleCashFlow operations', () => {
     describe('executeBondRedemptionByAddresses', () => {
         describe('LifeCycleCashFlow with a redemption date that has not already arrived', () => {
             beforeEach(async () => {
-                assetAddress = await deployContract('AssetMock', signer_A, [
+                const assetFactory = new AssetMock__factory(signer_A);
+                assetAddress = await deployContract(assetFactory, [
                     false,
                     1,
                     [],
@@ -498,7 +504,8 @@ describe('LifeCycleCashFlow operations', () => {
         describe('LifeCycleCashFlow with a redemption payment date that has already arrived', () => {
             describe('Redeem a bond without holders', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         1,
                         [],
@@ -533,7 +540,8 @@ describe('LifeCycleCashFlow operations', () => {
 
             describe('Redeem a bond with an address zero holder', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         1,
                         [AddressZero],
@@ -572,7 +580,8 @@ describe('LifeCycleCashFlow operations', () => {
 
             describe('Redeem a bond with holders', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         120,
                         [signer_B.address],
@@ -690,7 +699,8 @@ describe('LifeCycleCashFlow operations', () => {
 
             describe('Redeem a bond with two holders', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         120,
                         [signer_B.address, signer_A.address],
@@ -756,7 +766,8 @@ describe('LifeCycleCashFlow operations', () => {
 
             describe('Redeem a bond with holders and a great amount of tokens', () => {
                 beforeEach(async () => {
-                    assetAddress = await deployContract('AssetMock', signer_A, [
+                    const assetFactory = new AssetMock__factory(signer_A);
+                    assetAddress = await deployContract(assetFactory, [
                         true,
                         4611686018000n,
                         [signer_B.address],

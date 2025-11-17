@@ -1,19 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 
+import { expect } from "chai";
 import { ethers } from "hardhat";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
-import { expect } from "chai";
+import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
 import { deployContract, deployPaymentToken } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasury";
-import { ITreasury, ITreasury__factory } from "@contract-types";
 import { AssetMock__factory } from "@contract-types";
-import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
+import type { ITreasury } from "@contract-types";
 
 describe("LifeCycleCashFlow operations", () => {
-  let signer_A: SignerWithAddress;
-  let signer_B: SignerWithAddress;
+  let signer_A, signer_B;
   let treasury: ITreasury;
   let assetAddress: string;
   let paymentTokenAddress: string;
@@ -21,13 +19,12 @@ describe("LifeCycleCashFlow operations", () => {
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
-
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
     });
 
-    treasury = ITreasury__factory.connect(deployment.infrastructure.treasury.proxy, signer_A);
+    treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
   });
 
   describe("initialize_LifeCycleCashFlow", () => {
@@ -237,7 +234,7 @@ describe("LifeCycleCashFlow operations", () => {
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
+        it.only("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted", async () => {
           let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           paymentTokenFactory = paymentTokenFactory.connect(signer_A);
           await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);

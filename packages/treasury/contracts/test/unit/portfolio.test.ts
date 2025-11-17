@@ -5,9 +5,8 @@ import { ethers } from "hardhat";
 import { AddressZero } from "@ethersproject/constants";
 import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from "../../scripts/constants";
 import { deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
-import type { ITreasury, IPaymentTokenFactory } from "@contract-types";
 import { deployTreasury } from "../../scripts/workflows/deployTreasury";
-import { AssetMock__factory } from "@contract-types";
+import type { ITreasury, IPaymentTokenFactory } from "@contract-types";
 
 describe("Portfolio operations", () => {
   let signer_A, signer_B;

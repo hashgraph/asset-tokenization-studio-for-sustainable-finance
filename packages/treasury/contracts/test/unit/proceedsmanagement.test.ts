@@ -6,9 +6,9 @@ import { BigNumber } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAUSER_ROLE, FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from "../../scripts/constants";
 import { deployContract, deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
-import type { ITreasury } from "@contract-types";
 import { deployTreasury } from "../../scripts/workflows/deployTreasury";
 import { AssetMock__factory } from "@contract-types";
+import type { ITreasury } from "@contract-types";
 
 describe("Proceeds management operations", () => {
   let signer_A, signer_B;
@@ -84,12 +84,11 @@ describe("Proceeds management operations", () => {
         .withArgs(200);
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address account, THEN a TransferPaymentTokenFailed error occurs", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address account, THEN a InvalidAddressZero error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(treasury.transferPaymentToken(AddressZero, 100))
-        .to.be.revertedWithCustomError(treasury, "TransferPaymentTokenFailed")
-        .withArgs(AddressZero, 100);
+        .to.be.revertedWithCustomError(treasury, "InvalidAddressZero")
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an amount of payment tokens greater than 9223372036854775807, THEN a NotAllowedAmount error occurs", async () => {
@@ -282,12 +281,11 @@ describe("Proceeds management operations", () => {
           .withArgs(200);
       });
 
-      it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a TransferPaymentTokenFailed error occurs", async () => {
+      it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a InvalidAddressZero error occurs", async () => {
         await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address);
 
         await expect(treasury.fundProceedsRecipient(AddressZero, 100))
-          .to.be.revertedWithCustomError(treasury, "TransferPaymentTokenFailed")
-          .withArgs(AddressZero, 100);
+          .to.be.revertedWithCustomError(treasury, "InvalidAddressZero")
       });
 
       it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient with an amount greater than 9223372036854775807, THEN a NotAllowedAmount error occurs", async () => {
