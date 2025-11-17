@@ -12,6 +12,7 @@ import { HeldByPartitionDLTEvent } from "@port/bond/usecase/createbondhold/model
 import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { BondHoldFoundError } from "@domain/bond/hold/errors/BondHoldFoundError"
+import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("CreateBondHoldNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -19,6 +20,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
   let eventBus: EventBus
   let bondHoldRepository: Repository<BondHoldPersistence>
   let bondRepository: Repository<BondPersistence>
+  let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
 
   const createTestBond = async (contractId: string = "0.0.6974684"): Promise<BondPersistence> => {
     const bond = {
@@ -38,6 +40,22 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
     return await bondRepository.save(bond)
   }
 
+  const createTestBondHolderBalance = async (
+    contractId: string,
+    holderAccountId: string,
+    partition: string,
+    availableBalance: string,
+  ): Promise<BondHolderBalancePersistence> => {
+    const balance = {
+      contractId,
+      holderAccountId,
+      partition,
+      availableBalance,
+      lockedBalance: "0",
+    }
+    return await bondHolderBalanceRepository.save(balance)
+  }
+
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
   })
@@ -54,6 +72,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
     eventBus = app.get("EventBus")
     bondHoldRepository = app.get(getRepositoryToken(BondHoldPersistence))
     bondRepository = app.get(getRepositoryToken(BondPersistence))
+    bondHolderBalanceRepository = app.get(getRepositoryToken(BondHolderBalancePersistence))
 
     // Mock the ConverterUtils to return consistent Hedera addresses
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
@@ -74,14 +93,21 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
   afterEach(async () => {
     await bondHoldRepository.clear()
+    await bondHolderBalanceRepository.clear()
     await bondRepository.clear()
     jest.restoreAllMocks()
     await app.close()
   })
 
   describe("CreateBondHoldNestJSEventAdapter", () => {
-    it("should create a new bond hold when HeldByPartitionDLTEvent is published", async () => {
+    it("should create a new bond hold and decrease holder balance when HeldByPartitionDLTEvent is published", async () => {
       await createTestBond("0.0.6974684")
+      await createTestBondHolderBalance(
+        "0.0.6974684",
+        "0.0.7654321",
+        "0x7265736572766564000000000000000000000000000000000000000000000000",
+        "5000",
+      )
 
       const event = new HeldByPartitionDLTEvent(
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
@@ -94,6 +120,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "1735689600",
         "0xa1b2c3d4e5f6789012345678901234567890abcd",
         "0xb3533f32594B689F19A94C608490451478F7197b",
+        "0x",
         "0x",
       )
 
@@ -115,10 +142,24 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       expect(savedBondHold!.toAccountId).toBe("0.0.7654321")
       expect(savedBondHold!.data).toBe("0x")
       expect(savedBondHold!.operatorAccountId).toBe("0.0.1234567")
+
+      const updatedBalance = await bondHolderBalanceRepository.findOne({
+        where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+      })
+
+      expect(updatedBalance).toBeDefined()
+      expect(updatedBalance!.availableBalance).toBe("4000")
+      expect(updatedBalance!.lockedBalance).toBe("1000")
     })
 
     it("should create a bond hold with no destination (address(0))", async () => {
       await createTestBond("0.0.6974684")
+      await createTestBondHolderBalance(
+        "0.0.6974684",
+        "0.0.7654321",
+        "0x7265736572766564000000000000000000000000000000000000000000000000",
+        "5000",
+      )
 
       const event = new HeldByPartitionDLTEvent(
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
@@ -131,6 +172,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "1735689600",
         "0xa1b2c3d4e5f6789012345678901234567890abcd",
         "0x0000000000000000000000000000000000000000",
+        "0x",
         "0x",
       )
 
@@ -175,6 +217,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "0xa1b2c3d4e5f6789012345678901234567890abcd",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x",
+        "0x",
       )
 
       await expect(eventBus.publishSync(event, HeldByPartitionDLTEvent.name)).rejects.toThrow(
@@ -184,6 +227,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
     it("should create multiple bond holds with different holdIds successfully", async () => {
       await createTestBond("0.0.6974684")
+      await createTestBondHolderBalance(
+        "0.0.6974684",
+        "0.0.7654321",
+        "0x7265736572766564000000000000000000000000000000000000000000000000",
+        "10000",
+      )
 
       const holdIds = [1, 2, 3]
 
@@ -199,6 +248,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
           "1735689600",
           "0xa1b2c3d4e5f6789012345678901234567890abcd",
           "0xb3533f32594B689F19A94C608490451478F7197b",
+          "0x",
           "0x",
         )
 
@@ -220,6 +270,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
     it("should convert EVM addresses to Hedera addresses correctly", async () => {
       await createTestBond("0.0.6974684")
+      await createTestBondHolderBalance(
+        "0.0.6974684",
+        "0.0.7654321",
+        "0x7265736572766564000000000000000000000000000000000000000000000000",
+        "5000",
+      )
 
       const event = new HeldByPartitionDLTEvent(
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
@@ -232,6 +288,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "1735689600",
         "0xa1b2c3d4e5f6789012345678901234567890abcd",
         "0xb3533f32594B689F19A94C608490451478F7197b",
+        "0x",
         "0x",
       )
 
@@ -254,6 +311,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
       await createTestBond("0.0.6974684")
+      await createTestBondHolderBalance(
+        "0.0.6974684",
+        "0.0.7654321",
+        "0x7265736572766564000000000000000000000000000000000000000000000000",
+        "5000",
+      )
 
       const event = new HeldByPartitionDLTEvent(
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
@@ -266,6 +329,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "1735689600",
         "0xa1b2c3d4e5f6789012345678901234567890abcd",
         "0xb3533f32594B689F19A94C608490451478F7197b",
+        "0x",
         "0x",
       )
 
@@ -296,6 +360,11 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         "0x6c6f636b65640000000000000000000000000000000000000000000000000000",
       ]
 
+      // Create balance for each partition
+      for (const partition of partitions) {
+        await createTestBondHolderBalance("0.0.6974684", "0.0.7654321", partition, "5000")
+      }
+
       for (let i = 0; i < partitions.length; i++) {
         const event = new HeldByPartitionDLTEvent(
           "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
@@ -308,6 +377,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
           "1735689600",
           "0xa1b2c3d4e5f6789012345678901234567890abcd",
           "0xb3533f32594B689F19A94C608490451478F7197b",
+          "0x",
           "0x",
         )
 

@@ -12,6 +12,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
   readonly escrow: string
   readonly to: string
   readonly data: string
+  readonly operatorData: string
 
   constructor(
     contractId: string,
@@ -25,6 +26,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
     escrow: string,
     to: string,
     data: string,
+    operatorData: string,
   ) {
     super(contractId, transactionHash)
     this.operator = operator
@@ -36,5 +38,6 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
     this.escrow = escrow
     this.to = to
     this.data = data
+    this.operatorData = operatorData
   }
 }

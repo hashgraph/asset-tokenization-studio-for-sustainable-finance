@@ -23,7 +23,7 @@ export class CreateBondHoldNestJSEventAdapter implements CreateBondHoldPort, Eve
         await ConverterUtils.getHederaAddressFromEvm(event.escrow),
         await ConverterUtils.getHederaAddressFromEvm(event.to),
         event.data,
-        "",
+        event.operatorData,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
       ),
     )

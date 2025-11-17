@@ -71,6 +71,7 @@ import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/up
 import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
 import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
+import { HoldBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/HoldBondHolderBalanceDomainService"
 import {
   COMMON_FUNCTIONALITY_ENTITIES,
   COMMON_FUNCTIONALITY_PROVIDERS,
@@ -240,6 +241,7 @@ export const PROVIDERS = [
   UpdateBondHolderBalanceDomainService,
   UpdateBondHolderBalanceCommandHandler,
   LockBondHolderBalanceDomainService,
+  HoldBondHolderBalanceDomainService,
   ReleaseBondLockTransactionAppService,
   ReleaseBondLockCommandHandler,
   ReleaseBondLockNestJSEventAdapter,
