@@ -117,6 +117,12 @@ import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/
 import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
 import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
 import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
+import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -176,6 +182,10 @@ export const CONTROLLERS = [
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
+  GetRoleMembersHttpAdapter,
+  GetUserRolesHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RevokeRoleTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -251,6 +261,8 @@ export const PROVIDERS = [
   RemoveProceedRecipientNestJSEventAdapter,
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
+  GrantRoleNestJSEventAdapter,
+  RevokeRoleNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
