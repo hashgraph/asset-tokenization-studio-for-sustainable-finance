@@ -22,6 +22,7 @@ import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStat
 import { CreateSchema1759133092414 } from "./migrations/1759133092414-CreateSchema"
 import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
+import { BlockchainListenerHealthIndicator } from "@port/health/BlockchainListenerHealthIndicator"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -50,6 +51,7 @@ export const EVENT_LISTENER_PROVIDERS = [
   ProcessBlocksAppService,
   EventListenerNestJSOnApplicationBootstrap,
   PublishEventPortNestJSEventAdapter,
+  BlockchainListenerHealthIndicator,
   {
     provide: "ConfigService",
     useClass: NestJSConfigService,

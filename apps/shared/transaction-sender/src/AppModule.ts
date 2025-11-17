@@ -11,6 +11,9 @@ import { BlockchainTransactionSenderAdapter } from "./port.adapter/transactionse
 import { TransactionSenderConfigService } from "./config/TransactionSenderConfigService"
 import { TransactionResultPublisherRabbitAdapter } from "./port.adapter/transactionresultpublisher/TransactionResultPublisherRabbitAdapter"
 import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/usecase/publishtransactionresult/PublishTransactionResultNestJSEventAdapter"
+import { RabbitMQHealthIndicator } from "@port/health/indicator/RabbitMQHealthIndicator"
+import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
+
 @Module({
   imports: [
     SharedModule,
@@ -28,7 +31,7 @@ import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/us
       defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK,
     }),
   ],
-  controllers: [],
+  controllers: [HealthHttpAdapter],
   providers: [
     TransactionSenderConfigService,
     SendHederaSignedTransactionRabbitAdapter,
@@ -46,6 +49,7 @@ import { PublishTransactionResultNestJSEventAdapter } from "@port/transaction/us
       provide: "PublishTransactionResult",
       useClass: TransactionResultPublisherRabbitAdapter,
     },
+    RabbitMQHealthIndicator,
   ],
 })
 export class AppModule {}
