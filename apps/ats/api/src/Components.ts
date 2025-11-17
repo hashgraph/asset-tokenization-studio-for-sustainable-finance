@@ -70,8 +70,7 @@ import { BondHolderBalanceTypeOrmRepository } from "@port/bond/persistence/repos
 import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/updatebondholderbalance/UpdateBondHolderBalanceNestJSEventAdapter"
 import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
-import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
-import { HoldBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/HoldBondHolderBalanceDomainService"
+import { DecreaseBondHolderAvailableBalanceDomainService } from "@domain/bond/holderbalance/service/DecreaseBondHolderAvailableBalanceDomainService"
 import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
 import {
   COMMON_FUNCTIONALITY_ENTITIES,
@@ -283,8 +282,7 @@ export const PROVIDERS = [
   UpdateBondHolderBalanceNestJSEventAdapter,
   UpdateBondHolderBalanceDomainService,
   UpdateBondHolderBalanceCommandHandler,
-  LockBondHolderBalanceDomainService,
-  HoldBondHolderBalanceDomainService,
+  DecreaseBondHolderAvailableBalanceDomainService,
   ReleaseBondLockTransactionAppService,
   ReleaseBondLockCommandHandler,
   ReleaseBondLockNestJSEventAdapter,

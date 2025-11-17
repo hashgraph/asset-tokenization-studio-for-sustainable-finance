@@ -52,6 +52,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       partition,
       availableBalance,
       lockedBalance: "0",
+      heldBalance: "0",
     }
     return await bondHolderBalanceRepository.save(balance)
   }
@@ -149,7 +150,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
       expect(updatedBalance).toBeDefined()
       expect(updatedBalance!.availableBalance).toBe("4000")
-      expect(updatedBalance!.lockedBalance).toBe("1000")
+      expect(updatedBalance!.heldBalance).toBe("1000")
     })
 
     it("should create a bond hold with no destination (address(0))", async () => {

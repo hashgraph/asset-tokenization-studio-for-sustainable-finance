@@ -17,6 +17,5 @@ module.exports = {
   testEnvironment: "node",
   transformIgnorePatterns: [
     "node_modules/(?!(p-retry|retry|is-network-error)/)"
-  ],
-  setupFiles: ["<rootDir>/../../../jest.setup.js"]
+  ]
 };
