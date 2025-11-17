@@ -3,10 +3,8 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {IProceedsManagement} from '../../interfaces/IProceedsManagement.sol';
-import {
-    LifeCycleCashFlowStorageWrapper
-} from '../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol';
+import { IProceedsManagement } from "../../interfaces/IProceedsManagement.sol";
+import { LifeCycleCashFlowStorageWrapper } from "../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol";
 import {
     IProceedRecipients
 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
@@ -14,9 +12,7 @@ import {
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
-abstract contract ProceedsManagementStorageWrapper is
-    LifeCycleCashFlowStorageWrapper
-{
+abstract contract ProceedsManagementStorageWrapper is LifeCycleCashFlowStorageWrapper {
     /**
      * @dev Check whether a proceeds recipient belongs to the bond
      *
@@ -63,17 +59,10 @@ abstract contract ProceedsManagementStorageWrapper is
         int256 responseCode = transferNFT(environmentalAsset, address(this), to, transformedSerialNumber);
 
         if (responseCode == HederaResponseCodes.SUCCESS) return;
-        if (
-            responseCode ==
-            HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO
-        ) {
+        if (responseCode == HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO) {
             revert IProceedsManagement.NotTokenIdOwner(serialNumber);
         }
-        revert IProceedsManagement.TransferEnvironmentalAssetTokenFailed(
-            environmentalAsset,
-            to,
-            serialNumber
-        );
+        revert IProceedsManagement.TransferEnvironmentalAssetTokenFailed(environmentalAsset, to, serialNumber);
     }
 
     /**
@@ -92,12 +81,9 @@ abstract contract ProceedsManagementStorageWrapper is
      * @param proceedsRecipient The proceeds recipient to be checked
      */
     function _checkProceedRecipient(address proceedsRecipient) private view {
-        bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset())
-            .isProceedRecipient(proceedsRecipient);
+        bool proceedsRecipientBelongsToBond = IProceedRecipients(_getAsset()).isProceedRecipient(proceedsRecipient);
         if (!proceedsRecipientBelongsToBond) {
-            revert IProceedsManagement.WrongProceedsRecipient(
-                proceedsRecipient
-            );
+            revert IProceedsManagement.WrongProceedsRecipient(proceedsRecipient);
         }
     }
 
