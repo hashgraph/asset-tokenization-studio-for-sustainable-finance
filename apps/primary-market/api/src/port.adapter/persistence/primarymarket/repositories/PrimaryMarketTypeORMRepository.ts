@@ -16,6 +16,11 @@ export class PrimaryMarketTypeORMRepository implements PrimaryMarketRepository {
     private readonly repository: Repository<PrimaryMarketPersistence>,
   ) {}
 
+  async save(primaryMarket: PrimaryMarket): Promise<PrimaryMarket> {
+    const persistence = await this.repository.save(primaryMarket)
+    return this.toDomain(persistence)
+  }
+
   async findByContractId(contractId: string): Promise<PrimaryMarket | null> {
     const persistence = await this.repository.findOne({
       where: { contractId },

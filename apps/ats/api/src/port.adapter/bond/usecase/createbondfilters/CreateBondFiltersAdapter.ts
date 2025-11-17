@@ -29,6 +29,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "RedeemedByPartition(bytes32 indexed partition,address indexed operator,address indexed from,uint256 value,bytes data,bytes operatorData)",
         "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
         "LockByPartitionReleased(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId)",
+        "TransferByPartition(bytes32 indexed _fromPartition,address indexed _operator,address indexed _from,address _to,uint256 _value,bytes _data,bytes _operatorData)",
       ]),
     )
   }

@@ -13,6 +13,7 @@ import {
   IERC1410__factory,
   IERC1643__factory,
   ILock__factory,
+  IProceedRecipients__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
@@ -27,6 +28,9 @@ import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
+import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
+import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 
 @Singleton()
@@ -314,6 +318,58 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [partition, req.lockId, req.holderAccountId],
+    )
+  }
+
+  async addProceedRecipientTransaction(
+    req: BuildAddProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "addProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress, data],
+    )
+  }
+
+  async removeProceedRecipientTransaction(
+    req: BuildRemoveProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "removeProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress],
+    )
+  }
+
+  async transferByPartitionTransaction(
+    req: BuildTransferByPartitionTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const basicTransferInfo = {
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId),
+      value: req.amount,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "transferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, basicTransferInfo, data],
     )
   }
 
