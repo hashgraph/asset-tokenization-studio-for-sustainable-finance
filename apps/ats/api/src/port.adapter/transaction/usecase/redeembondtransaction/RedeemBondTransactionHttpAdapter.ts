@@ -10,17 +10,15 @@ import { RedeemBondTransactionAppService } from "@app/bond/transaction/redeembon
 export class RedeemBondTransactionHttpAdapter implements RedeemBondTransactionPort {
   constructor(private readonly redeemBondTransactionAppService: RedeemBondTransactionAppService) {}
 
-  @Post(":bondContractId/holders/:holderAccountId/redeems")
+  @Post(":bondContractId/holders/redeem")
   async redeemBondTransaction(
     @Param("bondContractId") bondContractId: string,
-    @Param("holderAccountId") holderAccountId: string,
     @Body() request: RedeemBondTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new RedeemBondTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
       bondContractId,
-      holderAccountId,
       request.partition,
       request.amount,
       request.data,

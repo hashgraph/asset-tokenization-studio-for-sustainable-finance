@@ -40,10 +40,9 @@ describe("RedeemBondTransaction API Integration", () => {
     }
   })
 
-  describe("POST /bonds/:bondContractId/holders/:holderAccountId/redeems", () => {
+  describe("POST /bonds/:bondContractId/holders/redeem", () => {
     it("should redeem bond transaction with valid data", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest: RedeemBondTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -51,7 +50,7 @@ describe("RedeemBondTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(201)
 
@@ -61,7 +60,6 @@ describe("RedeemBondTransaction API Integration", () => {
 
     it("should redeem bond transaction with partition", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest: RedeemBondTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -70,7 +68,7 @@ describe("RedeemBondTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(201)
 
@@ -80,7 +78,6 @@ describe("RedeemBondTransaction API Integration", () => {
 
     it("should redeem bond transaction with data field", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest: RedeemBondTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -89,7 +86,7 @@ describe("RedeemBondTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(201)
 
@@ -100,14 +97,9 @@ describe("RedeemBondTransaction API Integration", () => {
     it("should handle different valid format values", async () => {
       const bondContractId = "0.0.67890"
       const formats = ["hedera", "ethereum"]
-      const holderAccountIds = [
-        "0x0000000000000000000000000000000000003039",
-        "0x000000000000000000000000000000000000303a",
-      ]
 
       for (let i = 0; i < formats.length; i++) {
         const format = formats[i]
-        const holderAccountId = holderAccountIds[i]
 
         const redeemBondRequest: RedeemBondTransactionRequest = {
           format: format,
@@ -116,7 +108,7 @@ describe("RedeemBondTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
           .send(redeemBondRequest)
           .expect(201)
       }
@@ -124,7 +116,6 @@ describe("RedeemBondTransaction API Integration", () => {
 
     it("should return 400 for invalid format values", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const invalidFormats = ["json", "hex", "base64", "xml", "invalid"]
 
       for (const format of invalidFormats) {
@@ -135,7 +126,7 @@ describe("RedeemBondTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
           .send(redeemBondRequest)
           .expect(400)
       }
@@ -143,7 +134,6 @@ describe("RedeemBondTransaction API Integration", () => {
 
     it("should return 500 for invalid bondContractId", async () => {
       const invalidBondContractId = "invalid-id"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest: RedeemBondTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -151,43 +141,26 @@ describe("RedeemBondTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${invalidBondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${invalidBondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(500)
     })
 
-    it("should return 500 for invalid holderAccountId", async () => {
-      const bondContractId = "0.0.67890"
-      const invalidHolderAccountId = "invalid-holder"
-      const redeemBondRequest: RedeemBondTransactionRequest = {
-        format: "hedera",
-        accountId: "0.0.5466269",
-        amount: "1000",
-      }
-
-      await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${invalidHolderAccountId}/redeems`)
-        .send(redeemBondRequest)
-        .expect(201)
-    })
-
     it("should return 400 for missing required field amount", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(400)
     })
 
     it("should return 400 for invalid amount (non-numeric string)", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
@@ -195,14 +168,13 @@ describe("RedeemBondTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(400)
     })
 
     it("should redeem bonds with different amounts successfully", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const amounts = ["100", "500", "1000", "10000"]
 
       for (const amount of amounts) {
@@ -213,7 +185,7 @@ describe("RedeemBondTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+          .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
           .send(redeemBondRequest)
           .expect(201)
 
@@ -223,14 +195,13 @@ describe("RedeemBondTransaction API Integration", () => {
 
     it("should accept request without accountId", async () => {
       const bondContractId = "0.0.67890"
-      const holderAccountId = "0x0000000000000000000000000000000000003039"
       const redeemBondRequest: Partial<RedeemBondTransactionRequest> = {
         format: "ethereum",
         amount: "1000",
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/redeems`)
+        .post(`/api/v1/ats/bonds/${bondContractId}/holders/redeem`)
         .send(redeemBondRequest)
         .expect(201)
 

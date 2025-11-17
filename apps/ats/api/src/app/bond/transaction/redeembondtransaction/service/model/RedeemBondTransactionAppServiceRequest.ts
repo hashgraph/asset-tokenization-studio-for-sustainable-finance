@@ -4,10 +4,6 @@ import { IsNotEmpty, IsNumberString, IsOptional, IsString } from "class-validato
 
 export class RedeemBondTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsString()
-  @IsNotEmpty()
-  holderAccountId: string
-
-  @IsString()
   @IsOptional()
   partition?: string
 
@@ -23,13 +19,11 @@ export class RedeemBondTransactionAppServiceRequest extends BaseTransactionAppSe
     format: string,
     accountId: string,
     bondContractId: string,
-    holderAccountId: string,
     partition: string | undefined,
     amount: string,
     data?: string,
   ) {
     super(format, accountId, bondContractId)
-    this.holderAccountId = holderAccountId
     this.partition = partition
     this.amount = amount
     this.data = data
