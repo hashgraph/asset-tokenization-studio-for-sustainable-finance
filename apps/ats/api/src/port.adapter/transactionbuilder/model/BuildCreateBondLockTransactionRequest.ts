@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
+import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsNumberString, IsOptional, IsString } from "class-validator"
 
-export class BuildCreateBondLockTransactionRequest extends BaseTransactionAppServiceRequest {
+export class BuildCreateBondLockTransactionRequest extends BaseBuildTransactionRequest {
   @IsString()
   @IsNotEmpty()
   holderAccountId: string

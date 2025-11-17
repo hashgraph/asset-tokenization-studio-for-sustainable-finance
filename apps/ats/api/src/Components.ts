@@ -90,12 +90,28 @@ import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/Get
 import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
 import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
+import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
+import { AddProceedRecipientTransactionAppService } from "@app/bond/transaction/addproceedrecipienttransaction/service/AddProceedRecipientTransactionAppService"
+import { AddProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/addproceedrecipient/AddProceedRecipientNestJSEventAdapter"
+import { AddProceedRecipientCommandHandler } from "@app/bond/addproceedrecipient/command/AddProceedRecipientCommandHandler"
+import { AddBondProceedRecipientDomainService } from "@domain/bond/proceedrecipient/service/AddBondProceedRecipientDomainService"
+import { BondProceedRecipientTypeOrmRepository } from "@port/bond/persistence/repositories/BondProceedRecipientTypeOrmRepository"
+import { BondProceedRecipientPersistence } from "@port/bond/persistence/model/BondProceedRecipientPersistence"
+import { GetBondProceedRecipientsHttpAdapter } from "@port/bond/usecase/getbondproceedrecipients/GetBondProceedRecipientsHttpAdapter"
+import { GetBondProceedRecipientsQueryHandler } from "@app/bond/getbondproceedrecipients/query/GetBondProceedRecipientsQueryHandler"
+import { RemoveProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/removeproceedrecipienttransaction/RemoveProceedRecipientTransactionHttpAdapter"
+import { RemoveProceedRecipientTransactionAppService } from "@app/bond/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppService"
+import { RemoveProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/removeproceedrecipient/RemoveProceedRecipientNestJSEventAdapter"
+import { RemoveProceedRecipientCommandHandler } from "@app/bond/removeproceedrecipient/command/RemoveProceedRecipientCommandHandler"
+import { RemoveBondProceedRecipientDomainService } from "@domain/bond/proceedrecipient/service/RemoveBondProceedRecipientDomainService"
 import { PauseBondCommandHandler } from "@app/bond/pausebond/command/PauseBondCommandHandler"
 import { UnpauseBondCommandHandler } from "@app/bond/unpausebond/command/UnpauseBondCommandHandler"
 import { PauseBondNestJSEventAdapter } from "@port/bond/usecase/pausebond/PauseBondNestJSEventAdapter"
 import { UnpauseBondNestJSEventAdapter } from "@port/bond/usecase/unpausebond/UnpauseBondNestJSEventAdapter"
 import { GetControlListMembersHttpAdapter } from "@port/bond/usecase/getcontrollistmembers/GetControlListMembersHttpAdapter"
 import { GetControlListMembersQueryHandler } from "@app/bond/getcontrollistmembers/query/GetControlListMembersQueryHandler"
+import { GetBondDocumentsHttpAdapter } from "@port/bond/usecase/getbonddocuments/GetBondDocumentsHttpAdapter"
+import { GetBondDocumentsQueryHandler } from "@app/bond/getbonddocuments/query/GetBondDocumentsQueryHandler"
 import { TransferByPartitionTransactionHttpAdapter } from "@port/transaction/usecase/transferbypartitiontransaction/TransferByPartitionTransactionHttpAdapter"
 import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/transferbypartitiontransaction/service/TransferByPartitionTransactionAppService"
 import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
@@ -127,6 +143,10 @@ const REPOSITORIES: Provider[] = [
     provide: "BondHolderBalanceRepository",
     useClass: BondHolderBalanceTypeOrmRepository,
   },
+  {
+    provide: "BondProceedRecipientRepository",
+    useClass: BondProceedRecipientTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -142,6 +162,7 @@ export const CONTROLLERS = [
   SetBondCouponTransactionHttpAdapter,
   GetBondCouponsHttpAdapter,
   GetBondCouponHttpAdapter,
+  GetBondDocumentsHttpAdapter,
   GetBondLocksHttpAdapter,
   GetBondLockHttpAdapter,
   GetBondHoldersHttpAdapter,
@@ -151,6 +172,9 @@ export const CONTROLLERS = [
   ReleaseBondLockTransactionHttpAdapter,
   PauseBondTransactionHttpAdapter,
   UnpauseBondTransactionHttpAdapter,
+  AddProceedRecipientTransactionHttpAdapter,
+  RemoveProceedRecipientTransactionHttpAdapter,
+  GetBondProceedRecipientsHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
@@ -166,6 +190,7 @@ export const PROVIDERS = [
   GetBondsQueryHandler,
   GetBondCouponsQueryHandler,
   GetBondCouponQueryHandler,
+  GetBondDocumentsQueryHandler,
   GetBondLocksQueryHandler,
   GetBondLockQueryHandler,
   GetBondHoldersQueryHandler,
@@ -217,6 +242,15 @@ export const PROVIDERS = [
   TransferByPartitionNestJSEventAdapter,
   TransferBondHolderBalanceDomainService,
   CreateBondFiltersAdapter,
+  AddProceedRecipientTransactionAppService,
+  AddProceedRecipientCommandHandler,
+  AddProceedRecipientNestJSEventAdapter,
+  AddBondProceedRecipientDomainService,
+  RemoveProceedRecipientTransactionAppService,
+  RemoveProceedRecipientCommandHandler,
+  RemoveProceedRecipientNestJSEventAdapter,
+  RemoveBondProceedRecipientDomainService,
+  GetBondProceedRecipientsQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -235,4 +269,5 @@ export const ENTITIES = [
   BondCouponPersistence,
   BondLockPersistence,
   BondHolderBalancePersistence,
+  BondProceedRecipientPersistence,
 ]

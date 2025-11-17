@@ -70,6 +70,12 @@ import { RenounceRoleTransactionHttpAdapter } from "@port/transaction/usecase/re
 import { RenounceRoleNestJSEventAdapter } from "@port/role/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
 import { ApplyRolesNestJSEventAdapter } from "@port/role/usecase/applyroles/ApplyRolesNestJSEventAdapter"
+import { PausePrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/pauseprimarymarket/PausePrimaryMarketTransactionHttpAdapter"
+import { UnpausePrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarket/UnpausePrimaryMarketTransactionHttpAdapter"
+import { PausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/pauseprimarymarket/PausePrimaryMarketNestJSEventAdapter"
+import { UnpausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/unpauseprimarymarket/UnpausePrimaryMarketNestJSEventAdapter"
+import { PausePrimaryMarketCommandHandler } from "@app/primarymarket/pauseprimarymarket/command/PausePrimaryMarketCommandHandler"
+import { UnpausePrimaryMarketCommandHandler } from "@app/primarymarket/unpauseprimarymarket/command/UnpausePrimaryMarketCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -96,6 +102,8 @@ export const CONTROLLERS = [
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
+  PausePrimaryMarketTransactionHttpAdapter,
+  UnpausePrimaryMarketTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
@@ -129,11 +137,15 @@ export const PROVIDERS = [
   ApplyRolesNestJSEventAdapter,
   SubmitSubscriptionNestJSEventAdapter,
   CancelSubscriptionNestJSEventAdapter,
+  PausePrimaryMarketNestJSEventAdapter,
+  UnpausePrimaryMarketNestJSEventAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
   SubmitSubscriptionCommandHandler,
   CancelSubscriptionCommandHandler,
+  PausePrimaryMarketCommandHandler,
+  UnpausePrimaryMarketCommandHandler,
   GetSubscriptionQueryHandler,
   GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,

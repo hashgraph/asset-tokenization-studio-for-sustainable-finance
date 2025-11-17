@@ -22,9 +22,10 @@ export class BondDocumentTypeOrmRepository implements BondDocumentRepository {
     return (await this.repository.findOne({ where: { contractId, name } })) as BondDocument | null
   }
 
-  async findAll(options: PageOptions): Promise<Page<BondDocument>> {
+  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondDocument>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
+      where: { contractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,

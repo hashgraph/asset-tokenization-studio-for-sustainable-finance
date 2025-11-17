@@ -19,11 +19,7 @@ export class GrantRoleNestJSEventAdapter implements GrantRolePort, EventListener
   @Handler(RoleGrantedDLTEvent)
   async handle(event: RoleGrantedDLTEvent): Promise<void> {
     await this.commandBus.execute(
-      new GrantRoleCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.account),
-        event.role,
-        event.contractId,
-      ),
+      new GrantRoleCommand(await ConverterUtils.getHederaAddressFromEvm(event.account), event.role, event.contractId),
     )
   }
 }
