@@ -23,6 +23,9 @@ import { EventStoreStatus } from "@domain/eventstore/model/EventStoreStatus"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
 import { PostgresModule } from "../../../../shared/PostgresModule"
 import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
+import { TerminusModule } from "@nestjs/terminus"
+import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
+import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 
 let testDLTEvent: TestDLTEvent
 let errorOnDLTEventListener: boolean
@@ -39,10 +42,12 @@ describe("ProcessEventCommandHandler", () => {
 
   beforeEach(async () => {
     const providers = EVENT_LISTENER_PROVIDERS.filter(
-      (provider) => provider !== EventListenerNestJSOnApplicationBootstrap,
+      (provider) =>
+        ![EventListenerNestJSOnApplicationBootstrap, PublishEventPortNestJSEventAdapter].includes(provider) &&
+        provider?.useClass !== RabbitMQEventPublisherAdapter,
     )
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, TerminusModule, PostgresModule.forRoot(container.getConfig())],
       providers: [...providers, TestDLTEventListener],
     }).compile()
 

@@ -1,7 +1,5 @@
 import { CreateBondTransactionHttpAdapter } from "@port/transaction/usecase/createbondtransaction/CreateBondTransactionHttpAdapter"
 import { CreateBondTransactionAppService } from "@app/bond/transaction/createbondtransaction/service/CreateBondTransactionAppService"
-import { AppService } from "./AppService"
-import { AppController } from "./AppController"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
@@ -187,7 +185,6 @@ const REPOSITORIES: Provider[] = [
 ]
 
 export const CONTROLLERS = [
-  AppController,
   CreateBondTransactionHttpAdapter,
   GetBondHttpAdapter,
   GetBondsHttpAdapter,
@@ -223,7 +220,6 @@ export const CONTROLLERS = [
 export const PROVIDERS = [
   ...REPOSITORIES,
   ...COMMON_FUNCTIONALITY_PROVIDERS,
-  AppService,
   CreateBondTransactionAppService,
   CreateBondNestJSEventAdapter,
   CreateBondDomainService,

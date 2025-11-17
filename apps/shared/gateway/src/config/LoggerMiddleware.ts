@@ -36,7 +36,9 @@ export class LoggerMiddleware implements NestMiddleware {
         if (bodyStr) {
           ;(req as any)._resBodyLogged = bodyStr
         }
-      } catch {}
+      } catch {
+        // Do nothing
+      }
       return origEnd(chunk, encoding, cb)
     }
 

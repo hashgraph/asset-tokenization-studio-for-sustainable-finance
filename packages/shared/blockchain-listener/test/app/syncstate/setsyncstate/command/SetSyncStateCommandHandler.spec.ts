@@ -12,6 +12,9 @@ import { SetSyncStateCommand } from "@app/syncstate/setsyncstate/command/SetSync
 import { EVENT_LISTENER_PROVIDERS } from "../../../../../src/Components"
 import { EventListenerNestJSOnApplicationBootstrap } from "@port/listener/EventListenerNestJSOnApplicationBootstrap"
 import { PostgresModule } from "../../../../shared/PostgresModule"
+import { TerminusModule } from "@nestjs/terminus"
+import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
+import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 
 describe("SetSyncStateCommandHandler", () => {
   let app: INestApplication<App>
@@ -26,10 +29,12 @@ describe("SetSyncStateCommandHandler", () => {
 
   beforeEach(async () => {
     const providers = EVENT_LISTENER_PROVIDERS.filter(
-      (provider) => provider !== EventListenerNestJSOnApplicationBootstrap,
+      (provider) =>
+        ![EventListenerNestJSOnApplicationBootstrap, PublishEventPortNestJSEventAdapter].includes(provider) &&
+        provider?.useClass !== RabbitMQEventPublisherAdapter,
     )
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, TerminusModule, PostgresModule.forRoot(container.getConfig())],
       providers,
     }).compile()
 

@@ -14,6 +14,14 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
     logger: getLogLevels((process.env.LOG_LEVEL as LogLevel) || "log"),
   })
+
+  // Enable CORS
+  app.enableCors()
+
+  // Set global prefix
+  app.setGlobalPrefix("api/v1")
+
+  // Start the application
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()
