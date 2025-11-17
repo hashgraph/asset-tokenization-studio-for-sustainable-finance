@@ -109,10 +109,7 @@ describe("CancelClearingTransaction API Integration", () => {
       const bondContractId = "0.0.67890"
       const holderAccountId = "0.0.7654321"
       const clearingId = 1
-      const invalidRequests = [
-        {},
-        { format: "hedera" },
-      ]
+      const invalidRequests = [{}, { format: "hedera" }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())

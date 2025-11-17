@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { ConverterUtils, type CommandBus, EventListener, Handler, Singleton, Inject } from "@hashgraph/green-bonds-shared-core"
+import {
+  ConverterUtils,
+  type CommandBus,
+  EventListener,
+  Handler,
+  Singleton,
+  Inject,
+} from "@hashgraph/green-bonds-shared-core"
 import { ClearedHoldByPartitionDLTEvent } from "@port/bond/usecase/clearedhold/model/ClearedHoldByPartitionDLTEvent"
 import { ClearedHoldPort } from "@port/bond/usecase/clearedhold/ClearedHoldPort"
 import { CreateClearingHoldCommand } from "@app/bond/createclearinghold/command/CreateClearingHoldCommand"

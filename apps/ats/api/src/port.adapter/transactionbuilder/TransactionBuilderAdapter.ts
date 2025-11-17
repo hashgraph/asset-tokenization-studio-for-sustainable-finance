@@ -35,16 +35,9 @@ import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbui
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
-import {
-  BuildApproveClearingTransactionRequest
-} from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
-import {
-  BuildCancelClearingTransactionRequest
-} from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
-import {
-  BuildReclaimClearingTransactionRequest
-} from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
-
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
