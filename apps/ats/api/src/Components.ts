@@ -144,6 +144,10 @@ import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/
 import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 import { GetClearingsHoldHttpAdapter } from "@port/bond/usecase/getclearingshold/GetClearingsHoldHttpAdapter"
 import { GetClearingHoldHttpAdapter } from "@port/bond/usecase/getclearinghold/GetClearingHoldHttpAdapter"
+import { GetClearingsTransferHttpAdapter } from "@port/bond/usecase/getclearingstransfer/GetClearingsTransferHttpAdapter"
+import { GetClearingTransferHttpAdapter } from "@port/bond/usecase/getclearingtransfer/GetClearingTransferHttpAdapter"
+import { GetClearingsRedeemHttpAdapter } from "@port/bond/usecase/getclearingsredeem/GetClearingsRedeemHttpAdapter"
+import { GetClearingRedeemHttpAdapter } from "@port/bond/usecase/getclearingredeem/GetClearingRedeemHttpAdapter"
 import { CreateClearingHoldDomainService } from "@domain/bond/clearing/service/CreateClearingHoldDomainService"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
 import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
@@ -151,8 +155,16 @@ import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/D
 import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
 import { GetClearingsHoldDomainService } from "@domain/bond/clearing/service/GetClearingsHoldDomainService"
 import { GetClearingHoldByIdDomainService } from "@domain/bond/clearing/service/GetClearingHoldByIdDomainService"
+import { GetClearingsTransferDomainService } from "@domain/bond/clearing/service/GetClearingsTransferDomainService"
+import { GetClearingTransferByIdDomainService } from "@domain/bond/clearing/service/GetClearingTransferByIdDomainService"
+import { GetClearingsRedeemDomainService } from "@domain/bond/clearing/service/GetClearingsRedeemDomainService"
+import { GetClearingRedeemByIdDomainService } from "@domain/bond/clearing/service/GetClearingRedeemByIdDomainService"
 import { GetClearingsHoldQueryHandler } from "@app/bond/getclearingshold/query/GetClearingsHoldQueryHandler"
 import { GetClearingHoldQueryHandler } from "@app/bond/getclearinghold/query/GetClearingHoldQueryHandler"
+import { GetClearingsTransferQueryHandler } from "@app/bond/getclearingstransfer/query/GetClearingsTransferQueryHandler"
+import { GetClearingTransferQueryHandler } from "@app/bond/getclearingtransfer/query/GetClearingTransferQueryHandler"
+import { GetClearingsRedeemQueryHandler } from "@app/bond/getclearingsredeem/query/GetClearingsRedeemQueryHandler"
+import { GetClearingRedeemQueryHandler } from "@app/bond/getclearingredeem/query/GetClearingRedeemQueryHandler"
 import { ClearedHoldNestJSEventAdapter } from "@port/bond/usecase/clearedhold/ClearedHoldNestJSEventAdapter"
 import {
   ClearingOperationApprovedNestJSEventAdapter,
@@ -266,6 +278,10 @@ export const CONTROLLERS = [
   GetUserRolesHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
+  GetClearingsTransferHttpAdapter,
+  GetClearingTransferHttpAdapter,
+  GetClearingsRedeemHttpAdapter,
+  GetClearingRedeemHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -379,6 +395,14 @@ export const PROVIDERS = [
   GetClearingHoldByIdDomainService,
   GetClearingsHoldQueryHandler,
   GetClearingHoldQueryHandler,
+  GetClearingsTransferDomainService,
+  GetClearingTransferByIdDomainService,
+  GetClearingsTransferQueryHandler,
+  GetClearingTransferQueryHandler,
+  GetClearingsRedeemDomainService,
+  GetClearingRedeemByIdDomainService,
+  GetClearingsRedeemQueryHandler,
+  GetClearingRedeemQueryHandler,
   ClearedHoldNestJSEventAdapter,
   ClearingOperationApprovedNestJSEventAdapter,
   CancelClearingOperationNestJSEventAdapter,
