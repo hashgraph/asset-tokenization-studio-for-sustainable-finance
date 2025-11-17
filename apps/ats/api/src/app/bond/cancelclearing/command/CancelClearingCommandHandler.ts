@@ -4,6 +4,7 @@ import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/DeleteClearingHoldDomainService"
 import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
+import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
 import { DeleteClearingDomainServiceRequest } from "@domain/bond/clearing/service/model/DeleteClearingDomainServiceRequest"
 import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
 import { ClearingCanceledEvent } from "@domain/bond/clearing/event/ClearingCanceledEvent"
@@ -17,6 +18,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
   constructor(
     private readonly deleteClearingHoldDomainService: DeleteClearingHoldDomainService,
     private readonly deleteClearingRedeemDomainService: DeleteClearingRedeemDomainService,
+    private readonly deleteClearingTransferDomainService: DeleteClearingTransferDomainService,
     private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
@@ -49,8 +51,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
       case ClearingOperationType.HOLD:
         return await this.deleteClearingHoldDomainService.execute(request)
       case ClearingOperationType.TRANSFER:
-        // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.deleteClearingTransferDomainService.execute(request)
       case ClearingOperationType.REDEEM:
         return await this.deleteClearingRedeemDomainService.execute(request)
       default:

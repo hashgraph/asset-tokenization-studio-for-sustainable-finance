@@ -5,6 +5,7 @@ import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared
 import { ApproveClearingCommand } from "./ApproveClearingCommand"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
 import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
+import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { UpdateClearingStatusDomainServiceRequest } from "@domain/bond/clearing/service/model/UpdateClearingStatusDomainServiceRequest"
 import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
 import { ClearingApprovedEvent } from "@domain/bond/clearing/event/ClearingApprovedEvent"
@@ -18,6 +19,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
   constructor(
     private readonly updateClearingHoldStatusDomainService: UpdateClearingHoldStatusDomainService,
     private readonly updateClearingRedeemStatusDomainService: UpdateClearingRedeemStatusDomainService,
+    private readonly updateClearingTransferStatusDomainService: UpdateClearingTransferStatusDomainService,
     private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
@@ -51,8 +53,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
       case ClearingOperationType.HOLD:
         return await this.updateClearingHoldStatusDomainService.execute(request)
       case ClearingOperationType.TRANSFER:
-        // TODO: Uncomment when UpdateClearingTransferStatusDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.updateClearingTransferStatusDomainService.execute(request)
       case ClearingOperationType.REDEEM:
         return await this.updateClearingRedeemStatusDomainService.execute(request)
       default:

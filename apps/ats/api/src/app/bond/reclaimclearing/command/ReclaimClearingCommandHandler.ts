@@ -9,6 +9,7 @@ import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/err
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
 import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
+import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { UpdateClearingStatusDomainServiceRequest } from "@domain/bond/clearing/service/model/UpdateClearingStatusDomainServiceRequest"
 import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
@@ -18,6 +19,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
   constructor(
     private readonly updateClearingHoldStatusDomainService: UpdateClearingHoldStatusDomainService,
     private readonly updateClearingRedeemStatusDomainService: UpdateClearingRedeemStatusDomainService,
+    private readonly updateClearingTransferStatusDomainService: UpdateClearingTransferStatusDomainService,
     private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
@@ -51,8 +53,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
       case ClearingOperationType.HOLD:
         return await this.updateClearingHoldStatusDomainService.execute(request)
       case ClearingOperationType.TRANSFER:
-        // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.updateClearingTransferStatusDomainService.execute(request)
       case ClearingOperationType.REDEEM:
         return await this.updateClearingRedeemStatusDomainService.execute(request)
       default:

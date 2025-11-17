@@ -159,10 +159,12 @@ import {
 import { CancelClearingOperationNestJSEventAdapter } from "@port/bond/usecase/cancelclearingoperation/CancelClearingOperationNestJSEventAdapter"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondClearingRedeemPersistence } from "@port/bond/persistence/model/BondClearingRedeemPersistence"
+import { BondClearingTransferPersistence } from "@port/bond/persistence/model/BondClearingTransferPersistence"
 import { CreateClearingHoldCommandHandler } from "@app/bond/createclearinghold/command/CreateClearingHoldCommandHandler"
 import { CreateClearingRedeemCommandHandler } from "@app/bond/createclearingredeem/command/CreateClearingRedeemCommandHandler"
 import { ClearedRedeemNestJSEventAdapter } from "@port/bond/usecase/clearedredeem/ClearedRedeemNestJSEventAdapter"
 import { ClearingRedeemTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingRedeemTypeOrmRepository"
+import { ClearingTransferTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingTransferTypeOrmRepository"
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
 import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
@@ -170,6 +172,9 @@ import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grant
 import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
 import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { CreateClearingTransferDomainService } from "@domain/bond/clearing/service/CreateClearingTransferDomainService"
+import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
+import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -211,6 +216,10 @@ const REPOSITORIES: Provider[] = [
   {
     provide: "ClearingRedeemRepository",
     useClass: ClearingRedeemTypeOrmRepository,
+  },
+  {
+    provide: "ClearingTransferRepository",
+    useClass: ClearingTransferTypeOrmRepository,
   },
 ]
 
@@ -348,13 +357,16 @@ export const PROVIDERS = [
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
   CreateClearingRedeemDomainService,
+  CreateClearingTransferDomainService,
   CreateClearingHoldCommandHandler,
   CreateClearingRedeemCommandHandler,
   ClearedRedeemNestJSEventAdapter,
   UpdateClearingHoldStatusDomainService,
   UpdateClearingRedeemStatusDomainService,
+  UpdateClearingTransferStatusDomainService,
   DeleteClearingHoldDomainService,
   DeleteClearingRedeemDomainService,
+  DeleteClearingTransferDomainService,
   GetClearingsHoldDomainService,
   GetClearingHoldByIdDomainService,
   GetClearingsHoldQueryHandler,
@@ -385,4 +397,5 @@ export const ENTITIES = [
   BondHoldPersistence,
   BondClearingHoldPersistence,
   BondClearingRedeemPersistence,
+  BondClearingTransferPersistence,
 ]
