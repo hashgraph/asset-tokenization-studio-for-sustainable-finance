@@ -17,5 +17,5 @@ module.exports = {
   testEnvironment: "node",
   transformIgnorePatterns: [
     "node_modules/(?!(p-retry|retry|is-network-error)/)"
-  ],
+  ]
 };

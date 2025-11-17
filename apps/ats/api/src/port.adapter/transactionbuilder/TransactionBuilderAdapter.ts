@@ -12,6 +12,7 @@ import {
   IControlList__factory,
   IERC1410__factory,
   IERC1643__factory,
+  IHoldTokenHolder__factory,
   ILock__factory,
   IProceedRecipients__factory,
   IClearingHoldCreation__factory,
@@ -34,6 +35,7 @@ import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuil
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildCreateBondHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondHoldTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
 import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
@@ -515,5 +517,30 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       args,
     } as any)
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
+  }
+
+  async createBondHoldTransaction(req: BuildCreateBondHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const hold = {
+      amount: req.amount,
+      expirationTimestamp: Math.floor(req.expirationTimestamp.getTime() / 1000),
+      escrow: await ConverterUtils.getEvmAddressFromHederaAddress(req.escrowAccountId),
+      to: req.toAccountId
+        ? await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+        : this.EVM_ZERO_ADDRESS,
+      data: data,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "createHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, hold],
+    )
   }
 }

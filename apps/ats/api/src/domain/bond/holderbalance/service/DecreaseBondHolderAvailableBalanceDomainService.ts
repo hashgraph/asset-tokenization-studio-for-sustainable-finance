@@ -5,10 +5,16 @@ import { BondHolderBalanceNotFoundError } from "@domain/bond/holderbalance/error
 import { InsufficientBondHolderBalanceError } from "@domain/bond/holderbalance/errors/InsufficientBondHolderBalanceError"
 
 @Singleton()
-export class LockBondHolderBalanceDomainService {
+export class DecreaseBondHolderAvailableBalanceDomainService {
   constructor(@Inject() private readonly bondHolderBalanceRepository: BondHolderBalanceRepository) {}
 
-  async execute(bondContractId: string, holderAccountId: string, partition: string, lockAmount: string): Promise<void> {
+  async execute(
+    bondContractId: string,
+    holderAccountId: string,
+    partition: string,
+    amount: string,
+    balanceType: "locked" | "held",
+  ): Promise<void> {
     const bondHolderBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
       holderAccountId,
@@ -20,20 +26,27 @@ export class LockBondHolderBalanceDomainService {
     }
 
     const available = BigInt(bondHolderBalance.availableBalance)
-    const lockAmountBigInt = BigInt(lockAmount)
+    const amountBigInt = BigInt(amount)
 
-    if (available < lockAmountBigInt) {
+    if (available < amountBigInt) {
       throw InsufficientBondHolderBalanceError.bondHolderPartitionError(
         bondContractId,
         holderAccountId,
         partition,
         bondHolderBalance.availableBalance,
-        lockAmount,
+        amount,
       )
     }
 
-    bondHolderBalance.availableBalance = (available - lockAmountBigInt).toString()
-    bondHolderBalance.lockedBalance = (BigInt(bondHolderBalance.lockedBalance) + lockAmountBigInt).toString()
+    bondHolderBalance.availableBalance = (available - amountBigInt).toString()
+
+    if (balanceType === "locked") {
+      const locked = BigInt(bondHolderBalance.lockedBalance)
+      bondHolderBalance.lockedBalance = (locked + amountBigInt).toString()
+    } else {
+      const held = BigInt(bondHolderBalance.heldBalance)
+      bondHolderBalance.heldBalance = (held + amountBigInt).toString()
+    }
 
     await this.bondHolderBalanceRepository.save(bondHolderBalance)
   }

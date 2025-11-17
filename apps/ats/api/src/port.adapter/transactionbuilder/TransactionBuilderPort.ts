@@ -13,6 +13,7 @@ import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildCreateBondHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondHoldTransactionRequest"
 import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
 import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
 import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
@@ -39,6 +40,7 @@ export interface TransactionBuilderPort {
     request: BuildRemoveProceedRecipientTransactionRequest,
   ): Promise<BuildTransactionResponse>
   transferByPartitionTransaction(request: BuildTransferByPartitionTransactionRequest): Promise<BuildTransactionResponse>
+  createBondHoldTransaction(request: BuildCreateBondHoldTransactionRequest): Promise<BuildTransactionResponse>
   redeemBondTransaction(request: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse>
   createClearingHoldTransaction(request: BuildCreateClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
   approveClearingTransaction(request: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse>

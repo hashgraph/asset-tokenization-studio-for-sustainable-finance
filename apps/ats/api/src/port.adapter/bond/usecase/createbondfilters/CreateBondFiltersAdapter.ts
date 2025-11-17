@@ -30,6 +30,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
         "LockByPartitionReleased(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId)",
         "TransferByPartition(bytes32 indexed _fromPartition,address indexed _operator,address indexed _from,address _to,uint256 _value,bytes _data,bytes _operatorData)",
+        "HeldByPartition(address indexed operator,address indexed tokenHolder,bytes32 partition,uint256 holdId,(uint256 amount,uint256 expirationTimestamp,address escrow,address to,bytes data) hold,bytes operatorData)",
         "ClearedHoldByPartition(address indexed operator,address indexed tokenHolder,bytes32 partition,uint256 clearingId,tuple hold,uint256 expirationDate,bytes data,bytes operatorData)",
         "ClearingOperationApproved(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
         "ClearingOperationCanceled(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
