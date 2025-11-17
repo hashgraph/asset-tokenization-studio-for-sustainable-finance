@@ -12,6 +12,7 @@ import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
+import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -32,4 +33,5 @@ export interface TransactionBuilderPort {
   removeProceedRecipientTransaction(
     request: BuildRemoveProceedRecipientTransactionRequest,
   ): Promise<BuildTransactionResponse>
+  transferByPartitionTransaction(request: BuildTransferByPartitionTransactionRequest): Promise<BuildTransactionResponse>
 }

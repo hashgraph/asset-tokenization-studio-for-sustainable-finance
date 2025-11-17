@@ -30,6 +30,7 @@ import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
+import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -346,6 +347,28 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [req.proceedRecipientAddress],
+    )
+  }
+
+  async transferByPartitionTransaction(
+    req: BuildTransferByPartitionTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const basicTransferInfo = {
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId),
+      value: req.amount,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "transferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, basicTransferInfo, data],
     )
   }
 

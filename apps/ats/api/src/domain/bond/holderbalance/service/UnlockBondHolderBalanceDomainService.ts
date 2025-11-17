@@ -39,6 +39,7 @@ export class UnlockBondHolderBalanceDomainService {
 
     bondHolderBalance.availableBalance = (BigInt(bondHolderBalance.availableBalance) + unlockAmountBigInt).toString()
     bondHolderBalance.lockedBalance = (locked - unlockAmountBigInt).toString()
+    bondHolderBalance.updatedAt = new Date()
 
     await this.bondHolderBalanceRepository.save(bondHolderBalance)
   }

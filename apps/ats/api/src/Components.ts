@@ -112,6 +112,11 @@ import { GetControlListMembersHttpAdapter } from "@port/bond/usecase/getcontroll
 import { GetControlListMembersQueryHandler } from "@app/bond/getcontrollistmembers/query/GetControlListMembersQueryHandler"
 import { GetBondDocumentsHttpAdapter } from "@port/bond/usecase/getbonddocuments/GetBondDocumentsHttpAdapter"
 import { GetBondDocumentsQueryHandler } from "@app/bond/getbonddocuments/query/GetBondDocumentsQueryHandler"
+import { TransferByPartitionTransactionHttpAdapter } from "@port/transaction/usecase/transferbypartitiontransaction/TransferByPartitionTransactionHttpAdapter"
+import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/transferbypartitiontransaction/service/TransferByPartitionTransactionAppService"
+import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
+import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
+import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -170,6 +175,7 @@ export const CONTROLLERS = [
   AddProceedRecipientTransactionHttpAdapter,
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
+  TransferByPartitionTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -231,6 +237,10 @@ export const PROVIDERS = [
   UnpauseBondCommandHandler,
   PauseBondNestJSEventAdapter,
   UnpauseBondNestJSEventAdapter,
+  TransferByPartitionTransactionAppService,
+  TransferByPartitionCommandHandler,
+  TransferByPartitionNestJSEventAdapter,
+  TransferBondHolderBalanceDomainService,
   CreateBondFiltersAdapter,
   AddProceedRecipientTransactionAppService,
   AddProceedRecipientCommandHandler,
