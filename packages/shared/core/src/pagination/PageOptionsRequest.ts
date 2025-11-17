@@ -27,10 +27,11 @@ export class PageOptionsRequest {
   order: string = "DESC"
 
   toQueryPageOptions(): QueryPageOptions {
-    return new QueryPageOptions(this.page, this.limit, {
-      order: this.order,
-      orderBy: this.orderBy,
-    } as QueryOrderPageOptions)
+    return new QueryPageOptions(
+      this.page,
+      this.limit,
+      new QueryOrderPageOptions(this.order as "asc" | "desc" | "ASC" | "DESC", this.orderBy),
+    )
   }
 
   static readonly DEFAULT: PageOptionsRequest = (() => {

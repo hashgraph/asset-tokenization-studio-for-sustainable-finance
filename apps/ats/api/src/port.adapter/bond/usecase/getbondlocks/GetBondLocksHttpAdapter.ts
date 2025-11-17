@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Inject, RestController, PageResponse, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { Inject, RestController, PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetBondLocksPort } from "./GetBondLocksPort"
@@ -15,9 +15,9 @@ export class GetBondLocksHttpAdapter implements GetBondLocksPort {
   async getBondLocks(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondLocksResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetBondLocksQuery(bondContractId, holderAccountId, queryPageOptions))
   }
 }

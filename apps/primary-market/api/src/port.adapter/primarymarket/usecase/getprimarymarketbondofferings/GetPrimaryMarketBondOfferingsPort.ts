@@ -7,6 +7,6 @@ export interface GetPrimaryMarketBondOfferingsPort {
   getPrimaryMarketBondOfferings(
     marketContractId: string,
     bondContractId: string,
-    queryPageRequest: any,
+    pageOptionsRequest: any,
   ): Promise<PageResponse<PrimaryMarketBondOfferingResponse>>
 }
