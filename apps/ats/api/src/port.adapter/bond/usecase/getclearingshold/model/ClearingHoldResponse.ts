@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: Apache-2.0
-import { ClearingHold } from "@domain/bond/clearing/model/ClearingHold"
 
 export class ClearingHoldResponse {
   id: number

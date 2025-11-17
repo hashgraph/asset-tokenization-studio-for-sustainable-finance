@@ -122,7 +122,11 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         {},
         { format: "hedera" },
         { format: "hedera", accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc" },
-        { format: "hedera", accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc", partition: "0x72657365727665640000000000000000" },
+        {
+          format: "hedera",
+          accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+          partition: "0x72657365727665640000000000000000",
+        },
       ]
 
       for (const invalidRequest of invalidRequests) {
