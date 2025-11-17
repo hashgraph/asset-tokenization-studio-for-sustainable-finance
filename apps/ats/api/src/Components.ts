@@ -98,6 +98,11 @@ import { GetControlListMembersHttpAdapter } from "@port/bond/usecase/getcontroll
 import { GetControlListMembersQueryHandler } from "@app/bond/getcontrollistmembers/query/GetControlListMembersQueryHandler"
 import { GetBondDocumentsHttpAdapter } from "@port/bond/usecase/getbonddocuments/GetBondDocumentsHttpAdapter"
 import { GetBondDocumentsQueryHandler } from "@app/bond/getbonddocuments/query/GetBondDocumentsQueryHandler"
+import { RedeemBondTransactionHttpAdapter } from "@port/transaction/usecase/redeembondtransaction/RedeemBondTransactionHttpAdapter"
+import { RedeemBondTransactionAppService } from "@app/bond/transaction/redeembondtransaction/service/RedeemBondTransactionAppService"
+import { RedeemBondHolderBalanceCommandHandler } from "@app/bond/redeembondholderbalance/command/RedeemBondHolderBalanceCommandHandler"
+import { RedeemBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/redeembondholderbalance/RedeemBondHolderBalanceNestJSEventAdapter"
+import { RedeemBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/RedeemBondHolderBalanceDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -147,6 +152,7 @@ export const CONTROLLERS = [
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
   ReleaseBondLockTransactionHttpAdapter,
+  RedeemBondTransactionHttpAdapter,
   PauseBondTransactionHttpAdapter,
   UnpauseBondTransactionHttpAdapter,
 ]
@@ -206,6 +212,10 @@ export const PROVIDERS = [
   ReleaseBondLockNestJSEventAdapter,
   DeleteBondLockDomainService,
   UnlockBondHolderBalanceDomainService,
+  RedeemBondTransactionAppService,
+  RedeemBondHolderBalanceCommandHandler,
+  RedeemBondHolderBalanceNestJSEventAdapter,
+  RedeemBondHolderBalanceDomainService,
   PauseBondCommandHandler,
   UnpauseBondCommandHandler,
   PauseBondNestJSEventAdapter,

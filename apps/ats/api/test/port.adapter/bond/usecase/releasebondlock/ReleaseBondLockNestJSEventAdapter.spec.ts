@@ -240,6 +240,9 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         operatorAccountId: "0.0.1234567",
       })
 
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      const converterSpy = jest.mocked(ConverterUtils.getHederaAddressFromEvm)
+
       const event = new LockByPartitionReleasedDLTEvent(
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
@@ -251,9 +254,9 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
 
-      expect(ConverterUtils.getHederaAddressFromEvm).toHaveBeenCalledWith("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
-      expect(ConverterUtils.getHederaAddressFromEvm).toHaveBeenCalledWith("0xb3533f32594B689F19A94C608490451478F7197b")
-      expect(ConverterUtils.getHederaAddressFromEvm).toHaveBeenCalledWith("0x48ca774f6942166bf37e178ccc1e861947ead8c7")
+      expect(converterSpy).toHaveBeenCalledWith("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
+      expect(converterSpy).toHaveBeenCalledWith("0xb3533f32594B689F19A94C608490451478F7197b")
+      expect(converterSpy).toHaveBeenCalledWith("0x48ca774f6942166bf37e178ccc1e861947ead8c7")
     })
 
     it("should publish ReleasedBondLockEvent after successful bond lock release", async () => {

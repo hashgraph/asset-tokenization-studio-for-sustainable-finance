@@ -10,6 +10,7 @@ import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -26,4 +27,5 @@ export interface TransactionBuilderPort {
   createBondLockTransaction(request: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse>
   mintBondTransaction(request: BuildMintBondTransactionRequest): Promise<BuildTransactionResponse>
   releaseBondLockTransaction(request: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse>
+  redeemBondTransaction(request: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse>
 }

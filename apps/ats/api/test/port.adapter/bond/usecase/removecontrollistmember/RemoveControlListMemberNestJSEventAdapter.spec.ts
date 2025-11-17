@@ -72,9 +72,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
       }
       await bondControlListMemberRepository.save(existingMember)
 
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-
       const event = new RemovedFromControlListDLTEvent(
         CONTRACT_ID,
         "0x1234567890abcdef",
@@ -107,9 +104,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
         isin: "US1234567890",
       })
 
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-
       const event = new RemovedFromControlListDLTEvent(
         CONTRACT_ID,
         "0x1234567890abcdef",
@@ -135,9 +129,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
         maxSupply: "1000000",
         isin: "US1234567890",
       })
-
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
       const holders = ["0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7", "0x48ca774f6942166bf37e178ccc1e861947ead8c7"]
 
@@ -182,9 +173,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
           isin: "US1234567890",
         })
       }
-
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
       const holderAccountId = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
 
@@ -259,9 +247,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
     })
 
     it("should throw BondNotFoundError when bond does not exist", async () => {
-      let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
-
       const event = new RemovedFromControlListDLTEvent(
         "0.0.9999999",
         "0x1234567890abcdef",

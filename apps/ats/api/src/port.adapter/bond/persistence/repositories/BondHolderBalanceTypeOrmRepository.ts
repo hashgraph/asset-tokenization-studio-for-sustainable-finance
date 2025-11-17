@@ -30,10 +30,7 @@ export class BondHolderBalanceTypeOrmRepository implements BondHolderBalanceRepo
     })) as BondHolderBalance | null
   }
 
-  async findAllByContractIdPaginated(
-    contractId: string,
-    options: PageOptions,
-  ): Promise<Page<BondHolderBalance>> {
+  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondHolderBalance>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
       where: { contractId },
