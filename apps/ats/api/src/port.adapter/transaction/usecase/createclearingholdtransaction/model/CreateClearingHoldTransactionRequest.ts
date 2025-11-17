@@ -15,10 +15,6 @@ export class CreateClearingHoldTransactionRequest extends BaseTransactionRequest
   @IsNumber()
   expirationTimestamp: number
 
-  @IsOptional()
-  @IsString()
-  toAddress?: string
-
   @IsNotEmpty()
   @IsString()
   escrowAddress: string

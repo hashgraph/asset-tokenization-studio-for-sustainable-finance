@@ -134,6 +134,8 @@ import { BondHoldTypeOrmRepository } from "@port/bond/persistence/repositories/B
 import { ClearingHoldTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingHoldTypeOrmRepository"
 import { CreateClearingHoldTransactionHttpAdapter } from "@port/transaction/usecase/createclearingholdtransaction/CreateClearingHoldTransactionHttpAdapter"
 import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
+import { CreateClearingRedeemTransactionHttpAdapter } from "@port/transaction/usecase/createclearingredeemtransaction/CreateClearingRedeemTransactionHttpAdapter"
+import { CreateClearingRedeemTransactionAppService } from "@app/bond/transaction/createclearingredeemtransaction/service/CreateClearingRedeemTransactionAppService"
 import { UpdateClearingStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingstatustransaction/UpdateClearingStatusTransactionHttpAdapter"
 import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
 import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/cancelclearingtransaction/CancelClearingTransactionHttpAdapter"
@@ -154,7 +156,12 @@ import {
 } from "@port/bond/usecase/updateclearingoperation/UpdateClearingOperationNestJSEventAdapter"
 import { CancelClearingOperationNestJSEventAdapter } from "@port/bond/usecase/cancelclearingoperation/CancelClearingOperationNestJSEventAdapter"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
+import { BondClearingRedeemPersistence } from "@port/bond/persistence/model/BondClearingRedeemPersistence"
 import { CreateClearingHoldCommandHandler } from "@app/bond/createclearinghold/command/CreateClearingHoldCommandHandler"
+import { CreateClearingRedeemCommandHandler } from "@app/bond/createclearingredeem/command/CreateClearingRedeemCommandHandler"
+import { ClearedRedeemNestJSEventAdapter } from "@port/bond/usecase/clearedredeem/ClearedRedeemNestJSEventAdapter"
+import { ClearingRedeemTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingRedeemTypeOrmRepository"
+import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -193,6 +200,10 @@ const REPOSITORIES: Provider[] = [
     provide: "ClearingHoldRepository",
     useClass: ClearingHoldTypeOrmRepository,
   },
+  {
+    provide: "ClearingRedeemRepository",
+    useClass: ClearingRedeemTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -224,6 +235,7 @@ export const CONTROLLERS = [
   TransferByPartitionTransactionHttpAdapter,
   CreateBondHoldTransactionHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
+  CreateClearingRedeemTransactionHttpAdapter,
   UpdateClearingStatusTransactionHttpAdapter,
   CancelClearingTransactionHttpAdapter,
   GetClearingsHoldHttpAdapter,
@@ -306,6 +318,7 @@ export const PROVIDERS = [
   CreateBondHoldDomainService,
   CreateBondFiltersAdapter,
   CreateClearingHoldTransactionAppService,
+  CreateClearingRedeemTransactionAppService,
   AddProceedRecipientTransactionAppService,
   AddProceedRecipientCommandHandler,
   AddProceedRecipientNestJSEventAdapter,
@@ -316,10 +329,14 @@ export const PROVIDERS = [
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
   CreateClearingHoldTransactionAppService,
+  CreateClearingRedeemTransactionAppService,
   UpdateClearingHoldTransactionAppService,
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
+  CreateClearingRedeemDomainService,
   CreateClearingHoldCommandHandler,
+  CreateClearingRedeemCommandHandler,
+  ClearedRedeemNestJSEventAdapter,
   UpdateClearingHoldStatusDomainService,
   DeleteClearingHoldDomainService,
   GetClearingsHoldDomainService,
@@ -351,4 +368,5 @@ export const ENTITIES = [
   BondProceedRecipientPersistence,
   BondHoldPersistence,
   BondClearingHoldPersistence,
+  BondClearingRedeemPersistence,
 ]
