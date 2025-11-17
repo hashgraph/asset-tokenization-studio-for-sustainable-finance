@@ -3,7 +3,7 @@
 import { Inject, PageResponse, RestController } from "@hashgraph/green-bonds-shared-core"
 import { Get, Query } from "@nestjs/common"
 import { GetBondsPort } from "./GetBondsPort"
-import { type QueryBus, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { type QueryBus, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { GetBondsQuery } from "@app/bond/getbonds/query/GetBondsQuery"
 import { BondResponse } from "./model/BondResponse"
 
@@ -12,8 +12,8 @@ export class GetBondsHttpAdapter implements GetBondsPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getBonds(@Query() queryPageRequest: QueryPageRequest): Promise<PageResponse<BondResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+  async getBonds(@Query() queryPageRequest: PageOptionsRequest): Promise<PageResponse<BondResponse>> {
+    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetBondsQuery(queryPageOptions)
     return await this.queryBus.execute(query)
   }

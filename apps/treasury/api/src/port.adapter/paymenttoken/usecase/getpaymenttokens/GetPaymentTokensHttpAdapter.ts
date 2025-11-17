@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Get, Param, Query } from "@nestjs/common"
-import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
+import { PageOptionsRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetPaymentTokensQuery } from "@app/paymenttoken/getpaymenttokens/query/GetPaymentTokensQuery"
 import { PaymentTokenResponse } from "./model/PaymentTokenResponse"
@@ -14,9 +14,9 @@ export class GetPaymentTokensHttpAdapter implements GetPaymentTokensPort {
   @Get(":treasuryContractId/payment-tokens")
   async getPaymentTokens(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() queryPageRequest: PageOptionsRequest,
   ): Promise<PageResponse<PaymentTokenResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetPaymentTokensQuery(treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

@@ -7,7 +7,7 @@ import {
   type QueryBus,
   GetRoleMembersQuery,
   PageResponse,
-  QueryPageRequest,
+  PageOptionsRequest,
   RestController,
   Inject,
 } from "@hashgraph/green-bonds-shared-core"
@@ -20,9 +20,9 @@ export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   async getRoleMembers(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("roleId") roleId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() queryPageRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetRoleMemberResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetRoleMembersQuery(roleId, treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

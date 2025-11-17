@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Get, Param, Query } from "@nestjs/common"
-import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
+import { PageOptionsRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetPrimaryMarketBondsPort } from "./GetPrimaryMarketsPort"
 import { PrimaryMarketBondResponse } from "./model/PrimaryMarketBondResponse"
@@ -14,9 +14,9 @@ export class GetPrimaryMarketBondsHttpAdapter implements GetPrimaryMarketBondsPo
   @Get(":marketContractId/bonds")
   async getPrimaryMarketBonds(
     @Param("marketContractId") marketContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() queryPageRequest: PageOptionsRequest,
   ): Promise<PageResponse<PrimaryMarketBondResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetPrimaryMarketBondsQuery(marketContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

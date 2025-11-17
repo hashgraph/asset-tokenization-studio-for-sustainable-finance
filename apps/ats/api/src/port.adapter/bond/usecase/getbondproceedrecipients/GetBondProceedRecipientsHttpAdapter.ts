@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Inject, RestController, PageResponse, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { Inject, RestController, PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetBondProceedRecipientsPort } from "./GetBondProceedRecipientsPort"
@@ -14,9 +14,9 @@ export class GetBondProceedRecipientsHttpAdapter implements GetBondProceedRecipi
   @Get("/:bondContractId/proceeds-recipients")
   async getBondProceedRecipients(
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() queryPageRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondProceedRecipientsResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetBondProceedRecipientsQuery(bondContractId, queryPageOptions))
   }
 }
