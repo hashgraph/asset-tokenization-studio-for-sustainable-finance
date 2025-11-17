@@ -5,7 +5,7 @@ export interface GetEnvironmentalAssetTransfersPort {
   getEnvironmentalAssetTransfers(
     treasuryContractId: string,
     environmentalAssetContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
     type?: string,
   ): Promise<PageResponse<EnvironmentalAssetTransferResponse>>
 }

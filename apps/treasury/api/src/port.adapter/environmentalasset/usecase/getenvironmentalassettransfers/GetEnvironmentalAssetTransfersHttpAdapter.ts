@@ -15,10 +15,10 @@ export class GetEnvironmentalAssetTransfersHttpAdapter implements GetEnvironment
   async getEnvironmentalAssetTransfers(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("environmentalAssetContractId") environmentalAssetContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
     @Query("type") type?: string,
   ): Promise<PageResponse<EnvironmentalAssetTransferResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
 
     const query = new GetEnvironmentalAssetTransfersQuery(
       treasuryContractId,

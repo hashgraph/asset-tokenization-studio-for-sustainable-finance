@@ -7,6 +7,6 @@ export interface GetEnvironmentalAssetHoldingsPort {
   getEnvironmentalAssetHoldings(
     treasuryContractId: string,
     assetContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<EnvironmentalAssetHoldingsResponse>>
 }

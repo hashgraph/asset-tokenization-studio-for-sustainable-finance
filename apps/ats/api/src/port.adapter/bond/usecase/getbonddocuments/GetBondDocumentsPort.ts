@@ -3,5 +3,8 @@ import { PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-
 import { BondDocumentResponse } from "@port/bond/usecase/getbonddocuments/model/BondDocumentsResponse"
 
 export interface GetBondDocumentsPort {
-  getBondDocuments(bondContractId: string, queryPageRequest: PageOptionsRequest): Promise<PageResponse<BondDocumentResponse>>
+  getBondDocuments(
+    bondContractId: string,
+    pageOptionsRequest: PageOptionsRequest,
+  ): Promise<PageResponse<BondDocumentResponse>>
 }

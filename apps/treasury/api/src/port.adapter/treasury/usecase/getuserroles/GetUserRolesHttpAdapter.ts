@@ -20,9 +20,9 @@ export class GetUserRolesHttpAdapter implements GetUserRolesPort {
   async getUserRoles(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("userAccountId") userAccountId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetUserRoleResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetUserRolesQuery(userAccountId, treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

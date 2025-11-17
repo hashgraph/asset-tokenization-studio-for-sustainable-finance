@@ -7,6 +7,6 @@ export interface GetProceedsRecipientAllocationsPort {
   getProceedsRecipientAllocations(
     treasuryContractId: string,
     recipientContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ProceedsRecipientAllocationResponse>>
 }

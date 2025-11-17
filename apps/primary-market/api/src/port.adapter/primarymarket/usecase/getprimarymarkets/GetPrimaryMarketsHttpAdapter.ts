@@ -12,8 +12,8 @@ export class GetPrimaryMarketsHttpAdapter implements GetPrimaryMarketsPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getPrimaryMarkets(@Query() queryPageRequest: PageOptionsRequest): Promise<PageResponse<PrimaryMarketResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+  async getPrimaryMarkets(@Query() pageOptionsRequest: PageOptionsRequest): Promise<PageResponse<PrimaryMarketResponse>> {
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetPrimaryMarketsQuery(queryPageOptions)
     return await this.queryBus.execute(query)
   }

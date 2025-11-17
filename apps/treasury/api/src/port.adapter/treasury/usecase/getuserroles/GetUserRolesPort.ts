@@ -7,6 +7,6 @@ export interface GetUserRolesPort {
   getUserRoles(
     userAccountId: string,
     contractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetUserRoleResponse>>
 }

@@ -4,5 +4,5 @@ import { PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-
 import { TreasuryResponse } from "@port/treasury/usecase/gettreasuries/model/TreasuryResponse"
 
 export interface GetTreasuriesPort {
-  getTreasuries(queryPageRequest: PageOptionsRequest): Promise<PageResponse<TreasuryResponse>>
+  getTreasuries(pageOptionsRequest: PageOptionsRequest): Promise<PageResponse<TreasuryResponse>>
 }

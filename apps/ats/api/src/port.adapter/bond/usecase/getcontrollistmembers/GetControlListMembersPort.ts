@@ -5,6 +5,6 @@ import { ControlListMembersResponse } from "./model/ControlListMembersResponse"
 export interface GetControlListMembersPort {
   getControlListMembers(
     bondContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ControlListMembersResponse>>
 }

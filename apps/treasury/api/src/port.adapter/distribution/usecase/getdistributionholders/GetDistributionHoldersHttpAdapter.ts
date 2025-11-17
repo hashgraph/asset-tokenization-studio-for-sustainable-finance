@@ -14,10 +14,10 @@ export class GetDistributionHoldersHttpAdapter {
   async getDistributionHolders(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("distributionId") distributionId: number,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
     @Query("status") status?: string,
   ): Promise<PageResponse<DistributionHolderResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetDistributionHoldersQuery(treasuryContractId, distributionId, queryPageOptions, status)
 
     return await this.queryBus.execute(query)

@@ -15,9 +15,9 @@ export class GetBondDocumentsHttpAdapter implements GetBondDocumentsPort {
   @Get("/:bondContractId/documents")
   async getBondDocuments(
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondDocumentResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetBondDocumentsQuery(bondContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

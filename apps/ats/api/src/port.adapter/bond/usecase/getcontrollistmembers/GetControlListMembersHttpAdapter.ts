@@ -14,9 +14,9 @@ export class GetControlListMembersHttpAdapter implements GetControlListMembersPo
   @Get("/:bondContractId/control-list/members")
   async getControlListMembers(
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ControlListMembersResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetControlListMembersQuery(bondContractId, queryPageOptions))
   }
 }

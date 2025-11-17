@@ -7,6 +7,6 @@ export interface GetRoleMembersPort {
   getRoleMembers(
     marketContractId: string,
     roleId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<RoleMemberResponse>>
 }

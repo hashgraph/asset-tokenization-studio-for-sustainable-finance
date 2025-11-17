@@ -5,6 +5,6 @@ import { BondProceedRecipientsResponse } from "./model/BondProceedRecipientsResp
 export interface GetBondProceedRecipientsPort {
   getBondProceedRecipients(
     bondContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondProceedRecipientsResponse>>
 }

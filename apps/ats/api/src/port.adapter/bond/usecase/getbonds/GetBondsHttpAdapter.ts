@@ -12,8 +12,8 @@ export class GetBondsHttpAdapter implements GetBondsPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getBonds(@Query() queryPageRequest: PageOptionsRequest): Promise<PageResponse<BondResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+  async getBonds(@Query() pageOptionsRequest: PageOptionsRequest): Promise<PageResponse<BondResponse>> {
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetBondsQuery(queryPageOptions)
     return await this.queryBus.execute(query)
   }

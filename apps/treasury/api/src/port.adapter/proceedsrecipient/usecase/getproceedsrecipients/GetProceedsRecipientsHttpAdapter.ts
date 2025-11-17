@@ -14,9 +14,9 @@ export class GetProceedsRecipientsHttpAdapter implements GetProceedsRecipientsPo
   @Get(":treasuryContractId/proceeds-recipients")
   async getProceedsRecipients(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ProceedsRecipientResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetProceedsRecipientsQuery(treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

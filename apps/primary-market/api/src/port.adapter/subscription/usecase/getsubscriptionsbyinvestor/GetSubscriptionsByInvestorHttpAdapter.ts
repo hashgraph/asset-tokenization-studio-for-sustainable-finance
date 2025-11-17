@@ -14,9 +14,9 @@ export class GetSubscriptionsByInvestorHttpAdapter implements GetSubscriptionsBy
   @Get("investors/:investorAccountId/subscriptions")
   async getSubscriptionsByInvestor(
     @Param("investorAccountId") investorAccountId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<SubscriptionResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetSubscriptionsByInvestorQuery(investorAccountId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

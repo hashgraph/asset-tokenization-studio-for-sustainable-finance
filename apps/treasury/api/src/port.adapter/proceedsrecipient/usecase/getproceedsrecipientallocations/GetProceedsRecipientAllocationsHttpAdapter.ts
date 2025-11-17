@@ -15,9 +15,9 @@ export class GetProceedsRecipientAllocationsHttpAdapter implements GetProceedsRe
   async getProceedsRecipientAllocations(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("recipientContractId") recipientContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ProceedsRecipientAllocationResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetProceedsRecipientAllocationsQuery(treasuryContractId, recipientContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

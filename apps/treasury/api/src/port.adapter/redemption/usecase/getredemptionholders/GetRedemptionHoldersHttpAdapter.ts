@@ -14,10 +14,10 @@ export class GetRedemptionHoldersHttpAdapter implements GetRedemptionHoldersPort
   @Get(":treasuryContractId/redemptions")
   async getRedemptionHolders(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
     @Query("status") status?: string,
   ): Promise<PageResponse<RedemptionHolderResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetRedemptionHoldersQuery(treasuryContractId, queryPageOptions, status)
 
     return await this.queryBus.execute(query)

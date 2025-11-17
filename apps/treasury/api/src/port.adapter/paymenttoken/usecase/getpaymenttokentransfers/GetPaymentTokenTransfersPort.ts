@@ -5,7 +5,7 @@ export interface GetPaymentTokenTransfersPort {
   getPaymentTokenTransfers(
     treasuryContractId: string,
     paymentTokenContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
     type?: string,
   ): Promise<PageResponse<PaymentTokenTransferResponse>>
 }

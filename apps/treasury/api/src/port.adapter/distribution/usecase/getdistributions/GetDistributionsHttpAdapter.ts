@@ -14,9 +14,9 @@ export class GetDistributionsHttpAdapter implements GetDistributionsPort {
   @Get(":treasuryContractId/distributions")
   async getDistributions(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<DistributionResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetDistributionsQuery(treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

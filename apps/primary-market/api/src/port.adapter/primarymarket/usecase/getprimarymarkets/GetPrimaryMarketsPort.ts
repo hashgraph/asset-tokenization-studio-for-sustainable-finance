@@ -4,5 +4,5 @@ import { PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-
 import { PrimaryMarketResponse } from "@port/primarymarket/shared/model/PrimaryMarketResponse"
 
 export interface GetPrimaryMarketsPort {
-  getPrimaryMarkets(queryPageRequest: PageOptionsRequest): Promise<PageResponse<PrimaryMarketResponse>>
+  getPrimaryMarkets(pageOptionsRequest: PageOptionsRequest): Promise<PageResponse<PrimaryMarketResponse>>
 }

@@ -6,6 +6,6 @@ import { ProceedsRecipientResponse } from "./model/ProceedsRecipientResponse"
 export interface GetProceedsRecipientsPort {
   getProceedsRecipients(
     treasuryContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ProceedsRecipientResponse>>
 }

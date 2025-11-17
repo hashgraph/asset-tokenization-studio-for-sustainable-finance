@@ -15,9 +15,9 @@ export class GetSubscriptionsHttpAdapter implements GetSubscriptionsPort {
   async getSubscriptions(
     @Param("marketContractId") marketContractId: string,
     @Param("offeringId") offeringId: number,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<SubscriptionResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetSubscriptionsQuery(marketContractId, offeringId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

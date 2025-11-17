@@ -6,6 +6,6 @@ export interface GetBondLocksPort {
   getBondLocks(
     bondContractId: string,
     holderAccountId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondLocksResponse>>
 }

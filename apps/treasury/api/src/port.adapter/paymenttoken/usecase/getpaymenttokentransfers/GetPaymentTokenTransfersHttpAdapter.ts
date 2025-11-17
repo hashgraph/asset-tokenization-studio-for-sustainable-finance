@@ -15,10 +15,10 @@ export class GetPaymentTokenTransfersHttpAdapter implements GetPaymentTokenTrans
   async getPaymentTokenTransfers(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("paymentTokenContractId") paymentTokenContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
     @Query("type") type?: string,
   ): Promise<PageResponse<PaymentTokenTransferResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
 
     const query = new GetPaymentTokenTransfersQuery(treasuryContractId, paymentTokenContractId, type, queryPageOptions)
 

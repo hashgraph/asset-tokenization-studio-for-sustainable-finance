@@ -12,8 +12,8 @@ export class GetTreasuriesHttpAdapter implements GetTreasuriesPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getTreasuries(@Query() queryPageRequest: PageOptionsRequest): Promise<PageResponse<TreasuryResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+  async getTreasuries(@Query() pageOptionsRequest: PageOptionsRequest): Promise<PageResponse<TreasuryResponse>> {
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetTreasuriesQuery(queryPageOptions)
     return await this.queryBus.execute(query)
   }

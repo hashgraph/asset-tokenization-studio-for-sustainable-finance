@@ -6,6 +6,6 @@ import { SubscriptionResponse } from "../../shared/model/SubscriptionResponse"
 export interface GetSubscriptionsByInvestorPort {
   getSubscriptionsByInvestor(
     investorAccountId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<SubscriptionResponse>>
 }

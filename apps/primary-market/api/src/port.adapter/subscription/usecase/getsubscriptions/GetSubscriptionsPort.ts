@@ -7,6 +7,6 @@ export interface GetSubscriptionsPort {
   getSubscriptions(
     marketContractId: string,
     offeringId: number,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<SubscriptionResponse>>
 }

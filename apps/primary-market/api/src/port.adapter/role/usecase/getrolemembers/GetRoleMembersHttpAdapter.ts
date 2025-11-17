@@ -20,9 +20,9 @@ export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   async getRoleMembers(
     @Param("marketContractId") marketContractId: string,
     @Param("roleId") roleId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<RoleMemberResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetRoleMembersQuery(roleId, marketContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

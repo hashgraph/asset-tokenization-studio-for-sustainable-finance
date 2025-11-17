@@ -6,6 +6,6 @@ import { PaymentTokenResponse } from "./model/PaymentTokenResponse"
 export interface GetPaymentTokensPort {
   getPaymentTokens(
     treasuryContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<PaymentTokenResponse>>
 }

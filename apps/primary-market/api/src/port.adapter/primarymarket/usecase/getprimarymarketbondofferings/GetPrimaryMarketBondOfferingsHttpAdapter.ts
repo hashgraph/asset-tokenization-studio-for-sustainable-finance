@@ -15,9 +15,9 @@ export class GetPrimaryMarketBondOfferingsHttpAdapter implements GetPrimaryMarke
   async getPrimaryMarketBondOfferings(
     @Param("marketContractId") marketContractId: string,
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<PrimaryMarketBondOfferingResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetPrimaryMarketBondOfferingsQuery(marketContractId, bondContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

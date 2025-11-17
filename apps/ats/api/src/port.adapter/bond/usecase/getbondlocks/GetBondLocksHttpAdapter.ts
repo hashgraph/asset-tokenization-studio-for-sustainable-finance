@@ -15,9 +15,9 @@ export class GetBondLocksHttpAdapter implements GetBondLocksPort {
   async getBondLocks(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<BondLocksResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetBondLocksQuery(bondContractId, holderAccountId, queryPageOptions))
   }
 }

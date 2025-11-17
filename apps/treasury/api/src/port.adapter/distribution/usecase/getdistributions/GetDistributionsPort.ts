@@ -6,6 +6,6 @@ import { DistributionResponse } from "./model/DistributionResponse"
 export interface GetDistributionsPort {
   getDistributions(
     treasuryContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<DistributionResponse>>
 }

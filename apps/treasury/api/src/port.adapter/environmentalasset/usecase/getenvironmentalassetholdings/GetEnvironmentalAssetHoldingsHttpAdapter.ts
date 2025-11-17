@@ -15,9 +15,9 @@ export class GetEnvironmentalAssetHoldingsHttpAdapter implements GetEnvironmenta
   async getEnvironmentalAssetHoldings(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("assetContractId") assetContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<EnvironmentalAssetHoldingsResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetEnvironmentalAssetHoldingsQuery(treasuryContractId, assetContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

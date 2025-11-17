@@ -6,6 +6,6 @@ import { PrimaryMarketBondResponse } from "./model/PrimaryMarketBondResponse"
 export interface GetPrimaryMarketBondsPort {
   getPrimaryMarketBonds(
     marketContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<PrimaryMarketBondResponse>>
 }

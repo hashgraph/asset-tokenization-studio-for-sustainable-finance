@@ -6,7 +6,7 @@ import { RedemptionHolderResponse } from "./model/RedemptionHolderResponse"
 export interface GetRedemptionHoldersPort {
   getRedemptionHolders(
     treasuryContractId: string,
-    queryPageRequest: PageOptionsRequest,
+    pageOptionsRequest: PageOptionsRequest,
     status?: string,
   ): Promise<PageResponse<RedemptionHolderResponse>>
 }

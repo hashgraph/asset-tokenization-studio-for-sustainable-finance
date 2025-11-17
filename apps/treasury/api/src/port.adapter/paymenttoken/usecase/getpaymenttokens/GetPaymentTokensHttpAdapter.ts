@@ -14,9 +14,9 @@ export class GetPaymentTokensHttpAdapter implements GetPaymentTokensPort {
   @Get(":treasuryContractId/payment-tokens")
   async getPaymentTokens(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<PaymentTokenResponse>> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetPaymentTokensQuery(treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

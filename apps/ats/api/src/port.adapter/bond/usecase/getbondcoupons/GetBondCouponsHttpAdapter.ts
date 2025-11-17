@@ -15,9 +15,9 @@ export class GetBondCouponsHttpAdapter implements GetBondCouponsPort {
   @Get("/:bondContractId/coupons")
   async getBondCoupons(
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: PageOptionsRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<BondCouponsResponse> {
-    const queryPageOptions = (queryPageRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetBondCouponsQuery(bondContractId, queryPageOptions))
   }
 }
