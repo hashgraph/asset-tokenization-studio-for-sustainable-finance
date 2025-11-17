@@ -12,7 +12,7 @@ import { ClearedRedeemByPartitionDLTEvent } from "@port/bond/usecase/clearedrede
 import { BondClearingRedeemPersistence } from "@port/bond/persistence/model/BondClearingRedeemPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { ClearingRedeemFoundError } from "@domain/bond/clearing/errors/ClearingRedeemFoundError"
-import { ClearingRedeemStatus } from "@domain/bond/clearing/model/ClearingRedeem"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("ClearedRedeemNestJSEventAdapter Integration", () => {
@@ -120,7 +120,7 @@ describe("ClearedRedeemNestJSEventAdapter Integration", () => {
       expect(savedClearing!.partition).toBe("0x7265736572766564000000000000000000000000000000000000000000000000")
       expect(savedClearing!.amount).toBe("1000")
       expect(savedClearing!.expirationDate).toEqual(new Date(1735689600 * 1000))
-      expect(savedClearing!.status).toBe(ClearingRedeemStatus.PENDING)
+      expect(savedClearing!.status).toBe(ClearingStatus.PENDING)
       expect(savedClearing!.operatorAccountId).toBe("0.0.1234567")
       expect(savedClearing!.data).toBe("0x1234")
       expect(savedClearing!.operatorData).toBe("0x5678")
@@ -144,7 +144,7 @@ describe("ClearedRedeemNestJSEventAdapter Integration", () => {
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "500",
         expirationDate: new Date("2024-12-01"),
-        status: ClearingRedeemStatus.PENDING,
+        status: ClearingStatus.PENDING,
         operatorAccountId: "0.0.1234567",
       }
 
@@ -292,7 +292,7 @@ describe("ClearedRedeemNestJSEventAdapter Integration", () => {
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
           expirationDate: new Date(1735689600 * 1000),
-          status: ClearingRedeemStatus.PENDING,
+          status: ClearingStatus.PENDING,
           operatorAccountId: "0.0.1234567",
         }),
       )

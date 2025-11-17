@@ -11,7 +11,7 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 import { ClearingOperationCanceledDLTEvent } from "@port/bond/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 

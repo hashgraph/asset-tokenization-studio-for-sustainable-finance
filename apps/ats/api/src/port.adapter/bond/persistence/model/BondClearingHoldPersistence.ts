@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Entity, Column, Index, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
 @Entity("BondClearingHolds")
 @Index(["bondContractId", "holderAccountId", "id"], { unique: true })

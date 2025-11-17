@@ -8,14 +8,16 @@ import { ClearingReclaimedEvent } from "@domain/bond/clearing/event/ClearingRecl
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
+import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
 import { UpdateClearingStatusDomainServiceRequest } from "@domain/bond/clearing/service/model/UpdateClearingStatusDomainServiceRequest"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
 @Singleton()
 @Handler(ReclaimClearingCommand)
 export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClearingCommand, void> {
   constructor(
     private readonly updateClearingHoldStatusDomainService: UpdateClearingHoldStatusDomainService,
+    private readonly updateClearingRedeemStatusDomainService: UpdateClearingRedeemStatusDomainService,
     private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
@@ -52,8 +54,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
         // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       case ClearingOperationType.REDEEM:
-        // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.updateClearingRedeemStatusDomainService.execute(request)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

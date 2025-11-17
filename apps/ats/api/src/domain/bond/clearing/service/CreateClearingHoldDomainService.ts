@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import { ClearingHold, ClearingStatus } from "../model/ClearingHold"
+import { ClearingHold } from "../model/ClearingHold"
+import { ClearingStatus } from "../model/ClearingStatus"
 import type { ClearingHoldRepository } from "../repository/ClearingHoldRepository"
 import { ClearingFoundError } from "../errors/ClearingFoundError"
 import { CreateClearingHoldDomainServiceRequest } from "./model/CreateClearingHoldDomainServiceRequest"

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Entity, Column, Index, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
-import { ClearingRedeemStatus } from "@domain/bond/clearing/model/ClearingRedeem"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
 @Entity("BondClearingRedeems")
 @Index(["bondContractId", "holderAccountId", "id"], { unique: true })
@@ -24,8 +24,8 @@ export class BondClearingRedeemPersistence {
   @Column({ type: "timestamp" })
   expirationDate: Date
 
-  @Column({ type: "enum", enum: ClearingRedeemStatus })
-  status: ClearingRedeemStatus
+  @Column({ type: "enum", enum: ClearingStatus })
+  status: ClearingStatus
 
   @Column({ type: "text", nullable: true })
   data?: string

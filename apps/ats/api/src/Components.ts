@@ -144,7 +144,9 @@ import { GetClearingsHoldHttpAdapter } from "@port/bond/usecase/getclearingshold
 import { GetClearingHoldHttpAdapter } from "@port/bond/usecase/getclearinghold/GetClearingHoldHttpAdapter"
 import { CreateClearingHoldDomainService } from "@domain/bond/clearing/service/CreateClearingHoldDomainService"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
+import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
 import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/DeleteClearingHoldDomainService"
+import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
 import { GetClearingsHoldDomainService } from "@domain/bond/clearing/service/GetClearingsHoldDomainService"
 import { GetClearingHoldByIdDomainService } from "@domain/bond/clearing/service/GetClearingHoldByIdDomainService"
 import { GetClearingsHoldQueryHandler } from "@app/bond/getclearingshold/query/GetClearingsHoldQueryHandler"
@@ -350,7 +352,9 @@ export const PROVIDERS = [
   CreateClearingRedeemCommandHandler,
   ClearedRedeemNestJSEventAdapter,
   UpdateClearingHoldStatusDomainService,
+  UpdateClearingRedeemStatusDomainService,
   DeleteClearingHoldDomainService,
+  DeleteClearingRedeemDomainService,
   GetClearingsHoldDomainService,
   GetClearingHoldByIdDomainService,
   GetClearingsHoldQueryHandler,

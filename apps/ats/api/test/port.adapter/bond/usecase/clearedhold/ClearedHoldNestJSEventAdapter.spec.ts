@@ -12,7 +12,7 @@ import { ClearedHoldByPartitionDLTEvent } from "@port/bond/usecase/clearedhold/m
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { ClearingFoundError } from "@domain/bond/clearing/errors/ClearingFoundError"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
 describe("ClearedHoldNestJSEventAdapter Integration", () => {

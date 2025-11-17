@@ -3,6 +3,7 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/DeleteClearingHoldDomainService"
+import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
 import { DeleteClearingDomainServiceRequest } from "@domain/bond/clearing/service/model/DeleteClearingDomainServiceRequest"
 import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
 import { ClearingCanceledEvent } from "@domain/bond/clearing/event/ClearingCanceledEvent"
@@ -15,6 +16,7 @@ import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOpera
 export class CancelClearingCommandHandler implements CommandHandler<CancelClearingCommand, void> {
   constructor(
     private readonly deleteClearingHoldDomainService: DeleteClearingHoldDomainService,
+    private readonly deleteClearingRedeemDomainService: DeleteClearingRedeemDomainService,
     private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
@@ -50,8 +52,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
         // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
       case ClearingOperationType.REDEEM:
-        // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.deleteClearingRedeemDomainService.execute(request)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

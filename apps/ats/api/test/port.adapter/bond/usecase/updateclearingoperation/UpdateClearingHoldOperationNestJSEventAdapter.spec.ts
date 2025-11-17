@@ -12,7 +12,7 @@ import { ClearingOperationApprovedDLTEvent } from "@port/bond/usecase/updateclea
 import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
 import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
 
@@ -131,7 +131,6 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
         2, // ClearingOperationType.HOLD
-        "hold-id-123", // holdId from smart contract
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -156,7 +155,6 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         999,
         2, // ClearingOperationType.HOLD
-        undefined, // no holdId
       )
 
       await expect(eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)).rejects.toThrow(
@@ -268,7 +266,6 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         1,
         2, // ClearingOperationType.HOLD
-        "hold-id-123",
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
