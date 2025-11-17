@@ -28,7 +28,7 @@ export class CreateClearingTransferDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  toAddress: string
+  toAccountId: string
 
   @IsOptional()
   @IsString()
@@ -40,5 +40,5 @@ export class CreateClearingTransferDomainServiceRequest {
 
   @IsNotEmpty()
   @IsString()
-  operator: string
+  operatorAccountId: string
 }

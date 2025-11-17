@@ -32,10 +32,10 @@ export class CreateClearingTransferDomainService {
     clearing.amount = request.amount
     clearing.expirationDate = request.expirationDate
     clearing.status = ClearingStatus.PENDING
-    clearing.toAccountId = request.toAddress
+    clearing.toAccountId = request.toAccountId
     clearing.data = request.data
     clearing.operatorData = request.operatorData
-    clearing.operatorAccountId = request.operator
+    clearing.operatorAccountId = request.operatorAccountId
     clearing.createdAt = date
     clearing.updatedAt = date
 

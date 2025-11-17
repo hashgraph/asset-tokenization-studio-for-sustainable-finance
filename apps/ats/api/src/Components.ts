@@ -136,6 +136,8 @@ import { CreateClearingHoldTransactionHttpAdapter } from "@port/transaction/usec
 import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
 import { CreateClearingRedeemTransactionHttpAdapter } from "@port/transaction/usecase/createclearingredeemtransaction/CreateClearingRedeemTransactionHttpAdapter"
 import { CreateClearingRedeemTransactionAppService } from "@app/bond/transaction/createclearingredeemtransaction/service/CreateClearingRedeemTransactionAppService"
+import { CreateClearingTransferTransactionHttpAdapter } from "@port/transaction/usecase/createclearingtransfertransaction/CreateClearingTransferTransactionHttpAdapter"
+import { CreateClearingTransferTransactionAppService } from "@app/bond/transaction/createclearingtransfertransaction/service/CreateClearingTransferTransactionAppService"
 import { UpdateClearingStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingstatustransaction/UpdateClearingStatusTransactionHttpAdapter"
 import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
 import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/cancelclearingtransaction/CancelClearingTransactionHttpAdapter"
@@ -162,7 +164,9 @@ import { BondClearingRedeemPersistence } from "@port/bond/persistence/model/Bond
 import { BondClearingTransferPersistence } from "@port/bond/persistence/model/BondClearingTransferPersistence"
 import { CreateClearingHoldCommandHandler } from "@app/bond/createclearinghold/command/CreateClearingHoldCommandHandler"
 import { CreateClearingRedeemCommandHandler } from "@app/bond/createclearingredeem/command/CreateClearingRedeemCommandHandler"
+import { CreateClearingTransferCommandHandler } from "@app/bond/createclearingtransfer/command/CreateClearingTransferCommandHandler"
 import { ClearedRedeemNestJSEventAdapter } from "@port/bond/usecase/clearedredeem/ClearedRedeemNestJSEventAdapter"
+import { ClearedTransferNestJSEventAdapter } from "@port/bond/usecase/clearedtransfer/ClearedTransferNestJSEventAdapter"
 import { ClearingRedeemTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingRedeemTypeOrmRepository"
 import { ClearingTransferTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingTransferTypeOrmRepository"
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
@@ -253,6 +257,7 @@ export const CONTROLLERS = [
   CreateBondHoldTransactionHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
   CreateClearingRedeemTransactionHttpAdapter,
+  CreateClearingTransferTransactionHttpAdapter,
   UpdateClearingStatusTransactionHttpAdapter,
   CancelClearingTransactionHttpAdapter,
   GetClearingsHoldHttpAdapter,
@@ -353,6 +358,7 @@ export const PROVIDERS = [
   RevokeRoleNestJSEventAdapter,
   CreateClearingHoldTransactionAppService,
   CreateClearingRedeemTransactionAppService,
+  CreateClearingTransferTransactionAppService,
   UpdateClearingHoldTransactionAppService,
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
@@ -360,7 +366,9 @@ export const PROVIDERS = [
   CreateClearingTransferDomainService,
   CreateClearingHoldCommandHandler,
   CreateClearingRedeemCommandHandler,
+  CreateClearingTransferCommandHandler,
   ClearedRedeemNestJSEventAdapter,
+  ClearedTransferNestJSEventAdapter,
   UpdateClearingHoldStatusDomainService,
   UpdateClearingRedeemStatusDomainService,
   UpdateClearingTransferStatusDomainService,
