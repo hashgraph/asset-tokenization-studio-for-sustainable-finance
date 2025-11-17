@@ -12,9 +12,10 @@ import {
   IControlList__factory,
   IERC1410__factory,
   IERC1643__factory,
-  IFactory__factory,
   ILock__factory,
+  IProceedRecipients__factory,
 } from "@hashgraph/asset-tokenization-contracts"
+import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
 import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
 import { TransactionBuilderPort } from "./TransactionBuilderPort"
@@ -27,6 +28,10 @@ import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
+import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
+import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -48,8 +53,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   async createBondTransaction(req: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse> {
-    //TODO change for the correct Suite Bond Factory when deployed
-    const contractInterface = IFactory__factory.createInterface()
+    const contractInterface = IFactorySuite__factory.createInterface()
 
     const securityTokenToCreate = {
       security: {
@@ -143,7 +147,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       },
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const treasuryData = {
       resolver: req.treasuryData.resolverAddress,
       resolverProxyConfiguration: {
@@ -159,10 +162,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         },
       ],
       paymentToken: req.treasuryData.paymentTokenAddress,
-      erc721s: req.treasuryData.erc721Addresses,
+      environmentalAssets: req.treasuryData.environmentalAssetsAddresses,
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const kpiData = {
       admin: req.kpiData.adminAddress,
       rbacs: [
@@ -172,15 +174,14 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         },
       ],
     }
-
     return await this.buildAndReturnTransactionResponse(
       contractInterface,
-      "deployBond",
+      "deployBondSuite",
       req.contractId,
       this.TRANSACTIONS_HIGH_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [securityTokenToCreate, factoryRegulationData],
+      [req.factoryAddress, securityTokenToCreate, factoryRegulationData, treasuryData, kpiData],
     )
   }
 
@@ -317,6 +318,73 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [partition, req.lockId, req.holderAccountId],
+    )
+  }
+
+  async addProceedRecipientTransaction(
+    req: BuildAddProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "addProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress, data],
+    )
+  }
+
+  async removeProceedRecipientTransaction(
+    req: BuildRemoveProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "removeProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress],
+    )
+  }
+
+  async transferByPartitionTransaction(
+    req: BuildTransferByPartitionTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const basicTransferInfo = {
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId),
+      value: req.amount,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "transferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, basicTransferInfo, data],
+    )
+  }
+
+  async redeemBondTransaction(req: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "redeemByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.amount, data],
     )
   }
 

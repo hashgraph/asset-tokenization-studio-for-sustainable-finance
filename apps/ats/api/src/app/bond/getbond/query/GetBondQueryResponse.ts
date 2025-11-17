@@ -14,4 +14,5 @@ export class GetBondQueryResponse {
   readonly maturityDate: Date
   readonly maxSupply: string
   readonly isin: string
+  readonly isPaused: boolean
 }

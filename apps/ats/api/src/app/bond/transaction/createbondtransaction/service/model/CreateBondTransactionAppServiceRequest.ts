@@ -1,6 +1,6 @@
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
 import { Type } from "class-transformer"
-import { IsNotEmpty, ValidateNested } from "class-validator"
+import { IsNotEmpty, IsString, ValidateNested } from "class-validator"
 import { SecurityTokenCreationAppServiceRequest } from "./SecurityTokenCreationAppServiceRequest"
 import { FactoryRegulationAppServiceRequest } from "./FactoryRegulationAppServiceRequest"
 import { TreasuryAppServiceRequest } from "./TreasuryAppServiceRequest"
@@ -27,6 +27,10 @@ export class CreateBondTransactionAppServiceRequest extends BaseTransactionAppSe
   @IsNotEmpty()
   kpiData: KpiAppServiceRequest
 
+  @IsString()
+  @IsNotEmpty()
+  factoryAddress: string
+
   constructor(
     format: string,
     accountId: string,
@@ -35,11 +39,13 @@ export class CreateBondTransactionAppServiceRequest extends BaseTransactionAppSe
     factoryRegulationData: FactoryRegulationAppServiceRequest,
     treasuryData: TreasuryAppServiceRequest,
     kpiData: KpiAppServiceRequest,
+    factoryAddress: string,
   ) {
     super(format, accountId, contractId)
     this.securityTokenToCreate = securityTokenToCreate
     this.factoryRegulationData = factoryRegulationData
     this.treasuryData = treasuryData
     this.kpiData = kpiData
+    this.factoryAddress = factoryAddress
   }
 }

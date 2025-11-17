@@ -112,11 +112,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         onlyOnRedemptionDate(bond)
         returns (PaymentResult memory result, bool executed)
     {
-        (result, executed) = _executeBondRedemption(
-            bond,
-            pageIndex,
-            pageLength
-        );
+        (result, executed) = _executeBondRedemption(bond, pageIndex, pageLength);
 
         emit RedemptionExecuted(pageIndex, pageLength, result);
     }

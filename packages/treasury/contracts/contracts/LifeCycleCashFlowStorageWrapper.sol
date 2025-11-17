@@ -3,41 +3,27 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import {
-    ILifeCycleCashFlowStorageWrapper
-} from './interfaces/ILifeCycleCashFlowStorageWrapper.sol';
-import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {
-    LIFECYCLE_CASH_FLOW_STORAGE_POSITION
-} from './constants/storagePositions.sol';
-import {PortfolioStorageWrapper} from './PortfolioStorageWrapper.sol';
-import {
-    Common as AtsCommon
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol';
-import {
-    IBond
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol';
+import { ILifeCycleCashFlowStorageWrapper } from "./interfaces/ILifeCycleCashFlowStorageWrapper.sol";
+import { PortfolioStorageWrapper } from "./PortfolioStorageWrapper.sol";
+import { LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "./constants/storagePositions.sol";
+import { PortfolioStorageWrapper } from "./PortfolioStorageWrapper.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol";
 import {
     TRexIBondRead as IBondRead
-} from '@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol';
-import {
-    IERC1410
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol';
+} from "@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol";
+import { IERC1410 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol";
 import {
     IERC1410Read
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol';
-import {
-    ERC20
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol';
-import {
-    ISecurity
-} from '@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol';
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol";
+import { ERC20 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol";
+import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol";
 import {
     HederaResponseCodes
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import {
     IHederaTokenService
-} from '@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol';
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 
 abstract contract LifeCycleCashFlowStorageWrapper is
     ILifeCycleCashFlowStorageWrapper,
@@ -109,18 +95,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = _getDistributionHolders(
-            asset,
-            distributionId,
-            pageIndex,
-            pageLength
-        );
+        address[] memory holders = _getDistributionHolders(asset, distributionId, pageIndex, pageLength);
         if (holders.length == 0) return (result, false);
-        result = _executeDistributionByAddresses(
-            asset,
-            distributionId,
-            holders
-        );
+        result = _executeDistributionByAddresses(asset, distributionId, holders);
         return (result, true);
     }
 
@@ -164,11 +141,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) internal returns (PaymentResult memory result, bool) {
-        address[] memory holders = _getAssetHolders(
-            bond,
-            pageIndex,
-            pageLength
-        );
+        address[] memory holders = _getAssetHolders(bond, pageIndex, pageLength);
 
         if (holders.length == 0) return (result, false);
         result = _executeBondRedemptionByAddresses(bond, holders);
@@ -251,9 +224,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
                 if (!_isHolderValid(holder)) {
-                    result.failedAddresses[
-                        payingArraysIndexes.failedAddressesIndex
-                    ] = holder;
+                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
@@ -262,9 +233,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 }
 
                 if (_isDistributionHolderPaid(distributionId, holder)) {
-                    result.alreadyPaidAddresses[
-                        payingArraysIndexes.alreadyPaidAddressesIndex
-                    ] = holder;
+                    result.alreadyPaidAddresses[payingArraysIndexes.alreadyPaidAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.alreadyPaidAddressesIndex;
                         ++index;
@@ -281,9 +250,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 );
 
                 if (!success || !_isValidAmount(amount)) {
-                    result.failedAddresses[
-                        payingArraysIndexes.failedAddressesIndex
-                    ] = holder;
+                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
@@ -291,26 +258,18 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     continue;
                 }
 
-                if (
-                    !_valueFitsInInt64(
-                        uint256(uint64(batchInfo.totalAmount)) + amount
-                    )
-                ) {
+                if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
                     uint256 succeededResults;
                     uint256 failedResults;
-                    (
-                        succeededResults,
-                        failedResults
-                    ) = _processBatchDistribution(
+                    (succeededResults, failedResults) = _processBatchDistribution(
                         distributionId,
                         paymentToken,
                         batchInfo,
                         payingArraysIndexes,
                         result
                     );
-                    payingArraysIndexes
-                        .succeededAddressesIndex += succeededResults;
+                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
                     payingArraysIndexes.failedAddressesIndex += failedResults;
 
                     batchInfo.holders = new address[](holders.length);
@@ -319,12 +278,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     payingArraysIndexes.batchIndex = 0;
                 }
                 batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
-                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
-                    int256(amount)
-                );
-                batchInfo.totalAmount += batchInfo.amounts[
-                    payingArraysIndexes.batchIndex
-                ];
+                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(int256(amount));
+                batchInfo.totalAmount += batchInfo.amounts[payingArraysIndexes.batchIndex];
                 unchecked {
                     ++payingArraysIndexes.batchIndex;
                     ++index;
@@ -333,13 +288,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                _processBatchDistribution(
-                    distributionId,
-                    paymentToken,
-                    batchInfo,
-                    payingArraysIndexes,
-                    result
-                );
+                _processBatchDistribution(distributionId, paymentToken, batchInfo, payingArraysIndexes, result);
             }
         }
     }
@@ -374,16 +323,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 nominalValue,
         address paymentToken
     ) private returns (bool success, uint256 amount) {
-        try IBondRead(asset).getCouponFor(distributionId, holder) returns (
-            IBondRead.CouponFor memory couponFor
-        ) {
+        try IBondRead(asset).getCouponFor(distributionId, holder) returns (IBondRead.CouponFor memory couponFor) {
             uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
             uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
             uint256 scaleUp = paymentTokenDecimals;
-            amount = (((couponFor.tokenBalance *
-                nominalValue *
-                couponFor.period *
-                couponFor.rate) /
+            amount = (((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
                 100 /
                 (365 * 24 * 60 * 60) /
                 10 ** scaleDown) * 10 ** scaleUp);
@@ -411,8 +355,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint8 bondDecimals = _getAssetDecimals(bond);
         uint8 nominalValueDecimals = bondDecimals;
         uint256 scaleDown = bondDecimals + nominalValueDecimals;
-        amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) *
-            10 ** paymentTokenDecimals);
+        amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) * 10 ** paymentTokenDecimals);
     }
 
     /**
@@ -438,10 +381,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @return decimals The payment token decimals
      */
     function _getPaymentTokenDecimals(address token) private returns (uint8) {
-        (
-            int256 responseCode,
-            IHederaTokenService.FungibleTokenInfo memory info
-        ) = getFungibleTokenInfo(token);
+        (int256 responseCode, IHederaTokenService.FungibleTokenInfo memory info) = getFungibleTokenInfo(token);
         if (responseCode == HederaResponseCodes.SUCCESS) {
             if (_valueFitsInUint8(info.decimals)) {
                 return uint8(uint32(info.decimals));
@@ -458,12 +398,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return The nominal value of the asset
      */
-    function _getNominalValue(
-        address asset
-    ) private view returns (uint256 nominalValue) {
-        try IBondRead(asset).getBondDetails() returns (
-            IBondRead.BondDetailsData memory bondDetailsData
-        ) {
+    function _getNominalValue(address asset) private view returns (uint256 nominalValue) {
+        try IBondRead(asset).getBondDetails() returns (IBondRead.BondDetailsData memory bondDetailsData) {
             return bondDetailsData.nominalValue;
         } catch {
             revert AssetNominalValueError(asset);
@@ -497,10 +433,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 batchInfo.totalAmount
             )
         ) {
-            (
-                result.succeededAddresses,
-                result.paidAmounts
-            ) = _populateSourceArraysFromDataArrays(
+            (result.succeededAddresses, result.paidAmounts) = _populateSourceArraysFromDataArrays(
                 result.succeededAddresses,
                 payingArraysIndexes.succeededAddressesIndex,
                 batchInfo.holders,
@@ -551,9 +484,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
                 if (!_isHolderValid(holder)) {
-                    result.failedAddresses[
-                        payingArraysIndexes.failedAddressesIndex
-                    ] = holder;
+                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
@@ -562,9 +493,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 }
 
                 if (_isRedemptionHolderPaid(holders[index])) {
-                    result.alreadyPaidAddresses[
-                        payingArraysIndexes.alreadyPaidAddressesIndex
-                    ] = holders[index];
+                    result.alreadyPaidAddresses[payingArraysIndexes.alreadyPaidAddressesIndex] = holders[index];
                     unchecked {
                         ++payingArraysIndexes.alreadyPaidAddressesIndex;
                         ++index;
@@ -573,17 +502,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 }
 
                 uint256 tokensAmount = _getTokensAmount(bond, holders[index]);
-                uint256 amount = _getRedemptionAmount(
-                    bond,
-                    tokensAmount,
-                    nominalValue,
-                    paymentToken
-                );
+                uint256 amount = _getRedemptionAmount(bond, tokensAmount, nominalValue, paymentToken);
 
                 if (!_isValidAmount(amount)) {
-                    result.failedAddresses[
-                        payingArraysIndexes.failedAddressesIndex
-                    ] = holder;
+                    result.failedAddresses[payingArraysIndexes.failedAddressesIndex] = holder;
                     unchecked {
                         ++payingArraysIndexes.failedAddressesIndex;
                         ++index;
@@ -591,11 +513,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     continue;
                 }
 
-                if (
-                    !_valueFitsInInt64(
-                        uint256(uint64(batchInfo.totalAmount)) + amount
-                    )
-                ) {
+                if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
                     uint256 succeededResults;
                     uint256 failedResults;
@@ -609,8 +527,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                     if (succeededResults > 0) {
                         _redeemBondHolders(bond, holders);
                     }
-                    payingArraysIndexes
-                        .succeededAddressesIndex += succeededResults;
+                    payingArraysIndexes.succeededAddressesIndex += succeededResults;
                     payingArraysIndexes.failedAddressesIndex += failedResults;
 
                     batchInfo.holders = new address[](holders.length);
@@ -620,12 +537,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
                 }
 
                 batchInfo.holders[payingArraysIndexes.batchIndex] = holder;
-                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(
-                    int256(amount)
-                );
-                batchInfo.totalAmount += batchInfo.amounts[
-                    payingArraysIndexes.batchIndex
-                ];
+                batchInfo.amounts[payingArraysIndexes.batchIndex] = int64(int256(amount));
+                batchInfo.totalAmount += batchInfo.amounts[payingArraysIndexes.batchIndex];
                 unchecked {
                     ++payingArraysIndexes.batchIndex;
                     ++index;
@@ -667,18 +580,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         PayingArraysIndexes memory payingArraysIndexes,
         PaymentResult memory result
     ) private returns (uint256 succeededResults, uint256 failedResults) {
-        if (
-            _payBatchHoldersRedemption(
-                batchInfo.holders,
-                batchInfo.amounts,
-                batchInfo.totalAmount,
-                paymentToken
-            )
-        ) {
-            (
-                result.succeededAddresses,
-                result.paidAmounts
-            ) = _populateSourceArraysFromDataArrays(
+        if (_payBatchHoldersRedemption(batchInfo.holders, batchInfo.amounts, batchInfo.totalAmount, paymentToken)) {
+            (result.succeededAddresses, result.paidAmounts) = _populateSourceArraysFromDataArrays(
                 result.succeededAddresses,
                 payingArraysIndexes.succeededAddressesIndex,
                 batchInfo.holders,
@@ -703,10 +606,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param holders The holders whose bonds will be redeemed
      * @param tokensAmounts The amounts of tokens to be redeemed for each holder
      */
-    function _redeemBondHolders(
-        address bond,
-        address[] memory holders
-    ) private {
+    function _redeemBondHolders(address bond, address[] memory holders) private {
         for (uint256 index; index < holders.length; ) {
             _redeemBondHolder(bond, holders[index]);
 
@@ -727,21 +627,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         bytes32[] memory partitions = IERC1410Read(bond).partitionsOf(holder);
         for (uint256 i; i < partitions.length; ) {
             bytes32 partition = partitions[i];
-            try
-                IERC1410Read(bond).balanceOfByPartition(partition, holder)
-            returns (uint256 partitionBalance) {
-                try
-                    IBond(bond).redeemAtMaturityByPartition(
-                        holder,
-                        partition,
-                        partitionBalance
-                    )
-                {} catch {
-                    revert RedeemAtMaturityByPartitionError(
-                        bond,
-                        holder,
-                        partition
-                    );
+            try IERC1410Read(bond).balanceOfByPartition(partition, holder) returns (uint256 partitionBalance) {
+                try IBond(bond).redeemAtMaturityByPartition(holder, partition, partitionBalance) {} catch {
+                    revert RedeemAtMaturityByPartitionError(bond, holder, partition);
                 }
             } catch {
                 revert BalanceOfByPartitionError(bond, holder, partition);
@@ -830,14 +718,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return True if the distribution was already paid to the holder, false otherwise
      */
-    function _isDistributionHolderPaid(
-        uint256 distributionId,
-        address holder
-    ) internal view returns (bool) {
-        return
-            _lifeCycleCashFlowStorage().paidAddressesByDistribution[
-                distributionId
-            ][holder];
+    function _isDistributionHolderPaid(uint256 distributionId, address holder) internal view returns (bool) {
+        return _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder];
     }
 
     /*
@@ -847,9 +729,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return True if the holder was already redeemed, false otherwise
      */
-    function _isRedemptionHolderPaid(
-        address holder
-    ) private view returns (bool) {
+    function _isRedemptionHolderPaid(address holder) private view returns (bool) {
         return _lifeCycleCashFlowStorage().paidRedemptionAddresses[holder];
     }
 
@@ -876,10 +756,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param distributionId The distribution paid to a holder
      * @param holderss The array of holders who were paid
      */
-    function _setDistributionHoldersPaid(
-        uint256 distributionId,
-        address[] memory holders
-    ) private {
+    function _setDistributionHoldersPaid(uint256 distributionId, address[] memory holders) private {
         for (uint256 index; index < holders.length; ) {
             _setDistributionHolderPaid(distributionId, holders[index]);
 
@@ -895,13 +772,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param distributionId The distribution paid to a holder
      * @param holders The holder was were paid
      */
-    function _setDistributionHolderPaid(
-        uint256 distributionId,
-        address holder
-    ) private {
-        _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][
-            holder
-        ] = true;
+    function _setDistributionHolderPaid(uint256 distributionId, address holder) private {
+        _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder] = true;
     }
 
     /*
@@ -936,10 +808,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return The amount of tokens
      */
-    function _getTokensAmount(
-        address asset,
-        address holder
-    ) private view returns (uint256) {
+    function _getTokensAmount(address asset, address holder) private view returns (uint256) {
         try IERC1410(asset).balanceOf(holder) returns (uint256 tokensAmount) {
             return tokensAmount;
         } catch {
@@ -963,13 +832,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) private view returns (address[] memory holders) {
-        try
-            IBondRead(asset).getCouponHolders(
-                distributionId,
-                pageIndex,
-                pageLength
-            )
-        returns (address[] memory distributionHolders) {
+        try IBondRead(asset).getCouponHolders(distributionId, pageIndex, pageLength) returns (
+            address[] memory distributionHolders
+        ) {
             return holders = distributionHolders;
         } catch {
             return holders;
@@ -990,9 +855,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         uint256 pageIndex,
         uint256 pageLength
     ) private view returns (address[] memory holders) {
-        try ISecurity(asset).getSecurityHolders(pageIndex, pageLength) returns (
-            address[] memory assetHolders
-        ) {
+        try ISecurity(asset).getSecurityHolders(pageIndex, pageLength) returns (address[] memory assetHolders) {
             return holders = assetHolders;
         } catch {
             return holders;
@@ -1005,14 +868,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @param asset The asset the distribution belongs to
      * @param distributionId The distribution identifier
      */
-    function _checkDistributionDate(
-        address asset,
-        uint256 distributionId
-    ) private view {
-        uint256 executionDateInit = _getDistributionExecutionDate(
-            asset,
-            distributionId
-        );
+    function _checkDistributionDate(address asset, uint256 distributionId) private view {
+        uint256 executionDateInit = _getDistributionExecutionDate(asset, distributionId);
         _checkPaymentDate(executionDateInit, _blockTimestamp());
     }
 
@@ -1034,10 +891,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @returns The distribution execution date
      */
-    function _getDistributionExecutionDate(
-        address asset,
-        uint256 distributionId
-    ) private view returns (uint256) {
+    function _getDistributionExecutionDate(address asset, uint256 distributionId) private view returns (uint256) {
         return IBondRead(asset).getCoupon(distributionId).coupon.executionDate;
     }
 
@@ -1076,21 +930,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory dataAddressArray,
         uint256[] memory sourceUint256Array,
         int64[] memory dataInt64Array
-    )
-        private
-        pure
-        returns (
-            address[] memory resultAddressArray,
-            uint256[] memory resultUint256Array
-        )
-    {
+    ) private pure returns (address[] memory resultAddressArray, uint256[] memory resultUint256Array) {
         for (uint256 index; index < dataAddressArray.length; ) {
-            sourceAddressArray[
-                index + succeededAddressesIndex
-            ] = dataAddressArray[index];
-            sourceUint256Array[index + succeededAddressesIndex] = uint256(
-                uint64(dataInt64Array[index])
-            );
+            sourceAddressArray[index + succeededAddressesIndex] = dataAddressArray[index];
+            sourceUint256Array[index + succeededAddressesIndex] = uint256(uint64(dataInt64Array[index]));
 
             unchecked {
                 ++index;
@@ -1124,9 +967,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
         address[] memory dataAddressArray
     ) private pure returns (address[] memory resultArray) {
         for (uint256 index; index < dataAddressArray.length; ) {
-            sourceAddressArray[index + failedAddressesIndex] = dataAddressArray[
-                index
-            ];
+            sourceAddressArray[index + failedAddressesIndex] = dataAddressArray[index];
 
             unchecked {
                 ++index;
@@ -1143,10 +984,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return The new array
      */
-    function _createTransferAccounts(
-        address[] memory arr,
-        address val
-    ) private pure returns (address[] memory newArr) {
+    function _createTransferAccounts(address[] memory arr, address val) private pure returns (address[] memory newArr) {
         newArr = new address[](arr.length + 1);
         for (uint256 i; i < arr.length; i++) newArr[i] = arr[i];
         newArr[arr.length] = val;
@@ -1160,10 +998,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      *
      * @return The new array
      */
-    function _createTransferAmounts(
-        int64[] memory arr,
-        int64 val
-    ) private pure returns (int64[] memory newArr) {
+    function _createTransferAmounts(int64[] memory arr, int64 val) private pure returns (int64[] memory newArr) {
         newArr = new int64[](arr.length + 1);
         for (uint256 i; i < arr.length; i++) newArr[i] = arr[i];
         newArr[arr.length] = val;
@@ -1178,10 +1013,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is
      * @returns True if the the current date is between the initial and the ending date
      * @returns The payment ending date
      */
-    function _checkPaymentDate(
-        uint256 initialDate,
-        uint256 currentDate
-    ) private pure {
+    function _checkPaymentDate(uint256 initialDate, uint256 currentDate) private pure {
         if (initialDate == 0 || currentDate < initialDate) {
             revert NotPaymentDate(initialDate, currentDate);
         }

@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { RemoveBondControlListMemberDomainServiceRequest } from "./model/RemoveBondControlListMemberDomainServiceRequest"
-import { BondControlListMember } from "@domain/bond/controllist/model/BondControlListMember"
 import type { BondControlListMemberRepository } from "../repository/BondControlListMemberRepository"
 import { CheckBondExistsDomainService } from "@domain/bond/services/CheckBondExistsDomainService"
 import { BondControlListMemberNotFoundError } from "@domain/bond/controllist/errors/BondControlListMemberNotFoundError"
