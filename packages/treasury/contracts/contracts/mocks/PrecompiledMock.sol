@@ -18,15 +18,19 @@ interface IPrecompiledMock {
     function transferToken(address token, address sender, address receiver, int64 amount) external returns (int32 responseCode);
     function transferNFT(address token, address sender, address receiver, int64 serialNumber) external returns (int32 responseCode);
     function associateToken(address account, address token) external returns (int32 responseCode);
+    function dissociateToken(address account, address token) external returns (int32 responseCode);
     function setPrecompiledTransferStatus(bool _success) external;
     function setPrecompiledAssociationStatus(bool _success) external;
+    function setPrecompiledDissociationStatus(bool _success) external;
     function getPrecompiledTransferStatus() external view returns (bool);
     function getPrecompiledAssociationStatus() external view returns (bool);
+    function getPrecompiledDissociationStatus() external view returns (bool);
 }
 
 contract PrecompiledMockStorageWrapper {
     bool private _transferSuccess;
     bool private _associationSuccess;
+    bool private _dissociationSuccess;
 
     /*function _transferTokens(
         address token,
@@ -97,6 +101,16 @@ contract PrecompiledMockStorageWrapper {
         else return HederaResponseCodes.UNKNOWN;
     }
 
+    function _dissociateToken(address account, address token) internal view returns (int32 responseCode) {
+        if (_getPrecompiledDissociationStatus() == false) return HederaResponseCodes.UNKNOWN;
+
+        if (IERC20(token).balanceOf(account) > 0) {
+            return HederaResponseCodes.TRANSACTION_REQUIRES_ZERO_TOKEN_BALANCES;
+        }
+
+        return HederaResponseCodes.SUCCESS;
+    }
+
     function _setPrecompiledTransferStatus(bool success_) internal {
         _transferSuccess = success_;
     }
@@ -105,12 +119,20 @@ contract PrecompiledMockStorageWrapper {
         _associationSuccess = success_;
     }
 
+    function _setPrecompiledDissociationStatus(bool success_) internal {
+        _dissociationSuccess = success_;
+    }
+
     function _getPrecompiledTransferStatus() internal view returns (bool) {
         return _transferSuccess;
     }
 
     function _getPrecompiledAssociationStatus() internal view returns (bool) {
         return _associationSuccess;
+    }
+
+    function _getPrecompiledDissociationStatus() internal view returns (bool) {
+        return _dissociationSuccess;
     }
 }
 
@@ -145,6 +167,10 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _associateToken(account, token);
     }
 
+    function dissociateToken(address account, address token) external view returns (int32 responseCode) {
+        return _dissociateToken(account, token);
+    }
+
     function setPrecompiledTransferStatus(bool success_) external {
         _setPrecompiledTransferStatus(success_);
     }
@@ -153,11 +179,19 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         _setPrecompiledAssociationStatus(success_);
     }
 
+    function setPrecompiledDissociationStatus(bool success_) external {
+        _setPrecompiledDissociationStatus(success_);
+    }
+
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
     }
 
     function getPrecompiledAssociationStatus() external view returns (bool) {
         return _getPrecompiledAssociationStatus();
+    }
+
+    function getPrecompiledDissociationStatus() external view returns (bool) {
+        return _getPrecompiledDissociationStatus();
     }
 }

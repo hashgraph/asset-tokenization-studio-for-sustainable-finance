@@ -32,7 +32,7 @@
     "test": "hedera start -d && npx hardhat test; hedera stop",
     "test:lifecyclecashflow:distribution": "hedera start -d && npx hardhat test test/unit/lifecyclecashflow.executedistribution.test.ts; hedera stop",
     "test:lifecyclecashflow:redemption": "hedera start -d && npx hardhat test test/unit/lifecyclecashflow.executebondredemption.test.ts; hedera stop",
-    "test:portfolio": "hedera start -d && npx hardhat test test/unit/portfolio.test.ts; hedera stop",
+    "test:portfolio": "npx hardhat test test/unit/portfolio.test.ts",
     "test:proceedsmanagement": "npx hardhat test test/unit/proceedsmanagement.test.ts",
     "test:coverage": "npx hardhat coverage",
     "lint": "npx eslint .  && solhint 'contracts/**/*.sol'",

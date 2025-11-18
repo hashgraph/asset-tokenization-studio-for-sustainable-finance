@@ -62,4 +62,5 @@ export async function deployPrecompiledMock() {
 
   await mockPrecompiled.setPrecompiledTransferStatus(true);
   await mockPrecompiled.setPrecompiledAssociationStatus(true);
+  await mockPrecompiled.setPrecompiledDissociationStatus(true);
 }
