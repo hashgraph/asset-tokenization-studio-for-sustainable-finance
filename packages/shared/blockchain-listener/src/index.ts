@@ -7,4 +7,4 @@ export { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command
 export { BlockchainListenerHealthIndicator } from "@port/health/BlockchainListenerHealthIndicator"
 
 export { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
-export { EVENT_LISTENER_ENTITIES, EVENT_LISTENER_MIGRATIONS } from "./Components"
+export { EVENT_LISTENER_ENTITIES } from "./Components"

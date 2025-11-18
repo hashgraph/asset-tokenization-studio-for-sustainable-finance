@@ -35,9 +35,9 @@ export class PostgresModule {
       username: configService.get(ConfigKeys.POSTGRESQL_USER),
       password: configService.get(ConfigKeys.POSTGRESQL_PASSWORD),
       database: configService.get(ConfigKeys.POSTGRESQL_DB),
-      synchronize: true,
-      migrationsRun: false,
-      // migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/migrations/*{.ts,.js}"],
+      synchronize: false,
+      migrationsRun: true,
+      migrations: ["dist/migrations/*{.ts,.js}"],
       autoLoadEntities: true,
     } as TypeOrmModuleOptions
   }
