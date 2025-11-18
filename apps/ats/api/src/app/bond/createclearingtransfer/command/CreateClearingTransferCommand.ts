@@ -4,16 +4,16 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 
 export class CreateClearingTransferCommand extends Command<void> {
   @IsNotEmpty()
+  @IsNumber()
+  clearingId: number
+
+  @IsNotEmpty()
   @IsString()
   bondContractId: string
 
   @IsNotEmpty()
   @IsString()
   holderAccountId: string
-
-  @IsNotEmpty()
-  @IsNumber()
-  clearingId: number
 
   @IsNotEmpty()
   @IsString()
