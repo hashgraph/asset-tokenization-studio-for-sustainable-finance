@@ -11,7 +11,11 @@ export class GetClearingsTransferDomainService {
     private readonly clearingRepository: ClearingTransferRepository,
   ) {}
 
-  async execute(bondContractId: string, holderAccountId: string, options: PageOptions): Promise<Page<ClearingTransfer>> {
+  async execute(
+    bondContractId: string,
+    holderAccountId: string,
+    options: PageOptions,
+  ): Promise<Page<ClearingTransfer>> {
     return await this.clearingRepository.findAllByHolder(bondContractId, holderAccountId, options)
   }
 }

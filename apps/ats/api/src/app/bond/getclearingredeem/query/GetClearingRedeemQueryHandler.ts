@@ -6,7 +6,9 @@ import { ClearingRedeemQueryResponse } from "./ClearingRedeemQueryResponse"
 
 @Singleton()
 @Handler(GetClearingRedeemQuery)
-export class GetClearingRedeemQueryHandler implements QueryHandler<GetClearingRedeemQuery, ClearingRedeemQueryResponse> {
+export class GetClearingRedeemQueryHandler
+  implements QueryHandler<GetClearingRedeemQuery, ClearingRedeemQueryResponse>
+{
   constructor(private readonly getClearingRedeemByIdDomainService: GetClearingRedeemByIdDomainService) {}
 
   @Validate()

@@ -6,7 +6,9 @@ import { ClearingTransferQueryResponse } from "./ClearingTransferQueryResponse"
 
 @Singleton()
 @Handler(GetClearingTransferQuery)
-export class GetClearingTransferQueryHandler implements QueryHandler<GetClearingTransferQuery, ClearingTransferQueryResponse> {
+export class GetClearingTransferQueryHandler
+  implements QueryHandler<GetClearingTransferQuery, ClearingTransferQueryResponse>
+{
   constructor(private readonly getClearingTransferByIdDomainService: GetClearingTransferByIdDomainService) {}
 
   @Validate()

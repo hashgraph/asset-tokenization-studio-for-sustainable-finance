@@ -78,7 +78,9 @@ describe("GetClearingRedeemHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${clearing.bondContractId}/holders/${clearing.holderAccountId}/clearings/${clearing.id}/redeem`)
+        .get(
+          `/api/v1/ats/bonds/${clearing.bondContractId}/holders/${clearing.holderAccountId}/clearings/${clearing.id}/redeem`,
+        )
         .send()
         .expect(HttpStatus.OK)
 

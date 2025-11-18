@@ -12,7 +12,9 @@ import { ClearedTransferPort } from "@port/bond/usecase/clearedtransfer/ClearedT
 import { CreateClearingTransferCommand } from "@app/bond/createclearingtransfer/command/CreateClearingTransferCommand"
 
 @Singleton()
-export class ClearedTransferNestJSEventAdapter implements ClearedTransferPort, EventListener<ClearedTransferByPartitionDLTEvent> {
+export class ClearedTransferNestJSEventAdapter
+  implements ClearedTransferPort, EventListener<ClearedTransferByPartitionDLTEvent>
+{
   constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @Handler(ClearedTransferByPartitionDLTEvent)
