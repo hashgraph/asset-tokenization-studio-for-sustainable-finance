@@ -3,7 +3,7 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { CreateBondLockDomainService } from "@domain/bond/lock/service/CreateBondLockDomainService"
-import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
+import { DecreaseBondHolderAvailableBalanceDomainService } from "@domain/bond/holderbalance/service/DecreaseBondHolderAvailableBalanceDomainService"
 import { CreatedBondLockEvent } from "@domain/bond/lock/event/CreatedBondLockEvent"
 import { CreateBondLockCommand } from "./CreateBondLockCommand"
 
@@ -12,7 +12,7 @@ import { CreateBondLockCommand } from "./CreateBondLockCommand"
 export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLockCommand, void> {
   constructor(
     private readonly createBondLockDomainService: CreateBondLockDomainService,
-    private readonly lockBondHolderBalanceDomainService: LockBondHolderBalanceDomainService,
+    private readonly decreaseBondHolderAvailableBalanceDomainService: DecreaseBondHolderAvailableBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -22,11 +22,12 @@ export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLo
     await this.transactionManager.execute(async () => {
       const bondLock = await this.createBondLockDomainService.execute(command)
 
-      await this.lockBondHolderBalanceDomainService.execute(
+      await this.decreaseBondHolderAvailableBalanceDomainService.execute(
         bondLock.contractId,
         bondLock.holderAccountId,
         bondLock.partition,
         bondLock.amount,
+        "locked",
       )
 
       this.eventBus.publish(

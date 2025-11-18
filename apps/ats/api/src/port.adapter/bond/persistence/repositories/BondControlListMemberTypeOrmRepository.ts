@@ -5,7 +5,7 @@ import { Repository } from "typeorm"
 import { BondControlListMember } from "@domain/bond/controllist/model/BondControlListMember"
 import { BondControlListMemberPersistence } from "../model/BondControlListMemberPersistence"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
-import { BondControlListMemberRepository } from "@domain/bond/controllist/repository/BondControlListMemberRepository"
+import type { BondControlListMemberRepository } from "@domain/bond/controllist/repository/BondControlListMemberRepository"
 
 @Injectable()
 export class BondControlListMemberTypeOrmRepository implements BondControlListMemberRepository {

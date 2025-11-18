@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Inject, RestController, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { Inject, RestController, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import type { PageResponse, QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetSubscriptionsPort } from "./GetSubscriptionsPort"
@@ -15,9 +15,9 @@ export class GetSubscriptionsHttpAdapter implements GetSubscriptionsPort {
   async getSubscriptions(
     @Param("marketContractId") marketContractId: string,
     @Param("offeringId") offeringId: number,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<SubscriptionResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetSubscriptionsQuery(marketContractId, offeringId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

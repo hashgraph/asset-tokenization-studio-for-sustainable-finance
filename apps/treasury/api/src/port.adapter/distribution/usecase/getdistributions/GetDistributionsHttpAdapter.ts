@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Get, Param, Query } from "@nestjs/common"
-import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
+import { PageOptionsRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetDistributionsQuery } from "@app/distribution/getdistributions/query/GetDistributionsQuery"
 import { DistributionResponse } from "./model/DistributionResponse"
@@ -14,9 +14,9 @@ export class GetDistributionsHttpAdapter implements GetDistributionsPort {
   @Get(":treasuryContractId/distributions")
   async getDistributions(
     @Param("treasuryContractId") treasuryContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<DistributionResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetDistributionsQuery(treasuryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

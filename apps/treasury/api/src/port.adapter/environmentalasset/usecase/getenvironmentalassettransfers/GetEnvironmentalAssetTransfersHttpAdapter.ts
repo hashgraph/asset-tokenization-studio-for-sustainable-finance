@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Get, Param, Query } from "@nestjs/common"
-import { QueryPageRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
+import { PageOptionsRequest, RestController, Inject, PageResponse } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetEnvironmentalAssetTransfersQuery } from "@app/environmentalasset/getenvironmentalassettransfers/query/GetEnvironmentalAssetTransfersQuery"
 import { EnvironmentalAssetTransferResponse } from "./model/EnvironmentalAssetTransferResponse"
@@ -15,10 +15,10 @@ export class GetEnvironmentalAssetTransfersHttpAdapter implements GetEnvironment
   async getEnvironmentalAssetTransfers(
     @Param("treasuryContractId") treasuryContractId: string,
     @Param("environmentalAssetContractId") environmentalAssetContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
     @Query("type") type?: string,
   ): Promise<PageResponse<EnvironmentalAssetTransferResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
 
     const query = new GetEnvironmentalAssetTransfersQuery(
       treasuryContractId,

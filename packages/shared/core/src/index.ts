@@ -70,7 +70,6 @@ export { PageResponse } from "./pagination/PageResponse"
 
 export { QueryOrderPageOptions } from "./query/QueryOrderPageOptions"
 export { QueryPageOptions } from "./query/QueryPageOptions"
-export { QueryPageRequest } from "./query/QueryPageRequest"
 export { QueryPageResponse } from "./query/QueryPageResponse"
 
 export { RoleGrantedDLTEvent } from "./port.adapter/shared/model/RoleGrantedDLTEvent"

@@ -12,8 +12,12 @@ import {
   IControlList__factory,
   IERC1410__factory,
   IERC1643__factory,
+  IHoldTokenHolder__factory,
   ILock__factory,
   IProceedRecipients__factory,
+  IClearingHoldCreation__factory,
+  IClearingActions__factory,
+  IClearingRedeem__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
@@ -28,10 +32,16 @@ import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model
 import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
 import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
+import { BuildCreateClearingRedeemTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingRedeemTransactionRequest"
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildCreateBondHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondHoldTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -388,6 +398,125 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     )
   }
 
+  async createClearingHoldTransaction(
+    req: BuildCreateClearingHoldTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingHoldCreation__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    const hold = {
+      amount: req.amount,
+      expirationTimestamp: req.expirationTimestamp,
+      escrow: req.escrowAddress,
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      data: req.data || "0x",
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingCreateHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, hold],
+    )
+  }
+
+  async createClearingRedeemTransaction(
+    req: BuildCreateClearingRedeemTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingRedeem__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingRedeemByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, req.amount],
+    )
+  }
+
+  async approveClearingTransaction(req: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "approveClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
+  async cancelClearingTransaction(req: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "cancelClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
+  async reclaimClearingTransaction(req: BuildReclaimClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "reclaimClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
   private async buildAndReturnTransactionResponse(
     contractInterface: any,
     functionName: string,
@@ -410,5 +539,30 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       args,
     } as any)
     return new BuildTransactionResponse(transactionResponse.unsignedTx)
+  }
+
+  async createBondHoldTransaction(req: BuildCreateBondHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const hold = {
+      amount: req.amount,
+      expirationTimestamp: Math.floor(req.expirationTimestamp.getTime() / 1000),
+      escrow: await ConverterUtils.getEvmAddressFromHederaAddress(req.escrowAccountId),
+      to: req.toAccountId
+        ? await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+        : this.EVM_ZERO_ADDRESS,
+      data: data,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "createHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, hold],
+    )
   }
 }

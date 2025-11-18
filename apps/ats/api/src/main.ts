@@ -52,6 +52,6 @@ async function bootstrap() {
 
   const logger = new Logger("main")
   logger.log(`🏃 GreenBond ATS API is running on: http://localhost:${port}`)
-  logger.log(`📖 API Documentation: http://localhost:${port}/api`)
+  logger.log(`📖 API Documentation: /api/v1/docs`)
 }
 void bootstrap()

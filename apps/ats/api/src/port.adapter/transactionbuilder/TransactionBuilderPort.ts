@@ -13,7 +13,13 @@ import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildCreateBondHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondHoldTransactionRequest"
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
+import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
+import { BuildCreateClearingRedeemTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingRedeemTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -35,5 +41,13 @@ export interface TransactionBuilderPort {
     request: BuildRemoveProceedRecipientTransactionRequest,
   ): Promise<BuildTransactionResponse>
   transferByPartitionTransaction(request: BuildTransferByPartitionTransactionRequest): Promise<BuildTransactionResponse>
+  createBondHoldTransaction(request: BuildCreateBondHoldTransactionRequest): Promise<BuildTransactionResponse>
   redeemBondTransaction(request: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse>
+  createClearingHoldTransaction(request: BuildCreateClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
+  createClearingRedeemTransaction(
+    request: BuildCreateClearingRedeemTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  approveClearingTransaction(request: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse>
+  cancelClearingTransaction(request: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse>
+  reclaimClearingTransaction(request: BuildReclaimClearingTransactionRequest): Promise<BuildTransactionResponse>
 }

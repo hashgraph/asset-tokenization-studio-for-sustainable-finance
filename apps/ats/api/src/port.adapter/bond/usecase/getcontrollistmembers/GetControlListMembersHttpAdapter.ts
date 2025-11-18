@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Inject, RestController, PageResponse, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { Inject, RestController, PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetControlListMembersPort } from "./GetControlListMembersPort"
@@ -14,9 +14,9 @@ export class GetControlListMembersHttpAdapter implements GetControlListMembersPo
   @Get("/:bondContractId/control-list/members")
   async getControlListMembers(
     @Param("bondContractId") bondContractId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ControlListMembersResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     return await this.queryBus.execute(new GetControlListMembersQuery(bondContractId, queryPageOptions))
   }
 }

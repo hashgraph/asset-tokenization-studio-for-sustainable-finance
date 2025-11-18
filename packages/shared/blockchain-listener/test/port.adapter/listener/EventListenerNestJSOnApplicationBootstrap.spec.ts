@@ -17,6 +17,9 @@ import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
 import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
 import { PostgresModule } from "../../shared/PostgresModule"
 import { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command/AddEventFiltersCommand"
+import { TerminusModule } from "@nestjs/terminus"
+import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
+import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 
 describe("EventListenerNestJSOnApplicationBootstrap", () => {
   let app: INestApplication<App>
@@ -38,9 +41,13 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
   })
 
   beforeEach(async () => {
+    const providers = EVENT_LISTENER_PROVIDERS.filter(
+      (provider) =>
+        provider !== PublishEventPortNestJSEventAdapter && provider?.useClass !== RabbitMQEventPublisherAdapter,
+    )
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
-      providers: [...EVENT_LISTENER_PROVIDERS, ErrorDLTEventListener],
+      imports: [SharedModule, TerminusModule, PostgresModule.forRoot(container.getConfig())],
+      providers: [...providers, ErrorDLTEventListener],
     }).compile()
 
     app = moduleFixture.createNestApplication()

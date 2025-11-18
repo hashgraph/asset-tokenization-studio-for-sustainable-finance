@@ -173,11 +173,7 @@ describe("ApplyRolesTransaction API Integration", () => {
     it("should return 400 for missing required fields", async () => {
       const marketContractId = "0.0.789012"
       const userAccountId = "0.0.123456789"
-      const invalidRequests = [
-        {},
-        { format: "hedera" },
-        { accountId: userAccountId },
-      ]
+      const invalidRequests = [{}, { format: "hedera" }, { accountId: userAccountId }]
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
