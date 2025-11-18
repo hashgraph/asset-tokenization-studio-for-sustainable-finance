@@ -3,7 +3,7 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { ReclaimClearingCommand } from "./ReclaimClearingCommand"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 import { ClearingReclaimedEvent } from "@domain/bond/clearing/event/ClearingReclaimedEvent"
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
@@ -20,7 +20,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
     private readonly updateClearingHoldStatusDomainService: UpdateClearingHoldStatusDomainService,
     private readonly updateClearingRedeemStatusDomainService: UpdateClearingRedeemStatusDomainService,
     private readonly updateClearingTransferStatusDomainService: UpdateClearingTransferStatusDomainService,
-    private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
+    private readonly updateClearingBondHolderBalanceDomainService: UpdateClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -30,7 +30,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
     await this.transactionManager.execute(async () => {
       const deletedClearing = await this.updateClearingStatusByType(command)
 
-      await this.clearingBondHolderBalanceDomainService.execute(
+      await this.updateClearingBondHolderBalanceDomainService.execute(
         deletedClearing.bondContractId,
         deletedClearing.holderAccountId,
         deletedClearing.partition,

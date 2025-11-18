@@ -23,9 +23,11 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     holderAccountId: string,
     clearingId: number,
   ): Promise<ClearingRedeem | null> {
-    return (await this.repository.findOne({
+    const persistence = await this.repository.findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
-    })) as ClearingRedeem | null
+    })
+    if (!persistence) return null
+    return Object.assign(new ClearingRedeem(), persistence)
   }
 
   async findAllByHolder(
@@ -41,7 +43,7 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => p as ClearingRedeem)
+    const items = persistences.map((p) => Object.assign(new ClearingRedeem(), p))
 
     return {
       items,

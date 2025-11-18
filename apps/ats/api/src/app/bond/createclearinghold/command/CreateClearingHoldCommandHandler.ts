@@ -5,14 +5,14 @@ import { CreateClearingHoldCommand } from "./CreateClearingHoldCommand"
 import { CreateClearingHoldDomainService } from "@domain/bond/clearing/service/CreateClearingHoldDomainService"
 import { ClearingCreatedEvent } from "@domain/bond/clearing/event/ClearingCreatedEvent"
 import { CreateClearingHoldDomainServiceRequest } from "@domain/bond/clearing/service/model/CreateClearingHoldDomainServiceRequest"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 
 @Singleton()
 @Handler(CreateClearingHoldCommand)
 export class CreateClearingHoldCommandHandler implements CommandHandler<CreateClearingHoldCommand, void> {
   constructor(
     private readonly createClearingHoldDomainService: CreateClearingHoldDomainService,
-    private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
+    private readonly updateClearingBondHolderBalanceDomainService: UpdateClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -35,7 +35,7 @@ export class CreateClearingHoldCommandHandler implements CommandHandler<CreateCl
 
       const savedClearing = await this.createClearingHoldDomainService.execute(request)
 
-      await this.clearingBondHolderBalanceDomainService.execute(
+      await this.updateClearingBondHolderBalanceDomainService.execute(
         savedClearing.bondContractId,
         savedClearing.holderAccountId,
         savedClearing.partition,

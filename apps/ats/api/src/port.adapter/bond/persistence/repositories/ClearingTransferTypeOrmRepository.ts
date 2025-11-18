@@ -23,9 +23,11 @@ export class ClearingTransferTypeOrmRepository implements ClearingTransferReposi
     holderAccountId: string,
     clearingId: number,
   ): Promise<ClearingTransfer | null> {
-    return (await this.repository.findOne({
+    const persistence = await this.repository.findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
-    })) as ClearingTransfer | null
+    })
+    if (!persistence) return null
+    return Object.assign(new ClearingTransfer(), persistence)
   }
 
   async findAllByHolder(
@@ -41,7 +43,7 @@ export class ClearingTransferTypeOrmRepository implements ClearingTransferReposi
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => p as ClearingTransfer)
+    const items = persistences.map((p) => Object.assign(new ClearingTransfer(), p))
 
     return {
       items,

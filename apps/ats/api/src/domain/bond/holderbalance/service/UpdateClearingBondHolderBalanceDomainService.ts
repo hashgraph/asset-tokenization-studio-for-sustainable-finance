@@ -7,7 +7,7 @@ import { InsufficientClearingBalanceError } from "@domain/bond/holderbalance/err
 import { InvalidClearingOperationError } from "@domain/bond/holderbalance/errors/InvalidClearingOperationError"
 
 @Singleton()
-export class ClearingBondHolderBalanceDomainService {
+export class UpdateClearingBondHolderBalanceDomainService {
   constructor(
     @Inject("BondHolderBalanceRepository") private readonly bondHolderBalanceRepository: BondHolderBalanceRepository,
   ) {}
@@ -17,7 +17,7 @@ export class ClearingBondHolderBalanceDomainService {
     holderAccountId: string,
     partition: string,
     amount: string,
-    operation: "CLEARING_LOCK" | "CLEARING_UNLOCK" | "CLEARING_EXECUTE",
+    operation: "CLEARING_LOCK" | "CLEARING_UNLOCK",
   ): Promise<void> {
     const balance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -64,23 +64,6 @@ export class ClearingBondHolderBalanceDomainService {
 
         balance.clearingBalance = (clearing - amountBigInt).toString()
         balance.availableBalance = (BigInt(balance.availableBalance) + amountBigInt).toString()
-        break
-      }
-      case "CLEARING_EXECUTE": {
-        const clearingBalance = BigInt(balance.clearingBalance)
-
-        if (clearingBalance < amountBigInt) {
-          throw InsufficientClearingBalanceError.bondHolderPartitionError(
-            bondContractId,
-            holderAccountId,
-            partition,
-            balance.clearingBalance,
-            amount,
-          )
-        }
-
-        balance.clearingBalance = (clearingBalance - amountBigInt).toString()
-        balance.heldBalance = (BigInt(balance.heldBalance) + amountBigInt).toString()
         break
       }
       default:

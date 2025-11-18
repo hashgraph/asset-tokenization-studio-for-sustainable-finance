@@ -69,7 +69,7 @@ import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/up
 import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
 import { DecreaseBondHolderAvailableBalanceDomainService } from "@domain/bond/holderbalance/service/DecreaseBondHolderAvailableBalanceDomainService"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 import {
   COMMON_FUNCTIONALITY_ENTITIES,
   COMMON_FUNCTIONALITY_PROVIDERS,
@@ -191,6 +191,9 @@ import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/Revo
 import { CreateClearingTransferDomainService } from "@domain/bond/clearing/service/CreateClearingTransferDomainService"
 import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
+import { ApproveHoldClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveHoldClearingBalanceDomainService"
+import { ApproveRedeemClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveRedeemClearingBalanceDomainService"
+import { ApproveTransferClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveTransferClearingBalanceDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -342,7 +345,10 @@ export const PROVIDERS = [
   RedeemBondHolderBalanceCommandHandler,
   RedeemBondHolderBalanceNestJSEventAdapter,
   RedeemBondHolderBalanceDomainService,
-  ClearingBondHolderBalanceDomainService,
+  UpdateClearingBondHolderBalanceDomainService,
+  ApproveHoldClearingBalanceDomainService,
+  ApproveRedeemClearingBalanceDomainService,
+  ApproveTransferClearingBalanceDomainService,
   CancelClearingCommandHandler,
   ReclaimClearingCommandHandler,
   ApproveClearingCommandHandler,

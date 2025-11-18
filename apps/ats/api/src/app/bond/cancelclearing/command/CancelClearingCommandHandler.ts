@@ -6,7 +6,7 @@ import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/D
 import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
 import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
 import { DeleteClearingDomainServiceRequest } from "@domain/bond/clearing/service/model/DeleteClearingDomainServiceRequest"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 import { ClearingCanceledEvent } from "@domain/bond/clearing/event/ClearingCanceledEvent"
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
 import { CancelClearingCommand } from "@app/bond/cancelclearing/command/CancelClearingCommand"
@@ -19,7 +19,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
     private readonly deleteClearingHoldDomainService: DeleteClearingHoldDomainService,
     private readonly deleteClearingRedeemDomainService: DeleteClearingRedeemDomainService,
     private readonly deleteClearingTransferDomainService: DeleteClearingTransferDomainService,
-    private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
+    private readonly updateClearingBondHolderBalanceDomainService: UpdateClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -29,7 +29,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
     await this.transactionManager.execute(async () => {
       const deletedClearing = await this.deleteClearingByType(command)
 
-      await this.clearingBondHolderBalanceDomainService.execute(
+      await this.updateClearingBondHolderBalanceDomainService.execute(
         deletedClearing.bondContractId,
         deletedClearing.holderAccountId,
         deletedClearing.partition,

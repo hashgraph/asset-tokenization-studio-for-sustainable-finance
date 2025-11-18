@@ -23,9 +23,11 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     holderAccountId: string,
     clearingId: number,
   ): Promise<ClearingHold | null> {
-    return (await this.repository.findOne({
+    const persistence = await this.repository.findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
-    })) as ClearingHold | null
+    })
+    if (!persistence) return null
+    return Object.assign(new ClearingHold(), persistence)
   }
 
   async findAllByHolder(
@@ -41,7 +43,7 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => p as ClearingHold)
+    const items = persistences.map((p) => Object.assign(new ClearingHold(), p))
 
     return {
       items,
