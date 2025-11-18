@@ -49,4 +49,28 @@ export class BondHolderBalanceTypeOrmRepository implements BondHolderBalanceRepo
       totalPages: Math.ceil(total / options.limit),
     }
   }
+
+  async findAllByContractIdAndHolderAccountIdPaginated(
+    contractId: string,
+    holderAccountId: string,
+    options: PageOptions,
+  ): Promise<Page<BondHolderBalance>> {
+    const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
+    const [persistences, total] = await this.repository.findAndCount({
+      where: { contractId, holderAccountId },
+      order: { [options.order.orderBy]: orderDirection },
+      take: options.limit,
+      skip: (options.page - 1) * options.limit,
+    })
+
+    const items = persistences.map((p) => p as BondHolderBalance)
+
+    return {
+      items,
+      total,
+      page: options.page,
+      limit: options.limit,
+      totalPages: Math.ceil(total / options.limit),
+    }
+  }
 }
