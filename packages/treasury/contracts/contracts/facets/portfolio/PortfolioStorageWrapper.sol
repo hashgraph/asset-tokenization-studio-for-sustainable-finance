@@ -143,7 +143,7 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      * @param token The address of the token we want to associate with the contract
      */
     function _associateToken(address token) internal {
-        int256 responseCode = HederaTokenService.associateToken(address(this), token);
+        int256 responseCode = associateToken(address(this), token);
         if (
             responseCode != HederaResponseCodes.SUCCESS &&
             responseCode != HederaResponseCodes.TOKEN_ALREADY_ASSOCIATED_TO_ACCOUNT
@@ -162,7 +162,7 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     function _dissociateTokenAllowNotAssociated(address token) internal returns (int256 dissociationError) {
-        int256 responseCode = HederaTokenService.dissociateToken(address(this), token);
+        int256 responseCode = dissociateToken(address(this), token);
         bool isSuccess = (responseCode == HederaResponseCodes.SUCCESS ||
             responseCode == HederaResponseCodes.TOKEN_NOT_ASSOCIATED_TO_ACCOUNT);
         dissociationError = isSuccess ? HederaResponseCodes.OK : responseCode;
@@ -174,7 +174,7 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      * @param token The address of the token we want to dissociate from the contract
      */
     function _dissociateToken(address token) internal {
-        int256 responseCode = HederaTokenService.dissociateToken(address(this), token);
+        int256 responseCode = dissociateToken(address(this), token);
         if (responseCode != HederaResponseCodes.SUCCESS) {
             revert IPortfolio.DissociateTokenFailed(token, responseCode);
         }
