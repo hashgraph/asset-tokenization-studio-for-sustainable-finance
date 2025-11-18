@@ -1,47 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject } from "@nestjs/common";
-import { QueryHandler, IQueryHandler } from "@nestjs/cqrs";
-import { GetExecutionHistoryQuery } from "./GetExecutionHistoryQuery";
-import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository";
-import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult";
+import { Handler, Inject, QueryHandler, QueryPageResponse, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import type { ScheduledTaskResultRepository } from "@domain/oracle/repositories/ScheduledTaskResultRepository"
+import { GetExecutionHistoryQuery } from "./GetExecutionHistoryQuery"
+import { ExecutionHistoryQueryResponse } from "./ExecutionHistoryQueryResponse"
+import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
 
-export interface ExecutionHistoryResponse {
-  data: ScheduledTaskResult[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-@QueryHandler(GetExecutionHistoryQuery)
+@Singleton()
+@Handler(GetExecutionHistoryQuery)
 export class GetExecutionHistoryQueryHandler
-  implements IQueryHandler<GetExecutionHistoryQuery, ExecutionHistoryResponse>
+  implements QueryHandler<GetExecutionHistoryQuery, QueryPageResponse<ExecutionHistoryQueryResponse>>
 {
-  constructor(
-    @Inject("ScheduledTaskRepository")
-    private readonly repository: ScheduledTaskRepository,
-  ) {}
+  constructor(@Inject("ScheduledTaskResultRepository") private readonly repository: ScheduledTaskResultRepository) {}
 
-  async execute(
-    query: GetExecutionHistoryQuery,
-  ): Promise<ExecutionHistoryResponse> {
-    const [data, total] = await Promise.all([
-      this.repository.findByOracleRegistryId(query.registryId, {
-        projectId: query.projectId,
-        status: query.status,
-        page: query.page,
-        limit: query.limit,
-      }),
-      this.repository.countByOracleRegistryId(query.registryId, {
-        projectId: query.projectId,
-        status: query.status,
-      }),
-    ]);
-
-    return {
-      data,
-      total,
-      page: query.page,
-      limit: query.limit,
-    };
+  @Validate()
+  async execute(query: GetExecutionHistoryQuery): Promise<QueryPageResponse<ExecutionHistoryQueryResponse>> {
+    const page = await this.repository.findByRegistryId(
+      query.registryId,
+      query.pageOptions.toPageOptions(),
+      query.projectId,
+      query.status,
+    )
+    return QueryPageResponse.fromPage(page, (task: ScheduledTaskResult) => ({
+      id: task.id,
+      oracleRegistryId: task.oracleRegistryId,
+      projectId: task.projectId,
+      status: task.status,
+      scheduledTime: task.scheduledTime,
+      executionTime: task.executionTime,
+      completedAt: task.completedAt,
+      errorType: task.errorType,
+      errorMessage: task.errorMessage,
+      kpiValue: task.kpiValue,
+      transactionHash: task.transactionHash,
+      retryCount: task.retryCount,
+      createdAt: task.createdAt,
+      updatedAt: task.updatedAt,
+    }))
   }
 }

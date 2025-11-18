@@ -5,7 +5,7 @@
  */
 
 // Shared Core Providers
-import { PROVIDERS as SHARED_CORE_PROVIDERS } from "@hashgraph/green-bonds-shared-core/dist/Components";
+import { COMMON_FUNCTIONALITY_PROVIDERS } from "@hashgraph/green-bonds-shared-core";
 
 // HTTP Adapters
 import { CreateOracleRegistryHttpAdapter } from "@port/oracle/usecase/createoracleregistry/CreateOracleRegistryHttpAdapter";
@@ -42,8 +42,6 @@ import { OracleAggregationService } from "@domain/oracle/services/OracleAggregat
 // Port Adapters - Repositories
 import { OracleRegistryTypeOrmRepository } from "@port/oracle/persistence/repositories/OracleRegistryTypeOrmRepository";
 import { ScheduledTaskTypeOrmRepository } from "@port/oracle/persistence/repositories/ScheduledTaskTypeOrmRepository";
-import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository";
-import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository";
 
 // Port Adapters - External Clients
 import { IndexerApiClient } from "@port/indexer/IndexerApiClient";
@@ -125,5 +123,5 @@ export const PROVIDERS: any[] = [
   SchedulerService,
 
   // Shared Core Providers (CommandBus, QueryBus, EventBus, etc.)
-  ...SHARED_CORE_PROVIDERS,
+  ...COMMON_FUNCTIONALITY_PROVIDERS,
 ];

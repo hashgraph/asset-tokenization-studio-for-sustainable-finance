@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { TaskStatus } from "./TaskStatus";
+import { TaskStatus } from "./TaskStatus"
 
 /**
  * ScheduledTaskResult Entity
@@ -44,7 +44,7 @@ export class ScheduledTaskResult {
       null,
       new Date(),
       new Date(),
-    );
+    )
   }
 
   markAsSuccess(kpiValue: number, transactionHash: string): ScheduledTaskResult {
@@ -63,7 +63,7 @@ export class ScheduledTaskResult {
       transactionHash,
       this.createdAt,
       new Date(),
-    );
+    )
   }
 
   markAsFailed(errorType: string, errorMessage: string): ScheduledTaskResult {
@@ -82,7 +82,7 @@ export class ScheduledTaskResult {
       null,
       this.createdAt,
       new Date(),
-    );
+    )
   }
 
   incrementRetry(): ScheduledTaskResult {
@@ -101,10 +101,10 @@ export class ScheduledTaskResult {
       null,
       this.createdAt,
       new Date(),
-    );
+    )
   }
 
   canRetry(maxRetries: number): boolean {
-    return this.status === TaskStatus.FAILED && this.retryCount < maxRetries;
+    return this.status === TaskStatus.FAILED && this.retryCount < maxRetries
   }
 }

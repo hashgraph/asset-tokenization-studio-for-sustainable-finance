@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator"
 
 export class UpdateOracleRegistryRequest {
   @IsOptional()
   @IsString()
-  schedulerStartDate?: string;
+  schedulerStartDate?: string
 
   @IsOptional()
   @IsString()
-  schedulerEndDate?: string | null;
+  schedulerEndDate?: string | null
 }

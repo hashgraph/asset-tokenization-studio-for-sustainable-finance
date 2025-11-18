@@ -1,57 +1,40 @@
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from "typeorm";
-import { ScheduledTaskResultPersistence } from "./ScheduledTaskResultPersistence";
+import { Entity, Column, OneToMany } from "typeorm"
+import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
+import { ScheduledTaskResultPersistence } from "./ScheduledTaskResultPersistence"
+import { OracleStatus } from "@domain/oracle/model/OracleStatus"
 
 export interface ProjectData {
-  projectId: string;
-  topicId: string;
+  projectId: string
+  topicId: string
 }
 
 @Entity("oracle_registry")
-export class OracleRegistryPersistence {
-  @PrimaryGeneratedColumn("uuid")
-  id: string;
-
+export class OracleRegistryPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })
-  bondId: string;
+  bondContractId: string
 
   @Column({ type: "varchar", length: 255, unique: true })
-  kpiContractId: string;
+  kpiContractId: string
 
   @Column({ type: "jsonb" })
-  projects: ProjectData[];
+  projects: ProjectData[]
 
   @Column({ type: "timestamp" })
-  schedulerStartDate: Date;
+  schedulerStartDate: Date
 
   @Column({ type: "timestamp", nullable: true })
-  schedulerEndDate: Date | null;
+  schedulerEndDate: Date | null
 
   @Column({ type: "timestamp" })
-  nextExecutionDate: Date;
+  nextExecutionDate: Date
 
   @Column({ type: "int" })
-  frequencyMinutes: number;
+  frequencyMinutes: number
 
-  @Column({ type: "varchar", length: 50, default: "ACTIVE" })
-  status: string; // ACTIVE, PAUSED, STOPPED
+  @Column({ type: "enum", enum: OracleStatus, default: OracleStatus.ACTIVE })
+  status: OracleStatus
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @OneToMany(
-    () => ScheduledTaskResultPersistence,
-    (taskResult) => taskResult.oracleRegistry,
-  )
-  taskResults: ScheduledTaskResultPersistence[];
+  @OneToMany(() => ScheduledTaskResultPersistence, (taskResult) => taskResult.oracleRegistry)
+  taskResults: ScheduledTaskResultPersistence[]
 }

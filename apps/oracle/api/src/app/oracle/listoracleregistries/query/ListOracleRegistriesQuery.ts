@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
+import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
+import { OracleRegistryQueryResponse } from "./OracleRegistryQueryResponse"
 
-export class ListOracleRegistriesQuery {
-  constructor(
-    public readonly page: number = 1,
-    public readonly limit: number = 20,
-  ) {}
+export class ListOracleRegistriesQuery extends Query<QueryPageResponse<OracleRegistryQueryResponse>> {
+  constructor(public readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT) {
+    super()
+  }
 }

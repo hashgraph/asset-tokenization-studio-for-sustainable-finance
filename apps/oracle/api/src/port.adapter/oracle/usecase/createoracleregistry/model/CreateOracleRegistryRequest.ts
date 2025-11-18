@@ -1,31 +1,31 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsString, IsNotEmpty, IsNumber, IsOptional, IsArray, ValidateNested, Min } from "class-validator";
-import { Type } from "class-transformer";
-import { ProjectRequest } from "@port/shared/model/ProjectRequest";
+import { IsString, IsNotEmpty, IsNumber, IsOptional, IsArray, ValidateNested, Min } from "class-validator"
+import { Type } from "class-transformer"
+import { ProjectRequest } from "@port/shared/model/ProjectRequest"
 
 export class CreateOracleRegistryRequest {
   @IsString()
   @IsNotEmpty()
-  bondId: string;
+  bondContractId: string
 
   @IsString()
   @IsNotEmpty()
-  kpiContractId: string;
+  kpiContractId: string
 
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ProjectRequest)
-  projects: ProjectRequest[];
+  projects: ProjectRequest[]
 
   @IsString()
   @IsNotEmpty()
-  schedulerStartDate: string;
+  schedulerStartDate: string
 
   @IsOptional()
   @IsString()
-  schedulerEndDate?: string | null;
+  schedulerEndDate?: string | null
 
   @IsNumber()
   @Min(1)
-  frequencyMinutes: number;
+  frequencyMinutes: number
 }

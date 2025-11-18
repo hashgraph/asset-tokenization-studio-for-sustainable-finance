@@ -1,7 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Project } from "./Project";
-import { OracleConfig } from "./OracleConfig";
-import { OracleStatus } from "./OracleStatus";
+import { randomUUID } from "crypto"
+import { Project } from "./Project"
+import { OracleConfig } from "./OracleConfig"
+import { OracleStatus } from "./OracleStatus"
+import { ProjectFoundError } from "../errors/ProjectFoundError"
+import { ProjectNotFoundError } from "../errors/ProjectNotFoundError"
+import { OracleRegistryStateError } from "../errors/OracleRegistryStateError"
 
 /**
  * OracleRegistry Aggregate Root
@@ -10,7 +14,7 @@ import { OracleStatus } from "./OracleStatus";
 export class OracleRegistry {
   constructor(
     public readonly id: string,
-    public readonly bondId: string,
+    public readonly bondContractId: string,
     public readonly kpiContractId: string,
     private _projects: Project[],
     private _config: OracleConfig,
@@ -20,86 +24,81 @@ export class OracleRegistry {
   ) {}
 
   get projects(): Project[] {
-    return [...this._projects];
+    return [...this._projects]
   }
 
   get config(): OracleConfig {
-    return this._config;
+    return this._config
   }
 
   get status(): OracleStatus {
-    return this._status;
+    return this._status
   }
 
   addProject(project: Project): void {
-    const exists = this._projects.some(
-      (p) => p.projectId === project.projectId,
-    );
+    const exists = this._projects.some((p) => p.projectId === project.projectId)
     if (exists) {
-      throw new Error(`Project ${project.projectId} already exists`);
+      throw ProjectFoundError.projectIdError(project.projectId, this.id)
     }
-    this._projects.push(project);
+    this._projects.push(project)
   }
 
   removeProject(projectId: string): void {
-    const index = this._projects.findIndex((p) => p.projectId === projectId);
+    const index = this._projects.findIndex((p) => p.projectId === projectId)
     if (index === -1) {
-      throw new Error(`Project ${projectId} not found`);
+      throw ProjectNotFoundError.projectIdError(projectId, this.id)
     }
-    this._projects.splice(index, 1);
+    this._projects.splice(index, 1)
   }
 
   updateProjectTopic(projectId: string, newTopicId: string): void {
-    const index = this._projects.findIndex((p) => p.projectId === projectId);
+    const index = this._projects.findIndex((p) => p.projectId === projectId)
     if (index === -1) {
-      throw new Error(`Project ${projectId} not found`);
+      throw ProjectNotFoundError.projectIdError(projectId, this.id)
     }
-    this._projects[index] = new Project(projectId, newTopicId);
+    this._projects[index] = new Project(projectId, newTopicId)
   }
 
   getProjectById(projectId: string): Project | undefined {
-    return this._projects.find((p) => p.projectId === projectId);
+    return this._projects.find((p) => p.projectId === projectId)
   }
 
   updateSchedulerDates(startDate?: Date, endDate?: Date | null): void {
-    this._config = this._config.withUpdatedDates(startDate, endDate);
+    this._config = this._config.withUpdatedDates(startDate, endDate)
   }
 
   updateNextExecutionDate(date: Date): void {
-    this._config = this._config.withNextExecutionDate(date);
+    this._config = this._config.withNextExecutionDate(date)
   }
 
   pause(): void {
     if (this._status === OracleStatus.STOPPED) {
-      throw new Error("Cannot pause a stopped oracle registry");
+      throw OracleRegistryStateError.cannotPauseStoppedRegistry()
     }
-    this._status = OracleStatus.PAUSED;
+    this._status = OracleStatus.PAUSED
   }
 
   resume(): void {
     if (this._status === OracleStatus.STOPPED) {
-      throw new Error("Cannot resume a stopped oracle registry");
+      throw OracleRegistryStateError.cannotResumeStoppedRegistry()
     }
-    this._status = OracleStatus.ACTIVE;
+    this._status = OracleStatus.ACTIVE
   }
 
   stop(): void {
-    this._status = OracleStatus.STOPPED;
+    this._status = OracleStatus.STOPPED
   }
 
   canExecute(): boolean {
-    return (
-      this._status === OracleStatus.ACTIVE && this._config.shouldExecuteNow()
-    );
+    return this._status === OracleStatus.ACTIVE && this._config.shouldExecuteNow()
   }
 
   updateFrequency(frequencyMinutes: number): void {
-    this._config = this._config.withUpdatedFrequency(frequencyMinutes);
+    this._config = this._config.withUpdatedFrequency(frequencyMinutes)
   }
 
   static create(
-    id: string,
-    bondId: string,
+    bondContractId: string,
     kpiContractId: string,
     projects: Project[],
     schedulerStartDate: Date,
@@ -107,7 +106,7 @@ export class OracleRegistry {
     frequencyMinutes: number,
   ): OracleRegistry {
     if (projects.length === 0) {
-      throw new Error("At least one project is required");
+      throw OracleRegistryStateError.atLeastOneProjectRequired()
     }
 
     const config = new OracleConfig(
@@ -115,17 +114,17 @@ export class OracleRegistry {
       schedulerEndDate,
       schedulerStartDate, // Initial next execution is the start date
       frequencyMinutes,
-    );
+    )
 
     return new OracleRegistry(
-      id,
-      bondId,
+      randomUUID(),
+      bondContractId,
       kpiContractId,
       projects,
       config,
       OracleStatus.ACTIVE,
       new Date(),
       new Date(),
-    );
+    )
   }
 }

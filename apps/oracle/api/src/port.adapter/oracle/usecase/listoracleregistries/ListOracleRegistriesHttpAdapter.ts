@@ -1,28 +1,19 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Get, Query } from "@nestjs/common";
-import { QueryBus } from "@nestjs/cqrs";
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
-import { ListOracleRegistriesQuery } from "@app/oracle/listoracleregistries/query/ListOracleRegistriesQuery";
-import { ListOracleRegistriesResponse } from "@app/oracle/listoracleregistries/query/ListOracleRegistriesQueryHandler";
+import { Inject, RestController, PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
+import { Get, Query } from "@nestjs/common"
+import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
+import { ListOracleRegistriesQuery } from "@app/oracle/listoracleregistries/query/ListOracleRegistriesQuery"
+import { OracleRegistryResponse } from "./model/OracleRegistryResponse"
 
-@ApiTags("Oracle Registry")
-@Controller("oracle/registries")
+@RestController("oracle/registries")
 export class ListOracleRegistriesHttpAdapter {
-  constructor(private readonly queryBus: QueryBus) {}
+  constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get()
-  @ApiOperation({ summary: "List all oracle registries" })
-  @ApiQuery({ name: "page", required: false, type: Number })
-  @ApiQuery({ name: "limit", required: false, type: Number })
-  @ApiResponse({ status: 200, description: "List of oracle registries" })
   async listOracleRegistries(
-    @Query("page") page: string = "1",
-    @Query("limit") limit: string = "20",
-  ): Promise<ListOracleRegistriesResponse> {
-    const query = new ListOracleRegistriesQuery(
-      parseInt(page, 10),
-      parseInt(limit, 10),
-    );
-    return await this.queryBus.execute(query);
+    @Query() pageOptionsRequest: PageOptionsRequest,
+  ): Promise<PageResponse<OracleRegistryResponse>> {
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
+    return await this.queryBus.execute(new ListOracleRegistriesQuery(queryPageOptions))
   }
 }

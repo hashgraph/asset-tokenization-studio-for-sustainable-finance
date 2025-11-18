@@ -1,21 +1,62 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Command } from "@hashgraph/green-bonds-shared-core";
-import { OracleRegistry } from "@domain/oracle/model/OracleRegistry";
+import { IsNotEmpty, IsString, IsArray, IsDate, IsNumber, Min, ValidateNested, IsOptional } from "class-validator"
+import { Type } from "class-transformer"
+import { Command } from "@hashgraph/green-bonds-shared-core"
+import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
 
-export interface ProjectData {
-  projectId: string;
-  topicId: string;
+export class ProjectData {
+  @IsNotEmpty()
+  @IsString()
+  projectId: string
+
+  @IsNotEmpty()
+  @IsString()
+  topicId: string
 }
 
 export class CreateOracleRegistryCommand extends Command<OracleRegistry> {
+  @IsNotEmpty()
+  @IsString()
+  bondContractId: string
+
+  @IsNotEmpty()
+  @IsString()
+  kpiContractId: string
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProjectData)
+  projects: ProjectData[]
+
+  @IsNotEmpty()
+  @IsDate()
+  @Type(() => Date)
+  schedulerStartDate: Date
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  schedulerEndDate: Date | null
+
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1)
+  frequencyMinutes: number
+
   constructor(
-    public readonly bondId: string,
-    public readonly kpiContractId: string,
-    public readonly projects: ProjectData[],
-    public readonly schedulerStartDate: Date,
-    public readonly schedulerEndDate: Date | null,
-    public readonly frequencyMinutes: number,
+    bondContractId: string,
+    kpiContractId: string,
+    projects: ProjectData[],
+    schedulerStartDate: Date,
+    schedulerEndDate: Date | null,
+    frequencyMinutes: number,
   ) {
-    super();
+    super()
+    this.bondContractId = bondContractId
+    this.kpiContractId = kpiContractId
+    this.projects = projects
+    this.schedulerStartDate = schedulerStartDate
+    this.schedulerEndDate = schedulerEndDate
+    this.frequencyMinutes = frequencyMinutes
   }
 }

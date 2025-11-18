@@ -1,12 +1,34 @@
 // SPDX-License-Identifier: Apache-2.0
-import { TaskStatus } from "@domain/oracle/model/TaskStatus";
+import { IsNotEmpty, IsString, IsOptional, IsEnum } from "class-validator"
+import { Query, QueryPageOptions, QueryPageResponse } from "@hashgraph/green-bonds-shared-core"
+import { TaskStatus } from "@domain/oracle/model/TaskStatus"
+import { ExecutionHistoryQueryResponse } from "./ExecutionHistoryQueryResponse"
 
-export class GetExecutionHistoryQuery {
+export class GetExecutionHistoryQuery extends Query<QueryPageResponse<ExecutionHistoryQueryResponse>> {
+  @IsNotEmpty()
+  @IsString()
+  registryId: string
+
+  @IsOptional()
+  @IsString()
+  projectId?: string
+
+  @IsOptional()
+  @IsEnum(TaskStatus)
+  status?: TaskStatus
+
   constructor(
-    public readonly registryId: string,
-    public readonly projectId?: string,
-    public readonly status?: TaskStatus,
-    public readonly page: number = 1,
-    public readonly limit: number = 20,
-  ) {}
+    registryId: string,
+    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+    projectId?: string,
+    status?: TaskStatus,
+  ) {
+    super()
+    this.registryId = registryId
+    this.pageOptions = pageOptions
+    this.projectId = projectId
+    this.status = status
+  }
+
+  readonly pageOptions: QueryPageOptions
 }

@@ -1,21 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Get, Param } from "@nestjs/common";
-import { QueryBus } from "@nestjs/cqrs";
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from "@nestjs/swagger";
-import { GetOracleRegistryQuery } from "@app/oracle/getoracleregistry/query/GetOracleRegistryQuery";
-import { OracleRegistry } from "@domain/oracle/model/OracleRegistry";
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
+import { Get, Param } from "@nestjs/common"
+import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
+import { GetOracleRegistryQuery } from "@app/oracle/getoracleregistry/query/GetOracleRegistryQuery"
+import { OracleRegistryResponse } from "./model/OracleRegistryResponse"
 
-@ApiTags("Oracle Registry")
-@Controller("oracle/registries")
+@RestController("oracle/registries")
 export class GetOracleRegistryHttpAdapter {
-  constructor(private readonly queryBus: QueryBus) {}
+  constructor(@Inject() private readonly queryBus: QueryBus) {}
 
   @Get(":id")
-  @ApiOperation({ summary: "Get oracle registry by ID" })
-  @ApiParam({ name: "id", type: "string" })
-  @ApiResponse({ status: 200, description: "Oracle registry found" })
-  async getOracleRegistry(@Param("id") id: string): Promise<OracleRegistry> {
-    const query = new GetOracleRegistryQuery(id);
-    return await this.queryBus.execute(query);
+  async getOracleRegistry(@Param("id") id: string): Promise<OracleRegistryResponse> {
+    return await this.queryBus.execute(new GetOracleRegistryQuery(id))
   }
 }
