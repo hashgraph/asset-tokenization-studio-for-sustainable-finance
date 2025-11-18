@@ -62,7 +62,7 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
       expect(commandExecuteSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           accountId: expect.any(String),
-          roleId: ACCOUNT_EVM,
+          roleId: ROLE_ID,
           contractId: CONTRACT_ID,
         }),
       )
@@ -84,14 +84,14 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
       expect(commandExecuteSpy).toHaveBeenNthCalledWith(
         1,
         expect.objectContaining({
-          roleId: ACCOUNT_EVM,
+          roleId: role1,
           contractId: CONTRACT_ID,
         }),
       )
       expect(commandExecuteSpy).toHaveBeenNthCalledWith(
         2,
         expect.objectContaining({
-          roleId: ACCOUNT_EVM,
+          roleId: role2,
           contractId: CONTRACT_ID,
         }),
       )
