@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { utils } from "ethers";
-import type { ContractFactory, Signer } from "ethers";
+import { ethers } from "hardhat";
+import { type ContractFactory, type Signer, utils } from "ethers";
 import { EnvironmentalAssetFactory__factory, PaymentTokenFactory__factory } from "@contract-types";
+import { HEDERA_PRECOMPILED_ADDRESS } from "../constants"
 
 export async function deployContract<T extends ContractFactory>(factory: T, args: any[] = []): Promise<string> {
   const contract = await factory.deploy(...args);
@@ -47,4 +48,18 @@ export async function deployPaymentToken(signer: Signer, initialSupply: any, dec
     throw new Error("PaymentTokenCreated event not found in transaction receipt");
   }
   return [paymentTokenFactory.address, event.args.tokenAddress];
+}
+
+export async function deployPrecompiledMock() {
+  const PrecompiledMockContract = await ethers.getContractFactory("PrecompiledMock");
+
+  const deployed = await PrecompiledMockContract.deploy();
+  await deployed.deployed();
+
+  const runtimeBytecode = await ethers.provider.getCode(deployed.address);
+  await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
+  const mockPrecompiled = await ethers.getContractAt("PrecompiledMock", HEDERA_PRECOMPILED_ADDRESS);
+
+  await mockPrecompiled.setPrecompiledTransferStatus(true);
+  await mockPrecompiled.setPrecompiledAssociationStatus(true);
 }

@@ -37,19 +37,12 @@ const config: HardhatUserConfig = {
     cache: "./cache",
     artifacts: "./artifacts",
   },
-  defaultNetwork: "local",
+  defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      accounts: {
-        count: 2,
-        accountsBalance: "1000000000000000000000000",
-      },
       chainId: 1337,
       blockGasLimit: 30_000_000,
       hardfork: "cancun",
-      forking: {
-        url: Configuration.endpoints.testnet.jsonRpc,
-      },
     },
     local: {
       url: Configuration.endpoints.local.jsonRpc,
