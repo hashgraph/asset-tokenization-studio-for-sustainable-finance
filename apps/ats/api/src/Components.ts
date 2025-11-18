@@ -90,6 +90,8 @@ import { GetBondLockHttpAdapter } from "@port/bond/usecase/getbondlock/GetBondLo
 import { GetBondLockQueryHandler } from "@app/bond/getbondlock/query/GetBondLockQueryHandler"
 import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/GetBondHoldersHttpAdapter"
 import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
+import { GetHolderBalancesHttpAdapter } from "@port/bond/usecase/getholderbalances/GetHolderBalancesHttpAdapter"
+import { GetHolderBalancesQueryHandler } from "@app/bond/getholderbalances/query/GetHolderBalancesQueryHandler"
 import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
 import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
@@ -222,6 +224,7 @@ export const CONTROLLERS = [
   GetBondLocksHttpAdapter,
   GetBondLockHttpAdapter,
   GetBondHoldersHttpAdapter,
+  GetHolderBalancesHttpAdapter,
   GetControlListMembersHttpAdapter,
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
@@ -257,6 +260,7 @@ export const PROVIDERS = [
   GetBondLocksQueryHandler,
   GetBondLockQueryHandler,
   GetBondHoldersQueryHandler,
+  GetHolderBalancesQueryHandler,
   GetControlListMembersQueryHandler,
   SetBondDocumentTransactionAppService,
   SetBondDocumentCommandHandler,

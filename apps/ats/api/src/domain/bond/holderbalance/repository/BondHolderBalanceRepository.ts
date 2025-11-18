@@ -10,4 +10,9 @@ export interface BondHolderBalanceRepository {
     partition: string,
   ): Promise<BondHolderBalance | null>
   findAllByContractIdPaginated(contractId: string, pageOptions: PageOptions): Promise<Page<BondHolderBalance>>
+  findAllByContractIdAndHolderAccountIdPaginated(
+    contractId: string,
+    holderAccountId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<BondHolderBalance>>
 }

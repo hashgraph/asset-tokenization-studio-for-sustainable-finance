@@ -145,7 +145,11 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       expect(savedBondHold!.operatorAccountId).toBe("0.0.1234567")
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
-        where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+        where: {
+          contractId: "0.0.6974684",
+          holderAccountId: "0.0.7654321",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        },
       })
 
       expect(updatedBalance).toBeDefined()
