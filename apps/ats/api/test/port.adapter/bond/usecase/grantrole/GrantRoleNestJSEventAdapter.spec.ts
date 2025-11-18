@@ -55,7 +55,7 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
     it("should execute GrantRoleCommand when RoleGrantedDLTEvent is published", async () => {
       const commandExecuteSpy = jest.spyOn(commandBus, "execute").mockResolvedValue(undefined)
 
-      const event = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash", OPERATOR, ROLE_ID, ACCOUNT_EVM)
+      const event = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash", OPERATOR, ACCOUNT_EVM, ROLE_ID)
 
       await eventBus.publishSync(event, RoleGrantedDLTEvent.name)
 
@@ -74,8 +74,8 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
       const role1 = "0x0000000000000000000000000000000000000000000000000000000000000001"
       const role2 = "0x0000000000000000000000000000000000000000000000000000000000000002"
 
-      const event1 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash1", OPERATOR, role1, ACCOUNT_EVM)
-      const event2 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash2", OPERATOR, role2, ACCOUNT_EVM)
+      const event1 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash1", OPERATOR, ACCOUNT_EVM, role1)
+      const event2 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash2", OPERATOR, ACCOUNT_EVM, role2)
 
       await eventBus.publishSync(event1, RoleGrantedDLTEvent.name)
       await eventBus.publishSync(event2, RoleGrantedDLTEvent.name)
@@ -103,8 +103,8 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
       const account1 = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
       const account2 = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
-      const event1 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash1", OPERATOR, ROLE_ID, account1)
-      const event2 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash2", OPERATOR, ROLE_ID, account2)
+      const event1 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash1", OPERATOR, account1, ROLE_ID)
+      const event2 = new RoleGrantedDLTEvent(CONTRACT_ID, "0xtxhash2", OPERATOR, account2, ROLE_ID)
 
       await eventBus.publishSync(event1, RoleGrantedDLTEvent.name)
       await eventBus.publishSync(event2, RoleGrantedDLTEvent.name)
