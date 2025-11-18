@@ -33,6 +33,12 @@ export class SyncDistributionAppService {
       paymentTokenId,
     )
     await this.processFailedHolders(request.failedAddresses, request.distributionId, paymentTokenId)
+    await this.processAlreadyPaidHolders(
+      request.alreadyPaidAddresses,
+      request.alreadyPaidAmounts,
+      request.distributionId,
+      paymentTokenId,
+    )
   }
 
   private async ensureDistributionExists(distributionId: number, treasuryId: string): Promise<void> {
@@ -75,6 +81,27 @@ export class SyncDistributionAppService {
           address,
           DistributionHolderStatus.FAILED,
           undefined,
+          distributionId,
+          paymentTokenId,
+        ),
+      )
+    }
+  }
+
+  private async processAlreadyPaidHolders(
+    addresses: string[],
+    paidAmounts: string[],
+    distributionId: number,
+    paymentTokenId: string,
+  ): Promise<void> {
+    for (let i = 0; i < addresses.length; i++) {
+      const address = addresses[i]
+      const amount = paidAmounts[i]
+      await this.commandBus.execute(
+        new AddDistributionHolderCommand(
+          address,
+          DistributionHolderStatus.ALREADY_PAID,
+          amount,
           distributionId,
           paymentTokenId,
         ),

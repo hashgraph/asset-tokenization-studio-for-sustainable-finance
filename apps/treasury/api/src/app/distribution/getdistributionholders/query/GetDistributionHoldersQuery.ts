@@ -19,7 +19,7 @@ export class GetDistributionHoldersQuery extends Query<QueryPageResponse<Distrib
 
   @IsOptional()
   @IsString()
-  @IsIn(["SUCCESS", "FAILED"])
+  @IsIn(["SUCCESS", "FAILED", "ALREADY_PAID"])
   readonly status?: string
 
   constructor(

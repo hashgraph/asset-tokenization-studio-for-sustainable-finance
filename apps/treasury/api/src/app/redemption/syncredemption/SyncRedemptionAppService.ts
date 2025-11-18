@@ -25,6 +25,12 @@ export class SyncRedemptionAppService {
 
     await this.processSuccessfulHolders(request.successAddresses, request.paidAmounts, treasury.id, paymentTokenId)
     await this.processFailedHolders(request.failedAddresses, treasury.id, paymentTokenId)
+    await this.processAlreadyPaidHolders(
+      request.alreadyPaidAddresses,
+      request.alreadyPaidAmounts,
+      treasury.id,
+      paymentTokenId,
+    )
   }
 
   private async processSuccessfulHolders(
@@ -46,6 +52,27 @@ export class SyncRedemptionAppService {
     for (const address of addresses) {
       await this.commandBus.execute(
         new AddRedemptionHolderCommand(address, RedemptionHolderStatus.FAILED, undefined, treasuryId, paymentTokenId),
+      )
+    }
+  }
+
+  private async processAlreadyPaidHolders(
+    addresses: string[],
+    paidAmounts: string[],
+    treasuryId: string,
+    paymentTokenId: string,
+  ): Promise<void> {
+    for (let i = 0; i < addresses.length; i++) {
+      const address = addresses[i]
+      const amount = paidAmounts[i]
+      await this.commandBus.execute(
+        new AddRedemptionHolderCommand(
+          address,
+          RedemptionHolderStatus.ALREADY_PAID,
+          amount,
+          treasuryId,
+          paymentTokenId,
+        ),
       )
     }
   }

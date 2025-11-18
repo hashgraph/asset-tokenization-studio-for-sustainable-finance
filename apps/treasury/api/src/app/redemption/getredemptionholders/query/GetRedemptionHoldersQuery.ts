@@ -16,7 +16,7 @@ export class GetRedemptionHoldersQuery extends Query<QueryPageResponse<Redemptio
 
   @IsOptional()
   @IsString()
-  @IsIn(["SUCCESS", "FAILED"])
+  @IsIn(["SUCCESS", "FAILED", "ALREADY_PAID"])
   readonly status?: string
 
   constructor(treasuryContractId: string, pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT, status?: string) {

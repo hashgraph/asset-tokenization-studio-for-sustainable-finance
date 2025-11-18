@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Command } from "@hashgraph/green-bonds-shared-core"
-import { IsIn, IsNotEmpty, IsNumberString, IsOptional, NotEquals } from "class-validator"
+import { IsIn, IsNotEmpty, IsNumberString, IsOptional } from "class-validator"
 
 export class AddRedemptionHolderCommand extends Command<void> {
   @IsNotEmpty()
   holderAccountId: string
 
-  @IsIn(["SUCCESS", "FAILED"])
+  @IsIn(["SUCCESS", "FAILED", "ALREADY_PAID"])
   status: string
 
   @IsOptional()
-  @NotEquals("0")
   @IsNumberString({ no_symbols: true })
   amount?: string
 

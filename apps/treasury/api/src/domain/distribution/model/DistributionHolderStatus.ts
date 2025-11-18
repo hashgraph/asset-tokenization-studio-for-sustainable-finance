@@ -3,4 +3,5 @@
 export enum DistributionHolderStatus {
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
+  ALREADY_PAID = "ALREADY_PAID",
 }

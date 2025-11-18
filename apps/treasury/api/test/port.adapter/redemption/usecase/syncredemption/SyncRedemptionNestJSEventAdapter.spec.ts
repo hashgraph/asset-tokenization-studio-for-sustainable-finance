@@ -97,12 +97,12 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress4"]
     const paidAmounts = ["1000000", "2000000", "3000000"]
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
+      { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, result)
 
@@ -171,12 +171,12 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress7", "0xevmAddress8"]
     const paidAmounts = ["5000000", "6000000"]
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionByAddressesExecutedDLTEvent(
       treasury.contractId,
@@ -213,16 +213,12 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses = ["0xevmAddress10", "0x0000000000000000000000000000000000000000", "0xevmAddress11"]
-    const evmFailedAddresses = ["0x0000000000000000000000000000000000000000", "0xevmAddress12"]
-    const paidAmounts = ["1000000", "0", "2000000"]
-
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: "0xevmAddress10", status: 0, amount: "1000000" },
+      { holder: "0xevmAddress11", status: 0, amount: "2000000" },
+      { holder: "0x0000000000000000000000000000000000000000", status: 1, amount: "0" },
+      { holder: "0xevmAddress12", status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash4", 0, 10, result)
 
@@ -252,16 +248,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
 
@@ -290,16 +283,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
 
@@ -319,16 +309,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasuryContractId, "testTransactionHash5", 0, 10, result)
 
