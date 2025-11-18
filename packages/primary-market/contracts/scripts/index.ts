@@ -11,5 +11,4 @@
 
 export * from "./constants";
 export * from "./domain";
-export { factoryPrimaryMarketRegistry } from "./infrastructure/factoryPrimaryMarketRegistry";
 export * from "./workflows";

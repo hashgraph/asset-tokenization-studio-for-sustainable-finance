@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployFacets,
   registerAdditionalFacets,
   deployResolverProxy,
+  atsRegistry,
   info,
   success,
   section,
@@ -13,8 +13,12 @@ import {
   LogLevel,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { createFactoryPrimaryMarketConfiguration, createPrimaryMarketConfiguration } from "@scripts/domain";
-import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure";
+import { Signer, ContractFactory } from "ethers";
+import {
+  createFactoryPrimaryMarketConfiguration,
+  createPrimaryMarketConfiguration,
+  primaryMarketRegistry,
+} from "@scripts/domain";
 import type { DeployFactoryPrimaryMarketOutput } from "./deployFactoryPrimaryMarketSystem";
 
 /**
@@ -52,7 +56,7 @@ export interface DeployWithExistingInfraOptions {
 }
 
 export async function deployFactoryPrimaryMarketWithExistingInfra(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
@@ -61,7 +65,6 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
 
   section("FactoryPrimaryMarket Deployment (Existing Infrastructure)");
@@ -109,11 +112,18 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [factoryPrimaryMarketRegistry],
-    });
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = primaryMarketRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories);
 
     if (!facetsResult.success) {
       throw new Error("FactoryPrimaryMarketFacet deployment failed");
@@ -133,9 +143,25 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
       }
     });
 
-    const registerResult = await registerAdditionalFacets(provider, {
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+
+    const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
+      const primaryMarketFacet = primaryMarketRegistry.getFacetDefinition(name);
+      if (primaryMarketFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: primaryMarketFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in PrimaryMarket or ATS registries`);
+    });
+
+    const registerResult = await registerAdditionalFacets(signer, {
       blrAddress,
-      newFacets: newFacetAddresses,
+      newFacets: newFacetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -148,8 +174,6 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // STEP 4: Create FactoryPrimaryMarket configuration
     // ========================================
     info("\n💼 Step 4/5: Creating FactoryPrimaryMarket configuration...");
-
-    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     // Combine existing + new facets for configuration
     const facetNamesForConfig: Record<string, string> = useTimeTravel
@@ -167,12 +191,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
           PrimaryMarketFacet: newFacetAddresses.PrimaryMarketFacet,
         };
 
-    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
-      blrContract,
-      facetNamesForConfig,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
-    );
+    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(blrContract, facetNamesForConfig);
 
     if (!factoryPrimaryMarketConfig.success) {
       throw new Error(`FactoryPrimaryMarket config failed: ${factoryPrimaryMarketConfig}`);
@@ -189,12 +208,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // ========================================
     info("\n💼 Step 5/6: Creating PrimaryMarket configuration...");
 
-    const primaryMarketConfig = await createPrimaryMarketConfiguration(
-      blrContract,
-      facetNamesForConfig,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
-    );
+    const primaryMarketConfig = await createPrimaryMarketConfiguration(blrContract, facetNamesForConfig);
 
     if (!primaryMarketConfig.success) {
       throw new Error(`PrimaryMarket config failed: ${primaryMarketConfig}`);
@@ -213,7 +227,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const factoryPrimaryMarketProxyResult = await deployResolverProxy(provider, {
+    const factoryPrimaryMarketProxyResult = await deployResolverProxy(signer, {
       blrAddress,
       configurationId: factoryPrimaryMarketConfig.data.configurationId,
       version: factoryPrimaryMarketConfig.data.version,
@@ -243,7 +257,6 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // ========================================
     const endTime = Date.now();
 
-    // @ts-expect-error - DeployFactoryPrimaryMarketOutput type may have mismatches
     const output: DeployFactoryPrimaryMarketOutput = {
       network,
       timestamp: new Date().toISOString(),
