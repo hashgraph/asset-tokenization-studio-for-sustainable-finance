@@ -162,6 +162,12 @@ import { CreateClearingRedeemCommandHandler } from "@app/bond/createclearingrede
 import { ClearedRedeemNestJSEventAdapter } from "@port/bond/usecase/clearedredeem/ClearedRedeemNestJSEventAdapter"
 import { ClearingRedeemTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingRedeemTypeOrmRepository"
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
+import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -240,6 +246,10 @@ export const CONTROLLERS = [
   CancelClearingTransactionHttpAdapter,
   GetClearingsHoldHttpAdapter,
   GetClearingHoldHttpAdapter,
+  GetRoleMembersHttpAdapter,
+  GetUserRolesHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RevokeRoleTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -328,6 +338,8 @@ export const PROVIDERS = [
   RemoveProceedRecipientNestJSEventAdapter,
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
+  GrantRoleNestJSEventAdapter,
+  RevokeRoleNestJSEventAdapter,
   CreateClearingHoldTransactionAppService,
   CreateClearingRedeemTransactionAppService,
   UpdateClearingHoldTransactionAppService,

@@ -36,6 +36,10 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "ClearingOperationApproved(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
         "ClearingOperationCanceled(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
         "ClearingOperationReclaimed(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 clearingId,uint8 clearingOperationType)",
+        "RoleGranted(bytes32 indexed role,address indexed account,address indexed sender)",
+        "RoleRevoked(bytes32 indexed role,address indexed account,address indexed sender)",
+        "ProceedRecipientAdded(address indexed operator,address indexed proceedRecipient,bytes data)",
+        "ProceedRecipientRemoved(address indexed operator,address indexed proceedRecipient)",
       ]),
     )
   }
