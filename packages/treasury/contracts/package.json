@@ -3,18 +3,56 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
-  "types": "build/typechain-types/index.d.ts",
+  "types": "./build/typechain-types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "scripts": [
+        "./build/scripts/index.d.ts"
+      ],
+      "typechain-types": [
+        "./build/typechain-types/index.d.ts"
+      ],
+      "test": [
+        "./build/test/index.d.ts"
+      ]
+    }
+  },
   "files": [
+    "artifacts/",
+    "contracts/",
+    "typechain-types/",
     "build/",
-    "contracts/"
+    "!artifacts/build-info/",
+    "!build/**/*.map"
   ],
   "exports": {
     ".": {
+      "types": "./build/typechain-types/index.d.ts",
       "import": "./build/typechain-types/index.js",
       "require": "./build/typechain-types/index.js",
       "default": "./build/typechain-types/index.js"
     },
-    "./typechain-types/index.js": "./build/typechain-types/index.js"
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts": {
+      "types": "./build/scripts/index.d.ts",
+      "import": "./build/scripts/index.js",
+      "require": "./build/scripts/index.js",
+      "default": "./build/scripts/index.js"
+    },
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "import": "./build/test/index.js",
+      "require": "./build/test/index.js",
+      "default": "./build/test/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "keywords": [
     "hedera",
@@ -25,7 +63,7 @@
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile && npx tsc -p tsconfig.build.json",
@@ -43,10 +81,10 @@
     "coverage": "npx hardhat coverage"
   },
   "devDependencies": {
-    "@eslint/js": "^9.24.0",
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz2/packages/ats/contracts/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
-    "@hashgraph/sdk": "2.76.0",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
+    "@hashgraph/sdk": "2.76.0",
+    "@eslint/js": "^9.24.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "2.2.3",
@@ -77,8 +115,13 @@
     "solhint-plugin-prettier": "^0.1.0",
     "solidity-coverage": "^0.8.14",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.44.0"
+  },
+  "overrides": {
+    "@typechain/ethers-v5": "^11.1.2",
+    "ws": "^8.15.0"
   }
 }

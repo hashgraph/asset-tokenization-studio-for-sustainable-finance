@@ -1,5 +1,5 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "tsconfig-paths";
+import "tsconfig-paths/register";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "@primitivefi/hardhat-dodoc";

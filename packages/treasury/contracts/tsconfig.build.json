@@ -1,35 +1,28 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./build",
-    "declaration": true,
-    "sourceMap": true,
-    "paths": {
-      "@configuration": ["./Configuration"],
-      "@contract-types": ["./typechain-types/index.ts"],
-      "@contract-types/*": ["./typechain-types/*"],
-      "@scripts": ["./scripts/index.ts"],
-      "@scripts/domain": ["./scripts/domain/index.ts"],
-      "@tasks": ["./tasks/index.ts"],
-      "@test": ["./test/index.ts"],
-      "@hashgraph/asset-tokenization-contracts/scripts": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/index.d.ts"
-      ],
-      "@hashgraph/asset-tokenization-contracts/scripts/*": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/*"
-      ]
-    }
+    "sourceMap": false
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test", "tasks"],
-  "exclude": [
-    "test/**/*.test.ts",
-    "node_modules/@hashgraph/asset-tokenization-contracts/scripts",
-    "node_modules/@hashgraph/asset-tokenization-contracts/test",
-    "node_modules",
-    "build",
-    "dist",
-    "coverage",
-    "artifacts",
-    "cache"
-  ]
+  "include": [
+    "scripts/constants.ts",
+    "scripts/domain/constants.ts",
+    "scripts/domain/index.ts",
+    "scripts/domain/treasury/createConfiguration.ts",
+    "scripts/domain/treasuryRegistry.data.ts",
+    "scripts/domain/treasuryRegistry.ts",
+    "scripts/index.ts",
+    "scripts/infrastructure/index.ts",
+    "scripts/tools/generateRegistry.ts",
+    "scripts/utils.ts",
+    "scripts/workflows/deployTreasury.ts",
+    "scripts/workflows/deployTreasuryWithExistingInfra.ts",
+    "scripts/workflows/index.ts",
+    "typechain-types/**/*",
+    "test/constants.ts",
+    "test/helpers/deployment.ts",
+    "test/helpers/index.ts",
+    "test/index.ts",
+    "test/types.d.ts"
+  ],
+  "exclude": ["node_modules", "test/unit/**/*"]
 }

@@ -14,7 +14,7 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactoryPrimaryMarketConfiguration, createPrimaryMarketConfiguration } from "@scripts/domain";
-import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure/factoryPrimaryMarketRegistry";
+import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure";
 import type { DeployFactoryPrimaryMarketOutput } from "./deployFactoryPrimaryMarketSystem";
 
 /**

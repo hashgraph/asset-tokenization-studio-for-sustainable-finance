@@ -3,18 +3,31 @@
   "version": "1.0.0",
   "type": "commonjs",
   "description": "Shared infrastructure orchestration for Green Bonds Platform",
-  "main": "./build/scripts/index.js",
-  "types": "./build/scripts/index.d.ts",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "scripts": [
+        "./build/index.d.ts"
+      ]
+    }
+  },
   "files": [
     "build/",
     "!build/**/*.map"
   ],
   "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "default": "./build/index.js"
+    },
     "./scripts": {
-      "types": "./build/scripts/index.d.ts",
-      "import": "./build/scripts/index.js",
-      "require": "./build/scripts/index.js",
-      "default": "./build/scripts/index.js"
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "default": "./build/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -45,7 +58,7 @@
     "local:hardhat": "npx hardhat node"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "^1.15.2",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "dotenv": "^16.0.0",

@@ -1,7 +1,11 @@
+// SPDX-License-Identifier: Apache-2.0
 // Hardhat configuration for Green Bonds Platform shared contracts
 // This package primarily uses standalone deployment (ethers.js directly)
 // This config enables local Hardhat network deployment for development/testing
-module.exports = {
+import { HardhatUserConfig } from "hardhat/config";
+import "tsconfig-paths/register";
+
+const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.19",
     settings: {
@@ -28,3 +32,5 @@ module.exports = {
     tests: "./test",
   },
 };
+
+export default config;

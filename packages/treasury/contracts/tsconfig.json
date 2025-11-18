@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
+    "moduleResolution": "node10",
+    "declaration": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
@@ -9,6 +12,7 @@
     "importHelpers": true,
     "alwaysStrict": true,
     "strict": true,
+    "outDir": "./build",
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
@@ -16,18 +20,12 @@
       "@contract-types": ["./typechain-types/index.ts"],
       "@contract-types/*": ["./typechain-types/*"],
       "@scripts": ["./scripts/index.ts"],
+      "@scripts/infrastructure": ["./scripts/infrastructure/index.ts"],
       "@scripts/domain": ["./scripts/domain/index.ts"],
       "@tasks": ["./tasks/index.ts"],
       "@test": ["./test/index.ts"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test", "tasks"],
-  "exclude": ["node_modules", "build", "dist", "coverage", "artifacts", "cache"],
-  "ts-node": {
-    "require": ["tsconfig-paths/register"],
-    "transpileOnly": true,
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  }
+  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*"],
+  "exclude": ["node_modules"]
 }
