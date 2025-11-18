@@ -14,6 +14,9 @@ Oracle API is a standalone NestJS application with its own database, completely 
 - Health check endpoint
 - Hexagonal architecture (Ports & Adapters)
 - CQRS pattern support
+- **Per-registry execution frequency** - Each oracle registry can have its own independent frequency (in minutes) for fetching KPI values
+- Scheduler service that checks registries and executes based on their individual frequencies
+- Support for both Hedera SDK and JSON-RPC for blockchain transactions
 
 ## Installation
 

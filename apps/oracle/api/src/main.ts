@@ -23,9 +23,14 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle("Oracle API")
-    .setDescription("Oracle API documentation")
+    .setTitle("Oracle Backend API")
+    .setDescription(
+      "KPI Oracle Backend - Fetches KPI values from MSG Indexer and writes to KPI Smart Contracts",
+    )
     .setVersion("1.0")
+    .addTag("Oracle Registry", "Manage oracle registry instances")
+    .addTag("Execution History", "View and retry task executions")
+    .addTag("Health", "Health check endpoints")
     .addGlobalResponse({
       status: 500,
       description: "Internal server error",
