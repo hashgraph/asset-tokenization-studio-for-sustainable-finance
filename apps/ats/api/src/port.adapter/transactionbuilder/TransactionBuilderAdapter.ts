@@ -18,6 +18,7 @@ import {
   IClearingHoldCreation__factory,
   IClearingActions__factory,
   IClearingRedeem__factory,
+  IClearingTransfer__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
@@ -34,6 +35,7 @@ import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/
 import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
 import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
 import { BuildCreateClearingRedeemTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingRedeemTransactionRequest"
+import { BuildCreateClearingTransferTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingTransferTransactionRequest"
 import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
 import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
 import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
@@ -451,6 +453,34 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [clearingOperation, req.amount],
+    )
+  }
+
+  async createClearingTransferTransaction(
+    req: BuildCreateClearingTransferTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingTransfer__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    const to = req.toAccountId
+      ? await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+      : this.EVM_ZERO_ADDRESS
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingTransferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, req.amount, to],
     )
   }
 

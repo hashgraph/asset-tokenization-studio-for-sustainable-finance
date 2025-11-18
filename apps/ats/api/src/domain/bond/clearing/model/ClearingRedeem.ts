@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { IsNotEmpty, IsString, IsNumber, IsDate, IsEnum, IsOptional } from "class-validator"
-
-export enum ClearingRedeemStatus {
-  PENDING = "PENDING",
-  APPROVED = "APPROVED",
-  CANCELED = "CANCELED",
-  RECLAIMED = "RECLAIMED",
-}
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
 export class ClearingRedeem {
   @IsNotEmpty()
@@ -34,8 +28,8 @@ export class ClearingRedeem {
   expirationDate: Date
 
   @IsNotEmpty()
-  @IsEnum(ClearingRedeemStatus)
-  status: ClearingRedeemStatus
+  @IsEnum(ClearingStatus)
+  status: ClearingStatus
 
   @IsOptional()
   @IsString()

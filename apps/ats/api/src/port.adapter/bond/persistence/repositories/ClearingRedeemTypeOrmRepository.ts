@@ -14,44 +14,8 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     private readonly repository: Repository<BondClearingRedeemPersistence>,
   ) {}
 
-  private toDomain(persistence: BondClearingRedeemPersistence): ClearingRedeem {
-    const clearing = new ClearingRedeem()
-    clearing.id = persistence.id
-    clearing.bondContractId = persistence.bondContractId
-    clearing.holderAccountId = persistence.holderAccountId
-    clearing.partition = persistence.partition
-    clearing.amount = persistence.amount
-    clearing.expirationDate = persistence.expirationDate
-    clearing.status = persistence.status
-    clearing.data = persistence.data
-    clearing.operatorData = persistence.operatorData
-    clearing.operatorAccountId = persistence.operatorAccountId
-    clearing.createdAt = persistence.createdAt
-    clearing.updatedAt = persistence.updatedAt
-    return clearing
-  }
-
-  private toPersistence(clearing: ClearingRedeem): BondClearingRedeemPersistence {
-    const persistence = new BondClearingRedeemPersistence()
-    persistence.id = clearing.id
-    persistence.bondContractId = clearing.bondContractId
-    persistence.holderAccountId = clearing.holderAccountId
-    persistence.partition = clearing.partition
-    persistence.amount = clearing.amount
-    persistence.expirationDate = clearing.expirationDate
-    persistence.status = clearing.status
-    persistence.data = clearing.data
-    persistence.operatorData = clearing.operatorData
-    persistence.operatorAccountId = clearing.operatorAccountId
-    persistence.createdAt = clearing.createdAt
-    persistence.updatedAt = clearing.updatedAt
-    return persistence
-  }
-
   async save(clearing: ClearingRedeem): Promise<ClearingRedeem> {
-    const persistence = this.toPersistence(clearing)
-    const saved = await this.repository.save(persistence)
-    return this.toDomain(saved)
+    return (await this.repository.save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
   }
 
   async findByContractIdHolderAccountIdAndId(
@@ -62,7 +26,8 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     const persistence = await this.repository.findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
     })
-    return persistence ? this.toDomain(persistence) : null
+    if (!persistence) return null
+    return Object.assign(new ClearingRedeem(), persistence)
   }
 
   async findAllByHolder(
@@ -78,7 +43,7 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
       skip: (options.page - 1) * options.limit,
     })
 
-    const items = persistences.map((p) => this.toDomain(p))
+    const items = persistences.map((p) => Object.assign(new ClearingRedeem(), p))
 
     return {
       items,
@@ -90,9 +55,7 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
   }
 
   async update(clearing: ClearingRedeem): Promise<ClearingRedeem> {
-    const persistence = this.toPersistence(clearing)
-    const updated = await this.repository.save(persistence)
-    return this.toDomain(updated)
+    return (await this.repository.save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
   }
 
   async deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void> {

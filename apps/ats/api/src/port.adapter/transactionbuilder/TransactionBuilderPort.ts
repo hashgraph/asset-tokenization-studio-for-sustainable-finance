@@ -20,6 +20,7 @@ import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder
 import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
 import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
 import { BuildCreateClearingRedeemTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingRedeemTransactionRequest"
+import { BuildCreateClearingTransferTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingTransferTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -46,6 +47,9 @@ export interface TransactionBuilderPort {
   createClearingHoldTransaction(request: BuildCreateClearingHoldTransactionRequest): Promise<BuildTransactionResponse>
   createClearingRedeemTransaction(
     request: BuildCreateClearingRedeemTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  createClearingTransferTransaction(
+    request: BuildCreateClearingTransferTransactionRequest,
   ): Promise<BuildTransactionResponse>
   approveClearingTransaction(request: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse>
   cancelClearingTransaction(request: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse>

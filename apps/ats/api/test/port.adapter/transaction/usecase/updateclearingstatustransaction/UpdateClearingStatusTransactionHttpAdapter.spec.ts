@@ -296,5 +296,95 @@ describe("UpdateClearingStatusTransaction API Integration", () => {
         expect(response.body).toHaveProperty("unsignedTx")
       }
     })
+
+    it("should update clearing redeem status with APPROVE action", async () => {
+      const bondContractId = "0.0.67890"
+      const holderAccountId = "0.0.7654321"
+      const clearingId = 1
+      const updateClearingRequest = {
+        format: "hedera",
+        accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+        partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        action: ClearingActionType.APPROVE,
+        operationType: ClearingOperationType.REDEEM,
+      }
+
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+        .send(updateClearingRequest)
+        .expect(200)
+
+      expect(response.body).toHaveProperty("unsignedTx")
+      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
+    })
+
+    it("should update clearing redeem status with RECLAIM action", async () => {
+      const bondContractId = "0.0.67890"
+      const holderAccountId = "0.0.7654321"
+      const clearingId = 1
+      const updateClearingRequest = {
+        format: "hedera",
+        accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+        partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        action: ClearingActionType.RECLAIM,
+        operationType: ClearingOperationType.REDEEM,
+      }
+
+      const response = await request(app.getHttpServer())
+        .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+        .send(updateClearingRequest)
+        .expect(200)
+
+      expect(response.body).toHaveProperty("unsignedTx")
+      expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
+    })
+
+    it("should handle both HOLD and REDEEM operation types", async () => {
+      const bondContractId = "0.0.67890"
+      const holderAccountId = "0.0.7654321"
+      const clearingId = 1
+      const operationTypes = [ClearingOperationType.HOLD, ClearingOperationType.REDEEM]
+
+      for (const operationType of operationTypes) {
+        const updateClearingRequest = {
+          format: "hedera",
+          accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          action: ClearingActionType.APPROVE,
+          operationType,
+        }
+
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .send(updateClearingRequest)
+          .expect(200)
+
+        expect(response.body).toHaveProperty("unsignedTx")
+      }
+    })
+
+    it("should handle different formats for REDEEM operation type", async () => {
+      const bondContractId = "0.0.67890"
+      const holderAccountId = "0.0.7654321"
+      const clearingId = 1
+      const formats = ["hedera", "ethereum"]
+
+      for (const format of formats) {
+        const updateClearingRequest = {
+          format,
+          accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          action: ClearingActionType.APPROVE,
+          operationType: ClearingOperationType.REDEEM,
+        }
+
+        const response = await request(app.getHttpServer())
+          .patch(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/clearings/${clearingId}/hold`)
+          .send(updateClearingRequest)
+          .expect(200)
+
+        expect(response.body as BuildTransactionResponse).toHaveProperty("unsignedTx")
+      }
+    })
   })
 })

@@ -5,14 +5,14 @@ import { CreateClearingRedeemCommand } from "./CreateClearingRedeemCommand"
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
 import { ClearingRedeemCreatedEvent } from "@domain/bond/clearing/event/ClearingRedeemCreatedEvent"
 import { CreateClearingRedeemDomainServiceRequest } from "@domain/bond/clearing/service/model/CreateClearingRedeemDomainServiceRequest"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 
 @Singleton()
 @Handler(CreateClearingRedeemCommand)
 export class CreateClearingRedeemCommandHandler implements CommandHandler<CreateClearingRedeemCommand, void> {
   constructor(
     private readonly createClearingRedeemDomainService: CreateClearingRedeemDomainService,
-    private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
+    private readonly updateClearingBondHolderBalanceDomainService: UpdateClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -33,7 +33,7 @@ export class CreateClearingRedeemCommandHandler implements CommandHandler<Create
 
       const savedClearing = await this.createClearingRedeemDomainService.execute(request)
 
-      await this.clearingBondHolderBalanceDomainService.execute(
+      await this.updateClearingBondHolderBalanceDomainService.execute(
         savedClearing.bondContractId,
         savedClearing.holderAccountId,
         savedClearing.partition,

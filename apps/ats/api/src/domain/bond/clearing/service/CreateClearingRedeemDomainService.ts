@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Inject, Singleton } from "@hashgraph/green-bonds-shared-core"
-import { ClearingRedeem, ClearingRedeemStatus } from "../model/ClearingRedeem"
+import { ClearingRedeem } from "../model/ClearingRedeem"
+import { ClearingStatus } from "../model/ClearingStatus"
 import type { ClearingRedeemRepository } from "../repository/ClearingRedeemRepository"
 import { ClearingRedeemFoundError } from "../errors/ClearingRedeemFoundError"
 import { CreateClearingRedeemDomainServiceRequest } from "./model/CreateClearingRedeemDomainServiceRequest"
@@ -30,7 +31,7 @@ export class CreateClearingRedeemDomainService {
     clearing.partition = request.partition
     clearing.amount = request.amount
     clearing.expirationDate = request.expirationDate
-    clearing.status = ClearingRedeemStatus.PENDING
+    clearing.status = ClearingStatus.PENDING
     clearing.data = request.data
     clearing.operatorData = request.operatorData
     clearing.operatorAccountId = request.operator
