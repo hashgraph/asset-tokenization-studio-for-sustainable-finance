@@ -40,10 +40,14 @@ describe("SchedulerConfigHttpAdapter API Integration", () => {
   })
 
   afterEach(async () => {
-    if (schedulerConfigRepository) {
-      await schedulerConfigRepository.delete({})
-    }
     if (app) {
+      // Clean up database before closing app
+      if (schedulerConfigRepository) {
+        const configs = await schedulerConfigRepository.find()
+        if (configs.length > 0) {
+          await schedulerConfigRepository.remove(configs)
+        }
+      }
       await app.close()
     }
   })

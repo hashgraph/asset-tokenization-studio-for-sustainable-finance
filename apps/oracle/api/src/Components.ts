@@ -8,6 +8,7 @@
 import { COMMON_FUNCTIONALITY_PROVIDERS, COMMON_FUNCTIONALITY_ENTITIES } from "@hashgraph/green-bonds-shared-core"
 
 // HTTP Adapters
+import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
 import { CreateOracleRegistryHttpAdapter } from "@port/oracle/usecase/createoracleregistry/CreateOracleRegistryHttpAdapter"
 import { GetOracleRegistryHttpAdapter } from "@port/oracle/usecase/getoracleregistry/GetOracleRegistryHttpAdapter"
 import { ListOracleRegistriesHttpAdapter } from "@port/oracle/usecase/listoracleregistries/ListOracleRegistriesHttpAdapter"
@@ -65,6 +66,9 @@ export const ENTITIES = [
 ]
 
 export const CONTROLLERS: any[] = [
+  // Health HTTP Adapter
+  HealthHttpAdapter,
+
   // Oracle Registry HTTP Adapters
   CreateOracleRegistryHttpAdapter,
   GetOracleRegistryHttpAdapter,

@@ -15,13 +15,22 @@ export class SchedulerConfigTypeOrmRepository implements SchedulerConfigReposito
   ) {}
 
   async save(config: SchedulerConfig): Promise<SchedulerConfig> {
+    // Ensure singleton: delete all existing configs before saving
+    const existing = await this.repository.find()
+    if (existing.length > 0) {
+      await this.repository.remove(existing)
+    }
+
     const persistence = this.toPersistence(config)
     const saved = await this.repository.save(persistence)
     return this.toDomain(saved)!
   }
 
   async findConfig(): Promise<SchedulerConfig | null> {
-    const persistence = await this.repository.findOne({ where: {} })
+    const persistence = await this.repository.findOne({
+      where: {},
+      order: { createdAt: "DESC" },
+    })
     return this.toDomain(persistence)
   }
 
@@ -30,7 +39,7 @@ export class SchedulerConfigTypeOrmRepository implements SchedulerConfigReposito
     if (!config) {
       const defaultConfig = new SchedulerConfig(
         undefined as unknown as string,
-        process.env.SCHEDULER_CRON_EXPRESSION || "*/5 * * * *",
+        process.env.SCHEDULER_CRON_EXPRESSION || "*/1 * * * *",
         parseInt(process.env.SCHEDULER_CONCURRENCY_LIMIT || "5", 10),
         process.env.SCHEDULER_ENABLED === "true",
         new Date(),
