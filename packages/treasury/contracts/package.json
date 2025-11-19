@@ -25,10 +25,10 @@
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.json",
+    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.build.json",
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
-    "compile:force": "npm run clean && npm run compile && npx tsc -p tsconfig.build.json",
+    "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
     "test:lifecyclecashflow:distribution": "npx hardhat test test/unit/lifecyclecashflow.executedistribution.test.ts",
     "test:lifecyclecashflow:redemption": "npx hardhat test test/unit/lifecyclecashflow.executebondredemption.test.ts",
