@@ -5,16 +5,16 @@ import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventMo
 
 export abstract class BaseDistributionExecutedDLTEvent extends DLTEvent {
   readonly distributionId: number
-  readonly result: PaymentResultEventModel
+  readonly results: PaymentResultEventModel[]
 
   protected constructor(
     contractId: string,
     transactionHash: string,
     distributionId: number,
-    result: PaymentResultEventModel,
+    results: PaymentResultEventModel[],
   ) {
     super(contractId, transactionHash)
     this.distributionId = distributionId
-    this.result = result
+    this.results = results
   }
 }
