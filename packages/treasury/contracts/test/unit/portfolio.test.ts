@@ -7,9 +7,12 @@ import { AddressZero } from "@ethersproject/constants";
 import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from "../../scripts/constants";
 import { deployPrecompiledMock } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasury";
+import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITreasury } from "@contract-types";
 
 describe("Portfolio operations", () => {
+  configureLogger({ level: LogLevel.SILENT });
+
   let signer_A, signer_B;
   let treasury: ITreasury;
   let paymentTokenAddress: string;
@@ -28,7 +31,7 @@ describe("Portfolio operations", () => {
     paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
     paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
     await paymentToken.deployed();
-    paymentTokenAddress = paymentToken.address
+    paymentTokenAddress = paymentToken.address;
 
     await deployPrecompiledMock();
 
@@ -99,7 +102,7 @@ describe("Portfolio operations", () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
-      const environmentalAssetAddress = environmentalAsset.address
+      const environmentalAssetAddress = environmentalAsset.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
@@ -120,7 +123,7 @@ describe("Portfolio operations", () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
-      const environmentalAssetAddress = environmentalAsset.address
+      const environmentalAssetAddress = environmentalAsset.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
@@ -178,7 +181,7 @@ describe("Portfolio operations", () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
-      const environmentalAssetAddress = environmentalAsset.address
+      const environmentalAssetAddress = environmentalAsset.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
@@ -234,7 +237,7 @@ describe("Portfolio operations", () => {
 
       const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
       await paymentTokenNew.deployed();
-      const paymentTokenNewAddress = paymentTokenNew.address
+      const paymentTokenNewAddress = paymentTokenNew.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
 
@@ -246,7 +249,7 @@ describe("Portfolio operations", () => {
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated", async () => {
       const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
       await paymentTokenNew.deployed();
-      const paymentTokenNewAddress = paymentTokenNew.address
+      const paymentTokenNewAddress = paymentTokenNew.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
 

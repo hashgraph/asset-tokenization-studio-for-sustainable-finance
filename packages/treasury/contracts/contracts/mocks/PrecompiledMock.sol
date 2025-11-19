@@ -7,18 +7,35 @@ import {
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import {
+    IHederaTokenService
+} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 import { PaymentTokenMock } from "./PaymentTokenMock.sol";
 import { EnvironmentalAssetMock } from "./EnvironmentalAssetMock.sol";
+
 interface IPrecompiledMock {
-    /*function transferTokens(
+    function transferTokens(
         address token,
         address[] memory accountIds,
         int64[] memory amounts
-    ) external returns (int32 responseCode);*/
-    function transferToken(address token, address sender, address receiver, int64 amount) external returns (int32 responseCode);
-    function transferNFT(address token, address sender, address receiver, int64 serialNumber) external returns (int32 responseCode);
+    ) external returns (int32 responseCode);
+    function transferToken(
+        address token,
+        address sender,
+        address receiver,
+        int64 amount
+    ) external returns (int32 responseCode);
+    function transferNFT(
+        address token,
+        address sender,
+        address receiver,
+        int64 serialNumber
+    ) external returns (int32 responseCode);
     function associateToken(address account, address token) external returns (int32 responseCode);
     function dissociateToken(address account, address token) external returns (int32 responseCode);
+    function getFungibleTokenInfo(
+        address token
+    ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo);
     function setPrecompiledTransferStatus(bool _success) external;
     function setPrecompiledAssociationStatus(bool _success) external;
     function setPrecompiledDissociationStatus(bool _success) external;
@@ -32,14 +49,14 @@ contract PrecompiledMockStorageWrapper {
     bool private _associationSuccess;
     bool private _dissociationSuccess;
 
-    /*function _transferTokens(
+    function _transferTokens(
         address token,
         address[] calldata accountIds,
         int64[] calldata amounts
     ) internal virtual returns (int32 responseCode) {
         if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
 
-        MockERC20(token).approveFor(msg.sender, address(this), type(uint256).max);
+        PaymentTokenMock(token).approveFor(msg.sender, address(this), type(uint256).max);
 
         uint256 totalPositive;
         uint256 totalNegative;
@@ -56,7 +73,7 @@ contract PrecompiledMockStorageWrapper {
 
         if (totalPositive != totalNegative) return HederaResponseCodes.UNKNOWN;
         return HederaResponseCodes.SUCCESS;
-    }*/
+    }
 
     function _transferToken(
         address token,
@@ -111,6 +128,36 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
+    function _getFungibleTokenInfo(
+        address token
+    ) internal view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory fungibleTokenInfo) {
+        responseCode = HederaResponseCodes.SUCCESS;
+        fungibleTokenInfo = IHederaTokenService.FungibleTokenInfo({
+            decimals: int32(int8(PaymentTokenMock(token).decimals())),
+            tokenInfo: IHederaTokenService.TokenInfo({
+                token: IHederaTokenService.HederaToken({
+                    name: PaymentTokenMock(token).name(),
+                    symbol: PaymentTokenMock(token).symbol(),
+                    treasury: address(0),
+                    memo: "",
+                    tokenSupplyType: true,
+                    maxSupply: 0,
+                    freezeDefault: false,
+                    tokenKeys: new IHederaTokenService.TokenKey[](0),
+                    expiry: IHederaTokenService.Expiry({ second: 0, autoRenewAccount: address(0), autoRenewPeriod: 0 })
+                }),
+                totalSupply: int64(uint64(PaymentTokenMock(token).totalSupply())),
+                deleted: false,
+                defaultKycStatus: false,
+                pauseStatus: false,
+                fixedFees: new IHederaTokenService.FixedFee[](0),
+                fractionalFees: new IHederaTokenService.FractionalFee[](0),
+                royaltyFees: new IHederaTokenService.RoyaltyFee[](0),
+                ledgerId: ""
+            })
+        });
+    }
+
     function _setPrecompiledTransferStatus(bool success_) internal {
         _transferSuccess = success_;
     }
@@ -137,13 +184,13 @@ contract PrecompiledMockStorageWrapper {
 }
 
 contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
-    /*function transferTokens(
+    function transferTokens(
         address token,
         address[] calldata accountIds,
         int64[] calldata amounts
     ) external returns (int32 responseCode) {
         return _transferTokens(token, accountIds, amounts);
-    }*/
+    }
 
     function transferToken(
         address token,
@@ -169,6 +216,12 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
 
     function dissociateToken(address account, address token) external view returns (int32 responseCode) {
         return _dissociateToken(account, token);
+    }
+
+    function getFungibleTokenInfo(
+        address token
+    ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo) {
+        return _getFungibleTokenInfo(token);
     }
 
     function setPrecompiledTransferStatus(bool success_) external {

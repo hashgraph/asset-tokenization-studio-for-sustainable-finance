@@ -3,7 +3,7 @@
 import { ethers } from "hardhat";
 import { type ContractFactory, type Signer, utils } from "ethers";
 import { EnvironmentalAssetFactory__factory, PaymentTokenFactory__factory } from "@contract-types";
-import { HEDERA_PRECOMPILED_ADDRESS } from "../constants"
+import { HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 
 export async function deployContract<T extends ContractFactory>(factory: T, args: any[] = []): Promise<string> {
   const contract = await factory.deploy(...args);

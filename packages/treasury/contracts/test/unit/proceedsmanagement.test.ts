@@ -31,12 +31,12 @@ describe("Proceeds management operations", () => {
     const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
     paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
     await paymentToken.deployed();
-    const paymentTokenAddress = paymentToken.address
+    const paymentTokenAddress = paymentToken.address;
 
     const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
     environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
     await environmentalAsset.deployed();
-    environmentalAssetAddress = environmentalAsset.address
+    environmentalAssetAddress = environmentalAsset.address;
 
     await deployPrecompiledMock();
 
