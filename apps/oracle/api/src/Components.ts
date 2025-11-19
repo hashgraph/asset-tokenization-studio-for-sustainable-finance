@@ -50,6 +50,8 @@ import { HederaJsonRpcAdapter } from "@port/blockchain/HederaJsonRpcAdapter";
 
 // Port Adapters - Scheduler
 import { SchedulerService } from "@port/scheduler/SchedulerService";
+import { SchedulerConfigHttpAdapter } from "@port/scheduler/usecase/SchedulerConfigHttpAdapter";
+import { SchedulerConfigTypeOrmRepository } from "@port/scheduler/persistence/repositories/SchedulerConfigTypeOrmRepository";
 
 export const CONTROLLERS: any[] = [
   // Oracle Registry HTTP Adapters
@@ -66,6 +68,9 @@ export const CONTROLLERS: any[] = [
   // Execution History HTTP Adapters
   GetExecutionHistoryHttpAdapter,
   RetryFailedExecutionHttpAdapter,
+
+  // Scheduler Config HTTP Adapter
+  SchedulerConfigHttpAdapter,
 ];
 
 // CQRS Command Handlers
@@ -121,6 +126,10 @@ export const PROVIDERS: any[] = [
 
   // Scheduler
   SchedulerService,
+  {
+    provide: "SchedulerConfigRepository",
+    useClass: SchedulerConfigTypeOrmRepository,
+  },
 
   // Shared Core Providers (CommandBus, QueryBus, EventBus, etc.)
   ...COMMON_FUNCTIONALITY_PROVIDERS,

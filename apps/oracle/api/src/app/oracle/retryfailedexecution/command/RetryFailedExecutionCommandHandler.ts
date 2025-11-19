@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Logger, NotFoundException, BadRequestException } from "@nestjs/common"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
-import { RetryFailedExecutionCommand } from "./RetryFailedExecutionCommand"
-import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
-import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository"
-import { OracleExecutionService } from "@domain/oracle/services/OracleExecutionService"
-import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
+import {BadRequestException, Logger, NotFoundException} from "@nestjs/common"
+import {RetryFailedExecutionCommand} from "./RetryFailedExecutionCommand"
+import type {OracleRegistryRepository} from "@domain/oracle/repositories/OracleRegistryRepository"
+import type {ScheduledTaskRepository} from "@domain/oracle/repositories/ScheduledTaskRepository"
+import {OracleExecutionService} from "@domain/oracle/services/OracleExecutionService"
+import {ScheduledTaskResult} from "@domain/oracle/model/ScheduledTaskResult"
+import {CommandHandler, Handler, Inject} from "@hashgraph/green-bonds-shared-core"
 
-@CommandHandler(RetryFailedExecutionCommand)
+
+@Handler(RetryFailedExecutionCommand)
 export class RetryFailedExecutionCommandHandler
-  implements ICommandHandler<RetryFailedExecutionCommand, ScheduledTaskResult>
+  implements CommandHandler<RetryFailedExecutionCommand, ScheduledTaskResult>
 {
   private readonly logger = new Logger(RetryFailedExecutionCommandHandler.name)
   private readonly maxRetries: number
@@ -28,8 +29,8 @@ export class RetryFailedExecutionCommandHandler
     this.logger.log(`Retrying execution ${command.executionId}`)
 
     // Find registry
-    const registry = await this.registryRepository.findById(command.registryId)
-    if (!registry) {
+    const oracleRegistry = await this.registryRepository.findById(command.registryId)
+    if (!oracleRegistry) {
       throw new NotFoundException(`Oracle registry ${command.registryId} not found`)
     }
 
@@ -47,6 +48,6 @@ export class RetryFailedExecutionCommandHandler
     }
 
     // Retry task
-    return await this.executionService.retryTask(taskResult, registry, this.maxRetries)
+    return await this.executionService.retryTask(taskResult, oracleRegistry, this.maxRetries)
   }
 }

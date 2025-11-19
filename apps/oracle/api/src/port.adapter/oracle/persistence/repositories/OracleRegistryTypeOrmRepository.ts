@@ -58,6 +58,7 @@ export class OracleRegistryTypeOrmRepository implements OracleRegistryRepository
       .andWhere("registry.nextExecutionDate <= :now", { now })
       .andWhere("registry.schedulerStartDate <= :now", { now })
       .andWhere("(registry.schedulerEndDate IS NULL OR registry.schedulerEndDate >= :now)", { now })
+      .orderBy("registry.nextExecutionDate", "ASC")
       .getMany()
 
     return persistences.map((p) => this.toDomain(p)!)

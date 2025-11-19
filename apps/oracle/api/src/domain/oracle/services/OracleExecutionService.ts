@@ -50,12 +50,12 @@ export class OracleExecutionService {
       if (kpiMessages.length === 0) {
         throw new Error(`No KPI messages found for topic ${project.topicId}`)
       }
-
+      //TODO: Guardian
       // Step 2: Aggregate KPI values
       const aggregatedKpi = this.aggregationService.aggregateDailyKpi(kpiMessages)
 
       this.logger.debug(`Aggregated KPI for project ${project.projectId}: ${aggregatedKpi}`)
-
+        //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
       // Step 3: Write to blockchain
       const writeResult = await this.blockchainPort.writeKpiToContract(
         registry.kpiContractId,
@@ -88,6 +88,7 @@ export class OracleExecutionService {
   /**
    * Retry a failed task execution
    */
+  //TODO: define better
   async retryTask(
     taskResult: ScheduledTaskResult,
     registry: OracleRegistry,
@@ -115,6 +116,7 @@ export class OracleExecutionService {
   /**
    * Fetch KPI values from indexer for a specific date
    */
+  //TODO: Guardian
   private async fetchKpiValues(topicId: string, targetDate: Date): Promise<KpiMessage[]> {
     // Fetch messages for the target day
     const dateFrom = new Date(targetDate)

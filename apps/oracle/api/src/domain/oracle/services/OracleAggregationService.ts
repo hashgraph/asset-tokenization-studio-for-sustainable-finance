@@ -6,6 +6,7 @@ import { KpiMessage } from "../ports/IndexerPort"
  * OracleAggregationService
  * Domain service responsible for aggregating KPI values
  */
+//TODO: Guardian platform integration
 @Injectable()
 export class OracleAggregationService {
   /**

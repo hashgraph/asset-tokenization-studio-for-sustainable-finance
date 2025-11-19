@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Injectable, Logger } from "@nestjs/common"
 import { IndexerPort, KpiMessage } from "@domain/oracle/ports/IndexerPort"
-
+//TODO: Mock, configure with real data from guardian platform
 @Injectable()
 export class IndexerApiClient implements IndexerPort {
   private readonly logger = new Logger(IndexerApiClient.name)

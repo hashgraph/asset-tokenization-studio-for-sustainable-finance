@@ -9,6 +9,7 @@ import { PostgresModule } from "@config/PostgresModule"
 import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
 import { OracleRegistryPersistence } from "@port/oracle/persistence/model/OracleRegistryPersistence"
 import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/ScheduledTaskResultPersistence"
+import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/SchedulerConfigPersistence"
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/S
     SharedModule,
     PostgresModule.forRoot(),
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([OracleRegistryPersistence, ScheduledTaskResultPersistence]),
+    TypeOrmModule.forFeature([OracleRegistryPersistence, ScheduledTaskResultPersistence, SchedulerConfigPersistence]),
   ],
   controllers: [...CONTROLLERS, HealthHttpAdapter],
   providers: PROVIDERS,
