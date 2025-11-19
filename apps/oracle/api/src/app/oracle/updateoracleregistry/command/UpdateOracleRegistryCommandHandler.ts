@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Logger, NotFoundException } from "@nestjs/common"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { UpdateOracleRegistryCommand } from "./UpdateOracleRegistryCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
+import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistryNotFoundError"
 
-@CommandHandler(UpdateOracleRegistryCommand)
-export class UpdateOracleRegistryCommandHandler
-  implements ICommandHandler<UpdateOracleRegistryCommand, OracleRegistry>
-{
+@Singleton()
+@Handler(UpdateOracleRegistryCommand)
+export class UpdateOracleRegistryCommandHandler implements CommandHandler<UpdateOracleRegistryCommand, OracleRegistry> {
   private readonly logger = new Logger(UpdateOracleRegistryCommandHandler.name)
 
   constructor(
@@ -16,12 +15,13 @@ export class UpdateOracleRegistryCommandHandler
     private readonly repository: OracleRegistryRepository,
   ) {}
 
+  @Validate()
   async execute(command: UpdateOracleRegistryCommand): Promise<OracleRegistry> {
     this.logger.log(`Updating oracle registry ${command.id}`)
 
     const registry = await this.repository.findById(command.id)
     if (!registry) {
-      throw new NotFoundException(`Oracle registry ${command.id} not found`)
+      throw OracleRegistryNotFoundError.idError(command.id)
     }
 
     // Update scheduler dates

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Logger, NotFoundException } from "@nestjs/common"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { RemoveProjectCommand } from "./RemoveProjectCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
+import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistryNotFoundError"
 
-@CommandHandler(RemoveProjectCommand)
-export class RemoveProjectCommandHandler implements ICommandHandler<RemoveProjectCommand, OracleRegistry> {
+@Singleton()
+@Handler(RemoveProjectCommand)
+export class RemoveProjectCommandHandler implements CommandHandler<RemoveProjectCommand, OracleRegistry> {
   private readonly logger = new Logger(RemoveProjectCommandHandler.name)
 
   constructor(
@@ -14,12 +15,13 @@ export class RemoveProjectCommandHandler implements ICommandHandler<RemoveProjec
     private readonly repository: OracleRegistryRepository,
   ) {}
 
+  @Validate()
   async execute(command: RemoveProjectCommand): Promise<OracleRegistry> {
     this.logger.log(`Removing project ${command.projectId} from oracle registry ${command.registryId}`)
 
     const registry = await this.repository.findById(command.registryId)
     if (!registry) {
-      throw new NotFoundException(`Oracle registry ${command.registryId} not found`)
+      throw OracleRegistryNotFoundError.idError(command.registryId)
     }
 
     registry.removeProject(command.projectId)

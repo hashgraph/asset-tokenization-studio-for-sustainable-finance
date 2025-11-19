@@ -1,21 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Singleton,
-  Handler,
-  Validate,
-  CommandHandler as ICommandHandler,
-  Logger,
-} from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { DeleteOracleRegistryCommand } from "./DeleteOracleRegistryCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistryNotFoundError"
 
 @Singleton()
 @Handler(DeleteOracleRegistryCommand)
-export class DeleteOracleRegistryCommandHandler implements ICommandHandler<DeleteOracleRegistryCommand, void> {
+export class DeleteOracleRegistryCommandHandler implements CommandHandler<DeleteOracleRegistryCommand, void> {
   private readonly logger = new Logger(DeleteOracleRegistryCommandHandler.name)
 
-  constructor(private readonly repository: OracleRegistryRepository) {}
+  constructor(
+    @Inject("OracleRegistryRepository")
+    private readonly repository: OracleRegistryRepository,
+  ) {}
 
   @Validate()
   async execute(command: DeleteOracleRegistryCommand): Promise<void> {

@@ -7,7 +7,9 @@ import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistr
 
 @Singleton()
 @Handler(GetOracleRegistryQuery)
-export class GetOracleRegistryQueryHandler implements QueryHandler<GetOracleRegistryQuery, OracleRegistryQueryResponse> {
+export class GetOracleRegistryQueryHandler
+  implements QueryHandler<GetOracleRegistryQuery, OracleRegistryQueryResponse>
+{
   constructor(@Inject("OracleRegistryRepository") private readonly repository: OracleRegistryRepository) {}
 
   @Validate()

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Delete, Param, HttpCode, HttpStatus } from "@nestjs/common"
+import { Delete, Param } from "@nestjs/common"
 import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { DeleteOracleRegistryCommand } from "@app/oracle/deleteoracleregistry/command/DeleteOracleRegistryCommand"

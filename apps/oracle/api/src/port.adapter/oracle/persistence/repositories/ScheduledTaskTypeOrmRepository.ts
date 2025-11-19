@@ -5,8 +5,8 @@ import { Repository } from "typeorm"
 import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository"
 import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
 import { ScheduledTaskResultPersistence } from "../model/ScheduledTaskResultPersistence"
-import { ScheduledTaskResultMapper } from "../ScheduledTaskResultMapper"
 import { TaskStatus } from "@domain/oracle/model/TaskStatus"
+import { plainToInstance } from "class-transformer"
 
 @Injectable()
 export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
@@ -16,14 +16,14 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
   ) {}
 
   async save(taskResult: ScheduledTaskResult): Promise<ScheduledTaskResult> {
-    const entity = ScheduledTaskResultMapper.toEntity(taskResult)
+    const entity = this.toEntity(taskResult)
     const saved = await this.repository.save(entity)
-    return ScheduledTaskResultMapper.toDomain(saved)
+    return this.toDomain(saved)!
   }
 
   async findById(id: string): Promise<ScheduledTaskResult | null> {
     const entity = await this.repository.findOne({ where: { id } })
-    return entity ? ScheduledTaskResultMapper.toDomain(entity) : null
+    return this.toDomain(entity)
   }
 
   async findByOracleRegistryId(
@@ -56,7 +56,7 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
     query.orderBy("task.scheduledTime", "DESC")
 
     const entities = await query.getMany()
-    return entities.map((entity) => ScheduledTaskResultMapper.toDomain(entity))
+    return entities.map((entity) => this.toDomain(entity)!)
   }
 
   async findLatestByProject(oracleRegistryId: string, projectId: string): Promise<ScheduledTaskResult | null> {
@@ -64,7 +64,7 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
       where: { oracleRegistryId, projectId },
       order: { scheduledTime: "DESC" },
     })
-    return entity ? ScheduledTaskResultMapper.toDomain(entity) : null
+    return this.toDomain(entity)
   }
 
   async countByOracleRegistryId(
@@ -89,5 +89,28 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
     }
 
     return await query.getCount()
+  }
+
+  private toDomain(persistence: ScheduledTaskResultPersistence | null): ScheduledTaskResult | null {
+    return persistence ? plainToInstance(ScheduledTaskResult, persistence) : null
+  }
+
+  private toEntity(domain: ScheduledTaskResult): ScheduledTaskResultPersistence {
+    const entity = new ScheduledTaskResultPersistence()
+    entity.id = domain.id
+    entity.oracleRegistryId = domain.oracleRegistryId
+    entity.projectId = domain.projectId
+    entity.scheduledTime = domain.scheduledTime
+    entity.executionTime = domain.executionTime
+    entity.completedAt = domain.completedAt
+    entity.status = domain.status
+    entity.retryCount = domain.retryCount
+    entity.errorType = domain.errorType
+    entity.errorMessage = domain.errorMessage
+    entity.kpiValue = domain.kpiValue
+    entity.transactionHash = domain.transactionHash
+    entity.createdAt = domain.createdAt
+    entity.updatedAt = domain.updatedAt
+    return entity
   }
 }

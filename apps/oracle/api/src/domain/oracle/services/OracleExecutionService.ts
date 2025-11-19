@@ -55,7 +55,7 @@ export class OracleExecutionService {
       const aggregatedKpi = this.aggregationService.aggregateDailyKpi(kpiMessages)
 
       this.logger.debug(`Aggregated KPI for project ${project.projectId}: ${aggregatedKpi}`)
-        //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
+      //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
       // Step 3: Write to blockchain
       const writeResult = await this.blockchainPort.writeKpiToContract(
         registry.kpiContractId,

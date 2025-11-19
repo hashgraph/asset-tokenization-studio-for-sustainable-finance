@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Logger, NotFoundException } from "@nestjs/common"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { UpdateProjectTopicCommand } from "./UpdateProjectTopicCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
+import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistryNotFoundError"
 
-@CommandHandler(UpdateProjectTopicCommand)
-export class UpdateProjectTopicCommandHandler implements ICommandHandler<UpdateProjectTopicCommand, OracleRegistry> {
+@Singleton()
+@Handler(UpdateProjectTopicCommand)
+export class UpdateProjectTopicCommandHandler implements CommandHandler<UpdateProjectTopicCommand, OracleRegistry> {
   private readonly logger = new Logger(UpdateProjectTopicCommandHandler.name)
 
   constructor(
@@ -14,12 +15,13 @@ export class UpdateProjectTopicCommandHandler implements ICommandHandler<UpdateP
     private readonly repository: OracleRegistryRepository,
   ) {}
 
+  @Validate()
   async execute(command: UpdateProjectTopicCommand): Promise<OracleRegistry> {
     this.logger.log(`Updating topic for project ${command.projectId} in registry ${command.registryId}`)
 
     const registry = await this.repository.findById(command.registryId)
     if (!registry) {
-      throw new NotFoundException(`Oracle registry ${command.registryId} not found`)
+      throw OracleRegistryNotFoundError.idError(command.registryId)
     }
 
     registry.updateProjectTopic(command.projectId, command.newTopicId)

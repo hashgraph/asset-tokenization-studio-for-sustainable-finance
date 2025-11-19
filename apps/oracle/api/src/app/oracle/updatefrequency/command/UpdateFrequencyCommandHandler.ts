@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Logger, NotFoundException } from "@nestjs/common"
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { UpdateFrequencyCommand } from "./UpdateFrequencyCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
+import { OracleRegistryNotFoundError } from "@domain/oracle/errors/OracleRegistryNotFoundError"
 
-@CommandHandler(UpdateFrequencyCommand)
-export class UpdateFrequencyCommandHandler implements ICommandHandler<UpdateFrequencyCommand, OracleRegistry> {
+@Singleton()
+@Handler(UpdateFrequencyCommand)
+export class UpdateFrequencyCommandHandler implements CommandHandler<UpdateFrequencyCommand, OracleRegistry> {
   private readonly logger = new Logger(UpdateFrequencyCommandHandler.name)
 
   constructor(
@@ -14,12 +15,13 @@ export class UpdateFrequencyCommandHandler implements ICommandHandler<UpdateFreq
     private readonly repository: OracleRegistryRepository,
   ) {}
 
+  @Validate()
   async execute(command: UpdateFrequencyCommand): Promise<OracleRegistry> {
     this.logger.log(`Updating frequency for registry ${command.registryId} to ${command.frequencyMinutes} minutes`)
 
     const registry = await this.repository.findById(command.registryId)
     if (!registry) {
-      throw new NotFoundException(`Oracle registry ${command.registryId} not found`)
+      throw OracleRegistryNotFoundError.idError(command.registryId)
     }
 
     registry.updateFrequency(command.frequencyMinutes)

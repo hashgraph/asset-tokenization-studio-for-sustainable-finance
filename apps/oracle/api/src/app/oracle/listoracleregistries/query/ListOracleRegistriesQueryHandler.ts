@@ -1,5 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Handler, Inject, QueryHandler, QueryPageResponse, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import {
+  Handler,
+  Inject,
+  QueryHandler,
+  QueryPageResponse,
+  Singleton,
+  Validate,
+} from "@hashgraph/green-bonds-shared-core"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { ListOracleRegistriesQuery } from "./ListOracleRegistriesQuery"
 import { OracleRegistryQueryResponse } from "./OracleRegistryQueryResponse"

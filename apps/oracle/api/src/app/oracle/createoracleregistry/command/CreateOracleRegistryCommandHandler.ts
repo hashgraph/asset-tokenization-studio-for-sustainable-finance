@@ -1,11 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import {
-  Singleton,
-  Handler,
-  Validate,
-  CommandHandler as ICommandHandler,
-  Logger,
-} from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Handler, Validate, Inject, CommandHandler, Logger } from "@hashgraph/green-bonds-shared-core"
 import { CreateOracleRegistryCommand } from "./CreateOracleRegistryCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
@@ -14,12 +8,13 @@ import { OracleRegistryFoundError } from "@domain/oracle/errors/OracleRegistryFo
 
 @Singleton()
 @Handler(CreateOracleRegistryCommand)
-export class CreateOracleRegistryCommandHandler
-  implements ICommandHandler<CreateOracleRegistryCommand, OracleRegistry>
-{
+export class CreateOracleRegistryCommandHandler implements CommandHandler<CreateOracleRegistryCommand, OracleRegistry> {
   private readonly logger = new Logger(CreateOracleRegistryCommandHandler.name)
 
-  constructor(private readonly repository: OracleRegistryRepository) {}
+  constructor(
+    @Inject("OracleRegistryRepository")
+    private readonly repository: OracleRegistryRepository,
+  ) {}
 
   @Validate()
   async execute(command: CreateOracleRegistryCommand): Promise<OracleRegistry> {
