@@ -49,7 +49,7 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.123456789",
         tokenId: 1,
-        to: "0.0.987654",
+        toAccountId: "0.0.987654",
       }
 
       const response = await request(app.getHttpServer())
@@ -67,28 +67,28 @@ describe("TransferEnvironmentalAssetTransaction API Integration", () => {
           treasuryContractId: "0.0.123456",
           assetContractId: "0.0.789012",
           tokenId: 1,
-          to: "0.0.987654",
+          toAccountId: "0.0.987654",
         },
         {
           treasuryContractId: "0.0.654321",
           assetContractId: "0.0.210987",
           tokenId: 42,
-          to: "0.0.456789",
+          toAccountId: "0.0.456789",
         },
         {
           treasuryContractId: "0.0.999999",
           assetContractId: "0.0.111111",
           tokenId: 100,
-          to: "0.0.222222",
+          toAccountId: "0.0.222222",
         },
       ]
 
-      for (const { treasuryContractId, assetContractId, tokenId, to } of testCases) {
+      for (const { treasuryContractId, assetContractId, tokenId, toAccountId } of testCases) {
         const transferRequest = {
           format: "hedera",
           accountId: "0.0.123456789",
           tokenId,
-          to,
+          toAccountId,
         }
 
         const response = await request(app.getHttpServer())

@@ -47,7 +47,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
     it("should transfer payment token with valid data", async () => {
       const transferRequest = {
-        to: "0.0.123456589",
+        toAccountId: "0.0.123456589",
         amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
@@ -65,7 +65,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const treasuryId of testCases) {
         const transferRequest = {
-          to: "0.0.123456589",
+          toAccountId: "0.0.123456589",
           amount: "500",
           format: "hedera",
           accountId: "0.0.123456789",
@@ -83,7 +83,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const amount of amounts) {
         const transferRequest = {
-          to: "0.0.123456589",
+          toAccountId: "0.0.123456589",
           amount,
           format: "hedera",
           accountId: "0.0.123456789",
@@ -100,7 +100,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const to of toValues) {
         const transferRequest = {
-          to,
+          toAccountId: to,
           amount: "1000",
           format: "hedera",
           accountId: "0.0.123456789",
@@ -118,7 +118,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const format of formats) {
         const transferRequest = {
-          to: "0.0.123456589",
+          toAccountId: "0.0.123456589",
           amount: "1000",
           format,
           accountId: "0.0.123456789",
@@ -134,7 +134,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
     it("should return 500 for invalid treasuryContractId", async () => {
       const invalidTreasuryId = "invalid-treasury-id"
       const transferRequest = {
-        to: "0.0.123456589",
+        toAccountId: "0.0.123456589",
         amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
@@ -149,7 +149,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const format of invalidFormats) {
         const transferRequest = {
-          to: "0.0.123456589",
+          toAccountId: "0.0.123456589",
           amount: "1000",
           format,
           accountId: "0.0.123456789",
@@ -161,7 +161,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
     it("should return 400 for negative amount", async () => {
       const transferRequest = {
-        to: "0.0.123456589",
+        toAccountId: "0.0.123456589",
         amount: "-100",
         format: "hedera",
         accountId: "0.0.123456789",
@@ -172,7 +172,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
     it("should return 400 for zero amount", async () => {
       const transferRequest = {
-        to: "0.0.123456589",
+        toAccountId: "0.0.123456589",
         amount: "0",
         format: "hedera",
         accountId: "0.0.123456789",
@@ -186,7 +186,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
       for (const amount of invalidAmounts) {
         const transferRequest = {
-          to: "0.0.123456589",
+          toAccountId: "0.0.123456589",
           amount,
           format: "hedera",
           accountId: "0.0.123456789",
@@ -199,12 +199,12 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
     it("should return 400 for missing required fields", async () => {
       const invalidRequests = [
         {},
-        { to: "0.0.123456589" },
+        { toAccountId: "0.0.123456589" },
         { amount: "1000" },
         { format: "hedera" },
         { accountId: "0.0.123456789" },
-        { to: "0.0.123456589", amount: "1000" },
-        { to: "0.0.123456589", format: "hedera" },
+        { toAccountId: "0.0.123456589", amount: "1000" },
+        { toAccountId: "0.0.123456589", format: "hedera" },
         { amount: "1000", format: "hedera" },
       ]
 
@@ -215,7 +215,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
     it("should return 400 for empty to", async () => {
       const transferRequest = {
-        to: "",
+        toAccountId: "",
         amount: "1000",
         format: "hedera",
         accountId: "0.0.123456789",
@@ -226,7 +226,7 @@ describe("TransferPaymentTokenTransaction API Integration", () => {
 
     it("should return 400 for empty amount", async () => {
       const transferRequest = {
-        to: "0.0.123456589",
+        toAccountId: "0.0.123456589",
         amount: "",
         format: "hedera",
         accountId: "0.0.123456789",

@@ -7,19 +7,23 @@ import { TransferPaymentTokenTransactionRequest } from "./model/TransferPaymentT
 import { TransferPaymentTokenTransactionAppService } from "@app/transaction/transferpaymenttoken/service/TransferPaymentTokenTransactionAppService"
 import { TransferPaymentTokenTransactionAppServiceRequest } from "@app/transaction/transferpaymenttoken/service/model/TransferPaymentTokenTransactionAppServiceRequest"
 import { TransferPaymentTokenTransactionPort } from "@port/transaction/usecase/transferpaymenttoken/TransferPaymentTokenTransactionPort"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class TransferPaymentTokenTransactionHttpAdapter implements TransferPaymentTokenTransactionPort {
   constructor(private readonly transferPaymentTokenTransactionAppService: TransferPaymentTokenTransactionAppService) {}
 
-  @Post(":treasuryContractId/payment-tokens/transfer")
+  @ApiOperation({ summary: "Transfers payment tokens from treasury to a destination" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/payment-tokens/transfer")
   async transferPaymentToken(
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Body() request: TransferPaymentTokenTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.transferPaymentTokenTransactionAppService.execute(
       new TransferPaymentTokenTransactionAppServiceRequest(
-        request.to,
+        request.toAccountId,
         request.amount,
         request.format,
         request.accountId || "",

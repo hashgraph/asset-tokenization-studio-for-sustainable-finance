@@ -10,15 +10,19 @@ import {
 
 import { ApplyRolesTransactionPort } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionPort"
 import { ApplyRolesTransactionRequest } from "@port/transaction/usecase/applyroles/model/ApplyRolesTransactionRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class ApplyRolesTransactionHttpAdapter implements ApplyRolesTransactionPort {
   constructor(private readonly applyRolesTransactionAppService: ApplyRolesTransactionAppService) {}
 
-  @Post(":treasuryContractId/users/:userAccountId/roles")
+  @ApiOperation({ summary: "Batch grant role to user" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/users/:userId/roles")
   async applyRoles(
-    @Param("treasuryContractId") treasuryContractId: string,
-    @Param("userAccountId") userAccountId: string,
+    @Param("treasuryId") treasuryContractId: string,
+    @Param("userId") userAccountId: string,
     @Body() request: ApplyRolesTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.applyRolesTransactionAppService.execute(
