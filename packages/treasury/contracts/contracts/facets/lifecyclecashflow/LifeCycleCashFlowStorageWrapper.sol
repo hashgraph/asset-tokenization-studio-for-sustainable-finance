@@ -96,11 +96,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         uint256 distributionId,
         uint256 pageIndex,
         uint256 pageLength
-    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory result, bool) {
+    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory results, bool) {
         address[] memory holders = _getDistributionHolders(asset, distributionId, pageIndex, pageLength);
-        if (holders.length == 0) return (result, false);
-        result = _executeDistributionByAddresses(asset, distributionId, holders);
-        return (result, true);
+        if (holders.length == 0) return (results, false);
+        results = _executeDistributionByAddresses(asset, distributionId, holders);
+        return (results, true);
     }
 
     /*
@@ -120,8 +120,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         address asset,
         uint256 distributionId,
         address[] memory holders
-    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory result) {
-        result = _payHoldersDistribution(asset, distributionId, holders);
+    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
+        results = _payHoldersDistribution(asset, distributionId, holders);
     }
 
     /*
@@ -142,12 +142,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory result, bool) {
+    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory results, bool) {
         address[] memory holders = _getAssetHolders(bond, pageIndex, pageLength);
 
-        if (holders.length == 0) return (result, false);
-        result = _executeBondRedemptionByAddresses(bond, holders);
-        return (result, true);
+        if (holders.length == 0) return (results, false);
+        results = _executeBondRedemptionByAddresses(bond, holders);
+        return (results, true);
     }
 
     /*
@@ -165,8 +165,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _executeBondRedemptionByAddresses(
         address bond,
         address[] memory holders
-    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory result) {
-        result = _payHoldersRedemption(bond, holders);
+    ) internal returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
+        results = _payHoldersRedemption(bond, holders);
     }
 
     /*
@@ -209,8 +209,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         address asset,
         uint256 distributionId,
         address[] memory holders
-    ) private returns (ILifeCycleCashFlow.PaymentResult[] memory result) {
-        result = new ILifeCycleCashFlow.PaymentResult[](holders.length);
+    ) private returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
+        results = new ILifeCycleCashFlow.PaymentResult[](holders.length);
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
@@ -222,10 +222,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
-                result[index].holder = holder;
+                results[index].holder = holder;
 
                 if (!_isHolderValid(holder)) {
-                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                    results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
                     unchecked {
                         ++index;
                     }
@@ -233,7 +233,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                 }
 
                 if (_isDistributionHolderPaid(distributionId, holder)) {
-                    result[index].status = ILifeCycleCashFlow.PaymentStatus.ALREADY_PAID;
+                    results[index].status = ILifeCycleCashFlow.PaymentStatus.ALREADY_PAID;
                     unchecked {
                         ++index;
                     }
@@ -243,7 +243,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                 uint256 amount = _getDistributionAmount(asset, distributionId, holder, nominalValue, paymentToken);
 
                 if (!_isValidAmount(amount)) {
-                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                    results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
                     unchecked {
                         ++index;
                     }
@@ -252,7 +252,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
-                    _processBatchDistribution(distributionId, paymentToken, batchInfo, result, resultIndex);
+                    _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
                     batchInfo.totalAmount = 0;
@@ -272,11 +272,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                _processBatchDistribution(distributionId, paymentToken, batchInfo, result, resultIndex);
+                _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
             }
         }
 
-        return result;
+        return results;
     }
 
     /*
@@ -403,7 +403,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         uint256 distributionId,
         address paymentToken,
         BatchInfo memory batchInfo,
-        ILifeCycleCashFlow.PaymentResult[] memory result,
+        ILifeCycleCashFlow.PaymentResult[] memory results,
         uint256 resultIndex
     ) private {
         bool succeededPayment = _payBatchHoldersDistribution(
@@ -418,7 +418,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             succeededPayment,
             batchInfo.holders,
             batchInfo.amounts,
-            result,
+            results,
             resultIndex
         );
     }
@@ -438,8 +438,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _payHoldersRedemption(
         address bond,
         address[] memory holders
-    ) private returns (ILifeCycleCashFlow.PaymentResult[] memory result) {
-        result = new ILifeCycleCashFlow.PaymentResult[](holders.length);
+    ) private returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
+        results = new ILifeCycleCashFlow.PaymentResult[](holders.length);
 
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
@@ -452,10 +452,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
-                result[index].holder = holders[index];
+                results[index].holder = holders[index];
 
                 if (!_isHolderValid(holder)) {
-                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                    results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
 
                     unchecked {
                         ++index;
@@ -467,7 +467,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                 uint256 amount = _getRedemptionAmount(bond, tokensAmount, nominalValue, paymentToken);
 
                 if (!_isValidAmount(amount)) {
-                    result[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                    results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
 
                     unchecked {
                         ++index;
@@ -477,7 +477,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
-                    bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, result, resultIndex);
+                    bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
 
                     if (succeededPayment) {
                         _redeemBondHolders(bond, batchInfo.holders);
@@ -500,14 +500,14 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, result, resultIndex);
+                bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
                 if (succeededPayment) {
                     _redeemBondHolders(bond, batchInfo.holders);
                 }
             }
         }
 
-        return result;
+        return results;
     }
 
     /*
@@ -525,7 +525,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _processBatchRedemption(
         BatchInfo memory batchInfo,
         address paymentToken,
-        ILifeCycleCashFlow.PaymentResult[] memory result,
+        ILifeCycleCashFlow.PaymentResult[] memory results,
         uint256 resultIndex
     ) private returns (bool succeededPayment) {
         succeededPayment = _payBatchHoldersRedemption(
@@ -539,7 +539,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             succeededPayment,
             batchInfo.holders,
             batchInfo.amounts,
-            result,
+            results,
             resultIndex
         );
     }
@@ -837,15 +837,15 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         bool succeededPayment,
         address[] memory holdersArray,
         int64[] memory amountsArray,
-        ILifeCycleCashFlow.PaymentResult[] memory result,
+        ILifeCycleCashFlow.PaymentResult[] memory results,
         uint256 resultIndex
     ) private pure {
         for (uint256 index; index < holdersArray.length; ) {
             if (succeededPayment) {
-                result[index + resultIndex].amount = amountsArray[index];
-                result[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
+                results[index + resultIndex].amount = amountsArray[index];
+                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
             } else {
-                result[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
             }
 
             unchecked {

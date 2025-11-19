@@ -25,7 +25,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult[] result);
+    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult[] results);
 
     /*
      * @dev Emitted when a distribution by addresses is executed
@@ -36,7 +36,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult[] result);
+    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult[] results);
 
     /*
      * @dev Emitted when a redemption by page is executed
@@ -47,7 +47,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult[] result);
+    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult[] results);
 
     /*
      * @dev Emitted when a redemption by addresses is executed
@@ -57,7 +57,7 @@ interface ILifeCycleCashFlow {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionByAddressesExecuted(address[] holders, PaymentResult[] result);
+    event RedemptionByAddressesExecuted(address[] holders, PaymentResult[] results);
 
     /**
      * @notice Error thrown when attempting to execute a payment for a asset not managed by the contract
@@ -144,7 +144,7 @@ interface ILifeCycleCashFlow {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult[] memory result, bool);
+    ) external returns (PaymentResult[] memory results, bool);
 
     /*
      * @dev Retry the payment of a distribution to a list of holders
@@ -161,7 +161,7 @@ interface ILifeCycleCashFlow {
         address asset,
         uint256 distributionID,
         address[] calldata holders
-    ) external returns (PaymentResult[] memory result);
+    ) external returns (PaymentResult[] memory results);
 
     /*
      * @dev Perform a bond redemption to a page of holders
@@ -179,7 +179,7 @@ interface ILifeCycleCashFlow {
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult[] memory result, bool);
+    ) external returns (PaymentResult[] memory results, bool);
 
     /*
      * @dev Perform a bond redemption to a list of holders
@@ -194,7 +194,7 @@ interface ILifeCycleCashFlow {
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external returns (PaymentResult[] memory result);
+    ) external returns (PaymentResult[] memory results);
 
     /*
      * @dev Returns the asset address
