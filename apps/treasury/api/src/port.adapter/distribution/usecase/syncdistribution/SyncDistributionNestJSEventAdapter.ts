@@ -28,9 +28,7 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
   private async processDistributionEvent(event: BaseDistributionExecutedDLTEvent): Promise<void> {
     const successAddresses: string[] = []
     const failedAddresses: string[] = []
-    const alreadyPaidAddresses: string[] = []
     const paidAmounts: string[] = []
-    const alreadyPaidAmounts: string[] = []
 
     for (const item of event.result) {
       const holder = String(item.holder)
@@ -44,16 +42,12 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
         paidAmounts.push(amount)
       } else if (code === 1) {
         failedAddresses.push(holder)
-      } else if (code === 2) {
-        alreadyPaidAddresses.push(holder)
-        alreadyPaidAmounts.push(amount)
       }
     }
 
-    const [convertedSuccessAddresses, convertedFailedAddresses, convertedAlreadyPaidAddresses] = await Promise.all([
+    const [convertedSuccessAddresses, convertedFailedAddresses] = await Promise.all([
       this.convertToHederaFormat(successAddresses),
       this.convertToHederaFormat(failedAddresses),
-      this.convertToHederaFormat(alreadyPaidAddresses),
     ])
 
     await this.syncDistributionAppService.execute({
@@ -62,8 +56,6 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
       successAddresses: convertedSuccessAddresses,
       failedAddresses: convertedFailedAddresses,
       paidAmounts,
-      alreadyPaidAddresses: convertedAlreadyPaidAddresses,
-      alreadyPaidAmounts,
     } as SyncDistributionAppServiceRequest)
   }
 }

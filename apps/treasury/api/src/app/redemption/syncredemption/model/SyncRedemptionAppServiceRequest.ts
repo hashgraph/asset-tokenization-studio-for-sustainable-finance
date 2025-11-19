@@ -14,10 +14,4 @@ export class SyncRedemptionAppServiceRequest {
 
   @IsNotEmpty()
   readonly paidAmounts: string[]
-
-  @IsNotEmpty()
-  readonly alreadyPaidAddresses: string[]
-
-  @IsNotEmpty()
-  readonly alreadyPaidAmounts: string[]
 }

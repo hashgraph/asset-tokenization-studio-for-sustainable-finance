@@ -3,5 +3,4 @@
 export enum RedemptionHolderStatus {
   SUCCESS = "SUCCESS",
   FAILED = "FAILED",
-  ALREADY_PAID = "ALREADY_PAID",
 }
