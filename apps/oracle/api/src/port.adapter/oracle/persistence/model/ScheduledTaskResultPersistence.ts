@@ -37,7 +37,16 @@ export class ScheduledTaskResultPersistence extends BaseEntityPersistence {
   @Column({ type: "text", nullable: true })
   errorMessage: string | null
 
-  @Column({ type: "decimal", precision: 20, scale: 6, nullable: true })
+  @Column({
+    type: "decimal",
+    precision: 20,
+    scale: 6,
+    nullable: true,
+    transformer: {
+      to: (value: number | null) => value,
+      from: (value: string | null) => (value !== null ? parseFloat(value) : null),
+    },
+  })
   kpiValue: number | null
 
   @Column({ type: "varchar", length: 255, nullable: true })

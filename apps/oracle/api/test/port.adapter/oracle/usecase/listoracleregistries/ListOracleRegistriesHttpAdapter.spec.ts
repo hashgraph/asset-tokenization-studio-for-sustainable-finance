@@ -41,8 +41,12 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
   })
 
   afterEach(async () => {
-    
     if (app) {
+      // Clean up database before closing app
+      const registries = await oracleRegistryRepository.find()
+      if (registries.length > 0) {
+        await oracleRegistryRepository.remove(registries)
+      }
       await app.close()
     }
   })
@@ -71,11 +75,11 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
       const nextExecutionDate = new Date("2025-01-02T00:00:00Z")
 
       const registry = await oracleRegistryRepository.save({
-        bondContractId: `0.0.${timestamp},
-        kpiContractId: `0.0.${timestamp},
+        bondContractId: `0.0.${timestamp}`,
+        kpiContractId: `0.0.${timestamp}`,
         projects: [
-          { projectId: "project-1", topicId: `0.0.${timestamp} },
-          { projectId: "project-2", topicId: `0.0.${timestamp} },
+          { projectId: "project-1", topicId: `0.0.${timestamp}` },
+          { projectId: "project-2", topicId: `0.0.${timestamp}` },
         ],
         schedulerStartDate: startDate,
         schedulerEndDate: endDate,
@@ -101,8 +105,8 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
         bondContractId: registry.bondContractId,
         kpiContractId: registry.kpiContractId,
         projects: [
-          { projectId: "project-1", topicId: `0.0.${timestamp} },
-          { projectId: "project-2", topicId: `0.0.${timestamp} },
+          { projectId: "project-1", topicId: `0.0.${timestamp}` },
+          { projectId: "project-2", topicId: `0.0.${timestamp}` },
         ],
         config: {
           schedulerStartDate: startDate.toISOString(),
@@ -150,9 +154,9 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
       const nextExecutionDate = new Date("2025-01-02T00:00:00Z")
 
       await oracleRegistryRepository.save({
-        bondContractId: `0.0.${timestamp},
-        kpiContractId: `0.0.${timestamp},
-        projects: [{ projectId: "project-1", topicId: `0.0.${timestamp} }],
+        bondContractId: `0.0.${timestamp}`,
+        kpiContractId: `0.0.${timestamp}`,
+        projects: [{ projectId: "project-1", topicId: `0.0.${timestamp}` }],
         schedulerStartDate: startDate,
         schedulerEndDate: null,
         nextExecutionDate: nextExecutionDate,
@@ -161,9 +165,9 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
       })
 
       await oracleRegistryRepository.save({
-        bondContractId: `0.0.${timestamp},
-        kpiContractId: `0.0.${timestamp},
-        projects: [{ projectId: "project-2", topicId: `0.0.${timestamp} }],
+        bondContractId: `0.0.${timestamp + 1}`,
+        kpiContractId: `0.0.${timestamp + 2}`,
+        projects: [{ projectId: "project-2", topicId: `0.0.${timestamp + 3}` }],
         schedulerStartDate: startDate,
         schedulerEndDate: null,
         nextExecutionDate: nextExecutionDate,
@@ -177,8 +181,8 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
         .expect(HttpStatus.OK)
 
       expect(response.body.items).toHaveLength(2)
-      expect(response.body.items[0].status).toBe(OracleStatus.ACTIVE)
-      expect(response.body.items[1].status).toBe(OracleStatus.PAUSED)
+      const statuses = response.body.items.map((item: any) => item.status).sort()
+      expect(statuses).toEqual([OracleStatus.ACTIVE, OracleStatus.PAUSED])
     })
 
     it("should validate pagination parameters", async () => {

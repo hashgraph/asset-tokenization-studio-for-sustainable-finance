@@ -5,6 +5,8 @@ import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { UpdateOracleRegistryRequest } from "./model/UpdateOracleRegistryRequest"
 import { UpdateOracleRegistryCommand } from "@app/oracle/updateoracleregistry/command/UpdateOracleRegistryCommand"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
+import { OracleRegistryResponse } from "../getoracleregistry/model/OracleRegistryResponse"
+import { Project } from "@domain/oracle/model/Project"
 
 @RestController("oracle/registries")
 export class UpdateOracleRegistryHttpAdapter {
@@ -14,7 +16,7 @@ export class UpdateOracleRegistryHttpAdapter {
   async updateOracleRegistry(
     @Param("id") id: string,
     @Body() request: UpdateOracleRegistryRequest,
-  ): Promise<OracleRegistry> {
+  ): Promise<OracleRegistryResponse> {
     const command = new UpdateOracleRegistryCommand(
       id,
       request.schedulerStartDate ? new Date(request.schedulerStartDate) : undefined,
@@ -25,6 +27,24 @@ export class UpdateOracleRegistryHttpAdapter {
         : undefined,
       request.frequencyMinutes,
     )
-    return await this.commandBus.execute(command)
+    const registry = (await this.commandBus.execute(command)) as OracleRegistry
+
+    return {
+      id: registry.id,
+      bondContractId: registry.bondContractId,
+      kpiContractId: registry.kpiContractId,
+      projects: registry.projects.map((p: Project) => ({
+        projectId: p.projectId,
+        topicId: p.topicId,
+      })),
+      config: {
+        schedulerStartDate: registry.config.schedulerStartDate,
+        schedulerEndDate: registry.config.schedulerEndDate,
+        frequencyMinutes: registry.config.frequencyMinutes,
+      },
+      status: registry.status,
+      createdAt: registry.createdAt,
+      updatedAt: registry.updatedAt,
+    }
   }
 }

@@ -45,12 +45,16 @@ export class OracleConfig {
   }
 
   withUpdatedDates(startDate?: Date, endDate?: Date | null): OracleConfig {
-    return new OracleConfig(
-      startDate ?? this.schedulerStartDate,
-      endDate !== undefined ? endDate : this.schedulerEndDate,
-      this.nextExecutionDate,
-      this.frequencyMinutes,
-    )
+    const newStartDate = startDate ?? this.schedulerStartDate
+    const newEndDate = endDate !== undefined ? endDate : this.schedulerEndDate
+
+    // Recalculate nextExecutionDate if it's before the new start date
+    let newNextExecutionDate = this.nextExecutionDate
+    if (newNextExecutionDate < newStartDate) {
+      newNextExecutionDate = newStartDate
+    }
+
+    return new OracleConfig(newStartDate, newEndDate, newNextExecutionDate, this.frequencyMinutes)
   }
 
   withUpdatedFrequency(frequencyMinutes: number): OracleConfig {
