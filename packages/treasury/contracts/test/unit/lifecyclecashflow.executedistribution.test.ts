@@ -2,20 +2,23 @@
 
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
+import { BigNumber, Contract, ContractFactory } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
-import { deployContract, deployPaymentToken } from "../helpers/deployment";
+import { deployPrecompiledMock } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasury";
-import { AssetMock__factory } from "@contract-types";
+import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITreasury } from "@contract-types";
 
 describe("LifeCycleCashFlow operations", () => {
+  configureLogger({ level: LogLevel.SILENT });
+
   let signer_A, signer_B;
   let treasury: ITreasury;
   let assetAddress: string;
+  let paymentToken: Contract;
   let paymentTokenAddress: string;
-  let paymentTokenFactoryAddress: string;
+  let assetMockContract: ContractFactory;
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
@@ -25,12 +28,21 @@ describe("LifeCycleCashFlow operations", () => {
     });
 
     treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
+
+    await deployPrecompiledMock();
+
+    assetMockContract = await ethers.getContractFactory("AssetMock");
+    const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+    await paymentToken.deployed();
+    paymentTokenAddress = paymentToken.address;
   });
 
   describe("initialize_LifeCycleCashFlow", () => {
     beforeEach(async () => {
-      const assetFactory = new AssetMock__factory(signer_A);
-      assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
+      const asset = await assetMockContract.deploy(false, 1, [], false);
+      await asset.deployed();
+      assetAddress = asset.address;
 
       treasury = treasury.connect(signer_A);
       await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -54,8 +66,10 @@ describe("LifeCycleCashFlow operations", () => {
   describe("executeDistribution", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        const assetFactory = new AssetMock__factory(signer_A);
-        assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
+        const asset = await assetMockContract.deploy(false, 1, [], false);
+        await asset.deployed();
+        assetAddress = asset.address;
+
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 
@@ -118,8 +132,9 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 1, [], false]);
+          const asset = await assetMockContract.deploy(true, 1, [], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -133,8 +148,9 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 1, [AddressZero], false]);
+          const asset = await assetMockContract.deploy(true, 1, [AddressZero], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -148,18 +164,18 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(AddressZero);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(AddressZero);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 300000, [signer_B.address], false]);
+          const asset = await assetMockContract.deploy(true, 300000, [signer_B.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -173,15 +189,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 10000000000);
+          await paymentToken.mint(treasury.address, 10000000000);
 
           await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
@@ -191,15 +205,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(2);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(2);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with the holder is SUCCEEDED status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
+          await paymentToken.mint(treasury.address, 10000000000);
 
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const receipt = await tx.wait();
@@ -208,32 +220,25 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [
-            true,
-            300000,
-            [signer_B.address, signer_A.address],
-            false,
-          ]);
+          const asset = await assetMockContract.deploy(true, 300000, [signer_B.address, signer_A.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
+          await paymentToken.mint(treasury.address, 1000000);
 
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 2);
           const receipt = await tx.wait();
@@ -242,24 +247,23 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(2));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[1].holder).to.equal(signer_A.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[1].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[1].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 28054423280000000000n, [signer_B.address], false]);
+          const asset = await assetMockContract.deploy(true, 28054423280000000000n, [signer_B.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 1, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
@@ -271,9 +275,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(0);
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
     });
@@ -282,8 +286,9 @@ describe("LifeCycleCashFlow operations", () => {
   describe("executeDistributionByAddresses", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        const assetFactory = new AssetMock__factory(signer_A);
-        assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
+        const asset = await assetMockContract.deploy(false, 1, [], false);
+        await asset.deployed();
+        assetAddress = asset.address;
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 
@@ -345,8 +350,9 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 1, [], false]);
+          const asset = await assetMockContract.deploy(true, 1, [], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -359,14 +365,15 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders).to.deep.equal([]);
-          expect(event.args.result).to.deep.equal([]);
+          expect(event.args.results).to.deep.equal([]);
         });
       });
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 1, [AddressZero], false]);
+          const asset = await assetMockContract.deploy(true, 1, [AddressZero], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -379,18 +386,18 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(AddressZero);
-          expect(event.args.result[0].holder).to.equal(AddressZero);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(AddressZero);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 300000, [signer_B.address], false]);
+          const asset = await assetMockContract.deploy(true, 300000, [signer_B.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -403,15 +410,13 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 10000000000);
+          await paymentToken.mint(treasury.address, 10000000000);
 
           await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
@@ -420,15 +425,13 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(2);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(2);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with holder in SUCCEEDED status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
+          await paymentToken.mint(treasury.address, 1000000);
 
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
           const receipt = await tx.wait();
@@ -436,32 +439,25 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [
-            true,
-            300000,
-            [signer_B.address, signer_A.address],
-            false,
-          ]);
+          const asset = await assetMockContract.deploy(true, 300000, [signer_B.address, signer_A.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 10000000000, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-          paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-          await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1000000);
+          await paymentToken.mint(treasury.address, 1000000);
 
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [
             signer_B.address,
@@ -473,24 +469,23 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.holders[1]).to.equal(signer_A.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[1].holder).to.equal(signer_A.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[1].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[1].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const assetFactory = new AssetMock__factory(signer_A);
-          assetAddress = await deployContract(assetFactory, [true, 28054423280000000000n, [signer_B.address], false]);
+          const asset = await assetMockContract.deploy(true, 28054423280000000000n, [signer_B.address], false);
+          await asset.deployed();
+          assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 1, 2);
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-          let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
@@ -501,9 +496,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(0);
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
     });
