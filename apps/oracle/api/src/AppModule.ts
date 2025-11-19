@@ -2,14 +2,10 @@
 import { Module } from "@nestjs/common"
 import { ConfigModule } from "@nestjs/config"
 import { ScheduleModule } from "@nestjs/schedule"
-import { TypeOrmModule } from "@nestjs/typeorm"
 import { CONTROLLERS, PROVIDERS } from "./Components"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
-import { OracleRegistryPersistence } from "@port/oracle/persistence/model/OracleRegistryPersistence"
-import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/ScheduledTaskResultPersistence"
-import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/SchedulerConfigPersistence"
 
 @Module({
   imports: [
@@ -20,7 +16,6 @@ import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/Sc
     SharedModule,
     PostgresModule.forRoot(),
     ScheduleModule.forRoot(),
-    TypeOrmModule.forFeature([OracleRegistryPersistence, ScheduledTaskResultPersistence, SchedulerConfigPersistence]),
   ],
   controllers: [...CONTROLLERS, HealthHttpAdapter],
   providers: PROVIDERS,

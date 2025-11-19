@@ -2,11 +2,13 @@
 import { DynamicModule, Module } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
 import { ConfigKeys } from "./ConfigKeys"
+import { ENTITIES } from "../Components"
 
 @Module({})
 export class PostgresModule {
-  static forRoot(typeOrmOptions?: TypeOrmModuleOptions): DynamicModule {
+  static forRoot(typeOrmOptions?: TypeOrmModuleOptions, entities: EntityClassOrSchema[] = ENTITIES): DynamicModule {
     return {
       module: PostgresModule,
       imports: [
@@ -19,6 +21,7 @@ export class PostgresModule {
             } as TypeOrmModuleOptions
           },
         }),
+        TypeOrmModule.forFeature(entities),
       ],
       exports: [TypeOrmModule],
       global: true,

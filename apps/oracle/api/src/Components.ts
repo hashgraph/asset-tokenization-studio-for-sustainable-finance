@@ -5,7 +5,7 @@
  */
 
 // Shared Core Providers
-import { COMMON_FUNCTIONALITY_PROVIDERS } from "@hashgraph/green-bonds-shared-core"
+import { COMMON_FUNCTIONALITY_PROVIDERS, COMMON_FUNCTIONALITY_ENTITIES } from "@hashgraph/green-bonds-shared-core"
 
 // HTTP Adapters
 import { CreateOracleRegistryHttpAdapter } from "@port/oracle/usecase/createoracleregistry/CreateOracleRegistryHttpAdapter"
@@ -51,6 +51,18 @@ import { HederaJsonRpcAdapter } from "@port/blockchain/HederaJsonRpcAdapter"
 import { SchedulerService } from "@port/scheduler/SchedulerService"
 import { SchedulerConfigHttpAdapter } from "@port/scheduler/usecase/SchedulerConfigHttpAdapter"
 import { SchedulerConfigTypeOrmRepository } from "@port/scheduler/persistence/repositories/SchedulerConfigTypeOrmRepository"
+
+// Persistence Models
+import { OracleRegistryPersistence } from "@port/oracle/persistence/model/OracleRegistryPersistence"
+import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/ScheduledTaskResultPersistence"
+import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/SchedulerConfigPersistence"
+
+export const ENTITIES = [
+  ...COMMON_FUNCTIONALITY_ENTITIES,
+  OracleRegistryPersistence,
+  ScheduledTaskResultPersistence,
+  SchedulerConfigPersistence,
+]
 
 export const CONTROLLERS: any[] = [
   // Oracle Registry HTTP Adapters
@@ -108,6 +120,10 @@ export const PROVIDERS: any[] = [
     provide: "ScheduledTaskRepository",
     useClass: ScheduledTaskTypeOrmRepository,
   },
+  {
+    provide: "ScheduledTaskResultRepository",
+    useClass: ScheduledTaskTypeOrmRepository,
+  },
 
   // External Clients
   {
@@ -127,6 +143,12 @@ export const PROVIDERS: any[] = [
   {
     provide: "SchedulerConfigRepository",
     useClass: SchedulerConfigTypeOrmRepository,
+  },
+
+  // Transaction Builder (stub - oracle doesn't build transactions)
+  {
+    provide: "TransactionBuilderPort",
+    useValue: null,
   },
 
   // Shared Core Providers (CommandBus, QueryBus, EventBus, etc.)
