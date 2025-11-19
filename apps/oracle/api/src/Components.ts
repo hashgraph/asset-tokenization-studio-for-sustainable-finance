@@ -26,7 +26,6 @@ import { UpdateOracleRegistryCommandHandler } from "@app/oracle/updateoracleregi
 import { AddProjectCommandHandler } from "@app/oracle/addproject/command/AddProjectCommandHandler"
 import { RemoveProjectCommandHandler } from "@app/oracle/removeproject/command/RemoveProjectCommandHandler"
 import { UpdateProjectTopicCommandHandler } from "@app/oracle/updateprojecttopic/command/UpdateProjectTopicCommandHandler"
-import { UpdateFrequencyCommandHandler } from "@app/oracle/updatefrequency/command/UpdateFrequencyCommandHandler"
 import { DeleteOracleRegistryCommandHandler } from "@app/oracle/deleteoracleregistry/command/DeleteOracleRegistryCommandHandler"
 import { RetryFailedExecutionCommandHandler } from "@app/oracle/retryfailedexecution/command/RetryFailedExecutionCommandHandler"
 
@@ -80,7 +79,6 @@ export const COMMAND_HANDLERS = [
   AddProjectCommandHandler,
   RemoveProjectCommandHandler,
   UpdateProjectTopicCommandHandler,
-  UpdateFrequencyCommandHandler,
   DeleteOracleRegistryCommandHandler,
   RetryFailedExecutionCommandHandler,
 ]

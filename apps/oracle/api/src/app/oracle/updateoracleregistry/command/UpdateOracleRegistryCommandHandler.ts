@@ -24,8 +24,15 @@ export class UpdateOracleRegistryCommandHandler implements CommandHandler<Update
       throw OracleRegistryNotFoundError.idError(command.id)
     }
 
-    // Update scheduler dates
-    registry.updateSchedulerDates(command.schedulerStartDate, command.schedulerEndDate)
+    // Update scheduler dates if provided
+    if (command.schedulerStartDate !== undefined || command.schedulerEndDate !== undefined) {
+      registry.updateSchedulerDates(command.schedulerStartDate, command.schedulerEndDate)
+    }
+
+    // Update frequency if provided
+    if (command.frequencyMinutes !== undefined) {
+      registry.updateFrequency(command.frequencyMinutes)
+    }
 
     const updated = await this.repository.save(registry)
 

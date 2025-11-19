@@ -23,6 +23,7 @@ export class UpdateOracleRegistryHttpAdapter {
           ? new Date(request.schedulerEndDate)
           : null
         : undefined,
+      request.frequencyMinutes,
     )
     return await this.commandBus.execute(command)
   }

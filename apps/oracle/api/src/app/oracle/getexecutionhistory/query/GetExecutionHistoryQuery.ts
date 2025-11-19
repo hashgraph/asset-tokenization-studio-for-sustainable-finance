@@ -19,16 +19,13 @@ export class GetExecutionHistoryQuery extends Query<QueryPageResponse<ExecutionH
 
   constructor(
     registryId: string,
-    pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
+    public readonly pageOptions: QueryPageOptions = QueryPageOptions.DEFAULT,
     projectId?: string,
     status?: TaskStatus,
   ) {
     super()
     this.registryId = registryId
-    this.pageOptions = pageOptions
     this.projectId = projectId
     this.status = status
   }
-
-  readonly pageOptions: QueryPageOptions
 }
