@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Delete, Param, HttpCode, HttpStatus } from "@nestjs/common"
-import { CommandBus } from "@nestjs/cqrs"
+import { Delete, Param, HttpCode, HttpStatus } from "@nestjs/common"
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { DeleteOracleRegistryCommand } from "@app/oracle/deleteoracleregistry/command/DeleteOracleRegistryCommand"
 
-@Controller("oracle/registries")
+@RestController("oracle/registries")
 export class DeleteOracleRegistryHttpAdapter {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)

@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Get } from "@nestjs/common"
+import { Get } from "@nestjs/common"
+import { RestController } from "@hashgraph/green-bonds-shared-core"
 
-@Controller("health")
+@RestController("health")
 export class HealthHttpAdapter {
   @Get()
   check() {

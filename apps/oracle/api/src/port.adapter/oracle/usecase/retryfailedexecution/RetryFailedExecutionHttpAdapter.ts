@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Post, Param } from "@nestjs/common"
-import { CommandBus } from "@nestjs/cqrs"
+import { Post, Param } from "@nestjs/common"
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { RetryFailedExecutionCommand } from "@app/oracle/retryfailedexecution/command/RetryFailedExecutionCommand"
 import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
 
-@Controller("oracle/registries/:registryId/executions")
+@RestController("oracle/registries/:registryId/executions")
 export class RetryFailedExecutionHttpAdapter {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @Post(":executionId/retry")
   async retryFailedExecution(

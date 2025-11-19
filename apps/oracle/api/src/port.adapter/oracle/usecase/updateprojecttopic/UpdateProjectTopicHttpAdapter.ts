@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Patch, Param, Body } from "@nestjs/common"
-import { CommandBus } from "@nestjs/cqrs"
+import { Patch, Param, Body } from "@nestjs/common"
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { UpdateProjectTopicRequest } from "./model/UpdateProjectTopicRequest"
 import { UpdateProjectTopicCommand } from "@app/oracle/updateprojecttopic/command/UpdateProjectTopicCommand"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
 
-@Controller("oracle/registries")
+@RestController("oracle/registries")
 export class UpdateProjectTopicHttpAdapter {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @Patch(":id/projects/:projectId/topic")
   async updateProjectTopic(

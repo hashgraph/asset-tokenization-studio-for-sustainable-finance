@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Controller, Post, Param, Body } from "@nestjs/common"
-import { CommandBus } from "@nestjs/cqrs"
+import { Post, Param, Body } from "@nestjs/common"
+import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { AddProjectRequest } from "./model/AddProjectRequest"
 import { AddProjectCommand } from "@app/oracle/addproject/command/AddProjectCommand"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
 
-@Controller("oracle/registries")
+@RestController("oracle/registries")
 export class AddProjectHttpAdapter {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(@Inject() private readonly commandBus: CommandBus) {}
 
   @Post(":id/projects")
   async addProject(@Param("id") id: string, @Body() request: AddProjectRequest): Promise<OracleRegistry> {
