@@ -161,9 +161,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(AddressZero);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(AddressZero);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
@@ -192,9 +192,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
@@ -208,9 +208,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(2);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(2);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with the holder is SUCCEEDED status", async () => {
@@ -223,9 +223,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -254,12 +254,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(2));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[1].holder).to.equal(signer_A.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[1].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[1].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -286,9 +286,9 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.pageIndex).to.equal(BigNumber.from(1));
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(0);
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
     });
@@ -376,7 +376,7 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders).to.deep.equal([]);
-          expect(event.args.result).to.deep.equal([]);
+          expect(event.args.results).to.deep.equal([]);
         });
       });
 
@@ -397,9 +397,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(AddressZero);
-          expect(event.args.result[0].holder).to.equal(AddressZero);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(AddressZero);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
       });
 
@@ -425,9 +425,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
@@ -440,9 +440,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(2);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(2);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with holder in SUCCEEDED status", async () => {
@@ -454,9 +454,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -488,12 +488,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.holders[1]).to.equal(signer_A.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[1].holder).to.equal(signer_A.address);
-          expect(event.args.result[0].status).to.equal(0);
-          expect(event.args.result[1].status).to.equal(0);
-          expect(event.args.result[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.result[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[1].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
         });
       });
 
@@ -519,9 +519,9 @@ describe("LifeCycleCashFlow operations", () => {
 
           expect(event.args.distributionID).to.equal(BigNumber.from(1));
           expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.result[0].holder).to.equal(signer_B.address);
-          expect(event.args.result[0].status).to.equal(1);
-          expect(event.args.result[0].amount).to.equal(0);
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
     });
