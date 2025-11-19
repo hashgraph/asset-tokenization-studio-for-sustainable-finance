@@ -3,9 +3,9 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IProceedsManagement } from "./interfaces/IProceedsManagement.sol";
+import { IProceedsManagement } from "../../interfaces/IProceedsManagement.sol";
 import { ProceedsManagementStorageWrapper } from "./ProceedsManagementStorageWrapper.sol";
-import { PROCEEDS_FULL_MANAGER_ROLE, FUNDS_MANAGER_ROLE } from "./constants/roles.sol";
+import { PROCEEDS_FULL_MANAGER_ROLE, FUNDS_MANAGER_ROLE } from "../../constants/roles.sol";
 
 abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementStorageWrapper {
     /*
@@ -17,7 +17,7 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
     function transferPaymentToken(
         address to,
         uint256 amount
-    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) notAddressZero(to) {
+    ) external override onlyUnpaused onlyRole(PROCEEDS_FULL_MANAGER_ROLE) checkAddress(to) {
         _transferPaymentToken(to, amount);
         emit PaymentTokenTransferred(to, amount);
     }
@@ -38,8 +38,8 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
         override
         onlyUnpaused
         onlyRole(PROCEEDS_FULL_MANAGER_ROLE)
-        notAddressZero(environmentalAsset)
-        notAddressZero(to)
+        checkAddress(environmentalAsset)
+        checkAddress(to)
     {
         _transferEnvironmentalAssetToken(environmentalAsset, to, tokenId);
         emit EnvironmentalAssetTokenTransferred(environmentalAsset, to, tokenId);
@@ -59,8 +59,8 @@ abstract contract ProceedsManagement is IProceedsManagement, ProceedsManagementS
         override
         onlyUnpaused
         onlyRole(FUNDS_MANAGER_ROLE)
-        notAddressZero(proceedsRecipient)
-        onlyForBondProceedsRecipients(proceedsRecipient)
+        checkAddress(proceedsRecipient)
+        checkProceedRecipient(proceedsRecipient)
     {
         _fundProceedsRecipient(proceedsRecipient, amount);
         emit ProceedsRecipientFunded(proceedsRecipient, amount);

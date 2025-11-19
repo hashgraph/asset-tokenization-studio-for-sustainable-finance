@@ -3,15 +3,15 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { ILifeCycleCashFlow } from "./interfaces/ILifeCycleCashFlow.sol";
+import { ILifeCycleCashFlow } from "../../interfaces/ILifeCycleCashFlow.sol";
 import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
-import { PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE } from "./constants/roles.sol";
+import { PAYOUT_ROLE, REDEMPTION_ROLE, PAUSER_ROLE } from "../../constants/roles.sol";
 
 abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(
         address asset
-    ) external override notAddressZero(asset) onlyUninitialized(_lifeCycleCashFlowStorage().initialized) {
+    ) external override checkAddress(asset) onlyUninitialized(_lifeCycleCashFlowStorage().initialized) {
         LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage = _lifeCycleCashFlowStorage();
         _setAsset(asset);
         lifeCycleCashFlowStorage.initialized = true;
@@ -42,14 +42,14 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        notAddressZero(asset)
+        checkAddress(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (PaymentResult memory result, bool executed)
+        returns (PaymentResult[] memory results, bool executed)
     {
-        (result, executed) = _executeDistribution(asset, distributionId, pageIndex, pageLength);
+        (results, executed) = _executeDistribution(asset, distributionId, pageIndex, pageLength);
 
-        emit DistributionExecuted(distributionId, pageIndex, pageLength, result);
+        emit DistributionExecuted(distributionId, pageIndex, pageLength, results);
     }
 
     /*
@@ -74,14 +74,14 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        notAddressZero(asset)
+        checkAddress(asset)
         isAsset(asset)
         onlyOnDistributionDate(asset, distributionId)
-        returns (PaymentResult memory result)
+        returns (PaymentResult[] memory results)
     {
-        result = _executeDistributionByAddresses(asset, distributionId, holders);
+        results = _executeDistributionByAddresses(asset, distributionId, holders);
 
-        emit DistributionByAddressesExecuted(distributionId, holders, result);
+        emit DistributionByAddressesExecuted(distributionId, holders, results);
     }
 
     /*
@@ -107,14 +107,14 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        notAddressZero(bond)
+        checkAddress(bond)
         isAsset(bond)
         onlyOnRedemptionDate(bond)
-        returns (PaymentResult memory result, bool executed)
+        returns (PaymentResult[] memory results, bool executed)
     {
-        (result, executed) = _executeBondRedemption(bond, pageIndex, pageLength);
+        (results, executed) = _executeBondRedemption(bond, pageIndex, pageLength);
 
-        emit RedemptionExecuted(pageIndex, pageLength, result);
+        emit RedemptionExecuted(pageIndex, pageLength, results);
     }
 
     /*
@@ -137,14 +137,14 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
         override
         onlyUnpaused
         onlyRole(PAYOUT_ROLE)
-        notAddressZero(bond)
+        checkAddress(bond)
         isAsset(bond)
         onlyOnRedemptionDate(bond)
-        returns (PaymentResult memory result)
+        returns (PaymentResult[] memory results)
     {
-        result = _executeBondRedemptionByAddresses(bond, holders);
+        results = _executeBondRedemptionByAddresses(bond, holders);
 
-        emit RedemptionByAddressesExecuted(holders, result);
+        emit RedemptionByAddressesExecuted(holders, results);
     }
 
     /*

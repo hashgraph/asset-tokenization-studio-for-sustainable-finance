@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 
-import { IPortfolioStorageWrapper } from "./interfaces/IPortfolioStorageWrapper.sol";
-import { PORTFOLIO_STORAGE_POSITION } from "./constants/storagePositions.sol";
+import { IPortfolio } from "../../interfaces/IPortfolio.sol";
+import { PORTFOLIO_STORAGE_POSITION } from "../../constants/storagePositions.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {
@@ -12,7 +12,7 @@ import {
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
-abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon, HederaTokenService {
+abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     struct PortfolioStorage {
@@ -26,8 +26,8 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param checkedAddress The address to check
      */
-    modifier notAddressZero(address checkedAddress) {
-        _checkNotAddressZero(checkedAddress);
+    modifier checkAddress(address checkedAddress) {
+        _checkAddress(checkedAddress);
         _;
     }
 
@@ -36,9 +36,9 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param checkedAddress The addresses array to check
      */
-    modifier notAddressZeroInArray(address[] memory checkedAddress) {
+    modifier checkAddresses(address[] memory checkedAddress) {
         for (uint256 index; index < checkedAddress.length; ) {
-            _checkNotAddressZero(checkedAddress[index]);
+            _checkAddress(checkedAddress[index]);
 
             unchecked {
                 ++index;
@@ -50,16 +50,18 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
     /**
      * @dev Add a new EnvironmentalAsset token contract to the treasury
      *
-     * @param environmentalAssets The address of the EnvironmentalAsset token contract to add to the treasury
+     * @param environmentalAsset The address of the EnvironmentalAsset token contract to add to the treasury
+     *
+     * @return added True if the environmental asset was successfully added. False otherwise
      */
-    function _addEnvironmentalAssetToken(address environmentalAssets) internal returns (bool) {
-        if (!_portfolioStorage().environmentalAssets.contains(environmentalAssets)) {
-            if (_portfolioStorage().environmentalAssets.add(environmentalAssets)) {
-                _associateToken(environmentalAssets);
-                return true;
+    function _addEnvironmentalAssetToken(address environmentalAsset) internal returns (bool added) {
+        added = false;
+        if (!_environmentalAssetExists(environmentalAsset)) {
+            if (_portfolioStorage().environmentalAssets.add(environmentalAsset)) {
+                _associateToken(environmentalAsset);
+                added = true;
             }
         }
-        return false;
     }
 
     /**
@@ -67,11 +69,31 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param environmentalAsset The address of the EnvironmentalAsset token contract to remove from the treasury
      *
+     * @return removed True if the environmental asset was successfully removed. False otherwise
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    function _removeEnvironmentalAssetToken(address environmentalAsset) internal returns (int256 dissociationError) {
-        _portfolioStorage().environmentalAssets.remove(environmentalAsset);
-        dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
+    function _removeEnvironmentalAssetToken(
+        address environmentalAsset
+    ) internal returns (bool removed, int256 dissociationError) {
+        removed = false;
+        dissociationError = HederaResponseCodes.OK;
+        if (_environmentalAssetExists(environmentalAsset)) {
+            if (_portfolioStorage().environmentalAssets.remove(environmentalAsset)) {
+                dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
+                removed = true;
+            }
+        }
+    }
+
+    /**
+     * @dev Check if a certain environmental asset exists in the Treasury contract
+     *
+     * @param environmentalAsset The address of the EnvironmentalAsset token contract to check if exists
+     *
+     * @return exists True if the environmental asset exists in the Treasury. False, otherwise
+     */
+    function _environmentalAssetExists(address environmentalAsset) internal view returns (bool exists) {
+        return _portfolioStorage().environmentalAssets.contains(environmentalAsset);
     }
 
     /*
@@ -121,15 +143,15 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      * @param token The address of the token we want to associate with the contract
      */
     function _associateToken(address token) internal {
-        int256 responseCode = HederaTokenService.associateToken(address(this), token);
+        int256 responseCode = associateToken(address(this), token);
         if (
             responseCode != HederaResponseCodes.SUCCESS &&
             responseCode != HederaResponseCodes.TOKEN_ALREADY_ASSOCIATED_TO_ACCOUNT
         ) {
-            revert AssociateTokenFailed(token);
+            revert IPortfolio.AssociateTokenFailed(token);
         }
 
-        emit TokenAssociated(token);
+        emit IPortfolio.TokenAssociated(token);
     }
 
     /*
@@ -140,7 +162,7 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
     function _dissociateTokenAllowNotAssociated(address token) internal returns (int256 dissociationError) {
-        int256 responseCode = HederaTokenService.dissociateToken(address(this), token);
+        int256 responseCode = dissociateToken(address(this), token);
         bool isSuccess = (responseCode == HederaResponseCodes.SUCCESS ||
             responseCode == HederaResponseCodes.TOKEN_NOT_ASSOCIATED_TO_ACCOUNT);
         dissociationError = isSuccess ? HederaResponseCodes.OK : responseCode;
@@ -152,9 +174,9 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      * @param token The address of the token we want to dissociate from the contract
      */
     function _dissociateToken(address token) internal {
-        int256 responseCode = HederaTokenService.dissociateToken(address(this), token);
+        int256 responseCode = dissociateToken(address(this), token);
         if (responseCode != HederaResponseCodes.SUCCESS) {
-            revert DissociateTokenFailed(token, responseCode);
+            revert IPortfolio.DissociateTokenFailed(token, responseCode);
         }
     }
 
@@ -219,9 +241,9 @@ abstract contract PortfolioStorageWrapper is IPortfolioStorageWrapper, AtsCommon
      *
      * @param addressChecked The address to check
      */
-    function _checkNotAddressZero(address addressChecked) internal pure {
+    function _checkAddress(address addressChecked) internal pure {
         if (addressChecked == address(0)) {
-            revert InvalidAddressZero();
+            revert IPortfolio.InvalidAddressZero();
         }
     }
 }
