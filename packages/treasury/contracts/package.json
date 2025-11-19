@@ -31,7 +31,7 @@
     "compile:force": "npm run clean && npm run compile && npx tsc -p tsconfig.build.json",
     "test": "hedera start -d && npx hardhat test; hedera stop",
     "test:lifecyclecashflow:distribution": "npx hardhat test test/unit/lifecyclecashflow.executedistribution.test.ts",
-    "test:lifecyclecashflow:redemption": "hedera start -d && npx hardhat test test/unit/lifecyclecashflow.executebondredemption.test.ts; hedera stop",
+    "test:lifecyclecashflow:redemption": "npx hardhat test test/unit/lifecyclecashflow.executebondredemption.test.ts",
     "test:portfolio": "npx hardhat test test/unit/portfolio.test.ts",
     "test:proceedsmanagement": "npx hardhat test test/unit/proceedsmanagement.test.ts",
     "test:coverage": "npx hardhat coverage",

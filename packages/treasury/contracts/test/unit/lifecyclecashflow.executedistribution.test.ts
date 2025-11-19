@@ -17,8 +17,8 @@ describe("LifeCycleCashFlow operations", () => {
   let treasury: ITreasury;
   let assetAddress: string;
   let paymentToken: Contract;
+  let paymentTokenAddress: string;
   let assetMockContract: ContractFactory;
-  let paymentTokenMockContract: ContractFactory;
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
@@ -32,7 +32,10 @@ describe("LifeCycleCashFlow operations", () => {
     await deployPrecompiledMock();
 
     assetMockContract = await ethers.getContractFactory("AssetMock");
-    paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+    await paymentToken.deployed();
+    paymentTokenAddress = paymentToken.address;
   });
 
   describe("initialize_LifeCycleCashFlow", () => {
@@ -172,13 +175,7 @@ describe("LifeCycleCashFlow operations", () => {
           const asset = await assetMockContract.deploy(true, 300000, [signer_B.address], false);
           await asset.deployed();
           assetAddress = asset.address;
-
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
-
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -235,10 +232,6 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -269,10 +262,6 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -409,10 +398,6 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -466,10 +451,6 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
@@ -503,10 +484,6 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-          await paymentToken.deployed();
-          const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
