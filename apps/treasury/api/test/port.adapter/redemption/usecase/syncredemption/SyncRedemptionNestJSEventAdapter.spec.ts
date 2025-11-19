@@ -201,8 +201,6 @@ describe("SyncRedemption Integration", () => {
     expect(publishedEvents.every((e) => e.constructor.name === RedemptionHolderAddedEvent.name)).toBe(true)
   })
 
-  // Caso de address zero eliminado: ya no aplican direcciones cero en eventos
-
   it("should handle redemption with only failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 

@@ -281,8 +281,6 @@ describe("SyncDistribution Integration", () => {
     expect(publishedEvents[0].constructor.name).toEqual(DistributionHolderAddedEvent.name)
   })
 
-  // Caso de address zero eliminado: ya no aplican direcciones cero en eventos
-
   it("should handle distribution with only failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
