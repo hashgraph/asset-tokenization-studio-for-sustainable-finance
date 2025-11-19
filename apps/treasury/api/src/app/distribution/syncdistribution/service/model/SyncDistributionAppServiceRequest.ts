@@ -2,7 +2,7 @@
 
 import { ArrayNotEmpty, IsArray, IsNotEmpty, IsNumber, ValidateNested } from "class-validator"
 import { Type } from "class-transformer"
-import { PaymentResultItemModel } from "@port/shared/model/PaymentResultItemModel"
+import { PaymentResultItemAppServiceRequestModel } from "@app/shared/model/PaymentResultItemAppServiceRequestModel"
 
 export class SyncDistributionAppServiceRequest {
   @IsNotEmpty()
@@ -15,6 +15,6 @@ export class SyncDistributionAppServiceRequest {
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => PaymentResultItemModel)
-  readonly results: PaymentResultItemModel[]
+  @Type(() => PaymentResultItemAppServiceRequestModel)
+  readonly results: PaymentResultItemAppServiceRequestModel[]
 }

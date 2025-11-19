@@ -2,7 +2,7 @@
 
 import { IsNumber, IsString } from "class-validator"
 
-export class PaymentResultItemModel {
+export class PaymentResultItemAppServiceRequestModel {
   @IsString()
   holder: string
 

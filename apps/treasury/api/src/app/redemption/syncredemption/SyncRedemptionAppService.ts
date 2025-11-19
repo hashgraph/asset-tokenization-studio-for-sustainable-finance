@@ -3,10 +3,10 @@
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
-import { PaymentResultItemModel } from "@port/shared/model/PaymentResultItemModel"
 import { SyncRedemptionAppServiceRequest } from "@app/redemption/syncredemption/model/SyncRedemptionAppServiceRequest"
 import { AddRedemptionHolderCommand } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommand"
 import { RedemptionHolderStatus } from "@domain/redemption/model/RedemptionHolderStatus"
+import { PaymentResultItemAppServiceRequestModel } from "@app/shared/model/PaymentResultItemAppServiceRequestModel"
 
 @Singleton()
 export class SyncRedemptionAppService {
@@ -25,7 +25,7 @@ export class SyncRedemptionAppService {
   }
 
   private async processResults(
-    items: PaymentResultItemModel[],
+    items: PaymentResultItemAppServiceRequestModel[],
     treasuryId: string,
     paymentTokenId: string,
   ): Promise<void> {
