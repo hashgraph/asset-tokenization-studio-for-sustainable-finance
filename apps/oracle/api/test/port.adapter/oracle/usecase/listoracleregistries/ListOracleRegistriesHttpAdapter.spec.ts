@@ -53,7 +53,6 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
 
   describe("GET /", () => {
     it("should return empty page when no oracle registries exist", async () => {
-      const timestamp = Date.now() + Math.floor(Math.random() * 100000)
       const response = await request(app.getHttpServer())
         .get("/api/v1/oracle/registries")
         .query({ page: 1, limit: 10 })
@@ -118,7 +117,6 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
     })
 
     it("should handle pagination correctly", async () => {
-      const timestamp = Date.now() + Math.floor(Math.random() * 100000)
       const startDate = new Date("2025-01-01T00:00:00Z")
       const endDate = new Date("2030-01-01T00:00:00Z")
       const nextExecutionDate = new Date("2025-01-02T00:00:00Z")
@@ -186,7 +184,6 @@ describe("ListOracleRegistriesHttpAdapter API Integration", () => {
     })
 
     it("should validate pagination parameters", async () => {
-      const timestamp = Date.now() + Math.floor(Math.random() * 100000)
       await request(app.getHttpServer())
         .get("/api/v1/oracle/registries")
         .query({ page: -1 })
