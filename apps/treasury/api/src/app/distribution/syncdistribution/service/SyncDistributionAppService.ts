@@ -6,8 +6,9 @@ import { SyncDistributionAppServiceRequest } from "@app/distribution/syncdistrib
 import type { DistributionRepository } from "@domain/distribution/repositories/DistributionRepository"
 import { CreateDistributionCommand } from "@app/distribution/createdistribution/command/CreateDistributionCommand"
 import { AddDistributionHolderCommand } from "@app/distribution/adddistributionholder/command/AddDistributionHolderCommand"
-import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { PaymentResultItemModel } from "@port/shared/model/PaymentResultItemModel"
 import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
+import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 
 @Singleton()
 export class SyncDistributionAppService {
@@ -37,7 +38,7 @@ export class SyncDistributionAppService {
   }
 
   private async processResults(
-    items: { holder: string; status: number; amount: string }[],
+    items: PaymentResultItemModel[],
     distributionId: number,
     paymentTokenId: string,
   ): Promise<void> {

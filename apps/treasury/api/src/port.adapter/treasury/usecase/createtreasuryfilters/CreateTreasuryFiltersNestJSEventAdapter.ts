@@ -28,13 +28,13 @@ export class CreateTreasuryFiltersNestJSEventAdapter implements CreateTreasuryFi
         "EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId)",
         "ProceedsRecipientFunded(address proceedsRecipient, uint256 amount)",
         "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, " +
-          "(address holder, uint8 status, uint256 amount)[] result)",
+          "(address holder, uint8 status, uint256 amount)[] results)",
         "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, " +
-          "(address holder, uint8 status, uint256 amount)[] result)",
+          "(address holder, uint8 status, uint256 amount)[] results)",
         "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, " +
-          "(address holder, uint8 status, uint256 amount)[] result)",
+          "(address holder, uint8 status, uint256 amount)[] results)",
         "RedemptionByAddressesExecuted(address[] holders, " +
-          "(address holder, uint8 status, uint256 amount)[] result)",
+          "(address holder, uint8 status, uint256 amount)[] results)",
       ]),
     )
   }

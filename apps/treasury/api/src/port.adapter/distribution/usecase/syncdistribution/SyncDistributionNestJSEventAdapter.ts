@@ -5,7 +5,6 @@ import { Handler, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { DistributionExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/DistributionExecutedDLTEvent"
 import { DistributionByAddressesExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/DistributionByAddressesExecutedDLTEvent"
 import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
-import { SyncDistributionAppServiceRequest } from "@app/distribution/syncdistribution/service/model/SyncDistributionAppServiceRequest"
 import { BaseDistributionExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/BaseDistributionExecutedDLTEvent"
 import { BasePaymentNestJSEventAdapter } from "@port/shared/BasePaymentNestJSEventAdapter"
 
@@ -26,18 +25,12 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
   }
 
   private async processDistributionEvent(event: BaseDistributionExecutedDLTEvent): Promise<void> {
-    const holders = event.results.map((i) => String(i.holder))
-    const convertedHolders = await this.convertToHederaFormat(holders)
-    const results = event.results.map((item, idx) => ({
-      holder: convertedHolders[idx],
-      status: Number(item.status),
-      amount: String(item.amount),
-    }))
+    const results = await this.mapResults(event.results)
 
     await this.syncDistributionAppService.execute({
       treasuryContractId: event.contractId,
       distributionId: event.distributionId,
       results,
-    } as SyncDistributionAppServiceRequest)
+    })
   }
 }
