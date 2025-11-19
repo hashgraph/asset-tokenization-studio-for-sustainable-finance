@@ -6,17 +6,21 @@ import { ExternalTransferEnvironmentalAssetTransactionRequest } from "@port/tran
 import { ExternalTransferEnvironmentalAssetTransactionPort } from "@port/transaction/usecase/externaltransferenvironmentalasset/ExternalTransferEnvironmentalAssetTransactionPort"
 import { ExternalTransferEnvironmentalAssetTransactionAppService } from "@app/transaction/externaltransferenvironmentalasset/service/service/ExternalTransferEnvironmentalAssetTransactionAppService"
 import { ExternalTransferEnvironmentalAssetTransactionAppServiceRequest } from "@app/transaction/externaltransferenvironmentalasset/service/service/model/ExternalTransferEnvironmentalAssetTransactionAppServiceRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("environmental-assets")
 export class ExternalTransferEnvironmentalAssetTransactionHttpAdapter
   implements ExternalTransferEnvironmentalAssetTransactionPort
 {
   constructor(private readonly appService: ExternalTransferEnvironmentalAssetTransactionAppService) {}
 
-  @Post(":environmentalAssetContractId/treasuries/:treasuryContractId/transfer")
+  @ApiOperation({ summary: "Environmental asset transfers to the treasury" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":assetId/treasuries/:treasuryId/transfer")
   async externalTransferEnvironmentalAsset(
-    @Param("environmentalAssetContractId") environmentalAssetContractId: string,
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("assetId") environmentalAssetContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Body() request: ExternalTransferEnvironmentalAssetTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.appService.execute(

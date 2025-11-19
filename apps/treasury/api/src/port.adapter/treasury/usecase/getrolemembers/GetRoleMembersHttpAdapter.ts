@@ -11,14 +11,19 @@ import {
   RestController,
   Inject,
 } from "@hashgraph/green-bonds-shared-core"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
+import { ApiPaginatedResponse } from "@hashgraph/green-bonds-shared-core"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":treasuryContractId/roles/:roleId/members")
+  @ApiOperation({ summary: "Returns the list of account ids having a specific role" })
+  @ApiPaginatedResponse(GetRoleMemberResponse)
+  @Get(":treasuryId/roles/:roleId/members")
   async getRoleMembers(
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Param("roleId") roleId: string,
     @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetRoleMemberResponse>> {

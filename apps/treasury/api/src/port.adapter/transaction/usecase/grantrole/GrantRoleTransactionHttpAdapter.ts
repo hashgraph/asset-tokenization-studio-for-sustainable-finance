@@ -9,16 +9,20 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 import { GrantRoleTransactionPort } from "@port/transaction/usecase/grantrole/GrantRoleTransactionPort"
 import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class GrantRoleTransactionHttpAdapter implements GrantRoleTransactionPort {
   constructor(private readonly grantRoleTransactionAppService: GrantRoleTransactionAppService) {}
 
-  @Post(":treasuryContractId/roles/:roleId/users/:userAccountId")
+  @ApiOperation({ summary: "Grants role to user" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/roles/:roleId/users/:userId")
   async grantRole(
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Param("roleId") roleId: string,
-    @Param("userAccountId") userAccountId: string,
+    @Param("userId") userAccountId: string,
     @Body() request: GrantRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.grantRoleTransactionAppService.execute(
