@@ -441,8 +441,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     ) private returns (ILifeCycleCashFlow.PaymentResult[] memory results) {
         results = new ILifeCycleCashFlow.PaymentResult[](holders.length);
 
-        PayingArraysIndexes memory payingArraysIndexes;
-
         if (holders.length > 0) {
             BatchInfo memory batchInfo;
             batchInfo.holders = new address[](holders.length);
@@ -843,10 +841,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     ) private pure {
         for (uint256 index; index < holdersArray.length; ) {
             if (succeededPayment) {
-                result[index + resultIndex].amount = amountsArray[index];
-                result[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
+                results[index + resultIndex].amount = amountsArray[index];
+                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
             } else {
-                result[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
             }
 
             unchecked {
