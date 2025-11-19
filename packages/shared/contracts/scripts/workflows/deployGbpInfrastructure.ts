@@ -374,7 +374,9 @@ export async function deployGbpInfrastructure(
 
     success(`✓ Primary Market deployment completed`);
     success(`  FactoryPrimaryMarket config version: ${primaryMarketResult.configuration.version}`);
-    success(`  FactoryPrimaryMarket proxy deployed at: ${primaryMarketResult.infrastructure.factoryPrimaryMarket.proxy}`);
+    success(
+      `  FactoryPrimaryMarket proxy deployed at: ${primaryMarketResult.infrastructure.factoryPrimaryMarket.proxy}`,
+    );
 
     // ========================================
     // Deployment Summary

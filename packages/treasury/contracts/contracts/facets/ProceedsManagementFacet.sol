@@ -7,9 +7,7 @@ pragma solidity ^0.8.0;
 import { ProceedsManagement } from "../ProceedsManagement.sol";
 import { IProceedsManagement } from "../interfaces/IProceedsManagement.sol";
 import { PROCEEDS_MANAGEMENT_RESOLVER_KEY } from "../constants/resolverKeys.sol";
-import {
-    IStaticFunctionSelectors
-} from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
+import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
 
 contract ProceedsManagementFacet is ProceedsManagement, IStaticFunctionSelectors {
     function getStaticResolverKey() external pure override returns (bytes32 staticResolverKey_) {

@@ -6,25 +6,12 @@
   "types": "./build/typechain-types/index.d.ts",
   "typesVersions": {
     "*": {
-      "scripts": [
-        "./build/scripts/index.d.ts"
-      ],
-      "typechain-types": [
-        "./build/typechain-types/index.d.ts"
-      ],
-      "test": [
-        "./build/test/index.d.ts"
-      ]
+      "scripts": ["./build/scripts/index.d.ts"],
+      "typechain-types": ["./build/typechain-types/index.d.ts"],
+      "test": ["./build/test/index.d.ts"]
     }
   },
-  "files": [
-    "artifacts/",
-    "contracts/",
-    "typechain-types/",
-    "build/",
-    "!artifacts/build-info/",
-    "!build/**/*.map"
-  ],
+  "files": ["artifacts/", "contracts/", "typechain-types/", "build/", "!artifacts/build-info/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
@@ -54,12 +41,7 @@
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -89,30 +71,20 @@
   "devDependencies": {
     "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
-    "@hashgraph/sdk": "2.76.0",
     "@eslint/js": "^9.36.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@onchain-id/solidity": "^2.2.1",
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
-    "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "@primitivefi/hardhat-dodoc": "^0.2.3",
-    "@terminal3/ecdsa_vc": "^0.1.19",
-    "@thomaschaplin/isin-generator": "^1.0.3",
-    "@tokenysolutions/t-rex": "^4.1.6",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^6.1.2",
-    "@types/jest": "^29.5.14",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
     "eslint": "^9.36.0",
     "ethers": "^5.8.0",
-    "glob": "^11.0.3",
     "hardhat": "^v2.26.3",
-    "hardhat-abi-exporter": "^2.11.0",
     "hardhat-contract-sizer": "^2.10.0",
-    "hardhat-dependency-compiler": "^1.2.1",
     "jiti": "^2.6.0",
     "prettier": "^3.6.2",
     "prettier-plugin-solidity": "^2.1.0",

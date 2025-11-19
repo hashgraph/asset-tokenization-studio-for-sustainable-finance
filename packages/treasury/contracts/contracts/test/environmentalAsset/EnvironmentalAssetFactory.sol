@@ -7,13 +7,9 @@ import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
-import {
-    IHederaTokenService
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
+import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import {
-    ExpiryHelper
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol";
+import { ExpiryHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol";
 import { KeyHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol";
 
 contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, KeyHelper, HederaTokenService {

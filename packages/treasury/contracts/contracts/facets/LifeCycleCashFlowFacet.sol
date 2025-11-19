@@ -7,9 +7,7 @@ pragma solidity ^0.8.0;
 import { LifeCycleCashFlow } from "../LifeCycleCashFlow.sol";
 import { ILifeCycleCashFlow } from "../interfaces/ILifeCycleCashFlow.sol";
 import { LIFE_CYCLE_CASH_FLOW_RESOLVER_KEY } from "../constants/resolverKeys.sol";
-import {
-    IStaticFunctionSelectors
-} from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
+import { IStaticFunctionSelectors } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IStaticFunctionSelectors.sol";
 
 contract LifeCycleCashFlowFacet is LifeCycleCashFlow, IStaticFunctionSelectors {
     function getStaticResolverKey() external pure override returns (bytes32 staticResolverKey_) {

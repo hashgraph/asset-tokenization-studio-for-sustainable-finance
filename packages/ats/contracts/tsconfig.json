@@ -25,6 +25,6 @@
       "@test": ["./test/index.ts"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*"],
-  "exclude": ["node_modules", "tasks"]
+  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
+  "exclude": ["node_modules"]
 }

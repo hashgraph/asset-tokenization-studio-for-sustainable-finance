@@ -2,18 +2,11 @@
 pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
-
 import { IProceedsManagementStorageWrapper } from "./interfaces/IProceedsManagementStorageWrapper.sol";
 import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
-import {
-    IProceedRecipients
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
-import {
-    IHederaTokenService
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
-import {
-    HederaResponseCodes
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+import { IProceedRecipients } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
+import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-enable max-line-length
 
 abstract contract ProceedsManagementStorageWrapper is
     IProceedsManagementStorageWrapper,

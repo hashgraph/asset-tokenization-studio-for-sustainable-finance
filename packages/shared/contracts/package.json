@@ -7,15 +7,10 @@
   "types": "./build/index.d.ts",
   "typesVersions": {
     "*": {
-      "scripts": [
-        "./build/index.d.ts"
-      ]
+      "scripts": ["./build/index.d.ts"]
     }
   },
-  "files": [
-    "build/",
-    "!build/**/*.map"
-  ],
+  "files": ["build/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
@@ -31,12 +26,7 @@
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "green-bonds",
-    "infrastructure",
-    "orchestration"
-  ],
+  "keywords": ["hedera", "green-bonds", "infrastructure", "orchestration"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
