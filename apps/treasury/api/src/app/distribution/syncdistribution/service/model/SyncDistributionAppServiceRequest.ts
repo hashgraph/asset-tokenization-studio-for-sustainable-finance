@@ -11,11 +11,5 @@ export class SyncDistributionAppServiceRequest {
   readonly distributionId: number
 
   @IsNotEmpty()
-  readonly successAddresses: string[]
-
-  @IsNotEmpty()
-  readonly failedAddresses: string[]
-
-  @IsNotEmpty()
-  readonly paidAmounts: string[]
+  readonly results: { holder: string; status: number; amount: string }[]
 }

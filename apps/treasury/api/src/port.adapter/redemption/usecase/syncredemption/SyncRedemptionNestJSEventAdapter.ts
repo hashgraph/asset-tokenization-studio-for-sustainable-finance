@@ -25,35 +25,17 @@ export class SyncRedemptionNestJSEventAdapter extends BasePaymentNestJSEventAdap
   }
 
   private async processRedemptionEvent(event: BaseRedemptionExecutedDLTEvent): Promise<void> {
-    const successAddresses: string[] = []
-    const failedAddresses: string[] = []
-    const paidAmounts: string[] = []
-
-    for (const item of event.result) {
-      const holder = String(item.holder)
-      const code = Number(item.status)
-      const amount = String(item.amount)
-      if (!this.isNonZeroAddress(holder)) {
-        continue
-      }
-      if (code === 0) {
-        successAddresses.push(holder)
-        paidAmounts.push(amount)
-      } else if (code === 1) {
-        failedAddresses.push(holder)
-      }
-    }
-
-    const [convertedSuccessAddresses, convertedFailedAddresses] = await Promise.all([
-      this.convertToHederaFormat(successAddresses),
-      this.convertToHederaFormat(failedAddresses),
-    ])
+    const holders = event.results.map((i) => String(i.holder))
+    const convertedHolders = await this.convertToHederaFormat(holders)
+    const results = event.results.map((item, idx) => ({
+      holder: convertedHolders[idx],
+      status: Number(item.status),
+      amount: String(item.amount),
+    }))
 
     await this.syncRedemptionAppService.execute({
       treasuryContractId: event.contractId,
-      successAddresses: convertedSuccessAddresses,
-      failedAddresses: convertedFailedAddresses,
-      paidAmounts,
+      results,
     })
   }
 }

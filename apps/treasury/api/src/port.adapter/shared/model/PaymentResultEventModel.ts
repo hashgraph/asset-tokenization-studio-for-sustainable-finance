@@ -5,5 +5,3 @@ export interface PaymentResultItemEventModel {
   status: number
   amount: string
 }
-
-export type PaymentResultEventModel = PaymentResultItemEventModel[]

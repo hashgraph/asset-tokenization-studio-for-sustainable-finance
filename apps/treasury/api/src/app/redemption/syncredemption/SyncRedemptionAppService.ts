@@ -2,7 +2,6 @@
 
 import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
 import { Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import type { DistributionRepository } from "@domain/distribution/repositories/DistributionRepository"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { SyncRedemptionAppServiceRequest } from "@app/redemption/syncredemption/model/SyncRedemptionAppServiceRequest"
 import { AddRedemptionHolderCommand } from "@app/redemption/addredemptionholder/AddRedemptionHolderCommand"
@@ -11,7 +10,6 @@ import { RedemptionHolderStatus } from "@domain/redemption/model/RedemptionHolde
 @Singleton()
 export class SyncRedemptionAppService {
   constructor(
-    @Inject() private readonly distributionRepository: DistributionRepository,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
     @Inject() private readonly commandBus: CommandBus,
   ) {}
@@ -22,31 +20,36 @@ export class SyncRedemptionAppService {
 
     treasury.ensurePaymentTokenConfigured()
     const paymentTokenId = (treasury.paymentToken as any).id
-
-    await this.processSuccessfulHolders(request.successAddresses, request.paidAmounts, treasury.id, paymentTokenId)
-    await this.processFailedHolders(request.failedAddresses, treasury.id, paymentTokenId)
+    await this.processResults(request.results, treasury.id, paymentTokenId)
   }
 
-  private async processSuccessfulHolders(
-    addresses: string[],
-    paidAmounts: string[],
+  private async processResults(
+    items: { holder: string; status: number; amount: string }[],
     treasuryId: string,
     paymentTokenId: string,
   ): Promise<void> {
-    for (let i = 0; i < addresses.length; i++) {
-      const address = addresses[i]
-      const amount = paidAmounts[i]
-      await this.commandBus.execute(
-        new AddRedemptionHolderCommand(address, RedemptionHolderStatus.SUCCESS, amount, treasuryId, paymentTokenId),
-      )
-    }
-  }
-
-  private async processFailedHolders(addresses: string[], treasuryId: string, paymentTokenId: string): Promise<void> {
-    for (const address of addresses) {
-      await this.commandBus.execute(
-        new AddRedemptionHolderCommand(address, RedemptionHolderStatus.FAILED, undefined, treasuryId, paymentTokenId),
-      )
+    for (const item of items) {
+      if (item.status === 0) {
+        await this.commandBus.execute(
+          new AddRedemptionHolderCommand(
+            item.holder,
+            RedemptionHolderStatus.SUCCESS,
+            item.amount,
+            treasuryId,
+            paymentTokenId,
+          ),
+        )
+      } else if (item.status === 1) {
+        await this.commandBus.execute(
+          new AddRedemptionHolderCommand(
+            item.holder,
+            RedemptionHolderStatus.FAILED,
+            undefined,
+            treasuryId,
+            paymentTokenId,
+          ),
+        )
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
+import { PaymentResultItemEventModel } from "@port/shared/model/PaymentResultEventModel"
 import { BaseRedemptionExecutedDLTEvent } from "@port/redemption/usecase/syncredemption/model/BaseRedemptionExecutedDLTEvent"
 
 export class RedemptionExecutedDLTEvent extends BaseRedemptionExecutedDLTEvent {
@@ -12,9 +12,9 @@ export class RedemptionExecutedDLTEvent extends BaseRedemptionExecutedDLTEvent {
     transactionHash: string,
     pageIndex: number,
     pageLength: number,
-    result: PaymentResultEventModel,
+    results: PaymentResultItemEventModel[],
   ) {
-    super(contractId, transactionHash, result)
+    super(contractId, transactionHash, results)
     this.pageIndex = pageIndex
     this.pageLength = pageLength
   }
