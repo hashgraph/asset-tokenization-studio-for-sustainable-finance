@@ -7,7 +7,7 @@ import type { IndexerPort } from "../ports/IndexerPort"
 import { KpiMessage } from "../ports/IndexerPort"
 import type { BlockchainPort } from "../ports/BlockchainPort"
 import { OracleAggregationService } from "./OracleAggregationService"
-import type { ScheduledTaskRepository } from "../repositories/ScheduledTaskRepository"
+import type { ScheduledTaskResultRepository } from "../repositories/ScheduledTaskResultRepository"
 import { randomUUID } from "crypto"
 
 /**
@@ -23,8 +23,8 @@ export class OracleExecutionService {
     private readonly indexerPort: IndexerPort,
     @Inject("BlockchainPort")
     private readonly blockchainPort: BlockchainPort,
-    @Inject("ScheduledTaskRepository")
-    private readonly taskRepository: ScheduledTaskRepository,
+    @Inject("ScheduledTaskResultRepository")
+    private readonly taskRepository: ScheduledTaskResultRepository,
     private readonly aggregationService: OracleAggregationService,
   ) {}
 

@@ -117,10 +117,6 @@ export const PROVIDERS: any[] = [
     useClass: OracleRegistryTypeOrmRepository,
   },
   {
-    provide: "ScheduledTaskRepository",
-    useClass: ScheduledTaskTypeOrmRepository,
-  },
-  {
     provide: "ScheduledTaskResultRepository",
     useClass: ScheduledTaskTypeOrmRepository,
   },

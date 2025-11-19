@@ -4,7 +4,7 @@ import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 import { OracleRegistryPersistence } from "./OracleRegistryPersistence"
 import { TaskStatus } from "@domain/oracle/model/TaskStatus"
 
-@Entity("scheduled_tasks_results")
+@Entity("ScheduledTasksResults")
 export class ScheduledTaskResultPersistence extends BaseEntityPersistence {
   @Column({ type: "uuid" })
   oracleRegistryId: string

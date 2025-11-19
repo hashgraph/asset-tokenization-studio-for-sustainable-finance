@@ -2,7 +2,7 @@
 import { Entity, Column } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 
-@Entity("scheduler_config")
+@Entity("SchedulerConfig")
 export class SchedulerConfigPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 100 })
   cronExpression: string

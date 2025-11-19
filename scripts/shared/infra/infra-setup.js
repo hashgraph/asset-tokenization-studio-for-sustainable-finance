@@ -9,8 +9,9 @@
  * 3. RabbitMQ (via Docker)
  * 4. ATS API (Node.js process) - Port 3001
  * 5. Primary Market API (Node.js process) - Port 3002
- * 6. API Gateway (Node.js process) - Port 3000 (with authentication)
- * 7. Transaction Sender (Node.js process) - Port 3005
+ * 6. Oracle API (Node.js process) - Port 3010
+ * 7. API Gateway (Node.js process) - Port 3000 (with authentication)
+ * 8. Transaction Sender (Node.js process) - Port 3005
  * 
  * The API Gateway provides:
  * - Authentication via API keys (x-api-key header)
@@ -79,6 +80,18 @@ const CONFIG = {
       POSTGRESQL_PORT: '5432'
     }
   },
+  oracleApi: {
+    name: 'Oracle API',
+    path: '../../../apps/oracle/api',
+    port: 3010,
+    healthUrl: 'http://localhost:3010/health',
+    command: 'npm run start:dev',
+    env: {
+      PORT: '3010',
+      POSTGRESQL_HOST: 'localhost',
+      POSTGRESQL_PORT: '5432'
+    }
+  },
   gateway: {
     name: 'API Gateway',
     path: '../../../apps/shared/gateway',
@@ -88,8 +101,8 @@ const CONFIG = {
     env: {
       PORT: '3000',
       LOG_LEVEL: 'log',
-      PATHS: '/api/v1/ats,/api/v1/primary-markets',
-      ROUTES: 'http://localhost:3001,http://localhost:3002',
+      PATHS: '/api/v1/ats,/api/v1/primary-markets,/api/v1/oracle',
+      ROUTES: 'http://localhost:3001,http://localhost:3002,http://localhost:3010',
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'
@@ -272,6 +285,14 @@ function startNodeService(service) {
         detached: false,
         env: env
       });
+    } else if (service.path.includes('apps/oracle/api')) {
+      const workspaceName = '@hashgraph/green-bonds-oracle-api';
+      child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
+        cwd: workspaceRoot,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        detached: false,
+        env: env
+      });
     } else if (service.path.includes('apps/shared/gateway')) {
       const workspaceName = '@hashgraph/green-bonds-gateway';
       child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
@@ -381,8 +402,8 @@ async function startNodeServices() {
     log('⚠️  Warning: Package build failed, services may not work correctly', colors.yellow);
   }
   
-  // Start ATS API and Primary Market API first, then Gateway (which proxies to both), then Transaction Sender
-  const services = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.gateway, CONFIG.transactionSender];
+  // Start ATS API, Primary Market API, and Oracle API first, then Gateway (which proxies to all), then Transaction Sender
+  const services = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.oracleApi, CONFIG.gateway, CONFIG.transactionSender];
   const processes = [];
 
   for (const service of services) {
@@ -458,10 +479,10 @@ async function checkInfrastructureStatus() {
 
   // Check Node.js services
   log('\n🚀 Node.js Services:', colors.cyan);
-  const nodeServices = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.gateway, CONFIG.transactionSender];
+  const nodeServices = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.oracleApi, CONFIG.gateway, CONFIG.transactionSender];
   for (const service of nodeServices) {
     const healthy = await checkServiceHealth(service);
-    log(`• ${service.name}: ${healthy ? '🟢 Running' : '🔴 Stopped'}`, 
+    log(`• ${service.name}: ${healthy ? '🟢 Running' : '🔴 Stopped'}`,
       healthy ? colors.green : colors.red);
   }
 
@@ -478,6 +499,7 @@ async function stopAllInfrastructure() {
   await stopNodeProcessOnPort(3000, 'API Gateway');
   await stopNodeProcessOnPort(3001, 'ATS API');
   await stopNodeProcessOnPort(3002, 'Primary Market API');
+  await stopNodeProcessOnPort(3010, 'Oracle API');
   await stopNodeProcessOnPort(3005, 'Transaction Sender');
   
   // Stop Docker services
@@ -533,6 +555,9 @@ async function startFullInfrastructure() {
   log('• Primary Market API (Direct): http://localhost:3002/api/v1/primary-markets');
   log('• Primary Market API Swagger (Direct): http://localhost:3002/api');
   log('• Primary Market API (via Gateway): http://localhost:3000/api/v1/primary-markets');
+  log('• Oracle API (Direct): http://localhost:3010/api/v1/oracle');
+  log('• Oracle API Swagger (Direct): http://localhost:3010/api/v1/docs');
+  log('• Oracle API (via Gateway): http://localhost:3000/api/v1/oracle');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
   log('• RabbitMQ: http://localhost:15672 (guest/guest)');

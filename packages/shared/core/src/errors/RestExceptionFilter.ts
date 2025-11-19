@@ -4,6 +4,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logge
 import { DomainError } from "./DomainError"
 import { UnsubscriptionError } from "rxjs"
 import { EntityNotFoundError } from "./EntityNotFoundError"
+import { EntityFoundError } from "./EntityFoundError"
 import { CustomError } from "./CustomError"
 import { ValidationError } from "./ValidationError"
 
@@ -72,6 +73,8 @@ export class RestExceptionFilter implements ExceptionFilter<Error> {
         return HttpStatus.CONFLICT
       case error instanceof EntityNotFoundError:
         return HttpStatus.NOT_FOUND
+      case error instanceof EntityFoundError:
+        return HttpStatus.CONFLICT
       default:
         return HttpStatus.INTERNAL_SERVER_ERROR
     }

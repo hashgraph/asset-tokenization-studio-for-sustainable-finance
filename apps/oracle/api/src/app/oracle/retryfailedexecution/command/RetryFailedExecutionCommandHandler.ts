@@ -2,7 +2,7 @@
 import { BadRequestException, Logger, NotFoundException } from "@nestjs/common"
 import { RetryFailedExecutionCommand } from "./RetryFailedExecutionCommand"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
-import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository"
+import type { ScheduledTaskResultRepository } from "@domain/oracle/repositories/ScheduledTaskResultRepository"
 import { OracleExecutionService } from "@domain/oracle/services/OracleExecutionService"
 import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
 import { CommandHandler, Handler, Inject } from "@hashgraph/green-bonds-shared-core"
@@ -17,8 +17,8 @@ export class RetryFailedExecutionCommandHandler
   constructor(
     @Inject("OracleRegistryRepository")
     private readonly registryRepository: OracleRegistryRepository,
-    @Inject("ScheduledTaskRepository")
-    private readonly taskRepository: ScheduledTaskRepository,
+    @Inject("ScheduledTaskResultRepository")
+    private readonly taskRepository: ScheduledTaskResultRepository,
     private readonly executionService: OracleExecutionService,
   ) {
     this.maxRetries = parseInt(process.env.RETRY_MAX_ATTEMPTS || "3", 10)

@@ -9,7 +9,7 @@ export interface ProjectData {
   topicId: string
 }
 
-@Entity("oracle_registry")
+@Entity("OracleRegistry")
 export class OracleRegistryPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })
   bondContractId: string

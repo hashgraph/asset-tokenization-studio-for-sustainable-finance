@@ -2,14 +2,15 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
-import type { ScheduledTaskRepository } from "@domain/oracle/repositories/ScheduledTaskRepository"
+import type { ScheduledTaskResultRepository } from "@domain/oracle/repositories/ScheduledTaskResultRepository"
 import { ScheduledTaskResult } from "@domain/oracle/model/ScheduledTaskResult"
 import { ScheduledTaskResultPersistence } from "../model/ScheduledTaskResultPersistence"
 import { TaskStatus } from "@domain/oracle/model/TaskStatus"
 import { plainToInstance } from "class-transformer"
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
-export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
+export class ScheduledTaskTypeOrmRepository implements ScheduledTaskResultRepository {
   constructor(
     @InjectRepository(ScheduledTaskResultPersistence)
     private readonly repository: Repository<ScheduledTaskResultPersistence>,
@@ -26,69 +27,48 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskRepository {
     return this.toDomain(entity)
   }
 
-  async findByOracleRegistryId(
-    oracleRegistryId: string,
-    options?: {
-      projectId?: string
-      status?: TaskStatus
-      page?: number
-      limit?: number
-    },
-  ): Promise<ScheduledTaskResult[]> {
-    const query = this.repository
-      .createQueryBuilder("task")
-      .where("task.oracleRegistryId = :oracleRegistryId", { oracleRegistryId })
-
-    if (options?.projectId) {
-      query.andWhere("task.projectId = :projectId", {
-        projectId: options.projectId,
-      })
-    }
-
-    if (options?.status) {
-      query.andWhere("task.status = :status", { status: options.status })
-    }
-
-    if (options?.page && options?.limit) {
-      query.skip((options.page - 1) * options.limit).take(options.limit)
-    }
-
-    query.orderBy("task.scheduledTime", "DESC")
-
-    const entities = await query.getMany()
-    return entities.map((entity) => this.toDomain(entity)!)
-  }
-
-  async findLatestByProject(oracleRegistryId: string, projectId: string): Promise<ScheduledTaskResult | null> {
+  async findLatestByProject(registryId: string, projectId: string): Promise<ScheduledTaskResult | null> {
     const entity = await this.repository.findOne({
-      where: { oracleRegistryId, projectId },
+      where: { oracleRegistryId: registryId, projectId },
       order: { scheduledTime: "DESC" },
     })
     return this.toDomain(entity)
   }
 
-  async countByOracleRegistryId(
-    oracleRegistryId: string,
-    options?: {
-      projectId?: string
-      status?: TaskStatus
-    },
-  ): Promise<number> {
+  async findByRegistryId(
+    registryId: string,
+    pageOptions: PageOptions,
+    projectId?: string,
+    status?: TaskStatus,
+  ): Promise<Page<ScheduledTaskResult>> {
     const query = this.repository
       .createQueryBuilder("task")
-      .where("task.oracleRegistryId = :oracleRegistryId", { oracleRegistryId })
+      .where("task.oracleRegistryId = :registryId", { registryId })
 
-    if (options?.projectId) {
-      query.andWhere("task.projectId = :projectId", {
-        projectId: options.projectId,
-      })
+    if (projectId) {
+      query.andWhere("task.projectId = :projectId", { projectId })
     }
 
-    if (options?.status) {
-      query.andWhere("task.status = :status", { status: options.status })
+    if (status) {
+      query.andWhere("task.status = :status", { status })
     }
 
-    return await query.getCount()
+    query.orderBy("task.scheduledTime", "DESC")
+
+    const [entities, total] = await query
+      .skip((pageOptions.page - 1) * pageOptions.limit)
+      .take(pageOptions.limit)
+      .getManyAndCount()
+
+    const items = entities.map((entity) => this.toDomain(entity)!)
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
   }
 
   private toDomain(persistence: ScheduledTaskResultPersistence | null): ScheduledTaskResult | null {

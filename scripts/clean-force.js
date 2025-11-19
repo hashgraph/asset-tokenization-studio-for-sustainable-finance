@@ -14,6 +14,7 @@ const rootDir = path.resolve(__dirname, '..');
 // Directories to clean recursively (relative to root)
 const workspaceDirs = [
   'apps/ats/api',
+  'apps/oracle/api',
   'apps/primary-market/api',
   'apps/shared/gateway',
   'apps/shared/transaction-sender',

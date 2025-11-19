@@ -2,12 +2,13 @@
 import { Injectable } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
-import { plainToInstance } from "class-transformer"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import { OracleRegistry } from "@domain/oracle/model/OracleRegistry"
 import { OracleRegistryPersistence } from "../model/OracleRegistryPersistence"
 import { OracleStatus } from "@domain/oracle/model/OracleStatus"
+import { OracleConfig } from "@domain/oracle/model/OracleConfig"
+import { Project } from "@domain/oracle/model/Project"
 
 @Injectable()
 export class OracleRegistryTypeOrmRepository implements OracleRegistryRepository {
@@ -17,8 +18,9 @@ export class OracleRegistryTypeOrmRepository implements OracleRegistryRepository
   ) {}
 
   async save(registry: OracleRegistry): Promise<OracleRegistry> {
-    const persistence = await this.repository.save(registry as unknown as OracleRegistryPersistence)
-    return this.toDomain(persistence)!
+    const persistence = this.toPersistence(registry)
+    const saved = await this.repository.save(persistence)
+    return this.toDomain(saved)!
   }
 
   async findById(id: string): Promise<OracleRegistry | null> {
@@ -68,7 +70,44 @@ export class OracleRegistryTypeOrmRepository implements OracleRegistryRepository
     await this.repository.delete(id)
   }
 
+  private toPersistence(registry: OracleRegistry): OracleRegistryPersistence {
+    const persistence = new OracleRegistryPersistence()
+    persistence.id = registry.id
+    persistence.bondContractId = registry.bondContractId
+    persistence.kpiContractId = registry.kpiContractId
+    persistence.projects = registry.projects.map((p) => ({ projectId: p.projectId, topicId: p.topicId }))
+    persistence.schedulerStartDate = registry.config.schedulerStartDate
+    persistence.schedulerEndDate = registry.config.schedulerEndDate
+    persistence.nextExecutionDate = registry.config.nextExecutionDate
+    persistence.frequencyMinutes = registry.config.frequencyMinutes
+    persistence.status = registry.status
+    persistence.createdAt = registry.createdAt
+    persistence.updatedAt = registry.updatedAt
+    return persistence
+  }
+
   private toDomain(persistence: OracleRegistryPersistence | null): OracleRegistry | null {
-    return persistence ? plainToInstance(OracleRegistry, persistence) : null
+    if (!persistence) {
+      return null
+    }
+
+    const projects = persistence.projects.map((p) => new Project(p.projectId, p.topicId))
+    const config = new OracleConfig(
+      persistence.schedulerStartDate,
+      persistence.schedulerEndDate,
+      persistence.nextExecutionDate,
+      persistence.frequencyMinutes,
+    )
+
+    return new OracleRegistry(
+      persistence.id,
+      persistence.bondContractId,
+      persistence.kpiContractId,
+      projects,
+      config,
+      persistence.status,
+      persistence.createdAt,
+      persistence.updatedAt,
+    )
   }
 }
