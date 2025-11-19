@@ -1,45 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/**
- * FactorySuite deployment workflow with existing infrastructure.
- *
- * Designed for multi-module orchestration where BusinessLogicResolver and common
- * facets are already deployed and shared across domains (e.g., ATS, Treasury, FactorySuite).
- *
- * Deploys only FactorySuite-specific components using multi-registry support:
- * - FactorySuiteFacet (and TimeTravel variant if needed)
- * - FactorySuite configuration in existing BLR (config ID 30'000)
- * - FactorySuite ResolverProxy
- *
- * Reuses existing infrastructure:
- * - Shared BLR proxy
- * - Shared ProxyAdmin
- * - Shared AccessControlFacet and PauseFacet (from atsRegistry)
- *
- * Uses combined atsRegistry and factorySuiteRegistry for proper facet resolution.
- *
- * @module workflows/deployFactorySuiteWithExistingInfra
- */
-
-import { Signer, ContractFactory } from "ethers";
 import {
   deployFacets,
   registerAdditionalFacets,
-  deployResolverProxy,
-  LATEST_VERSION,
-  atsRegistry,
   info,
   success,
   section,
   error as logError,
-  getDeploymentConfig,
-  isLocalNetwork,
   configureLogger,
   LogLevel,
+  atsRegistry,
+  getDeploymentConfig,
+  isLocalNetwork,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
-import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
+import { Signer, ContractFactory } from "ethers";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { createTreasuryConfiguration, FACET_REGISTRY } from "@scripts/domain";
+import type { DeployTreasuryOutput } from "./deployTreasurySystemWithNewBlr";
 
 /**
  * Existing infrastructure addresses.
@@ -78,71 +55,18 @@ export interface DeployWithExistingInfraOptions {
   verbose?: boolean;
 }
 
-/**
- * Deploy FactorySuite with existing infrastructure.
- *
- * Use case: Multi-module orchestration where BLR and common facets
- * are already deployed (e.g., shared infrastructure across ATS, Treasury, FactorySuite).
- *
- * Deployment steps:
- * 1. Validate existing infrastructure addresses
- * 2. Deploy only FactorySuiteFacet (and TimeTravel variant if needed)
- * 3. Register new facets in existing BLR
- * 4. Create FactorySuite configuration using existing + new facets
- * 5. Deploy FactorySuite ResolverProxy
- *
- * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
- *
- * @param signer - Ethers.js signer
- * @param network - Network name (testnet, mainnet, hardhat, etc.)
- * @param existingInfra - Existing infrastructure addresses
- * @param options - Deployment options
- * @returns Promise resolving to complete deployment output
- *
- * @example
- * ```typescript
- * import { ethers } from 'hardhat'
- *
- * // Get signer
- * const [deployer] = await ethers.getSigners()
- *
- * // First, deploy shared ATS infrastructure
- * const atsInfra = await deployAtsSystem(deployer, 'testnet')
- *
- * // Then deploy FactorySuite using existing infrastructure
- * const factorySuite = await deployFactorySuiteWithExistingInfra(
- *   deployer,
- *   'testnet',
- *   {
- *     blrAddress: atsInfra.blr.proxy,
- *     proxyAdminAddress: atsInfra.proxyAdmin.address,
- *     facets: {
- *       accessControl: atsInfra.facets.find(f => f.name === 'AccessControlFacet').address,
- *       pause: atsInfra.facets.find(f => f.name === 'PauseFacet').address,
- *     }
- *   },
- *   { useTimeTravel: false }
- * )
- *
- * info(`FactorySuite Proxy: ${factorySuite.infrastructure.factorySuite.proxy}`)
- * info(`Uses BLR: ${factorySuite.infrastructure.blr.proxy}`)
- * ```
- */
-export async function deployFactorySuiteWithExistingInfra(
+export async function deployTreasuryWithExistingInfra(
   signer: Signer,
   network: string,
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
-): Promise<DeployFactorySuiteOutput> {
+): Promise<DeployTreasuryOutput> {
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
 
   // Configure logger based on verbose flag
   configureLogger({
     level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
   });
-
-  const startTime = Date.now();
-  const deployer = await signer.getAddress();
 
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);
@@ -151,7 +75,10 @@ export async function deployFactorySuiteWithExistingInfra(
   const verifyDeployment = networkConfig.verifyDeployment;
   const retryOptions = networkConfig.retryOptions;
 
-  section("FactorySuite Deployment (Existing Infrastructure)");
+  const startTime = Date.now();
+  const deployer = await signer.getAddress();
+
+  section("Treasury Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
   info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
@@ -190,18 +117,25 @@ export async function deployFactorySuiteWithExistingInfra(
     info(`✅ PauseFacet: ${facets.pause}`);
 
     // ========================================
-    // STEP 2: Deploy only FactorySuiteFacet
+    // STEP 2: Deploy Treasury-specific facets
     // ========================================
-    info("\n📦 Step 2/4: Deploying FactorySuiteFacet...");
+    info("\n📦 Step 2/4: Deploying Treasury-specific facets...");
 
-    const facetNames = useTimeTravel ? ["FactorySuiteFacetTimeTravel", "TimeTravelFacet"] : ["FactorySuiteFacet"];
+    const facetNames = useTimeTravel
+      ? [
+          "LifeCycleCashFlowFacetTimeTravel",
+          "PortfolioFacetTimeTravel",
+          "ProceedsManagementFacetTimeTravel",
+          "TimeTravelFacet",
+        ]
+      : ["LifeCycleCashFlowFacet", "PortfolioFacet", "ProceedsManagementFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
     // Create TypeChain factories from registry
     const facetFactories: Record<string, ContractFactory> = {};
     for (const facetName of facetNames) {
-      const facetDef = factorySuiteRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+      const facetDef = FACET_REGISTRY[facetName] || atsRegistry.getFacetDefinition(facetName);
 
       if (!facetDef?.factory) {
         throw new Error(`No factory found for facet: ${facetName}`);
@@ -209,6 +143,20 @@ export async function deployFactorySuiteWithExistingInfra(
 
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
+
+    // Validate all factories were created successfully
+    const factoryCount = Object.keys(facetFactories).length;
+    const expectedCount = facetNames.length;
+
+    if (factoryCount !== expectedCount) {
+      const missingFactories = facetNames.filter((name) => !facetFactories[name]);
+      throw new Error(
+        `Factory creation incomplete: expected ${expectedCount} factories, got ${factoryCount}. ` +
+          `Missing: ${missingFactories.join(", ")}`,
+      );
+    }
+
+    info(`   ✅ Created ${factoryCount} facet factories`);
 
     const facetsResult = await deployFacets(facetFactories, {
       confirmations,
@@ -218,7 +166,7 @@ export async function deployFactorySuiteWithExistingInfra(
     });
 
     if (!facetsResult.success) {
-      throw new Error("FactorySuiteFacet deployment failed");
+      throw new Error("Treasury facet deployment failed");
     }
 
     info(`✅ Deployed ${facetsResult.deployed.size} new facet(s)`);
@@ -235,12 +183,12 @@ export async function deployFactorySuiteWithExistingInfra(
       }
     });
 
-    const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
-    const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
-      const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
-      if (factorySuiteFacet?.resolverKey?.value) {
-        return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
+    const facetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
+      const treasuryFacet = FACET_REGISTRY[name];
+      if (treasuryFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: treasuryFacet.resolverKey.value };
       }
 
       const atsFacet = atsRegistry.getFacetDefinition(name);
@@ -248,12 +196,12 @@ export async function deployFactorySuiteWithExistingInfra(
         return { name, address, resolverKey: atsFacet.resolverKey.value };
       }
 
-      throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+      throw new Error(`Facet ${name} not found in Treasury or ATS registries`);
     });
 
     const registerResult = await registerAdditionalFacets(signer, {
       blrAddress,
-      newFacets: newFacetsWithKeys,
+      newFacets: facetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -263,74 +211,36 @@ export async function deployFactorySuiteWithExistingInfra(
     info(`✅ Registered ${Object.keys(newFacetAddresses).length} new facet(s)`);
 
     // ========================================
-    // STEP 4: Create FactorySuite configuration
+    // STEP 4: Create Treasury configuration
     // ========================================
-    info("\n💼 Step 4/4: Creating FactorySuite configuration...");
+    info("\n💼 Step 4/4: Creating Treasury configuration...");
 
-    // Combine existing + new facets for configuration
-    const facetNamesForConfig: Record<string, string> = useTimeTravel
-      ? {
-          AccessControlFacetTimeTravel: facets.accessControl,
-          PauseFacetTimeTravel: facets.pause,
-          FactorySuiteFacetTimeTravel: newFacetAddresses.FactorySuiteFacetTimeTravel,
-          TimeTravelFacet: newFacetAddresses.TimeTravelFacet,
-        }
-      : {
-          AccessControlFacet: facets.accessControl,
-          PauseFacet: facets.pause,
-          FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
-        };
+    // Merge existing shared facets with newly deployed facets for complete configuration
+    const allFacetAddresses = {
+      ...newFacetAddresses,
+      AccessControlFacet: facets.accessControl,
+      PauseFacet: facets.pause,
+    };
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
+    const treasuryConfig = await createTreasuryConfiguration(blrContract, allFacetAddresses, useTimeTravel);
 
-    if (!fsConfig.success) {
-      throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
+    if (!treasuryConfig.success) {
+      //throw new Error(`Treasury config failed: ${treasuryConfig.error} - ${treasuryConfig.message}`);
+      throw new Error(`Treasury config failed: ${treasuryConfig}`);
     }
 
-    info(`✅ FactorySuite Config ID: ${fsConfig.data.configurationId}`);
-    info(`✅ Config Version: ${fsConfig.data.version}`);
+    info(`✅ Treasury Config ID: ${treasuryConfig.data.configurationId}`);
+    info(`✅ Config Version: ${treasuryConfig.data.version}`);
     info(
-      `✅ Total Facets: ${fsConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
+      `✅ Total Facets: ${treasuryConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
     );
-
-    // ========================================
-    // STEP 5: Deploy FactorySuite ResolverProxy
-    // ========================================
-    info("\n🏭 Step 5/5: Deploying FactorySuite ResolverProxy...");
-
-    const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
-
-    const factorySuiteProxyResult = await deployResolverProxy(signer, {
-      blrAddress,
-      configurationId: fsConfig.data.configurationId,
-      version: LATEST_VERSION,
-      rbac: [
-        {
-          role: DEFAULT_ADMIN_ROLE,
-          members: [deployer],
-        },
-      ],
-      network,
-    });
-
-    if (!factorySuiteProxyResult.success) {
-      throw new Error(`FactorySuite ResolverProxy deployment failed: ${factorySuiteProxyResult.error}`);
-    }
-
-    const factorySuiteAddress = factorySuiteProxyResult.proxyAddress!;
-
-    info(`✅ FactorySuite ResolverProxy deployed successfully`);
-    info(`   Address: ${factorySuiteAddress}`);
-    if (factorySuiteProxyResult.contractId) {
-      info(`   Contract ID: ${factorySuiteProxyResult.contractId}`);
-    }
 
     // ========================================
     // Build comprehensive output
     // ========================================
     const endTime = Date.now();
 
-    const output: DeployFactorySuiteOutput = {
+    const output: DeployTreasuryOutput = {
       network,
       timestamp: new Date().toISOString(),
       deployer,
@@ -343,10 +253,7 @@ export async function deployFactorySuiteWithExistingInfra(
           implementation: blrAddress, // We don't know the implementation address
           proxy: blrAddress,
         },
-        factorySuite: {
-          implementation: blrAddress, // ResolverProxy uses BLR
-          proxy: factorySuiteAddress,
-        },
+        // No treasury proxy - deployed via FactorySuite when creating bond suite
       },
 
       facets: [
@@ -354,17 +261,17 @@ export async function deployFactorySuiteWithExistingInfra(
         {
           name: useTimeTravel ? "AccessControlFacetTimeTravel" : "AccessControlFacet",
           address: facets.accessControl,
-          key: fsConfig.data.facetKeys.find((f) => f.address === facets.accessControl)?.key || "",
+          key: treasuryConfig.data.facetKeys.find((f) => f.address === facets.accessControl)?.key || "",
         },
         {
           name: useTimeTravel ? "PauseFacetTimeTravel" : "PauseFacet",
           address: facets.pause,
-          key: fsConfig.data.facetKeys.find((f) => f.address === facets.pause)?.key || "",
+          key: treasuryConfig.data.facetKeys.find((f) => f.address === facets.pause)?.key || "",
         },
         // New facets
         ...Array.from(facetsResult.deployed.entries()).map(([facetName, deploymentResult]) => {
           const facetAddress = deploymentResult.address!;
-          const configFacet = fsConfig.data.facetKeys.find((f) => f.address === facetAddress);
+          const configFacet = treasuryConfig.data.facetKeys.find((f) => f.address === facetAddress);
 
           return {
             name: facetName,
@@ -375,14 +282,14 @@ export async function deployFactorySuiteWithExistingInfra(
       ],
 
       configuration: {
-        configId: fsConfig.data.configurationId,
-        version: fsConfig.data.version,
-        facetCount: fsConfig.data.facetKeys.length,
-        facets: fsConfig.data.facetKeys,
+        configId: treasuryConfig.data.configurationId,
+        version: treasuryConfig.data.version,
+        facetCount: treasuryConfig.data.facetKeys.length,
+        facets: treasuryConfig.data.facetKeys,
       },
 
       summary: {
-        totalContracts: 1, // Only FactorySuite proxy deployed
+        totalContracts: 0, // No proxies deployed - only facets and configuration
         totalFacets: facetsResult.deployed.size, // Only new facets
         deploymentTime: endTime - startTime,
         success: true,
@@ -401,7 +308,7 @@ export async function deployFactorySuiteWithExistingInfra(
     info(`⚙️  Configuration version: ${output.configuration.version}`);
     info("═".repeat(60));
 
-    success("FactorySuite deployed successfully with existing infrastructure");
+    success("Treasury deployed successfully with existing infrastructure");
 
     return output;
   } catch (error) {

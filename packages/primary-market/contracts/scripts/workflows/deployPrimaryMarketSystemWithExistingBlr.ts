@@ -19,7 +19,7 @@ import {
   createPrimaryMarketConfiguration,
   primaryMarketRegistry,
 } from "@scripts/domain";
-import type { DeployFactoryPrimaryMarketOutput } from "./deployFactoryPrimaryMarketSystem";
+import type { DeployFactoryPrimaryMarketOutput } from "./deployPrimaryMarketSystemWithNewBlr";
 
 /**
  * Existing infrastructure addresses.
