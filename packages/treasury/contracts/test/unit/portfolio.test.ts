@@ -296,4 +296,44 @@ describe("Portfolio operations", () => {
         .withArgs(paymentTokenAddress);
     });
   });
+
+  describe("getTotalEnvironmentalAssetTokens", () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account gets the environmental asset tokens amount, THEN the total amount is obtained", async () => {
+
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      const environmentalAssetAddress = environmentalAsset.address;
+
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      treasury = treasury.connect(signer_A);
+
+      expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(0);
+
+      await treasury.addEnvironmentalAssetToken(environmentalAssetAddress);
+
+      expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(1);
+    });
+  });
+
+  describe("getEnvironmentalAssetTokens", () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens, THEN the addresses of the environmental asset tokens of the requested page are obtained", async () => {
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      const environmentalAssetAddress = environmentalAsset.address;
+
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      treasury = treasury.connect(signer_A);
+      await treasury.addEnvironmentalAssetToken(environmentalAssetAddress);
+
+      expect((await treasury.getEnvironmentalAssetTokens(0, 1))[0]).to.equal(environmentalAssetAddress);
+    });
+  })
+
+  describe("getPaymentToken", () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account gets the payment token, THEN the address of the payment token is obtained", async () => {
+      expect(await treasury.getPaymentToken()).to.equal(paymentTokenAddress);
+    });
+  })
 });
