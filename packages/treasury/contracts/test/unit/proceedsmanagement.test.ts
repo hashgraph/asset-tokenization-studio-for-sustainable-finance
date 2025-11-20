@@ -106,6 +106,16 @@ describe("Proceeds management operations", () => {
         .withArgs(9223372036854775808n);
     });
 
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an amount of payment tokens to a non existing account, THEN a TransferPaymentTokenFailed error occurs", async () => {
+      await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
+
+      const notExistingReciver = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.transferPaymentToken(notExistingReciver, 1))
+        .to.be.revertedWithCustomError(treasury, "TransferPaymentTokenFailed")
+        .withArgs(notExistingReciver, 1);
+    });
+
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN payment tokens are transferred", async () => {
       await paymentToken.mint(treasury.address, 100);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);

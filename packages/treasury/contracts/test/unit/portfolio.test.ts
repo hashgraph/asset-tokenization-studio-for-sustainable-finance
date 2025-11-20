@@ -246,6 +246,16 @@ describe("Portfolio operations", () => {
         .withArgs(signer_A.address, paymentTokenNewAddress, paymentTokenAddress, 195);
     });
 
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token with a non existing token, THEN an AssociateTokenFailed occurs", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+
+      const notExistingToken = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.updatePaymentToken(notExistingToken))
+        .to.be.revertedWithCustomError(treasury, "AssociateTokenFailed")
+        .withArgs(notExistingToken);
+    });
+
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated", async () => {
       const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
       await paymentTokenNew.deployed();
@@ -287,6 +297,16 @@ describe("Portfolio operations", () => {
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates a zero address token, THEN an InvalidAddressZero error occurs", async () => {
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
       await expect(treasury.dissociateToken(AddressZero)).to.be.revertedWithCustomError(treasury, "InvalidAddressZero");
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates a non existing token, THEN an DissociateTokenFailed error occurs", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+
+      const notExistingToken = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.dissociateToken(notExistingToken))
+        .to.be.revertedWithCustomError(treasury, "DissociateTokenFailed")
+        .withArgs(notExistingToken, 21);
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates the payment token, THEN a TokenDissociated event is emitted", async () => {

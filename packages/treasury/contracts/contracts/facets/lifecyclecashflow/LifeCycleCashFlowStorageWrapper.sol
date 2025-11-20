@@ -857,28 +857,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Returns the first index of an address array that contains address(0)
-     *
-     * @param arr The array to be checked
-     *
-     * @return The index of the first address(0) found, or 0 if none is found
-     */
-    function _populateSourceArrayFromDataArray(
-        address[] memory sourceAddressArray,
-        uint256 failedAddressesIndex,
-        address[] memory dataAddressArray
-    ) private pure returns (address[] memory resultArray) {
-        for (uint256 index; index < dataAddressArray.length; ) {
-            sourceAddressArray[index + failedAddressesIndex] = dataAddressArray[index];
-
-            unchecked {
-                ++index;
-            }
-        }
-        resultArray = sourceAddressArray;
-    }
-
-    /*
      * @dev Creates an array of addresses by adding a value at the end of another array
      *
      * @param arr The original array

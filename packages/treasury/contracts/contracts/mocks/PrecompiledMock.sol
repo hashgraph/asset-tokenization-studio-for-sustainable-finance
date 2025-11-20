@@ -79,6 +79,8 @@ contract PrecompiledMockStorageWrapper {
     ) internal virtual returns (int32 responseCode) {
         if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
 
+        if (receiver == address(1)) return HederaResponseCodes.UNKNOWN;
+
         if (IERC20(token).balanceOf(sender) < uint256(uint64(amount))) {
             return HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE;
         }
@@ -109,9 +111,14 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
-    function _associateToken(address, address) internal view returns (int32 responseCode) {
-        if (_getPrecompiledAssociationStatus()) return HederaResponseCodes.SUCCESS;
-        else return HederaResponseCodes.UNKNOWN;
+    function _associateToken(address, address token) internal view returns (int32 responseCode) {
+        if (_getPrecompiledAssociationStatus() == false) return HederaResponseCodes.UNKNOWN;
+
+        if (token == address(1)) {
+            return HederaResponseCodes.UNKNOWN;
+        }
+
+        return HederaResponseCodes.SUCCESS;
     }
 
     function _dissociateToken(address account, address token) internal view returns (int32 responseCode) {
@@ -119,6 +126,10 @@ contract PrecompiledMockStorageWrapper {
 
         if (IERC20(token).balanceOf(account) > 0) {
             return HederaResponseCodes.TRANSACTION_REQUIRES_ZERO_TOKEN_BALANCES;
+        }
+
+        if (token == address(1)) {
+            return HederaResponseCodes.UNKNOWN;
         }
 
         return HederaResponseCodes.SUCCESS;
