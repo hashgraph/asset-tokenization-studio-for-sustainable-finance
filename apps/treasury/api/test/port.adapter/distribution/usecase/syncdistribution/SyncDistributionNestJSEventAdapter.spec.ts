@@ -85,7 +85,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress1": "0.0.100",
         "0xevmAddress2": "0.0.101",
@@ -173,7 +173,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress5": "0.0.300",
         "0xevmAddress6": "0.0.301",
@@ -248,7 +248,7 @@ describe("SyncDistribution Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress9": "0.0.101",
       }
@@ -258,7 +258,9 @@ describe("SyncDistribution Integration", () => {
     const evmSuccessAddresses = ["0xevmAddress9"]
     const paidAmounts = ["2000000"]
 
-    const result: PaymentResultItemEventModel[] = [{ holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] }]
+    const result: PaymentResultItemEventModel[] = [
+      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+    ]
 
     const event = new DistributionExecutedDLTEvent(
       treasury.contractId,
@@ -284,7 +286,7 @@ describe("SyncDistribution Integration", () => {
   it("should handle distribution with only failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress13": "0.0.200",
         "0xevmAddress14": "0.0.201",
@@ -322,7 +324,7 @@ describe("SyncDistribution Integration", () => {
   it("should handle multiple distributions for the same treasury", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress20": "0.0.100",
         "0xevmAddress21": "0.0.200",
