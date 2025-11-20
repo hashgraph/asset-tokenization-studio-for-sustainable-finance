@@ -35,15 +35,18 @@ interface IPrecompiledMock {
     function setPrecompiledTransferStatus(bool _success) external;
     function setPrecompiledAssociationStatus(bool _success) external;
     function setPrecompiledDissociationStatus(bool _success) external;
+    function setPrecompiledNegativeDecimals(bool _negativeDecimals) external;
     function getPrecompiledTransferStatus() external view returns (bool);
     function getPrecompiledAssociationStatus() external view returns (bool);
     function getPrecompiledDissociationStatus() external view returns (bool);
+    function getPrecompiledNegativeDecimals() external view returns (bool);
 }
 
 contract PrecompiledMockStorageWrapper {
     bool private _transferSuccess;
     bool private _associationSuccess;
     bool private _dissociationSuccess;
+    bool private _negativeDecimals;
 
     function _transferTokens(
         address token,
@@ -140,7 +143,7 @@ contract PrecompiledMockStorageWrapper {
     ) internal view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory fungibleTokenInfo) {
         responseCode = HederaResponseCodes.SUCCESS;
         fungibleTokenInfo = IHederaTokenService.FungibleTokenInfo({
-            decimals: int32(int8(PaymentTokenMock(token).decimals())),
+            decimals: (_negativeDecimals == true) ? -1 : int32(int8(PaymentTokenMock(token).decimals())),
             tokenInfo: IHederaTokenService.TokenInfo({
                 token: IHederaTokenService.HederaToken({
                     name: PaymentTokenMock(token).name(),
@@ -177,6 +180,10 @@ contract PrecompiledMockStorageWrapper {
         _dissociationSuccess = success_;
     }
 
+    function _setPrecompiledNegativeDecimals(bool negativeDecimals_) internal {
+        _negativeDecimals = negativeDecimals_;
+    }
+
     function _getPrecompiledTransferStatus() internal view returns (bool) {
         return _transferSuccess;
     }
@@ -187,6 +194,10 @@ contract PrecompiledMockStorageWrapper {
 
     function _getPrecompiledDissociationStatus() internal view returns (bool) {
         return _dissociationSuccess;
+    }
+
+    function _getPrecompiledNegativeDecimals() internal view returns (bool) {
+        return _negativeDecimals;
     }
 }
 
@@ -243,6 +254,10 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         _setPrecompiledDissociationStatus(success_);
     }
 
+    function setPrecompiledNegativeDecimals(bool negativeDecimals_) external {
+        _setPrecompiledNegativeDecimals(negativeDecimals_);
+    }
+
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
     }
@@ -253,5 +268,9 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
 
     function getPrecompiledDissociationStatus() external view returns (bool) {
         return _getPrecompiledDissociationStatus();
+    }
+
+    function getPrecompiledNegativeDecimals() external view returns (bool) {
+        return _getPrecompiledNegativeDecimals();
     }
 }

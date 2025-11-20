@@ -5,10 +5,11 @@ import { ethers } from "hardhat";
 import { BigNumber, Contract, ContractFactory } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
+import { HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 import { deployPrecompiledMock } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
 import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITreasury } from "@contract-types";
+import type { ITreasury, IPrecompiledMock } from "@contract-types";
 
 describe("LifeCycleCashFlow operations", () => {
   configureLogger({ level: LogLevel.SILENT });
@@ -177,12 +178,13 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and there is not enough balance, THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "DistributionExecuted");
@@ -196,6 +198,8 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
           await paymentToken.mint(treasury.address, 10000000000);
 
           await treasury.executeDistribution(assetAddress, 1, 1, 1);
@@ -212,6 +216,8 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution, THEN a DistributionExecuted event is emitted with the holder is SUCCEEDED status", async () => {
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
           await paymentToken.mint(treasury.address, 10000000000);
 
           const tx = await treasury.executeDistribution(assetAddress, 1, 1, 1);
@@ -225,19 +231,22 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
-      });
 
-      it.only("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and payment token decimals are wrong, THEN it reverts with InvalidTokenDecimals error", async () => {
-        const paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 256);
-        await paymentToken.deployed();
-        const paymentTokenAddress = paymentToken.address;
-        await treasury.initialize_Portfolio(paymentTokenAddress, []);
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and payment token decimals are wrong, THEN it reverts with InvalidTokenDecimals error", async () => {
+          const paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+          await paymentToken.deployed();
+          const paymentTokenAddress = paymentToken.address;
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+          const precompiled = (await ethers.getContractAt("IPrecompiledMock", HEDERA_PRECOMPILED_ADDRESS)) as IPrecompiledMock;
+          precompiled.setPrecompiledNegativeDecimals(true);
 
-        await expect(treasury.executeDistribution(assetAddress, 1, 1, 1))
-          .to.be.revertedWithCustomError(treasury, "InvalidTokenDecimals")
-          .withArgs(paymentTokenAddress, 256);
+          await expect(treasury.executeDistribution(assetAddress, 1, 1, 1))
+            .to.be.revertedWithCustomError(treasury, "InvalidTokenDecimals")
+            .withArgs(paymentTokenAddress, -1);
+
+          precompiled.setPrecompiledNegativeDecimals(false);
+        });
       });
 
       describe("Distribution a coupon with two holders", () => {
