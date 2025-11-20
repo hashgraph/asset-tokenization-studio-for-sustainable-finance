@@ -48,6 +48,9 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("api/v1/docs", app, documentFactory)
 
+  // Set time zone to UTC
+  process.env.TZ = "utc"
+
   // Start the application
   await app.listen(process.env.PORT ?? 3000)
 }
