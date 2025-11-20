@@ -77,7 +77,10 @@
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
     "@primitivefi/hardhat-dodoc": "^0.2.3",
-    "@typechain/ethers-v5": "^11.1.2",
+    "@terminal3/ecdsa_vc": "^0.1.19",
+    "@thomaschaplin/isin-generator": "^1.0.3",
+    "@tokenysolutions/t-rex": "^4.1.6",
+    "@typechain/ethers-v5": "10.2.1",
     "@typechain/hardhat": "^6.1.2",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
@@ -97,7 +100,7 @@
     "typescript-eslint": "^8.44.1"
   },
   "overrides": {
-    "@typechain/ethers-v5": "^11.1.2",
+    "@typechain/ethers-v5": "10.2.1",
     "ws": "^8.15.0"
   }
 }
