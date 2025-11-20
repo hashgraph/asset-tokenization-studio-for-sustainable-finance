@@ -152,7 +152,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      *
      * @return The asset address
      */
-    function getAsset() external view returns (address) {
+    function getAsset() external view override returns (address) {
         return _getAsset();
     }
 }

@@ -201,5 +201,5 @@ interface ILifeCycleCashFlow {
      *
      * @return The asset address
      */
-    function getAsset() external returns (address asset);
+    function getAsset() external view returns (address asset);
 }

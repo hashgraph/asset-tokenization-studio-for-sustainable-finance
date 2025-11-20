@@ -490,4 +490,18 @@ describe("LifeCycleCashFlow operations", () => {
       });
     });
   });
+
+  describe("getAsset", () => {
+    it("GIVEN an initialized LifeCycleCashFlow facet, WHEN an account gets the asset, THEN asset is obtained", async () => {
+      const asset = await assetMockContract.deploy(false, 1, [], false);
+      await asset.deployed();
+      assetAddress = asset.address;
+
+      treasury = treasury.connect(signer_A);
+      await treasury.initialize_LifeCycleCashFlow(assetAddress);
+
+      const a = await treasury.getAsset();
+      expect(await treasury.getAsset()).to.equal(asset.address);
+    });
+  });
 });
