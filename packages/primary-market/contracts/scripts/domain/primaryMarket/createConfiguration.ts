@@ -63,6 +63,7 @@ export async function createPrimaryMarketConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
   batchSize: number = DEFAULT_BATCH_SIZE,
+  confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   const facets = PRIMARY_MARKET_FACETS.map((facetName) => {
     const address = facetAddresses[facetName];
@@ -96,5 +97,6 @@ export async function createPrimaryMarketConfiguration(
     facets,
     partialBatchDeploy: false,
     batchSize,
+    confirmations,
   });
 }

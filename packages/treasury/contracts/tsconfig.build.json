@@ -4,25 +4,13 @@
     "sourceMap": false
   },
   "include": [
-    "scripts/constants.ts",
-    "scripts/domain/constants.ts",
-    "scripts/domain/index.ts",
-    "scripts/domain/treasury/createConfiguration.ts",
-    "scripts/domain/treasuryRegistry.data.ts",
-    "scripts/domain/treasuryRegistry.ts",
-    "scripts/index.ts",
-    "scripts/infrastructure/index.ts",
-    "scripts/tools/generateRegistry.ts",
-    "scripts/utils.ts",
-    "scripts/workflows/deployTreasury.ts",
-    "scripts/workflows/deployTreasuryWithExistingInfra.ts",
-    "scripts/workflows/index.ts",
+    "scripts/**/*",
     "typechain-types/**/*",
+    "test/fixtures/**/*",
+    "test/helpers/**/*",
     "test/constants.ts",
-    "test/helpers/deployment.ts",
-    "test/helpers/index.ts",
     "test/index.ts",
     "test/types.d.ts"
   ],
-  "exclude": ["node_modules", "test/unit/**/*"]
+  "exclude": ["node_modules", "test/integration/**/*", "test/unit/**/*", "tasks"]
 }

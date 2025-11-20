@@ -15,6 +15,7 @@ import {
   atsRegistry,
   getDeploymentConfig,
   isLocalNetwork,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { Signer, ContractFactory } from "ethers";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
@@ -222,7 +223,13 @@ export async function deployTreasury(
 
     info("\n💼 Step 5/6: Creating Treasury configuration...");
 
-    const treasuryConfig = await createTreasuryConfiguration(blrContract, facetAddresses, useTimeTravel);
+    const treasuryConfig = await createTreasuryConfiguration(
+      blrContract,
+      facetAddresses,
+      useTimeTravel,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!treasuryConfig.success) {
       throw new Error("Treasury config failed");

@@ -36,6 +36,7 @@ import {
   isLocalNetwork,
   configureLogger,
   LogLevel,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
@@ -281,7 +282,13 @@ export async function deployFactorySuiteWithExistingInfra(
           FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
         };
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(
+      blrContract,
+      facetNamesForConfig,
+      useTimeTravel,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);

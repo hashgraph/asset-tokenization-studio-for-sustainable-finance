@@ -13,6 +13,9 @@ import {
   error as logError,
   configureLogger,
   LogLevel,
+  getDeploymentConfig,
+  isLocalNetwork,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { Signer, ContractFactory } from "ethers";
@@ -107,11 +110,22 @@ export async function deployFactoryPrimaryMarketSystem(
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
+
   section("FactoryPrimaryMarket Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -157,7 +171,12 @@ export async function deployFactoryPrimaryMarketSystem(
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
 
-    const facetsResult = await deployFacets(facetFactories);
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
+    });
 
     if (!facetsResult.success) {
       throw new Error("Facet deployment had failures");
@@ -202,7 +221,12 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info("\n💼 Step 5/6: Creating FactoryPrimaryMarket configuration...");
 
-    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(blrContract, facetAddresses);
+    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
+      blrContract,
+      facetAddresses,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!factoryPrimaryMarketConfig.success) {
       throw new Error("FactoryPrimaryMarket config failed");
@@ -214,7 +238,12 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info("\n💼 Step 6/7: Creating PrimaryMarket configuration...");
 
-    const primaryMarketConfig = await createPrimaryMarketConfiguration(blrContract, facetAddresses);
+    const primaryMarketConfig = await createPrimaryMarketConfiguration(
+      blrContract,
+      facetAddresses,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!primaryMarketConfig.success) {
       throw new Error("PrimaryMarket config failed");

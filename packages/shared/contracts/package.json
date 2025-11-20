@@ -39,7 +39,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "deploy": "npm run build && npx ts-node -r tsconfig-paths/register scripts/cli/standalone.ts",
-    "deploy:local": "NETWORK=localhost npm run deploy",
+    "deploy:local": "NETWORK=local npm run deploy",
     "deploy:local:auto": "npx hardhat node > hardhat-node.log 2>&1 & sleep 3 && npm run deploy:local; kill $!",
     "deploy:hedera:local": "NETWORK=hedera-local npm run deploy",
     "deploy:hedera:preview": "NETWORK=hedera-preview npm run deploy",

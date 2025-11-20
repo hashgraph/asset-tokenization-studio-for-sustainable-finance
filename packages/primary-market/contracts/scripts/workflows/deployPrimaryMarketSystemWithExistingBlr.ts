@@ -11,6 +11,8 @@ import {
   error as logError,
   configureLogger,
   LogLevel,
+  getDeploymentConfig,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { Signer, ContractFactory } from "ethers";
@@ -67,12 +69,22 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
+
   section("FactoryPrimaryMarket Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -123,7 +135,12 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
 
-    const facetsResult = await deployFacets(facetFactories);
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
+    });
 
     if (!facetsResult.success) {
       throw new Error("FactoryPrimaryMarketFacet deployment failed");
@@ -191,7 +208,12 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
           PrimaryMarketFacet: newFacetAddresses.PrimaryMarketFacet,
         };
 
-    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(blrContract, facetNamesForConfig);
+    const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
+      blrContract,
+      facetNamesForConfig,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!factoryPrimaryMarketConfig.success) {
       throw new Error(`FactoryPrimaryMarket config failed: ${factoryPrimaryMarketConfig}`);
@@ -208,7 +230,12 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // ========================================
     info("\n💼 Step 5/6: Creating PrimaryMarket configuration...");
 
-    const primaryMarketConfig = await createPrimaryMarketConfiguration(blrContract, facetNamesForConfig);
+    const primaryMarketConfig = await createPrimaryMarketConfiguration(
+      blrContract,
+      facetNamesForConfig,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!primaryMarketConfig.success) {
       throw new Error(`PrimaryMarket config failed: ${primaryMarketConfig}`);

@@ -16,7 +16,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@configuration": ["./Configuration"],
+      "@configuration": ["./Configuration.ts"],
       "@contract-types": ["./typechain-types/index.ts"],
       "@contract-types/*": ["./typechain-types/*"],
       "@scripts": ["./scripts/index.ts"],
@@ -26,6 +26,6 @@
       "@test": ["./test/index.ts"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*"],
+  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
   "exclude": ["node_modules"]
 }

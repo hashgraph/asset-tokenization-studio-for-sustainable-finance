@@ -31,6 +31,9 @@ import {
   success,
   section,
   error as logError,
+  getDeploymentConfig,
+  isLocalNetwork,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 
@@ -154,11 +157,22 @@ export async function deployFactorySuiteSystem(
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
+
   section("FactorySuite System Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -199,7 +213,12 @@ export async function deployFactorySuiteSystem(
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
 
-    const facetsResult = await deployFacets(facetFactories);
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
+    });
 
     if (!facetsResult.success) {
       throw new Error("Facet deployment had failures");
@@ -244,7 +263,13 @@ export async function deployFactorySuiteSystem(
 
     info("\n💼 Step 5/6: Creating FactorySuite configuration...");
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetAddresses, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(
+      blrContract,
+      facetAddresses,
+      useTimeTravel,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
