@@ -365,6 +365,7 @@ export async function deployGbpInfrastructure(
       {
         useTimeTravel,
         saveOutput: false,
+        verbose,
       },
     );
 

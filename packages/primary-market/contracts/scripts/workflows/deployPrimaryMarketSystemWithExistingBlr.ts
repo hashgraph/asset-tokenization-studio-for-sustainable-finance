@@ -55,6 +55,9 @@ export interface DeployWithExistingInfraOptions {
 
   /** Path to save deployment output */
   outputPath?: string;
+
+  /** Enable verbose logging (debug level) */
+  verbose?: boolean;
 }
 
 export async function deployFactoryPrimaryMarketWithExistingInfra(
@@ -63,8 +66,11 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployFactoryPrimaryMarketOutput> {
-  configureLogger({ level: LogLevel.SILENT });
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
+
+  configureLogger({
+    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
+  });
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
