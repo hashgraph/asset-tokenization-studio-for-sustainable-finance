@@ -16,13 +16,13 @@ export class DeleteBondHoldDomainService {
     )
 
     if (!existingHold) {
-      throw BondHoldNotFoundError.withId(request.holdId)
+      throw BondHoldNotFoundError.withId(request.contractId, request.holderAccountId, request.holdId)
     }
 
     await this.bondHoldRepository.deleteByIdAndContractIdAndHolderAccountId(
-      existingHold.id,
-      existingHold.contractId,
-      existingHold.holderAccountId,
+      request.holdId,
+      request.contractId,
+      request.holderAccountId,
     )
   }
 }

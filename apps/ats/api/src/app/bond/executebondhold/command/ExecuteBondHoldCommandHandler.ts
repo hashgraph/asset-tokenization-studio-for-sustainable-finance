@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: Apache-2.0
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import type { TransactionManager } from "@hashgraph/green-bonds-shared-core"
+import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { DeleteBondHoldDomainService } from "@domain/bond/hold/service/DeleteBondHoldDomainService"
 import { DeleteBondHoldDomainServiceRequest } from "@domain/bond/hold/service/model/DeleteBondHoldDomainServiceRequest"
 import { ExecuteHoldBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ExecuteHoldBondHolderBalanceDomainService"
+import { ExecutedBondHoldEvent } from "@domain/bond/hold/event/ExecutedBondHoldEvent"
 import { ExecuteBondHoldCommand } from "./ExecuteBondHoldCommand"
 
 @Singleton()
@@ -13,6 +14,7 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
     private readonly deleteBondHoldDomainService: DeleteBondHoldDomainService,
     private readonly executeHoldBondHolderBalanceDomainService: ExecuteHoldBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
+    @Inject() private readonly eventBus: EventBus,
   ) {}
 
   @Validate()
@@ -28,6 +30,17 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
 
       await this.deleteBondHoldDomainService.execute(
         new DeleteBondHoldDomainServiceRequest(command.contractId, command.holderAccountId, command.holdId),
+      )
+
+      this.eventBus.publish(
+        new ExecutedBondHoldEvent(
+          command.holdId,
+          command.contractId,
+          command.holderAccountId,
+          command.toAccountId,
+          command.partition,
+          command.amount,
+        ),
       )
     })
   }
