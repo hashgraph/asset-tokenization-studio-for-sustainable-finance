@@ -3,19 +3,26 @@
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { CommandHandler, Handler, Inject, Validate } from "@hashgraph/green-bonds-shared-core"
 import { PauseFactoryCommand } from "./PauseFactoryCommand"
-import { PauseFactoryDomainService } from "@domain/factory/service/PauseFactoryDomainService"
+import type { FactoryRepository } from "@domain/factory/repositories/FactoryRepository"
 import { FactoryPausedEvent } from "@domain/factory/events/FactoryPausedEvent"
 
 @Handler(PauseFactoryCommand)
 export class PauseFactoryCommandHandler implements CommandHandler<PauseFactoryCommand, void> {
   constructor(
-    private readonly pauseFactoryDomainService: PauseFactoryDomainService,
+    @Inject() private readonly factoryRepository: FactoryRepository,
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
   @Validate()
   async execute(command: PauseFactoryCommand): Promise<void> {
-    const factory = await this.pauseFactoryDomainService.execute(command.factoryId)
+    const factory = await this.factoryRepository.findByFactoryId(command.factoryId)
+
+    if (!factory) {
+      return
+    }
+
+    factory.pause()
+    await this.factoryRepository.save(factory)
 
     this.eventBus.publish(new FactoryPausedEvent(factory.factoryId))
   }

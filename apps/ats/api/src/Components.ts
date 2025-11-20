@@ -96,7 +96,7 @@ import { GetBondHoldsHttpAdapter } from "@port/bond/usecase/getbondholds/GetBond
 import { GetBondHoldsQueryHandler } from "@app/bond/getbondholds/query/GetBondHoldsQueryHandler"
 import { GetBondHoldHttpAdapter } from "@port/bond/usecase/getbondhold/GetBondHoldHttpAdapter"
 import { GetBondHoldQueryHandler } from "@app/bond/getbondhold/query/GetBondHoldQueryHandler"
-import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
+import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebondtransaction/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
 import { GetFactoryHttpAdapter } from "@port/factory/usecase/getfactory/GetFactoryHttpAdapter"
 import { GetFactoryQueryHandler } from "@app/factory/getfactory/query/GetFactoryQueryHandler"
@@ -204,10 +204,14 @@ import { ClearingTransferTypeOrmRepository } from "@port/bond/persistence/reposi
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
 import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
-import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
-import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrolebondtransaction/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerolebondtransaction/RevokeRoleTransactionHttpAdapter"
 import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { GetRoleMembersHttpAdapter as GetFactoryRoleMembersHttpAdapter } from "@port/factory/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetUserRolesHttpAdapter as GetFactoryUserRolesHttpAdapter } from "@port/factory/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GrantRoleTransactionHttpAdapter as GrantFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrolefactorytransaction/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter as RevokeFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerolefactorytransaction/RevokeRoleTransactionHttpAdapter"
 import { CreateClearingTransferDomainService } from "@domain/bond/clearing/service/CreateClearingTransferDomainService"
 import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
@@ -311,6 +315,10 @@ export const CONTROLLERS = [
   GetUserRolesHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
+  GetFactoryRoleMembersHttpAdapter,
+  GetFactoryUserRolesHttpAdapter,
+  GrantFactoryRoleTransactionHttpAdapter,
+  RevokeFactoryRoleTransactionHttpAdapter,
   GetClearingsTransferHttpAdapter,
   GetClearingTransferHttpAdapter,
   GetClearingsRedeemHttpAdapter,

@@ -7,8 +7,8 @@ import {
   RevokeRoleTransactionAppServiceRequest,
   TransactionResponse,
 } from "@hashgraph/green-bonds-shared-core"
-import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
-import { RevokeRoleTransactionPort } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionPort"
+import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrolebondtransaction/model/GrantRoleTransactionRequest"
+import { RevokeRoleTransactionPort } from "@port/transaction/usecase/revokerolebondtransaction/RevokeRoleTransactionPort"
 
 @RestController("bonds")
 export class RevokeRoleTransactionHttpAdapter implements RevokeRoleTransactionPort {

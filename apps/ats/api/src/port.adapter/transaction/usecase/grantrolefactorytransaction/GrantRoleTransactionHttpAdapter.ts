@@ -7,28 +7,22 @@ import {
   RestController,
   TransactionResponse,
 } from "@hashgraph/green-bonds-shared-core"
-import { GrantRoleTransactionPort } from "@port/transaction/usecase/grantrole/GrantRoleTransactionPort"
-import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
+import { GrantRoleTransactionPort } from "./GrantRoleTransactionPort"
+import { GrantRoleTransactionRequest } from "./model/GrantRoleTransactionRequest"
 
-@RestController("bonds")
+@RestController("factories")
 export class GrantRoleTransactionHttpAdapter implements GrantRoleTransactionPort {
   constructor(private readonly grantRoleTransactionAppService: GrantRoleTransactionAppService) {}
 
-  @Post(":bondContractId/roles/:roleId/users/:userAccountId")
+  @Post(":factoryId/roles/:roleId/users/:userAccountId")
   async grantRole(
-    @Param("bondContractId") bondContractId: string,
+    @Param("factoryId") factoryId: string,
     @Param("roleId") roleId: string,
     @Param("userAccountId") userAccountId: string,
     @Body() request: GrantRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.grantRoleTransactionAppService.execute(
-      new GrantRoleTransactionAppServiceRequest(
-        request.format,
-        request.accountId ?? "",
-        bondContractId,
-        roleId,
-        userAccountId,
-      ),
+      new GrantRoleTransactionAppServiceRequest(request.format, request.accountId!, factoryId, roleId, userAccountId),
     )
   }
 }
