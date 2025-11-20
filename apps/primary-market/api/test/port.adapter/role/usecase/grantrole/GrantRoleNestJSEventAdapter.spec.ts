@@ -163,7 +163,7 @@ describe("GrantRoleNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          accountId: "0.0.4661",
+          userAccountId: "0.0.4661",
           roleId: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           contractId: "0.0.1234567",
           timestamp: expect.any(Number),
