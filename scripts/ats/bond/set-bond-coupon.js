@@ -10,15 +10,19 @@ const COUPON_CONFIG = {
   recordDate: Math.floor(Date.now() / 1000) + 86400, // Tomorrow
   executionDate: Math.floor(Date.now() / 1000) + 172800, // Day after tomorrow
   rate: "500",
+  rateDecimals: "2", // 500 basis points = 5.00%
+  period: "31536000", // 1 year in seconds (365 days)
 };
 
-async function setBondCoupon(bondContractId, recordDate, executionDate, rate, format) {
+async function setBondCoupon(bondContractId, recordDate, executionDate, rate, rateDecimals, period, format) {
   log(`\n💰 Setting coupon on bond ${bondContractId}...`, colors.bright);
 
   const setCouponRequest = {
     recordDate: recordDate.toString(),
     executionDate: executionDate.toString(),
     rate: rate,
+    rateDecimals: rateDecimals,
+    period: period,
     format: format,
     accountId: process.env.ACCOUNT_ID,
   };
@@ -31,6 +35,8 @@ async function setBondCoupon(bondContractId, recordDate, executionDate, rate, fo
     logInfo(`Record Date: ${new Date(recordDate * 1000).toISOString()}`);
     logInfo(`Execution Date: ${new Date(executionDate * 1000).toISOString()}`);
     logInfo(`Rate: ${rate} basis points (${rate / 100}%)`);
+    logInfo(`Rate Decimals: ${rateDecimals}`);
+    logInfo(`Period: ${period} seconds (${period / 86400} days)`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
 
     return { ...setCouponRequest, unsignedTx: response.data.unsignedTx };
@@ -120,12 +126,16 @@ async function runSetBondCouponSimulator() {
     logInfo(`Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`);
     logInfo(`Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`);
     logInfo(`Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`);
+    logInfo(`Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
+    logInfo(`Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
 
     const couponTransaction = await setBondCoupon(
       bondContractId,
       COUPON_CONFIG.recordDate,
       COUPON_CONFIG.executionDate,
       COUPON_CONFIG.rate,
+      COUPON_CONFIG.rateDecimals,
+      COUPON_CONFIG.period,
       format,
     );
 
@@ -150,6 +160,8 @@ async function runSetBondCouponSimulator() {
     logInfo(`   • Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`);
     logInfo(`   • Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`);
     logInfo(`   • Rate: ${COUPON_CONFIG.rate} basis points`);
+    logInfo(`   • Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
+    logInfo(`   • Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
     logError("Make sure:");
@@ -170,7 +182,9 @@ async function main() {
     log(`📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
     log(`📅 Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`, colors.cyan);
     log(`📅 Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`, colors.cyan);
-    log(`💵 Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)\n`, colors.cyan);
+    log(`💵 Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`, colors.cyan);
+    log(`🔢 Rate Decimals: ${COUPON_CONFIG.rateDecimals}`, colors.cyan);
+    log(`⏱️  Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)\n`, colors.cyan);
 
     await runSetBondCouponSimulator();
   } catch (error) {
