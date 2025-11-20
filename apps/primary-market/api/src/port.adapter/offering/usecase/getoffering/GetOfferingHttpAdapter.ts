@@ -6,11 +6,14 @@ import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetOfferingPort } from "./GetOfferingPort"
 import { GetOfferingQuery } from "@app/offering/getoffering/query/GetOfferingQuery"
 import { OfferingResponse } from "./model/OfferingResponse"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class GetOfferingHttpAdapter implements GetOfferingPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
+  @ApiOperation({ summary: "Gets a specific offering by ID" })
   @Get(":marketContractId/offerings/:offeringId")
   async execute(
     @Param("marketContractId") marketContractId: string,

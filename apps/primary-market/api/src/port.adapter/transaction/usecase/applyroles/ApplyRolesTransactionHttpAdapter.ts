@@ -10,11 +10,15 @@ import {
 
 import { ApplyRolesTransactionPort } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionPort"
 import { ApplyRolesTransactionRequest } from "@port/transaction/usecase/applyroles/model/ApplyRolesTransactionRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class ApplyRolesTransactionHttpAdapter implements ApplyRolesTransactionPort {
   constructor(private readonly applyRolesTransactionAppService: ApplyRolesTransactionAppService) {}
 
+  @ApiOperation({ summary: "Applies multiple roles to a user (grant and/or revoke)" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
   @Post(":marketContractId/users/:userAccountId/roles")
   async applyRoles(
     @Param("marketContractId") marketContractId: string,

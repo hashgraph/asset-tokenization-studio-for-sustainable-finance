@@ -7,15 +7,20 @@ import {
   GetRoleMembersQuery,
   PageResponse,
   type QueryBus,
+  ApiPaginatedResponse,
 } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import { GetRoleMembersPort } from "./GetRoleMembersPort"
 import { RoleMemberResponse } from "./RoleMemberResponse"
+import { ApiOperation, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
+  @ApiOperation({ summary: "Gets all members of a specific role" })
+  @ApiPaginatedResponse(RoleMemberResponse)
   @Get(":marketContractId/roles/:roleId/members")
   async getRoleMembers(
     @Param("marketContractId") marketContractId: string,
