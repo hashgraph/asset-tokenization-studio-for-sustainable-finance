@@ -104,6 +104,14 @@ import { FactoryPersistence } from "@port/factory/persistence/model/FactoryPersi
 import { FactoryTypeOrmRepository } from "@port/factory/persistence/repositories/FactoryTypeOrmRepository"
 import { DatabaseSeederService } from "@config/DatabaseSeederService"
 import { CheckFactoryExistsDomainService } from "@domain/factory/service/CheckFactoryExistsDomainService"
+import { PauseFactoryDomainService } from "@domain/factory/service/PauseFactoryDomainService"
+import { UnpauseFactoryDomainService } from "@domain/factory/service/UnpauseFactoryDomainService"
+import { PauseFactoryTransactionHttpAdapter } from "@port/transaction/usecase/pausefactorytransaction/PauseFactoryTransactionHttpAdapter"
+import { UnpauseFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpausefactorytransaction/UnpauseFactoryTransactionHttpAdapter"
+import { PauseFactoryCommandHandler } from "@app/factory/pausefactory/command/PauseFactoryCommandHandler"
+import { UnpauseFactoryCommandHandler } from "@app/factory/unpausefactory/command/UnpauseFactoryCommandHandler"
+import { PauseFactoryNestJSEventAdapter } from "@port/factory/usecase/pausefactory/PauseFactoryNestJSEventAdapter"
+import { UnpauseFactoryNestJSEventAdapter } from "@port/factory/usecase/unpausefactory/UnpauseFactoryNestJSEventAdapter"
 import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
 import { AddProceedRecipientTransactionAppService } from "@app/bond/transaction/addproceedrecipienttransaction/service/AddProceedRecipientTransactionAppService"
 import { AddProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/addproceedrecipient/AddProceedRecipientNestJSEventAdapter"
@@ -288,6 +296,8 @@ export const CONTROLLERS = [
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
   GetFactoryHttpAdapter,
+  PauseFactoryTransactionHttpAdapter,
+  UnpauseFactoryTransactionHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
   CreateBondHoldTransactionHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
@@ -439,6 +449,12 @@ export const PROVIDERS = [
   ClearingOperationReclaimedNestJSEventAdapter,
   GetFactoryQueryHandler,
   CheckFactoryExistsDomainService,
+  PauseFactoryDomainService,
+  UnpauseFactoryDomainService,
+  PauseFactoryCommandHandler,
+  UnpauseFactoryCommandHandler,
+  PauseFactoryNestJSEventAdapter,
+  UnpauseFactoryNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
