@@ -6,7 +6,7 @@ import { BigNumber, Contract, ContractFactory } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
 import { deployPrecompiledMock } from "../helpers/deployment";
-import { deployTreasury } from "../../scripts/workflows/deployTreasury";
+import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
 import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITreasury } from "@contract-types";
 
