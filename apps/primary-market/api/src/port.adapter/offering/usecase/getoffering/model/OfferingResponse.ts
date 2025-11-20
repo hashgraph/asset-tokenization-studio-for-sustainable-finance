@@ -32,7 +32,10 @@ export class OfferingResponse {
   @ApiProperty({ description: "Target number of lots for the offering", example: "50" })
   targetLots: string
 
-  @ApiProperty({ description: "Rule for target quantity (0: EXACT, 1: AT_LEAST)", example: 1 })
+  @ApiProperty({
+    description: "Rule for target quantity (0: OVERSUBSCRIPTION_NOT_ALLOWED, 1: OVERSUBSCRIPTION_ALLOWED)",
+    example: 1,
+  })
   targetQuantityRule: number
 
   @ApiProperty({ description: "Offering start date", example: "2025-11-01T00:00:00.000Z" })
