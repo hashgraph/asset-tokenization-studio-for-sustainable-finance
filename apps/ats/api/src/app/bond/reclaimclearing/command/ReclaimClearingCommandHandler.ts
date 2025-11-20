@@ -3,20 +3,24 @@
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import type { EventBus, TransactionManager } from "@hashgraph/green-bonds-shared-core"
 import { ReclaimClearingCommand } from "./ReclaimClearingCommand"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 import { ClearingReclaimedEvent } from "@domain/bond/clearing/event/ClearingReclaimedEvent"
 import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/errors/UnsupportedClearingOperationTypeError"
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
+import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
+import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { UpdateClearingStatusDomainServiceRequest } from "@domain/bond/clearing/service/model/UpdateClearingStatusDomainServiceRequest"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingHold"
+import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 
 @Singleton()
 @Handler(ReclaimClearingCommand)
 export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClearingCommand, void> {
   constructor(
     private readonly updateClearingHoldStatusDomainService: UpdateClearingHoldStatusDomainService,
-    private readonly clearingBondHolderBalanceDomainService: ClearingBondHolderBalanceDomainService,
+    private readonly updateClearingRedeemStatusDomainService: UpdateClearingRedeemStatusDomainService,
+    private readonly updateClearingTransferStatusDomainService: UpdateClearingTransferStatusDomainService,
+    private readonly updateClearingBondHolderBalanceDomainService: UpdateClearingBondHolderBalanceDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -26,7 +30,7 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
     await this.transactionManager.execute(async () => {
       const deletedClearing = await this.updateClearingStatusByType(command)
 
-      await this.clearingBondHolderBalanceDomainService.execute(
+      await this.updateClearingBondHolderBalanceDomainService.execute(
         deletedClearing.bondContractId,
         deletedClearing.holderAccountId,
         deletedClearing.partition,
@@ -49,11 +53,9 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
       case ClearingOperationType.HOLD:
         return await this.updateClearingHoldStatusDomainService.execute(request)
       case ClearingOperationType.TRANSFER:
-        // TODO: Uncomment when DeleteClearingTransferDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.updateClearingTransferStatusDomainService.execute(request)
       case ClearingOperationType.REDEEM:
-        // TODO: Uncomment when DeleteClearingRedeemDomainService is implemented
-        throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
+        return await this.updateClearingRedeemStatusDomainService.execute(request)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

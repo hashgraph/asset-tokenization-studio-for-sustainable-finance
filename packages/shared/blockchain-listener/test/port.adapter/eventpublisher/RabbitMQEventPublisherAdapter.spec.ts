@@ -67,13 +67,11 @@ describe("RabbitMQ publish via EventEmitter e2e (enabled)", () => {
       channel.consume(
         q.queue,
         (msg: any) => {
-          try {
-            const data = JSON.parse(msg.content.toString())
-            if (data.eventName === "RoleGranted") {
-              clearTimeout(to)
-              resolve(data)
-            }
-          } catch {}
+          const data = JSON.parse(msg.content.toString())
+          if (data.eventName === "RoleGranted") {
+            clearTimeout(to)
+            resolve(data)
+          }
         },
         { noAck: true },
       )
@@ -156,7 +154,7 @@ describe("RabbitMQ publish via EventEmitter e2e (disabled)", () => {
       const to = setTimeout(() => resolve(false), 1500)
       channel.consume(
         q.queue,
-        (msg: any) => {
+        () => {
           clearTimeout(to)
           resolve(true)
         },

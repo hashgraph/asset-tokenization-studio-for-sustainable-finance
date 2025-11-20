@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { IsOptional } from "class-validator"
+import { ApiProperty } from "@nestjs/swagger"
 
 export class TransactionPageOptionsRequest {
+  @ApiProperty({ description: "Page you are requesting starting in 1", example: 1, default: 1, required: false })
   @IsOptional()
   page: number = 1
 
+  @ApiProperty({ description: "Number of elements returned in a page", example: 25, default: 10, required: false })
   @IsOptional()
   limit: number = 25
 

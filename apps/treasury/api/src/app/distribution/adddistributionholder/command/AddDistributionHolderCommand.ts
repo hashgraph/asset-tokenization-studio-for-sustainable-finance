@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Command } from "@hashgraph/green-bonds-shared-core"
-import { IsIn, IsNotEmpty, IsNumberString, IsNumber, NotEquals, IsOptional } from "class-validator"
+import { IsIn, IsNotEmpty, IsNumberString, IsNumber, IsOptional, NotEquals } from "class-validator"
 
 export class AddDistributionHolderCommand extends Command<void> {
   @IsNotEmpty()

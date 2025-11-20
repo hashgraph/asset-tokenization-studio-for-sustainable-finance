@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseDistributionExecutedDLTEvent } from "./BaseDistributionExecutedDLTEvent"
-import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
+import { PaymentResultItemEventModel } from "@port/shared/model/PaymentResultEventModel"
 
 export class DistributionByAddressesExecutedDLTEvent extends BaseDistributionExecutedDLTEvent {
   readonly holders: string[]
@@ -11,9 +11,9 @@ export class DistributionByAddressesExecutedDLTEvent extends BaseDistributionExe
     transactionHash: string,
     distributionId: number,
     holders: string[],
-    result: PaymentResultEventModel,
+    results: PaymentResultItemEventModel[],
   ) {
-    super(contractId, transactionHash, distributionId, result)
+    super(contractId, transactionHash, distributionId, results)
     this.holders = holders
   }
 }

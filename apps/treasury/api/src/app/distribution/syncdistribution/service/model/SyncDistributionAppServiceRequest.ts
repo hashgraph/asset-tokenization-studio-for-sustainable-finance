@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsNotEmpty, IsNumber } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsNotEmpty, IsNumber, ValidateNested } from "class-validator"
+import { Type } from "class-transformer"
+import { PaymentResultItemAppServiceRequestModel } from "@app/shared/model/PaymentResultItemAppServiceRequestModel"
 
 export class SyncDistributionAppServiceRequest {
   @IsNotEmpty()
@@ -10,12 +12,9 @@ export class SyncDistributionAppServiceRequest {
   @IsNotEmpty()
   readonly distributionId: number
 
-  @IsNotEmpty()
-  readonly successAddresses: string[]
-
-  @IsNotEmpty()
-  readonly failedAddresses: string[]
-
-  @IsNotEmpty()
-  readonly paidAmounts: string[]
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentResultItemAppServiceRequestModel)
+  readonly results: PaymentResultItemAppServiceRequestModel[]
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, PageResponse, RestController, QueryPageRequest } from "@hashgraph/green-bonds-shared-core"
+import { Inject, PageResponse, RestController, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
 import { GetClearingsHoldPort } from "./GetClearingsHoldPort"
@@ -14,9 +14,9 @@ export class GetClearingsHoldHttpAdapter implements GetClearingsHoldPort {
   async getClearingsHold(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
-    @Query() queryPageRequest: QueryPageRequest,
+    @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<ClearingHoldResponse>> {
-    const queryPageOptions = (queryPageRequest ?? QueryPageRequest.DEFAULT).toQueryPageOptions()
+    const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
     const query = new GetClearingsHoldQuery(bondContractId, holderAccountId, queryPageOptions)
     return await this.queryBus.execute(query)
   }

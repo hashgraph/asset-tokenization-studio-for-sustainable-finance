@@ -1,7 +1,5 @@
 import { CreateBondTransactionHttpAdapter } from "@port/transaction/usecase/createbondtransaction/CreateBondTransactionHttpAdapter"
 import { CreateBondTransactionAppService } from "@app/bond/transaction/createbondtransaction/service/CreateBondTransactionAppService"
-import { AppService } from "./AppService"
-import { AppController } from "./AppController"
 import { TransactionBuilderAdapter } from "@port/transactionbuilder/TransactionBuilderAdapter"
 import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
@@ -70,8 +68,8 @@ import { BondHolderBalanceTypeOrmRepository } from "@port/bond/persistence/repos
 import { UpdateBondHolderBalanceNestJSEventAdapter } from "@port/bond/usecase/updatebondholderbalance/UpdateBondHolderBalanceNestJSEventAdapter"
 import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateBondHolderBalanceDomainService"
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
-import { LockBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/LockBondHolderBalanceDomainService"
-import { ClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ClearingBondHolderBalanceDomainService"
+import { DecreaseBondHolderAvailableBalanceDomainService } from "@domain/bond/holderbalance/service/DecreaseBondHolderAvailableBalanceDomainService"
+import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
 import {
   COMMON_FUNCTIONALITY_ENTITIES,
   COMMON_FUNCTIONALITY_PROVIDERS,
@@ -92,6 +90,12 @@ import { GetBondLockHttpAdapter } from "@port/bond/usecase/getbondlock/GetBondLo
 import { GetBondLockQueryHandler } from "@app/bond/getbondlock/query/GetBondLockQueryHandler"
 import { GetBondHoldersHttpAdapter } from "@port/bond/usecase/getbondholders/GetBondHoldersHttpAdapter"
 import { GetBondHoldersQueryHandler } from "@app/bond/getbondholders/query/GetBondHoldersQueryHandler"
+import { GetHolderBalancesHttpAdapter } from "@port/bond/usecase/getholderbalances/GetHolderBalancesHttpAdapter"
+import { GetHolderBalancesQueryHandler } from "@app/bond/getholderbalances/query/GetHolderBalancesQueryHandler"
+import { GetBondHoldsHttpAdapter } from "@port/bond/usecase/getbondholds/GetBondHoldsHttpAdapter"
+import { GetBondHoldsQueryHandler } from "@app/bond/getbondholds/query/GetBondHoldsQueryHandler"
+import { GetBondHoldHttpAdapter } from "@port/bond/usecase/getbondhold/GetBondHoldHttpAdapter"
+import { GetBondHoldQueryHandler } from "@app/bond/getbondhold/query/GetBondHoldQueryHandler"
 import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
 import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
@@ -126,22 +130,47 @@ import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/
 import { TransferByPartitionNestJSEventAdapter } from "@port/bond/usecase/transferbypartition/TransferByPartitionNestJSEventAdapter"
 import { TransferByPartitionCommandHandler } from "@app/bond/transferbypartition/command/TransferByPartitionCommandHandler"
 import { TransferBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/TransferBondHolderBalanceDomainService"
+import { CreateBondHoldTransactionHttpAdapter } from "@port/transaction/usecase/createbondholdtransaction/CreateBondHoldTransactionHttpAdapter"
+import { CreateBondHoldTransactionAppService } from "@app/bond/transaction/createbondholdtransaction/service/CreateBondHoldTransactionAppService"
+import { CreateBondHoldCommandHandler } from "@app/bond/createbondhold/command/CreateBondHoldCommandHandler"
+import { CreateBondHoldNestJSEventAdapter } from "@port/bond/usecase/createbondhold/CreateBondHoldNestJSEventAdapter"
+import { CreateBondHoldDomainService } from "@domain/bond/hold/service/CreateBondHoldDomainService"
+import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
+import { BondHoldTypeOrmRepository } from "@port/bond/persistence/repositories/BondHoldTypeOrmRepository"
 import { ClearingHoldTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingHoldTypeOrmRepository"
 import { CreateClearingHoldTransactionHttpAdapter } from "@port/transaction/usecase/createclearingholdtransaction/CreateClearingHoldTransactionHttpAdapter"
 import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
+import { CreateClearingRedeemTransactionHttpAdapter } from "@port/transaction/usecase/createclearingredeemtransaction/CreateClearingRedeemTransactionHttpAdapter"
+import { CreateClearingRedeemTransactionAppService } from "@app/bond/transaction/createclearingredeemtransaction/service/CreateClearingRedeemTransactionAppService"
+import { CreateClearingTransferTransactionHttpAdapter } from "@port/transaction/usecase/createclearingtransfertransaction/CreateClearingTransferTransactionHttpAdapter"
+import { CreateClearingTransferTransactionAppService } from "@app/bond/transaction/createclearingtransfertransaction/service/CreateClearingTransferTransactionAppService"
 import { UpdateClearingStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingstatustransaction/UpdateClearingStatusTransactionHttpAdapter"
 import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
 import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/cancelclearingtransaction/CancelClearingTransactionHttpAdapter"
 import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 import { GetClearingsHoldHttpAdapter } from "@port/bond/usecase/getclearingshold/GetClearingsHoldHttpAdapter"
 import { GetClearingHoldHttpAdapter } from "@port/bond/usecase/getclearinghold/GetClearingHoldHttpAdapter"
+import { GetClearingsTransferHttpAdapter } from "@port/bond/usecase/getclearingstransfer/GetClearingsTransferHttpAdapter"
+import { GetClearingTransferHttpAdapter } from "@port/bond/usecase/getclearingtransfer/GetClearingTransferHttpAdapter"
+import { GetClearingsRedeemHttpAdapter } from "@port/bond/usecase/getclearingsredeem/GetClearingsRedeemHttpAdapter"
+import { GetClearingRedeemHttpAdapter } from "@port/bond/usecase/getclearingredeem/GetClearingRedeemHttpAdapter"
 import { CreateClearingHoldDomainService } from "@domain/bond/clearing/service/CreateClearingHoldDomainService"
 import { UpdateClearingHoldStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingHoldStatusDomainService"
+import { UpdateClearingRedeemStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingRedeemStatusDomainService"
 import { DeleteClearingHoldDomainService } from "@domain/bond/clearing/service/DeleteClearingHoldDomainService"
+import { DeleteClearingRedeemDomainService } from "@domain/bond/clearing/service/DeleteClearingRedeemDomainService"
 import { GetClearingsHoldDomainService } from "@domain/bond/clearing/service/GetClearingsHoldDomainService"
 import { GetClearingHoldByIdDomainService } from "@domain/bond/clearing/service/GetClearingHoldByIdDomainService"
+import { GetClearingsTransferDomainService } from "@domain/bond/clearing/service/GetClearingsTransferDomainService"
+import { GetClearingTransferByIdDomainService } from "@domain/bond/clearing/service/GetClearingTransferByIdDomainService"
+import { GetClearingsRedeemDomainService } from "@domain/bond/clearing/service/GetClearingsRedeemDomainService"
+import { GetClearingRedeemByIdDomainService } from "@domain/bond/clearing/service/GetClearingRedeemByIdDomainService"
 import { GetClearingsHoldQueryHandler } from "@app/bond/getclearingshold/query/GetClearingsHoldQueryHandler"
 import { GetClearingHoldQueryHandler } from "@app/bond/getclearinghold/query/GetClearingHoldQueryHandler"
+import { GetClearingsTransferQueryHandler } from "@app/bond/getclearingstransfer/query/GetClearingsTransferQueryHandler"
+import { GetClearingTransferQueryHandler } from "@app/bond/getclearingtransfer/query/GetClearingTransferQueryHandler"
+import { GetClearingsRedeemQueryHandler } from "@app/bond/getclearingsredeem/query/GetClearingsRedeemQueryHandler"
+import { GetClearingRedeemQueryHandler } from "@app/bond/getclearingredeem/query/GetClearingRedeemQueryHandler"
 import { ClearedHoldNestJSEventAdapter } from "@port/bond/usecase/clearedhold/ClearedHoldNestJSEventAdapter"
 import {
   ClearingOperationApprovedNestJSEventAdapter,
@@ -149,7 +178,28 @@ import {
 } from "@port/bond/usecase/updateclearingoperation/UpdateClearingOperationNestJSEventAdapter"
 import { CancelClearingOperationNestJSEventAdapter } from "@port/bond/usecase/cancelclearingoperation/CancelClearingOperationNestJSEventAdapter"
 import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
+import { BondClearingRedeemPersistence } from "@port/bond/persistence/model/BondClearingRedeemPersistence"
+import { BondClearingTransferPersistence } from "@port/bond/persistence/model/BondClearingTransferPersistence"
 import { CreateClearingHoldCommandHandler } from "@app/bond/createclearinghold/command/CreateClearingHoldCommandHandler"
+import { CreateClearingRedeemCommandHandler } from "@app/bond/createclearingredeem/command/CreateClearingRedeemCommandHandler"
+import { CreateClearingTransferCommandHandler } from "@app/bond/createclearingtransfer/command/CreateClearingTransferCommandHandler"
+import { ClearedRedeemNestJSEventAdapter } from "@port/bond/usecase/clearedredeem/ClearedRedeemNestJSEventAdapter"
+import { ClearedTransferNestJSEventAdapter } from "@port/bond/usecase/clearedtransfer/ClearedTransferNestJSEventAdapter"
+import { ClearingRedeemTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingRedeemTypeOrmRepository"
+import { ClearingTransferTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingTransferTypeOrmRepository"
+import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
+import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
+import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { CreateClearingTransferDomainService } from "@domain/bond/clearing/service/CreateClearingTransferDomainService"
+import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
+import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
+import { ApproveHoldClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveHoldClearingBalanceDomainService"
+import { ApproveRedeemClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveRedeemClearingBalanceDomainService"
+import { ApproveTransferClearingBalanceDomainService } from "@domain/bond/holderbalance/service/ApproveTransferClearingBalanceDomainService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -181,13 +231,24 @@ const REPOSITORIES: Provider[] = [
     useClass: BondProceedRecipientTypeOrmRepository,
   },
   {
+    provide: "BondHoldRepository",
+    useClass: BondHoldTypeOrmRepository,
+  },
+  {
     provide: "ClearingHoldRepository",
     useClass: ClearingHoldTypeOrmRepository,
+  },
+  {
+    provide: "ClearingRedeemRepository",
+    useClass: ClearingRedeemTypeOrmRepository,
+  },
+  {
+    provide: "ClearingTransferRepository",
+    useClass: ClearingTransferTypeOrmRepository,
   },
 ]
 
 export const CONTROLLERS = [
-  AppController,
   CreateBondTransactionHttpAdapter,
   GetBondHttpAdapter,
   GetBondsHttpAdapter,
@@ -203,6 +264,9 @@ export const CONTROLLERS = [
   GetBondLocksHttpAdapter,
   GetBondLockHttpAdapter,
   GetBondHoldersHttpAdapter,
+  GetHolderBalancesHttpAdapter,
+  GetBondHoldsHttpAdapter,
+  GetBondHoldHttpAdapter,
   GetControlListMembersHttpAdapter,
   CreateBondLockTransactionHttpAdapter,
   MintBondTransactionHttpAdapter,
@@ -214,16 +278,26 @@ export const CONTROLLERS = [
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
+  CreateBondHoldTransactionHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
+  CreateClearingRedeemTransactionHttpAdapter,
+  CreateClearingTransferTransactionHttpAdapter,
   UpdateClearingStatusTransactionHttpAdapter,
   CancelClearingTransactionHttpAdapter,
   GetClearingsHoldHttpAdapter,
   GetClearingHoldHttpAdapter,
+  GetRoleMembersHttpAdapter,
+  GetUserRolesHttpAdapter,
+  GrantRoleTransactionHttpAdapter,
+  RevokeRoleTransactionHttpAdapter,
+  GetClearingsTransferHttpAdapter,
+  GetClearingTransferHttpAdapter,
+  GetClearingsRedeemHttpAdapter,
+  GetClearingRedeemHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
   ...COMMON_FUNCTIONALITY_PROVIDERS,
-  AppService,
   CreateBondTransactionAppService,
   CreateBondNestJSEventAdapter,
   CreateBondDomainService,
@@ -237,6 +311,9 @@ export const PROVIDERS = [
   GetBondLocksQueryHandler,
   GetBondLockQueryHandler,
   GetBondHoldersQueryHandler,
+  GetHolderBalancesQueryHandler,
+  GetBondHoldsQueryHandler,
+  GetBondHoldQueryHandler,
   GetControlListMembersQueryHandler,
   SetBondDocumentTransactionAppService,
   SetBondDocumentCommandHandler,
@@ -270,7 +347,7 @@ export const PROVIDERS = [
   UpdateBondHolderBalanceNestJSEventAdapter,
   UpdateBondHolderBalanceDomainService,
   UpdateBondHolderBalanceCommandHandler,
-  LockBondHolderBalanceDomainService,
+  DecreaseBondHolderAvailableBalanceDomainService,
   ReleaseBondLockTransactionAppService,
   ReleaseBondLockCommandHandler,
   ReleaseBondLockNestJSEventAdapter,
@@ -280,7 +357,10 @@ export const PROVIDERS = [
   RedeemBondHolderBalanceCommandHandler,
   RedeemBondHolderBalanceNestJSEventAdapter,
   RedeemBondHolderBalanceDomainService,
-  ClearingBondHolderBalanceDomainService,
+  UpdateClearingBondHolderBalanceDomainService,
+  ApproveHoldClearingBalanceDomainService,
+  ApproveRedeemClearingBalanceDomainService,
+  ApproveTransferClearingBalanceDomainService,
   CancelClearingCommandHandler,
   ReclaimClearingCommandHandler,
   ApproveClearingCommandHandler,
@@ -292,8 +372,13 @@ export const PROVIDERS = [
   TransferByPartitionCommandHandler,
   TransferByPartitionNestJSEventAdapter,
   TransferBondHolderBalanceDomainService,
+  CreateBondHoldTransactionAppService,
+  CreateBondHoldCommandHandler,
+  CreateBondHoldNestJSEventAdapter,
+  CreateBondHoldDomainService,
   CreateBondFiltersAdapter,
   CreateClearingHoldTransactionAppService,
+  CreateClearingRedeemTransactionAppService,
   AddProceedRecipientTransactionAppService,
   AddProceedRecipientCommandHandler,
   AddProceedRecipientNestJSEventAdapter,
@@ -303,17 +388,39 @@ export const PROVIDERS = [
   RemoveProceedRecipientNestJSEventAdapter,
   RemoveBondProceedRecipientDomainService,
   GetBondProceedRecipientsQueryHandler,
+  GrantRoleNestJSEventAdapter,
+  RevokeRoleNestJSEventAdapter,
   CreateClearingHoldTransactionAppService,
+  CreateClearingRedeemTransactionAppService,
+  CreateClearingTransferTransactionAppService,
   UpdateClearingHoldTransactionAppService,
   CancelClearingTransactionAppService,
   CreateClearingHoldDomainService,
+  CreateClearingRedeemDomainService,
+  CreateClearingTransferDomainService,
   CreateClearingHoldCommandHandler,
+  CreateClearingRedeemCommandHandler,
+  CreateClearingTransferCommandHandler,
+  ClearedRedeemNestJSEventAdapter,
+  ClearedTransferNestJSEventAdapter,
   UpdateClearingHoldStatusDomainService,
+  UpdateClearingRedeemStatusDomainService,
+  UpdateClearingTransferStatusDomainService,
   DeleteClearingHoldDomainService,
+  DeleteClearingRedeemDomainService,
+  DeleteClearingTransferDomainService,
   GetClearingsHoldDomainService,
   GetClearingHoldByIdDomainService,
   GetClearingsHoldQueryHandler,
   GetClearingHoldQueryHandler,
+  GetClearingsTransferDomainService,
+  GetClearingTransferByIdDomainService,
+  GetClearingsTransferQueryHandler,
+  GetClearingTransferQueryHandler,
+  GetClearingsRedeemDomainService,
+  GetClearingRedeemByIdDomainService,
+  GetClearingsRedeemQueryHandler,
+  GetClearingRedeemQueryHandler,
   ClearedHoldNestJSEventAdapter,
   ClearingOperationApprovedNestJSEventAdapter,
   CancelClearingOperationNestJSEventAdapter,
@@ -337,5 +444,8 @@ export const ENTITIES = [
   BondLockPersistence,
   BondHolderBalancePersistence,
   BondProceedRecipientPersistence,
+  BondHoldPersistence,
   BondClearingHoldPersistence,
+  BondClearingRedeemPersistence,
+  BondClearingTransferPersistence,
 ]

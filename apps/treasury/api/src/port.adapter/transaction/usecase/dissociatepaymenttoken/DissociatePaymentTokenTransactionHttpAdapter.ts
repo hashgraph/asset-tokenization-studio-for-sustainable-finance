@@ -6,17 +6,21 @@ import { DissociatePaymentTokenTransactionRequest } from "./model/DissociatePaym
 import { DissociatePaymentTokenTransactionPort } from "./DissociatePaymentTokenTransactionPort"
 import { DissociatePaymentTokenTransactionAppService } from "@app/transaction/dissociatepaymenttoken/DissociatePaymentTokenTransactionAppService"
 import { DissociatePaymentTokenTransactionAppServiceRequest } from "@app/transaction/dissociatepaymenttoken/model/DissociatePaymentTokenTransactionAppServiceRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class DissociatePaymentTokenTransactionHttpAdapter implements DissociatePaymentTokenTransactionPort {
   constructor(
     private readonly dissociatePaymentTokenTransactionAppService: DissociatePaymentTokenTransactionAppService,
   ) {}
 
-  @Post(":treasuryContractId/payment-tokens/:paymentTokenContractId/dissociate")
+  @ApiOperation({ summary: "Dissociates a certain payment token from the treasury" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/payment-tokens/:tokenId/dissociate")
   async dissociatePaymentToken(
-    @Param("treasuryContractId") treasuryContractId: string,
-    @Param("paymentTokenContractId") paymentTokenContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
+    @Param("tokenId") paymentTokenContractId: string,
     @Body() request: DissociatePaymentTokenTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.dissociatePaymentTokenTransactionAppService.execute(

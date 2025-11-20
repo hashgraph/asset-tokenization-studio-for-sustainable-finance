@@ -67,6 +67,7 @@ export { PageOptions } from "./pagination/PageOptions"
 export { Page } from "./pagination/Page"
 export { PageOptionsRequest } from "./pagination/PageOptionsRequest"
 export { PageResponse } from "./pagination/PageResponse"
+export { ApiPaginatedResponse } from "@decorators/ApiPaginatedResponse"
 
 export { QueryOrderPageOptions } from "./query/QueryOrderPageOptions"
 export { QueryPageOptions } from "./query/QueryPageOptions"

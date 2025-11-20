@@ -5,7 +5,6 @@ import { Handler, Singleton } from "@hashgraph/green-bonds-shared-core"
 import { DistributionExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/DistributionExecutedDLTEvent"
 import { DistributionByAddressesExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/DistributionByAddressesExecutedDLTEvent"
 import { SyncDistributionAppService } from "@app/distribution/syncdistribution/service/SyncDistributionAppService"
-import { SyncDistributionAppServiceRequest } from "@app/distribution/syncdistribution/service/model/SyncDistributionAppServiceRequest"
 import { BaseDistributionExecutedDLTEvent } from "@port/distribution/usecase/syncdistribution/model/BaseDistributionExecutedDLTEvent"
 import { BasePaymentNestJSEventAdapter } from "@port/shared/BasePaymentNestJSEventAdapter"
 
@@ -26,23 +25,12 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
   }
 
   private async processDistributionEvent(event: BaseDistributionExecutedDLTEvent): Promise<void> {
-    const { addresses: successAddresses, amounts: paidAmounts } = this.filterSuccessData(
-      event.result.succeededAddresses,
-      event.result.paidAmounts,
-    )
-    const failedAddresses = this.filterNonZeroAddresses(event.result.failedAddresses)
-
-    const [convertedSuccessAddresses, convertedFailedAddresses] = await Promise.all([
-      this.convertToHederaFormat(successAddresses),
-      this.convertToHederaFormat(failedAddresses),
-    ])
+    const results = await this.mapResults(event.results)
 
     await this.syncDistributionAppService.execute({
       treasuryContractId: event.contractId,
       distributionId: event.distributionId,
-      successAddresses: convertedSuccessAddresses,
-      failedAddresses: convertedFailedAddresses,
-      paidAmounts,
-    } as SyncDistributionAppServiceRequest)
+      results,
+    })
   }
 }

@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle("GreenBonds ATS API")
+    .setTitle("GreenBonds Treasury API")
     .setDescription("The GreenBonds Treasury API documentation")
     .setVersion("1.0")
     .addGlobalResponse({

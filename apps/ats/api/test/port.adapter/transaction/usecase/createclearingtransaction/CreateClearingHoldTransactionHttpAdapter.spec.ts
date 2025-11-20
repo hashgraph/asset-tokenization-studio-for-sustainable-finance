@@ -49,7 +49,6 @@ describe("CreateClearingHoldTransaction API Integration", () => {
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
         expirationTimestamp: 1735689600000,
-        toAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         escrowAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         data: "0x1234",
       }
@@ -80,7 +79,6 @@ describe("CreateClearingHoldTransaction API Integration", () => {
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
           expirationTimestamp: 1735689600000,
-          toAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
           escrowAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
           data: "0x1234",
         }

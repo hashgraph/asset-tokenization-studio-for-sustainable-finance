@@ -22,6 +22,7 @@ export const MOCK_ENVIRONMENTAL_ASSET_FACTORY_CONTRACT_NAME = "EnvironmentalAsse
 export const MOCK_PAYMENT_TOKEN_FACTORY_CONTRACT_NAME = "PaymentTokenFactory";
 export const MOCK_ASSET_CONTRACT_NAME = "AssetMock";
 export const MOCK_TREASURY_CONTRACT_NAME = "ITreasury";
+export const HEDERA_PRECOMPILED_ADDRESS = "0x0000000000000000000000000000000000000167";
 
 /**
  * Gas limits for test assertions

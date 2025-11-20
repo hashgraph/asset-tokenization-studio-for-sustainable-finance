@@ -19,10 +19,6 @@ export class CreateClearingHoldTransactionAppServiceRequest extends BaseTransact
   @IsNumber()
   expirationTimestamp: number
 
-  @IsOptional()
-  @IsString()
-  toAddress?: string
-
   @IsNotEmpty()
   @IsString()
   escrowAddress: string
@@ -40,7 +36,6 @@ export class CreateClearingHoldTransactionAppServiceRequest extends BaseTransact
     amount: string,
     expirationTimestamp: number,
     escrowAddress: string,
-    toAddress?: string,
     data?: string,
   ) {
     super(format, accountId, bondContractId)
@@ -48,7 +43,6 @@ export class CreateClearingHoldTransactionAppServiceRequest extends BaseTransact
     this.partition = partition
     this.amount = amount
     this.expirationTimestamp = expirationTimestamp
-    this.toAddress = toAddress
     this.escrowAddress = escrowAddress
     this.data = data
   }

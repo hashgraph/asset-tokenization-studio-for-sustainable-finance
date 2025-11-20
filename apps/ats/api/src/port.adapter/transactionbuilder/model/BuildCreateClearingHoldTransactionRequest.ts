@@ -21,10 +21,6 @@ export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransact
 
   @IsOptional()
   @IsString()
-  toAddress?: string
-
-  @IsOptional()
-  @IsString()
   escrowAddress?: string
 
   @IsOptional()
@@ -39,7 +35,6 @@ export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransact
     partition: string | undefined,
     amount: string,
     expirationTimestamp: number,
-    toAddress?: string,
     escrowAddress?: string,
     data?: string,
   ) {
@@ -48,7 +43,6 @@ export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransact
     this.partition = partition
     this.amount = amount
     this.expirationTimestamp = expirationTimestamp
-    this.toAddress = toAddress
     this.escrowAddress = escrowAddress
     this.data = data
   }

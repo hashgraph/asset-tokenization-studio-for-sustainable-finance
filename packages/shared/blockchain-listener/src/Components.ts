@@ -19,9 +19,9 @@ import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-clas
 import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
 import { EventFilterPersistence } from "@port/persistence/eventfilter/model/EventFilterPersistence"
 import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStatePersistence"
-import { CreateSchema1759133092414 } from "./migrations/1759133092414-CreateSchema"
 import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
+import { BlockchainListenerHealthIndicator } from "@port/health/BlockchainListenerHealthIndicator"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -50,6 +50,7 @@ export const EVENT_LISTENER_PROVIDERS = [
   ProcessBlocksAppService,
   EventListenerNestJSOnApplicationBootstrap,
   PublishEventPortNestJSEventAdapter,
+  BlockchainListenerHealthIndicator,
   {
     provide: "ConfigService",
     useClass: NestJSConfigService,
@@ -69,5 +70,3 @@ export const EVENT_LISTENER_ENTITIES: EntityClassOrSchema[] = [
   EventFilterPersistence,
   SyncStatePersistence,
 ]
-
-export const EVENT_LISTENER_MIGRATIONS = [CreateSchema1759133092414]
