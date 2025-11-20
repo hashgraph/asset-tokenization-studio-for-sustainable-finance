@@ -13,6 +13,7 @@ contract MockBond is IBondRead {
     string public symbol;
     address public treasury;
     uint256 public nominalValue;
+    uint8 public nominalValueDecimals;
     mapping(address => uint256) private _balance;
     uint256 private _totalSupply;
 
@@ -22,8 +23,9 @@ contract MockBond is IBondRead {
         name = name_;
         symbol = symbol_;
         treasury = treasury_;
-        // For simplicity in tests, we use 1 to mean 1 USDC per 10^12 bond wei
+        // For simplicity in tests, we use 1 to mean 0.1 USDC per 10^12 bond wei
         nominalValue = 3; // This means subscriptionAmount (in wei) * 1 = payment (in smallest unit)
+        nominalValueDecimals = 1;
     }
 
     function setNominalValue(uint256 nominalValue_) external {
@@ -39,6 +41,7 @@ contract MockBond is IBondRead {
         bondDetailsData_ = BondDetailsData({
             currency: bytes3("USD"),
             nominalValue: nominalValue,
+            nominalValueDecimals: nominalValueDecimals,
             startingDate: block.timestamp,
             maturityDate: block.timestamp + 365 days
         });
@@ -57,6 +60,14 @@ contract MockBond is IBondRead {
     }
 
     function getCouponFor(uint256, address) external pure override returns (CouponFor memory) {
+        revert NotImplemented();
+    }
+
+    function getCouponAmountFor(uint256, address) external pure override returns (CouponAmountFor memory) {
+        revert NotImplemented();
+    }
+
+    function getPrincipalFor(address) external pure returns (PrincipalFor memory) {
         revert NotImplemented();
     }
 

@@ -4,22 +4,14 @@
   "type": "commonjs",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
-  "files": [
-    "build/",
-    "contracts/"
-  ],
+  "files": ["build/", "contracts/"],
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
       "require": "./build/index.js"
     }
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -47,7 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
+    "@hashgraph/asset-tokenization-contracts": "file:///home/iobuilders/Downloads/hashgraph-asset-tokenization-contracts-1.18.0.tgz",
     "@hashgraph/sdk": "2.76.0",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",

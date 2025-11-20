@@ -63,6 +63,12 @@ interface IPrimaryMarket {
         CANCELLED // Already cancelled
     }
 
+    enum OfferingProcessStatus {
+        SUCCEEDED,
+        FAILED,
+        ALREADY_PROCESSED
+    }
+
     /// @notice Detailed information about a subscription
     struct Subscription {
         address investor; // Address of the investor
@@ -71,9 +77,8 @@ interface IPrimaryMarket {
     }
 
     struct OfferingProcessResult {
-        uint256[] failedSubscriptions;
-        uint256[] succeededSubscriptions;
-        uint256[] alreadyProcessedSubscriptions;
+        uint256 subscriptionId;
+        OfferingProcessStatus status;
     }
 
     /// @notice Structure representing a market offering
@@ -89,6 +94,7 @@ interface IPrimaryMarket {
     /// @param endDate Timestamp when offering ends
     /// @param deadlineRule Rule for handling deadlines
     /// @param price if = 0 asset nominal value will be set as the price when creating the Offering
+    /// @param priceDecimals if = 0 asset nominal value decimals will be set as the price decimals when creating the Offering
     struct Offering {
         address asset;
         address treasury;
@@ -102,6 +108,7 @@ interface IPrimaryMarket {
         uint256 endDate;
         DeadlineRule deadlineRule;
         uint256 price;
+        uint8 priceDecimals;
     }
 
     /// @notice Emitted when a new offering is created
@@ -130,28 +137,14 @@ interface IPrimaryMarket {
     /// @notice Emitted when an offering is executed
     /// @param offeringId The offering ID
     /// @param operator The operator executing the offering
-    /// @param subscriptionIdsSuccess Array of successfully executed subscription IDs
-    /// @param subscriptionIdsFailed Array of failed subscription IDs
-    event OfferingExecuted(
-        uint256 indexed offeringId,
-        address indexed operator,
-        uint256[] subscriptionIdsSuccess,
-        uint256[] subscriptionIdsFailed,
-        uint256[] subscriptionIdsAlreadyExecuted
-    );
+    /// @param result Array of subscriptions successfully executed, in error and already executed
+    event OfferingExecuted(uint256 indexed offeringId, address indexed operator, OfferingProcessResult[] result);
 
     /// @notice Emitted when an offering is cancelled
     /// @param offeringId The offering ID
     /// @param operator The operator cancelling the offering
-    /// @param subscriptionIdsSuccess Array of subscriptions successfully cancelled
-    /// @param subscriptionIdsFailed Array of subscriptions that failed to cancel
-    event OfferingCancelled(
-        uint256 indexed offeringId,
-        address indexed operator,
-        uint256[] subscriptionIdsSuccess,
-        uint256[] subscriptionIdsFailed,
-        uint256[] subscriptionIdsAlreadyCancelled
-    );
+    /// @param result Array of subscriptions successfully cancelled, in error and already cancelled
+    event OfferingCancelled(uint256 indexed offeringId, address indexed operator, OfferingProcessResult[] result);
 
     /// @notice Thrown when an account does not have enough funds for a subscription
     error NotEnoughFunds(address account, uint256 requiredFunds, uint256 availableFunds, address paymentToken);
@@ -221,7 +214,7 @@ interface IPrimaryMarket {
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
-    ) external returns (OfferingProcessResult memory executionResult);
+    ) external returns (OfferingProcessResult[] memory executionResult);
 
     /// @notice Cancel an offering
     /// @param _offeringId The offering ID
@@ -231,7 +224,7 @@ interface IPrimaryMarket {
         uint256 _offeringId,
         uint256 _pageIndex,
         uint256 _pageLength
-    ) external returns (OfferingProcessResult memory cancelResult);
+    ) external returns (OfferingProcessResult[] memory cancelResult);
 
     /// @notice Execute an offering
     /// @param _offeringId The offering ID
@@ -239,7 +232,7 @@ interface IPrimaryMarket {
     function executeOfferingBySubscriptionId(
         uint256 _offeringId,
         uint256[] calldata _subscriptionIds
-    ) external returns (OfferingProcessResult memory executionResult);
+    ) external returns (OfferingProcessResult[] memory executionResult);
 
     /// @notice Cancel an offering
     /// @param _offeringId The offering ID
@@ -247,7 +240,7 @@ interface IPrimaryMarket {
     function cancelOfferingBySubscriptionId(
         uint256 _offeringId,
         uint256[] calldata _subscriptionIds
-    ) external returns (OfferingProcessResult memory cancelResult);
+    ) external returns (OfferingProcessResult[] memory cancelResult);
 
     /// @notice Cancel a specific subscription (only when it blocks execution)
     /// @param _offeringId The offering ID
