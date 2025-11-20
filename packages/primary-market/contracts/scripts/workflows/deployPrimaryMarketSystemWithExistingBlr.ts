@@ -341,6 +341,13 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
         facets: factoryPrimaryMarketConfig.data.facetKeys,
       },
 
+      primaryMarketConfiguration: {
+        configId: primaryMarketConfig.data.configurationId,
+        version: primaryMarketConfig.data.version,
+        facetCount: primaryMarketConfig.data.facetKeys.length,
+        facets: primaryMarketConfig.data.facetKeys,
+      },
+
       summary: {
         totalContracts: 1, // Only FactoryPrimaryMarket proxy deployed
         totalFacets: facetsResult.deployed.size, // Only new facets

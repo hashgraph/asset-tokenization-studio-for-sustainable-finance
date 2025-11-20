@@ -76,6 +76,18 @@ export interface DeployFactoryPrimaryMarketOutput {
     }>;
   };
 
+  /** PrimaryMarket configuration (config ID 10001) */
+  primaryMarketConfiguration: {
+    configId: string;
+    version: number;
+    facetCount: number;
+    facets: Array<{
+      facetName: string;
+      key: string;
+      address: string;
+    }>;
+  };
+
   /** Deployment summary */
   summary: {
     totalContracts: number;
@@ -319,6 +331,13 @@ export async function deployFactoryPrimaryMarketSystem(
         version: factoryPrimaryMarketConfig.data.version,
         facetCount: factoryPrimaryMarketConfig.data.facetKeys.length,
         facets: factoryPrimaryMarketConfig.data.facetKeys,
+      },
+
+      primaryMarketConfiguration: {
+        configId: primaryMarketConfig.data.configurationId,
+        version: primaryMarketConfig.data.version,
+        facetCount: primaryMarketConfig.data.facetKeys.length,
+        facets: primaryMarketConfig.data.facetKeys,
       },
 
       summary: {

@@ -395,7 +395,7 @@ export async function deployGbpInfrastructure(
     info(`  TREASURY: config ID=20000, version=${treasuryResult.configuration.version}`);
     info(`  FactorySuite: config ID=30000, version=${factorySuiteResult.configuration.version}`);
     info(`  FactoryPrimaryMarket: config ID=10000, version=${primaryMarketResult.configuration.version}`);
-    info(`  PrimaryMarket: config ID=10001`);
+    info(`  PrimaryMarket: config ID=10001, version=${primaryMarketResult.primaryMarketConfiguration.version}`);
     info("");
     info("Facets:");
     info(`  BOND facets: ${bondResult.summary.totalFacets}`);

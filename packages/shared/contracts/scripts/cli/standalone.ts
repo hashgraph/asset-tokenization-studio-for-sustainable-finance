@@ -41,37 +41,7 @@ function saveDeploymentResult(result: any, network: string): void {
   };
 
   writeFileSync(filepath, JSON.stringify(output, null, 2));
-  success(`✓ Deployment result saved to: deployments/${filename}`);
-}
-
-/**
- * Display deployment summary.
- */
-function displaySummary(result: any): void {
-  section("🎉 Deployment Complete!");
-
-  console.log("");
-  console.log("Infrastructure Addresses:");
-  console.log(`  ProxyAdmin:     ${result.proxyAdmin}`);
-  console.log(`  BLR Proxy:      ${result.blr}`);
-  console.log(`  ATS Factory:    ${result.bondDeployment.infrastructure.factory.proxy}`);
-  console.log(`  Treasury:       (deployed per bond via FactorySuite)`);
-  console.log(`  FactorySuite:   ${result.factorySuiteDeployment.infrastructure.factorySuite.proxy}`);
-
-  console.log("");
-  console.log("Configurations:");
-  console.log(`  BOND:           config ID=2, version=${result.bondDeployment.configurations.bond.version}`);
-  console.log(`  Treasury:       config ID=20000, version=${result.treasuryDeployment.configuration.version}`);
-  console.log(`  FactorySuite:   config ID=30000, version=${result.factorySuiteDeployment.configuration.version}`);
-
-  console.log("");
-  console.log("Deployment Statistics:");
-  console.log(`  BOND facets:          ${result.bondDeployment.summary.totalFacets}`);
-  console.log(`  Treasury facets:      ${result.treasuryDeployment.summary.totalFacets}`);
-  console.log(`  FactorySuite facets:  ${result.factorySuiteDeployment.summary.totalFacets}`);
-  console.log(`  Total contracts:      ${result.bondDeployment.summary.totalContracts}`);
-
-  console.log("");
+  info(`✓ Deployment result saved to: deployments/${filename}`);
 }
 
 /**
@@ -104,9 +74,6 @@ async function main(): Promise<void> {
       ...deploymentOptions,
       network,
     });
-
-    // Display summary
-    displaySummary(result);
 
     // Save result
     saveDeploymentResult(result, network);
