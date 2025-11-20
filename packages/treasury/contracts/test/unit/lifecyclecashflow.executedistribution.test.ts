@@ -19,6 +19,7 @@ describe("LifeCycleCashFlow operations", () => {
   let paymentToken: Contract;
   let paymentTokenAddress: string;
   let assetMockContract: ContractFactory;
+  let paymentTokenMockContract: ContractFactory;
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
@@ -32,7 +33,7 @@ describe("LifeCycleCashFlow operations", () => {
     await deployPrecompiledMock();
 
     assetMockContract = await ethers.getContractFactory("AssetMock");
-    const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
     paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
     await paymentToken.deployed();
     paymentTokenAddress = paymentToken.address;
@@ -224,6 +225,19 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
         });
+      });
+
+      it.only("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and payment token decimals are wrong, THEN it reverts with InvalidTokenDecimals error", async () => {
+        const paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 256);
+        await paymentToken.deployed();
+        const paymentTokenAddress = paymentToken.address;
+        await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
+        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+
+        await expect(treasury.executeDistribution(assetAddress, 1, 1, 1))
+          .to.be.revertedWithCustomError(treasury, "InvalidTokenDecimals")
+          .withArgs(paymentTokenAddress, 256);
       });
 
       describe("Distribution a coupon with two holders", () => {
