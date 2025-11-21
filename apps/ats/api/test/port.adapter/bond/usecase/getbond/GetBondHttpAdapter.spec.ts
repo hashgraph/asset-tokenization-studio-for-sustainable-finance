@@ -10,7 +10,6 @@ import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { normalize } from "path"
 
 describe("GetBondHttpAdapter API Integration", () => {
   let app: INestApplication
@@ -87,7 +86,7 @@ describe("GetBondHttpAdapter API Integration", () => {
         decimals: bond.decimals,
         currency: bond.currency,
         nominalValue: bond.nominalValue,
-        normalizedNominalValue: bond.nominalValueDecimals,
+        nominalValueDecimals: bond.nominalValueDecimals,
         startingDate: bond.startingDate.toISOString(),
         maturityDate: bond.maturityDate.toISOString(),
         maxSupply: bond.maxSupply,
