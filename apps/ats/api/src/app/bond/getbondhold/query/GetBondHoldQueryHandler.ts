@@ -26,7 +26,7 @@ export class GetBondHoldQueryHandler implements QueryHandler<GetBondHoldQuery, B
     )
 
     if (!hold) {
-      throw BondHoldNotFoundError.holdIdError(query.bondContractId, query.holderAccountId, query.holdId)
+      throw BondHoldNotFoundError.withId(query.bondContractId, query.holderAccountId, query.holdId)
     }
 
     return {
