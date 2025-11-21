@@ -53,6 +53,8 @@ export interface DeploymentResult {
   proxyAdmin: string;
   /** BusinessLogicResolver (BLR) proxy address */
   blr: string;
+  /** BLR implementation address */
+  blrImplementationAddress: string;
   /** BOND deployment result (includes facets, configurations, factory) */
   bondDeployment: DeploymentWithExistingBlrOutput;
   /** TREASURY deployment result */
@@ -169,6 +171,7 @@ export async function deployGbpInfrastructure(
 
   let proxyAdminAddress: string;
   let blrAddress: string;
+  let blrImplementationAddress: string | undefined;
 
   if (incompleteCheckpoints.length > 0) {
     const checkpoint = incompleteCheckpoints[0];
@@ -185,9 +188,13 @@ export async function deployGbpInfrastructure(
 
     proxyAdminAddress = checkpoint.steps.proxyAdmin.address;
     blrAddress = checkpoint.steps.blr.proxy;
+    blrImplementationAddress = checkpoint.steps.blr.implementation;
 
     success(`✓ Reconnecting to ProxyAdmin: ${proxyAdminAddress}`);
     success(`✓ Reconnecting to BLR: ${blrAddress}`);
+    if (blrImplementationAddress) {
+      success(`✓ BLR Implementation: ${blrImplementationAddress}`);
+    }
   } else {
     info("\n✨ Starting fresh deployment...\n");
 
@@ -214,7 +221,9 @@ export async function deployGbpInfrastructure(
       }
 
       blrAddress = blrResult.blrAddress;
+      blrImplementationAddress = blrResult.implementationAddress;
       success(`✓ BLR proxy deployed at: ${blrAddress}`);
+      success(`✓ BLR implementation deployed at: ${blrImplementationAddress}`);
     } catch (infraError) {
       logError("Infrastructure deployment failed:", infraError);
       throw infraError;
@@ -279,6 +288,7 @@ export async function deployGbpInfrastructure(
       network,
       {
         blrAddress,
+        blrImplementationAddress,
         proxyAdminAddress,
         facets: {
           accessControl: accessControlFacet.address,
@@ -317,6 +327,7 @@ export async function deployGbpInfrastructure(
       network,
       {
         blrAddress,
+        blrImplementationAddress,
         proxyAdminAddress,
         facets: {
           accessControl: accessControlFacet.address,
@@ -356,6 +367,7 @@ export async function deployGbpInfrastructure(
       network,
       {
         blrAddress,
+        blrImplementationAddress,
         proxyAdminAddress,
         facets: {
           accessControl: accessControlFacet.address,
@@ -409,6 +421,7 @@ export async function deployGbpInfrastructure(
     return {
       proxyAdmin: proxyAdminAddress,
       blr: blrAddress,
+      blrImplementationAddress,
       bondDeployment: bondResult,
       treasuryDeployment: treasuryResult,
       factorySuiteDeployment: factorySuiteResult,

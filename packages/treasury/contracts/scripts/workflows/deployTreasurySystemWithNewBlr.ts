@@ -14,7 +14,7 @@ import {
   LogLevel,
   atsRegistry,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { Signer, ContractFactory } from "ethers";
@@ -41,9 +41,10 @@ export interface DeployTreasuryOutput {
       contractId?: string;
     };
     blr: {
-      implementation: string;
+      implementation?: string;
+      implementationContractId?: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
     treasury?: {
       implementation: string;
@@ -116,7 +117,7 @@ export async function deployTreasury(
   section("Treasury Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`⏱️  Confirmations: ${confirmations}`);

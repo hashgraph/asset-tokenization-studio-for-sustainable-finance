@@ -13,6 +13,7 @@ import {
   LogLevel,
   getDeploymentConfig,
   DEFAULT_BATCH_SIZE,
+  fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { Signer, ContractFactory } from "ethers";
@@ -29,6 +30,9 @@ import type { DeployFactoryPrimaryMarketOutput } from "./deployPrimaryMarketSyst
 export interface ExistingInfrastructure {
   /** Existing BLR proxy address (shared across modules) */
   blrAddress: string;
+
+  /** Existing BLR implementation address */
+  blrImplementationAddress?: string;
 
   /** Existing ProxyAdmin address */
   proxyAdminAddress: string;
@@ -74,6 +78,10 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
+
+  const getContractId = async (address: string) => {
+    return network.toLowerCase().includes("hedera") ? await fetchHederaContractId(network, address) : undefined;
+  };
 
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);
@@ -298,14 +306,19 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
       infrastructure: {
         proxyAdmin: {
           address: proxyAdminAddress,
+          contractId: await getContractId(proxyAdminAddress),
         },
         blr: {
-          implementation: blrAddress, // We don't know the implementation address
+          implementation: existingInfra.blrImplementationAddress,
+          implementationContractId: existingInfra.blrImplementationAddress
+            ? await getContractId(existingInfra.blrImplementationAddress)
+            : undefined,
           proxy: blrAddress,
+          proxyContractId: await getContractId(blrAddress),
         },
         factoryPrimaryMarket: {
-          implementation: blrAddress, // ResolverProxy uses BLR
           proxy: factoryPrimaryMarketAddress,
+          proxyContractId: await getContractId(factoryPrimaryMarketAddress),
         },
       },
 

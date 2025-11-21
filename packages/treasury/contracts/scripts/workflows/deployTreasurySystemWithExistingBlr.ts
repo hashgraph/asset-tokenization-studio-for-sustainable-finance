@@ -11,8 +11,9 @@ import {
   LogLevel,
   atsRegistry,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
   DEFAULT_BATCH_SIZE,
+  fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { Signer, ContractFactory } from "ethers";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
@@ -25,6 +26,9 @@ import type { DeployTreasuryOutput } from "./deployTreasurySystemWithNewBlr";
 export interface ExistingInfrastructure {
   /** Existing BLR proxy address (shared across modules) */
   blrAddress: string;
+
+  /** Existing BLR implementation address */
+  blrImplementationAddress?: string;
 
   /** Existing ProxyAdmin address */
   proxyAdminAddress: string;
@@ -79,10 +83,14 @@ export async function deployTreasuryWithExistingInfra(
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  const getContractId = async (address: string) => {
+    return network.toLowerCase().includes("hedera") ? await fetchHederaContractId(network, address) : undefined;
+  };
+
   section("Treasury Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
@@ -255,10 +263,15 @@ export async function deployTreasuryWithExistingInfra(
       infrastructure: {
         proxyAdmin: {
           address: proxyAdminAddress,
+          contractId: await getContractId(proxyAdminAddress),
         },
         blr: {
-          implementation: blrAddress, // We don't know the implementation address
+          implementation: existingInfra.blrImplementationAddress,
+          implementationContractId: existingInfra.blrImplementationAddress
+            ? await getContractId(existingInfra.blrImplementationAddress)
+            : undefined,
           proxy: blrAddress,
+          proxyContractId: await getContractId(blrAddress),
         },
         // No treasury proxy - deployed via FactorySuite when creating bond suite
       },

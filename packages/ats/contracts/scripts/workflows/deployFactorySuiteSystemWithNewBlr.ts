@@ -32,7 +32,7 @@ import {
   section,
   error as logError,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
@@ -57,14 +57,14 @@ export interface DeployFactorySuiteOutput {
       contractId?: string;
     };
     blr: {
-      implementation: string;
+      implementation?: string;
+      implementationContractId?: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
     factorySuite: {
-      implementation: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
   };
 
@@ -167,7 +167,7 @@ export async function deployFactorySuiteSystem(
   section("FactorySuite System Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`⏱️  Confirmations: ${confirmations}`);
@@ -324,7 +324,6 @@ export async function deployFactorySuiteSystem(
           proxy: blrResult.blrAddress,
         },
         factorySuite: {
-          implementation: blrResult.blrAddress,
           proxy: factorySuiteAddress,
         },
       },

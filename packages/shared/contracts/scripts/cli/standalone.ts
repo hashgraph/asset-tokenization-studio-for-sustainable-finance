@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import { deployGbpInfrastructure } from "../workflows/deployGbpInfrastructure";
 import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "../infrastructure/config";
-import { info, success, error as logError, section } from "@hashgraph/asset-tokenization-contracts/scripts";
+import {
+  info,
+  success,
+  error as logError,
+  section,
+  isHederaNetwork,
+} from "@hashgraph/asset-tokenization-contracts/scripts";
 import { writeFileSync, mkdirSync } from "fs";
 import { join } from "path";
 
@@ -37,8 +43,76 @@ function saveDeploymentResult(result: any, network: string): void {
   const output = {
     timestamp: new Date().toISOString(),
     network,
+
+    callableContracts: {
+      proxyAdmin: {
+        description: "ProxyAdmin - Manages upgrades for TransparentUpgradeableProxy contracts",
+        address: result.proxyAdmin,
+        contractId: result.bondDeployment?.infrastructure?.proxyAdmin?.contractId,
+      },
+      businessLogicResolver: {
+        description: "Business Logic Resolver (BLR) - Shared diamond pattern resolver for all GBP contracts",
+        address: result.blr,
+        contractId: result.bondDeployment?.infrastructure?.blr?.proxyContractId,
+        proxyType: "TransparentUpgradeableProxy",
+        implementation: {
+          address: result.blrImplementationAddress,
+          contractId: result.treasuryDeployment?.infrastructure?.blr?.implementationContractId,
+        },
+      },
+      atsFactory: {
+        description: "ATS Factory - Deploy bond and equity tokens",
+        address: result.bondDeployment?.infrastructure?.factory?.proxy,
+        contractId: result.bondDeployment?.infrastructure?.factory?.proxyContractId,
+        proxyType: "TransparentUpgradeableProxy",
+        implementation: {
+          address: result.bondDeployment?.infrastructure?.factory?.implementation,
+          contractId: result.bondDeployment?.infrastructure?.factory?.implementationContractId,
+        },
+      },
+      ...(result.factorySuiteDeployment && {
+        factorySuite: {
+          description: "Factory Suite - Atomic deployment of Bond + Treasury + KPI contracts",
+          address: result.factorySuiteDeployment.infrastructure?.factorySuite?.proxy,
+          contractId: result.factorySuiteDeployment.infrastructure?.factorySuite?.proxyContractId,
+          proxyType: "ResolverProxy",
+          resolver: {
+            address: result.blr,
+            contractId: result.bondDeployment?.infrastructure?.blr?.proxyContractId,
+          },
+        },
+      }),
+      ...(result.primaryMarketDeployment && {
+        primaryMarketFactory: {
+          description: "Primary Market Factory - Deploy primary market instances for offerings",
+          address: result.primaryMarketDeployment.infrastructure?.factoryPrimaryMarket?.proxy,
+          contractId: result.primaryMarketDeployment.infrastructure?.factoryPrimaryMarket?.proxyContractId,
+          proxyType: "ResolverProxy",
+          resolver: {
+            address: result.blr,
+            contractId: result.bondDeployment?.infrastructure?.blr?.proxyContractId,
+          },
+        },
+      }),
+    },
+
     result,
   };
+
+  // Validate all callable contracts have contractIds on Hedera networks
+  if (isHederaNetwork(network)) {
+    const missingContractIds: string[] = [];
+
+    Object.entries(output.callableContracts).forEach(([name, contract]: [string, any]) => {
+      if (!contract.contractId) {
+        missingContractIds.push(name);
+      }
+    });
+
+    if (missingContractIds.length > 0) {
+      logError(`⚠️  Warning: Missing contractIds for: ${missingContractIds.join(", ")}`);
+    }
+  }
 
   writeFileSync(filepath, JSON.stringify(output, null, 2));
   info(`✓ Deployment result saved to: deployments/${filename}`);

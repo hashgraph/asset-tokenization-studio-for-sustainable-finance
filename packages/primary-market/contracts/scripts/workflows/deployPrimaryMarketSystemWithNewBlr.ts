@@ -14,7 +14,7 @@ import {
   configureLogger,
   LogLevel,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
@@ -45,14 +45,14 @@ export interface DeployFactoryPrimaryMarketOutput {
       contractId?: string;
     };
     blr: {
-      implementation: string;
+      implementation?: string;
+      implementationContractId?: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
     factoryPrimaryMarket: {
-      implementation: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
   };
 
@@ -132,7 +132,7 @@ export async function deployFactoryPrimaryMarketSystem(
   section("FactoryPrimaryMarket Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`⏱️  Confirmations: ${confirmations}`);
@@ -310,7 +310,6 @@ export async function deployFactoryPrimaryMarketSystem(
           proxy: blrResult.blrAddress,
         },
         factoryPrimaryMarket: {
-          implementation: blrResult.blrAddress,
           proxy: factoryPrimaryMarketAddress,
         },
       },

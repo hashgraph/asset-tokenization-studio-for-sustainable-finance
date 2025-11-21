@@ -46,7 +46,10 @@
   "license": "Apache-2.0",
   "scripts": {
     "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
-    "clean": "npx hardhat clean",
+    "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
+    "clean:cache": "npx hardhat clean",
+    "clean:build": "node -e \"const fs=require('fs'); ['dist','build','artifacts','cache','typechain-types','coverage','.nyc_output'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
