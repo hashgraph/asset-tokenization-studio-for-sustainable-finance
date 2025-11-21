@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { IsNotEmpty, IsString, IsArray, IsNumber } from "class-validator"
+import { OfferingProcessResult } from "@domain/shared/model/OfferingProcessResult"
 
-export class CancelOfferingDomainServiceRequest {
+export class ProcessOfferingDomainServiceRequest {
   @IsNumber()
   @IsNotEmpty()
   offeringId: number
@@ -15,10 +16,5 @@ export class CancelOfferingDomainServiceRequest {
   operatorAccountId: string
 
   @IsArray()
-  @IsNumber({}, { each: true })
-  subscriptionIdsSuccess: number[]
-
-  @IsArray()
-  @IsNumber({}, { each: true })
-  subscriptionIdsFailed: number[]
+  processResults: OfferingProcessResult[]
 }
