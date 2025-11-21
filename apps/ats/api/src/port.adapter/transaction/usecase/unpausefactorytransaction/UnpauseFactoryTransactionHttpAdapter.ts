@@ -15,13 +15,13 @@ import { UnpauseFactoryTransactionRequest } from "./model/UnpauseFactoryTransact
 export class UnpauseFactoryTransactionHttpAdapter implements UnpauseFactoryTransactionPort {
   constructor(private readonly unpauseTransactionAppService: UnpauseTransactionAppService) {}
 
-  @Post(":factoryId/unpause")
+  @Post(":factoryContractId/unpause")
   async unpauseFactory(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Body() request: UnpauseFactoryTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.unpauseTransactionAppService.execute(
-      new UnpauseTransactionAppServiceRequest(request.format, request.accountId!, factoryId),
+      new UnpauseTransactionAppServiceRequest(request.format, request.accountId!, factoryContractId),
     )
   }
 }

@@ -15,7 +15,7 @@ export class PauseFactoryCommandHandler implements CommandHandler<PauseFactoryCo
 
   @Validate()
   async execute(command: PauseFactoryCommand): Promise<void> {
-    const factory = await this.factoryRepository.findByFactoryId(command.factoryId)
+    const factory = await this.factoryRepository.findByFactoryId(command.factoryContractId)
 
     if (!factory) {
       return
@@ -24,6 +24,6 @@ export class PauseFactoryCommandHandler implements CommandHandler<PauseFactoryCo
     factory.pause()
     await this.factoryRepository.save(factory)
 
-    this.eventBus.publish(new FactoryPausedEvent(factory.factoryId))
+    this.eventBus.publish(new FactoryPausedEvent(factory.contractId))
   }
 }

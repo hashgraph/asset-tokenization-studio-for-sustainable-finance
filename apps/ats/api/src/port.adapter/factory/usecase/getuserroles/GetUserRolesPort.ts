@@ -5,7 +5,7 @@ import { GetUserRoleResponse } from "@port/factory/usecase/getuserroles/model/Ge
 
 export interface GetUserRolesPort {
   getUserRoles(
-    factoryId: string,
+    factoryContractId: string,
     userId: string,
     pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetUserRoleResponse>>

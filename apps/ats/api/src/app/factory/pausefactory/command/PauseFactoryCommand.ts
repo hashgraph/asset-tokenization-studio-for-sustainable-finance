@@ -6,10 +6,10 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class PauseFactoryCommand extends Command<void> {
   @IsString()
   @IsNotEmpty()
-  factoryId: string
+  factoryContractId: string
 
-  constructor(factoryId: string) {
+  constructor(factoryContractId: string) {
     super()
-    this.factoryId = factoryId
+    this.factoryContractId = factoryContractId
   }
 }

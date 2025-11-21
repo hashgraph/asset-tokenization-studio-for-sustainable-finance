@@ -4,5 +4,5 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { UnpauseFactoryTransactionRequest } from "./model/UnpauseFactoryTransactionRequest"
 
 export interface UnpauseFactoryTransactionPort {
-  unpauseFactory(factoryId: string, request: UnpauseFactoryTransactionRequest): Promise<TransactionResponse>
+  unpauseFactory(factoryContractId: string, request: UnpauseFactoryTransactionRequest): Promise<TransactionResponse>
 }

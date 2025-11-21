@@ -44,26 +44,29 @@ describe("GetFactoryHttpAdapter API Integration", () => {
     }
   })
 
-  describe("GET /factory/:factoryId", () => {
+  describe("GET /factory/:factoryContractId", () => {
     it("should return 404 Http error when factory is not found", async () => {
-      const factoryId = "0.0.9999999"
+      const factoryContractId = "0.0.9999999"
 
-      await request(app.getHttpServer()).get(`/api/v1/ats/factory/${factoryId}`).send().expect(HttpStatus.NOT_FOUND)
+      await request(app.getHttpServer())
+        .get(`/api/v1/ats/factory/${factoryContractId}`)
+        .send()
+        .expect(HttpStatus.NOT_FOUND)
     })
 
     it("should return factory details", async () => {
       const factory = await internalFactoryRepository.save({
-        factoryId: "0.0.7247643",
+        contractId: "0.0.7247643",
         isPaused: false,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/factory/${factory.factoryId}`)
+        .get(`/api/v1/ats/factory/${factory.contractId}`)
         .send()
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
-        factoryId: factory.factoryId,
+        factoryContractId: factory.contractId,
         isPaused: factory.isPaused,
         createdAt: expect.any(String),
       })
@@ -71,17 +74,17 @@ describe("GetFactoryHttpAdapter API Integration", () => {
 
     it("should return factory details when factory is paused", async () => {
       const factory = await internalFactoryRepository.save({
-        factoryId: "0.0.1234567",
+        contractId: "0.0.1234567",
         isPaused: true,
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/factory/${factory.factoryId}`)
+        .get(`/api/v1/ats/factory/${factory.contractId}`)
         .send()
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
-        factoryId: factory.factoryId,
+        factoryContractId: factory.contractId,
         isPaused: true,
         createdAt: expect.any(String),
       })

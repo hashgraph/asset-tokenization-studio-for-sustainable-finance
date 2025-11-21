@@ -5,7 +5,7 @@ import { GrantRoleTransactionRequest } from "./model/GrantRoleTransactionRequest
 
 export interface GrantRoleTransactionPort {
   grantRole(
-    factoryId: string,
+    factoryContractId: string,
     roleId: string,
     userId: string,
     request: GrantRoleTransactionRequest,

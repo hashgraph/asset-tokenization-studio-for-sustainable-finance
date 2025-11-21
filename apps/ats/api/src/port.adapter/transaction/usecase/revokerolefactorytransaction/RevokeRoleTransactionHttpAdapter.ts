@@ -14,15 +14,21 @@ import { RevokeRoleTransactionRequest } from "./model/RevokeRoleTransactionReque
 export class RevokeRoleTransactionHttpAdapter implements RevokeRoleTransactionPort {
   constructor(private readonly revokeRoleTransactionAppService: RevokeRoleTransactionAppService) {}
 
-  @Delete(":factoryId/roles/:roleId/users/:userAccountId")
+  @Delete(":factoryContractId/roles/:roleId/users/:userAccountId")
   async revokeRole(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Param("roleId") roleId: string,
     @Param("userAccountId") userAccountId: string,
     @Body() request: RevokeRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.revokeRoleTransactionAppService.execute(
-      new RevokeRoleTransactionAppServiceRequest(request.format, request.accountId!, factoryId, roleId, userAccountId),
+      new RevokeRoleTransactionAppServiceRequest(
+        request.format,
+        request.accountId!,
+        factoryContractId,
+        roleId,
+        userAccountId,
+      ),
     )
   }
 }

@@ -5,7 +5,7 @@ import { RevokeRoleTransactionRequest } from "./model/RevokeRoleTransactionReque
 
 export interface RevokeRoleTransactionPort {
   revokeRole(
-    factoryId: string,
+    factoryContractId: string,
     roleId: string,
     userId: string,
     request: RevokeRoleTransactionRequest,

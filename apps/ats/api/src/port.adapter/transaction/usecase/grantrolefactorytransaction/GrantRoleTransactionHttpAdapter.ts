@@ -14,15 +14,21 @@ import { GrantRoleTransactionRequest } from "./model/GrantRoleTransactionRequest
 export class GrantRoleTransactionHttpAdapter implements GrantRoleTransactionPort {
   constructor(private readonly grantRoleTransactionAppService: GrantRoleTransactionAppService) {}
 
-  @Post(":factoryId/roles/:roleId/users/:userAccountId")
+  @Post(":factoryContractId/roles/:roleId/users/:userAccountId")
   async grantRole(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Param("roleId") roleId: string,
     @Param("userAccountId") userAccountId: string,
     @Body() request: GrantRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.grantRoleTransactionAppService.execute(
-      new GrantRoleTransactionAppServiceRequest(request.format, request.accountId!, factoryId, roleId, userAccountId),
+      new GrantRoleTransactionAppServiceRequest(
+        request.format,
+        request.accountId!,
+        factoryContractId,
+        roleId,
+        userAccountId,
+      ),
     )
   }
 }

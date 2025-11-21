@@ -7,7 +7,7 @@ import { FactoryAlreadyUnpausedError } from "../errors/FactoryAlreadyUnpausedErr
 export class Factory {
   @IsNotEmpty()
   @IsString()
-  factoryId: string
+  contractId: string
 
   @IsBoolean()
   isPaused: boolean
@@ -20,14 +20,14 @@ export class Factory {
 
   pause(): void {
     if (this.isPaused) {
-      throw FactoryAlreadyPausedError.factoryIdError(this.factoryId)
+      throw FactoryAlreadyPausedError.factoryIdError(this.contractId)
     }
     this.isPaused = true
   }
 
   unpause(): void {
     if (!this.isPaused) {
-      throw FactoryAlreadyUnpausedError.factoryIdError(this.factoryId)
+      throw FactoryAlreadyUnpausedError.factoryIdError(this.contractId)
     }
     this.isPaused = false
   }

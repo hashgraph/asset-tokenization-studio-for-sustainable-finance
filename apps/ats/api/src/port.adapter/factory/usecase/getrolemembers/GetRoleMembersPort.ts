@@ -5,7 +5,7 @@ import { GetRoleMemberResponse } from "@port/factory/usecase/getrolemembers/mode
 
 export interface GetRoleMembersPort {
   getRoleMembers(
-    factoryId: string,
+    factoryContractId: string,
     roleId: string,
     pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetRoleMemberResponse>>

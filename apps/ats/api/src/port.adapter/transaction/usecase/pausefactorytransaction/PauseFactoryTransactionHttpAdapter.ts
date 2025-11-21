@@ -15,13 +15,13 @@ import { PauseFactoryTransactionRequest } from "./model/PauseFactoryTransactionR
 export class PauseFactoryTransactionHttpAdapter implements PauseFactoryTransactionPort {
   constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 
-  @Post(":factoryId/pause")
+  @Post(":factoryContractId/pause")
   async pauseFactory(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Body() request: PauseFactoryTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.pauseTransactionAppService.execute(
-      new PauseTransactionAppServiceRequest(request.format, request.accountId!, factoryId),
+      new PauseTransactionAppServiceRequest(request.format, request.accountId!, factoryContractId),
     )
   }
 }

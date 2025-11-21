@@ -16,14 +16,14 @@ import {
 export class GetUserRolesHttpAdapter implements GetUserRolesPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":factoryId/users/:userAccountId/roles")
+  @Get(":factoryContractId/users/:userAccountId/roles")
   async getUserRoles(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Param("userAccountId") userAccountId: string,
     @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetUserRoleResponse>> {
     const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetUserRolesQuery(userAccountId, factoryId, queryPageOptions)
+    const query = new GetUserRolesQuery(userAccountId, factoryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }
 }

@@ -16,14 +16,14 @@ import {
 export class GetRoleMembersHttpAdapter implements GetRoleMembersPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":factoryId/roles/:roleId/members")
+  @Get(":factoryContractId/roles/:roleId/members")
   async getRoleMembers(
-    @Param("factoryId") factoryId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Param("roleId") roleId: string,
     @Query() pageOptionsRequest: PageOptionsRequest,
   ): Promise<PageResponse<GetRoleMemberResponse>> {
     const queryPageOptions = (pageOptionsRequest ?? PageOptionsRequest.DEFAULT).toQueryPageOptions()
-    const query = new GetRoleMembersQuery(roleId, factoryId, queryPageOptions)
+    const query = new GetRoleMembersQuery(roleId, factoryContractId, queryPageOptions)
     return await this.queryBus.execute(query)
   }
 }
