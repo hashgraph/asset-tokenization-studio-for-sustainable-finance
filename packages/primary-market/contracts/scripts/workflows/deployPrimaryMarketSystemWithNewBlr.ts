@@ -1,22 +1,29 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployProxyAdmin,
   deployBlr,
   deployFacets,
   registerFacets,
   deployResolverProxy,
+  atsRegistry,
   info,
   success,
   section,
   error as logError,
   configureLogger,
   LogLevel,
+  getDeploymentConfig,
+  isInstantMiningNetwork,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { createFactoryPrimaryMarketConfiguration, createPrimaryMarketConfiguration } from "@scripts/domain";
-import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure/factoryPrimaryMarketRegistry";
+import { Signer, ContractFactory } from "ethers";
+import {
+  createFactoryPrimaryMarketConfiguration,
+  createPrimaryMarketConfiguration,
+  primaryMarketRegistry,
+} from "@scripts/domain";
 
 /**
  * Complete deployment output structure.
@@ -38,14 +45,14 @@ export interface DeployFactoryPrimaryMarketOutput {
       contractId?: string;
     };
     blr: {
-      implementation: string;
+      implementation?: string;
+      implementationContractId?: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
     factoryPrimaryMarket: {
-      implementation: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
   };
 
@@ -59,6 +66,18 @@ export interface DeployFactoryPrimaryMarketOutput {
 
   /** FactoryPrimaryMarket configuration */
   configuration: {
+    configId: string;
+    version: number;
+    facetCount: number;
+    facets: Array<{
+      facetName: string;
+      key: string;
+      address: string;
+    }>;
+  };
+
+  /** PrimaryMarket configuration (config ID 10001) */
+  primaryMarketConfiguration: {
     configId: string;
     version: number;
     facetCount: number;
@@ -93,7 +112,7 @@ export interface DeployFactoryPrimaryMarketSystemOptions {
 }
 
 export async function deployFactoryPrimaryMarketSystem(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   options: DeployFactoryPrimaryMarketSystemOptions = {},
 ): Promise<DeployFactoryPrimaryMarketOutput> {
@@ -101,29 +120,35 @@ export async function deployFactoryPrimaryMarketSystem(
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
+
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
 
   section("FactoryPrimaryMarket Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
-    const proxyAdminResult = await deployProxyAdmin(provider);
+    const proxyAdmin = await deployProxyAdmin(signer);
 
-    if (!proxyAdminResult.success) {
-      throw new Error(`ProxyAdmin deployment failed: ${proxyAdminResult.error}`);
-    }
-
-    info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
+    info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
-    const blrResult = await deployBlr(provider, {
-      proxyAdminAddress: proxyAdminResult.proxyAdminAddress,
+    const blrResult = await deployBlr(signer, {
+      existingProxyAdmin: proxyAdmin,
     });
 
     if (!blrResult.success) {
@@ -147,10 +172,22 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [factoryPrimaryMarketRegistry],
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = primaryMarketRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
     });
 
     if (!facetsResult.success) {
@@ -168,10 +205,24 @@ export async function deployFactoryPrimaryMarketSystem(
       }
     });
 
-    const registerResult = await registerFacets(provider, {
-      blrAddress: blrResult.blrAddress,
-      facets: facetAddresses,
-      registries: [factoryPrimaryMarketRegistry],
+    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
+
+    const facetsWithKeys = Object.entries(facetAddresses).map(([name, address]) => {
+      const primaryMarketFacet = primaryMarketRegistry.getFacetDefinition(name);
+      if (primaryMarketFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: primaryMarketFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in PrimaryMarket or ATS registries`);
+    });
+
+    const registerResult = await registerFacets(blrContract, {
+      facets: facetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -182,13 +233,11 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info("\n💼 Step 5/6: Creating FactoryPrimaryMarket configuration...");
 
-    const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
-
     const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
       blrContract,
       facetAddresses,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
     );
 
     if (!factoryPrimaryMarketConfig.success) {
@@ -204,8 +253,8 @@ export async function deployFactoryPrimaryMarketSystem(
     const primaryMarketConfig = await createPrimaryMarketConfiguration(
       blrContract,
       facetAddresses,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
     );
 
     if (!primaryMarketConfig.success) {
@@ -220,7 +269,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const factoryPrimaryMarketProxyResult = await deployResolverProxy(provider, {
+    const factoryPrimaryMarketProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: factoryPrimaryMarketConfig.data.configurationId,
       version: factoryPrimaryMarketConfig.data.version,
@@ -254,14 +303,13 @@ export async function deployFactoryPrimaryMarketSystem(
 
       infrastructure: {
         proxyAdmin: {
-          address: proxyAdminResult.proxyAdminAddress,
+          address: proxyAdmin.address,
         },
         blr: {
           implementation: blrResult.implementationAddress,
           proxy: blrResult.blrAddress,
         },
         factoryPrimaryMarket: {
-          implementation: blrResult.blrAddress,
           proxy: factoryPrimaryMarketAddress,
         },
       },
@@ -282,6 +330,13 @@ export async function deployFactoryPrimaryMarketSystem(
         version: factoryPrimaryMarketConfig.data.version,
         facetCount: factoryPrimaryMarketConfig.data.facetKeys.length,
         facets: factoryPrimaryMarketConfig.data.facetKeys,
+      },
+
+      primaryMarketConfiguration: {
+        configId: primaryMarketConfig.data.configurationId,
+        version: primaryMarketConfig.data.version,
+        facetCount: primaryMarketConfig.data.facetKeys.length,
+        facets: primaryMarketConfig.data.facetKeys,
       },
 
       summary: {

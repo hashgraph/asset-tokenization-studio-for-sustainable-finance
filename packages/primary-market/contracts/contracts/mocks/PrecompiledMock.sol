@@ -2,11 +2,12 @@
 // solhint-disable one-contract-per-file
 pragma solidity >=0.8.0 <0.9.0;
 
-import {
-    HederaResponseCodes
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-disable max-line-length
+import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { MockERC20 } from "./MockERC20.sol";
+// solhint-enable max-line-length
+
 interface IPrecompiledMock {
     function transferTokens(
         address token,

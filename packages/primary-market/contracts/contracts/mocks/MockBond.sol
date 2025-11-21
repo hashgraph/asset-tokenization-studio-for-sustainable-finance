@@ -39,6 +39,7 @@ contract MockBond is IBondRead {
         bondDetailsData_ = BondDetailsData({
             currency: bytes3("USD"),
             nominalValue: nominalValue,
+            nominalValueDecimals: 18,
             startingDate: block.timestamp,
             maturityDate: block.timestamp + 365 days
         });
@@ -70,5 +71,13 @@ contract MockBond is IBondRead {
 
     function getTotalCouponHolders(uint256) external pure override returns (uint256) {
         return 0;
+    }
+
+    function getCouponAmountFor(uint256, address) external pure override returns (CouponAmountFor memory) {
+        revert NotImplemented();
+    }
+
+    function getPrincipalFor(address) external pure override returns (PrincipalFor memory) {
+        revert NotImplemented();
     }
 }

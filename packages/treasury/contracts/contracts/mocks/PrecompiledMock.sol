@@ -2,14 +2,10 @@
 // solhint-disable one-contract-per-file
 pragma solidity >=0.8.0 <0.9.0;
 
-import {
-    HederaResponseCodes
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import {
-    IHederaTokenService
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
+import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 import { PaymentTokenMock } from "./PaymentTokenMock.sol";
 import { EnvironmentalAssetMock } from "./EnvironmentalAssetMock.sol";
 

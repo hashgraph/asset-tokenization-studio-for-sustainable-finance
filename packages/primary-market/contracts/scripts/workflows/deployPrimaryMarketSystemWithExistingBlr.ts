@@ -1,21 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import type { DeploymentProvider } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   deployFacets,
   registerAdditionalFacets,
   deployResolverProxy,
+  atsRegistry,
   info,
   success,
   section,
   error as logError,
   configureLogger,
   LogLevel,
+  getDeploymentConfig,
+  DEFAULT_BATCH_SIZE,
+  fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { createFactoryPrimaryMarketConfiguration, createPrimaryMarketConfiguration } from "@scripts/domain";
-import { factoryPrimaryMarketRegistry } from "@scripts/infrastructure/factoryPrimaryMarketRegistry";
-import type { DeployFactoryPrimaryMarketOutput } from "./deployFactoryPrimaryMarketSystem";
+import { Signer, ContractFactory } from "ethers";
+import {
+  createFactoryPrimaryMarketConfiguration,
+  createPrimaryMarketConfiguration,
+  primaryMarketRegistry,
+} from "@scripts/domain";
+import type { DeployFactoryPrimaryMarketOutput } from "./deployPrimaryMarketSystemWithNewBlr";
 
 /**
  * Existing infrastructure addresses.
@@ -23,6 +30,9 @@ import type { DeployFactoryPrimaryMarketOutput } from "./deployFactoryPrimaryMar
 export interface ExistingInfrastructure {
   /** Existing BLR proxy address (shared across modules) */
   blrAddress: string;
+
+  /** Existing BLR implementation address */
+  blrImplementationAddress?: string;
 
   /** Existing ProxyAdmin address */
   proxyAdminAddress: string;
@@ -49,20 +59,36 @@ export interface DeployWithExistingInfraOptions {
 
   /** Path to save deployment output */
   outputPath?: string;
+
+  /** Enable verbose logging (debug level) */
+  verbose?: boolean;
 }
 
 export async function deployFactoryPrimaryMarketWithExistingInfra(
-  provider: DeploymentProvider,
+  signer: Signer,
   network: string,
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployFactoryPrimaryMarketOutput> {
-  configureLogger({ level: LogLevel.SILENT });
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
+
+  configureLogger({
+    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
+  });
 
   const startTime = Date.now();
-  const signer = await provider.getSigner();
   const deployer = await signer.getAddress();
+
+  const getContractId = async (address: string) => {
+    return network.toLowerCase().includes("hedera") ? await fetchHederaContractId(network, address) : undefined;
+  };
+
+  // Get network-specific deployment configuration
+  const networkConfig = getDeploymentConfig(network);
+  const confirmations = networkConfig.confirmations;
+  const enableRetry = networkConfig.retryOptions.maxRetries > 0;
+  const verifyDeployment = networkConfig.verifyDeployment;
+  const retryOptions = networkConfig.retryOptions;
 
   section("FactoryPrimaryMarket Deployment (Existing Infrastructure)");
   info("═".repeat(60));
@@ -70,6 +96,9 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
+  info(`⏱️  Confirmations: ${confirmations}`);
+  info(`🔁 Retry: ${enableRetry ? `Enabled (max ${retryOptions.maxRetries})` : "Disabled"}`);
+  info(`✅ Verification: ${verifyDeployment ? "Enabled" : "Disabled"}`);
   info("═".repeat(60));
 
   try {
@@ -109,10 +138,22 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
-    const facetsResult = await deployFacets(provider, {
-      facetNames,
-      useTimeTravel,
-      registries: [factoryPrimaryMarketRegistry],
+    const facetFactories: Record<string, ContractFactory> = {};
+    for (const facetName of facetNames) {
+      const facetDef = primaryMarketRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
+
+      if (!facetDef?.factory) {
+        throw new Error(`No factory found for facet: ${facetName}`);
+      }
+
+      facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
+    }
+
+    const facetsResult = await deployFacets(facetFactories, {
+      confirmations,
+      enableRetry,
+      verifyDeployment,
+      retryOptions,
     });
 
     if (!facetsResult.success) {
@@ -133,9 +174,25 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
       }
     });
 
-    const registerResult = await registerAdditionalFacets(provider, {
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
+
+    const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
+      const primaryMarketFacet = primaryMarketRegistry.getFacetDefinition(name);
+      if (primaryMarketFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: primaryMarketFacet.resolverKey.value };
+      }
+
+      const atsFacet = atsRegistry.getFacetDefinition(name);
+      if (atsFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: atsFacet.resolverKey.value };
+      }
+
+      throw new Error(`Facet ${name} not found in PrimaryMarket or ATS registries`);
+    });
+
+    const registerResult = await registerAdditionalFacets(signer, {
       blrAddress,
-      newFacets: newFacetAddresses,
+      newFacets: newFacetsWithKeys,
     });
 
     if (!registerResult.success) {
@@ -148,8 +205,6 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // STEP 4: Create FactoryPrimaryMarket configuration
     // ========================================
     info("\n💼 Step 4/5: Creating FactoryPrimaryMarket configuration...");
-
-    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     // Combine existing + new facets for configuration
     const facetNamesForConfig: Record<string, string> = useTimeTravel
@@ -170,8 +225,8 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
       blrContract,
       facetNamesForConfig,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
     );
 
     if (!factoryPrimaryMarketConfig.success) {
@@ -192,8 +247,8 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     const primaryMarketConfig = await createPrimaryMarketConfiguration(
       blrContract,
       facetNamesForConfig,
-      useTimeTravel,
-      factoryPrimaryMarketRegistry,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
     );
 
     if (!primaryMarketConfig.success) {
@@ -213,7 +268,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const factoryPrimaryMarketProxyResult = await deployResolverProxy(provider, {
+    const factoryPrimaryMarketProxyResult = await deployResolverProxy(signer, {
       blrAddress,
       configurationId: factoryPrimaryMarketConfig.data.configurationId,
       version: factoryPrimaryMarketConfig.data.version,
@@ -243,7 +298,6 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // ========================================
     const endTime = Date.now();
 
-    // @ts-expect-error - DeployFactoryPrimaryMarketOutput type may have mismatches
     const output: DeployFactoryPrimaryMarketOutput = {
       network,
       timestamp: new Date().toISOString(),
@@ -252,14 +306,19 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
       infrastructure: {
         proxyAdmin: {
           address: proxyAdminAddress,
+          contractId: await getContractId(proxyAdminAddress),
         },
         blr: {
-          implementation: blrAddress, // We don't know the implementation address
+          implementation: existingInfra.blrImplementationAddress,
+          implementationContractId: existingInfra.blrImplementationAddress
+            ? await getContractId(existingInfra.blrImplementationAddress)
+            : undefined,
           proxy: blrAddress,
+          proxyContractId: await getContractId(blrAddress),
         },
         factoryPrimaryMarket: {
-          implementation: blrAddress, // ResolverProxy uses BLR
           proxy: factoryPrimaryMarketAddress,
+          proxyContractId: await getContractId(factoryPrimaryMarketAddress),
         },
       },
 
@@ -293,6 +352,13 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
         version: factoryPrimaryMarketConfig.data.version,
         facetCount: factoryPrimaryMarketConfig.data.facetKeys.length,
         facets: factoryPrimaryMarketConfig.data.facetKeys,
+      },
+
+      primaryMarketConfiguration: {
+        configId: primaryMarketConfig.data.configurationId,
+        version: primaryMarketConfig.data.version,
+        facetCount: primaryMarketConfig.data.facetKeys.length,
+        facets: primaryMarketConfig.data.facetKeys,
       },
 
       summary: {

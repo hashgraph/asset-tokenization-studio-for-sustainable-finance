@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-export { deployFactorySuiteSystem } from "./deployFactorySuiteSystem";
-export type { DeployFactorySuiteOutput, DeployFactorySuiteSystemOptions } from "./deployFactorySuiteSystem";
+export { deployFactorySuiteSystem } from "./deployFactorySuiteSystemWithNewBlr";
+export type { DeployFactorySuiteOutput, DeployFactorySuiteSystemOptions } from "./deployFactorySuiteSystemWithNewBlr";
 
-export { deployFactorySuiteWithExistingInfra } from "./deployFactorySuiteWithExistingInfra";
-export type { ExistingInfrastructure, DeployWithExistingInfraOptions } from "./deployFactorySuiteWithExistingInfra";
+export { deployFactorySuiteWithExistingInfra } from "./deployFactorySuiteSystemWithExistingBlr";
+export type { ExistingInfrastructure, DeployWithExistingInfraOptions } from "./deployFactorySuiteSystemWithExistingBlr";

@@ -11,6 +11,7 @@ import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-enable max-line-length
 
 abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     using EnumerableSet for EnumerableSet.AddressSet;

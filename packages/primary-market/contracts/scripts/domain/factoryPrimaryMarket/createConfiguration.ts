@@ -18,30 +18,26 @@ import {
   ConfigurationData,
   ConfigurationError,
   OperationResult,
-  RegistryProvider,
+  atsRegistry,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { FACTORY_PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
+import { FACTORY_PRIMARY_MARKET_CONFIG_ID, primaryMarketRegistry } from "@scripts/domain";
 
 /**
  * FactoryPrimaryMarket facets: 2 ATS facets + 1 custom FactoryPrimaryMarket facet.
- * Note: ATS infrastructure warns about custom facets but configures them correctly.
  */
 const FACTORY_PRIMARY_MARKET_FACETS = ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet"] as const;
 
 /**
  * Create FactoryPrimaryMarket configuration in BusinessLogicResolver.
  *
- * Thin wrapper that calls the generic createBatchConfiguration() with FactoryPrimaryMarket data:
- * - Configuration ID: FACTORY_PRIMARY_MARKET_CONFIG_ID (10'000)
- * - Facet list: FACTORY_PRIMARY_MARKET_FACETS (3 facets)
- *
- * All implementation logic handled by ATS createBatchConfiguration() operation.
+ * Uses separate registry lookups for domain clarity:
+ * - AccessControlFacet and PauseFacet from atsRegistry
+ * - FactoryPrimaryMarketFacet from primaryMarketRegistry
  *
  * @param blrContract - BusinessLogicResolver contract instance
  * @param facetAddresses - Map of facet names to their deployed addresses
- * @param useTimeTravel - Whether to use TimeTravel variants (default: false)
- * @param factoryPrimaryMarketRegistry - Registry provider for facet definitions
- * @returns Promise resolving to operation result
+ * @returns Operation result with configuration data or error
  *
  * @example
  * ```typescript
@@ -50,36 +46,57 @@ const FACTORY_PRIMARY_MARKET_FACETS = ["AccessControlFacet", "PauseFacet", "Fact
  * const blr = BusinessLogicResolver__factory.connect('0x1234...', signer)
  *
  * const result = await createFactoryPrimaryMarketConfiguration(
- *     blr,
- *     {
- *         'AccessControlFacet': '0xabc...',
- *         'PauseFacet': '0xdef...',
- *         'FactoryPrimaryMarketFacet': '0x123...',
- *     },
- *     false,
- *     factoryPrimaryMarketRegistry
+ *   blr,
+ *   {
+ *     'AccessControlFacet': '0xabc...',
+ *     'PauseFacet': '0xdef...',
+ *     'FactoryPrimaryMarketFacet': '0x123...'
+ *   }
  * )
  *
  * if (result.success) {
  *   console.log(`Config version: ${result.data.version}`)
- *   console.log(`Registered ${result.data.facetKeys.length} facets`)
  * }
  * ```
  */
 export async function createFactoryPrimaryMarketConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
-  useTimeTravel: boolean = false,
-  factoryPrimaryMarketRegistry: RegistryProvider,
+  batchSize: number = DEFAULT_BATCH_SIZE,
+  confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
+  const facets = FACTORY_PRIMARY_MARKET_FACETS.map((facetName) => {
+    const address = facetAddresses[facetName];
+    if (!address) {
+      throw new Error(`Address not found for facet: ${facetName}`);
+    }
+
+    const primaryMarketFacet = primaryMarketRegistry.getFacetDefinition(facetName);
+    if (primaryMarketFacet?.resolverKey?.value) {
+      return {
+        facetName,
+        resolverKey: primaryMarketFacet.resolverKey.value,
+        address,
+      };
+    }
+
+    const atsFacet = atsRegistry.getFacetDefinition(facetName);
+    if (atsFacet?.resolverKey?.value) {
+      return {
+        facetName,
+        resolverKey: atsFacet.resolverKey.value,
+        address,
+      };
+    }
+
+    throw new Error(`Facet ${facetName} not found in PrimaryMarket or ATS registries`);
+  });
+
   return createBatchConfiguration(blrContract, {
     configurationId: FACTORY_PRIMARY_MARKET_CONFIG_ID,
-    facetNames: FACTORY_PRIMARY_MARKET_FACETS,
-    facetAddresses,
-    useTimeTravel,
+    facets,
     partialBatchDeploy: false,
-    batchSize: 2,
-    gasLimit: 15_000_000,
-    registry: factoryPrimaryMarketRegistry,
+    batchSize,
+    confirmations,
   });
 }
