@@ -57,6 +57,7 @@ interface BondData {
 interface BondDetailsData {
   currency: string
   nominalValue: string
+  nominalValueDecimals: number
   startingDate: string
   maturityDate: string
 }

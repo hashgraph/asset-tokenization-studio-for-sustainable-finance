@@ -64,6 +64,7 @@ describe("GetBondHttpAdapter API Integration", () => {
         decimals: 18,
         currency: "USD",
         nominalValue: "1000",
+        nominalValueDecimals: 2,
         startingDate: startingDate,
         maturityDate: maturityDate,
         maxSupply: "1000000",

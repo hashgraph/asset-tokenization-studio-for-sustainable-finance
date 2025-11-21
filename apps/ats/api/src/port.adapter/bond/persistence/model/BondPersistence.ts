@@ -30,6 +30,9 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar" })
   nominalValue: string
 
+  @Column({ type: "int" })
+  nominalValueDecimals: number
+
   @Column({ type: "timestamp" })
   startingDate: Date
 

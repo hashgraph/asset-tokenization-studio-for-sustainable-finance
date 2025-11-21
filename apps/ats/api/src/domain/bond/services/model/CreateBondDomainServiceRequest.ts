@@ -36,6 +36,10 @@ export class CreateBondDomainServiceRequest {
   @IsNotEmpty()
   nominalValue: string
 
+  @IsNumber()
+  @Min(0)
+  nominalValueDecimals: number
+
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)

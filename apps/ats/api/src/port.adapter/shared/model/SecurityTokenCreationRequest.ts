@@ -76,6 +76,10 @@ export class SecurityTokenCreationRequest {
   @IsNotEmpty()
   nominalValue: string
 
+  @IsNumber()
+  @Min(0)
+  nominalValueDecimals: number
+
   @IsString()
   @IsNotEmpty()
   @IsNumberString()

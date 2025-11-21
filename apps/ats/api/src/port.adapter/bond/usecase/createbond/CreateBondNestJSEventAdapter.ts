@@ -20,6 +20,7 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
         event.bondData.security.erc20MetadataInfo.decimals,
         this.decodeCurrency(event.bondData.bondDetails.currency),
         event.bondData.bondDetails.nominalValue,
+        event.bondData.bondDetails.nominalValueDecimals,
         new Date(Number(event.bondData.bondDetails.startingDate) * 1000),
         new Date(Number(event.bondData.bondDetails.maturityDate) * 1000),
         event.bondData.security.maxSupply,
