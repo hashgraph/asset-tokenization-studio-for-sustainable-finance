@@ -286,6 +286,23 @@ describe("LifeCycleCashFlow operations", () => {
         });
       });
 
+      describe("Distribution a coupon when getting payment token decimals fails", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 10, [signer_B.address], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and getting payment token decimals fails, THEN it reverts with a GetTokenDecimalsFailed error", async () => {
+          await expect(treasury.executeDistribution(assetAddress, 1, 1, 1))
+            .to.be.revertedWithCustomError(treasury, "GetTokenDecimalsFailed")
+            .withArgs(AddressZero, 21);
+        });
+      });
+
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
           const asset = await assetMockContract.deploy(1, 300000, [signer_B.address, signer_A.address], false, true);
