@@ -1,35 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./build",
-    "declaration": true,
-    "sourceMap": true,
-    "paths": {
-      "@configuration": ["./Configuration"],
-      "@contract-types": ["./typechain-types/index.ts"],
-      "@contract-types/*": ["./typechain-types/*"],
-      "@scripts": ["./scripts/index.ts"],
-      "@scripts/domain": ["./scripts/domain/index.ts"],
-      "@tasks": ["./tasks/index.ts"],
-      "@test": ["./test/index.ts"],
-      "@hashgraph/asset-tokenization-contracts/scripts": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/index.d.ts"
-      ],
-      "@hashgraph/asset-tokenization-contracts/scripts/*": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/*"
-      ]
-    }
+    "sourceMap": false
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test", "tasks"],
-  "exclude": [
-    "test/**/*.test.ts",
-    "node_modules/@hashgraph/asset-tokenization-contracts/scripts",
-    "node_modules/@hashgraph/asset-tokenization-contracts/test",
-    "node_modules",
-    "build",
-    "dist",
-    "coverage",
-    "artifacts",
-    "cache"
-  ]
+  "include": [
+    "scripts/**/*",
+    "typechain-types/**/*",
+    "test/fixtures/**/*",
+    "test/helpers/**/*",
+    "test/constants.ts",
+    "test/index.ts",
+    "test/types.d.ts"
+  ],
+  "exclude": ["node_modules", "test/integration/**/*", "test/unit/**/*", "tasks"]
 }

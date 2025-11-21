@@ -1,5 +1,5 @@
 /**
- * ESLint configuration for ATS Contracts package
+ * ESLint configuration for Treasury Contracts package
  * Extends root configuration with Hardhat/Mocha-specific overrides
  * @see https://eslint.org/docs/latest/use/configure/configuration-files
  */

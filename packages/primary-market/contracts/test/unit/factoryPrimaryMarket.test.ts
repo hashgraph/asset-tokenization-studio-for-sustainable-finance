@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contracts";
-import { DEFAULT_ADMIN_ROLE, deployFactoryPrimaryMarketSystem, PAUSER_ROLE, PM_DEPLOYER_ROLE } from "@scripts";
+import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
 import {
   ADDRESS_ZERO,
   HardhatProvider,
@@ -47,7 +47,7 @@ describe("FactoryPrimaryMarket", () => {
       deployment.infrastructure.blr.proxy,
     )) as IBusinessLogicResolver;
 
-    await accessControl.grantRole(PM_DEPLOYER_ROLE, adminAddress);
+    await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
   }
 
   before(async () => {
@@ -56,11 +56,11 @@ describe("FactoryPrimaryMarket", () => {
     adminAddress = await admin.getAddress();
     RBACS = [
       {
-        role: DEFAULT_ADMIN_ROLE,
+        role: ATS_ROLES.DEFAULT_ADMIN_ROLE,
         members: [adminAddress],
       },
       {
-        role: PAUSER_ROLE,
+        role: ATS_ROLES.PAUSER_ROLE,
         members: [adminAddress],
       },
     ];
@@ -90,15 +90,15 @@ describe("FactoryPrimaryMarket", () => {
     it("GIVEN an rbac with empty/zero admin WHEN deploying new primary market THEN fail", async () => {
       const wrongRbac: any = [
         {
-          role: DEFAULT_ADMIN_ROLE,
+          role: ATS_ROLES.DEFAULT_ADMIN_ROLE,
           members: [ADDRESS_ZERO],
         },
         {
-          role: PAUSER_ROLE,
+          role: ATS_ROLES.PAUSER_ROLE,
           members: [adminAddress],
         },
         {
-          role: DEFAULT_ADMIN_ROLE,
+          role: ATS_ROLES.DEFAULT_ADMIN_ROLE,
           members: [],
         },
       ];
@@ -111,7 +111,7 @@ describe("FactoryPrimaryMarket", () => {
     it("GIVEN an rbac with no admin WHEN deploying new primary market THEN fail", async () => {
       const wrongRbac: any = [
         {
-          role: PAUSER_ROLE,
+          role: ATS_ROLES.PAUSER_ROLE,
           members: [adminAddress],
         },
       ];
@@ -154,7 +154,7 @@ describe("FactoryPrimaryMarket", () => {
 
     it("GIVEN paused factory WHEN deploying new primary market THEN fail", async () => {
       // Grant PAUSER_ROLE to admin
-      await accessControl.grantRole(PAUSER_ROLE, adminAddress);
+      await accessControl.grantRole(ATS_ROLES.PAUSER_ROLE, adminAddress);
 
       // Pause the factory
       const pause = await ethers.getContractAt("Pause", factoryPrimaryMarket.address);

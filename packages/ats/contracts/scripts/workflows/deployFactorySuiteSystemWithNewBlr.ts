@@ -1,29 +1,46 @@
 // SPDX-License-Identifier: Apache-2.0
 
+/**
+ * Complete FactorySuite system deployment workflow.
+ *
+ * Orchestrates deployment of the entire FactorySuite infrastructure with multi-registry support:
+ * - ProxyAdmin for upgrade management
+ * - BusinessLogicResolver (BLR) with proxy
+ * - Required facets (AccessControl, Pause, FactorySuite) from multiple registries
+ * - Facet registration in BLR using combined ATS and FactorySuite registries
+ * - FactorySuite configuration (config ID 30'000)
+ * - FactorySuite proxy
+ *
+ * Uses ATS standard facets (AccessControl, Pause) and custom FactorySuite facets
+ * by passing arrays of registries to ATS infrastructure operations.
+ *
+ * @module workflows/deployFactorySuiteSystem
+ */
+
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts/typechain-types";
+import { Signer, ContractFactory } from "ethers";
 import {
   deployProxyAdmin,
   deployBlr,
   deployFacets,
   registerFacets,
   deployResolverProxy,
+  LATEST_VERSION,
+  atsRegistry,
   info,
   success,
   section,
   error as logError,
-  configureLogger,
-  LogLevel,
-  atsRegistry,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
+  DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { Signer, ContractFactory } from "ethers";
-import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { createTreasuryConfiguration, FACET_REGISTRY } from "@scripts/domain";
+import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 
 /**
  * Complete deployment output structure.
  */
-export interface DeployTreasuryOutput {
+export interface DeployFactorySuiteOutput {
   /** Network name (testnet, mainnet, hardhat, etc.) */
   network: string;
 
@@ -40,14 +57,14 @@ export interface DeployTreasuryOutput {
       contractId?: string;
     };
     blr: {
-      implementation: string;
+      implementation?: string;
+      implementationContractId?: string;
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
-    treasury?: {
-      implementation: string;
+    factorySuite: {
       proxy: string;
-      contractId?: string;
+      proxyContractId?: string;
     };
   };
 
@@ -59,7 +76,7 @@ export interface DeployTreasuryOutput {
     key: string;
   }>;
 
-  /** Treasury configuration */
+  /** FactorySuite configuration */
   configuration: {
     configId: string;
     version: number;
@@ -81,9 +98,9 @@ export interface DeployTreasuryOutput {
 }
 
 /**
- * Options for complete Treasury deployment.
+ * Options for complete system deployment.
  */
-export interface DeployTreasuryOptions {
+export interface DeployFactorySuiteSystemOptions {
   /** Whether to use TimeTravel variants for facets */
   useTimeTravel?: boolean;
 
@@ -94,13 +111,51 @@ export interface DeployTreasuryOptions {
   outputPath?: string;
 }
 
-export async function deployTreasury(
+/**
+ * Deploy complete FactorySuite system.
+ *
+ * Executes the full deployment workflow:
+ * 1. Deploy ProxyAdmin
+ * 2. Deploy BusinessLogicResolver with proxy
+ * 3. Deploy facets (AccessControl, Pause, FactorySuite)
+ * 4. Register facets in BLR
+ * 5. Create FactorySuite configuration (config ID 30'000)
+ * 6. Deploy FactorySuite proxy
+ *
+ * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
+ *
+ * @param signer - Ethers.js signer
+ * @param network - Network name (testnet, mainnet, hardhat, etc.)
+ * @param options - Deployment options
+ * @returns Promise resolving to complete deployment output
+ *
+ * @example
+ * ```typescript
+ * import { ethers } from 'hardhat'
+ *
+ * // Get signer
+ * const [deployer] = await ethers.getSigners()
+ *
+ * // Deploy complete system to hardhat network
+ * const output = await deployFactorySuiteSystem(deployer, 'hardhat', {
+ *     useTimeTravel: false,
+ *     saveOutput: true
+ * })
+ *
+ * info(`BLR Proxy: ${output.infrastructure.blr.proxy}`)
+ * info(`FactorySuite Proxy: ${output.infrastructure.factorySuite.proxy}`)
+ * info(`Config Version: ${output.configuration.version}`)
+ * ```
+ */
+export async function deployFactorySuiteSystem(
   signer: Signer,
   network: string,
-  options: DeployTreasuryOptions = {},
-): Promise<DeployTreasuryOutput> {
-  configureLogger({ level: LogLevel.SILENT });
+  options: DeployFactorySuiteSystemOptions = {},
+): Promise<DeployFactorySuiteOutput> {
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+
+  const startTime = Date.now();
+  const deployer = await signer.getAddress();
 
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);
@@ -109,13 +164,10 @@ export async function deployTreasury(
   const verifyDeployment = networkConfig.verifyDeployment;
   const retryOptions = networkConfig.retryOptions;
 
-  const startTime = Date.now();
-  const deployer = await signer.getAddress();
-
-  section("Treasury Deployment");
+  section("FactorySuite System Deployment");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`⏱️  Confirmations: ${confirmations}`);
@@ -126,12 +178,8 @@ export async function deployTreasury(
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
     const proxyAdmin = await deployProxyAdmin(signer);
-    const proxyAdminResult = {
-      success: true,
-      proxyAdminAddress: proxyAdmin.address,
-    };
 
-    info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);
+    info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(signer, {
@@ -148,22 +196,15 @@ export async function deployTreasury(
     info("\n📦 Step 3/6: Deploying facets...");
 
     const facetNames = useTimeTravel
-      ? [
-          "AccessControlFacetTimeTravel",
-          "PauseFacetTimeTravel",
-          "LifeCycleCashFlowFacetTimeTravel",
-          "PortfolioFacetTimeTravel",
-          "ProceedsManagementFacetTimeTravel",
-          "TimeTravelFacet",
-        ]
-      : ["AccessControlFacet", "PauseFacet", "LifeCycleCashFlowFacet", "PortfolioFacet", "ProceedsManagementFacet"];
+      ? ["AccessControlFacetTimeTravel", "PauseFacetTimeTravel", "FactorySuiteFacetTimeTravel", "TimeTravelFacet"]
+      : ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
     // Create TypeChain factories from registry
     const facetFactories: Record<string, ContractFactory> = {};
     for (const facetName of facetNames) {
-      const facetDef = FACET_REGISTRY[facetName] || atsRegistry.getFacetDefinition(facetName);
+      const facetDef = factorySuiteRegistry.getFacetDefinition(facetName) || atsRegistry.getFacetDefinition(facetName);
 
       if (!facetDef?.factory) {
         throw new Error(`No factory found for facet: ${facetName}`);
@@ -197,9 +238,9 @@ export async function deployTreasury(
     const blrContract = BusinessLogicResolver__factory.connect(blrResult.blrAddress, signer);
 
     const facetsWithKeys = Object.entries(facetAddresses).map(([name, address]) => {
-      const treasuryFacet = FACET_REGISTRY[name];
-      if (treasuryFacet?.resolverKey?.value) {
-        return { name, address, resolverKey: treasuryFacet.resolverKey.value };
+      const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
+      if (factorySuiteFacet?.resolverKey?.value) {
+        return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
       }
 
       const atsFacet = atsRegistry.getFacetDefinition(name);
@@ -207,7 +248,7 @@ export async function deployTreasury(
         return { name, address, resolverKey: atsFacet.resolverKey.value };
       }
 
-      throw new Error(`Facet ${name} not found in Treasury or ATS registries`);
+      throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
     });
 
     const registerResult = await registerFacets(blrContract, {
@@ -220,26 +261,32 @@ export async function deployTreasury(
 
     info(`✅ Registered ${registerResult.registered.length} facets in BLR`);
 
-    info("\n💼 Step 5/6: Creating Treasury configuration...");
+    info("\n💼 Step 5/6: Creating FactorySuite configuration...");
 
-    const treasuryConfig = await createTreasuryConfiguration(blrContract, facetAddresses, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(
+      blrContract,
+      facetAddresses,
+      useTimeTravel,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
-    if (!treasuryConfig.success) {
-      throw new Error("Treasury config failed");
+    if (!fsConfig.success) {
+      throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
     }
 
-    info(`✅ Treasury Config ID: ${treasuryConfig.data.configurationId}`);
-    info(`✅ Config Version: ${treasuryConfig.data.version}`);
-    info(`✅ Facets: ${treasuryConfig.data.facetKeys.length}`);
+    info(`✅ FactorySuite Config ID: ${fsConfig.data.configurationId}`);
+    info(`✅ Config Version: ${fsConfig.data.version}`);
+    info(`✅ Facets: ${fsConfig.data.facetKeys.length}`);
 
-    info("\n🏭 Step 6/6: Deploying Treasury ResolverProxy...");
+    info("\n🏭 Step 6/6: Deploying FactorySuite ResolverProxy...");
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-    const treasuryProxyResult = await deployResolverProxy(signer, {
+    const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
-      configurationId: treasuryConfig.data.configurationId,
-      version: treasuryConfig.data.version,
+      configurationId: fsConfig.data.configurationId,
+      version: LATEST_VERSION,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,
@@ -249,42 +296,41 @@ export async function deployTreasury(
       network,
     });
 
-    if (!treasuryProxyResult.success) {
-      throw new Error(`Treasury ResolverProxy deployment failed: ${treasuryProxyResult.error}`);
+    if (!factorySuiteProxyResult.success) {
+      throw new Error(`FactorySuite ResolverProxy deployment failed: ${factorySuiteProxyResult.error}`);
     }
 
-    const treasuryAddress = treasuryProxyResult.proxyAddress!;
+    const factorySuiteAddress = factorySuiteProxyResult.proxyAddress!;
 
-    info(`✅ Treasury ResolverProxy deployed successfully`);
-    info(`   Address: ${treasuryAddress}`);
-    if (treasuryProxyResult.contractId) {
-      info(`   Contract ID: ${treasuryProxyResult.contractId}`);
+    info(`✅ FactorySuite ResolverProxy deployed successfully`);
+    info(`   Address: ${factorySuiteAddress}`);
+    if (factorySuiteProxyResult.contractId) {
+      info(`   Contract ID: ${factorySuiteProxyResult.contractId}`);
     }
 
     const endTime = Date.now();
 
-    const output: DeployTreasuryOutput = {
+    const output: DeployFactorySuiteOutput = {
       network,
       timestamp: new Date().toISOString(),
       deployer,
 
       infrastructure: {
         proxyAdmin: {
-          address: proxyAdminResult.proxyAdminAddress,
+          address: proxyAdmin.address,
         },
         blr: {
           implementation: blrResult.implementationAddress,
           proxy: blrResult.blrAddress,
         },
-        treasury: {
-          implementation: blrResult.blrAddress,
-          proxy: treasuryAddress,
+        factorySuite: {
+          proxy: factorySuiteAddress,
         },
       },
 
       facets: Array.from(facetsResult.deployed.entries()).map(([facetName, deploymentResult]) => {
         const facetAddress = deploymentResult.address!;
-        const configFacet = treasuryConfig.data.facetKeys.find((f) => f.address === facetAddress);
+        const configFacet = fsConfig.data.facetKeys.find((f) => f.address === facetAddress);
 
         return {
           name: facetName,
@@ -294,14 +340,14 @@ export async function deployTreasury(
       }),
 
       configuration: {
-        configId: treasuryConfig.data.configurationId,
-        version: treasuryConfig.data.version,
-        facetCount: treasuryConfig.data.facetKeys.length,
-        facets: treasuryConfig.data.facetKeys,
+        configId: fsConfig.data.configurationId,
+        version: fsConfig.data.version,
+        facetCount: fsConfig.data.facetKeys.length,
+        facets: fsConfig.data.facetKeys,
       },
 
       summary: {
-        totalContracts: 5,
+        totalContracts: 3,
         totalFacets: facetsResult.deployed.size,
         deploymentTime: endTime - startTime,
         success: true,
@@ -316,7 +362,7 @@ export async function deployTreasury(
     info(`⚙️  Configuration version: ${output.configuration.version}`);
     info("═".repeat(60));
 
-    success("Treasury deployed successfully");
+    success("FactorySuite system deployed successfully");
 
     return output;
   } catch (error) {

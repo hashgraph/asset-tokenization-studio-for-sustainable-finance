@@ -62,8 +62,9 @@ const FACTORY_SUITE_FACETS = ["AccessControlFacet", "PauseFacet", "FactorySuiteF
 export async function createFactorySuiteConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
-  useTimeTravel: boolean = false,
+  _useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,
+  confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   const facets = FACTORY_SUITE_FACETS.map((facetName) => {
     const address = facetAddresses[facetName];
@@ -97,5 +98,6 @@ export async function createFactorySuiteConfiguration(
     facets,
     partialBatchDeploy: false,
     batchSize,
+    confirmations,
   });
 }

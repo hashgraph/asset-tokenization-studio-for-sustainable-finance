@@ -33,13 +33,15 @@ import {
   section,
   error as logError,
   getDeploymentConfig,
-  isLocalNetwork,
+  isInstantMiningNetwork,
   configureLogger,
   LogLevel,
+  DEFAULT_BATCH_SIZE,
+  fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
-import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
+import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystemWithNewBlr";
 
 /**
  * Existing infrastructure addresses.
@@ -47,6 +49,9 @@ import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystem";
 export interface ExistingInfrastructure {
   /** Existing BLR proxy address (shared across modules) */
   blrAddress: string;
+
+  /** Existing BLR implementation address */
+  blrImplementationAddress?: string;
 
   /** Existing ProxyAdmin address */
   proxyAdminAddress: string;
@@ -144,6 +149,10 @@ export async function deployFactorySuiteWithExistingInfra(
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
+  const getContractId = async (address: string) => {
+    return network.toLowerCase().includes("hedera") ? await fetchHederaContractId(network, address) : undefined;
+  };
+
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);
   const confirmations = networkConfig.confirmations;
@@ -154,7 +163,7 @@ export async function deployFactorySuiteWithExistingInfra(
   section("FactorySuite Deployment (Existing Infrastructure)");
   info("═".repeat(60));
   info(`📡 Network: ${network}`);
-  info(`🌐 Type: ${isLocalNetwork(network) ? "Local" : "Remote"}`);
+  info(`🌐 Type: ${isInstantMiningNetwork(network) ? "Local" : "Remote"}`);
   info(`👤 Deployer: ${deployer}`);
   info(`🔄 TimeTravel: ${useTimeTravel ? "Enabled" : "Disabled"}`);
   info(`🏗️  Mode: Using existing BLR and common facets`);
@@ -281,7 +290,13 @@ export async function deployFactorySuiteWithExistingInfra(
           FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
         };
 
-    const fsConfig = await createFactorySuiteConfiguration(blrContract, facetNamesForConfig, useTimeTravel);
+    const fsConfig = await createFactorySuiteConfiguration(
+      blrContract,
+      facetNamesForConfig,
+      useTimeTravel,
+      DEFAULT_BATCH_SIZE,
+      confirmations,
+    );
 
     if (!fsConfig.success) {
       throw new Error(`FactorySuite config failed: ${fsConfig.error} - ${fsConfig.message}`);
@@ -338,14 +353,19 @@ export async function deployFactorySuiteWithExistingInfra(
       infrastructure: {
         proxyAdmin: {
           address: proxyAdminAddress,
+          contractId: await getContractId(proxyAdminAddress),
         },
         blr: {
-          implementation: blrAddress, // We don't know the implementation address
+          implementation: existingInfra.blrImplementationAddress,
+          implementationContractId: existingInfra.blrImplementationAddress
+            ? await getContractId(existingInfra.blrImplementationAddress)
+            : undefined,
           proxy: blrAddress,
+          proxyContractId: await getContractId(blrAddress),
         },
         factorySuite: {
-          implementation: blrAddress, // ResolverProxy uses BLR
           proxy: factorySuiteAddress,
+          proxyContractId: await getContractId(factorySuiteAddress),
         },
       },
 

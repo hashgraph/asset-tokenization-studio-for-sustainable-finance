@@ -1,30 +1,20 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
+// solhint-disable max-line-length
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
-import {
-    PRIMARY_MARKET_STORAGE_POSITION
-} from "../constants/storagePositions.sol";
+import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {
-    SafeERC20
-} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {
-    IBondRead
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
-import {
-    IERC1594
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
-import {
-    Common as AtsCommon
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
-import {
-    LibCommon
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
+import { IERC1594 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1594.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { LibCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/libraries/LibCommon.sol";
 import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-enable max-line-length
 
 /**
  * @title PrimaryMarketStorageWrapper
@@ -118,8 +108,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         OfferingState storage offering = _getOfferingState(_offeringId);
 
         // CHECKS: Calculate required payment and validate allowance
-        uint256 requiredPayment = _lotUnits *
-            offering.info.lotSize * offering.info.price;
+        uint256 requiredPayment = _lotUnits * offering.info.lotSize * offering.info.price;
 
         if (IERC20(offering.info.paymentToken).allowance(_msgSender(), address(this)) < requiredPayment) {
             revert IPrimaryMarket.NotEnoughFunds(
@@ -160,8 +149,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             revert IPrimaryMarket.SubscriptionIsNotActive(_offeringId, _subscriptionId);
         }
 
-        uint256 amount = subscription.lotUnits *
-            offering.info.lotSize * offering.info.price;
+        uint256 amount = subscription.lotUnits * offering.info.lotSize * offering.info.price;
 
         // EFFECTS: Update state first
         subscription.status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
