@@ -148,23 +148,6 @@ describe("LifeCycleCashFlow operations", () => {
     });
 
     describe("LifeCycleCashFlow with a redemption date that has already arrived", () => {
-      describe("Redeem a bond without holders", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [], false, true);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and there are no holders, THEN false is returned as executed result", async () => {
-          const [results, executed] = await treasury.callStatic.executeBondRedemption(assetAddress, 1, 1);
-          expect(executed).to.equal(false);
-          expect(results).to.deep.equal([]);
-        });
-      });
-
       describe("Redeem a bond when getting the bond holders fails", () => {
         beforeEach(async () => {
           const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
@@ -176,6 +159,23 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and getting the holders fails, THEN false is returned as executed result", async () => {
+          const [results, executed] = await treasury.callStatic.executeBondRedemption(assetAddress, 1, 1);
+          expect(executed).to.equal(false);
+          expect(results).to.deep.equal([]);
+        });
+      });
+
+      describe("Redeem a bond without holders", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 1, [], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and there are no holders, THEN false is returned as executed result", async () => {
           const [results, executed] = await treasury.callStatic.executeBondRedemption(assetAddress, 1, 1);
           expect(executed).to.equal(false);
           expect(results).to.deep.equal([]);
@@ -308,6 +308,24 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
           expect(event.args.results[0].amount).to.equal(0);
+        });
+      });
+
+      describe("Redeem a bond when cannot get asset decimals", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], false, false);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the asset decimals cannot be obtained, THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
+          await expect(treasury.executeBondRedemption(assetAddress, 1, 1))
+            .to.be.revertedWithCustomError(treasury, "GetAssetDecimalsFailed")
+            .withArgs(assetAddress);
         });
       });
     });
@@ -599,6 +617,24 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
           expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+        });
+      });
+
+      describe("Redeem a bond when cannot get asset decimals", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], false, false);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
+
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the asset decimals cannot be obtained, THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
+          await expect(treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]))
+            .to.be.revertedWithCustomError(treasury, "GetAssetDecimalsFailed")
+            .withArgs(assetAddress);
         });
       });
     });
