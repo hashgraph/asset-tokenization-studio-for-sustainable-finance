@@ -245,6 +245,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
+                    batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                    batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                     _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
@@ -265,6 +267,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
+                batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                 _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
             }
         }
@@ -469,8 +473,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
+                    batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                    batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                     bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
-
                     if (succeededPayment) {
                         _redeemBondHolders(bond, batchInfo.holders);
                     }
@@ -492,6 +497,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
+                batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                 bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
                 if (succeededPayment) {
                     _redeemBondHolders(bond, batchInfo.holders);
@@ -832,11 +839,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         uint256 resultIndex
     ) private pure {
         for (uint256 index; index < holdersArray.length; ) {
+            uint256 totalIndex = index + resultIndex;
             if (succeededPayment) {
-                results[index + resultIndex].amount = amountsArray[index];
-                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
+                results[totalIndex].amount = amountsArray[index];
+                results[totalIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
             } else {
-                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                results[totalIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
             }
 
             unchecked {
@@ -896,6 +904,44 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _checkPaymentDate(uint256 initialDate, uint256 currentDate) private pure {
         if (initialDate == 0 || currentDate < initialDate) {
             revert ILifeCycleCashFlow.NotPaymentDate(initialDate, currentDate);
+        }
+    }
+
+    /*
+     * @dev Resize an array of address to a certain length
+     *
+     * @param holders The original array
+     * @param count The new length of the array
+     *
+     * @return The resized array
+     */
+    function _resizeHoldersArray(
+        address[] memory holders,
+        uint256 count
+    ) private pure returns (address[] memory result) {
+        result = new address[](count);
+
+        for (uint256 i; i < result.length; ++i) {
+            result[i] = holders[i];
+        }
+    }
+
+    /*
+     * @dev Resize an array of int64 to a certain length
+     *
+     * @param amounts The original array
+     * @param count The new length of the array
+     *
+     * @return The resized array
+     */
+    function _resizeAmountsArray(
+        int64[] memory amounts,
+        uint256 count
+    ) private pure returns (int64[] memory result) {
+        result = new int64[](count);
+
+        for (uint256 i; i < result.length; ++i) {
+            result[i] = amounts[i];
         }
     }
 }

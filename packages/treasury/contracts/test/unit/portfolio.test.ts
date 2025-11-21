@@ -318,12 +318,14 @@ describe("Portfolio operations", () => {
   });
 
   describe("getTotalEnvironmentalAssetTokens", () => {
+    let environmentalAssetAddress;
+
     it("GIVEN a deployed Treasury contract, WHEN an account gets the environmental asset tokens amount, THEN the total amount is obtained", async () => {
 
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
-      const environmentalAssetAddress = environmentalAsset.address;
+      environmentalAssetAddress = environmentalAsset.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
       treasury = treasury.connect(signer_A);
@@ -337,17 +339,25 @@ describe("Portfolio operations", () => {
   });
 
   describe("getEnvironmentalAssetTokens", () => {
-    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens, THEN the addresses of the environmental asset tokens of the requested page are obtained", async () => {
+    let environmentalAssetAddress;
+
+    beforeEach(async () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
-      const environmentalAssetAddress = environmentalAsset.address;
+      environmentalAssetAddress = environmentalAsset.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
       treasury = treasury.connect(signer_A);
       await treasury.addEnvironmentalAssetToken(environmentalAssetAddress);
+    });
 
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens, THEN the addresses of the environmental asset tokens of the requested page are obtained", async () => {
       expect((await treasury.getEnvironmentalAssetTokens(0, 1))[0]).to.equal(environmentalAssetAddress);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a non existing page of the environmental asset tokens, THEN we get an empty array", async () => {
+      expect(await treasury.getEnvironmentalAssetTokens(1, 1)).to.deep.equal([]);
     });
   })
 

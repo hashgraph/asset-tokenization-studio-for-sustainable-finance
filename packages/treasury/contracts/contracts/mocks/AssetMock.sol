@@ -7,27 +7,36 @@ import { IAssetMock } from "./interfaces/IAssetMock.sol";
 contract AssetMock is IAssetMock {
     string internal name = "Mock Bond";
     string internal symbol = "MBOND";
-    bool internal isToday;
-    uint256 internal tokenBalance;
+    DateType internal dateType;
+    int256 internal tokenBalance;
     address[] internal holders;
     bool internal isProceedRecipientForTheBond;
+    bool decimalsObtained;
+
+    enum DateType {
+        ZERO,
+        TODAY,
+        FUTURE
+    }
 
     // solhint-disable-next-line no-empty-blocks
     constructor(
-        bool todayIsExecutionDate,
-        uint256 holderTokenBalance,
+        DateType date,
+        int256 holderTokenBalance,
         address[] memory couponHolders,
-        bool addressIsProceedRecipient
+        bool addressIsProceedRecipient,
+        bool areDecimalsObtained
     ) {
-        isToday = todayIsExecutionDate;
+        dateType = date;
         tokenBalance = holderTokenBalance;
         holders = couponHolders;
         isProceedRecipientForTheBond = addressIsProceedRecipient;
+        decimalsObtained = areDecimalsObtained;
     }
 
     function getCoupon(uint256) external view returns (RegisteredCoupon memory registeredCoupon) {
         registeredCoupon.coupon.recordDate = 1753874807;
-        registeredCoupon.coupon.executionDate = isToday ? block.timestamp : 1919590386;
+        registeredCoupon.coupon.executionDate = dateType == DateType.ZERO ? 0 : dateType == DateType.TODAY ? block.timestamp : 1919590386;
         registeredCoupon.coupon.rate = 1;
         registeredCoupon.coupon.rateDecimals = 6;
         registeredCoupon.coupon.period = 2592000;
@@ -35,10 +44,16 @@ contract AssetMock is IAssetMock {
     }
 
     function getCouponHolders(uint256, uint256, uint256) external view returns (address[] memory) {
+        if (holders.length > 0 && holders[0] == address(2)) {
+            revert ("Wasn't able to get coupon holders");
+        }
         return holders;
     }
 
     function getSecurityHolders(uint256, uint256) external view returns (address[] memory) {
+        if (holders.length > 0 && holders[0] == address(2)) {
+            revert ("Wasn't able to get coupon holders");
+        }
         return holders;
     }
 
@@ -47,11 +62,14 @@ contract AssetMock is IAssetMock {
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.nominalValueDecimals = 2;
         bondDetailsData_.startingDate = 1751282807;
-        bondDetailsData_.maturityDate = isToday ? block.timestamp : 1919590386;
+        bondDetailsData_.maturityDate = dateType == DateType.ZERO ? 0 : dateType == DateType.TODAY ? block.timestamp : 1919590386;
     }
 
     function getCouponFor(uint256, address) external view returns (CouponFor memory couponFor_) {
-        couponFor_.tokenBalance = tokenBalance;
+        if (tokenBalance < 0){
+            revert ("Insufficient balance");
+        }
+        couponFor_.tokenBalance = uint256(tokenBalance);
         couponFor_.rate = 2;
         couponFor_.rateDecimals = 2;
         couponFor_.recordDate = 1753874807;
@@ -66,10 +84,16 @@ contract AssetMock is IAssetMock {
     }
 
     function balanceOf(address) external view returns (uint256) {
-        return tokenBalance;
+        if (tokenBalance < 0){
+            revert ("Insufficient balance");
+        }
+        return uint256(tokenBalance);
     }
 
-    function decimals() external pure returns (uint8) {
+    function decimals() external view returns (uint8) {
+        if (!decimalsObtained){
+            revert ("Decimals not obtained");
+        }
         return 2;
     }
 
