@@ -86,6 +86,7 @@ describe("GetBondHttpAdapter API Integration", () => {
         decimals: bond.decimals,
         currency: bond.currency,
         nominalValue: bond.nominalValue,
+        nominalValueDecimals: bond.nominalValueDecimals,
         startingDate: bond.startingDate.toISOString(),
         maturityDate: bond.maturityDate.toISOString(),
         maxSupply: bond.maxSupply,
