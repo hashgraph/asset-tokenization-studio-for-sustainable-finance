@@ -164,151 +164,151 @@ describe("LifeCycleCashFlow operations", () => {
           expect(results).to.deep.equal([]);
         });
       });
-    });
 
-    describe("Redeem a bond when getting the bond holders fails", () => {
-      beforeEach(async () => {
-        const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
-        await asset.deployed();
-        assetAddress = asset.address;
-        await treasury.initialize_LifeCycleCashFlow(assetAddress);
+      describe("Redeem a bond when getting the bond holders fails", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and getting the holders fails, THEN false is returned as executed result", async () => {
+          const [results, executed] = await treasury.callStatic.executeBondRedemption(assetAddress, 1, 1);
+          expect(executed).to.equal(false);
+          expect(results).to.deep.equal([]);
+        });
       });
 
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and getting the holders fails, THEN false is returned as executed result", async () => {
-        const [results, executed] = await treasury.callStatic.executeBondRedemption(assetAddress, 1, 1);
-        expect(executed).to.equal(false);
-        expect(results).to.deep.equal([]);
-      });
-    });
+      describe("Redeem a bond with an address zero holder", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
-    describe("Redeem a bond with an address zero holder", () => {
-      beforeEach(async () => {
-        const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
-        await asset.deployed();
-        assetAddress = asset.address;
-        await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
 
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-      });
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and the holder has address zero, THEN a RedemptionExecuted event is emitted when the holder in FAILED status", async () => {
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
 
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and the holder has address zero, THEN a RedemptionExecuted event is emitted when the holder in FAILED status", async () => {
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
-
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(1));
-        expect(event.args.results[0].holder).to.equal(AddressZero);
-        expect(event.args.results[0].status).to.equal(1);
-        expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
-      });
-    });
-
-    describe("Redeem a bond with holders", () => {
-      beforeEach(async () => {
-        const asset = await assetMockContract.deploy(1, 120, [signer_B.address], false, true);
-        await asset.deployed();
-        assetAddress = asset.address;
-        await treasury.initialize_LifeCycleCashFlow(assetAddress);
-        await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(1));
+          expect(event.args.results[0].holder).to.equal(AddressZero);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+        });
       });
 
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a bond redemption and there is not enough balance, THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+      describe("Redeem a bond with holders", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 120, [signer_B.address], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(1));
-        expect(event.args.results[0].holder).to.equal(signer_B.address);
-        expect(event.args.results[0].status).to.equal(1);
-        expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a bond redemption and there is not enough balance, THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(1));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionExecuted event is emitted with the holder in SUCCEEDED status", async () => {
+          await paymentToken.mint(treasury.address, 10000000000);
+
+          await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(1));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+        });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption, THEN a RedemptionExecuted event is emitted when the holder in SUCCEEDED status", async () => {
+          await paymentToken.mint(treasury.address, 1000000);
+
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(1));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+        });
       });
 
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionExecuted event is emitted with the holder in SUCCEEDED status", async () => {
-        await paymentToken.mint(treasury.address, 10000000000);
+      describe("Redeem a bond with two holders", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 120, [signer_B.address, signer_A.address], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-        await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
 
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(1));
-        expect(event.args.results[0].holder).to.equal(signer_B.address);
-        expect(event.args.results[0].status).to.equal(0);
-        expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond, THEN a RedemptionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
+          await paymentToken.mint(treasury.address, 1000000);
+
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 2);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(2));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(0);
+          expect(event.args.results[1].status).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(24000));
+        });
       });
 
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption, THEN a RedemptionExecuted event is emitted when the holder in SUCCEEDED status", async () => {
-        await paymentToken.mint(treasury.address, 1000000);
+      describe("Redeem a bond with holders and a great amount of tokens", () => {
+        beforeEach(async () => {
+          const asset = await assetMockContract.deploy(1, 4611686018000n, [signer_B.address], false, true);
+          await asset.deployed();
+          assetAddress = asset.address;
+          await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
+          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
+        });
 
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(1));
-        expect(event.args.results[0].holder).to.equal(signer_B.address);
-        expect(event.args.results[0].status).to.equal(0);
-        expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
-      });
-    });
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder so the amount to pay is greater than the max amount (int64), THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
+          const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
 
-    describe("Redeem a bond with two holders", () => {
-      beforeEach(async () => {
-        const asset = await assetMockContract.deploy(1, 120, [signer_B.address, signer_A.address], false, true);
-        await asset.deployed();
-        assetAddress = asset.address;
-        await treasury.initialize_LifeCycleCashFlow(assetAddress);
-        await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-      });
-
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond, THEN a RedemptionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
-        await paymentToken.mint(treasury.address, 1000000);
-
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 2);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
-
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(2));
-        expect(event.args.results[0].holder).to.equal(signer_B.address);
-        expect(event.args.results[1].holder).to.equal(signer_A.address);
-        expect(event.args.results[0].status).to.equal(0);
-        expect(event.args.results[1].status).to.equal(0);
-        expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
-        expect(event.args.results[1].amount).to.equal(BigNumber.from(24000));
-      });
-    });
-
-    describe("Redeem a bond with holders and a great amount of tokens", () => {
-      beforeEach(async () => {
-        const asset = await assetMockContract.deploy(1, 4611686018000n, [signer_B.address], false, true);
-        await asset.deployed();
-        assetAddress = asset.address;
-        await treasury.initialize_LifeCycleCashFlow(assetAddress);
-        await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-        await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-      });
-
-      it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder so the amount to pay is greater than the max amount (int64), THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
-        const tx = await treasury.executeBondRedemption(assetAddress, 1, 1);
-        const receipt = await tx.wait();
-        const event = receipt.events.find((e) => e.event === "RedemptionExecuted");
-
-        expect(event.args.pageIndex).to.equal(BigNumber.from(1));
-        expect(event.args.pageLength).to.equal(BigNumber.from(1));
-        expect(event.args.results[0].holder).to.equal(signer_B.address);
-        expect(event.args.results[0].status).to.equal(1);
-        expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.pageIndex).to.equal(BigNumber.from(1));
+          expect(event.args.pageLength).to.equal(BigNumber.from(1));
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
+        });
       });
     });
   });
