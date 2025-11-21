@@ -7,7 +7,7 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
-import { PauseBondTransactionRequest } from "@port/transaction/usecase/pausebond/model/PauseBondTransactionRequest"
+import { PauseBondTransactionRequest } from "@port/transaction/usecase/pausebondtransaction/model/PauseBondTransactionRequest"
 
 describe("PauseBondTransaction API Integration", () => {
   let app: INestApplication

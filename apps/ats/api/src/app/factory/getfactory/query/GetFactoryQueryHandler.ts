@@ -12,11 +12,11 @@ export class GetFactoryQueryHandler implements QueryHandler<GetFactoryQuery, Fac
 
   @Validate()
   async execute(query: GetFactoryQuery): Promise<FactoryQueryResponse> {
-    const { factoryId } = query
-    const factory = await this.checkFactoryExistsDomainService.execute(factoryId)
+    const { factoryContractId } = query
+    const factory = await this.checkFactoryExistsDomainService.execute(factoryContractId)
 
     return Object.assign(new FactoryQueryResponse(), {
-      factoryId: factory.factoryId,
+      factoryContractId: factory.contractId,
       isPaused: factory.isPaused,
       createdAt: factory.createdAt,
     })

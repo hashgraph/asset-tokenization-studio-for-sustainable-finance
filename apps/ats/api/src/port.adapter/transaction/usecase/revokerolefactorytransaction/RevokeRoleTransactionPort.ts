@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
-import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
+import { RevokeRoleTransactionRequest } from "./model/RevokeRoleTransactionRequest"
 
 export interface RevokeRoleTransactionPort {
   revokeRole(
-    bondContractId: string,
+    factoryContractId: string,
     roleId: string,
-    userAccountId: string,
-    request: GrantRoleTransactionRequest,
+    userId: string,
+    request: RevokeRoleTransactionRequest,
   ): Promise<TransactionResponse>
 }

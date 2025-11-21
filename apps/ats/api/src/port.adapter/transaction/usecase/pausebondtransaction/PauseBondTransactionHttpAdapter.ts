@@ -8,8 +8,8 @@ import {
   TransactionResponse,
 } from "@hashgraph/green-bonds-shared-core"
 
-import { PauseBondTransactionPort } from "@port/transaction/usecase/pausebond/PauseBondTransactionPort"
-import { PauseBondTransactionRequest } from "@port/transaction/usecase/pausebond/model/PauseBondTransactionRequest"
+import { PauseBondTransactionPort } from "@port/transaction/usecase/pausebondtransaction/PauseBondTransactionPort"
+import { PauseBondTransactionRequest } from "@port/transaction/usecase/pausebondtransaction/model/PauseBondTransactionRequest"
 
 @RestController("bonds")
 export class PauseBondTransactionHttpAdapter implements PauseBondTransactionPort {

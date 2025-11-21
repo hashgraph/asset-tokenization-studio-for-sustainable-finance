@@ -10,8 +10,8 @@ import { GetFactoryQuery } from "@app/factory/getfactory/query/GetFactoryQuery"
 export class GetFactoryHttpAdapter implements GetFactoryPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":factoryId")
-  async getFactory(@Param("factoryId") factoryId: string): Promise<GetFactoryResponse> {
-    return await this.queryBus.execute(new GetFactoryQuery(factoryId))
+  @Get(":factoryContractId")
+  async getFactory(@Param("factoryContractId") factoryContractId: string): Promise<GetFactoryResponse> {
+    return await this.queryBus.execute(new GetFactoryQuery(factoryContractId))
   }
 }

@@ -99,5 +99,21 @@ describe("PauseBondNestJSEventAdapter Integration", () => {
         }),
       )
     })
+
+    it("should silently ignore when bond does not exist", async () => {
+      const NON_EXISTENT_CONTRACT_ID = "0.0.9999999"
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
+      const event = new TokenPausedDLTEvent(
+        NON_EXISTENT_CONTRACT_ID,
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0x0000000000000000000000000000000000000001",
+      )
+
+      await eventBus.publishSync(event, TokenPausedDLTEvent.name)
+
+      expect(publishedEvent).toBeUndefined()
+    })
   })
 })

@@ -5,7 +5,7 @@ import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } fro
 @Entity("Factory")
 export class FactoryPersistence {
   @PrimaryColumn()
-  factoryId: string
+  contractId: string
 
   @Column({ default: false })
   isPaused: boolean

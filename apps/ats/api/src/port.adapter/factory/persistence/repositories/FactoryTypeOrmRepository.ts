@@ -20,9 +20,9 @@ export class FactoryTypeOrmRepository implements FactoryRepository {
     return this.toDomain(persistence)!
   }
 
-  async findByFactoryId(factoryId: string): Promise<Factory | null> {
+  async findByFactoryId(contractId: string): Promise<Factory | null> {
     const persistence = await this.repository.findOne({
-      where: { factoryId },
+      where: { contractId: contractId },
     })
 
     return this.toDomain(persistence)

@@ -2,30 +2,30 @@
 
 import { Body, Delete, Param } from "@nestjs/common"
 import {
-  RestController,
   RevokeRoleTransactionAppService,
   RevokeRoleTransactionAppServiceRequest,
+  RestController,
   TransactionResponse,
 } from "@hashgraph/green-bonds-shared-core"
-import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
-import { RevokeRoleTransactionPort } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionPort"
+import { RevokeRoleTransactionPort } from "./RevokeRoleTransactionPort"
+import { RevokeRoleTransactionRequest } from "./model/RevokeRoleTransactionRequest"
 
-@RestController("bonds")
+@RestController("factories")
 export class RevokeRoleTransactionHttpAdapter implements RevokeRoleTransactionPort {
   constructor(private readonly revokeRoleTransactionAppService: RevokeRoleTransactionAppService) {}
 
-  @Delete(":bondContractId/roles/:roleId/users/:userAccountId")
+  @Delete(":factoryContractId/roles/:roleId/users/:userAccountId")
   async revokeRole(
-    @Param("bondContractId") bondContractId: string,
+    @Param("factoryContractId") factoryContractId: string,
     @Param("roleId") roleId: string,
     @Param("userAccountId") userAccountId: string,
-    @Body() request: GrantRoleTransactionRequest,
+    @Body() request: RevokeRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.revokeRoleTransactionAppService.execute(
       new RevokeRoleTransactionAppServiceRequest(
         request.format,
-        request.accountId ?? "",
-        bondContractId,
+        request.accountId!,
+        factoryContractId,
         roleId,
         userAccountId,
       ),

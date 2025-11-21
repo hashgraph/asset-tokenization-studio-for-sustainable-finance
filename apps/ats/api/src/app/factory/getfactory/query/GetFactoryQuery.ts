@@ -7,10 +7,10 @@ import type { FactoryQueryResponse } from "./FactoryQueryResponse"
 export class GetFactoryQuery extends Query<FactoryQueryResponse> {
   @IsNotEmpty()
   @IsString()
-  readonly factoryId: string
+  readonly factoryContractId: string
 
-  constructor(factoryId: string) {
+  constructor(factoryContractId: string) {
     super()
-    this.factoryId = factoryId
+    this.factoryContractId = factoryContractId
   }
 }
