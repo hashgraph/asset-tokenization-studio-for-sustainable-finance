@@ -11,6 +11,7 @@ export class BondQueryResponse {
   decimals: number
   currency: string
   nominalValue: string
+  nominalValueDecimals: number
   startingDate: Date
   maturityDate: Date
   maxSupply: string
