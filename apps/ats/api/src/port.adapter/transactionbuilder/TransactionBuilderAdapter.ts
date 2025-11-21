@@ -141,6 +141,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       bondDetails: {
         currency: req.securityTokenToCreate.currency,
         nominalValue: req.securityTokenToCreate.nominalValue ? req.securityTokenToCreate.nominalValue : "0",
+        nominalValueDecimals: req.securityTokenToCreate.nominalValueDecimals,
         startingDate: parseInt(req.securityTokenToCreate.startingDate).toString(),
         maturityDate: parseInt(req.securityTokenToCreate.maturityDate).toString(),
       },

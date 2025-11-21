@@ -25,6 +25,7 @@ export class CreateBondDomainService {
       decimals: createBondDomainServiceRequest.decimals,
       currency: createBondDomainServiceRequest.currency,
       nominalValue: createBondDomainServiceRequest.nominalValue,
+      nominalValueDecimals: createBondDomainServiceRequest.nominalValueDecimals,
       startingDate: createBondDomainServiceRequest.startingDate,
       maturityDate: createBondDomainServiceRequest.maturityDate,
       maxSupply: createBondDomainServiceRequest.maxSupply,

@@ -24,11 +24,12 @@ async function createBond(format) {
     currency: "0x858368",
     numberOfUnits: "1000000",
     nominalValue: "100",
+    nominalValueDecimals: 2,
     startingDate: "1880997600",
     maturityDate: "1980997600",
     configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
     configVersion: 0,
-    resolverAddress: "0x76a2e6C1DDb5dE9b4Ec52AC3C7c26aa8Cd717ba3",
+    resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
     proceedRecipientAddresses: [],
     proceedRecipientsData: []
   },
@@ -40,7 +41,7 @@ async function createBond(format) {
     info: "test"
   },
   treasuryData: {
-    resolverAddress: "0x76a2e6C1DDb5dE9b4Ec52AC3C7c26aa8Cd717ba3",
+    resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
     configId: "0x0000000000000000000000000000000000000000000000000000000000004e20",
     configVersion: 1,
     paymentTokenAddress: "0x0000000000000000000000000000000000629238",
@@ -53,8 +54,8 @@ async function createBond(format) {
   },
   format: format,
   accountId: process.env.ACCOUNT_ID,
-  factoryAddress: "0xd269fdb53aEaA55456F99447744404f2f128F19f",
-  factorySuiteAddress: "0.0.7247643",
+  factoryAddress: "0x32bc5B65eFf7d3eFc4CC3B62A66c8445E8675982",
+  factorySuiteAddress: "0.0.7297384",
 };
   
   try {

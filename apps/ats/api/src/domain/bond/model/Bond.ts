@@ -41,6 +41,10 @@ export class Bond extends BaseEntity {
   nominalValue: string
 
   @IsNotEmpty()
+  @IsNumber()
+  nominalValueDecimals: number
+
+  @IsNotEmpty()
   @IsDate()
   startingDate: Date
 
