@@ -4,17 +4,17 @@ import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 
 export abstract class BaseDistributionExecutedDLTEvent extends DLTEvent {
-  readonly distributionId: number
+  readonly distributionID: number
   readonly results: PaymentResultEventModel[]
 
   protected constructor(
     contractId: string,
     transactionHash: string,
-    distributionId: number,
+    distributionID: number,
     results: PaymentResultEventModel[],
   ) {
     super(contractId, transactionHash)
-    this.distributionId = distributionId
+    this.distributionID = distributionID
     this.results = results
   }
 }
