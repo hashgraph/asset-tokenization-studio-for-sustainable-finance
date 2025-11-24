@@ -23,7 +23,7 @@ export class ScheduledTaskResultPersistence extends BaseEntityPersistence {
   toDate: Date
 
   @Column({ type: "timestamp" })
-  executionTime: Date
+  startedAt: Date
 
   @Column({ type: "timestamp", nullable: true })
   completedAt: Date | null

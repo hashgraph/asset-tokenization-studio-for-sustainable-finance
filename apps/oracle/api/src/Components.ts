@@ -54,16 +54,22 @@ import { SchedulerService } from "@port/scheduler/SchedulerService"
 import { SchedulerConfigHttpAdapter } from "@port/scheduler/usecase/SchedulerConfigHttpAdapter"
 import { SchedulerConfigTypeOrmRepository } from "@port/scheduler/persistence/repositories/SchedulerConfigTypeOrmRepository"
 
+// Port Adapters - Indexer Config
+import { IndexerConfigHttpAdapter } from "@port/indexer/usecase/IndexerConfigHttpAdapter"
+import { IndexerConfigTypeOrmRepository } from "@port/indexer/persistence/repositories/IndexerConfigTypeOrmRepository"
+
 // Persistence Models
 import { OracleRegistryPersistence } from "@port/oracle/persistence/model/OracleRegistryPersistence"
 import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/ScheduledTaskResultPersistence"
 import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/SchedulerConfigPersistence"
+import { IndexerConfigPersistence } from "@port/indexer/persistence/model/IndexerConfigPersistence"
 
 export const ENTITIES = [
   ...COMMON_FUNCTIONALITY_ENTITIES,
   OracleRegistryPersistence,
   ScheduledTaskResultPersistence,
   SchedulerConfigPersistence,
+  IndexerConfigPersistence,
 ]
 
 export const CONTROLLERS: any[] = [
@@ -87,6 +93,9 @@ export const CONTROLLERS: any[] = [
 
   // Scheduler Config HTTP Adapter
   SchedulerConfigHttpAdapter,
+
+  // Indexer Config HTTP Adapter
+  IndexerConfigHttpAdapter,
 ]
 
 // CQRS Command Handlers
@@ -145,6 +154,12 @@ export const PROVIDERS: any[] = [
   {
     provide: "SchedulerConfigRepository",
     useClass: SchedulerConfigTypeOrmRepository,
+  },
+
+  // Indexer Config
+  {
+    provide: "IndexerConfigRepository",
+    useClass: IndexerConfigTypeOrmRepository,
   },
 
   // Transaction Builder (stub - oracle doesn't build transactions)

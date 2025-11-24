@@ -98,7 +98,7 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskResultReposi
     entity.projectId = domain.projectId
     entity.fromDate = domain.fromDate
     entity.toDate = domain.toDate
-    entity.executionTime = domain.executionTime
+    entity.startedAt = domain.startedAt
     entity.completedAt = domain.completedAt
     entity.status = domain.status
     entity.retryCount = domain.retryCount

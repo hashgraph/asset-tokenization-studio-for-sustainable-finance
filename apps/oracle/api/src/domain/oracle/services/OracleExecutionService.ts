@@ -41,6 +41,7 @@ export class OracleExecutionService {
     this.logger.log(`Executing task for project ${project.projectId} in registry ${registry.id}`)
 
     // Step 1: Calculate fromDate based on last successful execution
+      //TODO: get the last execution date from the database not the last successful execution
     const fromDate = await this.calculateFromDate(registry.id, project.projectId)
 
     this.logger.debug(

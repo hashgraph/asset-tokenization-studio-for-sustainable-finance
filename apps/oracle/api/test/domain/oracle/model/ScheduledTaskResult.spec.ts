@@ -127,12 +127,12 @@ describe("ScheduledTaskResult", () => {
 
     it("should update executionTime when incrementing retry", () => {
       const failedTask = createBaseTask(TaskStatus.FAILED, 0)
-      const originalExecutionTime = failedTask.executionTime
+      const originalExecutionTime = failedTask.startedAt
 
       // Small delay to ensure different timestamps
       const retryTask = failedTask.incrementRetry()
 
-      expect(retryTask.executionTime.getTime()).toBeGreaterThanOrEqual(originalExecutionTime.getTime())
+      expect(retryTask.startedAt.getTime()).toBeGreaterThanOrEqual(originalExecutionTime.getTime())
     })
   })
 

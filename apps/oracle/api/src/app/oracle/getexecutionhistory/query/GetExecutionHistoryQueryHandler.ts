@@ -45,7 +45,7 @@ export class GetExecutionHistoryQueryHandler
       status: task.status,
       fromDate: task.fromDate,
       toDate: task.toDate,
-      executionTime: task.executionTime,
+      executionTime: task.startedAt,
       completedAt: task.completedAt,
       errorType: task.errorType,
       errorMessage: task.errorMessage,

@@ -1,35 +1,38 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Injectable, Logger } from "@nestjs/common"
+import { Inject, Injectable, Logger } from "@nestjs/common"
 import { IndexerPort, KpiMessage } from "@domain/oracle/ports/IndexerPort"
-//TODO: Mock, configure with real data from guardian platform
+import type { IndexerConfigRepository } from "@domain/indexer/repositories/IndexerConfigRepository"
+
 @Injectable()
 export class IndexerApiClient implements IndexerPort {
   private readonly logger = new Logger(IndexerApiClient.name)
-  private readonly endpoint: string
-  private readonly apiKey: string
 
-  constructor() {
-    this.endpoint = process.env.INDEXER_ENDPOINT || ""
-    this.apiKey = process.env.INDEXER_API_KEY || ""
-
-    if (!this.endpoint) {
-      this.logger.warn("INDEXER_ENDPOINT not configured")
-    }
-  }
+  constructor(
+    @Inject("IndexerConfigRepository")
+    private readonly configRepository: IndexerConfigRepository,
+  ) {}
 
   async getKpiValuesByTopic(topicId: string, dateFrom: Date, dateTo: Date): Promise<KpiMessage[]> {
     this.logger.log(
       `Fetching KPI messages for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`,
     )
 
+    // Get config from database (or create with env defaults)
+    const config = await this.configRepository.getOrCreateDefault()
+
+    if (!config.endpoint) {
+      this.logger.warn("Indexer endpoint not configured")
+      return []
+    }
+
     try {
-      const url = `${this.endpoint}/messages?topicId=${topicId}&from=${dateFrom.toISOString()}&to=${dateTo.toISOString()}`
+      const url = `${config.endpoint}/messages?topicId=${topicId}&from=${dateFrom.toISOString()}&to=${dateTo.toISOString()}`
 
       const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${this.apiKey}`,
+          Authorization: `Bearer ${config.apiKey}`,
         },
       })
 
