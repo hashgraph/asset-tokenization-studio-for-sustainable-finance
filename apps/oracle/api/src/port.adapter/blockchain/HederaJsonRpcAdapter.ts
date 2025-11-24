@@ -1,24 +1,29 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Injectable, Logger } from "@nestjs/common"
+import { Inject, Injectable, Logger } from "@nestjs/common"
 import { BlockchainPort, WriteKpiResult } from "@domain/oracle/ports/BlockchainPort"
+import type { BlockchainConfigRepository } from "@domain/blockchain/repositories/BlockchainConfigRepository"
 
 @Injectable()
 export class HederaJsonRpcAdapter implements BlockchainPort {
   private readonly logger = new Logger(HederaJsonRpcAdapter.name)
-  private readonly rpcEndpoint: string
-  private readonly privateKey: string
-  private readonly accountId: string
 
-  constructor() {
-    this.rpcEndpoint = process.env.RPC_ENDPOINT || ""
-    this.privateKey = process.env.PRIVATE_KEY || ""
-    this.accountId = process.env.ACCOUNT_ID || ""
+  constructor(
+    @Inject("BlockchainConfigRepository")
+    private readonly configRepository: BlockchainConfigRepository,
+  ) {}
 
-    if (!this.rpcEndpoint || !this.privateKey || !this.accountId) {
-      throw new Error("RPC_ENDPOINT, PRIVATE_KEY, and ACCOUNT_ID must be set for JSON-RPC adapter")
+  /**
+   * Get credentials from env vars (security - never from DB)
+   */
+  private getCredentials(): { privateKey: string; accountId: string } {
+    const privateKey = process.env.PRIVATE_KEY || ""
+    const accountId = process.env.ACCOUNT_ID || ""
+
+    if (!privateKey || !accountId) {
+      throw new Error("PRIVATE_KEY and ACCOUNT_ID must be set in environment variables")
     }
 
-    this.logger.log(`HederaJsonRpcAdapter initialized with endpoint ${this.rpcEndpoint}`)
+    return { privateKey, accountId }
   }
 
   async writeKpiToContract(
@@ -34,6 +39,14 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
     )
 
     try {
+      // Get config from DB and credentials from env vars
+      const config = await this.configRepository.getOrCreateDefault()
+      const { accountId } = this.getCredentials()
+
+      if (!config.rpcEndpoint) {
+        throw new Error("RPC endpoint not configured")
+      }
+
       // Encode function call
       // Contract function signature: addKpiData(uint256 fromDate, uint256 toDate, uint256 kpiValue)
       const functionSelector = this.getFunctionSelector("addKpiData(uint256,uint256,uint256)")
@@ -52,7 +65,7 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
         method: "eth_sendRawTransaction",
         params: [
           {
-            from: this.accountId,
+            from: accountId,
             to: kpiContractId,
             data: callData,
             gas: "0x7A120", // 500000 in hex
@@ -60,7 +73,7 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
         ],
       }
 
-      const response = await fetch(this.rpcEndpoint, {
+      const response = await fetch(config.rpcEndpoint, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

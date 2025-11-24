@@ -46,8 +46,11 @@ import { ScheduledTaskTypeOrmRepository } from "@port/oracle/persistence/reposit
 
 // Port Adapters - External Clients
 import { IndexerApiClient } from "@port/indexer/IndexerApiClient"
-import { HederaSDKAdapter } from "@port/blockchain/HederaSDKAdapter"
-import { HederaJsonRpcAdapter } from "@port/blockchain/HederaJsonRpcAdapter"
+import { DynamicBlockchainAdapter } from "@port/blockchain/DynamicBlockchainAdapter"
+
+// Port Adapters - Blockchain Config
+import { BlockchainConfigHttpAdapter } from "@port/blockchain/usecase/BlockchainConfigHttpAdapter"
+import { BlockchainConfigTypeOrmRepository } from "@port/blockchain/persistence/repositories/BlockchainConfigTypeOrmRepository"
 
 // Port Adapters - Scheduler
 import { SchedulerService } from "@port/scheduler/SchedulerService"
@@ -63,6 +66,7 @@ import { OracleRegistryPersistence } from "@port/oracle/persistence/model/Oracle
 import { ScheduledTaskResultPersistence } from "@port/oracle/persistence/model/ScheduledTaskResultPersistence"
 import { SchedulerConfigPersistence } from "@port/scheduler/persistence/model/SchedulerConfigPersistence"
 import { IndexerConfigPersistence } from "@port/indexer/persistence/model/IndexerConfigPersistence"
+import { BlockchainConfigPersistence } from "@port/blockchain/persistence/model/BlockchainConfigPersistence"
 
 export const ENTITIES = [
   ...COMMON_FUNCTIONALITY_ENTITIES,
@@ -70,6 +74,7 @@ export const ENTITIES = [
   ScheduledTaskResultPersistence,
   SchedulerConfigPersistence,
   IndexerConfigPersistence,
+  BlockchainConfigPersistence,
 ]
 
 export const CONTROLLERS: any[] = [
@@ -96,6 +101,9 @@ export const CONTROLLERS: any[] = [
 
   // Indexer Config HTTP Adapter
   IndexerConfigHttpAdapter,
+
+  // Blockchain Config HTTP Adapter
+  BlockchainConfigHttpAdapter,
 ]
 
 // CQRS Command Handlers
@@ -143,10 +151,7 @@ export const PROVIDERS: any[] = [
   },
   {
     provide: "BlockchainPort",
-    useFactory: () => {
-      const useJsonRpc = process.env.HEDERA_USE_JSON_RPC === "true"
-      return useJsonRpc ? new HederaJsonRpcAdapter() : new HederaSDKAdapter()
-    },
+    useClass: DynamicBlockchainAdapter,
   },
 
   // Scheduler
@@ -160,6 +165,12 @@ export const PROVIDERS: any[] = [
   {
     provide: "IndexerConfigRepository",
     useClass: IndexerConfigTypeOrmRepository,
+  },
+
+  // Blockchain Config
+  {
+    provide: "BlockchainConfigRepository",
+    useClass: BlockchainConfigTypeOrmRepository,
   },
 
   // Transaction Builder (stub - oracle doesn't build transactions)
