@@ -25,7 +25,7 @@ export class CreateClearingTransferTransactionHttpAdapter implements CreateClear
       holderAccountId,
       request.partition,
       request.amount,
-      request.expirationTimestamp.getTime(),
+      Math.floor(request.expirationTimestamp.getTime() / 1000).toString(),
       request.toAccountId,
       request.data,
     )
