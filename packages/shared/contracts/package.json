@@ -48,7 +48,7 @@
     "local:hardhat": "npx hardhat node"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
+    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/npm-registry-mock/ats/hashgraph-asset-tokenization-contracts-1.17.9.tgz",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "dotenv": "^16.0.0",

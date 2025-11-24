@@ -1,14 +1,23 @@
 import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket } from "@contract-types";
-import { IPause } from "@hashgraph/asset-tokenization-contracts";
+import {
+  IFactoryPrimaryMarket,
+  IFactoryPrimaryMarket__factory,
+  IBusinessLogicResolver,
+  IBusinessLogicResolver__factory,
+  IAccessControl,
+  IAccessControl__factory,
+  IPrimaryMarket,
+  IPrimaryMarket__factory,
+  PrecompiledMock__factory,
+} from "@contract-types";
+import { IPause, IPause__factory, ITimeTravel, ITimeTravel__factory } from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
 import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
-import { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
 import { INT64_MAX, HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 
 // Contracts
@@ -52,7 +61,9 @@ describe("PrimaryMarket", () => {
 
     const runtimeBytecode = await ethers.provider.getCode(deployed.address);
     await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
-    mockPrecompiled = await ethers.getContractAt("PrecompiledMock", HEDERA_PRECOMPILED_ADDRESS);
+
+    const [deployer] = await ethers.getSigners();
+    mockPrecompiled = PrecompiledMock__factory.connect(HEDERA_PRECOMPILED_ADDRESS, deployer);
 
     await mockPrecompiled.setPrecompiledTransferStatus(true);
     await mockPrecompiled.setPrecompiledAssociationStatus(true);
@@ -69,20 +80,17 @@ describe("PrimaryMarket", () => {
       saveOutput: false,
     });
 
-    factoryPrimaryMarket = (await ethers.getContractAt(
-      "FactoryPrimaryMarket",
+    factoryPrimaryMarket = IFactoryPrimaryMarket__factory.connect(
       deployment.infrastructure.factoryPrimaryMarket.proxy,
-    )) as IFactoryPrimaryMarket;
+      deployer,
+    );
 
-    accessControl = (await ethers.getContractAt(
-      "AccessControl",
+    accessControl = IAccessControl__factory.connect(
       deployment.infrastructure.factoryPrimaryMarket.proxy,
-    )) as IAccessControl;
+      deployer,
+    );
 
-    blr = (await ethers.getContractAt(
-      "IBusinessLogicResolver",
-      deployment.infrastructure.blr.proxy,
-    )) as IBusinessLogicResolver;
+    blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
     // Grant PM_DEPLOYER_ROLE to admin
     await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
@@ -118,10 +126,10 @@ describe("PrimaryMarket", () => {
       throw new Error("PrimaryMarketDeployed event not found");
     }
 
-    primaryMarketAddress = event.args.primaryMarketAddress;
-    primaryMarket = (await ethers.getContractAt("PrimaryMarket", primaryMarketAddress)) as IPrimaryMarket;
-    primaryMarketTimeTravel = (await ethers.getContractAt("ITimeTravel", primaryMarketAddress)) as ITimeTravel;
-    pause = (await ethers.getContractAt("Pause", primaryMarketAddress)) as IPause;
+    primaryMarketAddress = event!.args!.primaryMarketAddress;
+    primaryMarket = IPrimaryMarket__factory.connect(primaryMarketAddress, deployer);
+    primaryMarketTimeTravel = ITimeTravel__factory.connect(primaryMarketAddress, deployer);
+    pause = IPause__factory.connect(primaryMarketAddress, deployer);
 
     // Deploy mock tokens
     const MockERC20 = await ethers.getContractFactory("MockERC20");
@@ -188,6 +196,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
         price: 0, // Will use bond's nominal value
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -232,6 +241,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
         price: 0, // Will use bond's nominal value
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering)).to.be.revertedWithCustomError(
@@ -255,6 +265,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600, // Ends in 1 hour
         deadlineRule: 0, // WAIT_UNTIL_END
         price: 0, // Will use bond's nominal value
+        priceDecimals: 0,
       };
 
       await pause.connect(admin).pause();
@@ -280,6 +291,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -302,6 +314,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -324,6 +337,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -346,6 +360,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 60,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_1))
@@ -365,6 +380,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2))
@@ -387,6 +403,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 60,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -409,6 +426,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -428,6 +446,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_2))
@@ -447,6 +466,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_3))
@@ -466,6 +486,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering_4))
@@ -488,6 +509,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -510,6 +532,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 1, // CLOSE_TARGET_REACHED - Invalid combination
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(offeringCreator).createOffering(offering))
@@ -532,10 +555,11 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       await expect(primaryMarket.connect(investor1).createOffering(offering)).to.be.revertedWithCustomError(
-        primaryMarket,
+        accessControl,
         "AccountHasNoRole",
       );
     });
@@ -560,6 +584,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0, // WAIT_UNTIL_END
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -583,6 +608,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0, // WAIT_UNTIL_END
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering2);
@@ -695,6 +721,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: deadlineRule,
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -933,6 +960,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: deadlineRule,
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1009,19 +1037,26 @@ describe("PrimaryMarket", () => {
         // Find the event
         const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
         expect(event).to.not.be.undefined;
+        expect(event!.args).to.not.be.undefined;
 
         // Check scalar args
-        expect(event.args.offeringId).to.equal(offeringId);
-        expect(event.args.operator).to.equal(offeringCreatorAddress);
+        expect(event!.args!.offeringId).to.equal(offeringId);
+        expect(event!.args!.operator).to.equal(offeringCreatorAddress);
 
         // Convert BigNumbers to numbers for array comparison
-        const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+        const succeeded = event!.args!.result
+          .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+          .map((r: any) => r.subscriptionId.toNumber());
         expect(succeeded).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
-        const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+        const failed = event!.args!.result
+          .filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+          .map((r: any) => r.subscriptionId.toNumber());
         expect(failed).to.deep.equal([]);
 
-        const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+        const alreadyProcessed = event!.args!.result
+          .filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+          .map((r: any) => r.subscriptionId.toNumber());
         expect(alreadyProcessed).to.deep.equal([]);
       }
 
@@ -1066,17 +1101,23 @@ describe("PrimaryMarket", () => {
       expect(event).to.not.be.undefined;
 
       // Check scalar args
-      expect(event.args.offeringId).to.equal(offeringId);
-      expect(event.args.operator).to.equal(offeringCreatorAddress);
+      expect(event!.args!.offeringId).to.equal(offeringId);
+      expect(event!.args!.operator).to.equal(offeringCreatorAddress);
 
       // Convert BigNumbers to numbers for array comparison
-      const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+      const succeeded = event!.args!.result
+        .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => r.subscriptionId.toNumber());
       expect(succeeded).to.deep.equal([]);
 
-      const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+      const failed = event!.args!.result
+        .filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+        .map((r: any) => r.subscriptionId.toNumber());
       expect(failed).to.deep.equal([]);
 
-      const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+      const alreadyProcessed = event!.args!.result
+        .filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => r.subscriptionId.toNumber());
       const arr = Array.from({ length: totalSubscription - 1 }, (_, i) => i + 1);
       expect(alreadyProcessed).to.deep.equal(arr);
     });
@@ -1106,17 +1147,23 @@ describe("PrimaryMarket", () => {
           expect(event).to.not.be.undefined;
 
           // Check scalar args
-          expect(event.args.offeringId).to.equal(offeringId);
-          expect(event.args.operator).to.equal(offeringCreatorAddress);
+          expect(event!.args!.offeringId).to.equal(offeringId);
+          expect(event!.args!.operator).to.equal(offeringCreatorAddress);
 
           // Convert BigNumbers to numbers for array comparison
-          const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+          const succeeded = event!.args!.result
+            .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+            .map((r: any) => r.subscriptionId.toNumber());
           expect(succeeded).to.deep.equal([]);
 
-          const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+          const failed = event!.args!.result
+            .filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+            .map((r: any) => r.subscriptionId.toNumber());
           expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
-          const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+          const alreadyProcessed = event!.args!.result
+            .filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+            .map((r: any) => r.subscriptionId.toNumber());
           expect(alreadyProcessed).to.deep.equal([]);
         }
       }
@@ -1232,8 +1279,9 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
 
-      const alreadyProcessed = event!
-        .args!.subscriptionIdsAlreadyExecuted.map((x: any) => x.toNumber())
+      const alreadyProcessed = event!.args!.result
+        .filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => r.subscriptionId.toNumber())
         .filter((x: number) => x > 0);
       expect(alreadyProcessed).to.include(1);
     });
@@ -1254,6 +1302,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: BigInt(INT64_MAX) + BigInt(1), // Use custom price exceeding int64 max
+        priceDecimals: 6,
       };
 
       let tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1272,13 +1321,19 @@ describe("PrimaryMarket", () => {
       event = receipt.events?.find((e) => e.event === "OfferingExecuted");
       expect(event).to.not.be.undefined;
 
-      const succeeded = event.args.subscriptionIdsSuccess.map((x) => x.toNumber());
+      const succeeded = event!.args!.result
+        .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => r.subscriptionId.toNumber());
       expect(succeeded).to.deep.equal([]);
 
-      const failed = event.args.subscriptionIdsFailed.map((x) => x.toNumber());
+      const failed = event!.args!.result
+        .filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+        .map((r: any) => r.subscriptionId.toNumber());
       expect(failed).to.deep.equal([1]);
 
-      const alreadyProcessed = event.args.subscriptionIdsAlreadyExecuted.map((x) => x.toNumber());
+      const alreadyProcessed = event!.args!.result
+        .filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => r.subscriptionId.toNumber());
       expect(alreadyProcessed).to.deep.equal([]);
     });
 
@@ -1317,6 +1372,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: deadlineRule,
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1367,8 +1423,14 @@ describe("PrimaryMarket", () => {
       expect(event!.args!.operator).to.equal(offeringCreatorAddress);
 
       // Convert BigNumbers to numbers for array comparison - filter out zeros
-      const succeeded = event!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
-      const failed = event!.args!.subscriptionIdsFailed.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      const succeeded = event!.args!.result
+        .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => r.subscriptionId.toNumber())
+        .filter((x: number) => x > 0);
+      const failed = event!.args!.result
+        .filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+        .map((r: any) => r.subscriptionId.toNumber())
+        .filter((x: number) => x > 0);
 
       expect(succeeded.length).to.equal(5);
       expect(succeeded).to.include.members([1, 2, 3, 4, 5]);
@@ -1410,7 +1472,10 @@ describe("PrimaryMarket", () => {
       const event = receipt.events?.find((e) => e.event === "OfferingCancelled");
       expect(event).to.not.be.undefined;
 
-      const succeeded = event!.args!.subscriptionIdsSuccess.map((x: any) => x.toNumber()).filter((x: number) => x > 0);
+      const succeeded = event!.args!.result
+        .filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => r.subscriptionId.toNumber())
+        .filter((x: number) => x > 0);
       expect(succeeded.length).to.equal(3);
       expect(succeeded).to.include.members([1, 3, 5]);
 
@@ -1542,6 +1607,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: 0,
+        priceDecimals: 0,
       };
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1644,6 +1710,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0, // WAIT_UNTIL_END
           price: 0, // Will use bond's nominal value
+        priceDecimals: 0,
         };
 
         await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1710,6 +1777,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0, // WAIT_UNTIL_END
           price: customPrice, // Custom price instead of nominal value
+          priceDecimals: 6,
         };
 
         await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1792,6 +1860,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0,
           price: 0,
+        priceDecimals: 0,
         };
 
         // Offering 2 with custom price
@@ -1808,6 +1877,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0,
           price: 10,
+          priceDecimals: 6,
         };
 
         await primaryMarket.connect(offeringCreator).createOffering(offering1);
@@ -1847,6 +1917,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0,
           price: 0, // Will use the super large nominal value set above
+          priceDecimals: 0,
         };
 
         await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1895,6 +1966,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0,
           price: 0, // Will use the super large nominal value set above
+          priceDecimals: 0,
         };
 
         const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
