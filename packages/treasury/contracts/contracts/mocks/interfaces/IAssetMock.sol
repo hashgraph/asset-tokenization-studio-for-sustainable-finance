@@ -34,4 +34,15 @@ interface IAssetMock {
         uint8 decimals;
         bool recordDateReached;
     }
+
+    struct CouponAmountFor {
+        uint256 numerator;
+        uint256 denominator;
+        bool recordDateReached;
+    }
+
+    struct PrincipalFor {
+        uint256 numerator;
+        uint256 denominator;
+    }
 }

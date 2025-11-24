@@ -40,7 +40,7 @@ describe("LifeCycleCashFlow operations", () => {
 
   describe("initialize_LifeCycleCashFlow", () => {
     beforeEach(async () => {
-      const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+      const asset = await assetMockContract.deploy(2, 1, [], false, true);
       await asset.deployed();
       assetAddress = asset.address;
 
@@ -112,7 +112,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a redemption date that has not already arrived", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -130,7 +130,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date equals to ZERO", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(0, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(0, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
 
@@ -150,7 +150,7 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a redemption date that has already arrived", () => {
       describe("Redeem a bond when getting the bond holders fails", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -167,7 +167,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Redeem a bond without holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -184,7 +184,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Redeem a bond with an address zero holder", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -207,7 +207,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Redeem a bond with holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 120, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -240,7 +240,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption, THEN a RedemptionExecuted event is emitted when the holder in SUCCEEDED status", async () => {
@@ -254,13 +254,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Redeem a bond with two holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 120, [signer_B.address, signer_A.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address, signer_A.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -282,14 +282,14 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
-          expect(event.args.results[1].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Redeem a bond with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 4611686018000n, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 4611686018000n, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -308,64 +308,6 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
           expect(event.args.results[0].amount).to.equal(0);
-        });
-      });
-
-      describe("Redeem a bond when cannot get asset decimals", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], false, false, false, false);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the asset decimals cannot be obtained, THEN it reverts with a GetAssetDecimalsFailed error", async () => {
-          await expect(treasury.executeBondRedemption(assetAddress, 1, 1))
-            .to.be.revertedWithCustomError(treasury, "GetAssetDecimalsFailed")
-            .withArgs(assetAddress);
-        });
-      });
-
-      describe("Redeem a bond when cannot get balanceOf by partition", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], true, true, false, true);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the balance of by partition cannot be obtained, THEN it reverts with a BalanceOfByPartitionError error", async () => {
-          await paymentToken.mint(treasury.address, 1000000);
-
-          await expect(treasury.executeBondRedemption(assetAddress, 1, 1))
-            .to.be.revertedWithCustomError(treasury, "BalanceOfByPartitionError")
-            .withArgs(assetAddress, signer_B.address, "0x0000000000000000000000000000000000000000000000000000000000000000");
-        });
-      });
-
-      describe("Redeem a bond when cannot redeem at maturity by partition", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], true, true, true, false);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the redeem at maturity by partition fails, THEN a it reverts with a RedeemAtMaturityByPartitionError error", async () => {
-          await paymentToken.mint(treasury.address, 1000000);
-
-          await expect(treasury.executeBondRedemption(assetAddress, 1, 1))
-            .to.be.revertedWithCustomError(treasury, "RedeemAtMaturityByPartitionError")
-            .withArgs(assetAddress, signer_B.address, "0x0000000000000000000000000000000000000000000000000000000000000000");
         });
       });
     });
@@ -420,7 +362,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a redemption date that has not already arrived", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -438,7 +380,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date equals to ZERO", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(0, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(0, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
 
@@ -458,7 +400,7 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a redemption payment date that has already arrived", () => {
       describe("Redeem a bond without holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -478,7 +420,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Redeem a bond with an address zero holder", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -498,32 +440,9 @@ describe("LifeCycleCashFlow operations", () => {
         });
       });
 
-      describe("Redeem a bond when getting the holder's tokens amount fails", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, -1, [signer_B.address], false, true, false, false);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption and getting the holder's tokens amount fails, THEN a RedemptionByAddressesExecuted event is emitted with the holder in FAILED status", async () => {
-          const tx = await treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]);
-          const receipt = await tx.wait();
-          const event = receipt.events.find((e) => e.event === "RedemptionByAddressesExecuted");
-
-          expect(event.args.holders[0]).to.equal(signer_B.address);
-          expect(event.args.results[0].holder).to.equal(signer_B.address);
-          expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
-        });
-      });
-
       describe("Redeem a bond with holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 120, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -554,7 +473,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption, THEN a RedemptionByAddressesExecuted event is emitted with holder in SUCCEEDED status", async () => {
@@ -567,13 +486,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Redeem a bond with two holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 120, [signer_B.address, signer_A.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address, signer_A.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -598,14 +517,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(24000));
-          expect(event.args.results[1].amount).to.equal(BigNumber.from(24000));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Distribution a coupon with two holders of a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 46116860000000000n, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 90000000000000000n, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -615,7 +533,7 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption with a great amount to pay to every holder, THEN a RedemptionByAddressesExecuted event is emitted with both holders in SUCCEEDED status", async () => {
-          await paymentToken.mint(treasury.address, 60000000000000000000n);
+          await paymentToken.mint(treasury.address, 18000000000000000000n);
 
           const tx = await treasury.executeBondRedemptionByAddresses(assetAddress, [
             signer_B.address,
@@ -630,14 +548,14 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(9223372000000000000n));
-          expect(event.args.results[1].amount).to.equal(BigNumber.from(9223372000000000000n));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(9000000000000000000n));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(9000000000000000000n));
         });
       });
 
       describe("Redeem a bond with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 46116860191000000n, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 922337203685477589n, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -647,7 +565,7 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption to a holder so the amount to pay is greater than the max amount (int64), THEN a RedemptionByAddressesExecuted event is emitted with the holder in FAILED status", async () => {
-          await paymentToken.mint(treasury.address, 60000000000000000000n);
+          await paymentToken.mint(treasury.address, 999999999999999999n);
 
           const tx = await treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]);
           const receipt = await tx.wait();
@@ -659,70 +577,12 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
         });
       });
-
-      describe("Redeem a bond when cannot get asset decimals", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], false, false, false, false);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the asset decimals cannot be obtained, THEN a RedemptionExecuted event is emitted with the holder in FAILED status", async () => {
-          await expect(treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]))
-            .to.be.revertedWithCustomError(treasury, "GetAssetDecimalsFailed")
-            .withArgs(assetAddress);
-        });
-      });
-
-      describe("Redeem a bond when cannot get balanceOf by partition", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], true, true, false, true);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the balance of by partition cannot be obtained, THEN it reverts with a BalanceOfByPartitionError error", async () => {
-          await paymentToken.mint(treasury.address, 1000000);
-
-          await expect(treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]))
-            .to.be.revertedWithCustomError(treasury, "BalanceOfByPartitionError")
-            .withArgs(assetAddress, signer_B.address, "0x0000000000000000000000000000000000000000000000000000000000000000");
-        });
-      });
-
-      describe("Redeem a bond when cannot redeem at maturity by partition", () => {
-        beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [signer_B.address], true, true, true, false);
-          await asset.deployed();
-          assetAddress = asset.address;
-          await treasury.initialize_LifeCycleCashFlow(assetAddress);
-          await treasury.initialize_Portfolio(paymentTokenAddress, []);
-
-          await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
-        });
-
-        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN redeeming a bond for a holder but the redeem at maturity by partition fails, THEN a it reverts with a RedeemAtMaturityByPartitionError error", async () => {
-          await paymentToken.mint(treasury.address, 1000000);
-
-          await expect(treasury.executeBondRedemptionByAddresses(assetAddress, [signer_B.address]))
-            .to.be.revertedWithCustomError(treasury, "RedeemAtMaturityByPartitionError")
-            .withArgs(assetAddress, signer_B.address, "0x0000000000000000000000000000000000000000000000000000000000000000");
-        });
-      });
     });
   });
 
   describe("getAsset", () => {
     it("GIVEN an initialized LifeCycleCashFlow facet, WHEN an account gets the asset, THEN asset is obtained", async () => {
-      const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+      const asset = await assetMockContract.deploy(2, 1, [], false, true);
       await asset.deployed();
       assetAddress = asset.address;
 

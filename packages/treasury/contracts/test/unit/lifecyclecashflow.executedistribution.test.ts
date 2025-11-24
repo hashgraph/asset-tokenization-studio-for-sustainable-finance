@@ -42,7 +42,7 @@ describe("LifeCycleCashFlow operations", () => {
 
   describe("initialize_LifeCycleCashFlow", () => {
     beforeEach(async () => {
-      const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+      const asset = await assetMockContract.deploy(2, 1, [], false, true);
       await asset.deployed();
       assetAddress = asset.address;
 
@@ -114,7 +114,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
 
@@ -133,7 +133,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date equals to ZERO", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(0, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(0, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
 
@@ -153,7 +153,7 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -170,7 +170,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon when getting the distribution holders fails", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -187,7 +187,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -211,7 +211,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 300000, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -266,7 +266,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution and payment token decimals are wrong, THEN it reverts with InvalidTokenDecimals error", async () => {
@@ -288,7 +288,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon when getting payment token decimals fails", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 10, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 10, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -305,7 +305,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 300000, [signer_B.address, signer_A.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address, signer_A.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -328,14 +328,14 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 28054423280000000000n, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 28054423280000000000n, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -408,7 +408,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -426,7 +426,7 @@ describe("LifeCycleCashFlow operations", () => {
 
     describe("LifeCycleCashFlow with a distribution payment date equals to ZERO", () => {
       beforeEach(async () => {
-        const asset = await assetMockContract.deploy(0, 1, [], false, true, false, false);
+        const asset = await assetMockContract.deploy(0, 1, [], false, true);
         await asset.deployed();
         assetAddress = asset.address;
 
@@ -446,7 +446,7 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a distribution payment date that has already arrived", () => {
       describe("Distribution a coupon without holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -467,7 +467,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with an address zero holder", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 1, [AddressZero], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -490,7 +490,7 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 300000, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -537,13 +537,13 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Distribution a coupon with two holders", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 300000, [signer_B.address, signer_A.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 300, [signer_B.address, signer_A.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -569,14 +569,14 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(98600));
-          expect(event.args.results[1].amount).to.equal(BigNumber.from(98600));
+          expect(event.args.results[0].amount).to.equal(BigNumber.from(30000));
+          expect(event.args.results[1].amount).to.equal(BigNumber.from(30000));
         });
       });
 
       describe("Distribution a coupon with two holders of a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 28054423200000000000n, [signer_B.address, signer_A.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 90000000000000000n, [signer_B.address, signer_A.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -586,7 +586,7 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution with a great amount to pay to every holder, THEN a DistributionExecuted event is emitted with both holders in SUCCEEDED status", async () => {
-          await paymentToken.mint(treasury.address, 60000000000000000000n);
+          await paymentToken.mint(treasury.address, 18000000000000000000n);
 
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [
             signer_B.address,
@@ -602,14 +602,14 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(0);
           expect(event.args.results[1].status).to.equal(0);
-          expect(event.args.results[0].amount).to.equal(9223372010958904100n);
-          expect(event.args.results[1].amount).to.equal(9223372010958904100n);
+          expect(event.args.results[0].amount).to.equal(9000000000000000000n);
+          expect(event.args.results[1].amount).to.equal(9000000000000000000n);
         });
       });
 
       describe("Distribution a coupon with holders and a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 28054423280000000000n, [signer_B.address], false, true, false, false);
+          const asset = await assetMockContract.deploy(1, 922337203685477589n, [signer_B.address], false, true);
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -619,7 +619,7 @@ describe("LifeCycleCashFlow operations", () => {
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution to a holder so the amount to pay is greater than the max amount (int64), THEN a DistributionExecuted event is emitted with the holder in FAILED status", async () => {
-          await paymentToken.mint(treasury.address, 60000000000000000000n);
+          await paymentToken.mint(treasury.address, 999999999999999999n);
 
           const tx = await treasury.executeDistributionByAddresses(assetAddress, 1, [signer_B.address]);
           const receipt = await tx.wait();
@@ -637,7 +637,7 @@ describe("LifeCycleCashFlow operations", () => {
 
   describe("getAsset", () => {
     it("GIVEN an initialized LifeCycleCashFlow facet, WHEN an account gets the asset, THEN asset is obtained", async () => {
-      const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
+      const asset = await assetMockContract.deploy(2, 1, [], false, true);
       await asset.deployed();
       assetAddress = asset.address;
 

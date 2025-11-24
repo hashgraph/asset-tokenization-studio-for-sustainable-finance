@@ -210,7 +210,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             batchInfo.amounts = new int64[](holders.length);
             uint256 batchIndex = 0;
             uint256 resultIndex = 0;
-            uint256 nominalValue = _getNominalValue(asset);
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
@@ -233,7 +232,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     continue;
                 }
 
-                uint256 amount = _getDistributionAmount(asset, distributionId, holder, nominalValue, paymentToken);
+                uint256 amount = _getDistributionAmount(asset, distributionId, holder, paymentToken);
 
                 if (!_isValidAmount(amount)) {
                     results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
@@ -293,27 +292,19 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param asset The asset its distribution amount is requested
      * @param distributionId The distribution identifier
      * @param holder The holder address to be paid
-     * @param nominalValue The nominal value of the asset
-     * @param bondDetailsData Bond details to calculate the amount
+     * @param paymentToken The payment token used to pay the cash out
      *
-     * @return True if getting distribution for was successfully executed, false otherwise
      * @return The amount to be paid
      */
     function _getDistributionAmount(
         address asset,
         uint256 distributionId,
         address holder,
-        uint256 nominalValue,
         address paymentToken
     ) private returns (uint256 amount) {
-        IBondRead.CouponFor memory couponFor = IBondRead(asset).getCouponFor(distributionId, holder);
         uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
-        uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
-        uint256 scaleUp = paymentTokenDecimals;
-        amount = (((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
-            100 /
-            (365 * 24 * 60 * 60) /
-            10 ** scaleDown) * 10 ** scaleUp);
+        IBondRead.CouponAmountFor memory couponAmountFor = IBondRead(asset).getCouponAmountFor(distributionId, holder);
+        amount = (couponAmountFor.numerator * 10 ** paymentTokenDecimals) / couponAmountFor.denominator;
     }
 
     /*
@@ -321,35 +312,18 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      *
      * @param bond The bond its redemption amount is requested
      * @param holder The holder address to be paid
+     * @param paymentToken The payment token used to pay the cash out
      *
      * @return The amount to be paid
      */
     function _getRedemptionAmount(
         address bond,
-        uint256 tokensAmount,
-        uint256 nominalValue,
+        address holder,
         address paymentToken
     ) private returns (uint256 amount) {
         uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
-        uint8 bondDecimals = _getAssetDecimals(bond);
-        uint8 nominalValueDecimals = bondDecimals;
-        uint256 scaleDown = bondDecimals + nominalValueDecimals;
-        amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) * 10 ** paymentTokenDecimals);
-    }
-
-    /**
-     * @dev Get the asset decimals
-     *
-     * @param asset The asset address
-     *
-     * @return decimals The asset decimals
-     */
-    function _getAssetDecimals(address asset) private view returns (uint8) {
-        try ERC20(asset).decimals() returns (uint8) {
-            return ERC20(asset).decimals();
-        } catch {
-            revert ILifeCycleCashFlow.GetAssetDecimalsFailed(asset);
-        }
+        IBondRead.PrincipalFor memory principalFor = IBondRead(bond).getPrincipalFor(holder);
+        amount = (principalFor.numerator * 10 ** paymentTokenDecimals) / principalFor.denominator;
     }
 
     /**
@@ -368,21 +342,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             revert ILifeCycleCashFlow.InvalidTokenDecimals(token, info.decimals);
         }
         revert ILifeCycleCashFlow.GetTokenDecimalsFailed(token, responseCode);
-    }
-
-    /*
-     * @dev Get the nominal value of the asset
-     *
-     * @param asset The asset address
-     *
-     * @return The nominal value of the asset
-     */
-    function _getNominalValue(address asset) private view returns (uint256 nominalValue) {
-        try IBondRead(asset).getBondDetails() returns (IBondRead.BondDetailsData memory bondDetailsData) {
-            return bondDetailsData.nominalValue;
-        } catch {
-            revert ILifeCycleCashFlow.AssetNominalValueError(asset);
-        }
     }
 
     /*
@@ -444,7 +403,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             batchInfo.amounts = new int64[](holders.length);
             uint256 batchIndex = 0;
             uint256 resultIndex = 0;
-            uint256 nominalValue = _getNominalValue(bond);
             address paymentToken = _getPaymentToken();
 
             for (uint256 index; index < holders.length; ) {
@@ -459,8 +417,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     continue;
                 }
 
-                uint256 tokensAmount = _getTokensAmount(bond, holders[index]);
-                uint256 amount = _getRedemptionAmount(bond, tokensAmount, nominalValue, paymentToken);
+                uint256 amount = _getRedemptionAmount(bond, holder, paymentToken);
 
                 if (!_isValidAmount(amount)) {
                     results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
@@ -548,38 +505,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      *
      * @param bond The bond the redemption belongs to
      * @param holders The holders whose bonds will be redeemed
-     * @param tokensAmounts The amounts of tokens to be redeemed for each holder
      */
     function _redeemBondHolders(address bond, address[] memory holders) private {
         for (uint256 index; index < holders.length; ) {
-            _redeemBondHolder(bond, holders[index]);
+            IBond(bond).fullRedeemAtMaturity(holders[index]);
 
             unchecked {
                 ++index;
-            }
-        }
-    }
-
-    /*
-     * @dev Redeem the bond tokens of a holder
-     *
-     * @param bond The bond the cash out belongs to
-     * @param holder The holder whose bonds will be redeemed
-     * @param tokensAmount The amount of tokens to be redeemed for the holder
-     */
-    function _redeemBondHolder(address bond, address holder) private {
-        bytes32[] memory partitions = IERC1410Read(bond).partitionsOf(holder);
-        for (uint256 i; i < partitions.length; ) {
-            bytes32 partition = partitions[i];
-            try IERC1410Read(bond).balanceOfByPartition(partition, holder) returns (uint256 partitionBalance) {
-                try IBond(bond).redeemAtMaturityByPartition(holder, partition, partitionBalance) {} catch {
-                    revert ILifeCycleCashFlow.RedeemAtMaturityByPartitionError(bond, holder, partition);
-                }
-            } catch {
-                revert ILifeCycleCashFlow.BalanceOfByPartitionError(bond, holder, partition);
-            }
-            unchecked {
-                ++i;
             }
         }
     }
@@ -705,22 +637,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _setDistributionHolderPaid(uint256 distributionId, address holder) private {
         _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder] = true;
-    }
-
-    /*
-     * @dev Get the amount of asset tokens of a holder
-     *
-     * @param asset The asset the holder's balance is requested
-     * @param holder The holder whose tokens are requested
-     *
-     * @return The amount of tokens
-     */
-    function _getTokensAmount(address asset, address holder) private view returns (uint256) {
-        try IERC1410(asset).balanceOf(holder) returns (uint256 tokensAmount) {
-            return tokensAmount;
-        } catch {
-            return 0;
-        }
     }
 
     /*

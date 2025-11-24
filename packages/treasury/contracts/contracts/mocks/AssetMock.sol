@@ -8,11 +8,9 @@ contract AssetMock is IAssetMock {
     string internal name = "Mock Bond";
     string internal symbol = "MBOND";
     DateType internal dateType;
-    int256 internal tokenBalance;
+    uint256 internal amount;
     address[] internal holders;
     bool internal isProceedRecipientForTheBond;
-    bool internal redeemAtMaturityByPartitionFails;
-    bool internal balanceOfByPartitionFails;
     bool internal decimalsObtained;
 
     enum DateType {
@@ -24,20 +22,16 @@ contract AssetMock is IAssetMock {
     // solhint-disable-next-line no-empty-blocks
     constructor(
         DateType date,
-        int256 holderTokenBalance,
+        uint256 amountToPay,
         address[] memory couponHolders,
         bool addressIsProceedRecipient,
-        bool areDecimalsObtained,
-        bool ifRedeemAtMaturityByPartitionFails,
-        bool ifBalanceOfByPartitionFails
+        bool areDecimalsObtained
     ) {
         dateType = date;
-        tokenBalance = holderTokenBalance;
+        amount = amountToPay;
         holders = couponHolders;
         isProceedRecipientForTheBond = addressIsProceedRecipient;
         decimalsObtained = areDecimalsObtained;
-        redeemAtMaturityByPartitionFails = ifRedeemAtMaturityByPartitionFails;
-        balanceOfByPartitionFails = ifBalanceOfByPartitionFails;
     }
 
     function getCoupon(uint256) external view returns (RegisteredCoupon memory registeredCoupon) {
@@ -71,11 +65,8 @@ contract AssetMock is IAssetMock {
         bondDetailsData_.maturityDate = dateType == DateType.ZERO ? 0 : dateType == DateType.TODAY ? block.timestamp : 1919590386;
     }
 
-    function getCouponFor(uint256, address) external view returns (CouponFor memory couponFor_) {
-        if (tokenBalance < 0){
-            revert ("Insufficient balance");
-        }
-        couponFor_.tokenBalance = uint256(tokenBalance);
+    function getCouponFor(uint256, address) external pure returns (CouponFor memory couponFor_) {
+        couponFor_.tokenBalance = uint256(1);
         couponFor_.rate = 2;
         couponFor_.rateDecimals = 2;
         couponFor_.recordDate = 1753874807;
@@ -89,13 +80,6 @@ contract AssetMock is IAssetMock {
         return isProceedRecipientForTheBond;
     }
 
-    function balanceOf(address) external view returns (uint256) {
-        if (tokenBalance < 0){
-            revert ("Insufficient balance");
-        }
-        return uint256(tokenBalance);
-    }
-
     function decimals() external view returns (uint8) {
         if (!decimalsObtained){
             revert ("Decimals not obtained");
@@ -103,21 +87,24 @@ contract AssetMock is IAssetMock {
         return 2;
     }
 
-    function redeemAtMaturityByPartition(address, bytes32, uint256) external view {
-        if (redeemAtMaturityByPartitionFails) {
-            revert ("Redeem at maturity by partition fails");
-        }
+    function fullRedeemAtMaturity(address) external pure {
         return;
     }
 
-    function balanceOfByPartition(bytes32, address) external view returns (uint256) {
-        if (balanceOfByPartitionFails) {
-            revert ("Balance by partition fails");
-        }
-        return 1;
+    function getCouponAmountFor(
+        uint256,
+        address
+    ) external view returns (CouponAmountFor memory couponAmountFor_) {
+        couponAmountFor_.numerator = amount;
+        couponAmountFor_.denominator = 1;
+        couponAmountFor_.recordDateReached = true;
     }
 
-    function partitionsOf(address) external pure returns (bytes32[] memory) {
-        return new bytes32[](1);
+    function getPrincipalFor(address) external view returns (
+        PrincipalFor memory principalFor_
+    ) {
+        principalFor_.numerator = amount;
+        principalFor_.denominator = 1;
     }
+
 }
