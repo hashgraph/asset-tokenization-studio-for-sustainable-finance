@@ -148,8 +148,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         currency: req.securityTokenToCreate.currency,
         nominalValue: req.securityTokenToCreate.nominalValue ? req.securityTokenToCreate.nominalValue : "0",
         nominalValueDecimals: req.securityTokenToCreate.nominalValueDecimals,
-        startingDate: req.securityTokenToCreate.startingDate.getTime(),
-        maturityDate: req.securityTokenToCreate.maturityDate.getTime(),
+        startingDate: Math.floor(req.securityTokenToCreate.startingDate.getTime() / 1000),
+        maturityDate: Math.floor(req.securityTokenToCreate.maturityDate.getTime() / 1000),
       },
       proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
       proceedRecipientsData:
