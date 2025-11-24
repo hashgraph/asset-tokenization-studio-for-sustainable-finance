@@ -32,8 +32,8 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.maxLots,
       request.targetLots,
       request.targetQuantityRule,
-      request.startDate,
-      request.endDate,
+      request.startDate.getTime().toString(),
+      request.endDate.getTime().toString(),
       request.deadlineRule,
       request.price,
     )

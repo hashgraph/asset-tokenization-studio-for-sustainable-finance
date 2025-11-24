@@ -23,7 +23,7 @@ export class CreateBondLockTransactionHttpAdapter implements CreateBondLockTrans
       holderAccountId,
       request.partition,
       request.amount,
-      request.expirationTimestamp,
+      request.expirationTimestamp.getTime().toString(),
     )
 
     return await this.createBondLockTransactionAppService.execute(appServiceRequest)

@@ -177,7 +177,7 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
           decimals: 18,
           currency: "USD",
           nominalValue: "100",
-        nominalValueDecimals: 2,
+          nominalValueDecimals: 2,
           startingDate: new Date("2025-01-01"),
           maturityDate: new Date("2030-01-01"),
           maxSupply: "1000000",

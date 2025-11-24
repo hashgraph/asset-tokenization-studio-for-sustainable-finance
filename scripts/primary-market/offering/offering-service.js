@@ -14,8 +14,8 @@ async function createOffering(format, marketContractId, bondContractId) {
     maxQuantity: 10000,
     targetQuantity: 5000,
     targetQuantityRule: 1,
-    startDate: "1730000000",
-    endDate: "1830000000",
+    startDate: new Date(1730000000000),
+    endDate: new Date(1830000000000),
     deadlineRule: 1
   };
   

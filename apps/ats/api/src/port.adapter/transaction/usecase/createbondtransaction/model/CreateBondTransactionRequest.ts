@@ -31,8 +31,4 @@ export class CreateBondTransactionRequest extends BaseTransactionRequest {
   @IsString()
   @IsNotEmpty()
   factoryAddress: string
-
-  @IsString()
-  @IsNotEmpty()
-  factorySuiteAddress: string
 }

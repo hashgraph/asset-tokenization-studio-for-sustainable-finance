@@ -62,6 +62,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
 
   private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
+  private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
+    "0x0000000000000000000000000000000000000000000000000000000000000002"
+  private readonly DEFAULT_TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20"
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -76,7 +79,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         isMultiPartition: req.securityTokenToCreate.isMultiPartition,
         resolver: req.securityTokenToCreate.resolverAddress,
         resolverProxyConfiguration: {
-          key: req.securityTokenToCreate.configId,
+          key: this.DEFAULT_SECURITY_TOKEN_CONFIG_ID,
           version: req.securityTokenToCreate.configVersion,
         },
         rbacs: [
@@ -145,8 +148,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         currency: req.securityTokenToCreate.currency,
         nominalValue: req.securityTokenToCreate.nominalValue ? req.securityTokenToCreate.nominalValue : "0",
         nominalValueDecimals: req.securityTokenToCreate.nominalValueDecimals,
-        startingDate: parseInt(req.securityTokenToCreate.startingDate).toString(),
-        maturityDate: parseInt(req.securityTokenToCreate.maturityDate).toString(),
+        startingDate: req.securityTokenToCreate.startingDate.getTime(),
+        maturityDate: req.securityTokenToCreate.maturityDate.getTime(),
       },
       proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
       proceedRecipientsData:
@@ -166,7 +169,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const treasuryData = {
       resolver: req.treasuryData.resolverAddress,
       resolverProxyConfiguration: {
-        key: req.treasuryData.configId,
+        key: this.DEFAULT_TREASURY_CONFIG_ID,
         version: req.treasuryData.configVersion,
       },
       rbacs: [

@@ -25,9 +25,8 @@ async function createBond(format) {
     numberOfUnits: "1000000",
     nominalValue: "100",
     nominalValueDecimals: 2,
-    startingDate: "1880997600",
-    maturityDate: "1980997600",
-    configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
+    startingDate: new Date(1880997600000),
+    maturityDate: new Date(1980997600000),
     configVersion: 0,
     resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
     proceedRecipientAddresses: [],
@@ -42,7 +41,6 @@ async function createBond(format) {
   },
   treasuryData: {
     resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
-    configId: "0x0000000000000000000000000000000000000000000000000000000000004e20",
     configVersion: 1,
     paymentTokenAddress: "0x0000000000000000000000000000000000629238",
     ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
@@ -55,7 +53,6 @@ async function createBond(format) {
   format: format,
   accountId: process.env.ACCOUNT_ID,
   factoryAddress: "0x32bc5B65eFf7d3eFc4CC3B62A66c8445E8675982",
-  factorySuiteAddress: "0.0.7297384",
 };
   
   try {

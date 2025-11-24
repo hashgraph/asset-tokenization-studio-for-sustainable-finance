@@ -48,7 +48,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
-        expirationTimestamp: 1735689600000,
+        expirationTimestamp: new Date(1735689600000),
         data: "0x1234",
       }
 
@@ -77,7 +77,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
-          expirationTimestamp: 1735689600000,
+          expirationTimestamp: new Date(1735689600000),
           data: "0x1234",
         }
 
@@ -101,7 +101,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
-          expirationTimestamp: 1735689600000,
+          expirationTimestamp: new Date(1735689600000),
         }
 
         await request(app.getHttpServer())
@@ -140,7 +140,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
         format: "hedera",
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         amount: "1000",
-        expirationTimestamp: 1735689600000,
+        expirationTimestamp: new Date(1735689600000),
       }
 
       const response = await request(app.getHttpServer())
@@ -160,7 +160,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: -100,
-        expirationTimestamp: 1735689600000,
+        expirationTimestamp: new Date(1735689600000),
       }
 
       await request(app.getHttpServer())
@@ -201,7 +201,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition,
           amount: "1000",
-          expirationTimestamp: 1735689600000,
+          expirationTimestamp: new Date(1735689600000),
         }
 
         const response = await request(app.getHttpServer())
@@ -221,7 +221,7 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "999999999999999999",
-        expirationTimestamp: 1735689600000,
+        expirationTimestamp: new Date(1735689600000),
       }
 
       const response = await request(app.getHttpServer())

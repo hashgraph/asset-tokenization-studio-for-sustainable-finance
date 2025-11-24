@@ -46,8 +46,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -71,8 +71,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         const setCouponRequest: SetBondCouponTransactionRequest = {
           format: format,
           accountId: "0.0.5466269",
-          recordDate: "1704067200",
-          executionDate: "1704153600",
+          recordDate: new Date(1704067200000),
+          executionDate: new Date(1704153600000),
           rate: "500",
           rateDecimals: "2",
           period: "2592000",
@@ -95,8 +95,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         const setCouponRequest: SetBondCouponTransactionRequest = {
           format: "hedera",
           accountId: "0.0.5466269",
-          recordDate: "1704067200",
-          executionDate: "1704153600",
+          recordDate: new Date(1704067200000),
+          executionDate: new Date(1704153600000),
           rate: rate,
           rateDecimals: "2",
           period: "2592000",
@@ -113,15 +113,15 @@ describe("SetBondCouponTransaction API Integration", () => {
 
     it("should handle future dates correctly", async () => {
       const bondContractId = "0.0.67890"
-      const now = Math.floor(Date.now() / 1000)
-      const oneMonthLater = now + 2592000
-      const twoMonthsLater = now + 5184000
+      const now = Date.now()
+      const oneMonthLater = now + 2592000000
+      const twoMonthsLater = now + 5184000000
 
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: oneMonthLater.toString(),
-        executionDate: twoMonthsLater.toString(),
+        recordDate: new Date(oneMonthLater),
+        executionDate: new Date(twoMonthsLater),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -143,8 +143,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         const setCouponRequest = {
           format: format,
           accountId: "0.0.5466269",
-          recordDate: "1704067200",
-          executionDate: "1704153600",
+          recordDate: new Date(1704067200000),
+          executionDate: new Date(1704153600000),
           rate: "500",
           rateDecimals: "2",
           period: "2592000",
@@ -163,7 +163,7 @@ describe("SetBondCouponTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         recordDate: "invalid-date",
-        executionDate: "1704153600",
+        executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -180,7 +180,7 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
+        recordDate: new Date(1704067200000),
         executionDate: "not-a-timestamp",
         rate: "500",
         rateDecimals: "2",
@@ -198,8 +198,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "invalid-rate",
       }
 
@@ -214,7 +214,7 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        executionDate: "1704153600",
+        executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -231,7 +231,7 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
+        recordDate: new Date(1704067200000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -248,8 +248,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
       }
 
       await request(app.getHttpServer())
@@ -262,8 +262,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const bondContractId = "0.0.67890"
       const setCouponRequest = {
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",
@@ -280,8 +280,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "",
       }
 
@@ -296,8 +296,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "0",
         rateDecimals: "2",
         period: "2592000",
@@ -316,8 +316,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "1704067200",
-        executionDate: "1704153600",
+        recordDate: new Date(1704067200000),
+        executionDate: new Date(1704153600000),
         rate: "10000",
         rateDecimals: "2",
         period: "2592000",
@@ -338,8 +338,8 @@ describe("SetBondCouponTransaction API Integration", () => {
         const setCouponRequest: SetBondCouponTransactionRequest = {
           format: "hedera",
           accountId: "0.0.5466269",
-          recordDate: "1704067200",
-          executionDate: "1704153600",
+          recordDate: new Date(1704067200000),
+          executionDate: new Date(1704153600000),
           rate: "500",
           rateDecimals: "2",
           period: "2592000",
@@ -359,8 +359,8 @@ describe("SetBondCouponTransaction API Integration", () => {
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        recordDate: "9999999999",
-        executionDate: "9999999999",
+        recordDate: new Date(9999999999000),
+        executionDate: new Date(9999999999000),
         rate: "500",
         rateDecimals: "2",
         period: "2592000",

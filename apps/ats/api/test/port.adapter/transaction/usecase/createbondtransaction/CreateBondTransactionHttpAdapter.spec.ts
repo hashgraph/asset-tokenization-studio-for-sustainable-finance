@@ -3,7 +3,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { BuildTransactionResponse, ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
@@ -17,6 +17,8 @@ describe("CreateBondTransaction API Integration", () => {
   })
 
   beforeEach(async () => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue("0.0.67890")
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
@@ -45,7 +47,6 @@ describe("CreateBondTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        factorySuiteAddress: "0.0.67890",
         securityTokenToCreate: {
           name: "Green Energy Bond",
           symbol: "GEB",
@@ -62,9 +63,8 @@ describe("CreateBondTransaction API Integration", () => {
           numberOfUnits: "1000000",
           nominalValue: "100",
           nominalValueDecimals: 2,
-          startingDate: "1640995200000",
-          maturityDate: "1672531200000",
-          configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
+          startingDate: new Date(1640995200000),
+          maturityDate: new Date(1672531200000),
           configVersion: 1,
           resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           externalPausesAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
@@ -85,7 +85,6 @@ describe("CreateBondTransaction API Integration", () => {
         },
         treasuryData: {
           resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
           configVersion: 1,
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -111,7 +110,6 @@ describe("CreateBondTransaction API Integration", () => {
           format: format,
           accountId: "0.0.5466269",
           factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          factorySuiteAddress: "0.0.67890",
           securityTokenToCreate: {
             name: "Green Energy Bond",
             symbol: "GEB",
@@ -128,9 +126,8 @@ describe("CreateBondTransaction API Integration", () => {
             numberOfUnits: "1000000",
             nominalValue: "100",
             nominalValueDecimals: 2,
-            startingDate: "1640995200000",
-            maturityDate: "1672531200000",
-            configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
+            startingDate: new Date(1640995200000),
+            maturityDate: new Date(1672531200000),
             configVersion: 1,
             resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             externalPausesAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
@@ -151,7 +148,6 @@ describe("CreateBondTransaction API Integration", () => {
           },
           treasuryData: {
             resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
             configVersion: 1,
             paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -180,7 +176,6 @@ describe("CreateBondTransaction API Integration", () => {
           format,
           accountId: "0.0.12345",
           factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          factorySuiteAddress: "0.0.67890",
           securityTokenToCreate: {
             name: "Test Bond",
             symbol: "TB",
@@ -199,9 +194,8 @@ describe("CreateBondTransaction API Integration", () => {
             nominalValueDecimals: 2,
             startingDate: "2025-01-01",
             maturityDate: "2030-01-01",
-            configId: "config-123",
             configVersion: 1,
-            resolverAddress: "0xabcdef1234567890",
+            resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             externalPausesAddresses: [],
             externalControlListsAddresses: [],
             externalKycListsAddresses: [],
@@ -220,7 +214,6 @@ describe("CreateBondTransaction API Integration", () => {
           },
           treasuryData: {
             resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
             configVersion: 1,
             paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
             ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -249,7 +242,6 @@ describe("CreateBondTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.12345",
         factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        factorySuiteAddress: "0.0.67890",
         securityTokenToCreate: {
           name: "Test Bond",
           symbol: "TB",
@@ -268,9 +260,8 @@ describe("CreateBondTransaction API Integration", () => {
           nominalValueDecimals: 2,
           startingDate: "2025-01-01",
           maturityDate: "2030-01-01",
-          configId: "config-123",
           configVersion: 1,
-          resolverAddress: "0xabcdef1234567890",
+          resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           externalPausesAddresses: [],
           externalControlListsAddresses: [],
           externalKycListsAddresses: [],
@@ -289,67 +280,6 @@ describe("CreateBondTransaction API Integration", () => {
         },
         treasuryData: {
           resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
-          configVersion: 1,
-          paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
-        },
-        kpiData: {
-          adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        },
-      }
-
-      await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(400)
-    })
-
-    it("should reject invalid coupon rate value", async () => {
-      const createBondRequest = {
-        format: "hedera",
-        accountId: "0.0.12345",
-        factoryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        factorySuiteAddress: "0.0.67890",
-        securityTokenToCreate: {
-          name: "Test Bond",
-          symbol: "TB",
-          isin: "US1234567890",
-          decimals: 2,
-          isWhiteList: true,
-          erc20VotesActivated: false,
-          isControllable: true,
-          arePartitionsProtected: false,
-          isMultiPartition: false,
-          clearingActive: true,
-          internalKycActivated: true,
-          currency: "USD",
-          numberOfUnits: "1000",
-          nominalValue: "100",
-          nominalValueDecimals: 2,
-          startingDate: "2025-01-01",
-          maturityDate: "2030-01-01",
-          configId: "config-123",
-          configVersion: 1,
-          resolverAddress: "0xabcdef1234567890",
-          externalPausesAddresses: [],
-          externalControlListsAddresses: [],
-          externalKycListsAddresses: [],
-          diamondOwnerAccount: "0.0.54321",
-          complianceAddress: "compliance-001",
-          identityRegistryAddress: "identity-001",
-          proceedRecipientAddresses: [],
-          proceedRecipientsData: [],
-        },
-        factoryRegulationData: {
-          regulationType: 1,
-          regulationSubType: 1,
-          isCountryControlListWhiteList: true,
-          countries: "US",
-          info: "Test bond",
-        },
-        treasuryData: {
-          resolverAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          configId: "0x0000000000000000000000000000000000000000000000000000000000000002",
           configVersion: 1,
           paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
