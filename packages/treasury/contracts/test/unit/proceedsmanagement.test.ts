@@ -259,7 +259,7 @@ describe("Proceeds management operations", () => {
     describe("The proceeds recipient does not belong to the bond", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs", async () => {
         const assetMockContract = await ethers.getContractFactory("AssetMock");
-        const asset = await assetMockContract.deploy(2, 1, [], false, true);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true, false, false);
         await asset.deployed();
         const assetAddress = asset.address;
 
@@ -280,7 +280,7 @@ describe("Proceeds management operations", () => {
         await paymentToken.mint(treasury.address, 100);
 
         const assetMockContract = await ethers.getContractFactory("AssetMock");
-        const asset = await assetMockContract.deploy(2, 1, [], true, true);
+        const asset = await assetMockContract.deploy(2, 1, [], true, true, false, false);
         await asset.deployed();
         const assetAddress = asset.address;
 

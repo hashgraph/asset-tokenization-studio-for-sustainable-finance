@@ -11,7 +11,9 @@ contract AssetMock is IAssetMock {
     int256 internal tokenBalance;
     address[] internal holders;
     bool internal isProceedRecipientForTheBond;
-    bool decimalsObtained;
+    bool internal redeemAtMaturityByPartitionFails;
+    bool internal balanceOfByPartitionFails;
+    bool internal decimalsObtained;
 
     enum DateType {
         ZERO,
@@ -25,13 +27,17 @@ contract AssetMock is IAssetMock {
         int256 holderTokenBalance,
         address[] memory couponHolders,
         bool addressIsProceedRecipient,
-        bool areDecimalsObtained
+        bool areDecimalsObtained,
+        bool ifRedeemAtMaturityByPartitionFails,
+        bool ifBalanceOfByPartitionFails
     ) {
         dateType = date;
         tokenBalance = holderTokenBalance;
         holders = couponHolders;
         isProceedRecipientForTheBond = addressIsProceedRecipient;
         decimalsObtained = areDecimalsObtained;
+        redeemAtMaturityByPartitionFails = ifRedeemAtMaturityByPartitionFails;
+        balanceOfByPartitionFails = ifBalanceOfByPartitionFails;
     }
 
     function getCoupon(uint256) external view returns (RegisteredCoupon memory registeredCoupon) {
@@ -97,11 +103,17 @@ contract AssetMock is IAssetMock {
         return 2;
     }
 
-    function redeemAtMaturityByPartition(address, bytes32, uint256) external pure {
+    function redeemAtMaturityByPartition(address, bytes32, uint256) external view {
+        if (redeemAtMaturityByPartitionFails) {
+            revert ("Redeem at maturity by partition fails");
+        }
         return;
     }
 
-    function balanceOfByPartition(bytes32, address) external pure returns (uint256) {
+    function balanceOfByPartition(bytes32, address) external view returns (uint256) {
+        if (balanceOfByPartitionFails) {
+            revert ("Balance by partition fails");
+        }
         return 1;
     }
 
