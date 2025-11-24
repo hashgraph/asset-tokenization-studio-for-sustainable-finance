@@ -3,30 +3,53 @@
   "version": "1.0.0",
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
-  "types": "build/typechain-types/index.d.ts",
-  "files": [
-    "build/",
-    "contracts/"
-  ],
+  "types": "./build/typechain-types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "scripts": ["./build/scripts/index.d.ts"],
+      "typechain-types": ["./build/typechain-types/index.d.ts"],
+      "test": ["./build/test/index.d.ts"]
+    }
+  },
+  "files": ["artifacts/", "contracts/", "typechain-types/", "build/", "!artifacts/build-info/", "!build/**/*.map"],
   "exports": {
     ".": {
+      "types": "./build/typechain-types/index.d.ts",
       "import": "./build/typechain-types/index.js",
       "require": "./build/typechain-types/index.js",
       "default": "./build/typechain-types/index.js"
     },
-    "./typechain-types/index.js": "./build/typechain-types/index.js"
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts": {
+      "types": "./build/scripts/index.d.ts",
+      "import": "./build/scripts/index.js",
+      "require": "./build/scripts/index.js",
+      "default": "./build/scripts/index.js"
+    },
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "import": "./build/test/index.js",
+      "require": "./build/test/index.js",
+      "default": "./build/test/index.js"
+    },
+    "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
-    "build": "npx -y rimraf build && npm run compile && npx tsc -p tsconfig.build.json",
-    "clean": "npx hardhat clean",
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
+    "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
+    "clean:cache": "npx hardhat clean",
+    "clean:build": "node -e \"const fs=require('fs'); ['dist','build','artifacts','cache','typechain-types','coverage','.nyc_output'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
     "compile": "npx hardhat compile",
     "compile:force": "npm run clean && npm run compile",
     "test": "npx hardhat test",
@@ -35,50 +58,49 @@
     "test:portfolio": "npx hardhat test test/unit/portfolio.test.ts",
     "test:proceedsmanagement": "npx hardhat test test/unit/proceedsmanagement.test.ts",
     "test:coverage": "npx hardhat coverage",
-    "lint": "npx eslint .  && solhint 'contracts/**/*.sol'",
-    "lint:fix": "npx eslint . --fix && solhint 'contracts/**/*.sol' --fix --noPrompt",
-    "format": "prettier --check \"**/*.{ts,js,sol}\"",
-    "format:fix": "prettier --write \"**/*.{ts,js,sol}\"",
-    "fix": "npm run format:fix; npm run lint:fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint:sol; npm run lint:js",
+    "lint:fix": "npm run lint:sol:fix; npm run lint:js:fix",
+    "lint:sol": "solhint --config solhint.config.js 'contracts/**/*.sol'",
+    "lint:sol:fix": "solhint --config solhint.config.js 'contracts/**/*.sol' --fix --noPrompt",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
     "coverage": "npx hardhat coverage"
   },
   "devDependencies": {
-    "@eslint/js": "^9.24.0",
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz2/packages/ats/contracts/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
-    "@hashgraph/sdk": "2.76.0",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
+    "@eslint/js": "^9.36.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@nomiclabs/hardhat-ethers": "2.2.3",
-    "@nomiclabs/hardhat-etherscan": "3.1.8",
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
-    "@openzeppelin/hardhat-upgrades": "^1.22.1",
-    "@primitivefi/hardhat-dodoc": "^0.2.3",
     "@typechain/ethers-v5": "^10.1.0",
     "@typechain/hardhat": "^6.1.2",
-    "blob": "^0.1.0",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
-    "eslint": "^9.24.0",
+    "eslint": "^9.36.0",
     "ethers": "^5.8.0",
-    "glob": "^11.0.3",
     "globals": "^16.4.0",
     "hardhat": "^2.22.19",
-    "hardhat-abi-exporter": "^2.11.0",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-dependency-compiler": "^1.2.1",
     "hardhat-gas-reporter": "^1.0.8",
     "jiti": "^2.6.0",
-    "prettier": "3.6.2",
-    "prettier-plugin-solidity": "^1.4.2",
-    "rimraf": "^6.0.1",
-    "solhint": "^5.0.3",
-    "solhint-plugin-prettier": "^0.1.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-solidity": "^2.1.0",
+    "solhint": "^6.0.1",
     "solidity-coverage": "^0.8.14",
     "ts-node": "^10.9.1",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.2",
-    "typescript-eslint": "^8.44.0"
+    "typescript-eslint": "^8.44.1"
+  },
+  "overrides": {
+    "@typechain/ethers-v5": "^11.1.2",
+    "ws": "^8.15.0"
   }
 }

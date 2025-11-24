@@ -5,12 +5,8 @@ pragma solidity ^0.8.0;
 
 import { IProceedsManagement } from "../../interfaces/IProceedsManagement.sol";
 import { LifeCycleCashFlowStorageWrapper } from "../lifecyclecashflow/LifeCycleCashFlowStorageWrapper.sol";
-import {
-    IProceedRecipients
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
-import {
-    HederaResponseCodes
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+import { IProceedRecipients } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/proceedRecipients/IProceedRecipients.sol";
+import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 
 abstract contract ProceedsManagementStorageWrapper is LifeCycleCashFlowStorageWrapper {
     /**

@@ -10,9 +10,8 @@ import { Repository } from "typeorm"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/PaymentTokenPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { PaymentResultItemEventModel } from "@port/shared/model/PaymentResultEventModel"
+import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 import { RedemptionExecutedDLTEvent } from "@port/redemption/usecase/syncredemption/model/RedemptionExecutedDLTEvent"
-import { RedemptionHolderRepository } from "@domain/redemption/repositories/RedemptionHolderRepository"
 import { RedemptionHolderStatus } from "@domain/redemption/model/RedemptionHolderStatus"
 import { RedemptionHolderAddedEvent } from "@domain/redemption/event/RedemptionHolderAddedEvent"
 import { RedemptionByAddressesExecutedDLTEvent } from "@port/redemption/usecase/syncredemption/model/RedemptionByAddressesExecutedDLTEvent"
@@ -83,7 +82,7 @@ describe("SyncRedemption Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress1": "0.0.100",
         "0xevmAddress2": "0.0.101",
@@ -97,7 +96,7 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress4"]
     const paidAmounts = ["1000000", "2000000", "3000000"]
 
-    const result: PaymentResultItemEventModel[] = [
+    const result: PaymentResultEventModel[] = [
       { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
       { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
       { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
@@ -111,7 +110,7 @@ describe("SyncRedemption Integration", () => {
     const holders = await internalRedemptionHolderRepository.find()
     expect(holders).toHaveLength(4)
 
-    const successHolders = holders.filter((h) => h.status === RedemptionHolderStatus.SUCCESS)
+    const successHolders = holders.filter((h) => h.status === <string>RedemptionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(3)
     expect(successHolders[0]).toMatchObject({
       holderAccountId: "0.0.100",
@@ -135,7 +134,7 @@ describe("SyncRedemption Integration", () => {
       paymentTokenId: treasury.paymentToken!.id,
     })
 
-    const failedHolders = holders.filter((h) => h.status === RedemptionHolderStatus.FAILED)
+    const failedHolders = holders.filter((h) => h.status === <string>RedemptionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(1)
     expect(failedHolders[0]).toMatchObject({
       holderAccountId: "0.0.200",
@@ -156,7 +155,7 @@ describe("SyncRedemption Integration", () => {
       publishedEvents.push(event)
     })
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress5": "0.0.300",
         "0xevmAddress6": "0.0.301",
@@ -171,7 +170,7 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress7", "0xevmAddress8"]
     const paidAmounts = ["5000000", "6000000"]
 
-    const result: PaymentResultItemEventModel[] = [
+    const result: PaymentResultEventModel[] = [
       { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
       { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
       { holder: evmFailedAddresses[0], status: 1, amount: "0" },
@@ -190,10 +189,10 @@ describe("SyncRedemption Integration", () => {
     const savedHolders = await internalRedemptionHolderRepository.find()
     expect(savedHolders).toHaveLength(4)
 
-    const successHolders = savedHolders.filter((h) => h.status === RedemptionHolderStatus.SUCCESS)
+    const successHolders = savedHolders.filter((h) => h.status === <string>RedemptionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(2)
 
-    const failedHolders = savedHolders.filter((h) => h.status === RedemptionHolderStatus.FAILED)
+    const failedHolders = savedHolders.filter((h) => h.status === <string>RedemptionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(2)
     failedHolders.forEach((holder) => expect(holder.amount).toBeNull())
 
@@ -204,7 +203,7 @@ describe("SyncRedemption Integration", () => {
   it("should handle redemption with only failed addresses", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress13": "0.0.200",
         "0xevmAddress14": "0.0.201",
@@ -215,7 +214,7 @@ describe("SyncRedemption Integration", () => {
 
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
 
-    const result: PaymentResultItemEventModel[] = [
+    const result: PaymentResultEventModel[] = [
       { holder: evmFailedAddresses[0], status: 1, amount: "0" },
       { holder: evmFailedAddresses[1], status: 1, amount: "0" },
       { holder: evmFailedAddresses[2], status: 1, amount: "0" },
@@ -227,7 +226,7 @@ describe("SyncRedemption Integration", () => {
 
     const holders = await internalRedemptionHolderRepository.find()
     expect(holders).toHaveLength(3)
-    expect(holders.every((h) => h.status === RedemptionHolderStatus.FAILED)).toBe(true)
+    expect(holders.every((h) => h.status === <string>RedemptionHolderStatus.FAILED)).toBe(true)
     expect(holders.every((h) => h.amount === null)).toBe(true)
   })
 
@@ -239,7 +238,7 @@ describe("SyncRedemption Integration", () => {
     })
     const expectedException = PaymentTokenNotConfiguredError.forTreasury(treasury.contractId)
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress13": "0.0.200",
         "0xevmAddress14": "0.0.201",
@@ -250,7 +249,7 @@ describe("SyncRedemption Integration", () => {
 
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
 
-    const result: PaymentResultItemEventModel[] = [
+    const result: PaymentResultEventModel[] = [
       { holder: evmFailedAddresses[0], status: 1, amount: "0" },
       { holder: evmFailedAddresses[1], status: 1, amount: "0" },
       { holder: evmFailedAddresses[2], status: 1, amount: "0" },
@@ -265,7 +264,7 @@ describe("SyncRedemption Integration", () => {
     const treasuryContractId = "0.0.2222"
     const expectedException = TreasuryNotFoundError.contractIdError(treasuryContractId)
 
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation(async (address: string) => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
         "0xevmAddress13": "0.0.200",
         "0xevmAddress14": "0.0.201",
@@ -276,7 +275,7 @@ describe("SyncRedemption Integration", () => {
 
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
 
-    const result: PaymentResultItemEventModel[] = [
+    const result: PaymentResultEventModel[] = [
       { holder: evmFailedAddresses[0], status: 1, amount: "0" },
       { holder: evmFailedAddresses[1], status: 1, amount: "0" },
       { holder: evmFailedAddresses[2], status: 1, amount: "0" },

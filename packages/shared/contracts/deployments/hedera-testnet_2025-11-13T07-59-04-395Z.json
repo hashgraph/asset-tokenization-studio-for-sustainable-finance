@@ -783,9 +783,7 @@
         "deploymentTime": 51291,
         "gasUsed": "0",
         "success": true,
-        "skippedSteps": [
-          "BLR deployment"
-        ]
+        "skippedSteps": ["BLR deployment"]
       }
     },
     "treasuryDeployment": {

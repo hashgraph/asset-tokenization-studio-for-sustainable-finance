@@ -1,33 +1,21 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./build",
-    "declaration": true,
-    "sourceMap": true,
-    "paths": {
-      "@contract-types": ["./typechain-types/index.ts"],
-      "@contract-types/*": ["./typechain-types/*"],
-      "@scripts": ["./scripts/index.ts"],
-      "@scripts/domain": ["./scripts/domain/index.ts"],
-      "@tasks": ["./tasks/index.ts"],
-      "@test": ["./test/index.ts"],
-      "@hashgraph/asset-tokenization-contracts/scripts": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/index.d.ts"
-      ],
-      "@hashgraph/asset-tokenization-contracts/scripts/*": [
-        "node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/*"
-      ]
-    }
+    "sourceMap": false
   },
-  "include": ["typechain-types/**/*"],
-  "exclude": [
-    "node_modules/@hashgraph/asset-tokenization-contracts/scripts",
-    "node_modules/@hashgraph/asset-tokenization-contracts/test",
-    "node_modules",
-    "build",
-    "dist",
-    "coverage",
-    "artifacts",
-    "cache"
-  ]
+  "include": [
+    "scripts/domain/constants.ts",
+    "scripts/domain/index.ts",
+    "scripts/domain/factoryPrimaryMarket/index.ts",
+    "scripts/domain/primaryMarket/index.ts",
+    "scripts/infrastructure/index.ts",
+    "scripts/infrastructure/factoryPrimaryMarketRegistry.ts",
+    "scripts/constants.ts",
+    "scripts/index.ts",
+    "typechain-types/**/*",
+    "test/constants.ts",
+    "test/index.ts",
+    "test/types.d.ts"
+  ],
+  "exclude": ["node_modules", "test/unit/**/*"]
 }

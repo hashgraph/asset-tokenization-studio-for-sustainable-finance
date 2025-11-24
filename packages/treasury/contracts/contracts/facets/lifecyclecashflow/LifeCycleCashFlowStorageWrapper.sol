@@ -9,21 +9,14 @@ import { LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../../constants/storagePos
 import { PortfolioStorageWrapper } from "../portfolio/PortfolioStorageWrapper.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
 import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol";
-import {
-    TRexIBondRead as IBondRead
-} from "@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol";
+import { TRexIBondRead as IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol";
 import { IERC1410 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol";
-import {
-    IERC1410Read
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol";
+import { IERC1410Read } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol";
 import { ERC20 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol";
 import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol";
-import {
-    HederaResponseCodes
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
-import {
-    IHederaTokenService
-} from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
+import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
+// solhint-enable max-line-length
 
 abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorageWrapper {
     enum CountIndex {
@@ -578,7 +571,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             } catch {
                 revert ILifeCycleCashFlow.BalanceOfByPartitionError(bond, holder, partition);
             }
-
             unchecked {
                 ++i;
             }

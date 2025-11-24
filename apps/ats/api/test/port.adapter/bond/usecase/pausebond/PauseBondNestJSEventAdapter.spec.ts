@@ -43,6 +43,7 @@ describe("PauseBondNestJSEventAdapter Integration", () => {
       decimals: 18,
       currency: "USD",
       nominalValue: "1000",
+      nominalValueDecimals: 2,
       startingDate: new Date("2025-01-01"),
       maturityDate: new Date("2025-01-01"),
       maxSupply: "1000000",
@@ -97,6 +98,22 @@ describe("PauseBondNestJSEventAdapter Integration", () => {
           contractId: CONTRACT_ID,
         }),
       )
+    })
+
+    it("should silently ignore when bond does not exist", async () => {
+      const NON_EXISTENT_CONTRACT_ID = "0.0.9999999"
+      let publishedEvent: any
+      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+
+      const event = new TokenPausedDLTEvent(
+        NON_EXISTENT_CONTRACT_ID,
+        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0x0000000000000000000000000000000000000001",
+      )
+
+      await eventBus.publishSync(event, TokenPausedDLTEvent.name)
+
+      expect(publishedEvent).toBeUndefined()
     })
   })
 })

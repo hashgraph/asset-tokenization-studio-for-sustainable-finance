@@ -31,7 +31,7 @@ const TREASURY_FACETS = ["AccessControlFacet", "MockTreasuryFacet"] as const;
 export async function createTreasuryConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
-  useTimeTravel: boolean = false,
+  _useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   const facets = TREASURY_FACETS.map((facetName) => {

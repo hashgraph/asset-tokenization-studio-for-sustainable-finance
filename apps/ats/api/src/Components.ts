@@ -70,6 +70,8 @@ import { UpdateBondHolderBalanceDomainService } from "@domain/bond/holderbalance
 import { UpdateBondHolderBalanceCommandHandler } from "@app/bond/updatebondholderbalance/command/UpdateBondHolderBalanceCommandHandler"
 import { DecreaseBondHolderAvailableBalanceDomainService } from "@domain/bond/holderbalance/service/DecreaseBondHolderAvailableBalanceDomainService"
 import { UpdateClearingBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/UpdateClearingBondHolderBalanceDomainService"
+import { ExecuteHoldBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ExecuteHoldBondHolderBalanceDomainService"
+import { ReleaseHoldBondHolderBalanceDomainService } from "@domain/bond/holderbalance/service/ReleaseHoldBondHolderBalanceDomainService"
 import {
   COMMON_FUNCTIONALITY_ENTITIES,
   COMMON_FUNCTIONALITY_PROVIDERS,
@@ -96,8 +98,22 @@ import { GetBondHoldsHttpAdapter } from "@port/bond/usecase/getbondholds/GetBond
 import { GetBondHoldsQueryHandler } from "@app/bond/getbondholds/query/GetBondHoldsQueryHandler"
 import { GetBondHoldHttpAdapter } from "@port/bond/usecase/getbondhold/GetBondHoldHttpAdapter"
 import { GetBondHoldQueryHandler } from "@app/bond/getbondhold/query/GetBondHoldQueryHandler"
-import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebond/PauseBondTransactionHttpAdapter"
+import { PauseBondTransactionHttpAdapter } from "@port/transaction/usecase/pausebondtransaction/PauseBondTransactionHttpAdapter"
 import { UnpauseBondTransactionHttpAdapter } from "@port/transaction/usecase/unpausebond/UnpauseBondTransactionHttpAdapter"
+import { GetFactoryHttpAdapter } from "@port/factory/usecase/getfactory/GetFactoryHttpAdapter"
+import { GetFactoryQueryHandler } from "@app/factory/getfactory/query/GetFactoryQueryHandler"
+import { FactoryPersistence } from "@port/factory/persistence/model/FactoryPersistence"
+import { FactoryTypeOrmRepository } from "@port/factory/persistence/repositories/FactoryTypeOrmRepository"
+import { DatabaseSeederService } from "@config/DatabaseSeederService"
+import { CheckFactoryExistsDomainService } from "@domain/factory/service/CheckFactoryExistsDomainService"
+import { PauseFactoryDomainService } from "@domain/factory/service/PauseFactoryDomainService"
+import { UnpauseFactoryDomainService } from "@domain/factory/service/UnpauseFactoryDomainService"
+import { PauseFactoryTransactionHttpAdapter } from "@port/transaction/usecase/pausefactorytransaction/PauseFactoryTransactionHttpAdapter"
+import { UnpauseFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpausefactorytransaction/UnpauseFactoryTransactionHttpAdapter"
+import { PauseFactoryCommandHandler } from "@app/factory/pausefactory/command/PauseFactoryCommandHandler"
+import { UnpauseFactoryCommandHandler } from "@app/factory/unpausefactory/command/UnpauseFactoryCommandHandler"
+import { PauseFactoryNestJSEventAdapter } from "@port/factory/usecase/pausefactory/PauseFactoryNestJSEventAdapter"
+import { UnpauseFactoryNestJSEventAdapter } from "@port/factory/usecase/unpausefactory/UnpauseFactoryNestJSEventAdapter"
 import { AddProceedRecipientTransactionHttpAdapter } from "@port/transaction/usecase/addproceedrecipienttransaction/AddProceedRecipientTransactionHttpAdapter"
 import { AddProceedRecipientTransactionAppService } from "@app/bond/transaction/addproceedrecipienttransaction/service/AddProceedRecipientTransactionAppService"
 import { AddProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/addproceedrecipient/AddProceedRecipientNestJSEventAdapter"
@@ -135,6 +151,7 @@ import { CreateBondHoldTransactionAppService } from "@app/bond/transaction/creat
 import { CreateBondHoldCommandHandler } from "@app/bond/createbondhold/command/CreateBondHoldCommandHandler"
 import { CreateBondHoldNestJSEventAdapter } from "@port/bond/usecase/createbondhold/CreateBondHoldNestJSEventAdapter"
 import { CreateBondHoldDomainService } from "@domain/bond/hold/service/CreateBondHoldDomainService"
+import { DeleteBondHoldDomainService } from "@domain/bond/hold/service/DeleteBondHoldDomainService"
 import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
 import { BondHoldTypeOrmRepository } from "@port/bond/persistence/repositories/BondHoldTypeOrmRepository"
 import { ClearingHoldTypeOrmRepository } from "@port/bond/persistence/repositories/ClearingHoldTypeOrmRepository"
@@ -146,6 +163,18 @@ import { CreateClearingTransferTransactionHttpAdapter } from "@port/transaction/
 import { CreateClearingTransferTransactionAppService } from "@app/bond/transaction/createclearingtransfertransaction/service/CreateClearingTransferTransactionAppService"
 import { UpdateClearingStatusTransactionHttpAdapter } from "@port/transaction/usecase/updateclearingstatustransaction/UpdateClearingStatusTransactionHttpAdapter"
 import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
+import { ExecuteHoldHttpAdapter } from "@port/transaction/usecase/executeholdtransaction/ExecuteHoldHttpAdapter"
+import { ExecuteHoldAppService } from "@app/bond/transaction/executeholdtransaction/service/ExecuteHoldAppService"
+import { ReleaseHoldHttpAdapter } from "@port/transaction/usecase/releaseholdtransaction/ReleaseHoldHttpAdapter"
+import { ReleaseHoldAppService } from "@app/bond/transaction/releaseholdtransaction/service/ReleaseHoldAppService"
+import { ReclaimHoldHttpAdapter } from "@port/transaction/usecase/reclaimholdtransaction/ReclaimHoldHttpAdapter"
+import { ReclaimHoldAppService } from "@app/bond/transaction/reclaimholdtransaction/service/ReclaimHoldAppService"
+import { ExecuteBondHoldCommandHandler } from "@app/bond/executebondhold/command/ExecuteBondHoldCommandHandler"
+import { ReleaseBondHoldCommandHandler } from "@app/bond/releasebondhold/command/ReleaseBondHoldCommandHandler"
+import { ReclaimBondHoldCommandHandler } from "@app/bond/reclaimbondhold/command/ReclaimBondHoldCommandHandler"
+import { ExecutedHoldByPartitionNestJSEventAdapter } from "@port/bond/usecase/executedholdbypartition/ExecutedHoldByPartitionNestJSEventAdapter"
+import { ReleasedHoldByPartitionNestJSEventAdapter } from "@port/bond/usecase/releasedholdbypartition/ReleasedHoldByPartitionNestJSEventAdapter"
+import { ReclaimedHoldByPartitionNestJSEventAdapter } from "@port/bond/usecase/reclaimedholdbypartition/ReclaimedHoldByPartitionNestJSEventAdapter"
 import { CancelClearingTransactionHttpAdapter } from "@port/transaction/usecase/cancelclearingtransaction/CancelClearingTransactionHttpAdapter"
 import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 import { GetClearingsHoldHttpAdapter } from "@port/bond/usecase/getclearingshold/GetClearingsHoldHttpAdapter"
@@ -190,10 +219,14 @@ import { ClearingTransferTypeOrmRepository } from "@port/bond/persistence/reposi
 import { CreateClearingRedeemDomainService } from "@domain/bond/clearing/service/CreateClearingRedeemDomainService"
 import { GetRoleMembersHttpAdapter } from "@port/bond/usecase/getrolemembers/GetRoleMembersHttpAdapter"
 import { GetUserRolesHttpAdapter } from "@port/bond/usecase/getuserroles/GetUserRolesHttpAdapter"
-import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrole/GrantRoleTransactionHttpAdapter"
-import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionHttpAdapter"
+import { GrantRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrolebondtransaction/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerolebondtransaction/RevokeRoleTransactionHttpAdapter"
 import { GrantRoleNestJSEventAdapter } from "@port/bond/usecase/grantrole/GrantRoleNestJSEventAdapter"
 import { RevokeRoleNestJSEventAdapter } from "@port/bond/usecase/revokerole/RevokeRoleNestJSEventAdapter"
+import { GetRoleMembersHttpAdapter as GetFactoryRoleMembersHttpAdapter } from "@port/factory/usecase/getrolemembers/GetRoleMembersHttpAdapter"
+import { GetUserRolesHttpAdapter as GetFactoryUserRolesHttpAdapter } from "@port/factory/usecase/getuserroles/GetUserRolesHttpAdapter"
+import { GrantRoleTransactionHttpAdapter as GrantFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantrolefactorytransaction/GrantRoleTransactionHttpAdapter"
+import { RevokeRoleTransactionHttpAdapter as RevokeFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokerolefactorytransaction/RevokeRoleTransactionHttpAdapter"
 import { CreateClearingTransferDomainService } from "@domain/bond/clearing/service/CreateClearingTransferDomainService"
 import { UpdateClearingTransferStatusDomainService } from "@domain/bond/clearing/service/UpdateClearingTransferStatusDomainService"
 import { DeleteClearingTransferDomainService } from "@domain/bond/clearing/service/DeleteClearingTransferDomainService"
@@ -246,6 +279,10 @@ const REPOSITORIES: Provider[] = [
     provide: "ClearingTransferRepository",
     useClass: ClearingTransferTypeOrmRepository,
   },
+  {
+    provide: "FactoryRepository",
+    useClass: FactoryTypeOrmRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -277,8 +314,14 @@ export const CONTROLLERS = [
   AddProceedRecipientTransactionHttpAdapter,
   RemoveProceedRecipientTransactionHttpAdapter,
   GetBondProceedRecipientsHttpAdapter,
+  GetFactoryHttpAdapter,
+  PauseFactoryTransactionHttpAdapter,
+  UnpauseFactoryTransactionHttpAdapter,
   TransferByPartitionTransactionHttpAdapter,
   CreateBondHoldTransactionHttpAdapter,
+  ExecuteHoldHttpAdapter,
+  ReleaseHoldHttpAdapter,
+  ReclaimHoldHttpAdapter,
   CreateClearingHoldTransactionHttpAdapter,
   CreateClearingRedeemTransactionHttpAdapter,
   CreateClearingTransferTransactionHttpAdapter,
@@ -290,6 +333,10 @@ export const CONTROLLERS = [
   GetUserRolesHttpAdapter,
   GrantRoleTransactionHttpAdapter,
   RevokeRoleTransactionHttpAdapter,
+  GetFactoryRoleMembersHttpAdapter,
+  GetFactoryUserRolesHttpAdapter,
+  GrantFactoryRoleTransactionHttpAdapter,
+  RevokeFactoryRoleTransactionHttpAdapter,
   GetClearingsTransferHttpAdapter,
   GetClearingTransferHttpAdapter,
   GetClearingsRedeemHttpAdapter,
@@ -298,6 +345,7 @@ export const CONTROLLERS = [
 export const PROVIDERS = [
   ...REPOSITORIES,
   ...COMMON_FUNCTIONALITY_PROVIDERS,
+  DatabaseSeederService,
   CreateBondTransactionAppService,
   CreateBondNestJSEventAdapter,
   CreateBondDomainService,
@@ -353,6 +401,8 @@ export const PROVIDERS = [
   ReleaseBondLockNestJSEventAdapter,
   DeleteBondLockDomainService,
   UnlockBondHolderBalanceDomainService,
+  ExecuteHoldBondHolderBalanceDomainService,
+  ReleaseHoldBondHolderBalanceDomainService,
   RedeemBondTransactionAppService,
   RedeemBondHolderBalanceCommandHandler,
   RedeemBondHolderBalanceNestJSEventAdapter,
@@ -376,6 +426,16 @@ export const PROVIDERS = [
   CreateBondHoldCommandHandler,
   CreateBondHoldNestJSEventAdapter,
   CreateBondHoldDomainService,
+  DeleteBondHoldDomainService,
+  ExecuteHoldAppService,
+  ReleaseHoldAppService,
+  ReclaimHoldAppService,
+  ExecuteBondHoldCommandHandler,
+  ReleaseBondHoldCommandHandler,
+  ReclaimBondHoldCommandHandler,
+  ExecutedHoldByPartitionNestJSEventAdapter,
+  ReleasedHoldByPartitionNestJSEventAdapter,
+  ReclaimedHoldByPartitionNestJSEventAdapter,
   CreateBondFiltersAdapter,
   CreateClearingHoldTransactionAppService,
   CreateClearingRedeemTransactionAppService,
@@ -425,6 +485,14 @@ export const PROVIDERS = [
   ClearingOperationApprovedNestJSEventAdapter,
   CancelClearingOperationNestJSEventAdapter,
   ClearingOperationReclaimedNestJSEventAdapter,
+  GetFactoryQueryHandler,
+  CheckFactoryExistsDomainService,
+  PauseFactoryDomainService,
+  UnpauseFactoryDomainService,
+  PauseFactoryCommandHandler,
+  UnpauseFactoryCommandHandler,
+  PauseFactoryNestJSEventAdapter,
+  UnpauseFactoryNestJSEventAdapter,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -448,4 +516,5 @@ export const ENTITIES = [
   BondClearingHoldPersistence,
   BondClearingRedeemPersistence,
   BondClearingTransferPersistence,
+  FactoryPersistence,
 ]

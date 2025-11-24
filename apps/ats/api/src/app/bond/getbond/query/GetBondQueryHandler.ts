@@ -23,6 +23,7 @@ export class GetBondQueryHandler implements QueryHandler<GetBondQuery, GetBondQu
       decimals: bond.decimals,
       currency: bond.currency,
       nominalValue: bond.nominalValue,
+      nominalValueDecimals: bond.nominalValueDecimals,
       startingDate: bond.startingDate,
       maturityDate: bond.maturityDate,
       maxSupply: bond.maxSupply,

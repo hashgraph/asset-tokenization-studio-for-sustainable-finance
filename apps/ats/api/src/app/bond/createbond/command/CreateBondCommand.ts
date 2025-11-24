@@ -37,6 +37,10 @@ export class CreateBondCommand extends Command<void> {
   @IsNotEmpty()
   nominalValue: string
 
+  @IsNumber()
+  @Min(0)
+  nominalValueDecimals: number
+
   @IsDate()
   @IsNotEmpty()
   @Type(() => Date)
@@ -60,6 +64,7 @@ export class CreateBondCommand extends Command<void> {
     decimals: number,
     currency: string,
     nominalValue: string,
+    nominalValueDecimals: number,
     startingDate: Date,
     maturityDate: Date,
     maxSupply: string,
@@ -75,6 +80,7 @@ export class CreateBondCommand extends Command<void> {
     this.decimals = decimals
     this.currency = currency
     this.nominalValue = nominalValue
+    this.nominalValueDecimals = nominalValueDecimals
     this.startingDate = startingDate
     this.maturityDate = maturityDate
     this.maxSupply = maxSupply

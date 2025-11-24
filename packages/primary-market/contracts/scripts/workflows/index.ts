@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-export { deployFactoryPrimaryMarketSystem } from "./deployFactoryPrimaryMarketSystem";
+export { deployFactoryPrimaryMarketSystem } from "./deployPrimaryMarketSystemWithNewBlr";
 export type {
   DeployFactoryPrimaryMarketOutput,
   DeployFactoryPrimaryMarketSystemOptions,
-} from "./deployFactoryPrimaryMarketSystem";
+} from "./deployPrimaryMarketSystemWithNewBlr";
 
-export { deployFactoryPrimaryMarketWithExistingInfra } from "./deployFactoryPrimaryMarketWithExistingInfra";
+export { deployFactoryPrimaryMarketWithExistingInfra } from "./deployPrimaryMarketSystemWithExistingBlr";
 export type {
   ExistingInfrastructure,
   DeployWithExistingInfraOptions,
-} from "./deployFactoryPrimaryMarketWithExistingInfra";
+} from "./deployPrimaryMarketSystemWithExistingBlr";

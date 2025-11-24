@@ -12,6 +12,7 @@ export class GetBondResponse {
   readonly decimals: number
   readonly currency: string
   readonly nominalValue: string
+  readonly nominalValueDecimals: number
   readonly startingDate: Date
   readonly maturityDate: Date
   readonly maxSupply: string
@@ -30,6 +31,7 @@ export class GetBondResponse {
       decimals: queryResponse.decimals,
       currency: queryResponse.currency,
       nominalValue: queryResponse.nominalValue,
+      nominalValueDecimals: queryResponse.nominalValueDecimals,
       startingDate: queryResponse.startingDate,
       maturityDate: queryResponse.maturityDate,
       maxSupply: queryResponse.maxSupply,

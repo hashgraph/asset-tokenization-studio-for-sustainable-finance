@@ -2,13 +2,7 @@ import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket, IPause } from "@contracts";
-import {
-  DEFAULT_ADMIN_ROLE,
-  deployFactoryPrimaryMarketSystem,
-  PM_DEPLOYER_ROLE,
-  OFFERING_CREATOR_ROLE,
-  PAUSER_ROLE,
-} from "@scripts";
+import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
 import {
   ADDRESS_ZERO,
   HardhatProvider,
@@ -95,20 +89,20 @@ describe("PrimaryMarket", () => {
     )) as IBusinessLogicResolver;
 
     // Grant PM_DEPLOYER_ROLE to admin
-    await accessControl.grantRole(PM_DEPLOYER_ROLE, adminAddress);
+    await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
 
     // Deploy Primary Market instance
     const RBACS = [
       {
-        role: DEFAULT_ADMIN_ROLE,
+        role: ATS_ROLES.DEFAULT_ADMIN_ROLE,
         members: [adminAddress],
       },
       {
-        role: PAUSER_ROLE,
+        role: ATS_ROLES.PAUSER_ROLE,
         members: [adminAddress],
       },
       {
-        role: OFFERING_CREATOR_ROLE,
+        role: PM_ROLES.OFFERING_CREATOR_ROLE,
         members: [offeringCreatorAddress],
       },
     ];

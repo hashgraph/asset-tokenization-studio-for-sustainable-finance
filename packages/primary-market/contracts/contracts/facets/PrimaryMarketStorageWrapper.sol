@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
+// solhint-disable max-line-length
 import { IPrimaryMarket } from "../interfaces/IPrimaryMarket.sol";
 import { PRIMARY_MARKET_STORAGE_POSITION } from "../constants/storagePositions.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -13,6 +14,7 @@ import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-enable max-line-length
 
 /**
  * @title PrimaryMarketStorageWrapper

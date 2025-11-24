@@ -12,6 +12,7 @@ export class CreatedBondEvent extends Event {
     public readonly decimals: number,
     public readonly currency: string,
     public readonly nominalValue: string,
+    public readonly nominalValueDecimals: number,
     public readonly startingDate: Date,
     public readonly maturityDate: Date,
     public readonly maxSupply: string,
