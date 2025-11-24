@@ -1,14 +1,9 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contracts";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contract-types";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
-import {
-  ADDRESS_ZERO,
-  HardhatProvider,
-  configureLogger,
-  LogLevel,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
@@ -25,9 +20,9 @@ describe("FactoryPrimaryMarket", () => {
   configureLogger({ level: LogLevel.SILENT });
 
   async function deployFixture() {
-    const provider = new HardhatProvider();
+    const [deployer] = await ethers.getSigners();
 
-    const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
+    const deployment = await deployFactoryPrimaryMarketSystem(deployer, "hardhat", {
       useTimeTravel: false,
       saveOutput: false, // Don't save deployment files during tests
     });

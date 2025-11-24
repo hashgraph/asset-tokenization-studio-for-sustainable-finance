@@ -1,14 +1,10 @@
 import { expect } from "chai";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket, IPause } from "@contracts";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPrimaryMarket } from "@contract-types";
+import { IPause } from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
-import {
-  ADDRESS_ZERO,
-  HardhatProvider,
-  configureLogger,
-  LogLevel,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
@@ -63,12 +59,12 @@ describe("PrimaryMarket", () => {
   }
 
   async function deployFixture() {
-    const provider = new HardhatProvider();
+    const [deployer] = await ethers.getSigners();
 
     await deployPrecompiledMock();
 
     // Deploy factory system
-    const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
+    const deployment = await deployFactoryPrimaryMarketSystem(deployer, "hardhat", {
       useTimeTravel: true,
       saveOutput: false,
     });
