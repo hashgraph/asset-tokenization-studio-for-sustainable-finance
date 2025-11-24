@@ -10,7 +10,7 @@ import { Signer } from "ethers";
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
-let pause : IPause;
+let pause: IPause;
 let admin: Signer;
 let unauthorized: Signer;
 let adminAddress: string;
