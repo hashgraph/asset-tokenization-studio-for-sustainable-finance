@@ -7,8 +7,8 @@ const { gatewayClient } = require("../../shared/lib/gateway-client");
 const { getLatestBond } = require("./set-bond-document");
 
 const COUPON_CONFIG = {
-  recordDate: Math.floor(Date.now() / 1000) + 86400, // Tomorrow
-  executionDate: Math.floor(Date.now() / 1000) + 172800, // Day after tomorrow
+  recordDate: new Date(Date.now() + 86400000), // Tomorrow
+  executionDate: new Date(Date.now() + 172800000), // Day after tomorrow
   rate: "500",
   rateDecimals: "2", // 500 basis points = 5.00%
   period: "31536000", // 1 year in seconds (365 days)
@@ -18,8 +18,8 @@ async function setBondCoupon(bondContractId, recordDate, executionDate, rate, ra
   log(`\n💰 Setting coupon on bond ${bondContractId}...`, colors.bright);
 
   const setCouponRequest = {
-    recordDate: recordDate.toString(),
-    executionDate: executionDate.toString(),
+    recordDate: recordDate,
+    executionDate: executionDate,
     rate: rate,
     rateDecimals: rateDecimals,
     period: period,
@@ -32,8 +32,8 @@ async function setBondCoupon(bondContractId, recordDate, executionDate, rate, ra
 
     logSuccess("Bond coupon transaction created successfully!");
     logInfo(`Bond Contract ID: ${bondContractId}`);
-    logInfo(`Record Date: ${new Date(recordDate * 1000).toISOString()}`);
-    logInfo(`Execution Date: ${new Date(executionDate * 1000).toISOString()}`);
+    logInfo(`Record Date: ${recordDate}`);
+    logInfo(`Execution Date: ${executionDate}`);
     logInfo(`Rate: ${rate} basis points (${rate / 100}%)`);
     logInfo(`Rate Decimals: ${rateDecimals}`);
     logInfo(`Period: ${period} seconds (${period / 86400} days)`);
@@ -123,8 +123,8 @@ async function runSetBondCouponSimulator() {
 
     logHeader("💰 Step 3: Setting Bond Coupon...");
 
-    logInfo(`Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`);
-    logInfo(`Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`);
+    logInfo(`Record Date: ${COUPON_CONFIG.recordDate}`);
+    logInfo(`Execution Date: ${COUPON_CONFIG.executionDate}`);
     logInfo(`Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`);
     logInfo(`Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
     logInfo(`Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
@@ -157,8 +157,8 @@ async function runSetBondCouponSimulator() {
     logSuccess("✅ Check the database to verify:");
     logInfo(`   • Bonds table for contract ID: ${bondContractId}`);
     logInfo(`   • BondCoupons table for the new coupon entry`);
-    logInfo(`   • Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`);
-    logInfo(`   • Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`);
+    logInfo(`   • Record Date: ${COUPON_CONFIG.recordDate}`);
+    logInfo(`   • Execution Date: ${COUPON_CONFIG.executionDate}`);
     logInfo(`   • Rate: ${COUPON_CONFIG.rate} basis points`);
     logInfo(`   • Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
     logInfo(`   • Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
@@ -180,8 +180,8 @@ async function main() {
     logHeader("🏦 Evercity Set Bond Coupon Simulator");
     log("==========================================\n", colors.bright);
     log(`📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
-    log(`📅 Record Date: ${new Date(COUPON_CONFIG.recordDate * 1000).toISOString()}`, colors.cyan);
-    log(`📅 Execution Date: ${new Date(COUPON_CONFIG.executionDate * 1000).toISOString()}`, colors.cyan);
+    log(`📅 Record Date: ${COUPON_CONFIG.recordDate}`, colors.cyan);
+    log(`📅 Execution Date: ${COUPON_CONFIG.executionDate}`, colors.cyan);
     log(`💵 Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`, colors.cyan);
     log(`🔢 Rate Decimals: ${COUPON_CONFIG.rateDecimals}`, colors.cyan);
     log(`⏱️  Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)\n`, colors.cyan);

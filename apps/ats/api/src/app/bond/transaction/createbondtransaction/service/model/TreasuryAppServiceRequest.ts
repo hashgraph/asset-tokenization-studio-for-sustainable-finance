@@ -7,10 +7,6 @@ export class TreasuryAppServiceRequest {
   @IsNotEmpty()
   resolverAddress: string
 
-  @IsString()
-  @IsNotEmpty()
-  configId: string
-
   @IsNumber()
   configVersion: number
 

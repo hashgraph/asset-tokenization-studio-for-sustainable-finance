@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsNumberString } from "class-validator"
+import { Type } from "class-transformer"
+import { IsDate, IsNotEmpty, IsNumberString } from "class-validator"
 
 export class SetBondCouponTransactionRequest extends BaseTransactionRequest {
-  @IsNumberString()
+  @IsDate()
   @IsNotEmpty()
-  recordDate: string
+  @Type(() => Date)
+  recordDate: Date
 
-  @IsNumberString()
+  @IsDate()
   @IsNotEmpty()
-  executionDate: string
+  @Type(() => Date)
+  executionDate: Date
 
   @IsNumberString()
   @IsNotEmpty()
