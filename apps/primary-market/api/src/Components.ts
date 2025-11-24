@@ -82,6 +82,10 @@ import { PausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transacti
 import { UnpausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarketfactorytransaction/UnpausePrimaryMarketFactoryTransactionHttpAdapter"
 import { PausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/pauseprimarymarketfactory/PausePrimaryMarketFactoryNestJSEventAdapter"
 import { UnpausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/unpauseprimarymarketfactory/UnpausePrimaryMarketFactoryNestJSEventAdapter"
+import { GetPrimaryMarketFactoryRoleMembersHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactoryrolemembers/GetPrimaryMarketFactoryRoleMembersHttpAdapter"
+import { GrantPrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantprimarymarketfactoryrole/GrantPrimaryMarketFactoryRoleTransactionHttpAdapter"
+import { RevokePrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokeprimarymarketfactoryrole/RevokePrimaryMarketFactoryRoleTransactionHttpAdapter"
+import { GetPrimaryMarketFactoryUserRolesHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactoryuserroles/GetPrimaryMarketFactoryUserRolesHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -115,6 +119,10 @@ export const CONTROLLERS = [
   UnpausePrimaryMarketTransactionHttpAdapter,
   PausePrimaryMarketFactoryTransactionHttpAdapter,
   UnpausePrimaryMarketFactoryTransactionHttpAdapter,
+  GetPrimaryMarketFactoryRoleMembersHttpAdapter,
+  GrantPrimaryMarketFactoryRoleTransactionHttpAdapter,
+  RevokePrimaryMarketFactoryRoleTransactionHttpAdapter,
+  GetPrimaryMarketFactoryUserRolesHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
