@@ -5,7 +5,8 @@ export class ExecutionHistoryQueryResponse {
   oracleRegistryId: string
   projectId: string
   status: string
-  scheduledTime: Date
+  fromDate: Date | null
+  toDate: Date
   executionTime: Date
   completedAt: Date | null
   errorType: string | null

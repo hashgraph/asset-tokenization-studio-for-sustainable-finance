@@ -4,13 +4,20 @@ import { TaskStatus } from "./TaskStatus"
 /**
  * ScheduledTaskResult Entity
  * Represents the result of a scheduled KPI execution for a project
+ *
+ * Timestamp fields:
+ * - fromDate: Start of KPI data range (null for first execution)
+ * - toDate: End of KPI data range (also serves as the logical scheduled point)
+ * - executionTime: When the task actually started running
+ * - completedAt: When the task finished (success or failure)
  */
 export class ScheduledTaskResult {
   constructor(
     public readonly id: string,
     public readonly oracleRegistryId: string,
     public readonly projectId: string,
-    public readonly scheduledTime: Date,
+    public readonly fromDate: Date | null,
+    public readonly toDate: Date,
     public readonly executionTime: Date,
     public readonly completedAt: Date | null,
     public readonly status: TaskStatus,
@@ -27,13 +34,15 @@ export class ScheduledTaskResult {
     id: string,
     oracleRegistryId: string,
     projectId: string,
-    scheduledTime: Date,
+    fromDate: Date | null,
+    toDate: Date,
   ): ScheduledTaskResult {
     return new ScheduledTaskResult(
       id,
       oracleRegistryId,
       projectId,
-      scheduledTime,
+      fromDate,
+      toDate,
       new Date(),
       null,
       TaskStatus.RUNNING,
@@ -52,7 +61,8 @@ export class ScheduledTaskResult {
       this.id,
       this.oracleRegistryId,
       this.projectId,
-      this.scheduledTime,
+      this.fromDate,
+      this.toDate,
       this.executionTime,
       new Date(),
       TaskStatus.SUCCESS,
@@ -71,7 +81,8 @@ export class ScheduledTaskResult {
       this.id,
       this.oracleRegistryId,
       this.projectId,
-      this.scheduledTime,
+      this.fromDate,
+      this.toDate,
       this.executionTime,
       new Date(),
       TaskStatus.FAILED,
@@ -90,7 +101,8 @@ export class ScheduledTaskResult {
       this.id,
       this.oracleRegistryId,
       this.projectId,
-      this.scheduledTime,
+      this.fromDate,
+      this.toDate,
       new Date(), // New execution time
       null,
       TaskStatus.RUNNING,

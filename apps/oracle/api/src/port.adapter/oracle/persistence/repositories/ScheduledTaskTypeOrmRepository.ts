@@ -30,9 +30,25 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskResultReposi
   async findLatestByProject(registryId: string, projectId: string): Promise<ScheduledTaskResult | null> {
     const entity = await this.repository.findOne({
       where: { oracleRegistryId: registryId, projectId },
-      order: { scheduledTime: "DESC" },
+      order: { toDate: "DESC" },
     })
     return this.toDomain(entity)
+  }
+
+  async findLatestSuccessfulByProject(registryId: string, projectId: string): Promise<ScheduledTaskResult | null> {
+    const entity = await this.repository.findOne({
+      where: { oracleRegistryId: registryId, projectId, status: TaskStatus.SUCCESS },
+      order: { toDate: "DESC" },
+    })
+    return this.toDomain(entity)
+  }
+
+  async findFailedTasksForRetry(): Promise<ScheduledTaskResult[]> {
+    const entities = await this.repository.find({
+      where: { status: TaskStatus.FAILED },
+      order: { completedAt: "ASC" },
+    })
+    return entities.map((entity) => this.toDomain(entity)!).filter(Boolean)
   }
 
   async findByRegistryId(
@@ -53,7 +69,7 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskResultReposi
       query.andWhere("task.status = :status", { status })
     }
 
-    query.orderBy("task.scheduledTime", "DESC")
+    query.orderBy("task.toDate", "DESC")
 
     const [entities, total] = await query
       .skip((pageOptions.page - 1) * pageOptions.limit)
@@ -80,7 +96,8 @@ export class ScheduledTaskTypeOrmRepository implements ScheduledTaskResultReposi
     entity.id = domain.id
     entity.oracleRegistryId = domain.oracleRegistryId
     entity.projectId = domain.projectId
-    entity.scheduledTime = domain.scheduledTime
+    entity.fromDate = domain.fromDate
+    entity.toDate = domain.toDate
     entity.executionTime = domain.executionTime
     entity.completedAt = domain.completedAt
     entity.status = domain.status

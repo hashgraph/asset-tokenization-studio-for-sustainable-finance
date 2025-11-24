@@ -97,14 +97,16 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
         status: OracleStatus.ACTIVE,
       })
 
-      const scheduledTime = new Date("2025-01-01T12:00:00Z")
+      const fromDate = new Date("2025-01-01T11:00:00Z")
+      const toDate = new Date("2025-01-01T12:00:00Z")
       const executionTime = new Date("2025-01-01T12:00:05Z")
       const completedAt = new Date("2025-01-01T12:00:10Z")
 
       await taskResultRepository.save({
         oracleRegistryId: registry.id,
         projectId: "project-1",
-        scheduledTime,
+        fromDate,
+        toDate,
         executionTime,
         completedAt,
         status: TaskStatus.SUCCESS,
@@ -151,13 +153,15 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
         status: OracleStatus.ACTIVE,
       })
 
-      const scheduledTime = new Date("2025-01-01T12:00:00Z")
+      const fromDate = new Date("2025-01-01T11:00:00Z")
+      const toDate = new Date("2025-01-01T12:00:00Z")
       const executionTime = new Date("2025-01-01T12:00:05Z")
 
       await taskResultRepository.save({
         oracleRegistryId: registry.id,
         projectId: "project-1",
-        scheduledTime,
+        fromDate,
+        toDate,
         executionTime,
         completedAt: new Date("2025-01-01T12:00:10Z"),
         status: TaskStatus.SUCCESS,
@@ -171,7 +175,8 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
       await taskResultRepository.save({
         oracleRegistryId: registry.id,
         projectId: "project-2",
-        scheduledTime,
+        fromDate,
+        toDate,
         executionTime,
         completedAt: new Date("2025-01-01T12:00:15Z"),
         status: TaskStatus.SUCCESS,
@@ -207,13 +212,15 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
         status: OracleStatus.ACTIVE,
       })
 
-      const scheduledTime = new Date("2025-01-01T12:00:00Z")
+      const fromDate = new Date("2025-01-01T11:00:00Z")
+      const toDate = new Date("2025-01-01T12:00:00Z")
       const executionTime = new Date("2025-01-01T12:00:05Z")
 
       await taskResultRepository.save({
         oracleRegistryId: registry.id,
         projectId: "project-1",
-        scheduledTime,
+        fromDate,
+        toDate,
         executionTime,
         completedAt: new Date("2025-01-01T12:00:10Z"),
         status: TaskStatus.SUCCESS,
@@ -227,7 +234,8 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
       await taskResultRepository.save({
         oracleRegistryId: registry.id,
         projectId: "project-1",
-        scheduledTime: new Date("2025-01-01T13:00:00Z"),
+        fromDate: new Date("2025-01-01T12:00:00Z"),
+        toDate: new Date("2025-01-01T13:00:00Z"),
         executionTime: new Date("2025-01-01T13:00:05Z"),
         completedAt: new Date("2025-01-01T13:00:10Z"),
         status: TaskStatus.FAILED,
@@ -268,7 +276,8 @@ describe("GetExecutionHistoryHttpAdapter API Integration", () => {
         await taskResultRepository.save({
           oracleRegistryId: registry.id,
           projectId: "project-1",
-          scheduledTime: new Date(`2025-01-01T${12 + i}:00:00Z`),
+          fromDate: new Date(`2025-01-01T${11 + i}:00:00Z`),
+          toDate: new Date(`2025-01-01T${12 + i}:00:00Z`),
           executionTime: new Date(`2025-01-01T${12 + i}:00:05Z`),
           completedAt: new Date(`2025-01-01T${12 + i}:00:10Z`),
           status: TaskStatus.SUCCESS,

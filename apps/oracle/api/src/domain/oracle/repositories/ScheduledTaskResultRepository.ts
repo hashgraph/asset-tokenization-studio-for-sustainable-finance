@@ -28,4 +28,14 @@ export interface ScheduledTaskResultRepository {
    * Find the latest task result for a project
    */
   findLatestByProject(registryId: string, projectId: string): Promise<ScheduledTaskResult | null>
+
+  /**
+   * Find the latest successful task result for a project
+   */
+  findLatestSuccessfulByProject(registryId: string, projectId: string): Promise<ScheduledTaskResult | null>
+
+  /**
+   * Find all failed tasks eligible for retry
+   */
+  findFailedTasksForRetry(): Promise<ScheduledTaskResult[]>
 }

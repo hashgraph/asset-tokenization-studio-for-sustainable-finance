@@ -5,6 +5,7 @@ import { CronJob } from "cron"
 import type { OracleRegistryRepository } from "@domain/oracle/repositories/OracleRegistryRepository"
 import type { SchedulerConfigRepository } from "@domain/scheduler/repositories/SchedulerConfigRepository"
 import { OracleExecutionService } from "@domain/oracle/services/OracleExecutionService"
+import { AutoRetryService } from "@domain/scheduler/services/AutoRetryService"
 import { SchedulerConfig } from "@domain/scheduler/model/SchedulerConfig"
 
 @Injectable()
@@ -18,6 +19,7 @@ export class SchedulerService implements OnModuleInit {
     @Inject("SchedulerConfigRepository")
     private readonly configRepository: SchedulerConfigRepository,
     private readonly executionService: OracleExecutionService,
+    private readonly autoRetryService: AutoRetryService,
     private readonly schedulerRegistry: SchedulerRegistry,
   ) {}
 
@@ -108,7 +110,12 @@ export class SchedulerService implements OnModuleInit {
     this.logger.log("Starting scheduled KPI execution")
 
     try {
-      // Find all active registries that should execute now
+      // PHASE 1: Process auto-retries FIRST (failed tasks from previous runs)
+      this.logger.log("Phase 1: Processing auto-retries for failed tasks")
+      await this.autoRetryService.processFailedTasks()
+
+      // PHASE 2: Execute new scheduled tasks
+      this.logger.log("Phase 2: Executing scheduled registries")
       const registries = await this.registryRepository.findActiveForExecution()
 
       if (registries.length === 0) {
@@ -150,22 +157,27 @@ export class SchedulerService implements OnModuleInit {
       return
     }
 
-    const scheduledTime = new Date()
+    // Use registry's nextExecutionDate as toDate (not current time)
+    // This ensures continuous coverage even after delays/pauses
+    const toDate = registry.config.nextExecutionDate
     const projects = registry.projects
 
-    this.logger.log(`Executing ${projects.length} projects for registry ${registryId}`)
+    this.logger.log(
+      `Executing ${projects.length} projects for registry ${registryId} ` +
+        `(toDate: ${toDate.toISOString()})`,
+    )
 
     // Execute projects with concurrency control
     const chunks = this.chunkArray(projects, concurrencyLimit)
 
     for (const chunk of chunks) {
       await Promise.allSettled(
-        chunk.map((project) => this.executionService.executeProjectTask(registry, project, scheduledTime)),
+        chunk.map((project) => this.executionService.executeProjectTask(registry, project, toDate)),
       )
     }
 
     // Update next execution date using the registry's own frequency despite the execution fails
-    const nextExecutionDate = registry.config.calculateNextExecutionDate(scheduledTime)
+    const nextExecutionDate = registry.config.calculateNextExecutionDate(toDate)
     registry.updateNextExecutionDate(nextExecutionDate)
     await this.registryRepository.save(registry)
 

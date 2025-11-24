@@ -40,24 +40,28 @@ export class HederaSDKAdapter implements BlockchainPort {
     kpiContractId: string,
     projectId: string,
     kpiValue: number,
-    date: Date,
+    fromDate: Date | null,
+    toDate: Date,
   ): Promise<WriteKpiResult> {
-    this.logger.log(`Writing KPI to contract ${kpiContractId} for project ${projectId}: ${kpiValue}`)
+    this.logger.log(
+      `Writing KPI to contract ${kpiContractId} for project ${projectId}: ` +
+        `value=${kpiValue}, range=[${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}]`,
+    )
 
     try {
       // Prepare function parameters
-      // Assuming the KPI contract has a function like:
-      // writeKpi(string projectId, uint256 kpiValue, uint256 timestamp)
+      // Contract function signature:
+      // addKpiData(uint256 fromDate, uint256 toDate, uint256 kpiValue)
       const functionParams = new ContractFunctionParameters()
-        .addString(projectId)
+        .addUint256(fromDate ? Math.floor(fromDate.getTime() / 1000) : 0) // 0 for first execution
+        .addUint256(Math.floor(toDate.getTime() / 1000)) // Unix timestamp
         .addUint256(Math.floor(kpiValue * 1000000)) // Convert to fixed point if needed
-        .addUint256(Math.floor(date.getTime() / 1000)) // Unix timestamp
 
       // Execute contract function
       const transaction = new ContractExecuteTransaction()
         .setContractId(kpiContractId)
         .setGas(500000) // Adjust gas as needed
-        .setFunction("writeKpi", functionParams)
+        .setFunction("addKpiData", functionParams)
 
       const txResponse = await transaction.execute(this.client)
       const receipt = await txResponse.getReceipt(this.client)

@@ -4,7 +4,6 @@ import { OracleRegistry } from "../model/OracleRegistry"
 import { ScheduledTaskResult } from "../model/ScheduledTaskResult"
 import { Project } from "../model/Project"
 import type { IndexerPort } from "../ports/IndexerPort"
-import { KpiMessage } from "../ports/IndexerPort"
 import type { BlockchainPort } from "../ports/BlockchainPort"
 import { OracleAggregationService } from "./OracleAggregationService"
 import type { ScheduledTaskResultRepository } from "../repositories/ScheduledTaskResultRepository"
@@ -30,38 +29,59 @@ export class OracleExecutionService {
 
   /**
    * Execute KPI task for a single project
+   * @param registry - The oracle registry
+   * @param project - The project to execute
+   * @param toDate - The end date for KPI data range (from registry.nextExecutionDate)
    */
   async executeProjectTask(
     registry: OracleRegistry,
     project: Project,
-    scheduledTime: Date,
+    toDate: Date,
   ): Promise<ScheduledTaskResult> {
     this.logger.log(`Executing task for project ${project.projectId} in registry ${registry.id}`)
 
-    // Create pending task result
-    let taskResult = ScheduledTaskResult.createPending(randomUUID(), registry.id, project.projectId, scheduledTime)
+    // Step 1: Calculate fromDate based on last successful execution
+    const fromDate = await this.calculateFromDate(registry.id, project.projectId)
+
+    this.logger.debug(
+      `Date range for project ${project.projectId}: ` +
+        `from=${fromDate?.toISOString() || "null"}, to=${toDate.toISOString()}`,
+    )
+
+    // Create pending task result with from/to
+    let taskResult = ScheduledTaskResult.createPending(
+      randomUUID(),
+      registry.id,
+      project.projectId,
+      fromDate,
+      toDate,
+    )
 
     taskResult = await this.taskRepository.save(taskResult)
 
     try {
-      // Step 1: Fetch KPI values from indexer
-      const kpiMessages = await this.fetchKpiValues(project.topicId, scheduledTime)
+      // Step 2: Fetch KPI values from indexer using from/to range
+      const kpiMessages = await this.indexerPort.getKpiValuesByTopic(project.topicId, fromDate || toDate, toDate)
 
       if (kpiMessages.length === 0) {
-        throw new Error(`No KPI messages found for topic ${project.topicId}`)
+        this.logger.warn(
+          `No KPI messages found for topic ${project.topicId} ` +
+            `between ${fromDate?.toISOString() || "start"} and ${toDate.toISOString()}`,
+        )
       }
       //TODO: Guardian
-      // Step 2: Aggregate KPI values
-      const aggregatedKpi = this.aggregationService.aggregateDailyKpi(kpiMessages)
+      // Step 3: Aggregate KPI values
+      const aggregatedKpi = kpiMessages.length > 0 ? this.aggregationService.aggregateDailyKpi(kpiMessages) : 0
 
       this.logger.debug(`Aggregated KPI for project ${project.projectId}: ${aggregatedKpi}`)
       //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
-      // Step 3: Write to blockchain
+      // Step 4: Write to blockchain with from/to dates
       const writeResult = await this.blockchainPort.writeKpiToContract(
         registry.kpiContractId,
         project.projectId,
         aggregatedKpi,
-        scheduledTime,
+        fromDate,
+        toDate,
       )
 
       if (!writeResult.success) {
@@ -71,12 +91,19 @@ export class OracleExecutionService {
       // Mark as success
       taskResult = taskResult.markAsSuccess(aggregatedKpi, writeResult.transactionHash)
 
-      this.logger.log(`Successfully executed task for project ${project.projectId}. TX: ${writeResult.transactionHash}`)
+      this.logger.log(
+        `Successfully executed task for project ${project.projectId}. ` +
+          `TX: ${writeResult.transactionHash}, ` +
+          `KPI: ${aggregatedKpi}, Range: [${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}]`,
+      )
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
       const errorType = error instanceof Error ? error.constructor.name : "Error"
 
-      this.logger.error(`Failed to execute task for project ${project.projectId}: ${errorMessage}`)
+      this.logger.error(
+        `Failed to execute task for project ${project.projectId}: ${errorMessage} ` +
+          `(range: [${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}])`,
+      )
 
       taskResult = taskResult.markAsFailed(errorType, errorMessage)
     }
@@ -86,9 +113,8 @@ export class OracleExecutionService {
   }
 
   /**
-   * Retry a failed task execution
+   * Retry a failed task execution using original from/to date range
    */
-  //TODO: define better
   async retryTask(
     taskResult: ScheduledTaskResult,
     registry: OracleRegistry,
@@ -103,32 +129,33 @@ export class OracleExecutionService {
       throw new Error(`Project ${taskResult.projectId} not found in registry`)
     }
 
-    this.logger.log(`Retrying task ${taskResult.id} (attempt ${taskResult.retryCount + 1})`)
+    this.logger.log(
+      `Retrying task ${taskResult.id} (attempt ${taskResult.retryCount + 1}/${maxRetries}). ` +
+        `Original range: [${taskResult.fromDate?.toISOString() || "null"}, ${taskResult.toDate.toISOString()}]`,
+    )
 
-    // Increment retry counter
+    // Increment retry counter and save
     const retryResult = taskResult.incrementRetry()
     await this.taskRepository.save(retryResult)
 
-    // Execute task
-    return await this.executeProjectTask(registry, project, taskResult.scheduledTime)
+    // Execute with ORIGINAL toDate (preserves original date range)
+    return await this.executeProjectTask(registry, project, taskResult.toDate)
   }
 
   /**
-   * Fetch KPI values from indexer for a specific date
+   * Calculate fromDate for KPI data fetching
+   * fromDate = last successful execution's toDate (null for first execution)
    */
-  //TODO: Guardian
-  private async fetchKpiValues(topicId: string, targetDate: Date): Promise<KpiMessage[]> {
-    // Fetch messages for the target day
-    const dateFrom = new Date(targetDate)
-    dateFrom.setUTCHours(0, 0, 0, 0)
+  private async calculateFromDate(registryId: string, projectId: string): Promise<Date | null> {
+    // Find the last SUCCESSFUL execution
+    const lastSuccess = await this.taskRepository.findLatestSuccessfulByProject(registryId, projectId)
 
-    const dateTo = new Date(targetDate)
-    dateTo.setUTCHours(23, 59, 59, 999)
+    if (!lastSuccess) {
+      // First execution: no fromDate
+      return null
+    }
 
-    this.logger.debug(
-      `Fetching KPI values for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`,
-    )
-
-    return await this.indexerPort.getKpiValuesByTopic(topicId, dateFrom, dateTo)
+    // Continuous coverage: from = last success's toDate
+    return lastSuccess.toDate
   }
 }

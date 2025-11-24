@@ -16,8 +16,11 @@ export class ScheduledTaskResultPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })
   projectId: string
 
+  @Column({ type: "timestamp", nullable: true })
+  fromDate: Date | null
+
   @Column({ type: "timestamp" })
-  scheduledTime: Date
+  toDate: Date
 
   @Column({ type: "timestamp" })
   executionTime: Date
