@@ -14,20 +14,23 @@ interface IKpi {
     /**
      * @notice Struct containing Kpi entry for a specific date
      * @param value The Kpi value for the given date
-     * @param exists Boolean flag indicating if data exists for this date
+     * @param index The index of the Kpi entry in the timestamps array
      */
     struct KpiEntry {
         uint256 value;
+        uint256 index;
         bool exists;
     }
 
     /**
      * @notice Storage structure for Kpi data using unstructured storage pattern
      * @param KpiData Mapping from timestamp to KpiEntry struct
-     * @param dates Array of timestamps with Kpi data, maintained in sorted order for efficient queries
+     * @param timestampsIndex Array of timestamps for efficient range queries
+     * @param initialized Boolean flag indicating if the storage has been initialized
      */
     struct KpiStorage {
         mapping(uint256 timestamp => KpiEntry) kpiData;
+        uint256[] timestampsIndex;
         bool initialized;
     }
 
@@ -44,6 +47,12 @@ interface IKpi {
      * @param providedDate The invalid date that was provided
      */
     error InvalidDate(uint256 providedDate);
+
+    /**
+     * @notice Thrown when trying to add Kpi data for a date that already has data
+     * @param date The date for which Kpi data already exists
+     */
+    error KpiDataAlreadyExists(uint256 date);
 
     /**
      * @notice Thrown when an invalid date range is provided (fromDate > toDate)

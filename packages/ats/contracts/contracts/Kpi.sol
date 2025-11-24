@@ -31,9 +31,19 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     ) external virtual override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
         if (date >= _blockTimestamp()) revert InvalidDate(date);
         KpiStorage storage kpiStorage = _getKpiStorage();
+        if (kpiStorage.kpiData[date].exists) {
+            revert KpiDataAlreadyExists(date);
+        }
 
-        kpiStorage.kpiData[date].value += kpiValue;
-        kpiStorage.kpiData[date].exists = true;
+        uint256 insertIndex = kpiStorage.timestampsIndex.findUpperBound(date);
+        kpiStorage.timestampsIndex.push(0);
+        for (uint256 i = kpiStorage.timestampsIndex.length - 1; i > insertIndex; i--) {
+            kpiStorage.timestampsIndex[i] = kpiStorage.timestampsIndex[i - 1];
+            kpiStorage.kpiData[kpiStorage.timestampsIndex[i]].index = i;
+        }
+        kpiStorage.timestampsIndex[insertIndex] = date;
+
+        kpiStorage.kpiData[date] = KpiEntry({ value: kpiValue, index: insertIndex, exists: true });
 
         emit KpiDataAdded(date, kpiValue);
     }
@@ -46,18 +56,18 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
 
         KpiStorage storage kpiStorage = _getKpiStorage();
 
-        for (uint256 date = fromDate; date <= toDate; ) {
-            IKpi.KpiEntry storage kpiData = kpiStorage.kpiData[date];
+        uint256 startIndex = kpiStorage.timestampsIndex.findUpperBound(fromDate);
+        uint256 endIndex = kpiStorage.timestampsIndex.findUpperBound(toDate + 1); // +1 to make it inclusive
 
-            if (kpiData.exists) {
-                kpiAggregatedValue += kpiData.value;
-                exists = true;
-            }
+        for (uint256 i = startIndex; i <= endIndex; i++) {
+            uint256 timestamp = kpiStorage.timestampsIndex[i];
+            KpiEntry storage kpiData = kpiStorage.kpiData[timestamp];
 
-            unchecked {
-                ++date;
-            }
+            kpiAggregatedValue += kpiData.value;
         }
+
+        exists = (startIndex <= endIndex);
+
         return (kpiAggregatedValue, exists);
     }
 
