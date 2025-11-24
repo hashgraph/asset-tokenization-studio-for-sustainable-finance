@@ -30,7 +30,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         SUBSCRIPTION_ID_INDEX,
         TRANSFER_INDEX
     }
-    uint256 internal constant _COUNT_INDEX_SIZE = 2;
+    uint256 internal constant _COUNT_INDEX_SIZE = 3;
 
     struct TransferItem {
         int64 amount;
@@ -240,8 +240,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             processResult,
             indexCounts
         );
-
-        //return _resizeResults(processResult, indexCounts);
     }
 
     // solhint-disable-next-line function-max-lines
@@ -272,6 +270,15 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         uint256 amount = subscription.lotUnits * offering.info.lotSize * _processOfferingInfo.nominalValue;
+        uint8 paymentTokenDecimals = IERC20(offering.info.paymentToken).decimals();
+
+        if (_processOfferingInfo.nominalValueDecimals < paymentTokenDecimals) {
+            uint256 decimalDiff = uint256(uint8(_processOfferingInfo.nominalValueDecimals - paymentTokenDecimals));
+            amount = amount / (10 ** decimalDiff);
+        } else if (paymentTokenDecimals > _processOfferingInfo.nominalValueDecimals) {
+            uint256 decimalDiff = uint256(uint8(paymentTokenDecimals - _processOfferingInfo.nominalValueDecimals));
+            amount = amount * (10 ** decimalDiff);
+        }
 
         if (!_isValidAmount(amount)) {
             processResult[indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)]] = IPrimaryMarket
