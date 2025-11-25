@@ -792,13 +792,13 @@ describe("PrimaryMarket", () => {
       expect(pendingLots).to.equal(lotsUnit);
     }
 
-    it("GIVEN valid subscription and more payment token decimals than nominal value decimals WHEN submitting THEN success", async () => {
+    it("GIVEN valid subscription and payment token decimals larger than nominal value decimals WHEN submitting THEN success", async () => {
       await mockAsset.setNominalValueDecimals(PaymentDecimals - 1);
       await createOffering(0, 0);
       await checkSubscriptionSuccess();
     });
 
-    it("GIVEN valid subscription and more nominal value decimals than payment token decimals WHEN submitting THEN success", async () => {
+    it("GIVEN valid subscription and nominal value decimals larger than payment token decimals WHEN submitting THEN success", async () => {
       await mockAsset.setNominalValueDecimals(PaymentDecimals + 1);
       await createOffering(0, 0);
       await checkSubscriptionSuccess();
@@ -2037,16 +2037,20 @@ describe("PrimaryMarket", () => {
       it("WHEN cancelling offering with super large price THEN success with batch processing", async () => {
         const now = await time.latest();
 
-        // Set nominal value BEFORE creating offering so it captures the large value
-        const tokensPerSubscription = 2; // lotSize 2 * minLots 1
-        const nominalValue = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
-        await mockAsset.setNominalValue(nominalValue);
+        // Calculate super large price that will trigger batch processing
+        // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
+        const superLargePrice = BigInt(INT64_MAX) - BigInt(1);
+
+        // Set nominal value BEFORE creating offering so price captures it
+        await mockAsset.setNominalValue(superLargePrice);
+        await mockAsset.setNominalValueDecimals(0);
+        await mockPaymentToken.setDecimals(0);
 
         const offering: IPrimaryMarket.OfferingStruct = {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: 2,
+          lotSize: ethers.utils.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
           minLots: 1,
           maxLots: 5,
           targetLots: 100, // High target so we don't reach it

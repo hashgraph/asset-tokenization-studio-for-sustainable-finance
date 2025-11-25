@@ -396,7 +396,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         if (nominalValueDecimals > paymentTokenDecimals) {
             decimalDiff = uint256(uint8(nominalValueDecimals - paymentTokenDecimals));
-        } else if (paymentTokenDecimals > nominalValueDecimals) {
+        } else {
             decimalDiff = uint256(uint8(paymentTokenDecimals - nominalValueDecimals));
             decimalsAdjustmentInfo.multiply = true;
         }
