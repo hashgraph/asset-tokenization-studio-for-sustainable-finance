@@ -71,19 +71,22 @@ interface IKpi {
 
     /**
      * @notice Adds Kpi data for a specific date
-     * @dev If data already exists for the given date, it will be overwritten
-     * @param date The timestamp representing the date of the Kpi measurement (must be > 0)
+     * @dev If data already exists for the given date, it reverts with KpiDataAlreadyExists.
+     *      Data is automatically inserted in sorted order regardless of insertion sequence.
+     * @param toDate The timestamp representing the date of the Kpi measurement (must be > 0 and < block.timestamp)
      * @param kpiValue The Kpi value to store (must be > 0)
      */
-    function addKpiData(uint256 date, uint256 kpiValue) external;
+    function addKpiData(uint256 toDate, uint256 kpiValue) external;
 
     /**
      * @notice Retrieves aggregated Kpi data for a date range
-     * @dev Uses binary search for efficient range queries. Returns the sum of all Kpi values
-     *      within the specified date range (inclusive on both ends)
+     * @dev Optimized to use direct lookup (O(1)) when querying exact stored dates,
+     *      otherwise falls back to binary search (O(log n)). Returns the sum of all Kpi values
+     *      within the specified date range (inclusive on both ends).
      * @param fromDate The start date of the range (inclusive, must be > 0)
      * @param toDate The end date of the range (inclusive, must be > 0 and >= fromDate)
      * @return kpiAggregatedValue The sum of all Kpi values in the specified date range
+     * @return exists True if at least one KPI entry was found in the range, false otherwise
      */
     function getKpiData(
         uint256 fromDate,

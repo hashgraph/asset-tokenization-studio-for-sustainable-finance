@@ -26,26 +26,26 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     }
 
     function addKpiData(
-        uint256 date,
+        uint256 toDate,
         uint256 kpiValue
-    ) external virtual override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
-        if (date >= _blockTimestamp()) revert InvalidDate(date);
+    ) external virtual override validDate(toDate) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
+        if (toDate >= _blockTimestamp()) revert InvalidDate(toDate);
         KpiStorage storage kpiStorage = _getKpiStorage();
-        if (kpiStorage.kpiData[date].exists) {
-            revert KpiDataAlreadyExists(date);
+        if (kpiStorage.kpiData[toDate].exists) {
+            revert KpiDataAlreadyExists(toDate);
         }
 
-        uint256 insertIndex = kpiStorage.timestampsIndex.findUpperBound(date);
+        uint256 insertIndex = kpiStorage.timestampsIndex.findUpperBound(toDate);
         kpiStorage.timestampsIndex.push(0);
         for (uint256 i = kpiStorage.timestampsIndex.length - 1; i > insertIndex; i--) {
             kpiStorage.timestampsIndex[i] = kpiStorage.timestampsIndex[i - 1];
             kpiStorage.kpiData[kpiStorage.timestampsIndex[i]].index = i;
         }
-        kpiStorage.timestampsIndex[insertIndex] = date;
+        kpiStorage.timestampsIndex[insertIndex] = toDate;
 
-        kpiStorage.kpiData[date] = KpiEntry({ value: kpiValue, index: insertIndex, exists: true });
+        kpiStorage.kpiData[toDate] = KpiEntry({ value: kpiValue, index: insertIndex, exists: true });
 
-        emit KpiDataAdded(date, kpiValue);
+        emit KpiDataAdded(toDate, kpiValue);
     }
 
     function getKpiData(
@@ -55,10 +55,34 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         if (fromDate > toDate) revert InvalidDateRange(fromDate, toDate);
 
         KpiStorage storage kpiStorage = _getKpiStorage();
+        uint256 startIndex;
+        uint256 endIndex;
 
-        uint256 startIndex = kpiStorage.timestampsIndex.findUpperBound(fromDate);
-        uint256 endIndex = kpiStorage.timestampsIndex.findUpperBound(toDate + 1); // +1 to make it inclusive
+        // Optimization: Fast path using direct lookup if dates exist exactly
+        // This avoids binary search when querying with exact stored dates (common case)
+        if (kpiStorage.kpiData[fromDate].exists) {
+            // fromDate exists exactly - use stored index directly (O(1))
+            startIndex = kpiStorage.kpiData[fromDate].index;
 
+            if (kpiStorage.kpiData[toDate].exists) {
+                // Both dates exist exactly - use stored index directly (O(1))
+                endIndex = kpiStorage.kpiData[toDate].index;
+            } else {
+                // toDate doesn't exist - use binary search (O(log n))
+                endIndex = kpiStorage.timestampsIndex.findUpperBound(toDate + 1);
+            }
+        } else if (kpiStorage.kpiData[toDate].exists) {
+            // toDate exists but fromDate doesn't - use toDate index and binary search for fromDate
+            // This is efficient: O(1) for toDate + O(log n) for fromDate
+            endIndex = kpiStorage.kpiData[toDate].index;
+            startIndex = kpiStorage.timestampsIndex.findUpperBound(fromDate);
+        } else {
+            // Neither date exists - fallback to binary search for both (O(log n))
+            startIndex = kpiStorage.timestampsIndex.findUpperBound(fromDate);
+            endIndex = kpiStorage.timestampsIndex.findUpperBound(toDate + 1);
+        }
+
+        // Sum all KPI values in the range [startIndex, endIndex]
         for (uint256 i = startIndex; i <= endIndex; i++) {
             uint256 timestamp = kpiStorage.timestampsIndex[i];
             KpiEntry storage kpiData = kpiStorage.kpiData[timestamp];
