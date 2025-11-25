@@ -59,4 +59,5 @@ export async function deployPrecompiledMock() {
   const runtimeBytecode = await ethers.provider.getCode(deployed.address);
   await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
   const mockPrecompiled = await ethers.getContractAt("PrecompiledMock", HEDERA_PRECOMPILED_ADDRESS);
+  await mockPrecompiled.setPrecompiledTransferStatus(true);
 }

@@ -33,10 +33,14 @@ interface IPrecompiledMock {
         address token
     ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo);
     function setPrecompiledNegativeDecimals(bool _negativeDecimals) external;
+    function setPrecompiledTransferStatus(bool _success) external;
     function getPrecompiledNegativeDecimals() external view returns (bool);
+    function getPrecompiledTransferStatus() external view returns (bool);
+
 }
 
 contract PrecompiledMockStorageWrapper {
+    bool private _transferSuccess;
     bool private _negativeDecimals;
 
     function _transferTokens(
@@ -44,6 +48,8 @@ contract PrecompiledMockStorageWrapper {
         address[] calldata accountIds,
         int64[] calldata amounts
     ) internal virtual returns (int32 responseCode) {
+        if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
+
         PaymentTokenMock(token).approveFor(msg.sender, address(this), type(uint256).max);
 
         uint256 totalPositive;
@@ -156,6 +162,14 @@ contract PrecompiledMockStorageWrapper {
     function _getPrecompiledNegativeDecimals() internal view returns (bool) {
         return _negativeDecimals;
     }
+
+    function _setPrecompiledTransferStatus(bool success_) internal {
+        _transferSuccess = success_;
+    }
+
+    function _getPrecompiledTransferStatus() internal view returns (bool) {
+        return _transferSuccess;
+    }
 }
 
 contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
@@ -205,5 +219,13 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
 
     function getPrecompiledNegativeDecimals() external view returns (bool) {
         return _getPrecompiledNegativeDecimals();
+    }
+
+    function setPrecompiledTransferStatus(bool success_) external {
+        _setPrecompiledTransferStatus(success_);
+    }
+
+    function getPrecompiledTransferStatus() external view returns (bool) {
+        return _getPrecompiledTransferStatus();
     }
 }

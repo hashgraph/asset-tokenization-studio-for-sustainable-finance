@@ -5,10 +5,11 @@ import { ethers } from "hardhat";
 import { BigNumber, Contract, ContractFactory } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAYOUT_ROLE, PAUSER_ROLE } from "../../scripts/constants";
+import { HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 import { deployPrecompiledMock } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
 import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITreasury } from "@contract-types";
+import type { ITreasury, IPrecompiledMock } from "@contract-types";
 
 describe("LifeCycleCashFlow operations", () => {
   configureLogger({ level: LogLevel.SILENT });
@@ -201,7 +202,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
           expect(event.args.results[0].holder).to.equal(AddressZero);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
 
@@ -225,7 +226,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(BigNumber.from(1));
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].amount).to.equal(0);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionExecuted event is emitted with the holder in SUCCEEDED status", async () => {
@@ -436,7 +437,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(AddressZero);
           expect(event.args.results[0].holder).to.equal(AddressZero);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
 
@@ -459,7 +460,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].amount).to.equal(0);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionByAddressesExecuted event is emitted with the holder in SUCCEEDED status", async () => {
@@ -551,6 +552,31 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[0].amount).to.equal(BigNumber.from(9000000000000000000n));
           expect(event.args.results[1].amount).to.equal(BigNumber.from(9000000000000000000n));
         });
+
+        it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption with a great amount to pay to every holder and the transactions fail, THEN a RedemptionByAddressesExecuted event is emitted with both holders in FAILED status", async () => {
+          await paymentToken.mint(treasury.address, 18000000000000000000n);
+
+          const precompiled = (await ethers.getContractAt("IPrecompiledMock", HEDERA_PRECOMPILED_ADDRESS)) as IPrecompiledMock;
+          precompiled.setPrecompiledTransferStatus(false);
+
+          const tx = await treasury.executeBondRedemptionByAddresses(assetAddress, [
+            signer_B.address,
+            signer_A.address,
+          ]);
+          const receipt = await tx.wait();
+          const event = receipt.events.find((e) => e.event === "RedemptionByAddressesExecuted");
+
+          precompiled.setPrecompiledTransferStatus(true);
+
+          expect(event.args.holders[0]).to.equal(signer_B.address);
+          expect(event.args.holders[1]).to.equal(signer_A.address);
+          expect(event.args.results[0].holder).to.equal(signer_B.address);
+          expect(event.args.results[1].holder).to.equal(signer_A.address);
+          expect(event.args.results[0].status).to.equal(1);
+          expect(event.args.results[1].status).to.equal(1);
+          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[1].amount).to.equal(0);
+        });
       });
 
       describe("Redeem a bond with holders and a great amount of tokens", () => {
@@ -574,7 +600,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(BigNumber.from(0));
+          expect(event.args.results[0].amount).to.equal(0);
         });
       });
     });

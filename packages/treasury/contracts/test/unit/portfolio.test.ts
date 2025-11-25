@@ -177,7 +177,13 @@ describe("Portfolio operations", () => {
       );
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN the environmental asset token is removed", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes a non existing environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      await expect(treasury.removeEnvironmentalAssetToken("0x0000000000000000000000000000000000000001"))
+        .to.not.emit(treasury, "EnvironmentalAssetRemoved")
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
@@ -358,6 +364,17 @@ describe("Portfolio operations", () => {
 
     it("GIVEN a deployed Treasury contract, WHEN an account gets a non existing page of the environmental asset tokens, THEN we get an empty array", async () => {
       expect(await treasury.getEnvironmentalAssetTokens(1, 1)).to.deep.equal([]);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens remaining two more environmental assets, THEN we get the requested environmental asset", async () => {
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      for (let i = 0; i < 4; i++) {
+        const environmentalAsset = await environmentalAssetMockContract.deploy(`Environmental asset ${i}`, `EA${i}`);
+        await environmentalAsset.deployed();
+        await treasury.addEnvironmentalAssetToken(environmentalAsset.address);
+      }
+
+      expect((await treasury.getEnvironmentalAssetTokens(2, 2))[0]).to.not.equal(undefined);
     });
   })
 
