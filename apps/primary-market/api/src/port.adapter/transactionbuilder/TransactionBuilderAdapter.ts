@@ -12,7 +12,11 @@ import { BuildSubmitSubscriptionTransactionRequest } from "./model/BuildSubmitSu
 import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOfferingTransactionRequest"
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
-import { IPrimaryMarket__factory } from "@hashgraph/green-bonds-platform-primarymarket-contracts"
+import { BuildDeployPrimaryMarketTransactionRequest } from "./model/BuildDeployPrimaryMarketTransactionRequest"
+import {
+  IPrimaryMarket__factory,
+  IFactoryPrimaryMarket__factory,
+} from "@hashgraph/green-bonds-platform-primarymarket-contracts"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -21,6 +25,11 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
+  private readonly DEPLOY_PRIMARY_MARKET_GAS = 10_000_000
+
+  private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
+  private readonly DEFAULT_PRIMARY_MARKET_CONFIG_ID =
+    "0x0000000000000000000000000000000000000000000000000000000000002711"
 
   constructor() {
     super()
@@ -81,6 +90,40 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       format: request.format as "hedera" | "ethereum",
       args: [request.offeringId, request.start, request.end],
     })
+  }
+
+  async deployPrimaryMarket(request: BuildDeployPrimaryMarketTransactionRequest): Promise<BuildTransactionResponse> {
+    const resolverAddress = await ConverterUtils.getEvmAddressFromHederaAddress(request.resolverContractId)
+    const ownerAddress = await ConverterUtils.getEvmAddressFromHederaAddress(request.accountId!)
+
+    const resolverProxyConfiguration = {
+      key: this.DEFAULT_PRIMARY_MARKET_CONFIG_ID,
+      version: request.configVersion.toString(),
+    }
+
+    const rbacs = [
+      {
+        role: this.DEFAULT_ADMIN_ROLE,
+        members: [ownerAddress],
+      },
+    ]
+
+    const contractInterface = IFactoryPrimaryMarket__factory.createInterface()
+
+    const environment = this.getEnvironment()
+
+    const transactionResponse = await this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName: "deployPrimaryMarket",
+      contractId: request.contractId,
+      gas: this.DEPLOY_PRIMARY_MARKET_GAS,
+      environment,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [resolverAddress, resolverProxyConfiguration, rbacs],
+    } as any)
+
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
   }
 
   private getPrimaryMarketInterface() {
