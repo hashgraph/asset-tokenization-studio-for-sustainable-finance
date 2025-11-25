@@ -1,29 +1,35 @@
-const { config } = require("../../shared/lib/config");
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../shared/lib/logger");
-const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { config } = require("../../../shared/lib/config");
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../../shared/lib/logger");
+const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { setBondCoupon } = require("./set-bond-coupon");
-const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
-const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
-const { getLatestBond } = require("./set-bond-document");
+const { signTransaction, validateSigningConfig } = require("../../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
+const { getLatestBond } = require("../document/set-bond-document");
 
 const COUPON_CONFIGS = [
   {
     name: "First Coupon",
-    recordDate: Math.floor(Date.now() / 1000) + 86400, // Tomorrow
-    executionDate: Math.floor(Date.now() / 1000) + 172800, // 2 days
+    recordDate: new Date(Date.now() + 86400000), // Tomorrow
+    executionDate: new Date(Date.now() + 172800000), // 2 days
     rate: "500",
+    rateDecimals: "2", // 500 basis points = 5.00%
+    period: "31536000", // 1 year in seconds (365 days)
   },
   {
     name: "Second Coupon",
-    recordDate: Math.floor(Date.now() / 1000) + 259200, // 3 days
-    executionDate: Math.floor(Date.now() / 1000) + 345600, // 4 days
+    recordDate: new Date(Date.now() + 259200000), // 3 days
+    executionDate: new Date(Date.now() + 345600000), // 4 days
     rate: "750",
+    rateDecimals: "2", // 750 basis points = 7.50%
+    period: "31536000", // 1 year in seconds (365 days)
   },
   {
     name: "Third Coupon",
-    recordDate: Math.floor(Date.now() / 1000) + 432000, // 5 days
-    executionDate: Math.floor(Date.now() / 1000) + 518400, // 6 days
+    recordDate: new Date(Date.now() + 432000000), // 5 days
+    executionDate: new Date(Date.now() + 518400000), // 6 days
     rate: "600",
+    rateDecimals: "2", // 600 basis points = 6.00%
+    period: "31536000", // 1 year in seconds (365 days)
   },
 ];
 
@@ -83,8 +89,8 @@ async function getBondCoupon(bondContractId, couponId) {
 
 async function createCoupon(bondContractId, couponConfig, format) {
   log(`\n💰 Creating ${couponConfig.name}...`, colors.bright);
-  logInfo(`Record Date: ${new Date(couponConfig.recordDate * 1000).toISOString()}`);
-  logInfo(`Execution Date: ${new Date(couponConfig.executionDate * 1000).toISOString()}`);
+  logInfo(`Record Date: ${couponConfig.recordDate.toISOString()}`);
+  logInfo(`Execution Date: ${couponConfig.executionDate.toISOString()}`);
   logInfo(`Rate: ${couponConfig.rate} basis points (${couponConfig.rate / 100}%)`);
 
   try {
@@ -93,6 +99,8 @@ async function createCoupon(bondContractId, couponConfig, format) {
       couponConfig.recordDate,
       couponConfig.executionDate,
       couponConfig.rate,
+      couponConfig.rateDecimals,
+      couponConfig.period,
       format,
     );
 

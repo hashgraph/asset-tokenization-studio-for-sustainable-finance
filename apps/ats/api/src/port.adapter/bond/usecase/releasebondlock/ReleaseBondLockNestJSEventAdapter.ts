@@ -16,8 +16,8 @@ export class ReleaseBondLockNestJSEventAdapter
   async handle(event: LockByPartitionReleasedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ReleaseBondLockCommand(
-        event.lockId,
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        Number(event.lockId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),

@@ -16,7 +16,7 @@ export class TransferByPartitionNestJSEventAdapter
   async handle(event: TransferByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new TransferByPartitionCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         event._fromPartition,
         await ConverterUtils.getHederaAddressFromEvm(event._from),
         await ConverterUtils.getHederaAddressFromEvm(event._to),
