@@ -51,26 +51,30 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     function getKpiData(
         uint256 fromDate,
         uint256 toDate
-    ) external view override validDate(fromDate) validDate(toDate) returns (uint256 kpiAggregatedValue, bool exists) {
+    ) external view override validDate(fromDate) validDate(toDate) returns (uint256 kpiAggregatedValue) {
         if (fromDate > toDate) revert InvalidDateRange(fromDate, toDate);
-
         KpiStorage storage kpiStorage = _getKpiStorage();
 
         // Optimization: Fast path using direct lookup if dates exist exactly
-        // This avoids binary search when querying with exact stored dates (common case)
-        uint256 startIndex = kpiStorage.kpiData[fromDate].exists ? kpiStorage.kpiData[fromDate].index : kpiStorage.timestampsIndex.findUpperBound(fromDate);
-        uint256 endIndex = kpiStorage.kpiData[toDate].exists ? kpiStorage.kpiData[toDate].index : kpiStorage.timestampsIndex.findUpperBound(toDate + 1);
+        // This avoids binary search when querying with exact stored dates 
+        uint256 startIndex = kpiStorage.kpiData[fromDate].exists
+            ? kpiStorage.kpiData[fromDate].index
+            : kpiStorage.timestampsIndex.findUpperBound(fromDate);
+        uint256 endIndex = kpiStorage.kpiData[toDate].exists
+            ? kpiStorage.kpiData[toDate].index + 1
+            : kpiStorage.timestampsIndex.findUpperBound(toDate + 1);
+        if (startIndex == kpiStorage.timestampsIndex.length) {
+            return 0;
+        }
 
-        for (uint256 i = startIndex; i <= endIndex; i++) {
+        for (uint256 i = startIndex; i < endIndex; i++) {
             uint256 timestamp = kpiStorage.timestampsIndex[i];
             KpiEntry storage kpiData = kpiStorage.kpiData[timestamp];
 
             kpiAggregatedValue += kpiData.value;
         }
 
-        exists = (startIndex <= endIndex);
-
-        return (kpiAggregatedValue, exists);
+        return kpiAggregatedValue;
     }
 
     function initialize(IResolverProxy.Rbac[] memory rbacs) public onlyUninitialized(_getKpiStorage().initialized) {

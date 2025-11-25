@@ -56,6 +56,11 @@ describe("Kpi", () => {
       await expect(kpi.addKpiData(now, 100)).to.be.revertedWithCustomError(kpi, "InvalidDate");
     });
 
+    it("Given date already exists WHEN adding KPI data THEN fail with KpiDataAlreadyExists", async () => {
+      await kpi.addKpiData(1, 100);
+      await expect(kpi.addKpiData(1, 300)).to.be.revertedWithCustomError(kpi, "KpiDataAlreadyExists");
+    });
+
     it("GIVEN caller without KPI_DATA_MANAGER_ROLE WHEN adding KPI data THEN fail with AccountHasNoRole", async () => {
       await expect(kpi.connect(unknownSigner).addKpiData(1, 100)).to.be.revertedWithCustomError(
         kpi,
@@ -72,6 +77,34 @@ describe("Kpi", () => {
       await kpi.pause();
       await kpi.unpause();
       await expect(kpi.addKpiData(2, 200)).to.emit(kpi, "KpiDataAdded").withArgs(2, 200);
+    });
+
+    it("GIVEN KPI data added out of order WHEN adding intermediate dates THEN data is correctly reordered and aggregation works", async () => {
+      await kpi.addKpiData(30, 300);
+      await kpi.addKpiData(10, 100);
+      await kpi.addKpiData(20, 200);
+
+      expect(await kpi.getKpiData(10, 30)).to.equal(600);
+      expect(await kpi.getKpiData(10, 20)).to.equal(300);
+      expect(await kpi.getKpiData(20, 30)).to.equal(500);
+    });
+
+    it("GIVEN multiple KPI entries WHEN inserting at beginning THEN data is correctly reordered", async () => {
+      await kpi.addKpiData(20, 200);
+      await kpi.addKpiData(30, 300);
+      await kpi.addKpiData(10, 100);
+
+      expect(await kpi.getKpiData(10, 30)).to.equal(600);
+      expect(await kpi.getKpiData(10, 10)).to.equal(100);
+    });
+
+    it("GIVEN multiple KPI entries WHEN inserting in middle THEN data is correctly reordered", async () => {
+      await kpi.addKpiData(10, 100);
+      await kpi.addKpiData(30, 300);
+      await kpi.addKpiData(20, 200);
+
+      expect(await kpi.getKpiData(10, 30)).to.equal(600);
+      expect(await kpi.getKpiData(15, 25)).to.equal(200);
     });
   });
   describe("pause/unpause", () => {
@@ -103,27 +136,54 @@ describe("Kpi", () => {
       await kpi.addKpiData(20, 200);
       await kpi.addKpiData(30, 300);
     }
-
+    [10, 20, 30]; //30 =>2
     it("GIVEN KPI data exists in range WHEN calling getKpiData THEN success with aggregated value", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(10, 30);
-      expect(agg.kpiAggregatedValue).to.equal(600);
+      expect(agg).to.equal(600);
     });
 
-    it("GIVEN no KPI data in range WHEN calling getKpiData THEN success with zero value", async () => {
+    it("GIVEN KPI data exists in range not exact WHEN calling getKpiData THEN success with aggregated value", async () => {
+      await addTestData();
+      const agg = await kpi.getKpiData(10, 25);
+      expect(agg).to.equal(300);
+      const agg2 = await kpi.getKpiData(15, 30);
+      expect(agg2).to.equal(500);
+    });
+
+    it("GIVEN KPI data one register exact range WHEN calling getKpiData THEN success with the unique value", async () => {
+      await addTestData();
+      const agg = await kpi.getKpiData(10, 10);
+      expect(agg).to.equal(100);
+    });
+
+    it("GIVEN KPI data one register wide range WHEN calling getKpiData THEN success with the unique value", async () => {
+      await addTestData();
+      const agg = await kpi.getKpiData(1, 15);
+      expect(agg).to.equal(100);
+    });
+
+    it("GIVEN KPI data range before timestamp WHEN calling getKpiData THEN success with zero value", async () => {
+      await addTestData();
+      const agg = await kpi.getKpiData(1, 9);
+      expect(agg).to.equal(0);
+    });
+
+    it("GIVEN no KPI data in range after timestamp WHEN calling getKpiData THEN success with zero value", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(40, 50);
-      expect(agg.kpiAggregatedValue).to.equal(0);
+      expect(agg).to.equal(0);
     });
+		
     it("GIVEN no KPI records exist WHEN calling getKpiData THEN success with zero value", async () => {
       const agg = await kpi.getKpiData(1, 100);
-      expect(agg.kpiAggregatedValue).to.equal(0);
+      expect(agg).to.equal(0);
     });
 
     it("GIVEN KPI data exists and toDate is not the last WHEN calling getKpiData THEN success with aggregated value in range", async () => {
       await addTestData();
       const agg = await kpi.getKpiData(10, 20);
-      expect(agg.kpiAggregatedValue).to.equal(300);
+      expect(agg).to.equal(300);
     });
 
     it("GIVEN fromDate is 0 WHEN calling getKpiData THEN fail with InvalidDate", async () => {
@@ -143,7 +203,7 @@ describe("Kpi", () => {
     it("GIVEN KPI proxy with existing data WHEN upgrading implementation THEN success with preserved storage", async () => {
       await kpi.addKpiData(1, 123);
       const before = await kpi.getKpiData(1, 1);
-      expect(before.kpiAggregatedValue).to.equal(123);
+      expect(before).to.equal(123);
       const originalImplementationAddress = await getImplementationAddress(kpi.address);
 
       await upgradeKpiProxy(owner, proxyAdmin, kpi.address);
@@ -153,11 +213,11 @@ describe("Kpi", () => {
       expect(newImplementationAddress).to.not.equal(originalImplementationAddress);
 
       const after = await kpi.getKpiData(1, 1);
-      expect(after.kpiAggregatedValue).to.equal(123);
+      expect(after).to.equal(123);
 
       await kpi.addKpiData(2, 200);
       const agg = await kpi.getKpiData(1, 2);
-      expect(agg.kpiAggregatedValue).to.equal(323);
+      expect(agg).to.equal(323);
     });
   });
 });

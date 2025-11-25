@@ -86,10 +86,6 @@ interface IKpi {
      * @param fromDate The start date of the range (inclusive, must be > 0)
      * @param toDate The end date of the range (inclusive, must be > 0 and >= fromDate)
      * @return kpiAggregatedValue The sum of all Kpi values in the specified date range
-     * @return exists True if at least one KPI entry was found in the range, false otherwise
      */
-    function getKpiData(
-        uint256 fromDate,
-        uint256 toDate
-    ) external view returns (uint256 kpiAggregatedValue, bool exists);
+    function getKpiData(uint256 fromDate, uint256 toDate) external view returns (uint256 kpiAggregatedValue);
 }
