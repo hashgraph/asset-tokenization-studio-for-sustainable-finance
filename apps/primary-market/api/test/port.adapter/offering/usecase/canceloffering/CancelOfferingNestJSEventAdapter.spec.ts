@@ -13,6 +13,7 @@ import { SubscriptionPersistence } from "@port/persistence/subscription/model/Su
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingCancelledDLTEvent } from "@port/offering/usecase/canceloffering/model/OfferingCancelledDLTEvent"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
+import { OfferingProcessStatus } from "@domain/shared/model/OfferingProcessStatus"
 
 describe("CancelOfferingNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -54,7 +55,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
   })
 
   describe("CancelOfferingNestJSEventAdapter", () => {
-    it("should update subscription statuses to CANCELLED and FAILED when OfferingCancelledDLTEvent is published", async () => {
+    it("should update subscription statuses to EXECUTED and FAILED when OfferingCancelledDLTEvent is published", async () => {
       const primaryMarket = await primaryMarketRepository.save({
         contractId: "0.0.1234567",
       })
@@ -109,8 +110,11 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [1, 2],
-        [3],
+        [
+          { subscriptionId: 1, status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: 2, status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: 3, status: OfferingProcessStatus.FAILED },
+        ],
       )
 
       await eventBus.publishSync(event, OfferingCancelledDLTEvent.name)
@@ -119,8 +123,8 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
       const subscription2 = await subscriptionRepository.findOne({ where: { id: 2 } })
       const subscription3 = await subscriptionRepository.findOne({ where: { id: 3 } })
 
-      expect(subscription1!.status).toBe(SubscriptionStatus.CANCELLED)
-      expect(subscription2!.status).toBe(SubscriptionStatus.CANCELLED)
+      expect(subscription1!.status).toBe(SubscriptionStatus.EXECUTED)
+      expect(subscription2!.status).toBe(SubscriptionStatus.EXECUTED)
       expect(subscription3!.status).toBe(SubscriptionStatus.FAILED)
     })
 
@@ -134,7 +138,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         999,
         "0x0000000000000000000000000000000000001234",
-        [],
         [],
       )
 
@@ -169,8 +172,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [999],
-        [],
+        [{ subscriptionId: 999, status: OfferingProcessStatus.SUCCEEDED }],
       )
 
       await expect(eventBus.publishSync(event, OfferingCancelledDLTEvent.name)).rejects.toThrow()
@@ -205,7 +207,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         1,
         "0x0000000000000000000000000000000000009999",
         [],
-        [],
       )
 
       await expect(eventBus.publishSync(event, OfferingCancelledDLTEvent.name)).rejects.toThrow()
@@ -239,7 +240,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [],
         [],
       )
 

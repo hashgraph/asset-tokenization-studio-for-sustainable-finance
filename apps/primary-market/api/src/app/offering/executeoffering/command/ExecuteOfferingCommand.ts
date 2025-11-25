@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { IsNotEmpty, IsString, IsArray, IsNumber } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
+import { OfferingProcessResult } from "@domain/shared/model/OfferingProcessResult"
 
 export class ExecuteOfferingCommand extends Command<void> {
   @IsNumber()
@@ -16,25 +17,18 @@ export class ExecuteOfferingCommand extends Command<void> {
   operatorAccountId: string
 
   @IsArray()
-  @IsNumber({}, { each: true })
-  subscriptionIdsSuccess: number[]
-
-  @IsArray()
-  @IsNumber({}, { each: true })
-  subscriptionIdsFailed: number[]
+  processResults: OfferingProcessResult[]
 
   constructor(
     offeringId: number,
     marketContractId: string,
     operatorAccountId: string,
-    subscriptionIdsSuccess: number[],
-    subscriptionIdsFailed: number[],
+    processResults: OfferingProcessResult[],
   ) {
     super()
     this.offeringId = offeringId
     this.marketContractId = marketContractId
     this.operatorAccountId = operatorAccountId
-    this.subscriptionIdsSuccess = subscriptionIdsSuccess
-    this.subscriptionIdsFailed = subscriptionIdsFailed
+    this.processResults = processResults
   }
 }

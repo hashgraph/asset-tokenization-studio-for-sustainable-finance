@@ -12,13 +12,11 @@ import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/
 import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
 import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
-import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
-import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
+import { ProcessOfferingDomainService } from "@domain/offering/services/ProcessOfferingDomainService"
 import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
 import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
-import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
 import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
@@ -133,13 +131,11 @@ export const PROVIDERS = [
   SubmitSubscriptionTransactionAppService,
   CancelSubscriptionTransactionAppService,
   CreateOfferingDomainService,
-  CancelOfferingDomainService,
-  ExecuteOfferingDomainService,
+  ProcessOfferingDomainService,
   SubmitSubscriptionDomainService,
   CancelSubscriptionDomainService,
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
-  UpdateSubscriptionsStatusDomainService,
   CheckPrimaryMarketExistsDomainService,
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
