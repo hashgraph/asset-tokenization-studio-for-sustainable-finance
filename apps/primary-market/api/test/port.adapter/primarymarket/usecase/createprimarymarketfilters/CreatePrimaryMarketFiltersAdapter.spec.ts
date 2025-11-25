@@ -69,6 +69,10 @@ describe("CreatePrimaryMarketFiltersAdapter Integration", () => {
         expect.arrayContaining([
           "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule,uint256 price) offering)",
           "RoleGranted(address indexed operator,address indexed account,bytes32 indexed role)",
+          "RoleRenounced(address indexed account, bytes32 indexed role)",
+          "RolesApplied(bytes32[] roles, bool[] actives, address account)",
+          "TokenPaused(address indexed operator)",
+          "TokenUnpaused(address indexed operator)",
           "SubscriptionSubmitted(uint256 indexed offeringId,uint256 indexed subscriptionId,address indexed investor,uint256 lotUnits)",
           "SubscriptionCancelled(uint256 indexed offeringId,uint256 indexed subscriptionId)",
           "OfferingExecuted(uint256 indexed offeringId,address indexed operator,uint256[] subscriptionIdsSuccess,uint256[] subscriptionIdsFailed)",
@@ -92,10 +96,14 @@ describe("CreatePrimaryMarketFiltersAdapter Integration", () => {
       await eventBus.publishSync(event, PrimaryMarketDeployedEvent.name)
 
       expect(capturedCommand).toBeDefined()
-      expect(capturedCommand!.eventSignatures).toHaveLength(6)
+      expect(capturedCommand!.eventSignatures).toHaveLength(10)
       expect(capturedCommand!.eventSignatures).toEqual([
         "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule,uint256 price) offering)",
         "RoleGranted(address indexed operator,address indexed account,bytes32 indexed role)",
+        "RoleRenounced(address indexed account, bytes32 indexed role)",
+        "RolesApplied(bytes32[] roles, bool[] actives, address account)",
+        "TokenPaused(address indexed operator)",
+        "TokenUnpaused(address indexed operator)",
         "SubscriptionSubmitted(uint256 indexed offeringId,uint256 indexed subscriptionId,address indexed investor,uint256 lotUnits)",
         "SubscriptionCancelled(uint256 indexed offeringId,uint256 indexed subscriptionId)",
         "OfferingExecuted(uint256 indexed offeringId,address indexed operator,uint256[] subscriptionIdsSuccess,uint256[] subscriptionIdsFailed)",

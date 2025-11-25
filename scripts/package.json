@@ -22,6 +22,10 @@
     "ats:release-bond-lock": "node ats/bond/lock/release-bond-lock.js",
     "ats:get-bond-locks": "node ats/bond/lock/get-bond-locks.js",
     "ats:get-bond-lock": "node ats/bond/lock/get-bond-lock.js --",
+    "primary-market:deploy": "node primary-market/primarymarket/deploy-primary-market.js",
+    "primary-market:apply-roles": "node primary-market/primarymarket/apply-roles.js",
+    "primary-market:role-management-functionality": "node primary-market/primarymarket/role-management-functionality.js",
+    "primary-market:pause-unpause-functionality": "node primary-market/primarymarket/pause-unpause-functionality.js",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
     "all:start": "node shared/infra/infra-setup.js start",
     "all:stop": "node shared/infra/infra-setup.js stop",
@@ -29,7 +33,9 @@
     "docker:start": "node shared/infra/infra-setup.js start docker",
     "docker:stop": "node shared/infra/infra-setup.js stop",
     "apis:start": "node shared/infra/infra-setup.js start apis",
-    "apis:stop": "node shared/infra/infra-setup.js stop"
+    "apis:stop": "node shared/infra/infra-setup.js stop",
+    "module:ats": "node shared/infra/infra-setup.js start module ats",
+    "module:primary-market": "node shared/infra/infra-setup.js start module primary-market"
   },
   "license": "Apache-2.0"
 }
