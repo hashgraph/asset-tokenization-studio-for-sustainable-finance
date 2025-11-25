@@ -1,7 +1,8 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl, IPause } from "@contract-types";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contract-types";
+import { IPause, IPause__factory } from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
 import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
@@ -153,7 +154,7 @@ describe("FactoryPrimaryMarket", () => {
       await accessControl.grantRole(ATS_ROLES.PAUSER_ROLE, adminAddress);
 
       // Pause the factory
-      pause = (await ethers.getContractAt("IPause", factoryPrimaryMarket.address)) as IPause;
+      pause = IPause__factory.connect(factoryPrimaryMarket.address, admin);
       await pause.connect(admin).pause();
 
       await expect(
