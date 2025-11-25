@@ -3,6 +3,7 @@ import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./AppModule"
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger"
 import { LogLevel, LOG_LEVELS, Logger } from "@nestjs/common"
+import { RestExceptionFilter } from "@hashgraph/green-bonds-shared-core"
 
 function getLogLevels(): LogLevel[] {
   const logLevels: LogLevel[] = LOG_LEVELS
@@ -17,6 +18,9 @@ async function bootstrap() {
 
   // Enable CORS
   app.enableCors()
+
+  // Set global exception filter
+  app.useGlobalFilters(new RestExceptionFilter())
 
   // Set global prefix
   app.setGlobalPrefix("api/v1/oracle")

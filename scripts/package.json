@@ -23,6 +23,7 @@
     "ats:get-bond-locks": "node ats/bond/lock/get-bond-locks.js",
     "ats:get-bond-lock": "node ats/bond/lock/get-bond-lock.js --",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
+    "oracle:simulator": "node oracle/oracle-simulator.js",
     "oracle:create-registry": "node oracle/create-registry.js",
     "oracle:get-registry": "node oracle/get-registry.js",
     "oracle:list-registries": "node oracle/list-registries.js",

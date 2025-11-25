@@ -1,16 +1,25 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Inject, Injectable, Logger } from "@nestjs/common"
-import { BlockchainPort, WriteKpiResult } from "@domain/oracle/ports/BlockchainPort"
-import type { BlockchainConfigRepository } from "@domain/blockchain/repositories/BlockchainConfigRepository"
+import {Inject, Injectable, Logger} from "@nestjs/common"
+import {BlockchainPort, WriteKpiResult} from "@domain/oracle/ports/BlockchainPort"
+import type {BlockchainConfigRepository} from "@domain/blockchain/repositories/BlockchainConfigRepository"
+import {utils} from "ethers"
 
 @Injectable()
 export class HederaJsonRpcAdapter implements BlockchainPort {
   private readonly logger = new Logger(HederaJsonRpcAdapter.name)
+  private readonly kpiInterface: utils.Interface
 
   constructor(
     @Inject("BlockchainConfigRepository")
     private readonly configRepository: BlockchainConfigRepository,
-  ) {}
+  ) {
+    // Initialize KPI contract interface for encoding/decoding
+    this.kpiInterface = new utils.Interface([
+      "function addKpiData(uint256 toDate, uint256 kpiValue)",
+      "function getKpiData(uint256 fromDate, uint256 toDate) view returns (uint256[] dates, uint256[] values)",
+      "event KpiDataAdded(uint256 date, uint256 value)",
+    ])
+  }
 
   /**
    * Get credentials from env vars (security - never from DB)
@@ -46,16 +55,16 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
         throw new Error("RPC endpoint not configured")
       }
 
-      // Encode function call
+      // Encode function call using KPI contract interface
       // Contract function signature: addKpiData(uint256 toDate, uint256 kpiValue)
       // Note: Only ONE timestamp is sent (toDate), not a range
-      const functionSelector = this.getFunctionSelector("addKpiData(uint256,uint256)")
-      const encodedParams = this.encodeParameters(
-        Math.floor(toDate.getTime() / 1000),
-        Math.floor(kpiValue * 1000000),
-      )
+      const toTimestamp = Math.floor(toDate.getTime() / 1000)
+      const kpiValueScaled = Math.floor(kpiValue * 1000000)
 
-      const callData = functionSelector + encodedParams
+      const callData = this.kpiInterface.encodeFunctionData("addKpiData", [
+        toTimestamp,
+        kpiValueScaled,
+      ])
 
       // Build JSON-RPC request
       const request = {
@@ -104,20 +113,4 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private getFunctionSelector(_signature: string): string {
-    // Simple implementation - in production, use proper keccak256 hashing
-    // This is a placeholder
-    return "0x12345678" // First 4 bytes of keccak256(signature)
-  }
-
-  private encodeParameters(toTimestamp: number, kpiValue: number): string {
-    // Simplified encoding - in production, use ethers.js AbiCoder
-    // Parameters: uint256 toDate, uint256 kpiValue
-    return (
-      "0x" +
-      toTimestamp.toString(16).padStart(64, "0") +
-      kpiValue.toString(16).padStart(64, "0")
-    )
-  }
 }

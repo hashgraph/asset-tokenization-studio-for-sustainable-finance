@@ -5,7 +5,7 @@ import { HttpStatus, INestApplication } from "@nestjs/common"
 import request from "supertest"
 import { ScheduleModule } from "@nestjs/schedule"
 import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
-import { SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { SharedModule, RestExceptionFilter } from "@hashgraph/green-bonds-shared-core"
 import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
@@ -31,6 +31,7 @@ describe("CreateOracleRegistryHttpAdapter API Integration", () => {
 
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1")
+    app.useGlobalFilters(new RestExceptionFilter())
     app.useLogger(false)
     await app.init()
     oracleRegistryRepository = app.get(getRepositoryToken(OracleRegistryPersistence))

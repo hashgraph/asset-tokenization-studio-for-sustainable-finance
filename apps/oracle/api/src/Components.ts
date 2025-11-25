@@ -4,8 +4,10 @@
  * Components registry for dependency injection
  */
 
+import { APP_FILTER } from "@nestjs/core"
+
 // Shared Core Providers
-import { COMMON_FUNCTIONALITY_PROVIDERS, COMMON_FUNCTIONALITY_ENTITIES } from "@hashgraph/green-bonds-shared-core"
+import { COMMON_FUNCTIONALITY_PROVIDERS, COMMON_FUNCTIONALITY_ENTITIES, RestExceptionFilter } from "@hashgraph/green-bonds-shared-core"
 
 // HTTP Adapters
 import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
@@ -19,7 +21,6 @@ import { UpdateProjectTopicHttpAdapter } from "@port/oracle/usecase/updateprojec
 import { UpdateFrequencyHttpAdapter } from "@port/oracle/usecase/updatefrequency/UpdateFrequencyHttpAdapter"
 import { DeleteOracleRegistryHttpAdapter } from "@port/oracle/usecase/deleteoracleregistry/DeleteOracleRegistryHttpAdapter"
 import { GetExecutionHistoryHttpAdapter } from "@port/oracle/usecase/getexecutionhistory/GetExecutionHistoryHttpAdapter"
-import { RetryFailedExecutionHttpAdapter } from "@port/oracle/usecase/retryfailedexecution/RetryFailedExecutionHttpAdapter"
 
 // Application Layer - Command Handlers
 import { CreateOracleRegistryCommandHandler } from "@app/oracle/createoracleregistry/command/CreateOracleRegistryCommandHandler"
@@ -28,7 +29,6 @@ import { AddProjectCommandHandler } from "@app/oracle/addproject/command/AddProj
 import { RemoveProjectCommandHandler } from "@app/oracle/removeproject/command/RemoveProjectCommandHandler"
 import { UpdateProjectTopicCommandHandler } from "@app/oracle/updateprojecttopic/command/UpdateProjectTopicCommandHandler"
 import { DeleteOracleRegistryCommandHandler } from "@app/oracle/deleteoracleregistry/command/DeleteOracleRegistryCommandHandler"
-import { RetryFailedExecutionCommandHandler } from "@app/oracle/retryfailedexecution/command/RetryFailedExecutionCommandHandler"
 
 // Application Layer - Query Handlers
 import { GetOracleRegistryQueryHandler } from "@app/oracle/getoracleregistry/query/GetOracleRegistryQueryHandler"
@@ -94,7 +94,6 @@ export const CONTROLLERS: any[] = [
 
   // Execution History HTTP Adapters
   GetExecutionHistoryHttpAdapter,
-  RetryFailedExecutionHttpAdapter,
 
   // Scheduler Config HTTP Adapter
   SchedulerConfigHttpAdapter,
@@ -114,7 +113,6 @@ export const COMMAND_HANDLERS = [
   RemoveProjectCommandHandler,
   UpdateProjectTopicCommandHandler,
   DeleteOracleRegistryCommandHandler,
-  RetryFailedExecutionCommandHandler,
 ]
 
 // CQRS Query Handlers
@@ -125,6 +123,12 @@ export const QUERY_HANDLERS = [
 ]
 
 export const PROVIDERS: any[] = [
+  // Global Exception Filter
+  {
+    provide: APP_FILTER,
+    useClass: RestExceptionFilter,
+  },
+
   // CQRS Handlers
   ...COMMAND_HANDLERS,
   ...QUERY_HANDLERS,
