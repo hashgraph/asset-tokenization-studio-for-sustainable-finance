@@ -1986,17 +1986,18 @@ describe("PrimaryMarket", () => {
 
         // Calculate super large price that will trigger batch processing
         // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
-        const tokensPerSubscription = 1 * 1; // lotSize * minLots
-        const superLargePrice = BigInt(INT64_MAX) / BigInt(tokensPerSubscription);
+        const superLargePrice = BigInt(INT64_MAX) - BigInt(1);
 
         // Set nominal value BEFORE creating offering so price captures it
         await mockAsset.setNominalValue(superLargePrice);
+        await mockAsset.setNominalValueDecimals(0);
+        await mockPaymentToken.setDecimals(0);
 
         const offering: IPrimaryMarket.OfferingStruct = {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: 1, // Small lotSize for easier int64 overflow calculation
+          lotSize: ethers.utils.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
           minLots: 1,
           maxLots: 5,
           targetLots: 10,
