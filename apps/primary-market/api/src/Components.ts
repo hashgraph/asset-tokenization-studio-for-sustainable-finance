@@ -80,6 +80,15 @@ import { PausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transacti
 import { UnpausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarketfactorytransaction/UnpausePrimaryMarketFactoryTransactionHttpAdapter"
 import { PausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/pauseprimarymarketfactory/PausePrimaryMarketFactoryNestJSEventAdapter"
 import { UnpausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/unpauseprimarymarketfactory/UnpausePrimaryMarketFactoryNestJSEventAdapter"
+import { DeployPrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/deployprimarymarket/DeployPrimaryMarketTransactionHttpAdapter"
+import { DeployPrimaryMarketTransactionAppService } from "@app/transaction/deployprimarymarket/service/DeployPrimaryMarketTransactionAppService"
+import { DeployPrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/deployprimarymarket/DeployPrimaryMarketNestJSEventAdapter"
+import { DeployPrimaryMarketCommandHandler } from "@app/primarymarket/deployprimarymarket/command/DeployPrimaryMarketCommandHandler"
+import { DeployPrimaryMarketDomainService } from "@domain/primarymarket/services/DeployPrimaryMarketDomainService"
+import { CreatePrimaryMarketFiltersAdapter } from "@port/primarymarket/usecase/createprimarymarketfilters/CreatePrimaryMarketFiltersAdapter"
+import { CheckPrimaryMarketFactoryExistsDomainService } from "@domain/primarymarketfactory/services/CheckPrimaryMarketFactoryExistsDomainService"
+import { GetPrimaryMarketFactoryHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactory/GetPrimaryMarketFactoryHttpAdapter"
+import { GetPrimaryMarketFactoryQueryHandler } from "@app/primarymarketfactory/getprimarymarketfactory/query/GetPrimaryMarketFactoryQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -113,6 +122,7 @@ export const CONTROLLERS = [
   UnpausePrimaryMarketTransactionHttpAdapter,
   PausePrimaryMarketFactoryTransactionHttpAdapter,
   UnpausePrimaryMarketFactoryTransactionHttpAdapter,
+  DeployPrimaryMarketTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
@@ -122,6 +132,7 @@ export const CONTROLLERS = [
   GetSubscriptionsByInvestorHttpAdapter,
   GetRoleMembersHttpAdapter,
   GetOfferingHttpAdapter,
+  GetPrimaryMarketFactoryHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -130,6 +141,7 @@ export const PROVIDERS = [
   CreateOfferingTransactionAppService,
   SubmitSubscriptionTransactionAppService,
   CancelSubscriptionTransactionAppService,
+  DeployPrimaryMarketTransactionAppService,
   CreateOfferingDomainService,
   ProcessOfferingDomainService,
   SubmitSubscriptionDomainService,
@@ -137,6 +149,8 @@ export const PROVIDERS = [
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
   CheckPrimaryMarketExistsDomainService,
+  CheckPrimaryMarketFactoryExistsDomainService,
+  DeployPrimaryMarketDomainService,
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   RenounceRoleNestJSEventAdapter,
@@ -145,6 +159,8 @@ export const PROVIDERS = [
   CancelSubscriptionNestJSEventAdapter,
   PausePrimaryMarketNestJSEventAdapter,
   UnpausePrimaryMarketNestJSEventAdapter,
+  DeployPrimaryMarketNestJSEventAdapter,
+  CreatePrimaryMarketFiltersAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
@@ -154,6 +170,7 @@ export const PROVIDERS = [
   UnpausePrimaryMarketCommandHandler,
   PausePrimaryMarketFactoryCommandHandler,
   UnpausePrimaryMarketFactoryCommandHandler,
+  DeployPrimaryMarketCommandHandler,
   PausePrimaryMarketFactoryNestJSEventAdapter,
   UnpausePrimaryMarketFactoryNestJSEventAdapter,
   GetSubscriptionQueryHandler,
@@ -168,6 +185,7 @@ export const PROVIDERS = [
   GetPrimaryMarketBondOfferingsQueryHandler,
   GetSubscriptionsByInvestorQueryHandler,
   GetOfferingQueryHandler,
+  GetPrimaryMarketFactoryQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

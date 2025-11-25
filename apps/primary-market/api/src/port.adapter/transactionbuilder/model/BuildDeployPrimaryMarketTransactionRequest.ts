@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
+
+export class BuildDeployPrimaryMarketTransactionRequest extends BaseBuildTransactionRequest {
+  resolverContractId: string
+  configVersion: number
+}
