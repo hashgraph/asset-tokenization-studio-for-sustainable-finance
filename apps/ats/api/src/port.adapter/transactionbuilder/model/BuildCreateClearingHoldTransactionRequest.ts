@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsOptional, IsNumberString } from "class-validator"
 
 export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransactionRequest {
   @IsNotEmpty()
@@ -15,9 +15,9 @@ export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransact
   @IsString()
   amount: string
 
+  @IsNumberString()
   @IsNotEmpty()
-  @IsNumber()
-  expirationTimestamp: number
+  expirationTimestamp: string
 
   @IsOptional()
   @IsString()
@@ -34,7 +34,7 @@ export class BuildCreateClearingHoldTransactionRequest extends BaseBuildTransact
     holderAccountId: string,
     partition: string | undefined,
     amount: string,
-    expirationTimestamp: number,
+    expirationTimestamp: string,
     escrowAddress?: string,
     data?: string,
   ) {

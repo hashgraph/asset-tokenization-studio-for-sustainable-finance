@@ -50,6 +50,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     bondDetails: {
       currency: "0x555344",
       nominalValue: "100",
+      nominalValueDecimals: 2,
       startingDate: "1640995200",
       maturityDate: "1672531200",
       ...overrides.bondDetails,
@@ -164,6 +165,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       expect(savedBond!.decimals).toBe(bondData.security.erc20MetadataInfo.decimals)
       expect(savedBond!.currency).toBe("USD")
       expect(savedBond!.nominalValue).toBe(bondData.bondDetails.nominalValue)
+      expect(savedBond!.nominalValueDecimals).toBe(bondData.bondDetails.nominalValueDecimals)
       expect(savedBond!.maxSupply).toBe(bondData.security.maxSupply)
       expect(savedBond!.startingDate).toEqual(new Date(Number(bondData.bondDetails.startingDate) * 1000))
       expect(savedBond!.maturityDate).toEqual(new Date(Number(bondData.bondDetails.maturityDate) * 1000))
@@ -182,6 +184,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
         decimals: 2,
         currency: "USD",
         nominalValue: "50",
+        nominalValueDecimals: 2,
         startingDate: new Date("2023-01-01"),
         maturityDate: new Date("2028-01-01"),
         maxSupply: "500000",
@@ -298,6 +301,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
           decimals: bondData.security.erc20MetadataInfo.decimals,
           currency: "USD",
           nominalValue: bondData.bondDetails.nominalValue,
+          nominalValueDecimals: bondData.bondDetails.nominalValueDecimals,
           startingDate: new Date(Number(bondData.bondDetails.startingDate) * 1000),
           maturityDate: new Date(Number(bondData.bondDetails.maturityDate) * 1000),
           maxSupply: bondData.security.maxSupply,

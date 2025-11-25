@@ -10,6 +10,7 @@ export class GetBondQueryResponse {
   readonly decimals: number
   readonly currency: string
   readonly nominalValue: string
+  readonly nominalValueDecimals: number
   readonly startingDate: Date
   readonly maturityDate: Date
   readonly maxSupply: string

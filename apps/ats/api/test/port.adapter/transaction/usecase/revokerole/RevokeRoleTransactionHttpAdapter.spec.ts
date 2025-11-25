@@ -7,7 +7,7 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
-import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
+import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrolebondtransaction/model/GrantRoleTransactionRequest"
 
 describe("RevokeRoleTransaction API Integration", () => {
   let app: INestApplication

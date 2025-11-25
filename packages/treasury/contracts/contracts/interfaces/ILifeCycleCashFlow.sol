@@ -2,9 +2,19 @@
 
 pragma solidity ^0.8.0;
 
-import { ILifeCycleCashFlowStorageWrapper } from "./ILifeCycleCashFlowStorageWrapper.sol";
+interface ILifeCycleCashFlow {
+    struct PaymentResult {
+        address holder;
+        PaymentStatus status;
+        int64 amount;
+    }
 
-interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
+    enum PaymentStatus {
+        SUCCEEDED,
+        FAILED,
+        ALREADY_PAID
+    }
+
     /*
      * @dev Emitted when a distribution by page is executed
      *
@@ -15,7 +25,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult result);
+    event DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, PaymentResult[] results);
 
     /*
      * @dev Emitted when a distribution by addresses is executed
@@ -26,7 +36,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult result);
+    event DistributionByAddressesExecuted(uint256 distributionID, address[] holders, PaymentResult[] results);
 
     /*
      * @dev Emitted when a redemption by page is executed
@@ -37,7 +47,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult result);
+    event RedemptionExecuted(uint256 pageIndex, uint256 pageLength, PaymentResult[] results);
 
     /*
      * @dev Emitted when a redemption by addresses is executed
@@ -47,7 +57,70 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
      * @param succeeded Holders addresses whose payments succeeded
      * @param paidAmount Amounts paid to succeeded holders
      */
-    event RedemptionByAddressesExecuted(address[] holders, PaymentResult result);
+    event RedemptionByAddressesExecuted(address[] holders, PaymentResult[] results);
+
+    /**
+     * @notice Error thrown when attempting to execute a payment for a asset not managed by the contract
+     *
+     * @param asset The address of the asset that is being tried to operate with
+     */
+    error InvalidAsset(address asset);
+
+    /**
+     * @notice Error thrown when attempting to execute a payment a date does not corresponds to the payment date
+     *
+     * @param paymentDateInit The initial execution date
+     * @param requestedDate The date a certain operation is requested to be made
+     */
+    error NotPaymentDate(uint256 paymentDateInit, uint256 requestedDate);
+
+    /**
+     * @notice Error thrown when trying to get the decimals of the payment token
+     *
+     * @param token The address of the token whose decimals were tried to be fetched
+     * @param responseCode The response code returned by the token service
+     */
+    error GetTokenDecimalsFailed(address token, int256 responseCode);
+
+    /**
+     * @notice Error thrown when trying to get the decimals of the asset
+     *
+     * @param asset The address of the asset whose decimals were tried to be fetched
+     */
+    error GetAssetDecimalsFailed(address asset);
+
+    /**
+     * @notice Error thrown when token decimals are greater than uint8
+     *
+     * @param token The address of the token whose decimals are invalid
+     * @param decimals The decimals value returned by the token service
+     */
+    error InvalidTokenDecimals(address token, int32 decimals);
+
+    /**
+     * @notice Error thrown when getting the bond token balance by partition fails
+     *
+     * @param bond The address of the bond token whose balance was tried to be fetched
+     * @param holder The address of the holder whose balance was tried to be fetched
+     * @param partition The partition of the bond token whose balance was tried to be fetched
+     */
+    error BalanceOfByPartitionError(address bond, address holder, bytes32 partition);
+
+    /**
+     * @notice Error thrown when redeeming at maturity by partition for a holder fails
+     *
+     * @param bond The address of the bond token whose balance was tried to be fetched
+     * @param holder The address of the holder whose balance was tried to be fetched
+     * @param partition The partition of the bond token whose balance was tried to be fetched
+     */
+    error RedeemAtMaturityByPartitionError(address bond, address holder, bytes32 partition);
+
+    /**
+     * @notice Error thrown when the asset nominal value could not be fetched
+     *
+     * @param asset The address of the asset whose nominal value could not be fetched
+     */
+    error AssetNominalValueError(address asset);
 
     // Initialization function
     // solhint-disable-next-line func-name-mixedcase
@@ -71,7 +144,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         uint256 distributionID,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult memory result, bool);
+    ) external returns (PaymentResult[] memory results, bool);
 
     /*
      * @dev Retry the payment of a distribution to a list of holders
@@ -88,7 +161,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         address asset,
         uint256 distributionID,
         address[] calldata holders
-    ) external returns (PaymentResult memory result);
+    ) external returns (PaymentResult[] memory results);
 
     /*
      * @dev Perform a bond redemption to a page of holders
@@ -106,7 +179,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
         address bond,
         uint256 pageIndex,
         uint256 pageLength
-    ) external returns (PaymentResult memory result, bool);
+    ) external returns (PaymentResult[] memory results, bool);
 
     /*
      * @dev Perform a bond redemption to a list of holders
@@ -121,7 +194,7 @@ interface ILifeCycleCashFlow is ILifeCycleCashFlowStorageWrapper {
     function executeBondRedemptionByAddresses(
         address bond,
         address[] calldata holders
-    ) external returns (PaymentResult memory result);
+    ) external returns (PaymentResult[] memory results);
 
     /*
      * @dev Returns the asset address

@@ -6,7 +6,7 @@ export class LockedByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly lockId: number
+  readonly lockId: string
   readonly amount: string
   readonly expirationTimestamp: string
 
@@ -16,7 +16,7 @@ export class LockedByPartitionDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    lockId: number,
+    lockId: string,
     amount: string,
     expirationTimestamp: string,
   ) {

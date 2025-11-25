@@ -2,8 +2,9 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "commonjs",
-    "declaration": false,
-    "sourceMap": false,
+    "moduleResolution": "node10",
+    "declaration": true,
+    "sourceMap": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
@@ -11,6 +12,7 @@
     "importHelpers": true,
     "alwaysStrict": true,
     "strict": true,
+    "outDir": "./build",
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {

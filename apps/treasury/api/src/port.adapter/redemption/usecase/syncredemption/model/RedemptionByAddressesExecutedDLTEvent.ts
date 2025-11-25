@@ -6,8 +6,8 @@ import { BaseRedemptionExecutedDLTEvent } from "@port/redemption/usecase/syncred
 export class RedemptionByAddressesExecutedDLTEvent extends BaseRedemptionExecutedDLTEvent {
   readonly holders: string[]
 
-  constructor(contractId: string, transactionHash: string, holders: string[], result: PaymentResultEventModel) {
-    super(contractId, transactionHash, result)
+  constructor(contractId: string, transactionHash: string, holders: string[], results: PaymentResultEventModel[]) {
+    super(contractId, transactionHash, results)
     this.holders = holders
   }
 }

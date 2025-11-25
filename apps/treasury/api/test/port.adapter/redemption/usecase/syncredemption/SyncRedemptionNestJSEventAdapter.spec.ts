@@ -12,7 +12,6 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { PaymentResultEventModel } from "@port/shared/model/PaymentResultEventModel"
 import { RedemptionExecutedDLTEvent } from "@port/redemption/usecase/syncredemption/model/RedemptionExecutedDLTEvent"
-import { RedemptionHolderRepository } from "@domain/redemption/repositories/RedemptionHolderRepository"
 import { RedemptionHolderStatus } from "@domain/redemption/model/RedemptionHolderStatus"
 import { RedemptionHolderAddedEvent } from "@domain/redemption/event/RedemptionHolderAddedEvent"
 import { RedemptionByAddressesExecutedDLTEvent } from "@port/redemption/usecase/syncredemption/model/RedemptionByAddressesExecutedDLTEvent"
@@ -26,7 +25,7 @@ describe("SyncRedemption Integration", () => {
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
-  let internalRedemptionHolderRepository: Repository<RedemptionHolderRepository>
+  let internalRedemptionHolderRepository: Repository<RedemptionHolderPersistence>
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -97,12 +96,12 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress4"]
     const paidAmounts = ["1000000", "2000000", "3000000"]
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel[] = [
+      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
+      { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, result)
 
@@ -111,38 +110,38 @@ describe("SyncRedemption Integration", () => {
     const holders = await internalRedemptionHolderRepository.find()
     expect(holders).toHaveLength(4)
 
-    const successHolders = holders.filter((h) => h.status === RedemptionHolderStatus.SUCCESS)
+    const successHolders = holders.filter((h) => h.status === <string>RedemptionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(3)
     expect(successHolders[0]).toMatchObject({
       holderAccountId: "0.0.100",
       status: RedemptionHolderStatus.SUCCESS,
       amount: paidAmounts[0],
       treasuryId: treasury.id,
-      paymentTokenId: treasury.paymentToken.id,
+      paymentTokenId: treasury.paymentToken!.id,
     })
     expect(successHolders[1]).toMatchObject({
       holderAccountId: "0.0.101",
       status: RedemptionHolderStatus.SUCCESS,
       amount: paidAmounts[1],
       treasuryId: treasury.id,
-      paymentTokenId: treasury.paymentToken.id,
+      paymentTokenId: treasury.paymentToken!.id,
     })
     expect(successHolders[2]).toMatchObject({
       holderAccountId: "0.0.102",
       status: RedemptionHolderStatus.SUCCESS,
       amount: paidAmounts[2],
       treasuryId: treasury.id,
-      paymentTokenId: treasury.paymentToken.id,
+      paymentTokenId: treasury.paymentToken!.id,
     })
 
-    const failedHolders = holders.filter((h) => h.status === RedemptionHolderStatus.FAILED)
+    const failedHolders = holders.filter((h) => h.status === <string>RedemptionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(1)
     expect(failedHolders[0]).toMatchObject({
       holderAccountId: "0.0.200",
       status: RedemptionHolderStatus.FAILED,
       amount: null,
       treasuryId: treasury.id,
-      paymentTokenId: treasury.paymentToken.id,
+      paymentTokenId: treasury.paymentToken!.id,
     })
     expect(publishedEvents).toHaveLength(4)
     expect(publishedEvents.every((e) => e.constructor.name === RedemptionHolderAddedEvent.name)).toBe(true)
@@ -171,12 +170,12 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress7", "0xevmAddress8"]
     const paidAmounts = ["5000000", "6000000"]
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel[] = [
+      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionByAddressesExecutedDLTEvent(
       treasury.contractId,
@@ -190,54 +189,15 @@ describe("SyncRedemption Integration", () => {
     const savedHolders = await internalRedemptionHolderRepository.find()
     expect(savedHolders).toHaveLength(4)
 
-    const successHolders = savedHolders.filter((h) => h.status === RedemptionHolderStatus.SUCCESS)
+    const successHolders = savedHolders.filter((h) => h.status === <string>RedemptionHolderStatus.SUCCESS)
     expect(successHolders).toHaveLength(2)
 
-    const failedHolders = savedHolders.filter((h) => h.status === RedemptionHolderStatus.FAILED)
+    const failedHolders = savedHolders.filter((h) => h.status === <string>RedemptionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(2)
     failedHolders.forEach((holder) => expect(holder.amount).toBeNull())
 
     expect(publishedEvents).toHaveLength(4)
     expect(publishedEvents.every((e) => e.constructor.name === RedemptionHolderAddedEvent.name)).toBe(true)
-  })
-
-  it("should filter out zero addresses from success and failed addresses", async () => {
-    const treasury = await createTreasuryWithPaymentToken("0.0.222")
-
-    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
-      const addressMap: Record<string, string> = {
-        "0xevmAddress10": "0.0.100",
-        "0xevmAddress11": "0.0.101",
-        "0xevmAddress12": "0.0.200",
-      }
-      return addressMap[address] || address
-    })
-
-    const evmSuccessAddresses = ["0xevmAddress10", "0x0000000000000000000000000000000000000000", "0xevmAddress11"]
-    const evmFailedAddresses = ["0x0000000000000000000000000000000000000000", "0xevmAddress12"]
-    const paidAmounts = ["1000000", "0", "2000000"]
-
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
-
-    const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash4", 0, 10, result)
-
-    await eventBus.publishSync(event, RedemptionExecutedDLTEvent.name)
-
-    const holders = await internalRedemptionHolderRepository.find()
-    expect(holders).toHaveLength(3)
-
-    const successHolders = holders.filter((h) => h.status === RedemptionHolderStatus.SUCCESS)
-    expect(successHolders).toHaveLength(2)
-    expect(successHolders.map((h) => h.holderAccountId)).toEqual(["0.0.100", "0.0.101"])
-
-    const failedHolders = holders.filter((h) => h.status === RedemptionHolderStatus.FAILED)
-    expect(failedHolders).toHaveLength(1)
-    expect(failedHolders[0].holderAccountId).toEqual("0.0.200")
   })
 
   it("should handle redemption with only failed addresses", async () => {
@@ -252,16 +212,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel[] = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
 
@@ -269,7 +226,7 @@ describe("SyncRedemption Integration", () => {
 
     const holders = await internalRedemptionHolderRepository.find()
     expect(holders).toHaveLength(3)
-    expect(holders.every((h) => h.status === RedemptionHolderStatus.FAILED)).toBe(true)
+    expect(holders.every((h) => h.status === <string>RedemptionHolderStatus.FAILED)).toBe(true)
     expect(holders.every((h) => h.amount === null)).toBe(true)
   })
 
@@ -290,16 +247,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel[] = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
 
@@ -319,16 +273,13 @@ describe("SyncRedemption Integration", () => {
       return addressMap[address] || address
     })
 
-    const evmSuccessAddresses: string[] = []
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
-    const paidAmounts: string[] = []
 
-    const result: PaymentResultEventModel = {
-      succeededAddresses: evmSuccessAddresses,
-      failedAddresses: evmFailedAddresses,
-      alreadyPaidAddresses: [],
-      paidAmounts,
-    }
+    const result: PaymentResultEventModel[] = [
+      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+    ]
 
     const event = new RedemptionExecutedDLTEvent(treasuryContractId, "testTransactionHash5", 0, 10, result)
 

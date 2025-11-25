@@ -5,11 +5,15 @@ import { Body, Delete, Param } from "@nestjs/common"
 import { CancelSubscriptionTransactionPort } from "./CancelSubscriptionTransactionPort"
 import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
 import { CancelSubscriptionTransactionAppServiceRequest } from "@app/transaction/cancelsubscription/service/model/CancelSubscriptionTransactionAppServiceRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class CancelSubscriptionTransactionHttpAdapter implements CancelSubscriptionTransactionPort {
   constructor(private readonly cancelSubscriptionTransactionAppService: CancelSubscriptionTransactionAppService) {}
 
+  @ApiOperation({ summary: "Cancels a subscription for an offering" })
+  @ApiResponse({ status: 200, description: "OK", type: TransactionResponse })
   @Delete(":marketContractId/offerings/:offeringId/subscriptions")
   async cancelSubscriptionTransaction(
     @Param("marketContractId") marketContractId: string,

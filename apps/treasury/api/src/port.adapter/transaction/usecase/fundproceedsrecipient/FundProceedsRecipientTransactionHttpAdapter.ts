@@ -7,17 +7,21 @@ import { FundProceedsRecipientTransactionRequest } from "./model/FundProceedsRec
 import { FundProceedsRecipientTransactionAppService } from "@app/transaction/fundproceedsrecipienttransaction/service/FundProceedsRecipientTransactionAppService"
 import { FundProceedsRecipientTransactionAppServiceRequest } from "@app/transaction/fundproceedsrecipienttransaction/service/model/FundProceedsRecipientTransactionAppServiceRequest"
 import { FundProceedsRecipientTransactionPort } from "@port/transaction/usecase/fundproceedsrecipient/FundProceedsRecipientTransactionPort"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class FundProceedsRecipientTransactionHttpAdapter implements FundProceedsRecipientTransactionPort {
   constructor(
     private readonly fundProceedsRecipientTransactionAppService: FundProceedsRecipientTransactionAppService,
   ) {}
 
-  @Post(":treasuryContractId/proceeds-recipients/:recipientContractId/transfer")
+  @ApiOperation({ summary: "Transfers to proceeds recipients" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/proceeds-recipients/:recipientId/transfer")
   async fundProceedsRecipient(
-    @Param("treasuryContractId") treasuryContractId: string,
-    @Param("recipientContractId") recipientContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
+    @Param("recipientId") recipientContractId: string,
     @Body() request: FundProceedsRecipientTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.fundProceedsRecipientTransactionAppService.execute(

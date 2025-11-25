@@ -4,43 +4,44 @@
   "type": "commonjs",
   "main": "./build/typechain-types/index.js",
   "types": "./build/typechain-types/index.d.ts",
-  "files": [
-    "artifacts/",
-    "contracts/",
-    "typechain-types/",
-    "scripts/",
-    "build/",
-    "!artifacts/build-info/",
-    "!build/**/*.map"
-  ],
+  "typesVersions": {
+    "*": {
+      "scripts": ["./build/scripts/index.d.ts"],
+      "typechain-types": ["./build/typechain-types/index.d.ts"],
+      "test": ["./build/test/index.d.ts"]
+    }
+  },
+  "files": ["artifacts/", "contracts/", "typechain-types/", "build/", "!artifacts/build-info/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/typechain-types/index.d.ts",
-      "require": "./build/typechain-types/index.js"
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
     },
     "./artifacts/*": "./artifacts/*",
     "./contracts/*": "./contracts/*",
-    "./scripts/": "./scripts/index.ts",
     "./scripts": {
       "types": "./build/scripts/index.d.ts",
-      "require": "./build/scripts/index.js"
+      "import": "./build/scripts/index.js",
+      "require": "./build/scripts/index.js",
+      "default": "./build/scripts/index.js"
     },
     "./typechain-types": {
       "types": "./build/typechain-types/index.d.ts",
-      "require": "./build/typechain-types/index.js"
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
     },
     "./test": {
       "types": "./build/test/index.d.ts",
-      "require": "./build/test/index.js"
+      "import": "./build/test/index.js",
+      "require": "./build/test/index.js",
+      "default": "./build/test/index.js"
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "smart-contracts",
-    "tokenization",
-    "hardhat"
-  ],
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -72,24 +73,19 @@
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
-    "@hashgraph/sdk": "2.76.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
-    "@openzeppelin/hardhat-upgrades": "^1.22.1",
     "@primitivefi/hardhat-dodoc": "^0.2.3",
     "@typechain/ethers-v5": "^11.1.2",
     "@typechain/hardhat": "^6.1.2",
-    "@types/jest": "^29.5.14",
     "@eslint/js": "^9.36.0",
     "chai": "^4.4.0",
     "dotenv": "^16.0.3",
     "eslint": "^9.36.0",
     "ethers": "^5.8.0",
-    "glob": "^11.0.3",
     "hardhat": "^v2.26.5",
-    "hardhat-abi-exporter": "^2.11.0",
     "hardhat-contract-sizer": "^2.10.1",
     "hardhat-dependency-compiler": "^1.2.1",
     "jiti": "^2.6.0",

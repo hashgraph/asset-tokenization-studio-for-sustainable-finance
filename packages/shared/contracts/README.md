@@ -294,7 +294,7 @@ The local network uses default test account #0 (already configured in `.env.samp
 
 ```bash
 # .env
-LOCALHOST_PRIVATE_KEY_0=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+LOCAL_PRIVATE_KEY_0=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
 ```
 
 #### Advantages
@@ -318,7 +318,7 @@ Account #0: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 (10000 ETH)
 🚀 Green Bonds Platform - Infrastructure Deployment
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Target network: localhost
+Target network: local
 Chain ID: 31337
 
 [Deployment proceeds...]

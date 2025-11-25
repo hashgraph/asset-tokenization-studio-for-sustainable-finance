@@ -9,16 +9,20 @@ import {
 } from "@hashgraph/green-bonds-shared-core"
 import { GrantRoleTransactionRequest } from "@port/transaction/usecase/grantrole/model/GrantRoleTransactionRequest"
 import { RevokeRoleTransactionPort } from "@port/transaction/usecase/revokerole/RevokeRoleTransactionPort"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class RevokeRoleTransactionHttpAdapter implements RevokeRoleTransactionPort {
   constructor(private readonly revokeRoleTransactionAppService: RevokeRoleTransactionAppService) {}
 
-  @Delete(":treasuryContractId/roles/:roleId/users/:userAccountId")
+  @ApiOperation({ summary: "Revokes rol from user" })
+  @ApiResponse({ status: 200, description: "OK", type: TransactionResponse })
+  @Delete(":treasuryId/roles/:roleId/users/:userId")
   async revokeRole(
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Param("roleId") roleId: string,
-    @Param("userAccountId") userAccountId: string,
+    @Param("userId") userAccountId: string,
     @Body() request: GrantRoleTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.revokeRoleTransactionAppService.execute(

@@ -76,6 +76,7 @@ export async function createTreasuryConfiguration(
   facetAddresses: Record<string, string>,
   useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,
+  confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
   // Transform facet names and addresses into FacetConfigurationData array
   // Uses multi-registry pattern: checks Treasury registry first, then falls back to ATS registry
@@ -115,6 +116,6 @@ export async function createTreasuryConfiguration(
     facets,
     partialBatchDeploy: false,
     batchSize,
-    gasLimit: 15_000_000,
+    confirmations,
   });
 }

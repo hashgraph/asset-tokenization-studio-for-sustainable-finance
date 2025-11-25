@@ -9,11 +9,11 @@ export class DistributionByAddressesExecutedDLTEvent extends BaseDistributionExe
   constructor(
     contractId: string,
     transactionHash: string,
-    distributionId: number,
+    distributionID: number,
     holders: string[],
-    result: PaymentResultEventModel,
+    results: PaymentResultEventModel[],
   ) {
-    super(contractId, transactionHash, distributionId, result)
+    super(contractId, transactionHash, distributionID, results)
     this.holders = holders
   }
 }

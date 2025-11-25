@@ -44,6 +44,9 @@ import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/mode
 import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
 import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
 import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
+import { BuildExecuteHoldTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteHoldTransactionRequest"
+import { BuildReleaseHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseHoldTransactionRequest"
+import { BuildReclaimHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimHoldTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -59,6 +62,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
 
   private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
+  private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
+    "0x0000000000000000000000000000000000000000000000000000000000000002"
+  private readonly DEFAULT_TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20"
 
   constructor(private readonly configService: ConfigService) {
     super()
@@ -73,7 +79,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         isMultiPartition: req.securityTokenToCreate.isMultiPartition,
         resolver: req.securityTokenToCreate.resolverAddress,
         resolverProxyConfiguration: {
-          key: req.securityTokenToCreate.configId,
+          key: this.DEFAULT_SECURITY_TOKEN_CONFIG_ID,
           version: req.securityTokenToCreate.configVersion,
         },
         rbacs: [
@@ -141,8 +147,9 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       bondDetails: {
         currency: req.securityTokenToCreate.currency,
         nominalValue: req.securityTokenToCreate.nominalValue ? req.securityTokenToCreate.nominalValue : "0",
-        startingDate: parseInt(req.securityTokenToCreate.startingDate).toString(),
-        maturityDate: parseInt(req.securityTokenToCreate.maturityDate).toString(),
+        nominalValueDecimals: req.securityTokenToCreate.nominalValueDecimals,
+        startingDate: Math.floor(req.securityTokenToCreate.startingDate.getTime() / 1000),
+        maturityDate: Math.floor(req.securityTokenToCreate.maturityDate.getTime() / 1000),
       },
       proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
       proceedRecipientsData:
@@ -162,7 +169,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const treasuryData = {
       resolver: req.treasuryData.resolverAddress,
       resolverProxyConfiguration: {
-        key: req.treasuryData.configId,
+        key: this.DEFAULT_TREASURY_CONFIG_ID,
         version: req.treasuryData.configVersion,
       },
       rbacs: [
@@ -285,6 +292,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   async createBondLockTransaction(req: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition ?? this.DEFAULT_PARTITION
+    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
 
     return await this.buildAndReturnTransactionResponse(
       ILock__factory.createInterface(),
@@ -293,7 +301,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [partition, req.amount, req.holderAccountId, req.expirationTimestamp],
+      [partition, req.amount, holderEvmAddress, req.expirationTimestamp],
     )
   }
 
@@ -321,6 +329,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   async releaseBondLockTransaction(req: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition ?? this.DEFAULT_PARTITION
+    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
 
     return await this.buildAndReturnTransactionResponse(
       ILock__factory.createInterface(),
@@ -329,7 +338,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [partition, req.lockId, req.holderAccountId],
+      [partition, req.lockId, holderEvmAddress],
     )
   }
 
@@ -544,6 +553,68 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [clearingOperationIdentifier],
+    )
+  }
+
+  async executeHoldTransaction(req: BuildExecuteHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    const toAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "executeHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier, toAddress, req.amount],
+    )
+  }
+
+  async releaseHoldTransaction(req: BuildReleaseHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "releaseHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier, req.amount],
+    )
+  }
+
+  async reclaimHoldTransaction(req: BuildReclaimHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "reclaimHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier],
     )
   }
 

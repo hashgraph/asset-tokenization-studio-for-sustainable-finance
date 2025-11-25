@@ -10,14 +10,18 @@ import {
 
 import { PauseTreasuryTransactionPort } from "@port/transaction/usecase/pausetreasury/PauseTreasuryTransactionPort"
 import { PauseTreasuryTransactionRequest } from "@port/transaction/usecase/pausetreasury/model/PauseTreasuryTransactionRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("treasuries")
 export class PauseTreasuryTransactionHttpAdapter implements PauseTreasuryTransactionPort {
   constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 
-  @Post(":treasuryContractId/pause")
+  @ApiOperation({ summary: "Pauses a treasury" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":treasuryId/pause")
   async pauseTreasury(
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Body() request: PauseTreasuryTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.pauseTransactionAppService.execute(

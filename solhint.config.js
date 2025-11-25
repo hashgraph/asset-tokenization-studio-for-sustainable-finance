@@ -21,6 +21,8 @@ module.exports = {
     // Solidity syntax and style
     "constructor-syntax": "error",
     "const-name-snakecase": "error",
+    "contract-name-camelcase": "error",
+    "event-name-camelcase": "error",
     "func-name-mixedcase": "error",
     "func-param-name-mixedcase": "error",
     "modifier-name-mixedcase": "error",

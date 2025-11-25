@@ -5,11 +5,15 @@ import { Body, Param, Post } from "@nestjs/common"
 import { SubmitSubscriptionTransactionPort } from "./SubmitSubscriptionTransactionPort"
 import { SubmitSubscriptionTransactionAppServiceRequest } from "@app/transaction/submitsubscription/service/model/SubmitSubscriptionTransactionAppServiceRequest"
 import { SubmitSubscriptionTransactionAppService } from "@app/transaction/submitsubscription/service/SubmitSubscriptionTransactionAppService"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class SubmitSubscriptionTransactionHttpAdapter implements SubmitSubscriptionTransactionPort {
   constructor(private readonly createSubscriptionTransactionAppService: SubmitSubscriptionTransactionAppService) {}
 
+  @ApiOperation({ summary: "Submits a subscription for an offering" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
   @Post(":marketContractId/offerings/:offeringId/subscriptions")
   async submitSubscriptionTransaction(
     @Param("marketContractId") marketContractId: string,

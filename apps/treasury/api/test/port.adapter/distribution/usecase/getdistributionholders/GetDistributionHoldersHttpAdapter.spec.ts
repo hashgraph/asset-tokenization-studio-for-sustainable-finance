@@ -64,7 +64,7 @@ describe("GetDistributionHolders API Integration", () => {
     }
   })
 
-  describe("GET /:treasuryContractId/distributions/:distributionId/holders", () => {
+  describe("GET /:treasuryContractId/distributions/:distributionId", () => {
     it("should return empty list when distribution has no holders", async () => {
       const treasury = await internalTreasuryRepository.save({
         contractId: "0.0.123456",
@@ -84,7 +84,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .expect(200)
 
       expect(response.body).toHaveProperty("items")
@@ -130,7 +130,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .expect(200)
 
       expect(response.body.total).toBe(2)
@@ -184,7 +184,7 @@ describe("GetDistributionHolders API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .query({ page: 1, limit: 3 })
         .expect(200)
 
@@ -232,7 +232,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .query({ orderBy: "createdAt", order: "ASC" })
         .expect(200)
 
@@ -250,7 +250,7 @@ describe("GetDistributionHolders API Integration", () => {
       const nonExistentDistributionId = 999
 
       await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${nonExistentDistributionId}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${nonExistentDistributionId}`)
         .expect(404)
     })
 
@@ -294,7 +294,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution1.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution1.id}`)
         .expect(200)
 
       expect(response.body.total).toBe(1)
@@ -337,7 +337,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -389,7 +389,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .query({ status: "SUCCESS" })
         .expect(200)
 
@@ -434,7 +434,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .query({ status: "FAILED" })
         .expect(200)
 
@@ -479,7 +479,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)
@@ -525,7 +525,7 @@ describe("GetDistributionHolders API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}/holders`)
+        .get(`/api/v1/treasuries/${treasury.contractId}/distributions/${distribution.id}`)
         .expect(200)
 
       expect(response.body.items).toHaveLength(2)

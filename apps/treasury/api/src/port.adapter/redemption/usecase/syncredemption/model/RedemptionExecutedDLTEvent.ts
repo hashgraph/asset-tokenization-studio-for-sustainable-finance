@@ -12,9 +12,9 @@ export class RedemptionExecutedDLTEvent extends BaseRedemptionExecutedDLTEvent {
     transactionHash: string,
     pageIndex: number,
     pageLength: number,
-    result: PaymentResultEventModel,
+    results: PaymentResultEventModel[],
   ) {
-    super(contractId, transactionHash, result)
+    super(contractId, transactionHash, results)
     this.pageIndex = pageIndex
     this.pageLength = pageLength
   }

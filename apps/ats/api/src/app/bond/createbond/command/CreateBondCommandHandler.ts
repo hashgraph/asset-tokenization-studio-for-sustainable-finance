@@ -26,6 +26,7 @@ export class CreateBondCommandHandler implements CommandHandler<CreateBondComman
         bond.decimals,
         bond.currency,
         bond.nominalValue,
+        bond.nominalValueDecimals,
         bond.startingDate,
         bond.maturityDate,
         bond.maxSupply,

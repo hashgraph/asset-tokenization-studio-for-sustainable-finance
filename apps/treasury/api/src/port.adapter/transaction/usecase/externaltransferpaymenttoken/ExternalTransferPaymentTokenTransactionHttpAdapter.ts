@@ -6,15 +6,19 @@ import { ExternalTransferPaymentTokenTransactionAppService } from "@app/transact
 import { ExternalTransferPaymentTokenTransactionAppServiceRequest } from "@app/transaction/externaltransferpaymenttoken/service/model/ExternalTransferPaymentTokenTransactionAppServiceRequest"
 import { ExternalTransferPaymentTokenTransactionRequest } from "@port/transaction/usecase/externaltransferpaymenttoken/model/ExternalTransferPaymentTokenTransactionRequest"
 import { ExternalTransferPaymentTokenTransactionPort } from "@port/transaction/usecase/externaltransferpaymenttoken/ExternalTransferPaymentTokenTransactionPort"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Treasury")
 @RestController("payment-tokens")
 export class ExternalTransferPaymentTokenTransactionHttpAdapter implements ExternalTransferPaymentTokenTransactionPort {
   constructor(private readonly appService: ExternalTransferPaymentTokenTransactionAppService) {}
 
-  @Post(":paymentTokenContractId/treasuries/:treasuryContractId/transfer")
+  @ApiOperation({ summary: "Payment token transfers to the treasury" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
+  @Post(":tokenId/treasuries/:treasuryId/transfer")
   async externalTransferPaymentToken(
-    @Param("paymentTokenContractId") paymentTokenContractId: string,
-    @Param("treasuryContractId") treasuryContractId: string,
+    @Param("tokenId") paymentTokenContractId: string,
+    @Param("treasuryId") treasuryContractId: string,
     @Body() request: ExternalTransferPaymentTokenTransactionRequest,
   ): Promise<TransactionResponse> {
     return await this.appService.execute(

@@ -2,18 +2,22 @@
 
 import { expect } from "chai";
 import { ethers } from "hardhat";
+import { Contract, ContractFactory } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAUSER_ROLE, PORTFOLIO_MANAGER_ROLE } from "../../scripts/constants";
-import { deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
-import { deployTreasury } from "../../scripts/workflows/deployTreasury";
-import type { ITreasury, IPaymentTokenFactory } from "@contract-types";
+import { deployPrecompiledMock } from "../helpers/deployment";
+import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
+import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import type { ITreasury } from "@contract-types";
 
 describe("Portfolio operations", () => {
+  configureLogger({ level: LogLevel.SILENT });
+
   let signer_A, signer_B;
   let treasury: ITreasury;
-  let paymentTokenFactory: IPaymentTokenFactory;
-  let paymentTokenFactoryAddress: string;
   let paymentTokenAddress: string;
+  let paymentTokenMockContract: ContractFactory;
+  let paymentToken: Contract;
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
@@ -23,7 +27,13 @@ describe("Portfolio operations", () => {
     });
 
     treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
-    [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 100, 2);
+
+    paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+    await paymentToken.deployed();
+    paymentTokenAddress = paymentToken.address;
+
+    await deployPrecompiledMock();
 
     treasury = treasury.connect(signer_A);
     await treasury.initialize_Portfolio(paymentTokenAddress, []);
@@ -89,10 +99,12 @@ describe("Portfolio operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE adds an environmental asset token, THEN the environmental asset token is added", async () => {
-      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      const environmentalAssetAddress = environmentalAsset.address;
 
-      const [environmentalAssetFactoryAddress, environmentalAssetAddress, tokenId] =
-        await deployEnvironmentalAsset(signer_A);
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
       treasury = treasury.connect(signer_B);
 
@@ -108,10 +120,12 @@ describe("Portfolio operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE adds an already added environmental asset token, THEN TokenAssociated and EnvironmentalAssetAdded events are not emitted", async () => {
-      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      const environmentalAssetAddress = environmentalAsset.address;
 
-      const [environmentalAssetFactoryAddress, environmentalAssetAddress, tokenId] =
-        await deployEnvironmentalAsset(signer_A);
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
       treasury = treasury.connect(signer_B);
 
@@ -164,10 +178,12 @@ describe("Portfolio operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN the environmental asset token is removed", async () => {
-      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      const environmentalAssetAddress = environmentalAsset.address;
 
-      const [environmentalAssetFactoryAddress, environmentalAssetAddress, tokenId] =
-        await deployEnvironmentalAsset(signer_A);
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_B.address);
 
       treasury = treasury.connect(signer_B);
 
@@ -217,27 +233,29 @@ describe("Portfolio operations", () => {
     });
 
     it("GIVEN a treasury with a balance of 1 payment token, WHEN updating the payment token, THEN a PaymentTokenUpdated event is emitted with a 195 dissociation code error", async () => {
-      paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-      paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-      await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 1);
+      await paymentToken.mint(treasury.address, 100);
 
-      const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] = await deployPaymentToken(signer_A, 100, 2);
+      const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+      await paymentTokenNew.deployed();
+      const paymentTokenNewAddress = paymentTokenNew.address;
 
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.updatePaymentToken(newPaymentTokenAddress))
+      await expect(treasury.updatePaymentToken(paymentTokenNewAddress))
         .to.emit(treasury, "PaymentTokenUpdated")
-        .withArgs(signer_A.address, newPaymentTokenAddress, paymentTokenAddress, 195);
+        .withArgs(signer_A.address, paymentTokenNewAddress, paymentTokenAddress, 195);
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated", async () => {
+      const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+      await paymentTokenNew.deployed();
+      const paymentTokenNewAddress = paymentTokenNew.address;
+
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
 
-      const [newPaymentTokenFactoryAddress, newPaymentTokenAddress] = await deployPaymentToken(signer_A, 100, 2);
-
-      await expect(treasury.updatePaymentToken(newPaymentTokenAddress))
+      await expect(treasury.updatePaymentToken(paymentTokenNewAddress))
         .to.emit(treasury, "PaymentTokenUpdated")
-        .withArgs(signer_A.address, newPaymentTokenAddress, paymentTokenAddress, 0);
+        .withArgs(signer_A.address, paymentTokenNewAddress, paymentTokenAddress, 0);
     });
   });
 

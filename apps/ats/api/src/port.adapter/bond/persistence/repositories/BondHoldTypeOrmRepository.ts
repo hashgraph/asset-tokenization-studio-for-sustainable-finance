@@ -6,6 +6,7 @@ import { Repository } from "typeorm"
 import { BondHoldRepository } from "@domain/bond/hold/repository/BondHoldRepository"
 import { BondHold } from "@domain/bond/hold/model/BondHold"
 import { BondHoldPersistence } from "../model/BondHoldPersistence"
+import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
 export class BondHoldTypeOrmRepository implements BondHoldRepository {
@@ -54,5 +55,34 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     return await this.repository.count({
       where: { contractId, holderAccountId },
     })
+  }
+
+  async findByContractIdAndHolderPaginated(
+    contractId: string,
+    holderAccountId: string,
+    pageOptions: PageOptions,
+  ): Promise<Page<BondHold>> {
+    const [persistences, total] = await this.repository.findAndCount({
+      where: { contractId, holderAccountId },
+      order: { createdAt: "DESC" },
+      take: pageOptions.limit,
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+    })
+
+    return {
+      items: persistences.map((p) => p as BondHold),
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
+  }
+
+  async deleteByIdAndContractIdAndHolderAccountId(
+    id: number,
+    contractId: string,
+    holderAccountId: string,
+  ): Promise<void> {
+    await this.repository.delete({ id, contractId, holderAccountId })
   }
 }

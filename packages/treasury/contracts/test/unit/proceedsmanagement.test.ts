@@ -2,22 +2,22 @@
 
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { BigNumber } from "ethers";
+import { Contract, BigNumber } from "ethers";
 import { AddressZero } from "@ethersproject/constants";
 import { PAUSER_ROLE, FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from "../../scripts/constants";
-import { deployContract, deployPaymentToken, deployEnvironmentalAsset } from "../helpers/deployment";
-import { deployTreasury } from "../../scripts/workflows/deployTreasury";
-import { AssetMock__factory } from "@contract-types";
+import { deployPrecompiledMock } from "../helpers/deployment";
+import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
+import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITreasury } from "@contract-types";
 
 describe("Proceeds management operations", () => {
+  configureLogger({ level: LogLevel.SILENT });
+
   let signer_A, signer_B;
   let treasury: ITreasury;
-  let environmentalAssetFactoryAddress: string;
   let environmentalAssetAddress: string;
-  let paymentTokenFactoryAddress: string;
-  let paymentTokenAddress: string;
-  let tokenId: string;
+  let paymentToken: Contract;
+  let environmentalAsset: Contract;
 
   beforeEach(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
@@ -27,8 +27,18 @@ describe("Proceeds management operations", () => {
     });
 
     treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
-    [paymentTokenFactoryAddress, paymentTokenAddress] = await deployPaymentToken(signer_A, 100, 2);
-    [environmentalAssetFactoryAddress, environmentalAssetAddress, tokenId] = await deployEnvironmentalAsset(signer_A);
+
+    const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
+    paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
+    await paymentToken.deployed();
+    const paymentTokenAddress = paymentToken.address;
+
+    const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+    environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+    await environmentalAsset.deployed();
+    environmentalAssetAddress = environmentalAsset.address;
+
+    await deployPrecompiledMock();
 
     treasury = treasury.connect(signer_A);
     await treasury.initialize_Portfolio(paymentTokenAddress, [environmentalAssetAddress]);
@@ -70,13 +80,8 @@ describe("Proceeds management operations", () => {
       );
     });
 
-    beforeEach(async () => {
-      let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-      paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-      await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 100);
-    });
-
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs", async () => {
+      await paymentToken.mint(treasury.address, 100);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(treasury.transferPaymentToken(signer_A.address, 200))
@@ -102,6 +107,7 @@ describe("Proceeds management operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN payment tokens are transferred", async () => {
+      await paymentToken.mint(treasury.address, 100);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
       await expect(
         treasury.transferPaymentToken(signer_A.address, 100, {
@@ -159,6 +165,8 @@ describe("Proceeds management operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset the Treasury does not own, THEN a NotTokenIdOwner error occurs", async () => {
+      const tokenId = 0;
+      await environmentalAsset.mint(signer_B.address);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, signer_A.address, tokenId))
@@ -189,17 +197,9 @@ describe("Proceeds management operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset token, THEN the environmental asset token is transferred", async () => {
+      const tokenId = 0;
+      await environmentalAsset.mint(treasury.address);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
-      let environmentalAssetFactory = await ethers.getContractAt(
-        "EnvironmentalAssetFactory",
-        environmentalAssetFactoryAddress,
-      );
-      environmentalAssetFactory = environmentalAssetFactory.connect(signer_A);
-      await environmentalAssetFactory.transferEnvironmentalAssetToken(
-        environmentalAssetAddress,
-        treasury.address,
-        tokenId,
-      );
 
       await expect(treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, signer_A.address, tokenId))
         .to.emit(treasury, "EnvironmentalAssetTokenTransferred")
@@ -248,8 +248,11 @@ describe("Proceeds management operations", () => {
 
     describe("The proceeds recipient does not belong to the bond", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs", async () => {
-        const assetFactory = new AssetMock__factory(signer_A);
-        const assetAddress = await deployContract(assetFactory, [false, 1, [], false]);
+        const assetMockContract = await ethers.getContractFactory("AssetMock");
+        const asset = await assetMockContract.deploy(false, 1, [], false);
+        await asset.deployed();
+        const assetAddress = asset.address;
+
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
         const proceedsRecipient = ethers.Wallet.createRandom();
@@ -264,12 +267,13 @@ describe("Proceeds management operations", () => {
 
     describe("The proceeds recipient belongs to the bond", () => {
       beforeEach(async () => {
-        let paymentTokenFactory = await ethers.getContractAt("PaymentTokenFactory", paymentTokenFactoryAddress);
-        paymentTokenFactory = paymentTokenFactory.connect(signer_A);
-        await paymentTokenFactory.transferPaymentToken(paymentTokenAddress, treasury.address, 100);
+        await paymentToken.mint(treasury.address, 100);
 
-        const assetFactory = new AssetMock__factory(signer_A);
-        const assetAddress = await deployContract(assetFactory, [false, 1, [], true]);
+        const assetMockContract = await ethers.getContractFactory("AssetMock");
+        const asset = await assetMockContract.deploy(false, 1, [], true);
+        await asset.deployed();
+        const assetAddress = asset.address;
+
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
 

@@ -1,0 +1,1000 @@
+{
+  "timestamp": "2025-11-20T07:37:35.093Z",
+  "network": "hedera-testnet",
+  "result": {
+    "proxyAdmin": "0xf7a7DEee01E627A54d260Bf86A9fa01FCb1340aF",
+    "blr": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+    "bondDeployment": {
+      "network": "hedera-testnet",
+      "timestamp": "2025-11-20T07:34:42.973Z",
+      "deployer": "0x3094Df365bA01f842577ADe9fBaC15c35081F255",
+      "infrastructure": {
+        "proxyAdmin": {
+          "address": "0xf7a7DEee01E627A54d260Bf86A9fa01FCb1340aF",
+          "contractId": "0.0.7290519"
+        },
+        "blr": {
+          "implementation": "N/A (External BLR)",
+          "proxy": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "contractId": "0.0.7290521",
+          "isExternal": true
+        },
+        "factory": {
+          "implementation": "0x59d32dC836915A3f24707aAc9c62a07FE14f40D5",
+          "proxy": "0x8a3f271Aab0d56e099523aC1f81373e490835DE0",
+          "contractId": "0.0.7290590"
+        }
+      },
+      "facets": [
+        {
+          "name": "AccessControlFacet",
+          "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6",
+          "contractId": "0.0.7290522",
+          "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6"
+        },
+        {
+          "name": "AdjustBalancesFacet",
+          "address": "0x7b7Dc17F7D7b6Ea5f97F0d02EA40100AAfd96314",
+          "contractId": "0.0.7290523",
+          "key": "0x2bbe9fb018f1e7dd12b4442154e7fdfd75aec7b0a65d07debf49de4ece5fe8b8"
+        },
+        {
+          "name": "BondUSAFacet",
+          "address": "0xc91Cdbd0A9dAeE7cC82D36EE6BbABAC41c7ee75f",
+          "contractId": "0.0.7290524",
+          "key": "0x09c1d80a160a7250b5fabc46d06a7fa4067e6d7292047c5024584b43f17d55ef"
+        },
+        {
+          "name": "BondUSAReadFacet",
+          "address": "0x2a621EA27D8e958eA63883bD1D36f8d1d278f3b2",
+          "contractId": "0.0.7290525",
+          "key": "0xe7ca0b805514da05524faf33d2d9d9432bf1dfa53096073a7267041cfdfb6d68"
+        },
+        {
+          "name": "CapFacet",
+          "address": "0x74C2A96D1A67F1E0891de55518B6CEfd69D74f9C",
+          "contractId": "0.0.7290527",
+          "key": "0xfb3f8aac36661b5540c571d821c80dc9db7ede5ca2a4204ee562b3356f0c026b"
+        },
+        {
+          "name": "ClearingActionsFacet",
+          "address": "0x2D7Bb578960321A127d3960e482360cbe169d7C2",
+          "contractId": "0.0.7290528",
+          "key": "0x5472dfc5c92ad7a8651518ea7d3854d3b6494e5bcaa19f91cd61bf93bf6f2a74"
+        },
+        {
+          "name": "ClearingHoldCreationFacet",
+          "address": "0xD2d21255D78882e0641E60d4528A12A60a41e56e",
+          "contractId": "0.0.7290529",
+          "key": "0x44f99a141c434fac20d69e7511932ee344d5b37b61851976c83a5df4ca468152"
+        },
+        {
+          "name": "ClearingReadFacet",
+          "address": "0x410Df6B085885e4f4277aEfc72D3f9d8d81BC18D",
+          "contractId": "0.0.7290530",
+          "key": "0xebb2e29bdf4edaf4ca66a3f9b7735087f9d0474d56d856e53c94ef00596c0b1e"
+        },
+        {
+          "name": "ClearingRedeemFacet",
+          "address": "0x8CE554dFd614dcC53F7FdF52f36bdAd1b5769D7F",
+          "contractId": "0.0.7290531",
+          "key": "0xb341e7aa749da43976c189209de51ccdf838af9f964cd27340b914d5b2aeba97"
+        },
+        {
+          "name": "ClearingTransferFacet",
+          "address": "0x2a22cC0888E157E1Ca1cc77C9CafDe4AF059A6e4",
+          "contractId": "0.0.7290532",
+          "key": "0x7399d03db62430bec60ca2c3eacf98b1b7e2253f17593ef7a226d759442e0928"
+        },
+        {
+          "name": "ControlListFacet",
+          "address": "0xeB777a12582cd98af88B05D06adDA8222668334c",
+          "contractId": "0.0.7290534",
+          "key": "0xfbb1491bfcecd95f79409bd5a4b69a4ba1e5573573372f5d2d66c11e3016414c"
+        },
+        {
+          "name": "CorporateActionsFacet",
+          "address": "0xFA7179E125e9299b793161D3A190aE6E626f13db",
+          "contractId": "0.0.7290538",
+          "key": "0x3cc74200ccfb5d585a6d170f8824979dbf1b592e0a41eef41cf6d86cf4882077"
+        },
+        {
+          "name": "DiamondCutFacet",
+          "address": "0x2511A01d5a5AC2414ce47df09D7fFBc05C37c194",
+          "contractId": "0.0.7290539",
+          "key": ""
+        },
+        {
+          "name": "DiamondFacet",
+          "address": "0xB962a1833289b01063b44b35e12ddd1aE8d9d505",
+          "contractId": "0.0.7290540",
+          "key": "0x1b5212ea37fb29e99afa2812a5d7d7e662a477424d3de1a18cc3871a2ee94d78"
+        },
+        {
+          "name": "DiamondLoupeFacet",
+          "address": "0x54a7b4a468805beda44930554F19f97645B41Ceb",
+          "contractId": "0.0.7290541",
+          "key": ""
+        },
+        {
+          "name": "EquityUSAFacet",
+          "address": "0x247a05C49FB8Dd8a9c763891F3B14137183207C2",
+          "contractId": "0.0.7290542",
+          "key": "0xfe85fe0513f5a5676011f59495ae16b2b93c981c190e99e61903e5603542c810"
+        },
+        {
+          "name": "ERC1410IssuerFacet",
+          "address": "0x6Ddd00e4Aa4e12dDCE0cF0099Ee37545DF3D76dC",
+          "contractId": "0.0.7290543",
+          "key": "0x6e82b75f32c9647cc00b4c3eabbef5a82677f3e91d5d196eb4dd6a0365941344"
+        },
+        {
+          "name": "ERC1410ManagementFacet",
+          "address": "0xB56e510D61452B7cCD917D1408E70A910E68ca79",
+          "contractId": "0.0.7290544",
+          "key": "0x232f8686795d3f197681faf0d8db05655e759f62d709d56b97e5d9cfff29dbf5"
+        },
+        {
+          "name": "ERC1410ReadFacet",
+          "address": "0x6f678840be2579e5B12f9a310FE899A4dd5EAE07",
+          "contractId": "0.0.7290545",
+          "key": "0x5eb2734b83ea80c3eb63463a6192b30ab2526cb7a073f0abfda1a404c92ae497"
+        },
+        {
+          "name": "ERC1410TokenHolderFacet",
+          "address": "0x1fF404CEaa250830ae4143c0ab83a016eE8D2a9c",
+          "contractId": "0.0.7290546",
+          "key": "0x0466bf860d23f1ecbc25f364735e0dc3830d236f09182599831730ddd2792caa"
+        },
+        {
+          "name": "ERC1594Facet",
+          "address": "0x0bA9754e04D95f5a60e83aE5Cf53275de70AfC81",
+          "contractId": "0.0.7290547",
+          "key": "0xcb70773e8163595d8bd906e277adeb3935976ad802ee8c29face3dfb0263291f"
+        },
+        {
+          "name": "ERC1643Facet",
+          "address": "0x58b47890F771aEC4A8d58FEd055d6158044575BF",
+          "contractId": "0.0.7290548",
+          "key": "0x24543637956a3076689f171d3932b10f22d40f3785d53acebb340f37bed01625"
+        },
+        {
+          "name": "ERC1644Facet",
+          "address": "0xadb6De9f53AC662ecB7a1528233FBEa25EBdDA63",
+          "contractId": "0.0.7290549",
+          "key": "0xf1da2ed271d62ba0b6597874c96fb6ed7d929e5ec679f4ad8c2c516c72f6736d"
+        },
+        {
+          "name": "ERC20Facet",
+          "address": "0x4d6D8Fe6ceAC778c6780C41E57802CfDFBF9Ef9b",
+          "contractId": "0.0.7290550",
+          "key": "0x064c883089ba1a596d9146c7aaa73c19ef8825f374c67a9538787c3d12e68dc5"
+        },
+        {
+          "name": "ERC20PermitFacet",
+          "address": "0x65345c4dC2cF6b0126E2FdCB104bB26f2ec03579",
+          "contractId": "0.0.7290551",
+          "key": "0xef05f0313623d32145212ed45620c8b2c8c294b3d6955cf26f3d1b0569fbc1fa"
+        },
+        {
+          "name": "ERC20VotesFacet",
+          "address": "0x8c87A314BBB3ebB434EC69eF354AF9eFf38Fe728",
+          "contractId": "0.0.7290553",
+          "key": "0x5cbfbaa435e19a43530a00ac685c9b5252862a94af2053667ded44642a0d9f4c"
+        },
+        {
+          "name": "ERC3643BatchFacet",
+          "address": "0x246bE692549D785e1917F9d8E60123A26EF98163",
+          "contractId": "0.0.7290555",
+          "key": "0x9e671b494908a7523ee4e531ae7b7076b84f1c675d31346a9697f0ff4695f249"
+        },
+        {
+          "name": "ERC3643ManagementFacet",
+          "address": "0xAc41ee3f2C88e836368a68eD64D99a08DfF1EF48",
+          "contractId": "0.0.7290556",
+          "key": "0x06d7f1ffc912a9e44e5d742aa1c1eff596d0fabf91a1d0fb1c3ac0fba01f1773"
+        },
+        {
+          "name": "ERC3643OperationsFacet",
+          "address": "0x5879087F523FdB9f49799F050e9B65084f500a7F",
+          "contractId": "0.0.7290558",
+          "key": "0x39de33e56c92afe3cd7ece00d0ff8a0df512878690719e48c17d5b54604d2de2"
+        },
+        {
+          "name": "ERC3643ReadFacet",
+          "address": "0x8A8b7525d81745Ed09d321b774e8926cc0842bde",
+          "contractId": "0.0.7290560",
+          "key": "0xf1a7f92f11da0b048b6417201459d4e1eaef0e112e0d58d5bd6ee4481e5394c7"
+        },
+        {
+          "name": "ExternalControlListManagementFacet",
+          "address": "0xd75Ea83abc831c477851a5b8953758C2a4FA2366",
+          "contractId": "0.0.7290562",
+          "key": "0xb28d59e89fa116cebe06d8de737191b637a49d95f7d8d947d47ac000463e7c71"
+        },
+        {
+          "name": "ExternalKycListManagementFacet",
+          "address": "0xfAF795E550AE39D8f79591d92e2e5B686BFF9453",
+          "contractId": "0.0.7290565",
+          "key": "0x8676785f4d841823214e8ee8c497b3336a210be7559f5571c590249f6203e821"
+        },
+        {
+          "name": "ExternalPauseManagementFacet",
+          "address": "0x80454989F079aeD852Bd8f05206920eaF20E09CC",
+          "contractId": "0.0.7290566",
+          "key": "0xadd2e196c17b4f607e327e46341eedbbbc3dce86ac90ceb3e7244b0a5f8590ac"
+        },
+        {
+          "name": "FreezeFacet",
+          "address": "0x9B7D814adBc9E28D16a327A30700DD8Ab33389c7",
+          "contractId": "0.0.7290567",
+          "key": "0x49f765e7155d979a148049c2a0ebed5e028b11799061897a255f99314f0bd3f1"
+        },
+        {
+          "name": "HoldManagementFacet",
+          "address": "0x2541C1d39394307F3Dd3fEC337877a0A6Aa2A3b6",
+          "contractId": "0.0.7290568",
+          "key": "0xaab5a0e0978ad146ca8dc61d16bab0212224eadf68bd08e3c66600ee4f59c12a"
+        },
+        {
+          "name": "HoldReadFacet",
+          "address": "0x0A717EFA2cb9221B23De6542103052EBD29E3f35",
+          "contractId": "0.0.7290569",
+          "key": "0xd8a2714462c01975a075ccd4be2588934afd8074afef746fac089b757b803851"
+        },
+        {
+          "name": "HoldTokenHolderFacet",
+          "address": "0xcb925D4812c32A355130391CE6D53Aa2a236ab70",
+          "contractId": "0.0.7290571",
+          "key": "0x87b17a3ce9a86872f21469d26f005543a22ef5729998559f4ad433d5c4253f3e"
+        },
+        {
+          "name": "KycFacet",
+          "address": "0xA86E38fBF0466d226a365c2F3Eb4bdB15F903496",
+          "contractId": "0.0.7290572",
+          "key": "0xf516a0f6b4726244ae916c590cd26c2b593d7d448e46e43714fb9f9435c46e32"
+        },
+        {
+          "name": "LockFacet",
+          "address": "0x2e7c38Cf68d1C066d3bAEe8AAcB4faD5ca3E7412",
+          "contractId": "0.0.7290573",
+          "key": "0xf1364345b3db5ebe5808f2d2d2aaecb9cdb4fddacad1534033060ebc886fc1e9"
+        },
+        {
+          "name": "PauseFacet",
+          "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566",
+          "contractId": "0.0.7290574",
+          "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c"
+        },
+        {
+          "name": "ProceedRecipientsFacet",
+          "address": "0xe960227645f971173e25eA684fbB8559b15b0F14",
+          "contractId": "0.0.7290575",
+          "key": "0x87f4b676bf89cd24a01a78fd8e7fb2102c2f6d034be73d16402f7297e0ae625b"
+        },
+        {
+          "name": "ProtectedPartitionsFacet",
+          "address": "0x2acE553C0E528e3bd44890ef55991fC8394eE747",
+          "contractId": "0.0.7290576",
+          "key": "0x6d65d2938c05a4d952aff0845c1baa5bea04d4544db74f8b3b26004d1d58d58f"
+        },
+        {
+          "name": "ScheduledBalanceAdjustmentsFacet",
+          "address": "0x4E8095ad957e6C7D4d4fcdCB7834aa0D482c66a7",
+          "contractId": "0.0.7290578",
+          "key": "0xc418e67a48260d700e5f85863ad6fa6593206a4385728f8baba1572d631535e0"
+        },
+        {
+          "name": "ScheduledCrossOrderedTasksFacet",
+          "address": "0x3487355D739A06A1D0193254A57687951D10e380",
+          "contractId": "0.0.7290579",
+          "key": "0xa4934195ab83f1497ce5fc99b68d0f41694716bcfba5f232aa6c8e0d4d504f08"
+        },
+        {
+          "name": "ScheduledSnapshotsFacet",
+          "address": "0xdE3bC59fcac406a99Ae86e633F05B9c3d55b2AF1",
+          "contractId": "0.0.7290580",
+          "key": "0x100f681e33d02a1124c2c05a537a1229eca89767c5e6e8720066ca74bfb85793"
+        },
+        {
+          "name": "SnapshotsFacet",
+          "address": "0xF6B254CFbA8f00407B37EE6Fbb3c943920328B65",
+          "contractId": "0.0.7290581",
+          "key": "0x9a3fc46d83536ef6b87eb4fec37302bfd1a7c18e81ea2da853b911b44cf5b0cf"
+        },
+        {
+          "name": "SsiManagementFacet",
+          "address": "0x2e9A67fC64C2e2ae6A9f72eEBb278B2F895F4CeF",
+          "contractId": "0.0.7290584",
+          "key": "0x46df6aaf3742e0cbad136a74fb679b686e087dcc3a3d92d1c4ce2f3ef1b508a0"
+        },
+        {
+          "name": "TransferAndLockFacet",
+          "address": "0xBE49204F899FBF4913aC5E6b9F35682c90a9Ab1E",
+          "contractId": "0.0.7290587",
+          "key": "0xd9b300e6bf7a143b8fd8cf1d4ab050e691c862bf0f57a7d49cc08c60efe68d08"
+        }
+      ],
+      "configurations": {
+        "equity": {
+          "configId": "0x0000000000000000000000000000000000000000000000000000000000000001",
+          "version": 1,
+          "facetCount": 44,
+          "facets": [
+            {
+              "facetName": "AccessControlFacet",
+              "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6",
+              "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6"
+            },
+            {
+              "facetName": "CapFacet",
+              "key": "0xfb3f8aac36661b5540c571d821c80dc9db7ede5ca2a4204ee562b3356f0c026b",
+              "address": "0x74C2A96D1A67F1E0891de55518B6CEfd69D74f9C"
+            },
+            {
+              "facetName": "ControlListFacet",
+              "key": "0xfbb1491bfcecd95f79409bd5a4b69a4ba1e5573573372f5d2d66c11e3016414c",
+              "address": "0xeB777a12582cd98af88B05D06adDA8222668334c"
+            },
+            {
+              "facetName": "CorporateActionsFacet",
+              "key": "0x3cc74200ccfb5d585a6d170f8824979dbf1b592e0a41eef41cf6d86cf4882077",
+              "address": "0xFA7179E125e9299b793161D3A190aE6E626f13db"
+            },
+            {
+              "facetName": "DiamondFacet",
+              "key": "0x1b5212ea37fb29e99afa2812a5d7d7e662a477424d3de1a18cc3871a2ee94d78",
+              "address": "0xB962a1833289b01063b44b35e12ddd1aE8d9d505"
+            },
+            {
+              "facetName": "ERC20Facet",
+              "key": "0x064c883089ba1a596d9146c7aaa73c19ef8825f374c67a9538787c3d12e68dc5",
+              "address": "0x4d6D8Fe6ceAC778c6780C41E57802CfDFBF9Ef9b"
+            },
+            {
+              "facetName": "FreezeFacet",
+              "key": "0x49f765e7155d979a148049c2a0ebed5e028b11799061897a255f99314f0bd3f1",
+              "address": "0x9B7D814adBc9E28D16a327A30700DD8Ab33389c7"
+            },
+            {
+              "facetName": "KycFacet",
+              "key": "0xf516a0f6b4726244ae916c590cd26c2b593d7d448e46e43714fb9f9435c46e32",
+              "address": "0xA86E38fBF0466d226a365c2F3Eb4bdB15F903496"
+            },
+            {
+              "facetName": "PauseFacet",
+              "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c",
+              "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566"
+            },
+            {
+              "facetName": "SnapshotsFacet",
+              "key": "0x9a3fc46d83536ef6b87eb4fec37302bfd1a7c18e81ea2da853b911b44cf5b0cf",
+              "address": "0xF6B254CFbA8f00407B37EE6Fbb3c943920328B65"
+            },
+            {
+              "facetName": "ERC1410IssuerFacet",
+              "key": "0x6e82b75f32c9647cc00b4c3eabbef5a82677f3e91d5d196eb4dd6a0365941344",
+              "address": "0x6Ddd00e4Aa4e12dDCE0cF0099Ee37545DF3D76dC"
+            },
+            {
+              "facetName": "ERC1410ManagementFacet",
+              "key": "0x232f8686795d3f197681faf0d8db05655e759f62d709d56b97e5d9cfff29dbf5",
+              "address": "0xB56e510D61452B7cCD917D1408E70A910E68ca79"
+            },
+            {
+              "facetName": "ERC1410ReadFacet",
+              "key": "0x5eb2734b83ea80c3eb63463a6192b30ab2526cb7a073f0abfda1a404c92ae497",
+              "address": "0x6f678840be2579e5B12f9a310FE899A4dd5EAE07"
+            },
+            {
+              "facetName": "ERC1410TokenHolderFacet",
+              "key": "0x0466bf860d23f1ecbc25f364735e0dc3830d236f09182599831730ddd2792caa",
+              "address": "0x1fF404CEaa250830ae4143c0ab83a016eE8D2a9c"
+            },
+            {
+              "facetName": "ERC1594Facet",
+              "key": "0xcb70773e8163595d8bd906e277adeb3935976ad802ee8c29face3dfb0263291f",
+              "address": "0x0bA9754e04D95f5a60e83aE5Cf53275de70AfC81"
+            },
+            {
+              "facetName": "ERC1643Facet",
+              "key": "0x24543637956a3076689f171d3932b10f22d40f3785d53acebb340f37bed01625",
+              "address": "0x58b47890F771aEC4A8d58FEd055d6158044575BF"
+            },
+            {
+              "facetName": "ERC1644Facet",
+              "key": "0xf1da2ed271d62ba0b6597874c96fb6ed7d929e5ec679f4ad8c2c516c72f6736d",
+              "address": "0xadb6De9f53AC662ecB7a1528233FBEa25EBdDA63"
+            },
+            {
+              "facetName": "ERC20PermitFacet",
+              "key": "0xef05f0313623d32145212ed45620c8b2c8c294b3d6955cf26f3d1b0569fbc1fa",
+              "address": "0x65345c4dC2cF6b0126E2FdCB104bB26f2ec03579"
+            },
+            {
+              "facetName": "ERC20VotesFacet",
+              "key": "0x5cbfbaa435e19a43530a00ac685c9b5252862a94af2053667ded44642a0d9f4c",
+              "address": "0x8c87A314BBB3ebB434EC69eF354AF9eFf38Fe728"
+            },
+            {
+              "facetName": "ERC3643BatchFacet",
+              "key": "0x9e671b494908a7523ee4e531ae7b7076b84f1c675d31346a9697f0ff4695f249",
+              "address": "0x246bE692549D785e1917F9d8E60123A26EF98163"
+            },
+            {
+              "facetName": "ERC3643ManagementFacet",
+              "key": "0x06d7f1ffc912a9e44e5d742aa1c1eff596d0fabf91a1d0fb1c3ac0fba01f1773",
+              "address": "0xAc41ee3f2C88e836368a68eD64D99a08DfF1EF48"
+            },
+            {
+              "facetName": "ERC3643OperationsFacet",
+              "key": "0x39de33e56c92afe3cd7ece00d0ff8a0df512878690719e48c17d5b54604d2de2",
+              "address": "0x5879087F523FdB9f49799F050e9B65084f500a7F"
+            },
+            {
+              "facetName": "ERC3643ReadFacet",
+              "key": "0xf1a7f92f11da0b048b6417201459d4e1eaef0e112e0d58d5bd6ee4481e5394c7",
+              "address": "0x8A8b7525d81745Ed09d321b774e8926cc0842bde"
+            },
+            {
+              "facetName": "ClearingActionsFacet",
+              "key": "0x5472dfc5c92ad7a8651518ea7d3854d3b6494e5bcaa19f91cd61bf93bf6f2a74",
+              "address": "0x2D7Bb578960321A127d3960e482360cbe169d7C2"
+            },
+            {
+              "facetName": "ClearingHoldCreationFacet",
+              "key": "0x44f99a141c434fac20d69e7511932ee344d5b37b61851976c83a5df4ca468152",
+              "address": "0xD2d21255D78882e0641E60d4528A12A60a41e56e"
+            },
+            {
+              "facetName": "ClearingReadFacet",
+              "key": "0xebb2e29bdf4edaf4ca66a3f9b7735087f9d0474d56d856e53c94ef00596c0b1e",
+              "address": "0x410Df6B085885e4f4277aEfc72D3f9d8d81BC18D"
+            },
+            {
+              "facetName": "ClearingRedeemFacet",
+              "key": "0xb341e7aa749da43976c189209de51ccdf838af9f964cd27340b914d5b2aeba97",
+              "address": "0x8CE554dFd614dcC53F7FdF52f36bdAd1b5769D7F"
+            },
+            {
+              "facetName": "ClearingTransferFacet",
+              "key": "0x7399d03db62430bec60ca2c3eacf98b1b7e2253f17593ef7a226d759442e0928",
+              "address": "0x2a22cC0888E157E1Ca1cc77C9CafDe4AF059A6e4"
+            },
+            {
+              "facetName": "HoldManagementFacet",
+              "key": "0xaab5a0e0978ad146ca8dc61d16bab0212224eadf68bd08e3c66600ee4f59c12a",
+              "address": "0x2541C1d39394307F3Dd3fEC337877a0A6Aa2A3b6"
+            },
+            {
+              "facetName": "HoldReadFacet",
+              "key": "0xd8a2714462c01975a075ccd4be2588934afd8074afef746fac089b757b803851",
+              "address": "0x0A717EFA2cb9221B23De6542103052EBD29E3f35"
+            },
+            {
+              "facetName": "HoldTokenHolderFacet",
+              "key": "0x87b17a3ce9a86872f21469d26f005543a22ef5729998559f4ad433d5c4253f3e",
+              "address": "0xcb925D4812c32A355130391CE6D53Aa2a236ab70"
+            },
+            {
+              "facetName": "ExternalControlListManagementFacet",
+              "key": "0xb28d59e89fa116cebe06d8de737191b637a49d95f7d8d947d47ac000463e7c71",
+              "address": "0xd75Ea83abc831c477851a5b8953758C2a4FA2366"
+            },
+            {
+              "facetName": "ExternalKycListManagementFacet",
+              "key": "0x8676785f4d841823214e8ee8c497b3336a210be7559f5571c590249f6203e821",
+              "address": "0xfAF795E550AE39D8f79591d92e2e5B686BFF9453"
+            },
+            {
+              "facetName": "ExternalPauseManagementFacet",
+              "key": "0xadd2e196c17b4f607e327e46341eedbbbc3dce86ac90ceb3e7244b0a5f8590ac",
+              "address": "0x80454989F079aeD852Bd8f05206920eaF20E09CC"
+            },
+            {
+              "facetName": "AdjustBalancesFacet",
+              "key": "0x2bbe9fb018f1e7dd12b4442154e7fdfd75aec7b0a65d07debf49de4ece5fe8b8",
+              "address": "0x7b7Dc17F7D7b6Ea5f97F0d02EA40100AAfd96314"
+            },
+            {
+              "facetName": "LockFacet",
+              "key": "0xf1364345b3db5ebe5808f2d2d2aaecb9cdb4fddacad1534033060ebc886fc1e9",
+              "address": "0x2e7c38Cf68d1C066d3bAEe8AAcB4faD5ca3E7412"
+            },
+            {
+              "facetName": "ProceedRecipientsFacet",
+              "key": "0x87f4b676bf89cd24a01a78fd8e7fb2102c2f6d034be73d16402f7297e0ae625b",
+              "address": "0xe960227645f971173e25eA684fbB8559b15b0F14"
+            },
+            {
+              "facetName": "ProtectedPartitionsFacet",
+              "key": "0x6d65d2938c05a4d952aff0845c1baa5bea04d4544db74f8b3b26004d1d58d58f",
+              "address": "0x2acE553C0E528e3bd44890ef55991fC8394eE747"
+            },
+            {
+              "facetName": "ScheduledBalanceAdjustmentsFacet",
+              "key": "0xc418e67a48260d700e5f85863ad6fa6593206a4385728f8baba1572d631535e0",
+              "address": "0x4E8095ad957e6C7D4d4fcdCB7834aa0D482c66a7"
+            },
+            {
+              "facetName": "ScheduledCrossOrderedTasksFacet",
+              "key": "0xa4934195ab83f1497ce5fc99b68d0f41694716bcfba5f232aa6c8e0d4d504f08",
+              "address": "0x3487355D739A06A1D0193254A57687951D10e380"
+            },
+            {
+              "facetName": "ScheduledSnapshotsFacet",
+              "key": "0x100f681e33d02a1124c2c05a537a1229eca89767c5e6e8720066ca74bfb85793",
+              "address": "0xdE3bC59fcac406a99Ae86e633F05B9c3d55b2AF1"
+            },
+            {
+              "facetName": "SsiManagementFacet",
+              "key": "0x46df6aaf3742e0cbad136a74fb679b686e087dcc3a3d92d1c4ce2f3ef1b508a0",
+              "address": "0x2e9A67fC64C2e2ae6A9f72eEBb278B2F895F4CeF"
+            },
+            {
+              "facetName": "TransferAndLockFacet",
+              "key": "0xd9b300e6bf7a143b8fd8cf1d4ab050e691c862bf0f57a7d49cc08c60efe68d08",
+              "address": "0xBE49204F899FBF4913aC5E6b9F35682c90a9Ab1E"
+            },
+            {
+              "facetName": "EquityUSAFacet",
+              "key": "0xfe85fe0513f5a5676011f59495ae16b2b93c981c190e99e61903e5603542c810",
+              "address": "0x247a05C49FB8Dd8a9c763891F3B14137183207C2"
+            }
+          ]
+        },
+        "bond": {
+          "configId": "0x0000000000000000000000000000000000000000000000000000000000000002",
+          "version": 1,
+          "facetCount": 45,
+          "facets": [
+            {
+              "facetName": "AccessControlFacet",
+              "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6",
+              "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6"
+            },
+            {
+              "facetName": "CapFacet",
+              "key": "0xfb3f8aac36661b5540c571d821c80dc9db7ede5ca2a4204ee562b3356f0c026b",
+              "address": "0x74C2A96D1A67F1E0891de55518B6CEfd69D74f9C"
+            },
+            {
+              "facetName": "ControlListFacet",
+              "key": "0xfbb1491bfcecd95f79409bd5a4b69a4ba1e5573573372f5d2d66c11e3016414c",
+              "address": "0xeB777a12582cd98af88B05D06adDA8222668334c"
+            },
+            {
+              "facetName": "CorporateActionsFacet",
+              "key": "0x3cc74200ccfb5d585a6d170f8824979dbf1b592e0a41eef41cf6d86cf4882077",
+              "address": "0xFA7179E125e9299b793161D3A190aE6E626f13db"
+            },
+            {
+              "facetName": "DiamondFacet",
+              "key": "0x1b5212ea37fb29e99afa2812a5d7d7e662a477424d3de1a18cc3871a2ee94d78",
+              "address": "0xB962a1833289b01063b44b35e12ddd1aE8d9d505"
+            },
+            {
+              "facetName": "ERC20Facet",
+              "key": "0x064c883089ba1a596d9146c7aaa73c19ef8825f374c67a9538787c3d12e68dc5",
+              "address": "0x4d6D8Fe6ceAC778c6780C41E57802CfDFBF9Ef9b"
+            },
+            {
+              "facetName": "FreezeFacet",
+              "key": "0x49f765e7155d979a148049c2a0ebed5e028b11799061897a255f99314f0bd3f1",
+              "address": "0x9B7D814adBc9E28D16a327A30700DD8Ab33389c7"
+            },
+            {
+              "facetName": "KycFacet",
+              "key": "0xf516a0f6b4726244ae916c590cd26c2b593d7d448e46e43714fb9f9435c46e32",
+              "address": "0xA86E38fBF0466d226a365c2F3Eb4bdB15F903496"
+            },
+            {
+              "facetName": "PauseFacet",
+              "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c",
+              "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566"
+            },
+            {
+              "facetName": "SnapshotsFacet",
+              "key": "0x9a3fc46d83536ef6b87eb4fec37302bfd1a7c18e81ea2da853b911b44cf5b0cf",
+              "address": "0xF6B254CFbA8f00407B37EE6Fbb3c943920328B65"
+            },
+            {
+              "facetName": "ERC1410IssuerFacet",
+              "key": "0x6e82b75f32c9647cc00b4c3eabbef5a82677f3e91d5d196eb4dd6a0365941344",
+              "address": "0x6Ddd00e4Aa4e12dDCE0cF0099Ee37545DF3D76dC"
+            },
+            {
+              "facetName": "ERC1410ManagementFacet",
+              "key": "0x232f8686795d3f197681faf0d8db05655e759f62d709d56b97e5d9cfff29dbf5",
+              "address": "0xB56e510D61452B7cCD917D1408E70A910E68ca79"
+            },
+            {
+              "facetName": "ERC1410ReadFacet",
+              "key": "0x5eb2734b83ea80c3eb63463a6192b30ab2526cb7a073f0abfda1a404c92ae497",
+              "address": "0x6f678840be2579e5B12f9a310FE899A4dd5EAE07"
+            },
+            {
+              "facetName": "ERC1410TokenHolderFacet",
+              "key": "0x0466bf860d23f1ecbc25f364735e0dc3830d236f09182599831730ddd2792caa",
+              "address": "0x1fF404CEaa250830ae4143c0ab83a016eE8D2a9c"
+            },
+            {
+              "facetName": "ERC1594Facet",
+              "key": "0xcb70773e8163595d8bd906e277adeb3935976ad802ee8c29face3dfb0263291f",
+              "address": "0x0bA9754e04D95f5a60e83aE5Cf53275de70AfC81"
+            },
+            {
+              "facetName": "ERC1643Facet",
+              "key": "0x24543637956a3076689f171d3932b10f22d40f3785d53acebb340f37bed01625",
+              "address": "0x58b47890F771aEC4A8d58FEd055d6158044575BF"
+            },
+            {
+              "facetName": "ERC1644Facet",
+              "key": "0xf1da2ed271d62ba0b6597874c96fb6ed7d929e5ec679f4ad8c2c516c72f6736d",
+              "address": "0xadb6De9f53AC662ecB7a1528233FBEa25EBdDA63"
+            },
+            {
+              "facetName": "ERC20PermitFacet",
+              "key": "0xef05f0313623d32145212ed45620c8b2c8c294b3d6955cf26f3d1b0569fbc1fa",
+              "address": "0x65345c4dC2cF6b0126E2FdCB104bB26f2ec03579"
+            },
+            {
+              "facetName": "ERC20VotesFacet",
+              "key": "0x5cbfbaa435e19a43530a00ac685c9b5252862a94af2053667ded44642a0d9f4c",
+              "address": "0x8c87A314BBB3ebB434EC69eF354AF9eFf38Fe728"
+            },
+            {
+              "facetName": "ERC3643BatchFacet",
+              "key": "0x9e671b494908a7523ee4e531ae7b7076b84f1c675d31346a9697f0ff4695f249",
+              "address": "0x246bE692549D785e1917F9d8E60123A26EF98163"
+            },
+            {
+              "facetName": "ERC3643ManagementFacet",
+              "key": "0x06d7f1ffc912a9e44e5d742aa1c1eff596d0fabf91a1d0fb1c3ac0fba01f1773",
+              "address": "0xAc41ee3f2C88e836368a68eD64D99a08DfF1EF48"
+            },
+            {
+              "facetName": "ERC3643OperationsFacet",
+              "key": "0x39de33e56c92afe3cd7ece00d0ff8a0df512878690719e48c17d5b54604d2de2",
+              "address": "0x5879087F523FdB9f49799F050e9B65084f500a7F"
+            },
+            {
+              "facetName": "ERC3643ReadFacet",
+              "key": "0xf1a7f92f11da0b048b6417201459d4e1eaef0e112e0d58d5bd6ee4481e5394c7",
+              "address": "0x8A8b7525d81745Ed09d321b774e8926cc0842bde"
+            },
+            {
+              "facetName": "ClearingActionsFacet",
+              "key": "0x5472dfc5c92ad7a8651518ea7d3854d3b6494e5bcaa19f91cd61bf93bf6f2a74",
+              "address": "0x2D7Bb578960321A127d3960e482360cbe169d7C2"
+            },
+            {
+              "facetName": "ClearingHoldCreationFacet",
+              "key": "0x44f99a141c434fac20d69e7511932ee344d5b37b61851976c83a5df4ca468152",
+              "address": "0xD2d21255D78882e0641E60d4528A12A60a41e56e"
+            },
+            {
+              "facetName": "ClearingReadFacet",
+              "key": "0xebb2e29bdf4edaf4ca66a3f9b7735087f9d0474d56d856e53c94ef00596c0b1e",
+              "address": "0x410Df6B085885e4f4277aEfc72D3f9d8d81BC18D"
+            },
+            {
+              "facetName": "ClearingRedeemFacet",
+              "key": "0xb341e7aa749da43976c189209de51ccdf838af9f964cd27340b914d5b2aeba97",
+              "address": "0x8CE554dFd614dcC53F7FdF52f36bdAd1b5769D7F"
+            },
+            {
+              "facetName": "ClearingTransferFacet",
+              "key": "0x7399d03db62430bec60ca2c3eacf98b1b7e2253f17593ef7a226d759442e0928",
+              "address": "0x2a22cC0888E157E1Ca1cc77C9CafDe4AF059A6e4"
+            },
+            {
+              "facetName": "HoldManagementFacet",
+              "key": "0xaab5a0e0978ad146ca8dc61d16bab0212224eadf68bd08e3c66600ee4f59c12a",
+              "address": "0x2541C1d39394307F3Dd3fEC337877a0A6Aa2A3b6"
+            },
+            {
+              "facetName": "HoldReadFacet",
+              "key": "0xd8a2714462c01975a075ccd4be2588934afd8074afef746fac089b757b803851",
+              "address": "0x0A717EFA2cb9221B23De6542103052EBD29E3f35"
+            },
+            {
+              "facetName": "HoldTokenHolderFacet",
+              "key": "0x87b17a3ce9a86872f21469d26f005543a22ef5729998559f4ad433d5c4253f3e",
+              "address": "0xcb925D4812c32A355130391CE6D53Aa2a236ab70"
+            },
+            {
+              "facetName": "ExternalControlListManagementFacet",
+              "key": "0xb28d59e89fa116cebe06d8de737191b637a49d95f7d8d947d47ac000463e7c71",
+              "address": "0xd75Ea83abc831c477851a5b8953758C2a4FA2366"
+            },
+            {
+              "facetName": "ExternalKycListManagementFacet",
+              "key": "0x8676785f4d841823214e8ee8c497b3336a210be7559f5571c590249f6203e821",
+              "address": "0xfAF795E550AE39D8f79591d92e2e5B686BFF9453"
+            },
+            {
+              "facetName": "ExternalPauseManagementFacet",
+              "key": "0xadd2e196c17b4f607e327e46341eedbbbc3dce86ac90ceb3e7244b0a5f8590ac",
+              "address": "0x80454989F079aeD852Bd8f05206920eaF20E09CC"
+            },
+            {
+              "facetName": "AdjustBalancesFacet",
+              "key": "0x2bbe9fb018f1e7dd12b4442154e7fdfd75aec7b0a65d07debf49de4ece5fe8b8",
+              "address": "0x7b7Dc17F7D7b6Ea5f97F0d02EA40100AAfd96314"
+            },
+            {
+              "facetName": "LockFacet",
+              "key": "0xf1364345b3db5ebe5808f2d2d2aaecb9cdb4fddacad1534033060ebc886fc1e9",
+              "address": "0x2e7c38Cf68d1C066d3bAEe8AAcB4faD5ca3E7412"
+            },
+            {
+              "facetName": "ProceedRecipientsFacet",
+              "key": "0x87f4b676bf89cd24a01a78fd8e7fb2102c2f6d034be73d16402f7297e0ae625b",
+              "address": "0xe960227645f971173e25eA684fbB8559b15b0F14"
+            },
+            {
+              "facetName": "ProtectedPartitionsFacet",
+              "key": "0x6d65d2938c05a4d952aff0845c1baa5bea04d4544db74f8b3b26004d1d58d58f",
+              "address": "0x2acE553C0E528e3bd44890ef55991fC8394eE747"
+            },
+            {
+              "facetName": "ScheduledBalanceAdjustmentsFacet",
+              "key": "0xc418e67a48260d700e5f85863ad6fa6593206a4385728f8baba1572d631535e0",
+              "address": "0x4E8095ad957e6C7D4d4fcdCB7834aa0D482c66a7"
+            },
+            {
+              "facetName": "ScheduledCrossOrderedTasksFacet",
+              "key": "0xa4934195ab83f1497ce5fc99b68d0f41694716bcfba5f232aa6c8e0d4d504f08",
+              "address": "0x3487355D739A06A1D0193254A57687951D10e380"
+            },
+            {
+              "facetName": "ScheduledSnapshotsFacet",
+              "key": "0x100f681e33d02a1124c2c05a537a1229eca89767c5e6e8720066ca74bfb85793",
+              "address": "0xdE3bC59fcac406a99Ae86e633F05B9c3d55b2AF1"
+            },
+            {
+              "facetName": "SsiManagementFacet",
+              "key": "0x46df6aaf3742e0cbad136a74fb679b686e087dcc3a3d92d1c4ce2f3ef1b508a0",
+              "address": "0x2e9A67fC64C2e2ae6A9f72eEBb278B2F895F4CeF"
+            },
+            {
+              "facetName": "TransferAndLockFacet",
+              "key": "0xd9b300e6bf7a143b8fd8cf1d4ab050e691c862bf0f57a7d49cc08c60efe68d08",
+              "address": "0xBE49204F899FBF4913aC5E6b9F35682c90a9Ab1E"
+            },
+            {
+              "facetName": "BondUSAFacet",
+              "key": "0x09c1d80a160a7250b5fabc46d06a7fa4067e6d7292047c5024584b43f17d55ef",
+              "address": "0xc91Cdbd0A9dAeE7cC82D36EE6BbABAC41c7ee75f"
+            },
+            {
+              "facetName": "BondUSAReadFacet",
+              "key": "0xe7ca0b805514da05524faf33d2d9d9432bf1dfa53096073a7267041cfdfb6d68",
+              "address": "0x2a621EA27D8e958eA63883bD1D36f8d1d278f3b2"
+            }
+          ]
+        }
+      },
+      "summary": {
+        "totalContracts": 2,
+        "totalFacets": 48,
+        "totalConfigurations": 2,
+        "deploymentTime": 498491,
+        "gasUsed": "119555662",
+        "success": true,
+        "skippedSteps": ["BLR deployment"]
+      }
+    },
+    "treasuryDeployment": {
+      "network": "hedera-testnet",
+      "timestamp": "2025-11-20T07:35:30.343Z",
+      "deployer": "0x3094Df365bA01f842577ADe9fBaC15c35081F255",
+      "infrastructure": {
+        "proxyAdmin": {
+          "address": "0xf7a7DEee01E627A54d260Bf86A9fa01FCb1340aF"
+        },
+        "blr": {
+          "implementation": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "proxy": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70"
+        }
+      },
+      "facets": [
+        {
+          "name": "AccessControlFacet",
+          "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6",
+          "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6"
+        },
+        {
+          "name": "PauseFacet",
+          "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566",
+          "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c"
+        },
+        {
+          "name": "LifeCycleCashFlowFacet",
+          "address": "0x395e273D3D5660B98c93058de4bE80943C0ddEdD",
+          "key": "0x736f8e61e6c72487b02f45e6c78b61696830b34980c34650cf1ee7ff1317aa3b"
+        },
+        {
+          "name": "PortfolioFacet",
+          "address": "0xDbB7532d0a526EC42CD6b08A65b963bB97888b88",
+          "key": "0xb359d020e9b3bd3669a9c566ea4239dca8073296acfdce3081b36dbe0c26dc08"
+        },
+        {
+          "name": "ProceedsManagementFacet",
+          "address": "0x46549e0942cC7f8a85DECf004A3E476D1E0d223F",
+          "key": "0x35281f2a9d51aaa8039b43628c449883ae75ac5127919961f04bc253a99e0237"
+        }
+      ],
+      "configuration": {
+        "configId": "0x0000000000000000000000000000000000000000000000000000000000004e20",
+        "version": 1,
+        "facetCount": 5,
+        "facets": [
+          {
+            "facetName": "AccessControlFacet",
+            "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6",
+            "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6"
+          },
+          {
+            "facetName": "PauseFacet",
+            "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c",
+            "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566"
+          },
+          {
+            "facetName": "LifeCycleCashFlowFacet",
+            "key": "0x736f8e61e6c72487b02f45e6c78b61696830b34980c34650cf1ee7ff1317aa3b",
+            "address": "0x395e273D3D5660B98c93058de4bE80943C0ddEdD"
+          },
+          {
+            "facetName": "PortfolioFacet",
+            "key": "0xb359d020e9b3bd3669a9c566ea4239dca8073296acfdce3081b36dbe0c26dc08",
+            "address": "0xDbB7532d0a526EC42CD6b08A65b963bB97888b88"
+          },
+          {
+            "facetName": "ProceedsManagementFacet",
+            "key": "0x35281f2a9d51aaa8039b43628c449883ae75ac5127919961f04bc253a99e0237",
+            "address": "0x46549e0942cC7f8a85DECf004A3E476D1E0d223F"
+          }
+        ]
+      },
+      "summary": {
+        "totalContracts": 0,
+        "totalFacets": 3,
+        "deploymentTime": 46945,
+        "success": true
+      }
+    },
+    "factorySuiteDeployment": {
+      "network": "hedera-testnet",
+      "timestamp": "2025-11-20T07:36:42.932Z",
+      "deployer": "0x3094Df365bA01f842577ADe9fBaC15c35081F255",
+      "infrastructure": {
+        "proxyAdmin": {
+          "address": "0xf7a7DEee01E627A54d260Bf86A9fa01FCb1340aF"
+        },
+        "blr": {
+          "implementation": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "proxy": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70"
+        },
+        "factorySuite": {
+          "implementation": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "proxy": "0xDf8ad1a11966452071a8371988814E4d7d9eD0a5"
+        }
+      },
+      "facets": [
+        {
+          "name": "AccessControlFacet",
+          "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6",
+          "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6"
+        },
+        {
+          "name": "PauseFacet",
+          "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566",
+          "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c"
+        },
+        {
+          "name": "FactorySuiteFacet",
+          "address": "0x8eD768eE9Bb5747c55529a4F52AB67a1296c262d",
+          "key": "0xcf89d9e351b154ec73d93d535b6701c171db4dd978aa2e8967ef3aae7d45453f"
+        }
+      ],
+      "configuration": {
+        "configId": "0x0000000000000000000000000000000000000000000000000000000000007530",
+        "version": 1,
+        "facetCount": 3,
+        "facets": [
+          {
+            "facetName": "AccessControlFacet",
+            "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6",
+            "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6"
+          },
+          {
+            "facetName": "PauseFacet",
+            "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c",
+            "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566"
+          },
+          {
+            "facetName": "FactorySuiteFacet",
+            "key": "0xcf89d9e351b154ec73d93d535b6701c171db4dd978aa2e8967ef3aae7d45453f",
+            "address": "0x8eD768eE9Bb5747c55529a4F52AB67a1296c262d"
+          }
+        ]
+      },
+      "summary": {
+        "totalContracts": 1,
+        "totalFacets": 1,
+        "deploymentTime": 72587,
+        "success": true
+      }
+    },
+    "primaryMarketDeployment": {
+      "network": "hedera-testnet",
+      "timestamp": "2025-11-20T07:37:35.091Z",
+      "deployer": "0x3094Df365bA01f842577ADe9fBaC15c35081F255",
+      "infrastructure": {
+        "proxyAdmin": {
+          "address": "0xf7a7DEee01E627A54d260Bf86A9fa01FCb1340aF"
+        },
+        "blr": {
+          "implementation": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "proxy": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70"
+        },
+        "factoryPrimaryMarket": {
+          "implementation": "0x84f59e05eDA4cB0D423e77a8f98F1A8EBb0Cfc70",
+          "proxy": "0xb8dBaee209D4B86d3b745D544b73916205248EF1"
+        }
+      },
+      "facets": [
+        {
+          "name": "AccessControlFacet",
+          "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6",
+          "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6"
+        },
+        {
+          "name": "PauseFacet",
+          "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566",
+          "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c"
+        },
+        {
+          "name": "FactoryPrimaryMarketFacet",
+          "address": "0x00E72ECe8CC279f8213d183C999462Ec3a5813C9",
+          "key": "0x98c9d1e17a94f8342c5219f2e037b33ad4a5f9cd3c6dada43d647da671418de5"
+        },
+        {
+          "name": "PrimaryMarketFacet",
+          "address": "0xcadcc22dEe3C4858Bfb573E31d97138307D83C66",
+          "key": ""
+        }
+      ],
+      "configuration": {
+        "configId": "0x0000000000000000000000000000000000000000000000000000000000002710",
+        "version": 1,
+        "facetCount": 3,
+        "facets": [
+          {
+            "facetName": "AccessControlFacet",
+            "key": "0x011768a41cb4fe76a26f444eec15d81a0d84e919a36336d72c6539cf41c0fcf6",
+            "address": "0xa8814d85cfD27B899b2dcfaC49C935189D2a6eD6"
+          },
+          {
+            "facetName": "PauseFacet",
+            "key": "0x9429fd9ef38f89f41bd9ec33fd5c94b287ed1c27a98938da43835ac761b2f92c",
+            "address": "0xd1651b1CdB6dA6f2913597A14deBc14664D7A566"
+          },
+          {
+            "facetName": "FactoryPrimaryMarketFacet",
+            "key": "0x98c9d1e17a94f8342c5219f2e037b33ad4a5f9cd3c6dada43d647da671418de5",
+            "address": "0x00E72ECe8CC279f8213d183C999462Ec3a5813C9"
+          }
+        ]
+      },
+      "summary": {
+        "totalContracts": 1,
+        "totalFacets": 2,
+        "deploymentTime": 52157,
+        "success": true
+      }
+    }
+  }
+}

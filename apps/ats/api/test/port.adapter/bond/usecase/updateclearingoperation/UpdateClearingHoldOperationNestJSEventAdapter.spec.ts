@@ -35,6 +35,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       decimals: 2,
       currency: "USD",
       nominalValue: "100",
+      nominalValueDecimals: 2,
       startingDate: new Date("2023-01-01"),
       maturityDate: new Date("2028-01-01"),
       maxSupply: "1000000",

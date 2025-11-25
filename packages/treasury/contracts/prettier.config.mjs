@@ -1,5 +1,5 @@
 /**
- * Prettier configuration for ATS Contracts package
+ * Prettier configuration for Treasury Contracts package
  * Simply re-exports root configuration (Solidity rules already defined in root)
  * @see https://prettier.io/docs/configuration
  * @type {import("prettier").Config}

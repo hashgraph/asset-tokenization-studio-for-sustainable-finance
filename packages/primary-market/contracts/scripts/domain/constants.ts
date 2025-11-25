@@ -1,33 +1,79 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /**
- * Domain-specific constants for Green Bonds Platform FactoryPrimaryMarket.
+ * Domain-specific constants for Green Bonds Platform Primary Market.
  *
- * These constants are specific to FactoryPrimaryMarket business logic and should not
- * be moved to infrastructure.
+ * Provides namespaced access to roles, resolver keys, and configuration IDs.
+ * Roles and resolver keys are sourced from auto-generated registry data.
  *
  * @module domain/constants
+ *
+ * @example
+ * ```typescript
+ * // Configuration IDs
+ * import { FACTORY_PRIMARY_MARKET_CONFIG_ID, PRIMARY_MARKET_CONFIG_ID } from '@scripts/domain'
+ *
+ * // Namespaced roles
+ * import { PM_ROLES } from '@scripts/domain'
+ * const deployerRole = PM_ROLES.DEPLOYER_ROLE
+ * const creatorRole = PM_ROLES.OFFERING_CREATOR_ROLE
+ *
+ * // Namespaced resolver keys
+ * import { PM_RESOLVER_KEYS } from '@scripts/domain'
+ * const factoryKey = PM_RESOLVER_KEYS.FACTORY_PRIMARY_MARKET
+ * const primaryMarketKey = PM_RESOLVER_KEYS.PRIMARY_MARKET
+ *
+ * // ATS roles (re-exported)
+ * import { ATS_ROLES } from '@scripts/domain'
+ * const pauserRole = ATS_ROLES.PAUSER_ROLE
+ * ```
  */
 
-// Configuration IDs
+import { ROLES as GENERATED_ROLES, FACET_REGISTRY } from "./primaryMarketRegistry.data";
+import { ROLES as ATS_GENERATED_ROLES } from "@hashgraph/asset-tokenization-contracts/scripts";
 
+// Configuration IDs
 /** FactoryPrimaryMarket configuration ID - bytes32(uint256(10000)) */
 export const FACTORY_PRIMARY_MARKET_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000002710";
 
 /** PrimaryMarket configuration ID - bytes32(uint256(10001)) */
 export const PRIMARY_MARKET_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000002711";
 
-// Access Control Roles
-
-/** FactoryPrimaryMarket role identifiers (keccak256 hashes) */
-export const FACTORY_PRIMARY_MARKET_ROLES = {
-  /** keccak256('green.bonds.platform.role.primary.market.deployer') */
-  PM_DEPLOYER_ROLE: "0x6317a0a54c6810764ed949f1fdb7c29121cbad7545dec2b713233501ad614b22",
+/**
+ * Primary Market role identifiers (namespaced).
+ * @example
+ * ```typescript
+ * import { PM_ROLES } from '@scripts/domain';
+ * const { DEPLOYER_ROLE, OFFERING_CREATOR_ROLE } = PM_ROLES;
+ * ```
+ */
+export const PM_ROLES = {
+  DEPLOYER_ROLE: GENERATED_ROLES.PM_DEPLOYER_ROLE,
+  OFFERING_CREATOR_ROLE: GENERATED_ROLES.OFFERING_CREATOR_ROLE,
 } as const;
 
-// Resolver Keys
+/**
+ * Primary Market resolver keys (namespaced).
+ * @example
+ * ```typescript
+ * import { PM_RESOLVER_KEYS } from '@scripts/domain';
+ * const { FACTORY_PRIMARY_MARKET, PRIMARY_MARKET } = PM_RESOLVER_KEYS;
+ * ```
+ */
+export const PM_RESOLVER_KEYS = {
+  FACTORY_PRIMARY_MARKET: FACET_REGISTRY.FactoryPrimaryMarketFacet!.resolverKey!.value,
+  PRIMARY_MARKET: FACET_REGISTRY.PrimaryMarketFacet!.resolverKey!.value,
+} as const;
 
-/** FactoryPrimaryMarket facet registration key - keccak256('green.bonds.platform.factoryprimarymarket.resolverKey'); */
-export const FACTORY_PRIMARY_MARKET_RESOLVER_KEY = "0x98c9d1e17a94f8342c5219f2e037b33ad4a5f9cd3c6dada43d647da671418de5";
-
-export const PRIMARY_MARKET_RESOLVER_KEY = "0xcdfe5eae53e62eb0e55385ee0e010eb2376afa6690d7ed8e0266c6fa9820c082";
+/**
+ * ATS roles re-exported (namespaced).
+ * @example
+ * ```typescript
+ * import { ATS_ROLES } from '@scripts/domain';
+ * const { PAUSER_ROLE, DEFAULT_ADMIN_ROLE } = ATS_ROLES;
+ * ```
+ */
+export const ATS_ROLES = {
+  PAUSER_ROLE: ATS_GENERATED_ROLES._PAUSER_ROLE,
+  DEFAULT_ADMIN_ROLE: ATS_GENERATED_ROLES._DEFAULT_ADMIN_ROLE,
+} as const;

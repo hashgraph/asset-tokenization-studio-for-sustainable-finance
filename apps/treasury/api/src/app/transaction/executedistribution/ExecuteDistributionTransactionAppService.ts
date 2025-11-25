@@ -5,6 +5,7 @@ import type { TransactionBuilderPort } from "@port/transactionbuilder/Transactio
 import { ExecuteDistributionTransactionAppServiceRequest } from "./model/ExecuteDistributionTransactionAppServiceRequest"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { TransactionPageOptionsRequest } from "@port/shared/model/TransactionPageOptionsRequest"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class ExecuteDistributionTransactionAppService {
@@ -24,7 +25,10 @@ export class ExecuteDistributionTransactionAppService {
       bondContractId: treasury.bondContractId,
       distributionId: request.distributionId,
       maxBatchSize: request.maxBatchSize,
-      pageOptions: new TransactionPageOptionsRequest(request.pageOptions.page, request.pageOptions.limit),
+      pageOptions: plainToInstance(TransactionPageOptionsRequest, {
+        page: request.pageOptions.page,
+        limit: request.pageOptions.limit,
+      }),
     })
   }
 }

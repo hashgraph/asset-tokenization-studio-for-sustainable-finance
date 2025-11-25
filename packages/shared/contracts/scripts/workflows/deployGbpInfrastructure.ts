@@ -21,6 +21,10 @@ import {
   deployTreasuryWithExistingInfra,
   type DeployTreasuryOutput,
 } from "@hashgraph/green-bonds-platform-treasury-contracts/scripts";
+import {
+  deployFactoryPrimaryMarketWithExistingInfra,
+  type DeployFactoryPrimaryMarketOutput,
+} from "@hashgraph/green-bonds-platform-primarymarket-contracts/scripts";
 
 /** Deployment options for GBP infrastructure orchestration */
 export interface DeploymentOptions {
@@ -49,12 +53,16 @@ export interface DeploymentResult {
   proxyAdmin: string;
   /** BusinessLogicResolver (BLR) proxy address */
   blr: string;
+  /** BLR implementation address */
+  blrImplementationAddress: string;
   /** BOND deployment result (includes facets, configurations, factory) */
   bondDeployment: DeploymentWithExistingBlrOutput;
   /** TREASURY deployment result */
   treasuryDeployment: DeployTreasuryOutput;
   /** FactorySuite deployment result */
   factorySuiteDeployment: DeployFactorySuiteOutput;
+  /** Primary Market deployment result */
+  primaryMarketDeployment: DeployFactoryPrimaryMarketOutput;
 }
 
 /**
@@ -66,12 +74,15 @@ export interface DeploymentResult {
  * 3. Deploy BOND configuration (uses `deployWithExistingBlr` from ATS)
  * 4. Deploy TREASURY configuration (uses `deployTreasuryWithExistingInfra` from GBP Treasury)
  * 5. Deploy FactorySuite (uses `deployFactorySuiteWithExistingInfra` from GBP ATS)
+ * 6. Deploy Primary Market (uses `deployFactoryPrimaryMarketWithExistingInfra` from GBP Primary Market)
  *
  * **What Each Step Does:**
  * - Step 3: Deploys ALL BOND facets, registers them, creates BOND configuration
  * - Step 4: Deploys Treasury custom facets (reuses AccessControl and Pause from Step 3),
  *   registers them, creates Treasury configuration
  * - Step 5: Deploys FactorySuite facet, registers it, creates FactorySuite configuration
+ *   (reuses AccessControl and Pause facets from Step 3)
+ * - Step 6: Deploys Primary Market facets, registers them, creates Primary Market configuration
  *   (reuses AccessControl and Pause facets from Step 3)
  *
  * **Checkpoint System:**
@@ -102,6 +113,7 @@ export interface DeploymentResult {
  * console.log('  BOND config version:', result.bondDeployment.configurations.bond.version)
  * console.log('  Treasury config version:', result.treasuryDeployment.configuration.version)
  * console.log('  FactorySuite config version:', result.factorySuiteDeployment.configuration.version)
+ * console.log('  Primary Market config version:', result.primaryMarketDeployment.configuration.version)
  * ```
  *
  * @example Custom checkpoint directory
@@ -159,6 +171,7 @@ export async function deployGbpInfrastructure(
 
   let proxyAdminAddress: string;
   let blrAddress: string;
+  let blrImplementationAddress: string | undefined;
 
   if (incompleteCheckpoints.length > 0) {
     const checkpoint = incompleteCheckpoints[0];
@@ -175,9 +188,13 @@ export async function deployGbpInfrastructure(
 
     proxyAdminAddress = checkpoint.steps.proxyAdmin.address;
     blrAddress = checkpoint.steps.blr.proxy;
+    blrImplementationAddress = checkpoint.steps.blr.implementation;
 
     success(`✓ Reconnecting to ProxyAdmin: ${proxyAdminAddress}`);
     success(`✓ Reconnecting to BLR: ${blrAddress}`);
+    if (blrImplementationAddress) {
+      success(`✓ BLR Implementation: ${blrImplementationAddress}`);
+    }
   } else {
     info("\n✨ Starting fresh deployment...\n");
 
@@ -204,7 +221,9 @@ export async function deployGbpInfrastructure(
       }
 
       blrAddress = blrResult.blrAddress;
+      blrImplementationAddress = blrResult.implementationAddress;
       success(`✓ BLR proxy deployed at: ${blrAddress}`);
+      success(`✓ BLR implementation deployed at: ${blrImplementationAddress}`);
     } catch (infraError) {
       logError("Infrastructure deployment failed:", infraError);
       throw infraError;
@@ -269,6 +288,7 @@ export async function deployGbpInfrastructure(
       network,
       {
         blrAddress,
+        blrImplementationAddress,
         proxyAdminAddress,
         facets: {
           accessControl: accessControlFacet.address,
@@ -307,6 +327,7 @@ export async function deployGbpInfrastructure(
       network,
       {
         blrAddress,
+        blrImplementationAddress,
         proxyAdminAddress,
         facets: {
           accessControl: accessControlFacet.address,
@@ -329,6 +350,48 @@ export async function deployGbpInfrastructure(
     success(`  FactorySuite proxy deployed at: ${factorySuiteResult.infrastructure.factorySuite.proxy}`);
 
     // ========================================
+    // Step 6: Deploy Primary Market (with Existing Infrastructure)
+    // ========================================
+    section("Step 6: Deploy Primary Market");
+    info("Using deployFactoryPrimaryMarketWithExistingInfra workflow from GBP Primary Market");
+    info("This will:");
+    info("  - Deploy FactoryPrimaryMarketFacet and PrimaryMarketFacet");
+    info("  - Register facets in BLR");
+    info("  - Create FactoryPrimaryMarket configuration (config ID: 10000)");
+    info("  - Create PrimaryMarket configuration (config ID: 10001)");
+    info("  - Deploy FactoryPrimaryMarket ResolverProxy");
+    info("  - Reuse AccessControl and Pause facets from BOND deployment");
+
+    const primaryMarketResult = await deployFactoryPrimaryMarketWithExistingInfra(
+      signer,
+      network,
+      {
+        blrAddress,
+        blrImplementationAddress,
+        proxyAdminAddress,
+        facets: {
+          accessControl: accessControlFacet.address,
+          pause: pauseFacet.address,
+        },
+      },
+      {
+        useTimeTravel,
+        saveOutput: false,
+        verbose,
+      },
+    );
+
+    if (!primaryMarketResult.summary.success) {
+      throw new Error("Primary Market deployment failed");
+    }
+
+    success(`✓ Primary Market deployment completed`);
+    success(`  FactoryPrimaryMarket config version: ${primaryMarketResult.configuration.version}`);
+    success(
+      `  FactoryPrimaryMarket proxy deployed at: ${primaryMarketResult.infrastructure.factoryPrimaryMarket.proxy}`,
+    );
+
+    // ========================================
     // Deployment Summary
     // ========================================
     section("Deployment Summary");
@@ -337,16 +400,20 @@ export async function deployGbpInfrastructure(
     info(`  BLR: ${blrAddress}`);
     info(`  ATS Factory: ${bondResult.infrastructure.factory.proxy}`);
     info(`  FactorySuite Proxy: ${factorySuiteResult.infrastructure.factorySuite.proxy}`);
+    info(`  FactoryPrimaryMarket Proxy: ${primaryMarketResult.infrastructure.factoryPrimaryMarket.proxy}`);
     info("");
     info("Configurations:");
     info(`  BOND: config ID=2, version=${bondResult.configurations.bond.version}`);
     info(`  TREASURY: config ID=20000, version=${treasuryResult.configuration.version}`);
     info(`  FactorySuite: config ID=30000, version=${factorySuiteResult.configuration.version}`);
+    info(`  FactoryPrimaryMarket: config ID=10000, version=${primaryMarketResult.configuration.version}`);
+    info(`  PrimaryMarket: config ID=10001, version=${primaryMarketResult.primaryMarketConfiguration.version}`);
     info("");
     info("Facets:");
     info(`  BOND facets: ${bondResult.summary.totalFacets}`);
     info(`  TREASURY facets: ${treasuryResult.summary.totalFacets} (new) + 2 shared`);
     info(`  FactorySuite facets: ${factorySuiteResult.summary.totalFacets}`);
+    info(`  PrimaryMarket facets: ${primaryMarketResult.summary.totalFacets} (new) + 2 shared`);
     info(`  Shared facets reused: AccessControlFacet, PauseFacet`);
 
     success("✓ GBP Infrastructure deployment completed successfully!");
@@ -354,9 +421,11 @@ export async function deployGbpInfrastructure(
     return {
       proxyAdmin: proxyAdminAddress,
       blr: blrAddress,
+      blrImplementationAddress,
       bondDeployment: bondResult,
       treasuryDeployment: treasuryResult,
       factorySuiteDeployment: factorySuiteResult,
+      primaryMarketDeployment: primaryMarketResult,
     };
   } catch (err) {
     logError("Deployment failed with error:");

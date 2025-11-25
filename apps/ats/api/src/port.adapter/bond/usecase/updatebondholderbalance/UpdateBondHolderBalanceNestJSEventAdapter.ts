@@ -13,7 +13,7 @@ export class UpdateBondHolderBalanceNestJSEventAdapter
 
   @Handler(IssuedByPartitionDLTEvent)
   async handle(event: IssuedByPartitionDLTEvent): Promise<void> {
-    const bondContractId = await ConverterUtils.getHederaAddressFromEvm(event.contractId)
+    const bondContractId = event.contractId
     const holderAccountId = await ConverterUtils.getHederaAddressFromEvm(event.to)
 
     await this.commandBus.execute(

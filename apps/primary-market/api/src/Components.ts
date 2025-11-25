@@ -12,13 +12,11 @@ import { PrimaryMarketTypeORMRepository } from "@port/persistence/primarymarket/
 import { OfferingTypeORMRepository } from "@port/persistence/offering/repositories/OfferingTypeORMRepository"
 import { SubscriptionTypeORMRepository } from "@port/persistence/subscription/repositories/SubscriptionTypeORMRepository"
 import { CreateOfferingDomainService } from "@domain/offering/services/CreateOfferingDomainService"
-import { CancelOfferingDomainService } from "@domain/offering/services/CancelOfferingDomainService"
-import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
+import { ProcessOfferingDomainService } from "@domain/offering/services/ProcessOfferingDomainService"
 import { SubmitSubscriptionDomainService } from "@domain/subscription/services/SubmitSubscriptionDomainService"
 import { CancelSubscriptionDomainService } from "@domain/subscription/services/CancelSubscriptionDomainService"
 import { CheckOfferingExistsDomainService } from "@domain/offering/services/CheckOfferingExistsDomainService"
 import { CheckSubscriptionExistsDomainService } from "@domain/subscription/services/CheckSubscriptionExistsDomainService"
-import { UpdateSubscriptionsStatusDomainService } from "@domain/subscription/services/UpdateSubscriptionsStatusDomainService"
 import { CheckPrimaryMarketExistsDomainService } from "@domain/primarymarket/services/CheckPrimaryMarketExistsDomainService"
 import { CreateOfferingNestJSEventAdapter } from "@port/offering/usecase/createoffering/CreateOfferingNestJSEventAdapter"
 import { SubmitSubscriptionNestJSEventAdapter } from "@port/subscription/usecase/submitsubscription/SubmitSubscriptionNestJSEventAdapter"
@@ -74,6 +72,23 @@ import { PausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecas
 import { UnpausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/unpauseprimarymarket/UnpausePrimaryMarketNestJSEventAdapter"
 import { PausePrimaryMarketCommandHandler } from "@app/primarymarket/pauseprimarymarket/command/PausePrimaryMarketCommandHandler"
 import { UnpausePrimaryMarketCommandHandler } from "@app/primarymarket/unpauseprimarymarket/command/UnpausePrimaryMarketCommandHandler"
+import { PrimaryMarketFactoryPersistence } from "@port/persistence/primarymarketfactory/model/PrimaryMarketFactoryPersistence"
+import { PrimaryMarketFactoryTypeORMRepository } from "@port/persistence/primarymarketfactory/repositories/PrimaryMarketFactoryTypeORMRepository"
+import { PausePrimaryMarketFactoryCommandHandler } from "@app/primarymarketfactory/pauseprimarymarketfactory/command/PausePrimaryMarketFactoryCommandHandler"
+import { UnpausePrimaryMarketFactoryCommandHandler } from "@app/primarymarketfactory/unpauseprimarymarketfactory/command/UnpausePrimaryMarketFactoryCommandHandler"
+import { PausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/pauseprimarymarketfactorytransaction/PausePrimaryMarketFactoryTransactionHttpAdapter"
+import { UnpausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarketfactorytransaction/UnpausePrimaryMarketFactoryTransactionHttpAdapter"
+import { PausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/pauseprimarymarketfactory/PausePrimaryMarketFactoryNestJSEventAdapter"
+import { UnpausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/unpauseprimarymarketfactory/UnpausePrimaryMarketFactoryNestJSEventAdapter"
+import { DeployPrimaryMarketTransactionHttpAdapter } from "@port/transaction/usecase/deployprimarymarket/DeployPrimaryMarketTransactionHttpAdapter"
+import { DeployPrimaryMarketTransactionAppService } from "@app/transaction/deployprimarymarket/service/DeployPrimaryMarketTransactionAppService"
+import { DeployPrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/deployprimarymarket/DeployPrimaryMarketNestJSEventAdapter"
+import { DeployPrimaryMarketCommandHandler } from "@app/primarymarket/deployprimarymarket/command/DeployPrimaryMarketCommandHandler"
+import { DeployPrimaryMarketDomainService } from "@domain/primarymarket/services/DeployPrimaryMarketDomainService"
+import { CreatePrimaryMarketFiltersAdapter } from "@port/primarymarket/usecase/createprimarymarketfilters/CreatePrimaryMarketFiltersAdapter"
+import { CheckPrimaryMarketFactoryExistsDomainService } from "@domain/primarymarketfactory/services/CheckPrimaryMarketFactoryExistsDomainService"
+import { GetPrimaryMarketFactoryHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactory/GetPrimaryMarketFactoryHttpAdapter"
+import { GetPrimaryMarketFactoryQueryHandler } from "@app/primarymarketfactory/getprimarymarketfactory/query/GetPrimaryMarketFactoryQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -88,6 +103,10 @@ const REPOSITORIES: Provider[] = [
     provide: "SubscriptionRepository",
     useClass: SubscriptionTypeORMRepository,
   },
+  {
+    provide: "PrimaryMarketFactoryRepository",
+    useClass: PrimaryMarketFactoryTypeORMRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -101,6 +120,9 @@ export const CONTROLLERS = [
   ExecuteOfferingTransactionHttpAdapter,
   PausePrimaryMarketTransactionHttpAdapter,
   UnpausePrimaryMarketTransactionHttpAdapter,
+  PausePrimaryMarketFactoryTransactionHttpAdapter,
+  UnpausePrimaryMarketFactoryTransactionHttpAdapter,
+  DeployPrimaryMarketTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
@@ -110,6 +132,7 @@ export const CONTROLLERS = [
   GetSubscriptionsByInvestorHttpAdapter,
   GetRoleMembersHttpAdapter,
   GetOfferingHttpAdapter,
+  GetPrimaryMarketFactoryHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -118,15 +141,16 @@ export const PROVIDERS = [
   CreateOfferingTransactionAppService,
   SubmitSubscriptionTransactionAppService,
   CancelSubscriptionTransactionAppService,
+  DeployPrimaryMarketTransactionAppService,
   CreateOfferingDomainService,
-  CancelOfferingDomainService,
-  ExecuteOfferingDomainService,
+  ProcessOfferingDomainService,
   SubmitSubscriptionDomainService,
   CancelSubscriptionDomainService,
   CheckOfferingExistsDomainService,
   CheckSubscriptionExistsDomainService,
-  UpdateSubscriptionsStatusDomainService,
   CheckPrimaryMarketExistsDomainService,
+  CheckPrimaryMarketFactoryExistsDomainService,
+  DeployPrimaryMarketDomainService,
   CreateOfferingNestJSEventAdapter,
   GrantRoleNestJSEventAdapter,
   RenounceRoleNestJSEventAdapter,
@@ -135,6 +159,8 @@ export const PROVIDERS = [
   CancelSubscriptionNestJSEventAdapter,
   PausePrimaryMarketNestJSEventAdapter,
   UnpausePrimaryMarketNestJSEventAdapter,
+  DeployPrimaryMarketNestJSEventAdapter,
+  CreatePrimaryMarketFiltersAdapter,
   CreateOfferingCommandHandler,
   CancelOfferingCommandHandler,
   ExecuteOfferingCommandHandler,
@@ -142,6 +168,11 @@ export const PROVIDERS = [
   CancelSubscriptionCommandHandler,
   PausePrimaryMarketCommandHandler,
   UnpausePrimaryMarketCommandHandler,
+  PausePrimaryMarketFactoryCommandHandler,
+  UnpausePrimaryMarketFactoryCommandHandler,
+  DeployPrimaryMarketCommandHandler,
+  PausePrimaryMarketFactoryNestJSEventAdapter,
+  UnpausePrimaryMarketFactoryNestJSEventAdapter,
   GetSubscriptionQueryHandler,
   GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,
@@ -154,6 +185,7 @@ export const PROVIDERS = [
   GetPrimaryMarketBondOfferingsQueryHandler,
   GetSubscriptionsByInvestorQueryHandler,
   GetOfferingQueryHandler,
+  GetPrimaryMarketFactoryQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -174,4 +206,5 @@ export const ENTITIES = [
   PrimaryMarketPersistence,
   SubscriptionPersistence,
   UserRolePersistence,
+  PrimaryMarketFactoryPersistence,
 ]

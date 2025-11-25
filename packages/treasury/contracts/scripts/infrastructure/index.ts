@@ -27,3 +27,6 @@
 
 // Empty for now - all infrastructure comes from ATS
 // Future generic utilities can be exported here
+
+// Empty export to make this a valid ES module
+export {};

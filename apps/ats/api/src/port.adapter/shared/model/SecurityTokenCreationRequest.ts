@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { IsBoolean, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Min } from "class-validator"
+import { Type } from "class-transformer"
+import { IsBoolean, IsDate, IsNotEmpty, IsNumber, IsNumberString, IsOptional, IsString, Min } from "class-validator"
 
 export class SecurityTokenCreationRequest {
   @IsString()
@@ -76,19 +77,19 @@ export class SecurityTokenCreationRequest {
   @IsNotEmpty()
   nominalValue: string
 
-  @IsString()
-  @IsNotEmpty()
-  @IsNumberString()
-  startingDate: string
+  @IsNumber()
+  @Min(0)
+  nominalValueDecimals: number
 
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
-  @IsNumberString()
-  maturityDate: string
+  @Type(() => Date)
+  startingDate: Date
 
-  @IsString()
+  @IsDate()
   @IsNotEmpty()
-  configId: string
+  @Type(() => Date)
+  maturityDate: Date
 
   @IsNumber()
   configVersion: number

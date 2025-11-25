@@ -209,7 +209,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
             environment,
             account: request.accountId,
             format: request.format as "hedera" | "ethereum",
-            args: [bondAddress, request.distributionId, batchPageIndex, request.pageOptions.limit],
+            args: [bondAddress, request.distributionId, batchPageIndex, maxBatchSize],
           } as any)
         ).unsignedTx,
       )
@@ -246,7 +246,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
             environment,
             account: request.accountId,
             format: request.format as "hedera" | "ethereum",
-            args: [bondAddress, batchPageIndex, request.pageOptions.limit],
+            args: [bondAddress, batchPageIndex, maxBatchSize],
           } as any)
         ).unsignedTx,
       )

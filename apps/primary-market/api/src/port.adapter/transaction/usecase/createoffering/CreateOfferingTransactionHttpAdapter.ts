@@ -5,11 +5,15 @@ import { Body, Param, Post } from "@nestjs/common"
 import { CreateOfferingTransactionPort } from "./CreateOfferingTransactionPort"
 import { CreateOfferingTransactionAppService } from "@app/transaction/createoffering/service/CreateOfferingTransactionAppService"
 import { CreateOfferingTransactionAppServiceRequest } from "@app/transaction/createoffering/service/model/CreateOfferingTransactionAppServiceRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTransactionPort {
   constructor(private readonly createOfferingTransactionAppService: CreateOfferingTransactionAppService) {}
 
+  @ApiOperation({ summary: "Creates a new offering for a bond" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
   @Post(":marketContractId/bonds/:bondContractId/offerings")
   async createOfferingTransaction(
     @Param("marketContractId") marketContractId: string,
@@ -28,8 +32,8 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.maxLots,
       request.targetLots,
       request.targetQuantityRule,
-      request.startDate,
-      request.endDate,
+      request.startDate.getTime().toString(),
+      request.endDate.getTime().toString(),
       request.deadlineRule,
       request.price,
     )

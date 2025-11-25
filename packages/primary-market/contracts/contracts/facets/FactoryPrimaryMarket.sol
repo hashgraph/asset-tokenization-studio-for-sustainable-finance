@@ -9,6 +9,7 @@ import { IBusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts/
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";
 import { PM_DEPLOYER_ROLE } from "../constants/roles.sol";
+// solhint-enable max-line-length
 
 abstract contract FactoryPrimaryMarket is IFactoryPrimaryMarket, FactoryPrimaryMarketStorageWrapper {
     modifier checkAdmins(IResolverProxy.Rbac[] calldata rbacs) {

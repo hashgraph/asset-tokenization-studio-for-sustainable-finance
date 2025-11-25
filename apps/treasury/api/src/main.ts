@@ -25,7 +25,7 @@ async function bootstrap() {
 
   // Swagger configuration
   const config = new DocumentBuilder()
-    .setTitle("GreenBonds ATS API")
+    .setTitle("GreenBonds Treasury API")
     .setDescription("The GreenBonds Treasury API documentation")
     .setVersion("1.0")
     .addGlobalResponse({
@@ -47,6 +47,9 @@ async function bootstrap() {
     .build()
   const documentFactory = () => SwaggerModule.createDocument(app, config)
   SwaggerModule.setup("api/v1/docs", app, documentFactory)
+
+  // Set time zone to UTC
+  process.env.TZ = "utc"
 
   // Start the application
   await app.listen(process.env.PORT ?? 3000)
