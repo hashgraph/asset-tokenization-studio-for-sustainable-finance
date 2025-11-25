@@ -20,6 +20,11 @@ import { Signer, Contract } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { INT64_MAX, HEDERA_PRECOMPILED_ADDRESS } from "../constants";
 
+const PaymentDecimals = 3;
+const NominalValue = 300;
+const NominalValueDecimals = 2;
+const AssetDecimals = 4;
+
 // Contracts
 let primaryMarket: IPrimaryMarket;
 let primaryMarketTimeTravel: ITimeTravel;
@@ -130,11 +135,18 @@ describe("PrimaryMarket", () => {
 
     // Deploy mock tokens
     const MockERC20 = await ethers.getContractFactory("MockERC20");
-    mockPaymentToken = await MockERC20.deploy("Mock USDC", "USDC", 6);
+    mockPaymentToken = await MockERC20.deploy("Mock USDC", "USDC", PaymentDecimals);
     await mockPaymentToken.deployed();
 
     const MockBond = await ethers.getContractFactory("MockBond");
-    mockAsset = await MockBond.deploy("Green Bond", "GB", treasuryAddress);
+    mockAsset = await MockBond.deploy(
+      "Green Bond",
+      "GB",
+      treasuryAddress,
+      NominalValue,
+      NominalValueDecimals,
+      AssetDecimals,
+    );
     await mockAsset.deployed();
 
     // Mint payment tokens to investors
@@ -184,7 +196,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -229,7 +241,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -253,7 +265,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -279,7 +291,7 @@ describe("PrimaryMarket", () => {
         asset: ADDRESS_ZERO,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -302,7 +314,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: ADDRESS_ZERO,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -325,7 +337,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: ADDRESS_ZERO,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -348,7 +360,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -368,7 +380,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -391,7 +403,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -434,7 +446,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 0,
         maxLots: 50,
         targetLots: 100,
@@ -454,7 +466,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 0,
         targetLots: 100,
@@ -474,7 +486,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 0,
@@ -497,7 +509,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 50,
         maxLots: 1,
         targetLots: 100,
@@ -520,7 +532,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -543,7 +555,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -572,7 +584,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -596,7 +608,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -709,7 +721,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -732,7 +744,19 @@ describe("PrimaryMarket", () => {
       await createOffering(0, 0);
     });
 
-    it("GIVEN valid subscription WHEN submitting THEN success", async () => {
+    async function checkSubscriptionSuccess() {
+      let paymentDecimals = await mockPaymentToken.decimals();
+      let nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      let decimalsDiff = 0;
+      let multiply = false;
+
+      if (paymentDecimals > nominalValueDecimals) {
+        decimalsDiff = paymentDecimals - nominalValueDecimals;
+        multiply = true;
+      } else {
+        decimalsDiff = nominalValueDecimals - paymentDecimals;
+      }
+
       const lotsUnit = parseInt(offering.minLots.toString()) + 1;
 
       const balanceInvestorBefore = await mockPaymentToken.balanceOf(investor1Address);
@@ -750,7 +774,12 @@ describe("PrimaryMarket", () => {
       expect(investor).to.equal(investor1Address);
       expect(subscribedLotUnits).to.equal(lotsUnit);
 
-      const cost = lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue;
+      let cost = lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue;
+      if (multiply) {
+        cost = cost * 10 ** (decimalsDiff - AssetDecimals);
+      } else {
+        cost = cost / 10 ** (decimalsDiff + AssetDecimals);
+      }
 
       const balanceInvestorAfter = await mockPaymentToken.balanceOf(investor1Address);
       const balancePMAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
@@ -758,9 +787,27 @@ describe("PrimaryMarket", () => {
       expect(balanceInvestorBefore.sub(balanceInvestorAfter)).to.equal(cost);
       expect(balancePMAfter.sub(balancePMBefore)).to.equal(cost);
 
-      const [, , totalLots, pendingLots] = await primaryMarket.getOffering(1);
+      const [, , totalLots, pendingLots] = await primaryMarket.getOffering(offeringId);
       expect(totalLots).to.equal(lotsUnit);
       expect(pendingLots).to.equal(lotsUnit);
+    }
+
+    it("GIVEN valid subscription and more payment token decimals than nominal value decimals WHEN submitting THEN success", async () => {
+      await mockAsset.setNominalValueDecimals(PaymentDecimals - 1);
+      await createOffering(0, 0);
+      await checkSubscriptionSuccess();
+    });
+
+    it("GIVEN valid subscription and more nominal value decimals than payment token decimals WHEN submitting THEN success", async () => {
+      await mockAsset.setNominalValueDecimals(PaymentDecimals + 1);
+      await createOffering(0, 0);
+      await checkSubscriptionSuccess();
+    });
+
+    it("GIVEN valid subscription and same nominal value decimals as payment token decimals WHEN submitting THEN success", async () => {
+      await mockAsset.setNominalValueDecimals(PaymentDecimals);
+      await createOffering(0, 0);
+      await checkSubscriptionSuccess();
     });
 
     it("GIVEN valid subscription for an offering that accepts over subscription WHEN submitting THEN success", async () => {
@@ -815,10 +862,13 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN subscription without giving allowance to PM WHEN submitting THEN fail", async () => {
+      const decimalsDiff = PaymentDecimals - NominalValueDecimals;
+
       const lotsUnit = parseInt(offering.minLots.toString()) + 1;
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
 
-      const cost = lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue;
+      const cost =
+        lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue * 10 ** (decimalsDiff - AssetDecimals); // Adjust for decimals difference
 
       await expect(primaryMarket.connect(investor3).submitSubscription(offeringId, lotsUnit))
         .to.be.revertedWithCustomError(primaryMarket, "NotEnoughFunds")
@@ -948,7 +998,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: 2,
+        lotSize: ethers.utils.parseUnits("2", AssetDecimals),
         minLots: 1,
         maxLots: 5,
         targetLots: 10,
@@ -1005,6 +1055,8 @@ describe("PrimaryMarket", () => {
       const investorsSubscriptions = new Map<string, InvestorSubscription>();
 
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentTokenDecimals = await mockPaymentToken.decimals();
 
       const investorsList: string[] = [];
 
@@ -1061,7 +1113,9 @@ describe("PrimaryMarket", () => {
       const PrimaryMarketBalanceAfter = await mockPaymentToken.balanceOf(primaryMarketAddress);
       const TotalAssetSupplyAfter = await mockAsset.getTotalSupply();
       const TotalAssets = parseInt(offering.targetLots.toString()) * parseInt(offering.lotSize.toString());
-      const TotalCost = BigInt(TotalAssets) * BigInt(nominalValue);
+      const TotalCost =
+        (BigInt(10 ** paymentTokenDecimals) * BigInt(TotalAssets) * BigInt(nominalValue)) /
+        BigInt(10 ** (nominalValueDecimals + AssetDecimals));
 
       expect(BigInt(TreasuryBalanceBefore) + BigInt(TotalCost)).to.equal(BigInt(TreasuryBalanceAfter));
       expect(BigInt(PrimaryMarketBalanceBefore) - BigInt(TotalCost)).to.equal(BigInt(PrimaryMarketBalanceAfter));
@@ -1283,14 +1337,14 @@ describe("PrimaryMarket", () => {
       expect(alreadyProcessed).to.include(1);
     });
 
-    it("GIVEN subscription with amount exceeding int64 max WHEN executing THEN mark as failed", async () => {
+    it("GIVEN subscription with amount exceeding int64 max WHEN submitting THEN fails", async () => {
       const now = await time.latest();
 
       const offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: 1,
+        lotSize: ethers.utils.parseUnits("1", AssetDecimals),
         minLots: 1,
         maxLots: 1,
         targetLots: 1,
@@ -1299,7 +1353,7 @@ describe("PrimaryMarket", () => {
         endDate: now + 3600,
         deadlineRule: 0,
         price: BigInt(INT64_MAX) + BigInt(1), // Use custom price exceeding int64 max
-        priceDecimals: 6,
+        priceDecimals: 0,
       };
 
       let tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1309,29 +1363,7 @@ describe("PrimaryMarket", () => {
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
-      await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
-
-      await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
-
-      tx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
-      receipt = await tx.wait();
-      event = receipt.events?.find((e) => e.event === "OfferingExecuted");
-      expect(event).to.not.be.undefined;
-
-      const succeeded = event!
-        .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-        .map((r: any) => r.subscriptionId.toNumber());
-      expect(succeeded).to.deep.equal([]);
-
-      const failed = event!
-        .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-        .map((r: any) => r.subscriptionId.toNumber());
-      expect(failed).to.deep.equal([1]);
-
-      const alreadyProcessed = event!
-        .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-        .map((r: any) => r.subscriptionId.toNumber());
-      expect(alreadyProcessed).to.deep.equal([]);
+      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots)).to.be.rejected;
     });
 
     it("GIVEN offering after endDate with all subscriptions executed WHEN checking status THEN EXECUTED", async () => {
@@ -1360,7 +1392,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 1000,
@@ -1440,8 +1472,15 @@ describe("PrimaryMarket", () => {
 
       // Check balances - investors should be refunded
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentTokenDecimals = await mockPaymentToken.decimals();
+
       const refundPerSubscription =
-        parseInt(offering.minLots.toString()) * parseInt(offering.lotSize.toString()) * nominalValue;
+        (10 ** paymentTokenDecimals *
+          parseInt(offering.minLots.toString()) *
+          parseInt(offering.lotSize.toString()) *
+          nominalValue) /
+        10 ** (nominalValueDecimals + AssetDecimals);
 
       // 3 subscriptions for investor1 (indices 0, 2, 4 -> subscription IDs 1, 3, 5)
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
@@ -1484,8 +1523,16 @@ describe("PrimaryMarket", () => {
 
       // Check refund
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentTokenDecimals = await mockPaymentToken.decimals();
+
       const refundPerSubscription =
-        parseInt(offering.minLots.toString()) * parseInt(offering.lotSize.toString()) * nominalValue;
+        (10 ** paymentTokenDecimals *
+          parseInt(offering.minLots.toString()) *
+          parseInt(offering.lotSize.toString()) *
+          nominalValue) /
+        10 ** (nominalValueDecimals + AssetDecimals);
+
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
       const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
 
@@ -1602,7 +1649,7 @@ describe("PrimaryMarket", () => {
         asset: mockAsset.address,
         treasury: treasuryAddress,
         paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", 6),
+        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -1634,8 +1681,15 @@ describe("PrimaryMarket", () => {
 
       // Check refund
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
+      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentTokenDecimals = await mockPaymentToken.decimals();
+
       const expectedRefund =
-        parseInt(offering.minLots.toString()) * parseInt(offering.lotSize.toString()) * nominalValue;
+        (10 ** paymentTokenDecimals *
+          parseInt(offering.minLots.toString()) *
+          parseInt(offering.lotSize.toString()) *
+          nominalValue) /
+        10 ** (nominalValueDecimals + AssetDecimals);
 
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
       const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
@@ -1706,7 +1760,7 @@ describe("PrimaryMarket", () => {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+          lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -1726,7 +1780,7 @@ describe("PrimaryMarket", () => {
         const [offeringInfo] = await primaryMarket.getOffering(offeringId);
         const bondDetails = await mockAsset.getBondDetails();
         expect(offeringInfo.price).to.equal(bondDetails.nominalValue);
-        expect(offeringInfo.price).to.equal(3); // Default nominal value in MockBond
+        expect(offeringInfo.priceDecimals).to.equal(bondDetails.nominalValueDecimals);
       });
 
       it("WHEN submitting subscription THEN payment uses bond nominal value", async () => {
@@ -1734,7 +1788,15 @@ describe("PrimaryMarket", () => {
 
         const bondDetails = await mockAsset.getBondDetails();
         const lotUnits = 5;
-        const expectedPayment = lotUnits * parseInt(offering.lotSize.toString()) * bondDetails.nominalValue.toNumber();
+        const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+        const paymentTokenDecimals = await mockPaymentToken.decimals();
+
+        const expectedPayment =
+          (10 ** paymentTokenDecimals *
+            lotUnits *
+            parseInt(offering.lotSize.toString()) *
+            bondDetails.nominalValue.toNumber()) /
+          10 ** (nominalValueDecimals + AssetDecimals);
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
@@ -1749,7 +1811,15 @@ describe("PrimaryMarket", () => {
 
         const bondDetails = await mockAsset.getBondDetails();
         const lotUnits = 5;
-        const expectedPayment = lotUnits * parseInt(offering.lotSize.toString()) * bondDetails.nominalValue.toNumber();
+        const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+        const paymentTokenDecimals = await mockPaymentToken.decimals();
+
+        const expectedPayment =
+          (10 ** paymentTokenDecimals *
+            lotUnits *
+            parseInt(offering.lotSize.toString()) *
+            bondDetails.nominalValue.toNumber()) /
+          10 ** (nominalValueDecimals + AssetDecimals);
 
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
 
@@ -1766,6 +1836,7 @@ describe("PrimaryMarket", () => {
       let offeringId: number;
       let offering: IPrimaryMarket.OfferingStruct;
       const customPrice = 5; // Different from bond's nominal value (3)
+      const customPriceDecimals = NominalValueDecimals - 1;
 
       beforeEach(async () => {
         const now = await time.latest();
@@ -1773,7 +1844,7 @@ describe("PrimaryMarket", () => {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", 6), // 1000 USDC worth per lot
+          lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -1782,7 +1853,7 @@ describe("PrimaryMarket", () => {
           endDate: now + 3600,
           deadlineRule: 0, // WAIT_UNTIL_END
           price: customPrice, // Custom price instead of nominal value
-          priceDecimals: 6,
+          priceDecimals: customPriceDecimals,
         };
 
         await primaryMarket.connect(offeringCreator).createOffering(offering);
@@ -1800,7 +1871,11 @@ describe("PrimaryMarket", () => {
         await time.increaseTo(parseInt(offering.startDate.toString()));
 
         const lotUnits = 5;
-        const expectedPayment = lotUnits * parseInt(offering.lotSize.toString()) * customPrice;
+        const paymentTokenDecimals = await mockPaymentToken.decimals();
+
+        const expectedPayment =
+          (10 ** paymentTokenDecimals * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          10 ** (customPriceDecimals + AssetDecimals);
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
@@ -1814,7 +1889,11 @@ describe("PrimaryMarket", () => {
         await time.increaseTo(parseInt(offering.startDate.toString()));
 
         const lotUnits = 5;
-        const expectedPayment = lotUnits * parseInt(offering.lotSize.toString()) * customPrice;
+        const paymentTokenDecimals = await mockPaymentToken.decimals();
+
+        const expectedPayment =
+          (10 ** paymentTokenDecimals * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          10 ** (customPriceDecimals + AssetDecimals);
 
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
 
@@ -1841,7 +1920,11 @@ describe("PrimaryMarket", () => {
         await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]);
 
         const treasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
-        const expectedPayment = lotUnits * 2 * parseInt(offering.lotSize.toString()) * customPrice;
+        const paymentTokenDecimals = await mockPaymentToken.decimals();
+
+        const expectedPayment =
+          (10 ** paymentTokenDecimals * 2 * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          10 ** (customPriceDecimals + AssetDecimals);
 
         expect(treasuryBalanceAfter.sub(treasuryBalanceBefore)).to.equal(expectedPayment);
       });
@@ -1856,7 +1939,7 @@ describe("PrimaryMarket", () => {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", 6),
+          lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -1873,7 +1956,7 @@ describe("PrimaryMarket", () => {
           asset: mockAsset.address,
           treasury: treasuryAddress,
           paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", 6),
+          lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
           minLots: 1,
           maxLots: 50,
           targetLots: 100,

@@ -16,25 +16,42 @@ contract MockBond is IBondRead {
     uint8 public nominalValueDecimals;
     mapping(address => uint256) private _balance;
     uint256 private _totalSupply;
+    uint8 _decimals;
 
     error NotImplemented();
 
-    constructor(string memory name_, string memory symbol_, address treasury_) {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        address treasury_,
+        uint256 nominalValue_,
+        uint8 nominalValueDecimals_,
+        uint8 decimals_
+    ) {
         name = name_;
         symbol = symbol_;
         treasury = treasury_;
         // For simplicity in tests, we use 1 to mean 0.1 USDC per 10^12 bond wei
-        nominalValue = 3; // This means subscriptionAmount (in wei) * 1 = payment (in smallest unit)
-        nominalValueDecimals = 1;
+        nominalValue = nominalValue_; // This means subscriptionAmount (in wei) * 1 = payment (in smallest unit)
+        nominalValueDecimals = nominalValueDecimals_;
+        _decimals = decimals_;
     }
 
     function setNominalValue(uint256 nominalValue_) external {
         nominalValue = nominalValue_;
     }
 
+    function setNominalValueDecimals(uint8 nominalValueDecimals_) external {
+        nominalValueDecimals = nominalValueDecimals_;
+    }
+
     function issue(address _tokenHolder, uint256 _value, bytes calldata /*_data*/) external {
         _balance[_tokenHolder] += _value;
         _totalSupply += _value;
+    }
+
+    function decimals() public view returns (uint8) {
+        return _decimals;
     }
 
     function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {

@@ -73,6 +73,7 @@ interface IPrimaryMarket {
     struct Subscription {
         address investor; // Address of the investor
         uint256 lotUnits; // Number of lot units subscribed
+        uint256 amountPaid; // Total amount paid for the subscription
         SubscriptionStatus status;
     }
 
