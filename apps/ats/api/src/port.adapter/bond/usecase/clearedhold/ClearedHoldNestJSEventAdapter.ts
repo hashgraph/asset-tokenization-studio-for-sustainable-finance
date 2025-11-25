@@ -17,16 +17,20 @@ export class ClearedHoldNestJSEventAdapter implements ClearedHoldPort, EventList
 
   @Handler(ClearedHoldByPartitionDLTEvent)
   async handle(event: ClearedHoldByPartitionDLTEvent): Promise<void> {
+    const amount = event.hold.amount || "0"
+    const escrow = event.hold.escrow || ""
+    const to = event.hold.to || ""
+
     await this.commandBus.execute(
       new CreateClearingHoldCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
-        event.clearingId,
+        Number(event.clearingId),
         event.partition,
-        event.amount,
-        new Date(event.expirationDate * 1000),
-        await ConverterUtils.getHederaAddressFromEvm(event.toAddress),
-        await ConverterUtils.getHederaAddressFromEvm(event.escrowAddress),
+        amount,
+        new Date(Number(event.expirationDate) * 1000),
+        await ConverterUtils.getHederaAddressFromEvm(to),
+        await ConverterUtils.getHederaAddressFromEvm(escrow),
         event.data,
         event.operatorData,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),

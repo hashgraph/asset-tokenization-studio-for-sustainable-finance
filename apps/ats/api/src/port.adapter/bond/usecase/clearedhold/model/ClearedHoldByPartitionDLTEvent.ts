@@ -1,15 +1,21 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
+interface Hold {
+  amount: string
+  expirationTimestamp: number
+  escrow: string
+  to: string
+  data: string
+}
+
 export class ClearedHoldByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
   readonly clearingId: number
-  readonly amount: string
+  readonly hold: Hold
   readonly expirationDate: number
-  readonly toAddress: string
-  readonly escrowAddress: string
   readonly data: string
   readonly operatorData: string
 
@@ -20,10 +26,8 @@ export class ClearedHoldByPartitionDLTEvent extends DLTEvent {
     tokenHolder: string,
     partition: string,
     clearingId: number,
-    amount: string,
+    hold: Hold,
     expirationDate: number,
-    toAddress: string,
-    escrowAddress: string,
     data: string,
     operatorData: string,
   ) {
@@ -32,10 +36,8 @@ export class ClearedHoldByPartitionDLTEvent extends DLTEvent {
     this.tokenHolder = tokenHolder
     this.partition = partition
     this.clearingId = clearingId
-    this.amount = amount
+    this.hold = hold
     this.expirationDate = expirationDate
-    this.toAddress = toAddress
-    this.escrowAddress = escrowAddress
     this.data = data
     this.operatorData = operatorData
   }

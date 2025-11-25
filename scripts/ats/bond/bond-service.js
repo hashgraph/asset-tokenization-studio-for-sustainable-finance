@@ -15,7 +15,7 @@ async function createBond(format) {
     isControllable: true,
     arePartitionsProtected: false,
     isMultiPartition: false,
-    clearingActive: false,
+    clearingActive: true,
     internalKycActivated: false,
     externalPausesAddresses: [],
     externalControlListsAddresses: [],

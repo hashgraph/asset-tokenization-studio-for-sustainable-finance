@@ -4,7 +4,8 @@ import { Injectable, OnApplicationBootstrap, Logger } from "@nestjs/common"
 import { InjectRepository } from "@nestjs/typeorm"
 import { Repository } from "typeorm"
 import { FactoryPersistence } from "@port/factory/persistence/model/FactoryPersistence"
-import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core"
+import { ConverterUtils, UserRolePersistence } from "@hashgraph/green-bonds-shared-core"
+import { ConfigService } from "@nestjs/config"
 
 //TODO Replace with real data when SC is deployed
 @Injectable()
@@ -16,6 +17,7 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
     private readonly factoryRepository: Repository<FactoryPersistence>,
     @InjectRepository(UserRolePersistence)
     private readonly userRoleRepository: Repository<UserRolePersistence>,
+    private readonly configService: ConfigService,
   ) {}
 
   async onApplicationBootstrap() {
@@ -37,46 +39,29 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   }
 
   private async seedFactory() {
-    const factoryId = "0.0.7247643"
+    const atsFactoryEvmAddress = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+
+    if (!atsFactoryEvmAddress) {
+      this.logger.warn("BLOCKCHAIN_LISTENER_CONTRACTS not configured, skipping ATS Factory seeding")
+      return
+    }
+    const contractId = await ConverterUtils.getHederaAddressFromEvm(atsFactoryEvmAddress)
     const existing = await this.factoryRepository.findOne({
-      where: { contractId: factoryId },
+      where: { contractId: contractId },
     })
 
     if (!existing) {
       await this.factoryRepository.save({
-        contractId: factoryId,
+        contractId: contractId,
         isPaused: false,
       })
-      this.logger.log(`Created default Factory with factoryId: ${factoryId}`)
+      this.logger.log(`Created default Factory with factoryId: ${contractId}`)
     } else {
-      this.logger.log(`Factory with factoryId ${factoryId} already exists`)
+      this.logger.log(`Factory with factoryId ${contractId} already exists`)
     }
   }
 
   private async seedDefaultUserRole() {
-    const userAccountId = "0.0.1234"
-    const roleId = "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283" // DEPLOYER_ROLE
-    const contractId = "0.0.7247643"
-
-    const existing = await this.userRoleRepository.findOne({
-      where: {
-        userAccountId,
-        roleId,
-        contractId,
-      },
-    })
-
-    if (!existing) {
-      await this.userRoleRepository.save({
-        userAccountId,
-        roleId,
-        contractId,
-      })
-      this.logger.log(
-        `Created default UserRole for user ${userAccountId} with role ${roleId} in contract ${contractId}`,
-      )
-    } else {
-      this.logger.log(`UserRole for user ${userAccountId} with role ${roleId} in contract ${contractId} already exists`)
-    }
+    return // Add user role seeding logic here if needed (in case you know what roles the factory already has)
   }
 }
