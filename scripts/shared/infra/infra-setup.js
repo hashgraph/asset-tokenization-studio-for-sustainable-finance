@@ -35,11 +35,23 @@ const CONFIG = {
   docker: {
     composeFile: path.join(path.dirname(__dirname), '..', 'docker-compose.yaml'),
     services: {
-      postgres: {
-        name: 'PostgreSQL',
-        container: 'green_bonds_postgres',
-        healthUrl: null, // Will check via docker health
+      postgresAts: {
+        name: 'PostgreSQL (ATS)',
+        container: 'green_bonds_postgres_ats',
+        healthUrl: null,
         port: 5432
+      },
+      postgresPm: {
+        name: 'PostgreSQL (Primary Market)',
+        container: 'green_bonds_postgres_pm',
+        healthUrl: null,
+        port: 5433
+      },
+      postgresTreasury: {
+        name: 'PostgreSQL (Treasury)',
+        container: 'green_bonds_postgres_treasury',
+        healthUrl: null,
+        port: 5434
       },
       pgadmin: {
         name: 'PgAdmin',
@@ -65,7 +77,7 @@ const CONFIG = {
       PORT: '3001',
       POSTGRESQL_HOST: 'localhost',
       POSTGRESQL_PORT: '5432',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '27976208'
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
   primaryMarketApi: {
@@ -77,8 +89,8 @@ const CONFIG = {
     env: {
       PORT: '3002',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5432',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '27976208'
+      POSTGRESQL_PORT: '5433',
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
   treasuryApi: {
@@ -90,8 +102,8 @@ const CONFIG = {
     env: {
       PORT: '3003',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5432',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '27976208'
+      POSTGRESQL_PORT: '5434',
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
   gateway: {
@@ -103,8 +115,8 @@ const CONFIG = {
     env: {
       PORT: '3000',
       LOG_LEVEL: 'log',
-      PATHS: '/api/v1/ats,/api/v1/primary-markets,/api/v1/treasuries',
-      ROUTES: 'http://localhost:3001,http://localhost:3002,http://localhost:3003',
+      PATHS: '/api/v1/ats,/api/v1/treasuries',
+      ROUTES: 'http://localhost:3001,http://localhost:3003',
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'
@@ -224,13 +236,17 @@ async function startDockerServices() {
     const maxAttempts = 30;
     
     while (attempts < maxAttempts) {
-      const postgresHealthy = await checkDockerServiceHealth('postgres');
+      const postgresAtsHealthy = await checkDockerServiceHealth('postgresAts');
+      const postgresPmHealthy = await checkDockerServiceHealth('postgresPm');
+      const postgresTreasuryHealthy = await checkDockerServiceHealth('postgresTreasury');
       const rabbitmqHealthy = await checkDockerServiceHealth('rabbitmq');
       
-      if (postgresHealthy && rabbitmqHealthy) {
+      if (postgresAtsHealthy && postgresPmHealthy && postgresTreasuryHealthy && rabbitmqHealthy) {
         log('✅ All Docker services are healthy', colors.green);
         log('🌐 Service URLs:', colors.blue);
-        log('• PostgreSQL: localhost:5432 (postgres/postgres)', colors.blue);
+        log('• PostgreSQL (ATS): localhost:5432 (postgres/postgres)', colors.blue);
+        log('• PostgreSQL (Primary Market): localhost:5433 (postgres/postgres)', colors.blue);
+        log('• PostgreSQL (Treasury): localhost:5434 (postgres/postgres)', colors.blue);
         log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)', colors.blue);
         log('• RabbitMQ Management: http://localhost:15672 (guest/guest)', colors.blue);
         return true;
