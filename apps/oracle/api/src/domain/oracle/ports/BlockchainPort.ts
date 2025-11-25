@@ -8,17 +8,20 @@ export interface WriteKpiResult {
 export interface BlockchainPort {
   /**
    * Write KPI value to the smart contract
+   *
+   * Note: The smart contract function is addKpiData(uint256 toDate, uint256 kpiValue)
+   * It only accepts ONE timestamp (toDate), not a range. The fromDate is used internally
+   * by the Oracle for calculation but not sent to the blockchain.
+   *
    * @param kpiContractId - The KPI contract address
    * @param projectId - The project identifier
    * @param kpiValue - The aggregated KPI value
-   * @param fromDate - Start of the measurement period (null for first execution)
-   * @param toDate - End of the measurement period
+   * @param toDate - The measurement date (timestamp when this KPI was recorded)
    */
   writeKpiToContract(
     kpiContractId: string,
     projectId: string,
     kpiValue: number,
-    fromDate: Date | null,
     toDate: Date,
   ): Promise<WriteKpiResult>
 }

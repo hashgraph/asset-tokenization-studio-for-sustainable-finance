@@ -24,17 +24,16 @@ export class DynamicBlockchainAdapter implements BlockchainPort {
     kpiContractId: string,
     projectId: string,
     kpiValue: number,
-    fromDate: Date | null,
     toDate: Date,
   ): Promise<WriteKpiResult> {
     const config = await this.configRepository.getOrCreateDefault()
 
     if (config.useJsonRpc) {
       this.logger.debug("Using JSON-RPC adapter")
-      return this.getJsonRpcAdapter().writeKpiToContract(kpiContractId, projectId, kpiValue, fromDate, toDate)
+      return this.getJsonRpcAdapter().writeKpiToContract(kpiContractId, projectId, kpiValue, toDate)
     } else {
       this.logger.debug("Using Hedera SDK adapter")
-      return this.getSdkAdapter().writeKpiToContract(kpiContractId, projectId, kpiValue, fromDate, toDate)
+      return this.getSdkAdapter().writeKpiToContract(kpiContractId, projectId, kpiValue, toDate)
     }
   }
 

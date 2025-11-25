@@ -30,12 +30,11 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
     kpiContractId: string,
     projectId: string,
     kpiValue: number,
-    fromDate: Date | null,
     toDate: Date,
   ): Promise<WriteKpiResult> {
     this.logger.log(
       `Writing KPI to contract ${kpiContractId} for project ${projectId}: ` +
-        `value=${kpiValue}, range=[${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}] (via JSON-RPC)`,
+        `value=${kpiValue}, date=${toDate.toISOString()} (via JSON-RPC)`,
     )
 
     try {
@@ -48,10 +47,10 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
       }
 
       // Encode function call
-      // Contract function signature: addKpiData(uint256 fromDate, uint256 toDate, uint256 kpiValue)
-      const functionSelector = this.getFunctionSelector("addKpiData(uint256,uint256,uint256)")
+      // Contract function signature: addKpiData(uint256 toDate, uint256 kpiValue)
+      // Note: Only ONE timestamp is sent (toDate), not a range
+      const functionSelector = this.getFunctionSelector("addKpiData(uint256,uint256)")
       const encodedParams = this.encodeParameters(
-        fromDate ? Math.floor(fromDate.getTime() / 1000) : 0,
         Math.floor(toDate.getTime() / 1000),
         Math.floor(kpiValue * 1000000),
       )
@@ -112,12 +111,11 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
     return "0x12345678" // First 4 bytes of keccak256(signature)
   }
 
-  private encodeParameters(fromTimestamp: number, toTimestamp: number, kpiValue: number): string {
+  private encodeParameters(toTimestamp: number, kpiValue: number): string {
     // Simplified encoding - in production, use ethers.js AbiCoder
-    // Parameters: uint256 fromDate, uint256 toDate, uint256 kpiValue
+    // Parameters: uint256 toDate, uint256 kpiValue
     return (
       "0x" +
-      fromTimestamp.toString(16).padStart(64, "0") +
       toTimestamp.toString(16).padStart(64, "0") +
       kpiValue.toString(16).padStart(64, "0")
     )

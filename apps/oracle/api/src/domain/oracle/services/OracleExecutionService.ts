@@ -76,12 +76,13 @@ export class OracleExecutionService {
 
       this.logger.debug(`Aggregated KPI for project ${project.projectId}: ${aggregatedKpi}`)
       //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
-      // Step 4: Write to blockchain with from/to dates
+      // Step 4: Write to blockchain with toDate
+      // Note: Smart contract only stores ONE timestamp (toDate), not a range
+      // The fromDate is used internally by the Oracle for fetching data, but not sent to blockchain
       const writeResult = await this.blockchainPort.writeKpiToContract(
         registry.kpiContractId,
         project.projectId,
         aggregatedKpi,
-        fromDate,
         toDate,
       )
 

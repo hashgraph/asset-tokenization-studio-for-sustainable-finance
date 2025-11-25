@@ -67,12 +67,11 @@ export class HederaSDKAdapter implements BlockchainPort {
     kpiContractId: string,
     projectId: string,
     kpiValue: number,
-    fromDate: Date | null,
     toDate: Date,
   ): Promise<WriteKpiResult> {
     this.logger.log(
       `Writing KPI to contract ${kpiContractId} for project ${projectId}: ` +
-        `value=${kpiValue}, range=[${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}]`,
+        `value=${kpiValue}, date=${toDate.toISOString()}`,
     )
 
     try {
@@ -80,10 +79,9 @@ export class HederaSDKAdapter implements BlockchainPort {
       const client = await this.ensureClient()
 
       // Prepare function parameters
-      // Contract function signature:
-      // addKpiData(uint256 fromDate, uint256 toDate, uint256 kpiValue)
+      // Contract function signature: addKpiData(uint256 toDate, uint256 kpiValue)
+      // Note: Only ONE timestamp is sent (toDate), not a range
       const functionParams = new ContractFunctionParameters()
-        .addUint256(fromDate ? Math.floor(fromDate.getTime() / 1000) : 0) // 0 for first execution
         .addUint256(Math.floor(toDate.getTime() / 1000)) // Unix timestamp
         .addUint256(Math.floor(kpiValue * 1000000)) // Convert to fixed point if needed
 
