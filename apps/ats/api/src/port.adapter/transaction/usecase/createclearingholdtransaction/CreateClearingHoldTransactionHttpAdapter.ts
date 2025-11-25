@@ -23,7 +23,7 @@ export class CreateClearingHoldTransactionHttpAdapter implements CreateClearingH
       holderAccountId,
       request.partition,
       request.amount,
-      request.expirationTimestamp,
+      Math.floor(request.expirationTimestamp.getTime() / 1000).toString(),
       request.escrowAddress,
       request.data,
     )

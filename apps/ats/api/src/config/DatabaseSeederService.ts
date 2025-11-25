@@ -39,12 +39,12 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   private async seedFactory() {
     const factoryId = "0.0.7247643"
     const existing = await this.factoryRepository.findOne({
-      where: { factoryId },
+      where: { contractId: factoryId },
     })
 
     if (!existing) {
       await this.factoryRepository.save({
-        factoryId,
+        contractId: factoryId,
         isPaused: false,
       })
       this.logger.log(`Created default Factory with factoryId: ${factoryId}`)

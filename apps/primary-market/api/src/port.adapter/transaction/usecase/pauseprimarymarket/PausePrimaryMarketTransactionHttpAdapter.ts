@@ -10,11 +10,15 @@ import {
 
 import { PausePrimaryMarketTransactionPort } from "@port/transaction/usecase/pauseprimarymarket/PausePrimaryMarketTransactionPort"
 import { PausePrimaryMarketTransactionRequest } from "@port/transaction/usecase/pauseprimarymarket/model/PausePrimaryMarketTransactionRequest"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class PausePrimaryMarketTransactionHttpAdapter implements PausePrimaryMarketTransactionPort {
   constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 
+  @ApiOperation({ summary: "Pauses the primary market contract" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
   @Post(":marketContractId/pause")
   async pausePrimaryMarket(
     @Param("marketContractId") marketContractId: string,

@@ -56,8 +56,8 @@ describe("CreateOfferingTransaction API Integration", () => {
         maxLots: "10000",
         targetLots: "5000",
         targetQuantityRule: 1,
-        startDate: "1640995200000",
-        endDate: "1672531200000",
+        startDate: new Date(1640995200000),
+        endDate: new Date(1672531200000),
         deadlineRule: 1,
         price: "100",
       }
@@ -87,8 +87,8 @@ describe("CreateOfferingTransaction API Integration", () => {
           maxLots: "10000",
           targetLots: "5000",
           targetQuantityRule: 1,
-          startDate: "1640995200000",
-          endDate: "1672531200000",
+          startDate: new Date(1640995200000),
+          endDate: new Date(1672531200000),
           deadlineRule: 1,
           price: "100",
         }
@@ -133,8 +133,8 @@ describe("CreateOfferingTransaction API Integration", () => {
         maxLots: "10000",
         targetLots: "5000",
         targetQuantityRule: 1,
-        startDate: "1640995200000",
-        endDate: "1672531200000",
+        startDate: new Date(1640995200000),
+        endDate: new Date(1672531200000),
         deadlineRule: "-1",
         price: "100",
       }

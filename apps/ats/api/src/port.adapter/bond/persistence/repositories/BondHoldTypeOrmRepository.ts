@@ -77,4 +77,12 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
       totalPages: Math.ceil(total / pageOptions.limit),
     }
   }
+
+  async deleteByIdAndContractIdAndHolderAccountId(
+    id: number,
+    contractId: string,
+    holderAccountId: string,
+  ): Promise<void> {
+    await this.repository.delete({ id, contractId, holderAccountId })
+  }
 }

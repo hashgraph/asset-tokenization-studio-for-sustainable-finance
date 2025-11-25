@@ -3,5 +3,5 @@
 import type { GetFactoryResponse } from "@port/factory/usecase/getfactory/model/GetFactoryResponse"
 
 export interface GetFactoryPort {
-  getFactory(factoryId: string): Promise<GetFactoryResponse>
+  getFactory(factoryContractId: string): Promise<GetFactoryResponse>
 }

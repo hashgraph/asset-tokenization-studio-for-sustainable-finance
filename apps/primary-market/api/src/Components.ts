@@ -72,6 +72,14 @@ import { PausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecas
 import { UnpausePrimaryMarketNestJSEventAdapter } from "@port/primarymarket/usecase/unpauseprimarymarket/UnpausePrimaryMarketNestJSEventAdapter"
 import { PausePrimaryMarketCommandHandler } from "@app/primarymarket/pauseprimarymarket/command/PausePrimaryMarketCommandHandler"
 import { UnpausePrimaryMarketCommandHandler } from "@app/primarymarket/unpauseprimarymarket/command/UnpausePrimaryMarketCommandHandler"
+import { PrimaryMarketFactoryPersistence } from "@port/persistence/primarymarketfactory/model/PrimaryMarketFactoryPersistence"
+import { PrimaryMarketFactoryTypeORMRepository } from "@port/persistence/primarymarketfactory/repositories/PrimaryMarketFactoryTypeORMRepository"
+import { PausePrimaryMarketFactoryCommandHandler } from "@app/primarymarketfactory/pauseprimarymarketfactory/command/PausePrimaryMarketFactoryCommandHandler"
+import { UnpausePrimaryMarketFactoryCommandHandler } from "@app/primarymarketfactory/unpauseprimarymarketfactory/command/UnpausePrimaryMarketFactoryCommandHandler"
+import { PausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/pauseprimarymarketfactorytransaction/PausePrimaryMarketFactoryTransactionHttpAdapter"
+import { UnpausePrimaryMarketFactoryTransactionHttpAdapter } from "@port/transaction/usecase/unpauseprimarymarketfactorytransaction/UnpausePrimaryMarketFactoryTransactionHttpAdapter"
+import { PausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/pauseprimarymarketfactory/PausePrimaryMarketFactoryNestJSEventAdapter"
+import { UnpausePrimaryMarketFactoryNestJSEventAdapter } from "@port/primarymarketfactory/usecase/unpauseprimarymarketfactory/UnpausePrimaryMarketFactoryNestJSEventAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -86,6 +94,10 @@ const REPOSITORIES: Provider[] = [
     provide: "SubscriptionRepository",
     useClass: SubscriptionTypeORMRepository,
   },
+  {
+    provide: "PrimaryMarketFactoryRepository",
+    useClass: PrimaryMarketFactoryTypeORMRepository,
+  },
 ]
 
 export const CONTROLLERS = [
@@ -99,6 +111,8 @@ export const CONTROLLERS = [
   ExecuteOfferingTransactionHttpAdapter,
   PausePrimaryMarketTransactionHttpAdapter,
   UnpausePrimaryMarketTransactionHttpAdapter,
+  PausePrimaryMarketFactoryTransactionHttpAdapter,
+  UnpausePrimaryMarketFactoryTransactionHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
@@ -138,6 +152,10 @@ export const PROVIDERS = [
   CancelSubscriptionCommandHandler,
   PausePrimaryMarketCommandHandler,
   UnpausePrimaryMarketCommandHandler,
+  PausePrimaryMarketFactoryCommandHandler,
+  UnpausePrimaryMarketFactoryCommandHandler,
+  PausePrimaryMarketFactoryNestJSEventAdapter,
+  UnpausePrimaryMarketFactoryNestJSEventAdapter,
   GetSubscriptionQueryHandler,
   GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,
@@ -170,4 +188,5 @@ export const ENTITIES = [
   PrimaryMarketPersistence,
   SubscriptionPersistence,
   UserRolePersistence,
+  PrimaryMarketFactoryPersistence,
 ]

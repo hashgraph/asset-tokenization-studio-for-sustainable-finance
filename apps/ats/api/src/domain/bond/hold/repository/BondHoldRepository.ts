@@ -23,4 +23,5 @@ export interface BondHoldRepository {
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<BondHold>>
+  deleteByIdAndContractIdAndHolderAccountId(id: number, contractId: string, holderAccountId: string): Promise<void>
 }

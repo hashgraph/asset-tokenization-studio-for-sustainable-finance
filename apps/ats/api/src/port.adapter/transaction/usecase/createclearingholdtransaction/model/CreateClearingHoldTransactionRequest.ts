@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsOptional } from "class-validator"
+import { Type } from "class-transformer"
+import { IsDate, IsNotEmpty, IsOptional, IsString } from "class-validator"
 
 export class CreateClearingHoldTransactionRequest extends BaseTransactionRequest {
   @IsOptional()
@@ -12,8 +13,9 @@ export class CreateClearingHoldTransactionRequest extends BaseTransactionRequest
   amount: string
 
   @IsNotEmpty()
-  @IsNumber()
-  expirationTimestamp: number
+  @IsDate()
+  @Type(() => Date)
+  expirationTimestamp: Date
 
   @IsNotEmpty()
   @IsString()
