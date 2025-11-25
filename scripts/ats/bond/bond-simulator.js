@@ -26,6 +26,8 @@ async function runBondCreationSimulator() {
     logSuccess(`Created and signed ${format.toUpperCase()} bond transaction`);
     logSuccess('Published signed transaction to message queue');
     
+    return bond;
+    
   } catch (error) {
     logError(`Failed to sign bond transaction: ${error.message}`);
     logError('Make sure:');
