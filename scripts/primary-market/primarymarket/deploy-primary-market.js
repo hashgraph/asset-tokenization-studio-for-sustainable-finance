@@ -66,8 +66,8 @@ async function main() {
     
     // Configuration parameters
     // TODO: Replace these with actual values or command line arguments
-    const resolverContractId = process.env.RESOLVER_CONTRACT_ID || '0.0.7297268';
-    const configVersion = parseInt(process.env.CONFIG_VERSION || '0');
+    const resolverContractId = '0.0.7297268';
+    const configVersion = 0;
     
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
     logInfo(`Config Version: ${configVersion}`);
