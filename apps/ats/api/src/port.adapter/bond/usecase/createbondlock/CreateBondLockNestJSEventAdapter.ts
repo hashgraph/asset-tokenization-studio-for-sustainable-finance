@@ -14,8 +14,8 @@ export class CreateBondLockNestJSEventAdapter implements CreateBondLockPort, Eve
   async handle(event: LockedByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateBondLockCommand(
-        event.lockId,
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        Number(event.lockId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         event.amount,

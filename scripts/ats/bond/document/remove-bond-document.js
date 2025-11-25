@@ -1,9 +1,9 @@
-const { config } = require("../../shared/lib/config");
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../shared/lib/logger");
-const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
-const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
-const { createBond } = require("./bond-service");
-const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { config } = require("../../../shared/lib/config");
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
+const { createBond } = require("../bond-service");
+const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { setBondDocument, getLatestBond } = require("./set-bond-document");
 
 const DOCUMENT_CONFIG = {

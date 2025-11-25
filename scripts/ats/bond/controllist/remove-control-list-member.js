@@ -1,10 +1,11 @@
-const { config } = require("../../shared/lib/config");
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../shared/lib/logger");
-const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
-const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
-const { createBond } = require("./bond-service");
-const { gatewayClient } = require("../../shared/lib/gateway-client");
-const { getLatestBond } = require("./set-bond-document");
+const { config } = require("../../../shared/lib/config");
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
+const { createBond } = require("../bond-service");
+const { gatewayClient } = require("../../../shared/lib/gateway-client");
+const { getLatestBond } = require("../document/set-bond-document");
+const { addControlListMember } = require("./add-control-list-member");
 
 function getHolderAccountIdFromEnv() {
   const evmAddress = process.env.ACCOUNT_EVM_ADDRESS;
@@ -16,28 +17,27 @@ function getHolderAccountIdFromEnv() {
   return evmAddress;
 }
 
-async function addControlListMember(bondContractId, holderAccountId, format) {
-  log(`\n=👥 Adding holder to control list for bond ${bondContractId}...`, colors.bright);
+async function removeControlListMember(bondContractId, holderAccountId, format) {
+  log(`\n=👥 Removing holder from control list for bond ${bondContractId}...`, colors.bright);
 
-  const addControlListMemberRequest = {
+  const removeControlListMemberRequest = {
     format: format,
     accountId: process.env.ACCOUNT_ID,
   };
 
   try {
-    const response = await gatewayClient.post(
-      `/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`,
-      addControlListMemberRequest,
-    );
+    const response = await gatewayClient.delete(`/api/v1/ats/bonds/${bondContractId}/control-list/${holderAccountId}`, {
+      data: removeControlListMemberRequest,
+    });
 
-    logSuccess("Add control list member transaction created successfully!");
+    logSuccess("Remove control list member transaction created successfully!");
     logInfo(`Bond Contract ID: ${bondContractId}`);
     logInfo(`Holder Account ID: ${holderAccountId}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
 
-    return { ...addControlListMemberRequest, holderAccountId, unsignedTx: response.data.unsignedTx };
+    return { ...removeControlListMemberRequest, holderAccountId, unsignedTx: response.data.unsignedTx };
   } catch (error) {
-    logError(`Failed to add control list member: ${error.message}`);
+    logError(`Failed to remove control list member: ${error.message}`);
     if (error.response?.data) {
       logError(`Error details: ${JSON.stringify(error.response.data, null, 2)}`);
     }
@@ -45,19 +45,19 @@ async function addControlListMember(bondContractId, holderAccountId, format) {
   }
 }
 
-async function verifyControlListMemberInDatabase(bondContractId, holderAccountId) {
-  log(`\n=🔍 Control list member verification:`, colors.bright);
-  logSuccess(`Add control list member transaction has been sent successfully`);
-  logInfo(`The AddControlListMemberEvent should have been processed`);
-  logInfo(`=✅ To verify the holder was added, run a database query`);
+async function verifyControlListMemberRemovalInDatabase(bondContractId, holderAccountId) {
+  log(`\n=🔍 Control list member removal verification:`, colors.bright);
+  logSuccess(`Remove control list member transaction has been sent successfully`);
+  logInfo(`The RemoveControlListMemberEvent should have been processed`);
+  logInfo(`=✅ To verify the holder was removed, run a database query`);
   logInfo(
-    `Expected result: Bond with contractId "${bondContractId}" should have holder "${holderAccountId}" in the control list registry`,
+    `Expected result: Bond with contractId "${bondContractId}" should NOT have holder "${holderAccountId}" in the control list registry`,
   );
-  logInfo(`You should also see an AddControlListMemberEvent in the events table\n`);
+  logInfo(`You should also see a RemoveControlListMemberEvent in the events table\n`);
 }
 
-async function runAddControlListMemberSimulator() {
-  logHeader("=🚀 Running Add Control List Member Simulator...");
+async function runDeleteControlListMemberSimulator() {
+  logHeader("=🚀 Running Remove Control List Member Simulator...");
 
   if (!validateSigningConfig()) {
     return;
@@ -101,12 +101,12 @@ async function runAddControlListMemberSimulator() {
     logInfo(`Holder Account ID to add: ${holderAccountId}`);
     logInfo(`Using EVM address from ACCOUNT_EVM_ADDRESS in .env file`);
 
-    const controlListTransaction = await addControlListMember(bondContractId, holderAccountId, format);
+    const addControlListTransaction = await addControlListMember(bondContractId, holderAccountId, format);
 
-    const signedControlListTx = await signTransaction(controlListTransaction.unsignedTx);
+    const signedAddControlListTx = await signTransaction(addControlListTransaction.unsignedTx);
     logSuccess("Add control list member transaction signed successfully!");
 
-    await publishSignedTransaction(signedControlListTx);
+    await publishSignedTransaction(signedAddControlListTx);
     logSuccess("Control list transaction published to message queue");
 
     log(
@@ -115,16 +115,33 @@ async function runAddControlListMemberSimulator() {
     );
     await new Promise((resolve) => setTimeout(resolve, 10000));
 
-    logHeader("=✅ Step 4: Verifying Control List Update...");
-    await verifyControlListMemberInDatabase(bondContractId, holderAccountId);
+    logHeader("=🗑️  Step 4: Removing Holder from Control List...");
 
-    logHeader("=🎉 Add Control List Member Simulation Completed!");
+    const deleteControlListTransaction = await removeControlListMember(bondContractId, holderAccountId, format);
+
+    const signedDeleteControlListTx = await signTransaction(deleteControlListTransaction.unsignedTx);
+    logSuccess("Remove control list member transaction signed successfully!");
+
+    await publishSignedTransaction(signedDeleteControlListTx);
+    logSuccess("Delete control list transaction published to message queue");
+
+    log(
+      "\n=⏳ Waiting for control list deletion to be processed and event to be captured (10 seconds)...",
+      colors.yellow,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    logHeader("=✅ Step 5: Verifying Control List Removal...");
+    await verifyControlListMemberRemovalInDatabase(bondContractId, holderAccountId);
+
+    logHeader("=🎉 Remove Control List Member Simulation Completed!");
     logSuccess(`Created bond with contract ID: ${bondContractId}`);
     logSuccess(`Added holder ${holderAccountId} to control list registry`);
+    logSuccess(`Removed holder ${holderAccountId} from control list registry`);
     logSuccess("= Check the database to verify:");
     logInfo(`   = Bond table for contract ID: ${bondContractId}`);
-    logInfo(`   = Control list registry should contain holder: ${holderAccountId}`);
-    logInfo(`   = AddControlListMemberEvent should be in the events table`);
+    logInfo(`   = Control list registry should NOT contain holder: ${holderAccountId}`);
+    logInfo(`   = RemoveControlListMemberEvent should be in the events table`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
     logError("Make sure:");
@@ -141,13 +158,13 @@ async function runAddControlListMemberSimulator() {
 
 async function main() {
   try {
-    logHeader("=🏦 Evercity Add Control List Member Simulator");
-    log("==========================================\n", colors.bright);
+    logHeader("=🏦 Evercity Remove Control List Member Simulator");
+    log("============================================\n", colors.bright);
     log(`=📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
     log(`=👤 Holder Account ID: ${config.ACCOUNT_EVM_ADDRESS || "Not set in .env"}`, colors.cyan);
-    log(`=📝 This will create a new bond and add a holder to its control list\n`, colors.cyan);
+    log(`=📝 This will create a bond, add a holder to control list, then remove it\n`, colors.cyan);
 
-    await runAddControlListMemberSimulator();
+    await runDeleteControlListMemberSimulator();
   } catch (error) {
     logError(`Simulation failed: ${error.message}`);
     process.exit(1);
@@ -158,4 +175,8 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { runAddControlListMemberSimulator, addControlListMember, verifyControlListMemberInDatabase };
+module.exports = {
+  runDeleteControlListMemberSimulator,
+  removeControlListMember,
+  verifyControlListMemberRemovalInDatabase,
+};
