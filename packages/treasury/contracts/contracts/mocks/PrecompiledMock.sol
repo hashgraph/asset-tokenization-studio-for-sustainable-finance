@@ -36,7 +36,6 @@ interface IPrecompiledMock {
     function setPrecompiledTransferStatus(bool _success) external;
     function getPrecompiledNegativeDecimals() external view returns (bool);
     function getPrecompiledTransferStatus() external view returns (bool);
-
 }
 
 contract PrecompiledMockStorageWrapper {

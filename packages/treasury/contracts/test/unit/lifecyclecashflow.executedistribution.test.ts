@@ -173,7 +173,13 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon when getting the distribution holders fails", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
+          const asset = await assetMockContract.deploy(
+            1,
+            1,
+            ["0x0000000000000000000000000000000000000002"],
+            false,
+            true,
+          );
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -194,6 +200,7 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
@@ -278,14 +285,17 @@ describe("LifeCycleCashFlow operations", () => {
           const paymentTokenAddress = paymentToken.address;
           await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
-          const precompiled = (await ethers.getContractAt("IPrecompiledMock", HEDERA_PRECOMPILED_ADDRESS)) as IPrecompiledMock;
-          precompiled.setPrecompiledNegativeDecimals(true);
+          const precompiled = (await ethers.getContractAt(
+            "IPrecompiledMock",
+            HEDERA_PRECOMPILED_ADDRESS,
+          )) as IPrecompiledMock;
+          await precompiled.setPrecompiledNegativeDecimals(true);
 
           await expect(treasury.executeDistribution(assetAddress, 1, 1, 1))
             .to.be.revertedWithCustomError(treasury, "InvalidTokenDecimals")
             .withArgs(paymentTokenAddress, -1);
 
-          precompiled.setPrecompiledNegativeDecimals(false);
+          await precompiled.setPrecompiledNegativeDecimals(false);
         });
       });
 
@@ -404,9 +414,10 @@ describe("LifeCycleCashFlow operations", () => {
       const randomWallet = ethers.Wallet.createRandom();
       const privateKey = randomWallet.privateKey;
 
-      await expect(
-        treasury.executeDistributionByAddresses(randomWallet.address, 1, []),
-      ).to.be.revertedWithCustomError(treasury, "InvalidAsset");
+      await expect(treasury.executeDistributionByAddresses(randomWallet.address, 1, [])).to.be.revertedWithCustomError(
+        treasury,
+        "InvalidAsset",
+      );
     });
 
     describe("LifeCycleCashFlow with a distribution payment date that has not already arrived", () => {
@@ -474,6 +485,7 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
@@ -579,7 +591,13 @@ describe("LifeCycleCashFlow operations", () => {
 
       describe("Distribution a coupon with two holders of a great amount of tokens", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 90000000000000000n, [signer_B.address, signer_A.address], false, true);
+          const asset = await assetMockContract.deploy(
+            1,
+            90000000000000000n,
+            [signer_B.address, signer_A.address],
+            false,
+            true,
+          );
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);

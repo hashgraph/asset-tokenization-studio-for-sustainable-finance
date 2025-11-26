@@ -1,5 +1,5 @@
 module.exports = {
   skipFiles: [
-    "mocks" // Skip entire folder
+    "mocks", // Skip entire folder
   ],
 };

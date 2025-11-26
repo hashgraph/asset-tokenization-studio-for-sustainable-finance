@@ -154,7 +154,13 @@ describe("LifeCycleCashFlow operations", () => {
     describe("LifeCycleCashFlow with a redemption date that has already arrived", () => {
       describe("Redeem a bond when getting the bond holders fails", () => {
         beforeEach(async () => {
-          const asset = await assetMockContract.deploy(1, 1, ["0x0000000000000000000000000000000000000002"], false, true);
+          const asset = await assetMockContract.deploy(
+            1,
+            1,
+            ["0x0000000000000000000000000000000000000002"],
+            false,
+            true,
+          );
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
@@ -192,6 +198,7 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
@@ -428,6 +435,7 @@ describe("LifeCycleCashFlow operations", () => {
           await asset.deployed();
           assetAddress = asset.address;
           await treasury.initialize_LifeCycleCashFlow(assetAddress);
+          await treasury.initialize_Portfolio(paymentTokenAddress, []);
 
           await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
         });
@@ -559,8 +567,11 @@ describe("LifeCycleCashFlow operations", () => {
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption with a great amount to pay to every holder and the transactions fail, THEN a RedemptionByAddressesExecuted event is emitted with both holders in FAILED status", async () => {
           await paymentToken.mint(treasury.address, 18000000000000000000n);
 
-          const precompiled = (await ethers.getContractAt("IPrecompiledMock", HEDERA_PRECOMPILED_ADDRESS)) as IPrecompiledMock;
-          precompiled.setPrecompiledTransferStatus(false);
+          const precompiled = (await ethers.getContractAt(
+            "IPrecompiledMock",
+            HEDERA_PRECOMPILED_ADDRESS,
+          )) as IPrecompiledMock;
+          await precompiled.setPrecompiledTransferStatus(false);
 
           const tx = await treasury.executeBondRedemptionByAddresses(assetAddress, [
             signer_B.address,
@@ -569,7 +580,7 @@ describe("LifeCycleCashFlow operations", () => {
           const receipt = await tx.wait();
           const event = receipt.events.find((e) => e.event === "RedemptionByAddressesExecuted");
 
-          precompiled.setPrecompiledTransferStatus(true);
+          await precompiled.setPrecompiledTransferStatus(true);
 
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.holders[1]).to.equal(signer_A.address);

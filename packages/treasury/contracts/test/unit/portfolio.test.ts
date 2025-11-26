@@ -182,8 +182,10 @@ describe("Portfolio operations", () => {
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes a non existing environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
-      await expect(treasury.removeEnvironmentalAssetToken("0x0000000000000000000000000000000000000001"))
-        .to.not.emit(treasury, "EnvironmentalAssetRemoved")
+      await expect(treasury.removeEnvironmentalAssetToken("0x0000000000000000000000000000000000000001")).to.not.emit(
+        treasury,
+        "EnvironmentalAssetRemoved",
+      );
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
@@ -330,7 +332,6 @@ describe("Portfolio operations", () => {
     let environmentalAssetAddress;
 
     it("GIVEN a deployed Treasury contract, WHEN an account gets the environmental asset tokens amount, THEN the total amount is obtained", async () => {
-
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
@@ -379,11 +380,11 @@ describe("Portfolio operations", () => {
 
       expect((await treasury.getEnvironmentalAssetTokens(2, 2))[0]).to.not.equal(undefined);
     });
-  })
+  });
 
   describe("getPaymentToken", () => {
     it("GIVEN a deployed Treasury contract, WHEN an account gets the payment token, THEN the address of the payment token is obtained", async () => {
       expect(await treasury.getPaymentToken()).to.equal(paymentTokenAddress);
     });
-  })
+  });
 });

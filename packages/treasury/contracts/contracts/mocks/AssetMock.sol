@@ -36,7 +36,11 @@ contract AssetMock is IAssetMock {
 
     function getCoupon(uint256) external view returns (RegisteredCoupon memory registeredCoupon) {
         registeredCoupon.coupon.recordDate = 1753874807;
-        registeredCoupon.coupon.executionDate = dateType == DateType.ZERO ? 0 : dateType == DateType.TODAY ? block.timestamp : 1919590386;
+        registeredCoupon.coupon.executionDate = dateType == DateType.ZERO
+            ? 0
+            : dateType == DateType.TODAY
+                ? block.timestamp
+                : 1919590386;
         registeredCoupon.coupon.rate = 1;
         registeredCoupon.coupon.rateDecimals = 6;
         registeredCoupon.coupon.period = 2592000;
@@ -45,14 +49,14 @@ contract AssetMock is IAssetMock {
 
     function getCouponHolders(uint256, uint256, uint256) external view returns (address[] memory) {
         if (holders.length > 0 && holders[0] == address(2)) {
-            revert ("Wasn't able to get coupon holders");
+            revert("Wasn't able to get coupon holders");
         }
         return holders;
     }
 
     function getSecurityHolders(uint256, uint256) external view returns (address[] memory) {
         if (holders.length > 0 && holders[0] == address(2)) {
-            revert ("Wasn't able to get coupon holders");
+            revert("Wasn't able to get coupon holders");
         }
         return holders;
     }
@@ -62,7 +66,11 @@ contract AssetMock is IAssetMock {
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.nominalValueDecimals = 2;
         bondDetailsData_.startingDate = 1751282807;
-        bondDetailsData_.maturityDate = dateType == DateType.ZERO ? 0 : dateType == DateType.TODAY ? block.timestamp : 1919590386;
+        bondDetailsData_.maturityDate = dateType == DateType.ZERO
+            ? 0
+            : dateType == DateType.TODAY
+                ? block.timestamp
+                : 1919590386;
     }
 
     function getCouponFor(uint256, address) external pure returns (CouponFor memory couponFor_) {
@@ -81,8 +89,8 @@ contract AssetMock is IAssetMock {
     }
 
     function decimals() external view returns (uint8) {
-        if (!decimalsObtained){
-            revert ("Decimals not obtained");
+        if (!decimalsObtained) {
+            revert("Decimals not obtained");
         }
         return 2;
     }
@@ -91,20 +99,14 @@ contract AssetMock is IAssetMock {
         return;
     }
 
-    function getCouponAmountFor(
-        uint256,
-        address
-    ) external view returns (CouponAmountFor memory couponAmountFor_) {
+    function getCouponAmountFor(uint256, address) external view returns (CouponAmountFor memory couponAmountFor_) {
         couponAmountFor_.numerator = amount;
         couponAmountFor_.denominator = 1;
         couponAmountFor_.recordDateReached = true;
     }
 
-    function getPrincipalFor(address) external view returns (
-        PrincipalFor memory principalFor_
-    ) {
+    function getPrincipalFor(address) external view returns (PrincipalFor memory principalFor_) {
         principalFor_.numerator = amount;
         principalFor_.denominator = 1;
     }
-
 }
