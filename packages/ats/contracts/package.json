@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/npm-registry-mock/ats/hashgraph-asset-tokenization-contracts-1.17.9.tgz",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
