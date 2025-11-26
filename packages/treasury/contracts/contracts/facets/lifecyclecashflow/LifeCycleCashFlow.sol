@@ -23,14 +23,13 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      * @param asset The address of the asset that the distribution belongs to
      * @param distributionId The distribution identifier
      * @param pageIndex The index of the page whose holders will be paid
-     * @param pageLenth The number of holders who will be paid
+     * @param pageLength The number of holders who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
-     * @return True if ATS returns holders to be paid, and false otherwise
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
+     * @return True if ATS returned the holders to be paid, and false otherwise
      */
     function executeDistribution(
         address asset,
@@ -59,11 +58,10 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function executeDistributionByAddresses(
         address asset,
@@ -89,14 +87,13 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      *
      * @param bond The address of the bond for the redemption to be performed
      * @param pageIndex The index of the page whose redemptions will be performed
-     * @param pageLenth The number of holders who owns the bond to be redeemed
+     * @param pageLength The number of holders who owns the bond to be redeemed
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
-     * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
+     * @return True if ATS returned the holders for their bonds to be redeemed, and false otherwise
      */
     function executeBondRedemption(
         address bond,
@@ -123,11 +120,10 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      * @param bond The address of the bond for the redemption to be performed
      * @param holders The array of holders addresses who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function executeBondRedemptionByAddresses(
         address bond,
@@ -152,7 +148,7 @@ abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStor
      *
      * @return The asset address
      */
-    function getAsset() external view returns (address) {
+    function getAsset() external view override returns (address) {
         return _getAsset();
     }
 }

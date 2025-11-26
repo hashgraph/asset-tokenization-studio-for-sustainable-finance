@@ -32,18 +32,15 @@ interface IPrecompiledMock {
     function getFungibleTokenInfo(
         address token
     ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo);
+    function setPrecompiledNegativeDecimals(bool _negativeDecimals) external;
     function setPrecompiledTransferStatus(bool _success) external;
-    function setPrecompiledAssociationStatus(bool _success) external;
-    function setPrecompiledDissociationStatus(bool _success) external;
+    function getPrecompiledNegativeDecimals() external view returns (bool);
     function getPrecompiledTransferStatus() external view returns (bool);
-    function getPrecompiledAssociationStatus() external view returns (bool);
-    function getPrecompiledDissociationStatus() external view returns (bool);
 }
 
 contract PrecompiledMockStorageWrapper {
     bool private _transferSuccess;
-    bool private _associationSuccess;
-    bool private _dissociationSuccess;
+    bool private _negativeDecimals;
 
     function _transferTokens(
         address token,
@@ -77,7 +74,7 @@ contract PrecompiledMockStorageWrapper {
         address receiver,
         int64 amount
     ) internal virtual returns (int32 responseCode) {
-        if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
+        if (receiver == address(1)) return HederaResponseCodes.UNKNOWN;
 
         if (IERC20(token).balanceOf(sender) < uint256(uint64(amount))) {
             return HederaResponseCodes.INSUFFICIENT_TOKEN_BALANCE;
@@ -97,8 +94,6 @@ contract PrecompiledMockStorageWrapper {
         address receiver,
         int64 serialNumber
     ) internal virtual returns (int32 responseCode) {
-        if (_getPrecompiledTransferStatus() == false) return HederaResponseCodes.UNKNOWN;
-
         if (IERC721(token).ownerOf(uint256(uint64(serialNumber))) != sender) {
             return HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO;
         }
@@ -109,16 +104,21 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
-    function _associateToken(address, address) internal view returns (int32 responseCode) {
-        if (_getPrecompiledAssociationStatus()) return HederaResponseCodes.SUCCESS;
-        else return HederaResponseCodes.UNKNOWN;
+    function _associateToken(address, address token) internal pure returns (int32 responseCode) {
+        if (token == address(1)) {
+            return HederaResponseCodes.UNKNOWN;
+        }
+
+        return HederaResponseCodes.SUCCESS;
     }
 
     function _dissociateToken(address account, address token) internal view returns (int32 responseCode) {
-        if (_getPrecompiledDissociationStatus() == false) return HederaResponseCodes.UNKNOWN;
-
         if (IERC20(token).balanceOf(account) > 0) {
             return HederaResponseCodes.TRANSACTION_REQUIRES_ZERO_TOKEN_BALANCES;
+        }
+
+        if (token == address(1)) {
+            return HederaResponseCodes.UNKNOWN;
         }
 
         return HederaResponseCodes.SUCCESS;
@@ -129,7 +129,7 @@ contract PrecompiledMockStorageWrapper {
     ) internal view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory fungibleTokenInfo) {
         responseCode = HederaResponseCodes.SUCCESS;
         fungibleTokenInfo = IHederaTokenService.FungibleTokenInfo({
-            decimals: int32(int8(PaymentTokenMock(token).decimals())),
+            decimals: (_negativeDecimals == true) ? -1 : int32(int8(PaymentTokenMock(token).decimals())),
             tokenInfo: IHederaTokenService.TokenInfo({
                 token: IHederaTokenService.HederaToken({
                     name: PaymentTokenMock(token).name(),
@@ -154,28 +154,20 @@ contract PrecompiledMockStorageWrapper {
         });
     }
 
+    function _setPrecompiledNegativeDecimals(bool negativeDecimals_) internal {
+        _negativeDecimals = negativeDecimals_;
+    }
+
+    function _getPrecompiledNegativeDecimals() internal view returns (bool) {
+        return _negativeDecimals;
+    }
+
     function _setPrecompiledTransferStatus(bool success_) internal {
         _transferSuccess = success_;
     }
 
-    function _setPrecompiledAssociationStatus(bool success_) internal {
-        _associationSuccess = success_;
-    }
-
-    function _setPrecompiledDissociationStatus(bool success_) internal {
-        _dissociationSuccess = success_;
-    }
-
     function _getPrecompiledTransferStatus() internal view returns (bool) {
         return _transferSuccess;
-    }
-
-    function _getPrecompiledAssociationStatus() internal view returns (bool) {
-        return _associationSuccess;
-    }
-
-    function _getPrecompiledDissociationStatus() internal view returns (bool) {
-        return _dissociationSuccess;
     }
 }
 
@@ -206,7 +198,7 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _transferNFT(token, sender, receiver, serialNumber);
     }
 
-    function associateToken(address account, address token) external view returns (int32 responseCode) {
+    function associateToken(address account, address token) external pure returns (int32 responseCode) {
         return _associateToken(account, token);
     }
 
@@ -220,27 +212,19 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _getFungibleTokenInfo(token);
     }
 
+    function setPrecompiledNegativeDecimals(bool negativeDecimals_) external {
+        _setPrecompiledNegativeDecimals(negativeDecimals_);
+    }
+
+    function getPrecompiledNegativeDecimals() external view returns (bool) {
+        return _getPrecompiledNegativeDecimals();
+    }
+
     function setPrecompiledTransferStatus(bool success_) external {
         _setPrecompiledTransferStatus(success_);
     }
 
-    function setPrecompiledAssociationStatus(bool success_) external {
-        _setPrecompiledAssociationStatus(success_);
-    }
-
-    function setPrecompiledDissociationStatus(bool success_) external {
-        _setPrecompiledDissociationStatus(success_);
-    }
-
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
-    }
-
-    function getPrecompiledAssociationStatus() external view returns (bool) {
-        return _getPrecompiledAssociationStatus();
-    }
-
-    function getPrecompiledDissociationStatus() external view returns (bool) {
-        return _getPrecompiledDissociationStatus();
     }
 }

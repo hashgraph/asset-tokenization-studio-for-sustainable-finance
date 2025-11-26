@@ -19,8 +19,11 @@ describe("Portfolio operations", () => {
   let paymentTokenMockContract: ContractFactory;
   let paymentToken: Contract;
 
-  beforeEach(async () => {
+  before(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
+  });
+
+  beforeEach(async () => {
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
@@ -177,7 +180,15 @@ describe("Portfolio operations", () => {
       );
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN the environmental asset token is removed", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes a non existing environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      await expect(treasury.removeEnvironmentalAssetToken("0x0000000000000000000000000000000000000001")).to.not.emit(
+        treasury,
+        "EnvironmentalAssetRemoved",
+      );
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE removes an environmental asset token, THEN an EnvironmentalAssetRemoved event is not emitted", async () => {
       const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
       const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
       await environmentalAsset.deployed();
@@ -246,6 +257,16 @@ describe("Portfolio operations", () => {
         .withArgs(signer_A.address, paymentTokenNewAddress, paymentTokenAddress, 195);
     });
 
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token with a non existing token, THEN an AssociateTokenFailed occurs", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+
+      const notExistingToken = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.updatePaymentToken(notExistingToken))
+        .to.be.revertedWithCustomError(treasury, "AssociateTokenFailed")
+        .withArgs(notExistingToken);
+    });
+
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE updates the payment token, THEN the payment token is updated", async () => {
       const paymentTokenNew = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
       await paymentTokenNew.deployed();
@@ -289,11 +310,81 @@ describe("Portfolio operations", () => {
       await expect(treasury.dissociateToken(AddressZero)).to.be.revertedWithCustomError(treasury, "InvalidAddressZero");
     });
 
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates a non existing token, THEN an DissociateTokenFailed error occurs", async () => {
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+
+      const notExistingToken = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.dissociateToken(notExistingToken))
+        .to.be.revertedWithCustomError(treasury, "DissociateTokenFailed")
+        .withArgs(notExistingToken, 21);
+    });
+
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PORTFOLIO_MANAGER_ROLE dissociates the payment token, THEN a TokenDissociated event is emitted", async () => {
       await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
       await expect(treasury.dissociateToken(paymentTokenAddress))
         .to.emit(treasury, "TokenDissociated")
         .withArgs(paymentTokenAddress);
+    });
+  });
+
+  describe("getTotalEnvironmentalAssetTokens", () => {
+    let environmentalAssetAddress;
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets the environmental asset tokens amount, THEN the total amount is obtained", async () => {
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      environmentalAssetAddress = environmentalAsset.address;
+
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      treasury = treasury.connect(signer_A);
+
+      expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(0);
+
+      await treasury.addEnvironmentalAssetToken(environmentalAssetAddress);
+
+      expect(await treasury.getTotalEnvironmentalAssetTokens()).to.equal(1);
+    });
+  });
+
+  describe("getEnvironmentalAssetTokens", () => {
+    let environmentalAssetAddress;
+
+    beforeEach(async () => {
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      const environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
+      await environmentalAsset.deployed();
+      environmentalAssetAddress = environmentalAsset.address;
+
+      await treasury.grantRole(PORTFOLIO_MANAGER_ROLE, signer_A.address);
+      treasury = treasury.connect(signer_A);
+      await treasury.addEnvironmentalAssetToken(environmentalAssetAddress);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens, THEN the addresses of the environmental asset tokens of the requested page are obtained", async () => {
+      expect((await treasury.getEnvironmentalAssetTokens(0, 1))[0]).to.equal(environmentalAssetAddress);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a non existing page of the environmental asset tokens, THEN we get an empty array", async () => {
+      expect(await treasury.getEnvironmentalAssetTokens(1, 1)).to.deep.equal([]);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account gets a page of the environmental asset tokens remaining two more environmental assets, THEN we get the requested environmental asset", async () => {
+      const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
+      for (let i = 0; i < 4; i++) {
+        const environmentalAsset = await environmentalAssetMockContract.deploy(`Environmental asset ${i}`, `EA${i}`);
+        await environmentalAsset.deployed();
+        await treasury.addEnvironmentalAssetToken(environmentalAsset.address);
+      }
+
+      expect((await treasury.getEnvironmentalAssetTokens(2, 2))[0]).to.not.equal(undefined);
+    });
+  });
+
+  describe("getPaymentToken", () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account gets the payment token, THEN the address of the payment token is obtained", async () => {
+      expect(await treasury.getPaymentToken()).to.equal(paymentTokenAddress);
     });
   });
 });

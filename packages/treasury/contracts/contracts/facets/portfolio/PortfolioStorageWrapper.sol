@@ -57,11 +57,9 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
      */
     function _addEnvironmentalAssetToken(address environmentalAsset) internal returns (bool added) {
         added = false;
-        if (!_environmentalAssetExists(environmentalAsset)) {
-            if (_portfolioStorage().environmentalAssets.add(environmentalAsset)) {
-                _associateToken(environmentalAsset);
-                added = true;
-            }
+        if (_portfolioStorage().environmentalAssets.add(environmentalAsset)) {
+            _associateToken(environmentalAsset);
+            added = true;
         }
     }
 
@@ -78,23 +76,10 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     ) internal returns (bool removed, int256 dissociationError) {
         removed = false;
         dissociationError = HederaResponseCodes.OK;
-        if (_environmentalAssetExists(environmentalAsset)) {
-            if (_portfolioStorage().environmentalAssets.remove(environmentalAsset)) {
-                dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
-                removed = true;
-            }
+        if (_portfolioStorage().environmentalAssets.remove(environmentalAsset)) {
+            dissociationError = _dissociateTokenAllowNotAssociated(environmentalAsset);
+            removed = true;
         }
-    }
-
-    /**
-     * @dev Check if a certain environmental asset exists in the Treasury contract
-     *
-     * @param environmentalAsset The address of the EnvironmentalAsset token contract to check if exists
-     *
-     * @return exists True if the environmental asset exists in the Treasury. False, otherwise
-     */
-    function _environmentalAssetExists(address environmentalAsset) internal view returns (bool exists) {
-        return _portfolioStorage().environmentalAssets.contains(environmentalAsset);
     }
 
     /*

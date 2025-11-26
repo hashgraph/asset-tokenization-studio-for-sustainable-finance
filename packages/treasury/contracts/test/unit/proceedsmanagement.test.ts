@@ -19,8 +19,11 @@ describe("Proceeds management operations", () => {
   let paymentToken: Contract;
   let environmentalAsset: Contract;
 
-  beforeEach(async () => {
+  before(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
+  });
+
+  beforeEach(async () => {
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
@@ -104,6 +107,16 @@ describe("Proceeds management operations", () => {
       await expect(treasury.transferPaymentToken(signer_A.address, BigNumber.from("9223372036854775808")))
         .to.be.revertedWithCustomError(treasury, "NotAllowedAmount")
         .withArgs(9223372036854775808n);
+    });
+
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an amount of payment tokens to a non existing account, THEN a TransferPaymentTokenFailed error occurs", async () => {
+      await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
+
+      const notExistingReciver = "0x0000000000000000000000000000000000000001";
+
+      await expect(treasury.transferPaymentToken(notExistingReciver, 1))
+        .to.be.revertedWithCustomError(treasury, "TransferPaymentTokenFailed")
+        .withArgs(notExistingReciver, 1);
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN payment tokens are transferred", async () => {
@@ -249,7 +262,7 @@ describe("Proceeds management operations", () => {
     describe("The proceeds recipient does not belong to the bond", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs", async () => {
         const assetMockContract = await ethers.getContractFactory("AssetMock");
-        const asset = await assetMockContract.deploy(false, 1, [], false);
+        const asset = await assetMockContract.deploy(2, 1, [], false, true);
         await asset.deployed();
         const assetAddress = asset.address;
 
@@ -270,7 +283,7 @@ describe("Proceeds management operations", () => {
         await paymentToken.mint(treasury.address, 100);
 
         const assetMockContract = await ethers.getContractFactory("AssetMock");
-        const asset = await assetMockContract.deploy(false, 1, [], true);
+        const asset = await assetMockContract.deploy(2, 1, [], true, true);
         await asset.deployed();
         const assetAddress = asset.address;
 

@@ -32,13 +32,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         bool initialized;
     }
 
-    struct PayingArraysIndexes {
-        uint256 batchIndex;
-        uint256 failedAddressesIndex;
-        uint256 succeededAddressesIndex;
-        uint256 alreadyPaidAddressesIndex;
-    }
-
     struct BatchInfo {
         address[] holders;
         int64[] amounts;
@@ -77,12 +70,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param pageIndex The index of the page whose holders will be paid
      * @param pageLength The number of holders who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
-     * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
+     * @return True if ATS returned the holders for their bonds to be redeemed, and false otherwise
      */
     function _executeDistribution(
         address asset,
@@ -103,11 +95,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param distributionId The distribution identifier
      * @param holders The array of holders addresses who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function _executeDistributionByAddresses(
         address asset,
@@ -124,12 +115,11 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param pageIndex The index of the page of holders whose redemptions will be performed
      * @param pageLength The number of holders who own the bond to be redeemed
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
-     * @return True if ATS returns holders for their bonds to be redeemed, and false otherwise
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
+     * @return True if ATS returned the holders for their bonds to be redeemed, and false otherwise
      */
     function _executeBondRedemption(
         address bond,
@@ -149,11 +139,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param bond The bond the redemption belongs to
      * @param holders The array of holders addresses who will be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function _executeBondRedemptionByAddresses(
         address bond,
@@ -192,11 +181,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param distributionId The distribution identifier
      * @param holders The holders to be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function _payHoldersDistribution(
         address asset,
@@ -210,8 +198,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             batchInfo.amounts = new int64[](holders.length);
             uint256 batchIndex = 0;
             uint256 resultIndex = 0;
-            uint256 nominalValue = _getNominalValue(asset);
             address paymentToken = _getPaymentToken();
+            uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
@@ -233,7 +221,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     continue;
                 }
 
-                uint256 amount = _getDistributionAmount(asset, distributionId, holder, nominalValue, paymentToken);
+                uint256 amount = _getDistributionAmount(asset, distributionId, holder, paymentTokenDecimals);
 
                 if (!_isValidAmount(amount)) {
                     results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
@@ -245,7 +233,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
-                    _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
+                    batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                    batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
+                    _processBatchDistribution(distributionId, batchInfo, paymentToken, results, resultIndex);
                     batchInfo.holders = new address[](holders.length);
                     batchInfo.amounts = new int64[](holders.length);
                     batchInfo.totalAmount = 0;
@@ -265,7 +255,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
-                _processBatchDistribution(distributionId, paymentToken, batchInfo, results, resultIndex);
+                batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
+                _processBatchDistribution(distributionId, batchInfo, paymentToken, results, resultIndex);
             }
         }
 
@@ -289,63 +281,18 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param asset The asset its distribution amount is requested
      * @param distributionId The distribution identifier
      * @param holder The holder address to be paid
-     * @param nominalValue The nominal value of the asset
-     * @param bondDetailsData Bond details to calculate the amount
+     * @param paymentTokenDecimals The payment token decimals
      *
-     * @return True if getting distribution for was successfully executed, false otherwise
      * @return The amount to be paid
      */
     function _getDistributionAmount(
         address asset,
         uint256 distributionId,
         address holder,
-        uint256 nominalValue,
-        address paymentToken
-    ) private returns (uint256 amount) {
-        IBondRead.CouponFor memory couponFor = IBondRead(asset).getCouponFor(distributionId, holder);
-        uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
-        uint256 scaleDown = couponFor.decimals + couponFor.rateDecimals;
-        uint256 scaleUp = paymentTokenDecimals;
-        amount = (((couponFor.tokenBalance * nominalValue * couponFor.period * couponFor.rate) /
-            100 /
-            (365 * 24 * 60 * 60) /
-            10 ** scaleDown) * 10 ** scaleUp);
-    }
-
-    /*
-     * @dev Get the redemption amount to pay for a certain holder
-     *
-     * @param bond The bond its redemption amount is requested
-     * @param holder The holder address to be paid
-     *
-     * @return The amount to be paid
-     */
-    function _getRedemptionAmount(
-        address bond,
-        uint256 tokensAmount,
-        uint256 nominalValue,
-        address paymentToken
-    ) private returns (uint256 amount) {
-        uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
-        uint8 bondDecimals = _getAssetDecimals(bond);
-        uint8 nominalValueDecimals = bondDecimals;
-        uint256 scaleDown = bondDecimals + nominalValueDecimals;
-        amount = (((tokensAmount * nominalValue) / 10 ** scaleDown) * 10 ** paymentTokenDecimals);
-    }
-
-    /**
-     * @dev Get the asset decimals
-     *
-     * @param asset The asset address
-     *
-     * @return decimals The asset decimals
-     */
-    function _getAssetDecimals(address asset) private view returns (uint8) {
-        try ERC20(asset).decimals() returns (uint8) {
-            return ERC20(asset).decimals();
-        } catch {
-            revert ILifeCycleCashFlow.GetAssetDecimalsFailed(asset);
-        }
+        uint8 paymentTokenDecimals
+    ) private view returns (uint256 amount) {
+        IBondRead.CouponAmountFor memory couponAmountFor = IBondRead(asset).getCouponAmountFor(distributionId, holder);
+        amount = (couponAmountFor.numerator * 10 ** paymentTokenDecimals) / couponAmountFor.denominator;
     }
 
     /**
@@ -367,44 +314,30 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Get the nominal value of the asset
-     *
-     * @param asset The asset address
-     *
-     * @return The nominal value of the asset
-     */
-    function _getNominalValue(address asset) private view returns (uint256 nominalValue) {
-        try IBondRead(asset).getBondDetails() returns (IBondRead.BondDetailsData memory bondDetailsData) {
-            return bondDetailsData.nominalValue;
-        } catch {
-            revert ILifeCycleCashFlow.AssetNominalValueError(asset);
-        }
-    }
-
-    /*
      * @dev Process a batch distribution payment to a list of holders
      *
      * @param distributionId The distribution paid to a holder
-     * @param batchHolders The array of holders who were paid
-     * @param batchAmounts The array of amounts paid to holders
-     * @param batchTotalAmount The total amount paid to holders
-     * @param resultParams The payment result parameters to be updated
+     * @param batchInfo The information about the batch to be paid
+     * @param paymentToken The payment token
+     * @param results the holders to be paid information array
+     * @param resultIndex The index of the first holder, to be paid in this batch process, in the
+     *        global holders array
      *
      * @return The payment result updated with the batch payment results
      */
     function _processBatchDistribution(
         uint256 distributionId,
-        address paymentToken,
         BatchInfo memory batchInfo,
+        address paymentToken,
         ILifeCycleCashFlow.PaymentResult[] memory results,
         uint256 resultIndex
     ) private {
         bool succeededPayment = _payBatchHoldersDistribution(
             distributionId,
-            paymentToken,
             batchInfo.holders,
             batchInfo.amounts,
-            batchInfo.totalAmount
+            batchInfo.totalAmount,
+            paymentToken
         );
 
         _populateSourceArraysFromDataArrays(
@@ -422,11 +355,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @param bond The bond the redemption belongs to
      * @param holders The holders to be paid
      *
-     * @return An struct containing:
-     *         - The array of the holders addresses whose redemptions were not successful
-     *         - The array of the holders addresses whose payment were successful
-     *         - The array of the holders addresses who were already paid
-     *         - The array of the amounts paid to holders
+     * @return An array of holders containing:
+     *         - The address of the holder
+     *         - The holder's payment status (SUCCEEDED, FAILED, ALREADY_PAID)
+     *         - The paid amount if the status was SUCCEEDED, otherwise zero
      */
     function _payHoldersRedemption(
         address bond,
@@ -440,8 +372,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             batchInfo.amounts = new int64[](holders.length);
             uint256 batchIndex = 0;
             uint256 resultIndex = 0;
-            uint256 nominalValue = _getNominalValue(bond);
             address paymentToken = _getPaymentToken();
+            uint8 paymentTokenDecimals = _getPaymentTokenDecimals(paymentToken);
 
             for (uint256 index; index < holders.length; ) {
                 address holder = holders[index];
@@ -455,8 +387,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     continue;
                 }
 
-                uint256 tokensAmount = _getTokensAmount(bond, holders[index]);
-                uint256 amount = _getRedemptionAmount(bond, tokensAmount, nominalValue, paymentToken);
+                uint256 amount = _getRedemptionAmount(bond, holder, paymentTokenDecimals);
 
                 if (!_isValidAmount(amount)) {
                     results[index].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
@@ -469,8 +400,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
                     // batch transfer payment
+                    batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                    batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                     bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
-
                     if (succeededPayment) {
                         _redeemBondHolders(bond, batchInfo.holders);
                     }
@@ -492,6 +424,8 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
 
             // last batch transfer payment
             if (batchInfo.holders[0] != address(0)) {
+                batchInfo.holders = _resizeHoldersArray(batchInfo.holders, batchIndex);
+                batchInfo.amounts = _resizeAmountsArray(batchInfo.amounts, batchIndex);
                 bool succeededPayment = _processBatchRedemption(batchInfo, paymentToken, results, resultIndex);
                 if (succeededPayment) {
                     _redeemBondHolders(bond, batchInfo.holders);
@@ -503,14 +437,31 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
+     * @dev Get the redemption amount to pay for a certain holder
+     *
+     * @param bond The bond its redemption amount is requested
+     * @param holder The holder address to be paid
+     * @param uint8 paymentTokenDecimals  The payment token decimals
+     *
+     * @return The amount to be paid
+     */
+    function _getRedemptionAmount(
+        address bond,
+        address holder,
+        uint8 paymentTokenDecimals
+    ) private view returns (uint256 amount) {
+        IBondRead.PrincipalFor memory principalFor = IBondRead(bond).getPrincipalFor(holder);
+        amount = (principalFor.numerator * 10 ** paymentTokenDecimals) / principalFor.denominator;
+    }
+
+    /*
      * @dev Process a batch cash out payment to a list of holders
      *
-     * @param distributionId The distribution paid to a holder
-     * @param batchHolders The array of holders who were paid
-     * @param batchAmounts The array of amounts paid to holders
-     * @param batchTotalAmount The total amount paid to holders
-     * @param paymentToken The payment token used to pay the cash out
-     * @param resultParams The payment result parameters to be updated
+     * @param batchInfo The information about the batch to be paid
+     * @param paymentToken The payment token
+     * @param results the holders to be paid information array
+     * @param resultIndex The index of the first holder, to be paid in this batch process, in the
+     *        global holders array
      *
      * @return The payment result updated with the batch payment results
      */
@@ -541,38 +492,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      *
      * @param bond The bond the redemption belongs to
      * @param holders The holders whose bonds will be redeemed
-     * @param tokensAmounts The amounts of tokens to be redeemed for each holder
      */
     function _redeemBondHolders(address bond, address[] memory holders) private {
         for (uint256 index; index < holders.length; ) {
-            _redeemBondHolder(bond, holders[index]);
+            IBond(bond).fullRedeemAtMaturity(holders[index]);
 
             unchecked {
                 ++index;
-            }
-        }
-    }
-
-    /*
-     * @dev Redeem the bond tokens of a holder
-     *
-     * @param bond The bond the cash out belongs to
-     * @param holder The holder whose bonds will be redeemed
-     * @param tokensAmount The amount of tokens to be redeemed for the holder
-     */
-    function _redeemBondHolder(address bond, address holder) private {
-        bytes32[] memory partitions = IERC1410Read(bond).partitionsOf(holder);
-        for (uint256 i; i < partitions.length; ) {
-            bytes32 partition = partitions[i];
-            try IERC1410Read(bond).balanceOfByPartition(partition, holder) returns (uint256 partitionBalance) {
-                try IBond(bond).redeemAtMaturityByPartition(holder, partition, partitionBalance) {} catch {
-                    revert ILifeCycleCashFlow.RedeemAtMaturityByPartitionError(bond, holder, partition);
-                }
-            } catch {
-                revert ILifeCycleCashFlow.BalanceOfByPartitionError(bond, holder, partition);
-            }
-            unchecked {
-                ++i;
             }
         }
     }
@@ -590,19 +516,19 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @dev Pay an amount of payment tokens to a holder for a distribution
      *
      * @param distributionId The distribution paid to a holder
-     * @param holder The holder address to be paid
-     * @param amount The amount of erc20 tokens to be paid to the holder
+     * @param holders The array of holders addresses to be paid
+     * @param amounts The array of amounts to be paid
      * @param totalAmount The total amount to be paid to the holders
-     * @paymentToken The payment token used to pay the cash out
+     * @param paymentToken The payment token
      *
      * @return True if the payment succeeded, false otherwise
      */
     function _payBatchHoldersDistribution(
         uint256 distributionId,
-        address paymentToken,
         address[] memory holders,
         int64[] memory amounts,
-        int64 totalAmount
+        int64 totalAmount,
+        address paymentToken
     ) private returns (bool) {
         if (
             transferTokens(
@@ -620,10 +546,10 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     /*
      * @dev Pay an amount of payment tokens to a holder for a redemption
      *
-     * @param holder The holder address to be paid
-     * @param amount The amount of payment tokens to be paid to the holder
+     * @param holders The array of holders addresses to be paid
+     * @param amounts The array of amounts to be paid
      * @param totalAmount The total amount to be paid to the holders
-     * @paymentToken The payment token used to pay the cash out
+     * @param paymentToken The payment token
      *
      * @return True if the payment succeeded, false otherwise
      */
@@ -678,7 +604,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @dev Sets a payment to an array of holders for a distribution
      *
      * @param distributionId The distribution paid to a holder
-     * @param holderss The array of holders who were paid
+     * @param holders The array of holders addresses who were paid
      */
     function _setDistributionHoldersPaid(uint256 distributionId, address[] memory holders) private {
         for (uint256 index; index < holders.length; ) {
@@ -698,22 +624,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _setDistributionHolderPaid(uint256 distributionId, address holder) private {
         _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder] = true;
-    }
-
-    /*
-     * @dev Get the amount of asset tokens of a holder
-     *
-     * @param asset The asset the holder's balance is requested
-     * @param holder The holder whose tokens are requested
-     *
-     * @return The amount of tokens
-     */
-    function _getTokensAmount(address asset, address holder) private view returns (uint256) {
-        try IERC1410(asset).balanceOf(holder) returns (uint256 tokensAmount) {
-            return tokensAmount;
-        } catch {
-            return 0;
-        }
     }
 
     /*
@@ -763,7 +673,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Check that today is the execution date of the distributionId
+     * @dev Check whether today is the execution date of the distributionId
      *
      * @param asset The asset the distribution belongs to
      * @param distributionId The distribution identifier
@@ -774,7 +684,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Check that today is the maturity date of the bond
+     * @dev Check whether today is the maturity date of the bond
      *
      * @param bond The bond address
      */
@@ -818,11 +728,13 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Returns the first index of an address array that contains address(0)
+     * @dev Populates an array with information of holders addresses and paid amounts arrays
      *
-     * @param arr The array to be checked
-     *
-     * @return The index of the first address(0) found, or 0 if none is found
+     * @param succeededPayment True if the payment succeeded, false otherwise
+     * @param holdersArray The array of holders addresses
+     * @param amountsArray The array of amounts paid to the holders
+     * @param results The array to be populated with the holders payment information
+     * @param resultIndex The index of the first holder, to be paid in this batch
      */
     function _populateSourceArraysFromDataArrays(
         bool succeededPayment,
@@ -832,11 +744,12 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         uint256 resultIndex
     ) private pure {
         for (uint256 index; index < holdersArray.length; ) {
+            uint256 totalIndex = index + resultIndex;
             if (succeededPayment) {
-                results[index + resultIndex].amount = amountsArray[index];
-                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
+                results[totalIndex].amount = amountsArray[index];
+                results[totalIndex].status = ILifeCycleCashFlow.PaymentStatus.SUCCEEDED;
             } else {
-                results[index + resultIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
+                results[totalIndex].status = ILifeCycleCashFlow.PaymentStatus.FAILED;
             }
 
             unchecked {
@@ -854,28 +767,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _isValidAmount(uint256 amount) private pure returns (bool) {
         return amount > 0 && _valueFitsInInt64(amount);
-    }
-
-    /*
-     * @dev Returns the first index of an address array that contains address(0)
-     *
-     * @param arr The array to be checked
-     *
-     * @return The index of the first address(0) found, or 0 if none is found
-     */
-    function _populateSourceArrayFromDataArray(
-        address[] memory sourceAddressArray,
-        uint256 failedAddressesIndex,
-        address[] memory dataAddressArray
-    ) private pure returns (address[] memory resultArray) {
-        for (uint256 index; index < dataAddressArray.length; ) {
-            sourceAddressArray[index + failedAddressesIndex] = dataAddressArray[index];
-
-            unchecked {
-                ++index;
-            }
-        }
-        resultArray = sourceAddressArray;
     }
 
     /*
@@ -918,6 +809,41 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _checkPaymentDate(uint256 initialDate, uint256 currentDate) private pure {
         if (initialDate == 0 || currentDate < initialDate) {
             revert ILifeCycleCashFlow.NotPaymentDate(initialDate, currentDate);
+        }
+    }
+
+    /*
+     * @dev Resizes an array of address to a certain length
+     *
+     * @param holders The original array
+     * @param count The new length of the array
+     *
+     * @return The resized array
+     */
+    function _resizeHoldersArray(
+        address[] memory holders,
+        uint256 count
+    ) private pure returns (address[] memory result) {
+        result = new address[](count);
+
+        for (uint256 i; i < result.length; ++i) {
+            result[i] = holders[i];
+        }
+    }
+
+    /*
+     * @dev Resizes an array of int64 to a certain length
+     *
+     * @param amounts The original array
+     * @param count The new length of the array
+     *
+     * @return The resized array
+     */
+    function _resizeAmountsArray(int64[] memory amounts, uint256 count) private pure returns (int64[] memory result) {
+        result = new int64[](count);
+
+        for (uint256 i; i < result.length; ++i) {
+            result[i] = amounts[i];
         }
     }
 }
