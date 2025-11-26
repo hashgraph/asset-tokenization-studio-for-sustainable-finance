@@ -24,6 +24,10 @@ contract MockERC20 is ERC20 {
         _transferFromFail = transferFromFail_;
     }
 
+    function setDecimals(uint8 decimals_) external {
+        _decimals = decimals_;
+    }
+
     function getTransferFromFail() external view returns (bool) {
         return _transferFromFail;
     }
