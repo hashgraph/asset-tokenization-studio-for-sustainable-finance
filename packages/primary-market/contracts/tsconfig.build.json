@@ -15,7 +15,7 @@
     "typechain-types/**/*",
     "test/constants.ts",
     "test/index.ts",
-    "test/types.d.ts"
+    "test/types.ts"
   ],
   "exclude": ["node_modules", "test/unit/**/*"]
 }

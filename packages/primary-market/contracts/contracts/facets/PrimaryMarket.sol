@@ -179,7 +179,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         offeringExists(_offeringId)
         checkOfferingOperator(_offeringId)
         offeringIsReadyForExecution(_offeringId)
-        returns (OfferingProcessResult memory executionResult)
+        returns (OfferingProcessResult[] memory executionResult)
     {
         return _executeOffering(_offeringId, _pageIndex, _pageLength);
     }
@@ -201,7 +201,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         offeringExists(_offeringId)
         checkOfferingOperator(_offeringId)
         offeringIsReadyForCancellation(_offeringId)
-        returns (OfferingProcessResult memory cancelResult)
+        returns (OfferingProcessResult[] memory cancelResult)
     {
         return _cancelOffering(_offeringId, _pageIndex, _pageLength);
     }
@@ -216,7 +216,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         offeringExists(_offeringId)
         checkOfferingOperator(_offeringId)
         offeringIsReadyForExecution(_offeringId)
-        returns (OfferingProcessResult memory executionResult)
+        returns (OfferingProcessResult[] memory executionResult)
     {
         return _executeOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
     }
@@ -231,7 +231,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
         offeringExists(_offeringId)
         checkOfferingOperator(_offeringId)
         offeringIsReadyForCancellation(_offeringId)
-        returns (OfferingProcessResult memory cancelResult)
+        returns (OfferingProcessResult[] memory cancelResult)
     {
         return _cancelOfferingBySubscriptionIds(_offeringId, _subscriptionIds);
     }
