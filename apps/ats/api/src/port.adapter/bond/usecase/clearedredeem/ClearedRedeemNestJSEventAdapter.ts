@@ -21,12 +21,12 @@ export class ClearedRedeemNestJSEventAdapter
   async handle(event: ClearedRedeemByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateClearingRedeemCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
-        event.clearingId,
+        Number(event.clearingId),
         event.partition,
-        event.amount,
-        new Date(event.expirationDate * 1000),
+        event.amount || "0",
+        new Date(Number(event.expirationDate) * 1000),
         event.data,
         event.operatorData,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),

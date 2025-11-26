@@ -23,7 +23,7 @@ export class CreateClearingRedeemTransactionHttpAdapter implements CreateClearin
       holderAccountId,
       request.partition,
       request.amount,
-      request.expirationTimestamp.getTime(),
+      Math.floor(request.expirationTimestamp.getTime() / 1000).toString(),
       request.data,
     )
 

@@ -1,20 +1,17 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contracts";
+import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contract-types";
+import { IPause, IPause__factory } from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
-import {
-  ADDRESS_ZERO,
-  HardhatProvider,
-  configureLogger,
-  LogLevel,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 import { Signer } from "ethers";
 
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
 let accessControl: IAccessControl;
+let pause: IPause;
 let admin: Signer;
 let unauthorized: Signer;
 let adminAddress: string;
@@ -25,20 +22,20 @@ describe("FactoryPrimaryMarket", () => {
   configureLogger({ level: LogLevel.SILENT });
 
   async function deployFixture() {
-    const provider = new HardhatProvider();
+    const [deployer] = await ethers.getSigners();
 
-    const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
+    const deployment = await deployFactoryPrimaryMarketSystem(deployer, "hardhat", {
       useTimeTravel: false,
       saveOutput: false, // Don't save deployment files during tests
     });
 
     factoryPrimaryMarket = (await ethers.getContractAt(
-      "FactoryPrimaryMarket",
+      "IFactoryPrimaryMarket",
       deployment.infrastructure.factoryPrimaryMarket.proxy,
     )) as IFactoryPrimaryMarket;
 
     accessControl = (await ethers.getContractAt(
-      "AccessControl",
+      "IAccessControl",
       deployment.infrastructure.factoryPrimaryMarket.proxy,
     )) as IAccessControl;
 
@@ -78,7 +75,7 @@ describe("FactoryPrimaryMarket", () => {
     it("GIVEN an unauthorized account WHEN deploying new primary market THEN fail", async () => {
       await expect(
         factoryPrimaryMarket.connect(unauthorized).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS),
-      ).to.be.revertedWithCustomError(factoryPrimaryMarket, "AccountHasNoRole");
+      ).to.be.revertedWithCustomError(accessControl, "AccountHasNoRole");
     });
 
     it("GIVEN a resolver as address(0) WHEN deploying new primary market THEN fail", async () => {
@@ -141,14 +138,14 @@ describe("FactoryPrimaryMarket", () => {
       const event = receipt.events?.find((e: any) => e.event === "PrimaryMarketDeployed");
 
       expect(event).to.not.be.undefined;
-      expect(event.args.operator).to.equal(adminAddress);
-      expect(event.args.primaryMarketAddress).to.equal(primaryMarketAddress);
-      expect(event.args.resolver).to.equal(blr.address);
-      expect(event.args.resolverProxyConfiguration.key).to.equal(RESOLVER_PROXY_CONFIG.key);
-      expect(event.args.resolverProxyConfiguration.version).to.equal(RESOLVER_PROXY_CONFIG.version);
+      expect(event?.args?.operator).to.equal(adminAddress);
+      expect(event?.args?.primaryMarketAddress).to.equal(primaryMarketAddress);
+      expect(event?.args?.resolver).to.equal(blr.address);
+      expect(event?.args?.resolverProxyConfiguration.key).to.equal(RESOLVER_PROXY_CONFIG.key);
+      expect(event?.args?.resolverProxyConfiguration.version).to.equal(RESOLVER_PROXY_CONFIG.version);
       for (let i = 0; i < RBACS.length; i++) {
-        expect(event.args.rbacs[i].role).to.equal(RBACS[i].role);
-        expect(event.args.rbacs[i].members).to.deep.equal(RBACS[i].members);
+        expect(event?.args?.rbacs[i].role).to.equal(RBACS[i].role);
+        expect(event?.args?.rbacs[i].members).to.deep.equal(RBACS[i].members);
       }
     });
 
@@ -157,7 +154,7 @@ describe("FactoryPrimaryMarket", () => {
       await accessControl.grantRole(ATS_ROLES.PAUSER_ROLE, adminAddress);
 
       // Pause the factory
-      const pause = await ethers.getContractAt("Pause", factoryPrimaryMarket.address);
+      pause = IPause__factory.connect(factoryPrimaryMarket.address, admin);
       await pause.connect(admin).pause();
 
       await expect(

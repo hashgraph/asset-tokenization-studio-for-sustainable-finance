@@ -48,7 +48,7 @@
     "local:hardhat": "npx hardhat node"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.0.tgz",
+    "@hashgraph/asset-tokenization-contracts": "1.15.2",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "dotenv": "^16.0.0",
@@ -58,7 +58,7 @@
     "@eslint/js": "^9.36.0",
     "@types/node": "^20.0.0",
     "eslint": "^9.36.0",
-    "hardhat": "^2.26.3",
+    "hardhat": "2.26.5",
     "ts-node": "^10.9.1",
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",

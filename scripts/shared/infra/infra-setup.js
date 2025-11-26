@@ -93,6 +93,31 @@ const CONFIG = {
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'
+    },
+    // Dynamic environment configuration based on active modules
+    getDynamicEnv: (activeModules) => {
+      const paths = [];
+      const routes = [];
+      
+      if (activeModules.includes('ats')) {
+        paths.push('/api/v1/ats');
+        routes.push('http://localhost:3001');
+      }
+      
+      if (activeModules.includes('primary-market')) {
+        paths.push('/api/v1/primary-markets');
+        routes.push('http://localhost:3002');
+      }
+      
+      return {
+        PORT: '3000',
+        LOG_LEVEL: 'log',
+        PATHS: paths.join(','),
+        ROUTES: routes.join(','),
+        API_KEY_HEADER_NAME: 'x-api-key',
+        API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
+        TIMEOUT: '30000'
+      };
     }
   },
   transactionSender: {
@@ -237,7 +262,7 @@ async function checkServiceHealth(service) {
   }
 }
 
-function startNodeService(service) {
+function startNodeService(service, customEnv = null) {
   return new Promise((resolve, reject) => {
     log(`🚀 Starting ${service.name}...`, colors.blue);
     
@@ -249,7 +274,7 @@ function startNodeService(service) {
       return;
     }
 
-    const env = { ...process.env, ...service.env };
+    const env = { ...process.env, ...(customEnv || service.env) };
     
     // For workspace projects, use npm from the workspace root with package name
     const workspaceRoot = path.resolve(__dirname, '../../../');
@@ -564,10 +589,138 @@ async function startFullInfrastructure() {
   setInterval(() => {}, 1000);
 }
 
+async function startSelectedModules(moduleNames) {
+  log('🚀 Starting selected modules with infrastructure...', colors.bright);
+  log('====================================================\n', colors.bright);
+
+  // Check Docker
+  const dockerOk = await checkDockerInstalled();
+  if (!dockerOk) {
+    log('❌ Docker is required for this setup', colors.red);
+    return;
+  }
+
+  // Start Docker services first
+  const dockerStarted = await startDockerServices();
+  if (!dockerStarted) {
+    log('❌ Failed to start Docker services', colors.red);
+    return;
+  }
+
+  // Wait for services to stabilize
+  log('⏳ Waiting for services to stabilize...', colors.yellow);
+  await new Promise(resolve => setTimeout(resolve, 5000));
+
+  // Build packages first
+  const packagesBuilt = await buildPackages();
+  if (!packagesBuilt) {
+    log('⚠️  Warning: Package build failed, services may not work correctly', colors.yellow);
+  }
+
+  // Map module names to service configs
+  const moduleMap = {
+    'ats': CONFIG.atsApi,
+    'primary-market': CONFIG.primaryMarketApi
+  };
+
+  const selectedServices = [];
+
+  for (const moduleName of moduleNames) {
+    const service = moduleMap[moduleName];
+    if (service) {
+      selectedServices.push(service);
+    }
+  }
+
+  log(`\n📦 Starting modules: ${moduleNames.join(', ')}`, colors.cyan);
+  log('🔒 Including required services: gateway, transaction-sender\n', colors.cyan);
+
+  const processes = [];
+
+  // Start selected modules first
+  for (const service of selectedServices) {
+    try {
+      const result = await startNodeService(service);
+      processes.push({ name: service.name, ...result });
+    } catch (error) {
+      log(`❌ Failed to start ${service.name}: ${error.message}`, colors.red);
+    }
+  }
+
+  // Start gateway with dynamic configuration based on active modules
+  try {
+    const gatewayEnv = CONFIG.gateway.getDynamicEnv(moduleNames);
+    log(`🔧 Gateway configured for modules: ${moduleNames.join(', ')}`, colors.cyan);
+    log(`   Paths: ${gatewayEnv.PATHS}`, colors.cyan);
+    log(`   Routes: ${gatewayEnv.ROUTES}`, colors.cyan);
+    const result = await startNodeService(CONFIG.gateway, gatewayEnv);
+    processes.push({ name: CONFIG.gateway.name, ...result });
+  } catch (error) {
+    log(`❌ Failed to start ${CONFIG.gateway.name}: ${error.message}`, colors.red);
+  }
+
+  // Start transaction sender
+  try {
+    const result = await startNodeService(CONFIG.transactionSender);
+    processes.push({ name: CONFIG.transactionSender.name, ...result });
+  } catch (error) {
+    log(`❌ Failed to start ${CONFIG.transactionSender.name}: ${error.message}`, colors.red);
+  }
+
+  log('\n🎉 Module infrastructure startup complete!', colors.bright);
+  log('\n📊 Running services:', colors.green);
+  
+  for (const proc of processes) {
+    if (proc.healthy) {
+      log(`• ${proc.name}: Ready`, colors.green);
+    } else {
+      log(`• ${proc.name}: Started (health check failed)`, colors.yellow);
+    }
+  }
+
+  log('\n🌐 Access Points:', colors.blue);
+  if (moduleNames.includes('ats')) {
+    log('• ATS API (Direct): http://localhost:3001/api/v1/ats');
+    log('• ATS API (via Gateway): http://localhost:3000/api/v1/ats');
+  }
+  if (moduleNames.includes('primary-market')) {
+    log('• Primary Market API (Direct): http://localhost:3002/api/v1/primary-markets');
+    log('• Primary Market API (via Gateway): http://localhost:3000/api/v1/primary-markets');
+  }
+  log('• API Gateway: http://localhost:3000 (🔒 Requires x-api-key header)');
+  log('• Transaction Sender: http://localhost:3005');
+  log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
+  log('• RabbitMQ: http://localhost:15672 (guest/guest)');
+  
+  log('\n🔑 API Keys (for gateway access):', colors.magenta);
+  log('• demo-key-1');
+  
+  log('\n⚠️  Press Ctrl+C to stop all services', colors.yellow);
+
+  // Keep the script running and handle graceful shutdown
+  process.on('SIGINT', async () => {
+    log('\n🛑 Shutting down infrastructure...', colors.yellow);
+    
+    for (const proc of processes) {
+      if (proc.process && !proc.process.killed) {
+        proc.process.kill('SIGTERM');
+      }
+    }
+    
+    await stopDockerServices();
+    
+    log('✅ Infrastructure stopped', colors.green);
+    process.exit(0);
+  });
+
+  setInterval(() => {}, 1000);
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const command = args[0] || 'status';
   const target = args[1];
+  const extraArgs = args.slice(2);
 
   try {
     switch (command) {
@@ -589,6 +742,24 @@ async function main() {
             process.exit(0);
           });
           setInterval(() => {}, 1000);
+        } else if (target === 'module') {
+          // Start single module: node infra-setup.js start module ats
+          const moduleName = extraArgs[0];
+          if (!moduleName) {
+            log('❌ Module name required. Usage: start module <module-name>', colors.red);
+            log('Available modules: ats, primary-market', colors.yellow);
+            process.exit(1);
+          }
+          await startSelectedModules([moduleName]);
+        } else if (target === 'modules') {
+          // Start multiple modules: node infra-setup.js start modules ats primary-market
+          const moduleNames = extraArgs;
+          if (moduleNames.length === 0) {
+            log('❌ At least one module name required. Usage: start modules <module1> [module2] ...', colors.red);
+            log('Available modules: ats, primary-market', colors.yellow);
+            process.exit(1);
+          }
+          await startSelectedModules(moduleNames);
         } else {
           await startFullInfrastructure();
         }
@@ -606,14 +777,20 @@ async function main() {
         log('🌱 Green Bonds Infrastructure Manager', colors.bright);
         log('===================================\n', colors.bright);
         log('Usage:', colors.blue);
-        log('  node infra-setup-docker.js start         # Start full infrastructure (Docker + APIs)');
-        log('  node infra-setup-docker.js start docker  # Start only Docker services');
-        log('  node infra-setup-docker.js start apis    # Start only Node.js APIs');
-        log('  node infra-setup-docker.js status        # Check status');
-        log('  node infra-setup-docker.js stop          # Stop all services');
+        log('  node infra-setup.js start                      # Start full infrastructure (all modules)');
+        log('  node infra-setup.js start docker               # Start only Docker services');
+        log('  node infra-setup.js start apis                 # Start only Node.js APIs');
+        log('  node infra-setup.js start module <name>        # Start specific module + gateway + transaction-sender + infra');
+        log('  node infra-setup.js start modules <m1> [m2]... # Start selected modules + gateway + transaction-sender + infra');
+        log('  node infra-setup.js status                     # Check status');
+        log('  node infra-setup.js stop                       # Stop all services');
+        log('\nAvailable modules:', colors.blue);
+        log('  • ats              - ATS API module');
+        log('  • primary-market   - Primary Market API module');
         log('\nExamples:', colors.blue);
-        log('  node infra-setup-docker.js start         # Recommended: Full infrastructure');
-        log('  node infra-setup-docker.js status        # Check what\'s running');
+        log('  node infra-setup.js start module ats                    # Start only ATS module');
+        log('  node infra-setup.js start modules ats primary-market    # Start both modules');
+        log('  node infra-setup.js start                               # Start everything');
         break;
     }
   } catch (error) {

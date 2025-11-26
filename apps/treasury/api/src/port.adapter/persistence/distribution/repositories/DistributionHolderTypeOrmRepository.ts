@@ -6,6 +6,7 @@ import { InjectRepository } from "@nestjs/typeorm"
 import { DistributionHolder } from "@domain/distribution/model/DistributionHolder"
 import { DistributionHolderPersistence } from "@port/persistence/distribution/model/DistributionHolderPersistence"
 import { DistributionHolderRepository } from "@domain/distribution/repositories/DistributionHolderRepository"
+import { plainToInstance } from "class-transformer"
 
 @Singleton()
 export class DistributionHolderTypeOrmRepository implements DistributionHolderRepository {
@@ -16,13 +17,22 @@ export class DistributionHolderTypeOrmRepository implements DistributionHolderRe
 
   @Validate()
   async save(distributionHolder: DistributionHolder): Promise<DistributionHolder> {
-    const persistence = await this.distributionHolderRepository.save(
-      distributionHolder as DistributionHolderPersistence,
-    )
-    return persistence as DistributionHolder
+    const persistence = await this.distributionHolderRepository.save(this.fromDomain(distributionHolder))
+    return this.toDomain(persistence)
   }
 
-  @Validate()
+  async existsByDistributionIdAndHolderAccountId(distributionId: number, holderAccountId: string): Promise<boolean> {
+    return await this.distributionHolderRepository.existsBy({ distributionId, holderAccountId })
+  }
+
+  async findOneByDistributionIdAndHolderAccountId(
+    distributionId: number,
+    holderAccountId: string,
+  ): Promise<DistributionHolder> {
+    const persistence = await this.distributionHolderRepository.findOneBy({ distributionId, holderAccountId })
+    return this.toDomain(persistence)
+  }
+
   async findByDistributionId(
     distributionId: number,
     pageOptions: PageOptions,
@@ -42,7 +52,7 @@ export class DistributionHolderTypeOrmRepository implements DistributionHolderRe
       take: pageOptions.limit,
     })
 
-    const items = persistences.map((p) => p as DistributionHolder)
+    const items = persistences.map((p) => this.toDomain(p))
 
     return {
       items,
@@ -51,5 +61,13 @@ export class DistributionHolderTypeOrmRepository implements DistributionHolderRe
       limit: pageOptions.limit,
       totalPages: Math.ceil(total / pageOptions.limit),
     }
+  }
+
+  private toDomain(persistence: DistributionHolderPersistence | null): DistributionHolder {
+    return plainToInstance(DistributionHolder, persistence)
+  }
+
+  private fromDomain(domainEntity: DistributionHolder): DistributionHolderPersistence {
+    return plainToInstance(DistributionHolderPersistence, domainEntity)
   }
 }

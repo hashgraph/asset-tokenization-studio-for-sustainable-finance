@@ -65,7 +65,13 @@ export async function createFactoryPrimaryMarketConfiguration(
   batchSize: number = DEFAULT_BATCH_SIZE,
   confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  const facets = FACTORY_PRIMARY_MARKET_FACETS.map((facetName) => {
+  // Build facet list - include TimeTravelFacet if present in facetAddresses
+  const facetNames: string[] = [...FACTORY_PRIMARY_MARKET_FACETS];
+  if (facetAddresses["TimeTravelFacet"]) {
+    facetNames.push("TimeTravelFacet");
+  }
+
+  const facets = facetNames.map((facetName) => {
     const address = facetAddresses[facetName];
     if (!address) {
       throw new Error(`Address not found for facet: ${facetName}`);

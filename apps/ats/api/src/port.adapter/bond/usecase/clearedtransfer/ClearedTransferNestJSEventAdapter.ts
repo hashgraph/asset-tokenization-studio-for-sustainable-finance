@@ -21,13 +21,13 @@ export class ClearedTransferNestJSEventAdapter
   async handle(event: ClearedTransferByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateClearingTransferCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
-        event.clearingId,
+        Number(event.clearingId),
         event.partition,
-        event.amount,
-        new Date(event.expirationDate * 1000),
-        await ConverterUtils.getHederaAddressFromEvm(event.toAddress),
+        event.amount || "0",
+        new Date(Number(event.expirationDate) * 1000),
+        await ConverterUtils.getHederaAddressFromEvm(event.to),
         event.data,
         event.operatorData,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),

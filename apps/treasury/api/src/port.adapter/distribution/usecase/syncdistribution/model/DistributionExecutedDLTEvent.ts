@@ -10,12 +10,12 @@ export class DistributionExecutedDLTEvent extends BaseDistributionExecutedDLTEve
   constructor(
     contractId: string,
     transactionHash: string,
-    distributionId: number,
+    distributionID: number,
     pageIndex: number,
     pageLength: number,
     results: PaymentResultEventModel[],
   ) {
-    super(contractId, transactionHash, distributionId, results)
+    super(contractId, transactionHash, distributionID, results)
     this.pageIndex = pageIndex
     this.pageLength = pageLength
   }

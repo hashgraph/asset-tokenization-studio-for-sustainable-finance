@@ -2,7 +2,7 @@
 
 import { CommandHandler, Handler, Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { ExecuteOfferingCommand } from "./ExecuteOfferingCommand"
-import { ExecuteOfferingDomainService } from "@domain/offering/services/ExecuteOfferingDomainService"
+import { ProcessOfferingDomainService } from "@domain/offering/services/ProcessOfferingDomainService"
 import type { EventBus } from "@hashgraph/green-bonds-shared-core"
 import { OfferingExecutedEvent } from "@domain/offering/event/OfferingExecutedEvent"
 
@@ -10,20 +10,19 @@ import { OfferingExecutedEvent } from "@domain/offering/event/OfferingExecutedEv
 @Handler(ExecuteOfferingCommand)
 export class ExecuteOfferingCommandHandler implements CommandHandler<ExecuteOfferingCommand, void> {
   constructor(
-    private readonly executeOfferingDomainService: ExecuteOfferingDomainService,
+    private readonly processOfferingDomainService: ProcessOfferingDomainService,
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
   @Validate()
   async execute(command: ExecuteOfferingCommand): Promise<void> {
-    await this.executeOfferingDomainService.execute(command)
+    await this.processOfferingDomainService.execute(command)
     this.eventBus.publish(
       new OfferingExecutedEvent(
         command.offeringId,
         command.marketContractId,
         command.operatorAccountId,
-        command.subscriptionIdsSuccess,
-        command.subscriptionIdsFailed,
+        command.processResults,
       ),
     )
   }
