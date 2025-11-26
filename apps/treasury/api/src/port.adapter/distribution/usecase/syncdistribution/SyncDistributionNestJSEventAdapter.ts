@@ -29,7 +29,7 @@ export class SyncDistributionNestJSEventAdapter extends BasePaymentNestJSEventAd
 
     await this.syncDistributionAppService.execute({
       treasuryContractId: event.contractId,
-      distributionId: event.distributionId,
+      distributionId: parseInt(event.distributionID.toString()),
       results,
     })
   }

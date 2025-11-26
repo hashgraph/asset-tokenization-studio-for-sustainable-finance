@@ -1,18 +1,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, Column } from "typeorm"
+import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
 
 @Entity("Factory")
-export class FactoryPersistence {
-  @PrimaryColumn()
+export class FactoryPersistence extends BaseEntityPersistence {
+  @Column({ unique: true })
   contractId: string
 
   @Column({ default: false })
   isPaused: boolean
-
-  @CreateDateColumn()
-  createdAt: Date
-
-  @UpdateDateColumn()
-  updatedAt: Date
 }

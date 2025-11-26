@@ -13,6 +13,7 @@ import { SubscriptionPersistence } from "@port/persistence/subscription/model/Su
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingExecutedDLTEvent } from "@port/offering/usecase/executeoffering/model/OfferingExecutedDLTEvent"
 import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
+import { OfferingProcessStatus } from "@domain/shared/model/OfferingProcessStatus"
 
 describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -75,6 +76,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -109,8 +111,11 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [1, 2],
-        [3],
+        [
+          { subscriptionId: 1, status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: 2, status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: 3, status: OfferingProcessStatus.FAILED },
+        ],
       )
 
       await eventBus.publishSync(event, OfferingExecutedDLTEvent.name)
@@ -134,7 +139,6 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         999,
         "0x0000000000000000000000000000000000001234",
-        [],
         [],
       )
 
@@ -162,6 +166,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingExecutedDLTEvent(
@@ -169,8 +174,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [999],
-        [],
+        [{ subscriptionId: 999, status: OfferingProcessStatus.SUCCEEDED }],
       )
 
       await expect(eventBus.publishSync(event, OfferingExecutedDLTEvent.name)).rejects.toThrow()
@@ -197,6 +201,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingExecutedDLTEvent(
@@ -204,7 +209,6 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000009999",
-        [],
         [],
       )
 
@@ -232,6 +236,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingExecutedDLTEvent(
@@ -239,7 +244,6 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
         "0x123456789",
         1,
         "0x0000000000000000000000000000000000001234",
-        [],
         [],
       )
 

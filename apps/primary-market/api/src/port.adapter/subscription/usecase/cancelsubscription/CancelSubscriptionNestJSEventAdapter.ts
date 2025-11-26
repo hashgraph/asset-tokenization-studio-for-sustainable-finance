@@ -15,7 +15,7 @@ export class CancelSubscriptionNestJSEventAdapter
   @Handler(SubscriptionCancelledDLTEvent)
   async handle(event: SubscriptionCancelledDLTEvent): Promise<void> {
     await this.commandBus.execute(
-      new CancelSubscriptionCommand(event.offeringId, event.contractId, event.subscriptionId),
+      new CancelSubscriptionCommand(Number(event.offeringId), event.contractId, Number(event.subscriptionId)),
     )
   }
 }

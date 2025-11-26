@@ -1,9 +1,9 @@
 import { expect } from "chai";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { PRIMARY_MARKET_RESOLVER_KEY } from "@scripts/domain";
-import { IStaticFunctionSelectors } from "@contracts";
+import { PM_RESOLVER_KEYS } from "@scripts/domain";
+import { IStaticFunctionSelectors } from "@contract-types";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
-import { HardhatProvider, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 
 let primaryMarketFacet: IStaticFunctionSelectors;
@@ -12,9 +12,9 @@ describe("PrimaryMarketFacet", () => {
   configureLogger({ level: LogLevel.SILENT });
 
   async function deployFixture() {
-    const provider = new HardhatProvider();
+    const [deployer] = await ethers.getSigners();
 
-    const deployment = await deployFactoryPrimaryMarketSystem(provider, "hardhat", {
+    const deployment = await deployFactoryPrimaryMarketSystem(deployer, "hardhat", {
       useTimeTravel: false,
       saveOutput: false, // Don't save deployment files during tests
     });
@@ -51,7 +51,7 @@ describe("PrimaryMarketFacet", () => {
   describe("getStaticResolverKey", () => {
     it("GIVEN PrimaryMarketFacet deployed WHEN calling getStaticResolverKey THEN success with correct key", async () => {
       const actualKey = await primaryMarketFacet.getStaticResolverKey();
-      expect(actualKey).to.equal(PRIMARY_MARKET_RESOLVER_KEY);
+      expect(actualKey).to.equal(PM_RESOLVER_KEYS.PRIMARY_MARKET);
     });
   });
 

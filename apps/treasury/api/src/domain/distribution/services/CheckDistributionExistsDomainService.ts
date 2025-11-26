@@ -7,7 +7,7 @@ import { DistributionNotFoundError } from "@domain/distribution/errors/Distribut
 
 @Singleton()
 export class CheckDistributionExistsDomainService {
-  constructor(@Inject("DistributionRepository") private readonly distributionRepository: DistributionRepository) {}
+  constructor(@Inject() private readonly distributionRepository: DistributionRepository) {}
 
   async execute(id: number): Promise<Distribution> {
     const distribution = await this.distributionRepository.findById(id)

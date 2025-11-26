@@ -17,6 +17,7 @@ export class OfferingQueryResponse {
   endDate: Date
   deadlineRule: number
   price: string
+  priceDecimals: number
   status: OfferingStatus
   createdAt: Date
 }

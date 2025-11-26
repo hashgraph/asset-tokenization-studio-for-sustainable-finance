@@ -148,6 +148,10 @@ import { RevokeRoleNestJSEventAdapter } from "@port/treasury/usecase/revokerole/
 import { RenounceRoleNestJSEventAdapter } from "@port/treasury/usecase/renouncerole/RenounceRoleNestJSEventAdapter"
 import { ApplyRolesTransactionHttpAdapter } from "@port/transaction/usecase/applyroles/ApplyRolesTransactionHttpAdapter"
 import { SyncUserRolesNestJSEventAdapter } from "@port/treasury/usecase/syncuserroles/SyncUserRolesNestJSEventAdapter"
+import { CheckDistributionHolderExistsDomainService } from "@domain/distribution/services/CheckDistributionHolderExistsDomainService"
+import { SetDistributionHolderToSuccessCommandHandler } from "@app/distribution/setdistributionholdertosuccess/command/SetDistributionHolderToSuccessCommandHandler"
+import { CheckRedemptionHolderExistsDomainService } from "@domain/redemption/service/CheckRedemptionHolderExistsDomainService"
+import { SetRedemptionHolderToSuccessCommandHandler } from "@app/redemption/setredemptionholdertosuccess/SetRedemptionHolderToSuccessCommandHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -300,6 +304,8 @@ export const PROVIDERS = [
   AddProceedsRecipientAllocationCommandHandler,
   SyncDistributionNestJSEventAdapter,
   SyncDistributionAppService,
+  CheckDistributionHolderExistsDomainService,
+  SetDistributionHolderToSuccessCommandHandler,
   CreateDistributionCommandHandler,
   AddDistributionHolderCommandHandler,
   ExecuteDistributionTransactionAppService,
@@ -312,6 +318,8 @@ export const PROVIDERS = [
   SyncRedemptionNestJSEventAdapter,
   SyncRedemptionAppService,
   AddRedemptionHolderCommandHandler,
+  CheckRedemptionHolderExistsDomainService,
+  SetRedemptionHolderToSuccessCommandHandler,
   SyncTokenDissociationErrorNestJSEventAdapter,
   SyncTokenDissociationErrorAppService,
   UpdatePaymentTokenDissociationErrorCommandHandler,

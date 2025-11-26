@@ -57,11 +57,13 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        1, // offeringId (numeric)
+        "1", // offeringId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
         "0x0000000000000000000000000000000000001237", // payment token
+        "100", // price
+        6, // priceDecimals
         "1000", // lotSize
         "100", // minLots
         "10000", // maxLots
@@ -70,7 +72,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "1640995200", // startDate
         "1672531200", // endDate
         0, // deadlineRule
-        "100", // price
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -95,6 +96,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       expect(savedOffering!.endDate).toEqual(new Date(1672531200 * 1000))
       expect(savedOffering!.deadlineRule).toBe(0)
       expect(savedOffering!.price).toBe("100")
+      expect(savedOffering!.priceDecimals).toBe(6)
       expect(savedOffering!.market.contractId).toBe("0.0.1234567")
     })
 
@@ -120,6 +122,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 6,
       })
 
       await offeringRepository.save(existingOffering)
@@ -127,11 +130,13 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        1, // Same offeringId
+        "1", // Same offeringId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
         "0x0000000000000000000000000000000000001237", // payment token
+        "100", // price
+        6, // priceDecimals
         "1000",
         "100",
         "10000",
@@ -140,7 +145,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "1640995200",
         "1672531200",
         0,
-        "100",
       )
 
       await expect(eventBus.publishSync(event, OfferingCreatedDLTEvent.name)).rejects.toThrow()
@@ -157,11 +161,13 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         const event = new OfferingCreatedDLTEvent(
           "0.0.1234567", // contractId (market)
           "0x123456789", // transactionHash
-          offeringId,
+          String(offeringId),
           "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
           "0x0000000000000000000000000000000000001235", // asset (bond)
           "0x0000000000000000000000000000000000001236", // treasury
           "0x0000000000000000000000000000000000001237", // payment token
+          "100", // price
+          6, // priceDecimals
           "1000",
           "100",
           "10000",
@@ -170,7 +176,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           "1640995200",
           "1672531200",
           0,
-          "100",
         )
 
         await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -199,11 +204,13 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingCreatedDLTEvent(
         "0.0.1234567", // contractId (market)
         "0x123456789", // transactionHash
-        1,
+        "1",
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
         "0x0000000000000000000000000000000000001235", // asset (bond)
         "0x0000000000000000000000000000000000001236", // treasury
         "0x0000000000000000000000000000000000001237", // payment token
+        "100", // price
+        6, // priceDecimals
         "1000",
         "100",
         "10000",
@@ -212,7 +219,6 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "1640995200",
         "1672531200",
         0,
-        "100",
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -233,6 +239,7 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           endDate: new Date(1672531200 * 1000),
           deadlineRule: 0,
           price: "100",
+          priceDecimals: 6,
           timestamp: expect.any(Number),
         }),
       )

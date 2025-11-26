@@ -41,6 +41,7 @@ export class GetOfferingQueryHandler implements QueryHandler<GetOfferingQuery, O
       endDate: offering.endDate,
       deadlineRule: offering.deadlineRule,
       price: offering.price,
+      priceDecimals: offering.priceDecimals,
       status,
       createdAt: offering.createdAt,
     })

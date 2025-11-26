@@ -34,6 +34,7 @@ export class CreateOfferingCommandHandler implements CommandHandler<CreateOfferi
         offering.endDate,
         offering.deadlineRule,
         offering.price,
+        offering.priceDecimals,
       ),
     )
   }

@@ -50,6 +50,9 @@ export class OfferingResponse {
   @ApiProperty({ description: "Price per lot", example: "1000000" })
   price: string
 
+  @ApiProperty({ description: "Price decimals", example: 6 })
+  priceDecimals: number
+
   @ApiProperty({ description: "Offering status", enum: OfferingStatus, example: OfferingStatus.OPEN })
   status: OfferingStatus
 

@@ -8,7 +8,7 @@ export class ClearedTransferByPartitionDLTEvent extends DLTEvent {
   readonly clearingId: number
   readonly amount: string
   readonly expirationDate: number
-  readonly toAddress: string
+  readonly to: string
   readonly data: string
   readonly operatorData: string
 
@@ -21,7 +21,7 @@ export class ClearedTransferByPartitionDLTEvent extends DLTEvent {
     clearingId: number,
     amount: string,
     expirationDate: number,
-    toAddress: string,
+    to: string,
     data: string,
     operatorData: string,
   ) {
@@ -32,7 +32,7 @@ export class ClearedTransferByPartitionDLTEvent extends DLTEvent {
     this.clearingId = clearingId
     this.amount = amount
     this.expirationDate = expirationDate
-    this.toAddress = toAddress
+    this.to = to
     this.data = data
     this.operatorData = operatorData
   }

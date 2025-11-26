@@ -9,11 +9,14 @@ import { AddDistributionHolderCommand } from "@app/distribution/adddistributionh
 import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
 import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
 import { PaymentResultItemAppServiceRequestModel } from "@app/shared/model/PaymentResultItemAppServiceRequestModel"
+import type { DistributionHolderRepository } from "@domain/distribution/repositories/DistributionHolderRepository"
+import { SetDistributionHolderToSuccessCommand } from "@app/distribution/setdistributionholdertosuccess/command/SetDistributionHolderToSuccessCommand"
 
 @Singleton()
 export class SyncDistributionAppService {
   constructor(
     @Inject() private readonly distributionRepository: DistributionRepository,
+    @Inject() private readonly distributionHolderRepository: DistributionHolderRepository,
     private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
     @Inject() private readonly commandBus: CommandBus,
   ) {}
@@ -43,25 +46,35 @@ export class SyncDistributionAppService {
     paymentTokenId: string,
   ): Promise<void> {
     for (const item of items) {
-      if (item.status === 0) {
+      const existsHolder = await this.distributionHolderRepository.existsByDistributionIdAndHolderAccountId(
+        distributionId,
+        item.holder,
+      )
+      if (!existsHolder) {
+        if (item.status === 0) {
+          await this.commandBus.execute(
+            new AddDistributionHolderCommand(
+              item.holder,
+              DistributionHolderStatus.SUCCESS,
+              item.amount,
+              distributionId,
+              paymentTokenId,
+            ),
+          )
+        } else if (item.status === 1) {
+          await this.commandBus.execute(
+            new AddDistributionHolderCommand(
+              item.holder,
+              DistributionHolderStatus.FAILED,
+              undefined,
+              distributionId,
+              paymentTokenId,
+            ),
+          )
+        }
+      } else if (item.status === 0) {
         await this.commandBus.execute(
-          new AddDistributionHolderCommand(
-            item.holder,
-            DistributionHolderStatus.SUCCESS,
-            item.amount,
-            distributionId,
-            paymentTokenId,
-          ),
-        )
-      } else if (item.status === 1) {
-        await this.commandBus.execute(
-          new AddDistributionHolderCommand(
-            item.holder,
-            DistributionHolderStatus.FAILED,
-            undefined,
-            distributionId,
-            paymentTokenId,
-          ),
+          new SetDistributionHolderToSuccessCommand(item.holder, item.amount, distributionId, paymentTokenId),
         )
       }
     }

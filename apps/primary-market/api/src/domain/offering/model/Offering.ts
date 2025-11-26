@@ -64,6 +64,10 @@ export class Offering {
   @IsString()
   price: string
 
+  @IsNotEmpty()
+  @IsNumber()
+  priceDecimals: number
+
   @IsDate()
   createdAt: Date
 

@@ -54,6 +54,9 @@ export class OfferingPersistence {
   @Column({ type: "varchar" })
   price: string
 
+  @Column({ type: "int" })
+  priceDecimals: number
+
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date
 

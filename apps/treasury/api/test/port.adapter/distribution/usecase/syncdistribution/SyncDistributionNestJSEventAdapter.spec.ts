@@ -18,6 +18,7 @@ import { DistributionCreatedEvent } from "@domain/distribution/event/Distributio
 import { DistributionHolderAddedEvent } from "@domain/distribution/event/DistributionHolderAddedEvent"
 import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
 import { PaymentResultItemEventModel } from "@port/shared/model/PaymentResultEventModel"
+import { DistributionHolderToSucessSetEvent } from "@domain/distribution/event/DistributionHolderToSucessSetEvent"
 
 describe("SyncDistribution Integration", () => {
   let app: INestApplication
@@ -163,6 +164,50 @@ describe("SyncDistribution Integration", () => {
     expect(publishedEvents).toHaveLength(5)
     expect(publishedEvents[0].constructor.name).toEqual(DistributionCreatedEvent.name)
     expect(publishedEvents.slice(1).every((e) => e.constructor.name === DistributionHolderAddedEvent.name)).toBe(true)
+  })
+
+  it("should change holder status to SUCCESS if holder exists previously", async () => {
+    const treasury = await createTreasuryWithPaymentToken("0.0.222")
+    const distributionId = 1
+    const holderAccountId = "0.0.99876"
+    const amount = "990809"
+    const distribution = await internalDistributionRepository.save({
+      id: distributionId,
+      treasuryId: treasury.id,
+    })
+    let distributionHolder = await internalDistributionHolderRepository.save({
+      holderAccountId,
+      distributionId,
+      status: DistributionHolderStatus.FAILED,
+      paymentTokenId: treasury.paymentToken?.id,
+      distribution,
+    })
+
+    let publishedEvent
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => {
+      publishedEvent = event
+    })
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(holderAccountId)
+
+    const event = new DistributionExecutedDLTEvent(treasury.contractId, "testTransactionHash", distributionId, 0, 10, [
+      { holder: holderAccountId, status: 0, amount },
+    ])
+
+    await eventBus.publishSync(event, DistributionExecutedDLTEvent.name)
+
+    distributionHolder = await internalDistributionHolderRepository.findOneBy({ id: distributionHolder.id })
+    expect(distributionHolder).toMatchObject({
+      status: DistributionHolderStatus.SUCCESS,
+      amount,
+    })
+
+    expect(publishedEvent.constructor.name).toEqual(DistributionHolderToSucessSetEvent.name)
+    expect(publishedEvent).toEqual({
+      holderAccountId,
+      distributionId,
+      amount,
+      timestamp: expect.any(Number),
+    })
   })
 
   it("should create distribution and add holders on DistributionByAddressesExecuted event", async () => {

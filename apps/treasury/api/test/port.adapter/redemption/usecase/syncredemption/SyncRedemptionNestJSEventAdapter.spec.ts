@@ -18,6 +18,8 @@ import { RedemptionByAddressesExecutedDLTEvent } from "@port/redemption/usecase/
 import { PaymentTokenNotConfiguredError } from "@domain/treasury/errors/PaymentTokenNotConfiguredError"
 import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundError"
 import { RedemptionHolderPersistence } from "@port/persistence/redemption/model/RedemptionHolderPersistence"
+import { DistributionHolderStatus } from "@domain/distribution/model/DistributionHolderStatus"
+import { RedemptionHolderToSuccessSetEvent } from "@domain/redemption/event/RedemptionHolderToSuccessSetEvent"
 
 describe("SyncRedemption Integration", () => {
   let app: INestApplication
@@ -74,7 +76,7 @@ describe("SyncRedemption Integration", () => {
     return await internalTreasuryRepository.save(treasury)
   }
 
-  it("should create redemption holderson RedemptionExecutedDLTEvent event", async () => {
+  it("should create redemption holders on RedemptionExecutedDLTEvent event", async () => {
     const treasury = await createTreasuryWithPaymentToken("0.0.222")
 
     const publishedEvents: any[] = []
@@ -145,6 +147,44 @@ describe("SyncRedemption Integration", () => {
     })
     expect(publishedEvents).toHaveLength(4)
     expect(publishedEvents.every((e) => e.constructor.name === RedemptionHolderAddedEvent.name)).toBe(true)
+  })
+
+  it("should change holder status to SUCCESS if holder exists previously", async () => {
+    const treasury = await createTreasuryWithPaymentToken("0.0.222")
+    const holderAccountId = "0.0.99876"
+    const amount = "990809"
+    let redemptionHolder = await internalRedemptionHolderRepository.save({
+      holderAccountId,
+      status: DistributionHolderStatus.FAILED,
+      paymentTokenId: treasury.paymentToken?.id,
+      treasuryId: treasury.id,
+    })
+
+    let publishedEvent
+    jest.spyOn(eventBus, "publish").mockImplementation((event) => {
+      publishedEvent = event
+    })
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(holderAccountId)
+
+    const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, [
+      { holder: holderAccountId, status: 0, amount },
+    ])
+
+    await eventBus.publishSync(event, RedemptionExecutedDLTEvent.name)
+
+    redemptionHolder = await internalRedemptionHolderRepository.findOneBy({ id: redemptionHolder.id })
+    expect(redemptionHolder).toMatchObject({
+      status: DistributionHolderStatus.SUCCESS,
+      amount,
+    })
+
+    expect(publishedEvent.constructor.name).toEqual(RedemptionHolderToSuccessSetEvent.name)
+    expect(publishedEvent).toEqual({
+      holderAccountId,
+      treasuryId: treasury.id,
+      amount,
+      timestamp: expect.any(Number),
+    })
   })
 
   it("should add redemption holders on RedemptionByAddressesExecuted event", async () => {

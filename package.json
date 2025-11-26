@@ -84,15 +84,17 @@
     "@eslint/js": "9.37.0",
     "@typescript-eslint/eslint-plugin": "8.46.0",
     "@typescript-eslint/parser": "8.46.0",
+    "class-validator": "0.14.2",
     "eslint": "9.37.0",
     "eslint-plugin-prettier": "5.5.4",
     "eslint-plugin-unused-imports": "4.2.0",
     "globals": "16.4.0",
     "prettier": "3.6.2",
-    "prettier-plugin-solidity": "2.1.0"
+    "prettier-plugin-solidity": "2.1.0",
+    "hardhat": "2.26.5"
   },
   "overrides": {
-    "@typechain/ethers-v5": "11.1.2",
+    "@typechain/ethers-v5": "10.2.1",
     "ws": "8.18.3"
   }
 }
