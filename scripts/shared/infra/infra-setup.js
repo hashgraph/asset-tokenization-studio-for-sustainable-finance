@@ -35,23 +35,11 @@ const CONFIG = {
   docker: {
     composeFile: path.join(path.dirname(__dirname), '..', 'docker-compose.yaml'),
     services: {
-      postgresAts: {
-        name: 'PostgreSQL (ATS)',
-        container: 'green_bonds_postgres_ats',
+      postgres: {
+        name: 'PostgreSQL',
+        container: 'green_bonds_postgres',
         healthUrl: null,
         port: 5432
-      },
-      postgresPm: {
-        name: 'PostgreSQL (Primary Market)',
-        container: 'green_bonds_postgres_pm',
-        healthUrl: null,
-        port: 5433
-      },
-      postgresTreasury: {
-        name: 'PostgreSQL (Treasury)',
-        container: 'green_bonds_postgres_treasury',
-        healthUrl: null,
-        port: 5434
       },
       pgadmin: {
         name: 'PgAdmin',
@@ -77,6 +65,7 @@ const CONFIG = {
       PORT: '3001',
       POSTGRESQL_HOST: 'localhost',
       POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'ats_db',
       BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
@@ -89,7 +78,8 @@ const CONFIG = {
     env: {
       PORT: '3002',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5433',
+      POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'primary_market_db',
       BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
@@ -102,7 +92,8 @@ const CONFIG = {
     env: {
       PORT: '3003',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5434',
+      POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'treasury_db',
       BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
@@ -151,7 +142,7 @@ const CONFIG = {
     name: 'Transaction Sender',
     path: '../../../apps/shared/transaction-sender',
     port: 3005,
-    healthUrl: 'http://localhost:3005/health',
+    healthUrl: 'http://localhost:3005/api/v1/health',
     command: 'npm run start:dev',
     env: {
       PORT: '3005',
@@ -236,17 +227,16 @@ async function startDockerServices() {
     const maxAttempts = 30;
     
     while (attempts < maxAttempts) {
-      const postgresAtsHealthy = await checkDockerServiceHealth('postgresAts');
-      const postgresPmHealthy = await checkDockerServiceHealth('postgresPm');
-      const postgresTreasuryHealthy = await checkDockerServiceHealth('postgresTreasury');
+      const postgresHealthy = await checkDockerServiceHealth('postgres');
       const rabbitmqHealthy = await checkDockerServiceHealth('rabbitmq');
       
-      if (postgresAtsHealthy && postgresPmHealthy && postgresTreasuryHealthy && rabbitmqHealthy) {
+      if (postgresHealthy && rabbitmqHealthy) {
         log('✅ All Docker services are healthy', colors.green);
         log('🌐 Service URLs:', colors.blue);
-        log('• PostgreSQL (ATS): localhost:5432 (postgres/postgres)', colors.blue);
-        log('• PostgreSQL (Primary Market): localhost:5433 (postgres/postgres)', colors.blue);
-        log('• PostgreSQL (Treasury): localhost:5434 (postgres/postgres)', colors.blue);
+        log('• PostgreSQL: localhost:5432 (postgres/postgres)', colors.blue);
+        log('  - ATS Database: ats_db', colors.blue);
+        log('  - Primary Market Database: primary_market_db', colors.blue);
+        log('  - Treasury Database: treasury_db', colors.blue);
         log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)', colors.blue);
         log('• RabbitMQ Management: http://localhost:15672 (guest/guest)', colors.blue);
         return true;

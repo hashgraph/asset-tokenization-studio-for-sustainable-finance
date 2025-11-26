@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database for ATS API
-  postgres-ats:
+  # PostgreSQL Database - Single instance with multiple databases
+  postgres:
     image: postgres:15-alpine
-    container_name: green_bonds_postgres_ats
-    hostname: postgres-ats
+    container_name: green_bonds_postgres
+    hostname: postgres
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -13,49 +13,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_ats_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - green_bonds_network
-
-  # PostgreSQL Database for Primary Market API
-  postgres-primary-market:
-    image: postgres:15-alpine
-    container_name: green_bonds_postgres_pm
-    hostname: postgres-primary-market
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_pm_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - green_bonds_network
-
-  # PostgreSQL Database for Treasury API
-  postgres-treasury:
-    image: postgres:15-alpine
-    container_name: green_bonds_postgres_treasury
-    hostname: postgres-treasury
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_treasury_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
       interval: 10s
@@ -75,11 +34,7 @@ services:
     ports:
       - "5050:80"
     depends_on:
-      postgres-ats:
-        condition: service_healthy
-      postgres-primary-market:
-        condition: service_healthy
-      postgres-treasury:
+      postgres:
         condition: service_healthy
     networks:
       - green_bonds_network
@@ -104,9 +59,7 @@ services:
       - green_bonds_network
 
 volumes:
-  postgres_ats_data:
-  postgres_pm_data:
-  postgres_treasury_data:
+  postgres_data:
 
 networks:
   green_bonds_network:
