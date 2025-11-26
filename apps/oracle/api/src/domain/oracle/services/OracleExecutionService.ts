@@ -5,7 +5,6 @@ import { ScheduledTaskResult } from "../model/ScheduledTaskResult"
 import { Project } from "../model/Project"
 import type { IndexerPort } from "../ports/IndexerPort"
 import type { BlockchainPort } from "../ports/BlockchainPort"
-import { OracleAggregationService } from "./OracleAggregationService"
 import type { ScheduledTaskResultRepository } from "../repositories/ScheduledTaskResultRepository"
 import { randomUUID } from "crypto"
 
@@ -24,7 +23,6 @@ export class OracleExecutionService {
     private readonly blockchainPort: BlockchainPort,
     @Inject("ScheduledTaskResultRepository")
     private readonly taskRepository: ScheduledTaskResultRepository,
-    private readonly aggregationService: OracleAggregationService,
   ) {}
 
   /**
@@ -41,7 +39,6 @@ export class OracleExecutionService {
     this.logger.log(`Executing task for project ${project.projectId} in registry ${registry.id}`)
 
     // Step 1: Calculate fromDate based on last successful execution
-      //TODO: get the last execution date from the database not the last successful execution
     const fromDate = await this.calculateFromDate(registry.id, project.projectId)
 
     this.logger.debug(
@@ -61,28 +58,28 @@ export class OracleExecutionService {
     taskResult = await this.taskRepository.save(taskResult)
 
     try {
-      // Step 2: Fetch KPI values from indexer using from/to range
-      const kpiMessages = await this.indexerPort.getKpiValuesByTopic(project.topicId, fromDate || toDate, toDate)
+      // Step 2: Fetch KPI value from indexer using from/to range
+      const kpiMessage = await this.indexerPort.getKpiValueByTopic(project.topicId, fromDate || toDate, toDate)
 
-      if (kpiMessages.length === 0) {
-        this.logger.warn(
-          `No KPI messages found for topic ${project.topicId} ` +
-            `between ${fromDate?.toISOString() || "start"} and ${toDate.toISOString()}`,
+      // Validate: Don't proceed if no KPI data (will be retried later)
+      if (!kpiMessage) {
+        throw new Error(
+          `No KPI data found for topic ${project.topicId} ` +
+            `between ${fromDate?.toISOString() || "start"} and ${toDate.toISOString()}. ` +
+            `Task will be retried.`,
         )
       }
-      //TODO: Guardian
-      // Step 3: Aggregate KPI values
-      const aggregatedKpi = kpiMessages.length > 0 ? this.aggregationService.aggregateDailyKpi(kpiMessages) : 0
 
-      this.logger.debug(`Aggregated KPI for project ${project.projectId}: ${aggregatedKpi}`)
-      //TODO: queremos escribir en DLT  a pesar de que  no recuperemos datos de KPI un valor por defecto o cuando se calcula el impact data se settea por defecto
-      // Step 4: Write to blockchain with toDate
+      // Step 3: Use KPI value directly (no aggregation needed)
+      const kpiValue = kpiMessage.value
+
+      this.logger.debug(`KPI value for project ${project.projectId}: ${kpiValue}`)
+
       // Note: Smart contract only stores ONE timestamp (toDate), not a range
-      // The fromDate is used internally by the Oracle for fetching data, but not sent to blockchain
       const writeResult = await this.blockchainPort.writeKpiToContract(
         registry.kpiContractId,
         project.projectId,
-        aggregatedKpi,
+        kpiValue,
         toDate,
       )
 
@@ -91,12 +88,12 @@ export class OracleExecutionService {
       }
 
       // Mark as success
-      taskResult = taskResult.markAsSuccess(aggregatedKpi, writeResult.transactionHash)
+      taskResult = taskResult.markAsSuccess(kpiValue, writeResult.transactionHash)
 
       this.logger.log(
         `Successfully executed task for project ${project.projectId}. ` +
           `TX: ${writeResult.transactionHash}, ` +
-          `KPI: ${aggregatedKpi}, Range: [${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}]`,
+          `KPI: ${kpiValue}, Range: [${fromDate?.toISOString() || "null"}, ${toDate.toISOString()}]`,
       )
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unknown error"
@@ -153,7 +150,7 @@ export class OracleExecutionService {
     const lastSuccess = await this.taskRepository.findLatestSuccessfulByProject(registryId, projectId)
 
     if (!lastSuccess) {
-      // First execution: no fromDate
+      // First execution: no fromDate we set current date as fromDate
       return null
     }
 

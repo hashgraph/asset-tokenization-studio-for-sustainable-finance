@@ -8,7 +8,8 @@ export interface KpiMessage {
 
 export interface IndexerPort {
   /**
-   * Get KPI values from the MSG Indexer for a specific topic
+   * Get KPI value from the MSG Indexer for a specific topic
+   * Returns the most recent KPI value within the date range, or null if not found
    */
-  getKpiValuesByTopic(topicId: string, dateFrom?: Date, dateTo?: Date): Promise<KpiMessage[]>
+  getKpiValueByTopic(topicId: string, dateFrom?: Date, dateTo?: Date): Promise<KpiMessage | null>
 }

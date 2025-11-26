@@ -12,9 +12,9 @@ export class IndexerApiClient implements IndexerPort {
     private readonly configRepository: IndexerConfigRepository,
   ) {}
 
-  async getKpiValuesByTopic(topicId: string, dateFrom: Date, dateTo: Date): Promise<KpiMessage[]> {
+  async getKpiValueByTopic(topicId: string, dateFrom: Date, dateTo: Date): Promise<KpiMessage | null> {
     this.logger.log(
-      `Fetching KPI messages for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`,
+      `Fetching KPI value for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`,
     )
 
     // Get config from database (or create with env defaults)
@@ -22,7 +22,7 @@ export class IndexerApiClient implements IndexerPort {
 
     if (!config.endpoint) {
       this.logger.warn("Indexer endpoint not configured")
-      return []
+      return null
     }
 
     try {
@@ -42,22 +42,29 @@ export class IndexerApiClient implements IndexerPort {
 
       const data = await response.json()
 
-      // Transform API response to KpiMessage[]
+      // Transform API response to single KpiMessage (most recent)
       // This structure depends on the actual MSG Indexer API response format
       // Adjust according to the real API
-      const messages: KpiMessage[] = (data.messages || []).map((msg: any) => ({
-        topicId: msg.topicId || topicId,
-        projectId: msg.projectId || "",
-        timestamp: new Date(msg.timestamp),
-        value: parseFloat(msg.value || msg.kpiValue || "0"),
-        metadata: msg.metadata || {},
-      }))
+      const messages = data.messages || []
 
-      this.logger.log(`Retrieved ${messages.length} KPI messages`)
+      if (messages.length === 0) {
+        this.logger.log(`No KPI messages found for topic ${topicId}`)
+        return null
+      }
 
-      return messages
+      // Return the most recent message (assuming API returns sorted by timestamp desc)
+      const latestMsg = messages[0]
+      const kpiMessage: KpiMessage = {
+        projectId: latestMsg.projectId || "",
+        timestamp: new Date(latestMsg.timestamp),
+        value: parseFloat(latestMsg.value || latestMsg.kpiValue || "0"),
+      }
+
+      this.logger.log(`Retrieved KPI value: ${kpiMessage.value} for topic ${topicId}`)
+
+      return kpiMessage
     } catch (error) {
-      this.logger.error(`Failed to fetch KPI messages: ${error instanceof Error ? error.message : "Unknown error"}`)
+      this.logger.error(`Failed to fetch KPI value: ${error instanceof Error ? error.message : "Unknown error"}`)
       throw error
     }
   }

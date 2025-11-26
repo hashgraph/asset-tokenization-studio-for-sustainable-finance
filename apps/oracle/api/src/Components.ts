@@ -37,7 +37,6 @@ import { GetExecutionHistoryQueryHandler } from "@app/oracle/getexecutionhistory
 
 // Domain Layer - Services
 import { OracleExecutionService } from "@domain/oracle/services/OracleExecutionService"
-import { OracleAggregationService } from "@domain/oracle/services/OracleAggregationService"
 import { AutoRetryService } from "@domain/scheduler/services/AutoRetryService"
 
 // Port Adapters - Repositories
@@ -135,7 +134,6 @@ export const PROVIDERS: any[] = [
 
   // Domain Services
   OracleExecutionService,
-  OracleAggregationService,
   AutoRetryService,
 
   // Repositories
