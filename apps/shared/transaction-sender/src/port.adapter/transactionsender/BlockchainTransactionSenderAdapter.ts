@@ -3,8 +3,8 @@
 import { Client, Transaction, Status } from "@hashgraph/sdk"
 import { ethers } from "ethers"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
-import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
+import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 import {
   Singleton,
   Logger,
