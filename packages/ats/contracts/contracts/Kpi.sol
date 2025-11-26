@@ -31,6 +31,12 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
     ) external virtual override validDate(toDate) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
         if (toDate >= _blockTimestamp()) revert InvalidDate(toDate);
         KpiStorage storage kpiStorage = _getKpiStorage();
+
+        // Validate against minimum valid date if set
+        if (kpiStorage.minValidDate > 0 && toDate < kpiStorage.minValidDate) {
+            revert DateBeforeMinimum(toDate, kpiStorage.minValidDate);
+        }
+
         if (kpiStorage.kpiData[toDate].exists) {
             revert KpiDataAlreadyExists(toDate);
         }
@@ -85,6 +91,12 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
                 _grantRole(rbacs[rbacIndex].role, rbacs[rbacIndex].members[memberIndex]);
             }
         }
+    }
+
+    function setMinValidDate(uint256 newMinValidDate) external override onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
+        KpiStorage storage kpiStorage = _getKpiStorage();
+        kpiStorage.minValidDate = newMinValidDate;
+        emit MinValidDateUpdated(newMinValidDate);
     }
 
     function _getKpiStorage() internal pure returns (KpiStorage storage kpiStorage) {

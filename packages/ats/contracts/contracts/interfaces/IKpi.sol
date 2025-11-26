@@ -27,11 +27,13 @@ interface IKpi {
      * @param KpiData Mapping from timestamp to KpiEntry struct
      * @param timestampsIndex Array of timestamps for efficient range queries
      * @param initialized Boolean flag indicating if the storage has been initialized
+     * @param minValidDate Minimum valid date from which KPI data is accepted (0 = no minimum)
      */
     struct KpiStorage {
         mapping(uint256 timestamp => KpiEntry) kpiData;
         uint256[] timestampsIndex;
         bool initialized;
+        uint256 minValidDate;
     }
 
     /**
@@ -41,6 +43,12 @@ interface IKpi {
      */
     // solhint-disable-next-line gas-indexed-events
     event KpiDataAdded(uint256 indexed date, uint256 value);
+
+    /**
+     * @notice Emitted when the minimum valid date is updated
+     * @param newMinValidDate The new minimum valid date
+     */
+    event MinValidDateUpdated(uint256 newMinValidDate);
 
     /**
      * @notice Thrown when an invalid date (zero or negative) is provided
@@ -67,6 +75,13 @@ interface IKpi {
      */
     error KpiDataNotFound(uint256 requestedDate);
 
+    /**
+     * @notice Thrown when trying to add KPI data with a date before the minimum valid date
+     * @param providedDate The date that was provided
+     * @param minValidDate The minimum valid date configured
+     */
+    error DateBeforeMinimum(uint256 providedDate, uint256 minValidDate);
+
     function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 
     /**
@@ -88,4 +103,12 @@ interface IKpi {
      * @return kpiAggregatedValue The sum of all Kpi values in the specified date range
      */
     function getKpiData(uint256 fromDate, uint256 toDate) external view returns (uint256 kpiAggregatedValue);
+
+    /**
+     * @notice Sets the minimum valid date for KPI data
+     * @dev Only callable by KPI_DATA_MANAGER_ROLE. Once set, addKpiData will reject dates before this minimum.
+     *      Set to 0 to disable minimum date validation.
+     * @param newMinValidDate The minimum valid date timestamp (0 to disable)
+     */
+    function setMinValidDate(uint256 newMinValidDate) external;
 }

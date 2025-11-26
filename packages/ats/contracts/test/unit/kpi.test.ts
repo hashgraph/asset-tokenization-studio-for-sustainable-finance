@@ -199,6 +199,49 @@ describe("Kpi", () => {
     });
   });
 
+  describe("setMinValidDate", () => {
+    it("GIVEN admin WHEN setting minValidDate THEN success with MinValidDateUpdated event", async () => {
+      const minDate = 1000;
+      await expect(kpi.setMinValidDate(minDate)).to.emit(kpi, "MinValidDateUpdated").withArgs(minDate);
+    });
+
+    it("GIVEN non-admin WHEN setting minValidDate THEN fail with AccountHasNoRole", async () => {
+      await expect(kpi.connect(unknownSigner).setMinValidDate(1000)).to.be.revertedWithCustomError(
+        kpi,
+        "AccountHasNoRole",
+      );
+    });
+
+    it("GIVEN minValidDate is set WHEN adding KPI data before minimum THEN fail with DateBeforeMinimum", async () => {
+      const minDate = 1000;
+      await kpi.setMinValidDate(minDate);
+      await expect(kpi.addKpiData(999, 100)).to.be.revertedWithCustomError(kpi, "DateBeforeMinimum").withArgs(999, minDate);
+    });
+
+    it("GIVEN minValidDate is set WHEN adding KPI data at exact minimum THEN success", async () => {
+      const minDate = 1000;
+      await kpi.setMinValidDate(minDate);
+      await expect(kpi.addKpiData(1000, 100)).to.emit(kpi, "KpiDataAdded").withArgs(1000, 100);
+    });
+
+    it("GIVEN minValidDate is set WHEN adding KPI data after minimum THEN success", async () => {
+      const minDate = 1000;
+      await kpi.setMinValidDate(minDate);
+      await expect(kpi.addKpiData(2000, 200)).to.emit(kpi, "KpiDataAdded").withArgs(2000, 200);
+    });
+
+    it("GIVEN minValidDate is set to 0 WHEN adding KPI data with any valid past date THEN success", async () => {
+      await kpi.setMinValidDate(1000);
+      await kpi.setMinValidDate(0); // Disable minimum
+      await expect(kpi.addKpiData(100, 100)).to.emit(kpi, "KpiDataAdded").withArgs(100, 100);
+    });
+
+    it("GIVEN contract is paused WHEN setting minValidDate THEN fail with TokenIsPaused", async () => {
+      await kpi.pause();
+      await expect(kpi.setMinValidDate(1000)).to.be.revertedWithCustomError(kpi, "TokenIsPaused");
+    });
+  });
+
   describe("upgradability", () => {
     it("GIVEN KPI proxy with existing data WHEN upgrading implementation THEN success with preserved storage", async () => {
       await kpi.addKpiData(1, 123);
