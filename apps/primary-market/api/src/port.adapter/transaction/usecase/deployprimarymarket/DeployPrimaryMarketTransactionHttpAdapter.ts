@@ -7,7 +7,9 @@ import { DeployPrimaryMarketTransactionRequest } from "./model/DeployPrimaryMark
 import { DeployPrimaryMarketTransactionAppService } from "@app/transaction/deployprimarymarket/service/DeployPrimaryMarketTransactionAppService"
 import { DeployPrimaryMarketTransactionAppServiceRequest } from "@app/transaction/deployprimarymarket/service/model/DeployPrimaryMarketTransactionAppServiceRequest"
 import { ConfigService } from "@nestjs/config"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 
+@ApiTags("Primary Market")
 @RestController("primary-markets")
 export class DeployPrimaryMarketTransactionHttpAdapter implements DeployPrimaryMarketTransactionPort {
   constructor(
@@ -15,6 +17,8 @@ export class DeployPrimaryMarketTransactionHttpAdapter implements DeployPrimaryM
     private readonly configService: ConfigService,
   ) {}
 
+  @ApiOperation({ summary: "Deploys a new primary market contract" })
+  @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
   @Post()
   async deployPrimaryMarketTransaction(
     @Body() request: DeployPrimaryMarketTransactionRequest,

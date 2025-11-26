@@ -32,10 +32,11 @@ export class CreateOfferingTransactionHttpAdapter implements CreateOfferingTrans
       request.maxLots,
       request.targetLots,
       request.targetQuantityRule,
-      request.startDate.getTime().toString(),
-      request.endDate.getTime().toString(),
+      Math.floor(request.startDate.getTime() / 1000).toString(),
+      Math.floor(request.endDate.getTime() / 1000).toString(),
       request.deadlineRule,
       request.price,
+      request.priceDecimals,
     )
     return await this.createOfferingTransactionAppService.execute(appServiceRequest)
   }

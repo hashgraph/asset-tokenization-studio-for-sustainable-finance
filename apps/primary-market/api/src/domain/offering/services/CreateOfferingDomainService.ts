@@ -47,6 +47,7 @@ export class CreateOfferingDomainService {
       endDate: createOfferingDomainServiceRequest.endDate,
       deadlineRule: createOfferingDomainServiceRequest.deadlineRule,
       price: createOfferingDomainServiceRequest.price,
+      priceDecimals: createOfferingDomainServiceRequest.priceDecimals,
       createdAt: now,
       updatedAt: now,
     })

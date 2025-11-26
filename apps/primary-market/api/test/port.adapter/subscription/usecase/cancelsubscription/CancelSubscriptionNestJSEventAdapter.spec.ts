@@ -76,6 +76,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -87,7 +88,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         status: SubscriptionStatus.SUBMITTED,
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
@@ -122,9 +123,10 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 999)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "999")
 
       await expect(eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)).rejects.toThrow()
     })
@@ -134,13 +136,13 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         contractId: "0.0.1234567",
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 999, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "999", "1")
 
       await expect(eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)).rejects.toThrow()
     })
 
     it("should throw error when market does not exist", async () => {
-      const event = new SubscriptionCancelledDLTEvent("0.0.9999999", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.9999999", "0x123456789abcdef", "1", "1")
 
       await expect(eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)).rejects.toThrow()
     })
@@ -167,6 +169,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -178,7 +181,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         status: SubscriptionStatus.SUBMITTED,
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
 
       await expect(eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)).rejects.toThrow()
     })
@@ -204,6 +207,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -224,7 +228,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         status: SubscriptionStatus.SUBMITTED,
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
@@ -268,6 +272,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const offering2 = await offeringRepository.save({
@@ -286,6 +291,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -304,7 +310,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         status: SubscriptionStatus.SUBMITTED,
       })
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 
@@ -349,6 +355,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -363,7 +370,7 @@ describe("CancelSubscriptionNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", 1, 1)
+      const event = new SubscriptionCancelledDLTEvent("0.0.1234567", "0x123456789abcdef", "1", "1")
 
       await eventBus.publishSync(event, SubscriptionCancelledDLTEvent.name)
 

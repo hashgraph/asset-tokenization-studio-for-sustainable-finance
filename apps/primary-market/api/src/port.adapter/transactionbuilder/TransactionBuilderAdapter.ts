@@ -169,6 +169,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       endDate: parseInt(request.endDate).toString(),
       deadlineRule: request.deadlineRule,
       price: request.price,
+      priceDecimals: request.priceDecimals,
     }
   }
 }

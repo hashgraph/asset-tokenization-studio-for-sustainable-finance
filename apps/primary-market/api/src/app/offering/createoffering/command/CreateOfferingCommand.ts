@@ -63,6 +63,10 @@ export class CreateOfferingCommand extends Command<void> {
   @IsNumberString()
   price: string
 
+  @IsNotEmpty()
+  @IsNumber()
+  priceDecimals: number
+
   constructor(
     offeringId: number,
     marketContractId: string,
@@ -79,6 +83,7 @@ export class CreateOfferingCommand extends Command<void> {
     endDate: Date,
     deadlineRule: number,
     price: string,
+    priceDecimals: number,
   ) {
     super()
     this.offeringId = offeringId
@@ -96,5 +101,6 @@ export class CreateOfferingCommand extends Command<void> {
     this.endDate = endDate
     this.deadlineRule = deadlineRule
     this.price = price
+    this.priceDecimals = priceDecimals
   }
 }
