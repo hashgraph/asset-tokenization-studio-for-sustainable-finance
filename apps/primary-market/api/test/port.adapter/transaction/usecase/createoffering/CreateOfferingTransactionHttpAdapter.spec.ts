@@ -60,6 +60,7 @@ describe("CreateOfferingTransaction API Integration", () => {
         endDate: new Date(1672531200000),
         deadlineRule: 1,
         price: "100",
+        priceDecimals: 2,
       }
 
       const response = await request(app.getHttpServer())
@@ -91,6 +92,7 @@ describe("CreateOfferingTransaction API Integration", () => {
           endDate: new Date(1672531200000),
           deadlineRule: 1,
           price: "100",
+          priceDecimals: 2,
         }
 
         const response = await request(app.getHttpServer())
@@ -137,6 +139,7 @@ describe("CreateOfferingTransaction API Integration", () => {
         endDate: new Date(1672531200000),
         deadlineRule: "-1",
         price: "100",
+        priceDecimals: 2,
       }
 
       await request(app.getHttpServer())

@@ -76,6 +76,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -165,6 +166,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingCancelledDLTEvent(
@@ -199,6 +201,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingCancelledDLTEvent(
@@ -233,6 +236,7 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new OfferingCancelledDLTEvent(

@@ -18,6 +18,7 @@ export class OfferingCreatedEvent extends Event {
     public readonly endDate: Date,
     public readonly deadlineRule: number,
     public readonly price: string,
+    public readonly priceDecimals: number,
   ) {
     super()
   }

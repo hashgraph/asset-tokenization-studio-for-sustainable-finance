@@ -15,4 +15,5 @@ export class BuildCreateOfferingTransactionRequest extends BaseBuildTransactionR
   endDate: string
   deadlineRule: number
   price: string
+  priceDecimals: number
 }

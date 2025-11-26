@@ -93,6 +93,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -167,6 +168,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       for (let i = 1; i <= 5; i++) {
@@ -213,6 +215,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       for (let i = 1; i <= 5; i++) {
@@ -269,6 +272,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const statuses = [
@@ -328,6 +332,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -388,6 +393,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const offering2 = await offeringRepository.save({
@@ -406,6 +412,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -473,6 +480,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const offering2 = await offeringRepository.save({
@@ -491,6 +499,7 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({

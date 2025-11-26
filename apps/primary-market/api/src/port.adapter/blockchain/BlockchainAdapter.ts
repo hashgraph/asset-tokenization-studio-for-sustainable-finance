@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Singleton, Environment, ConverterUtils } from "@hashgraph/green-bonds-shared-core"
+import { Singleton, Environment, ConverterUtils, getEthereumProvider } from "@hashgraph/green-bonds-shared-core"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 import { BlockchainAdapterPort } from "./BlockchainAdapterPort"
-import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
+import { numericStatusToOfferingStatus, OfferingStatus } from "@domain/offering/model/OfferingStatus"
+import { IPrimaryMarket__factory } from "@hashgraph/green-bonds-platform-primarymarket-contracts"
 
 @Singleton()
 export class BlockchainAdapter implements BlockchainAdapterPort {
@@ -25,21 +26,15 @@ export class BlockchainAdapter implements BlockchainAdapterPort {
     return this.configService.get<Environment>(ConfigKeys.HEDERA_NETWORK) || this.DEFAULT_ENVIRONMENT
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
   private async getOfferingStatusFromContract(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     contractAddress: string,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     offeringId: number,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     environment: Environment,
   ): Promise<OfferingStatus> {
-    // TODO: Replace with actual factory when available
-    // const numericStatus = await IPrimaryMarket__factory.connect(contractAddress, getEthereumProvider(environment)).getOfferingStatus(
-    //   offeringId,
-    // )
-    // return numericStatusToOfferingStatus(numericStatus)
-
-    return OfferingStatus.OPEN
+    const numericStatus = await IPrimaryMarket__factory.connect(
+      contractAddress,
+      getEthereumProvider(environment),
+    ).getOfferingStatus(offeringId)
+    return numericStatusToOfferingStatus(numericStatus)
   }
 }

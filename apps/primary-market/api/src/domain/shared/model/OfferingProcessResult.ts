@@ -3,6 +3,6 @@
 import { OfferingProcessStatus } from "./OfferingProcessStatus"
 
 export interface OfferingProcessResult {
-  subscriptionId: number
+  subscriptionId: string
   status: OfferingProcessStatus
 }

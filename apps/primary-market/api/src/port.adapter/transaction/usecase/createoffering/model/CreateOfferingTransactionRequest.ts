@@ -94,4 +94,12 @@ export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
   @IsNotEmpty()
   @IsNumberString()
   price: string
+
+  @ApiProperty({
+    description: "The number of decimal places for the price",
+    example: 2,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  priceDecimals: number
 }

@@ -88,6 +88,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -106,6 +107,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())
@@ -144,6 +146,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -162,6 +165,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-02-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -180,6 +184,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-03-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())
@@ -226,6 +231,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
           endDate: new Date("2024-01-01"),
           deadlineRule: 0,
           price: "100",
+          priceDecimals: 2,
         })
       }
 
@@ -269,6 +275,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -287,6 +294,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())
@@ -321,6 +329,7 @@ describe("GetPrimaryMarketBonds API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())

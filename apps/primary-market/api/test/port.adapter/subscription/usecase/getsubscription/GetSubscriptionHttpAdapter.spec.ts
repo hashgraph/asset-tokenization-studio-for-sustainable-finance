@@ -77,6 +77,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -122,6 +123,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const statuses = [
@@ -170,6 +172,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await request(app.getHttpServer())
@@ -214,6 +217,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -272,6 +276,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const offering2 = await offeringRepository.save({
@@ -290,6 +295,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -348,6 +354,7 @@ describe("GetSubscription API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({

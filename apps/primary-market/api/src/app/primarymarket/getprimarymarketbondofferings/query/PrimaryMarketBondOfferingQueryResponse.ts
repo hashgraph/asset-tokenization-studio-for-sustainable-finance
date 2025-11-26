@@ -18,5 +18,6 @@ export class PrimaryMarketBondOfferingQueryResponse {
   deadlineRule: number
   price: string
   status: OfferingStatus
+  priceDecimals: number
   createdAt: Date
 }

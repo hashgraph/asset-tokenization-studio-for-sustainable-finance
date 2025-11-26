@@ -12,12 +12,17 @@ import { PrimaryMarketPersistence } from "@port/persistence/primarymarket/model/
 import { OfferingPersistence } from "@port/persistence/offering/model/OfferingPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { OfferingStatus } from "@domain/offering/model/OfferingStatus"
+import type { BlockchainAdapterPort } from "@port/blockchain/BlockchainAdapterPort"
 
 describe("GetPrimaryMarketBondOfferings API Integration", () => {
   let app: INestApplication
   let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let offeringRepository: Repository<OfferingPersistence>
+
+  const mockBlockchainAdapter: BlockchainAdapterPort = {
+    getOfferingStatus: jest.fn().mockResolvedValue(OfferingStatus.OPEN),
+  }
 
   beforeAll(async () => {
     container = await PostgreSqlContainer.create()
@@ -27,7 +32,16 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
       controllers: CONTROLLERS,
-      providers: [...PROVIDERS],
+      providers: [
+        ...PROVIDERS.filter((provider) => {
+          const providerName = typeof provider === "object" && "provide" in provider ? provider.provide : null
+          return providerName !== "BlockchainAdapterPort"
+        }),
+        {
+          provide: "BlockchainAdapterPort",
+          useValue: mockBlockchainAdapter,
+        },
+      ],
     }).compile()
 
     app = moduleFixture.createNestApplication()
@@ -89,6 +103,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -107,6 +122,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-02-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())
@@ -163,6 +179,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
           endDate: new Date("2024-01-01"),
           deadlineRule: 0,
           price: "100",
+          priceDecimals: 2,
         })
       }
 
@@ -201,6 +218,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -219,6 +237,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())
@@ -258,6 +277,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await offeringRepository.save({
@@ -276,6 +296,7 @@ describe("GetPrimaryMarketBondOfferings API Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const response = await request(app.getHttpServer())

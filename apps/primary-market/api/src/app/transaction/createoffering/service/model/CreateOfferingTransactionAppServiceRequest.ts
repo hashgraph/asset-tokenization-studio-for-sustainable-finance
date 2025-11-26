@@ -52,6 +52,10 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
   @IsNumberString()
   readonly price: string
 
+  @IsNotEmpty()
+  @IsNumber()
+  readonly priceDecimals: number
+
   constructor(
     format: string,
     accountId: string,
@@ -68,6 +72,7 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
     endDate: string,
     deadlineRule: number,
     price: string,
+    priceDecimals: number,
   ) {
     super(format, accountId, contractId)
     this.bondContractId = bondContractId
@@ -82,5 +87,6 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
     this.endDate = endDate
     this.deadlineRule = deadlineRule
     this.price = price
+    this.priceDecimals = priceDecimals
   }
 }

@@ -76,13 +76,14 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        1,
-        2,
+        "1",
+        "2",
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -125,6 +126,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       await subscriptionRepository.save({
@@ -140,8 +142,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        1,
-        2,
+        "1",
+        "2",
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -157,8 +159,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        999,
-        2,
+        "999",
+        "2",
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -188,13 +190,14 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       const event1 = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        1,
-        2,
+        "1",
+        "2",
         "0x0000000000000000000000000000000000001234",
         "10",
       )
@@ -202,8 +205,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event2 = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0xabcdef123456789",
-        1,
-        3,
+        "1",
+        "3",
         "0x0000000000000000000000000000000000005678",
         "20",
       )
@@ -237,6 +240,7 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
         endDate: new Date("2024-01-01"),
         deadlineRule: 0,
         price: "100",
+        priceDecimals: 2,
       })
 
       let publishedEvent: any
@@ -245,8 +249,8 @@ describe("SubmitSubscriptionNestJSEventAdapter Integration", () => {
       const event = new SubscriptionSubmittedDLTEvent(
         "0.0.1234567",
         "0x123456789abcdef",
-        1,
-        2,
+        "1",
+        "2",
         "0x0000000000000000000000000000000000001234",
         "10",
       )

@@ -36,7 +36,7 @@ export class ProcessOfferingDomainService {
 
       for (const result of processResults) {
         const subscription = await this.checkSubscriptionExistsDomainService.execute(
-          result.subscriptionId,
+          Number(result.subscriptionId),
           existingOffering.id,
           market,
         )

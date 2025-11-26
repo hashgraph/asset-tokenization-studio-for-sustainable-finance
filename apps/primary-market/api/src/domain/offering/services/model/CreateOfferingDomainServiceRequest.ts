@@ -61,4 +61,8 @@ export class CreateOfferingDomainServiceRequest {
   @IsNotEmpty()
   @IsNumberString()
   price: string
+
+  @IsNotEmpty()
+  @IsNumber()
+  priceDecimals: number
 }
