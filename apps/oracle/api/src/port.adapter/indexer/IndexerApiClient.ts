@@ -13,9 +13,7 @@ export class IndexerApiClient implements IndexerPort {
   ) {}
 
   async getKpiValueByTopic(topicId: string, dateFrom: Date, dateTo: Date): Promise<KpiMessage | null> {
-    this.logger.log(
-      `Fetching KPI value for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`,
-    )
+    this.logger.log(`Fetching KPI value for topic ${topicId} from ${dateFrom.toISOString()} to ${dateTo.toISOString()}`)
 
     // Get config from database (or create with env defaults)
     const config = await this.configRepository.getOrCreateDefault()

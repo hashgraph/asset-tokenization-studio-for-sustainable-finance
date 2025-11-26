@@ -23,12 +23,7 @@ describe("AutoRetryService", () => {
   }
 
   const createMockOracleRegistry = (id: string = "registry-1"): OracleRegistry => {
-    const config = new OracleConfig(
-      new Date("2025-01-01T00:00:00Z"),
-      null,
-      new Date("2025-01-02T00:00:00Z"),
-      60,
-    )
+    const config = new OracleConfig(new Date("2025-01-01T00:00:00Z"), null, new Date("2025-01-02T00:00:00Z"), 60)
     return new OracleRegistry(
       id,
       "0.0.123",
@@ -66,11 +61,7 @@ describe("AutoRetryService", () => {
     )
   }
 
-  const createMockSuccessTask = (
-    id: string,
-    registryId: string,
-    projectId: string,
-  ): ScheduledTaskResult => {
+  const createMockSuccessTask = (id: string, registryId: string, projectId: string): ScheduledTaskResult => {
     return new ScheduledTaskResult(
       id,
       registryId,

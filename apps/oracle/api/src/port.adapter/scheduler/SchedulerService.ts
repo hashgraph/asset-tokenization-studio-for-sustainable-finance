@@ -163,8 +163,7 @@ export class SchedulerService implements OnModuleInit {
     const projects = registry.projects
 
     this.logger.log(
-      `Executing ${projects.length} projects for registry ${registryId} ` +
-        `(toDate: ${toDate.toISOString()})`,
+      `Executing ${projects.length} projects for registry ${registryId} ` + `(toDate: ${toDate.toISOString()})`,
     )
 
     // Execute projects with concurrency control

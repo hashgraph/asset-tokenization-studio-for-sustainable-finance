@@ -55,8 +55,7 @@ export class AutoRetryService {
         // Check if task can be retried
         if (!taskResult.canRetry(maxRetries)) {
           this.logger.debug(
-            `Task ${taskResult.id} exhausted retries ` +
-              `(${taskResult.retryCount}/${maxRetries}), skipping`,
+            `Task ${taskResult.id} exhausted retries ` + `(${taskResult.retryCount}/${maxRetries}), skipping`,
           )
           skippedCount++
           continue
@@ -86,9 +85,7 @@ export class AutoRetryService {
       }
     }
 
-    this.logger.log(
-      `Auto-retry processing completed: ${retriedCount} retried, ${skippedCount} skipped`,
-    )
+    this.logger.log(`Auto-retry processing completed: ${retriedCount} retried, ${skippedCount} skipped`)
   }
 
   /**

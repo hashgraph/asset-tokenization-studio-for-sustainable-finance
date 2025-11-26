@@ -18,10 +18,5 @@ export interface BlockchainPort {
    * @param kpiValue - The aggregated KPI value
    * @param toDate - The measurement date (timestamp when this KPI was recorded)
    */
-  writeKpiToContract(
-    kpiContractId: string,
-    projectId: string,
-    kpiValue: number,
-    toDate: Date,
-  ): Promise<WriteKpiResult>
+  writeKpiToContract(kpiContractId: string, projectId: string, kpiValue: number, toDate: Date): Promise<WriteKpiResult>
 }

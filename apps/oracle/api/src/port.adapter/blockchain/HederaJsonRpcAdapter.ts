@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
-import {Inject, Injectable, Logger} from "@nestjs/common"
-import {BlockchainPort, WriteKpiResult} from "@domain/oracle/ports/BlockchainPort"
-import type {BlockchainConfigRepository} from "@domain/blockchain/repositories/BlockchainConfigRepository"
-import {utils} from "ethers"
+import { Inject, Injectable, Logger } from "@nestjs/common"
+import { BlockchainPort, WriteKpiResult } from "@domain/oracle/ports/BlockchainPort"
+import type { BlockchainConfigRepository } from "@domain/blockchain/repositories/BlockchainConfigRepository"
+import { utils } from "ethers"
 
 @Injectable()
 export class HederaJsonRpcAdapter implements BlockchainPort {
@@ -61,10 +61,7 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
       const toTimestamp = Math.floor(toDate.getTime() / 1000)
       const kpiValueScaled = Math.floor(kpiValue * 1000000)
 
-      const callData = this.kpiInterface.encodeFunctionData("addKpiData", [
-        toTimestamp,
-        kpiValueScaled,
-      ])
+      const callData = this.kpiInterface.encodeFunctionData("addKpiData", [toTimestamp, kpiValueScaled])
 
       // Build JSON-RPC request
       const request = {
@@ -112,5 +109,4 @@ export class HederaJsonRpcAdapter implements BlockchainPort {
       throw error
     }
   }
-
 }

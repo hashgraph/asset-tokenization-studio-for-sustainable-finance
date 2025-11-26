@@ -31,11 +31,7 @@ export class OracleExecutionService {
    * @param project - The project to execute
    * @param toDate - The end date for KPI data range (from registry.nextExecutionDate)
    */
-  async executeProjectTask(
-    registry: OracleRegistry,
-    project: Project,
-    toDate: Date,
-  ): Promise<ScheduledTaskResult> {
+  async executeProjectTask(registry: OracleRegistry, project: Project, toDate: Date): Promise<ScheduledTaskResult> {
     this.logger.log(`Executing task for project ${project.projectId} in registry ${registry.id}`)
 
     // Step 1: Calculate fromDate based on last successful execution
@@ -47,13 +43,7 @@ export class OracleExecutionService {
     )
 
     // Create pending task result with from/to
-    let taskResult = ScheduledTaskResult.createPending(
-      randomUUID(),
-      registry.id,
-      project.projectId,
-      fromDate,
-      toDate,
-    )
+    let taskResult = ScheduledTaskResult.createPending(randomUUID(), registry.id, project.projectId, fromDate, toDate)
 
     taskResult = await this.taskRepository.save(taskResult)
 
