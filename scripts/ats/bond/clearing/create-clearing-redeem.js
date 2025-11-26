@@ -4,7 +4,7 @@ const { signTransaction, validateSigningConfig } = require("../../../shared/lib/
 const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
 const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
-const { createBond } = require("../bond-service");
+const { createClearingBond } = require("./clearing-bond-service");
 const { getLatestBond } = require("../document/set-bond-document");
 const { mintBond } = require("../mint-bond");
 
@@ -85,7 +85,7 @@ async function main() {
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
 
     logHeader("📝 Step 1: Creating New Bond...");
-    const bond = await createBond(format);
+    const bond = await createClearingBond(format);
 
     // Sign and publish bond creation transaction
     const signedBondTx = await signTransaction(bond.unsignedTx);

@@ -4,7 +4,7 @@ const { signTransaction, validateSigningConfig } = require("../../../shared/lib/
 const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
 const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
-const { createBond } = require("../bond-service");
+const { createClearingBond } = require("./clearing-bond-service");
 const { getLatestBond } = require("../document/set-bond-document");
 const { mintBond } = require("../mint-bond");
 
@@ -104,7 +104,7 @@ async function main() {
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
 
     logHeader("📝 Step 1: Creating New Bond...");
-    const bond = await createBond(format);
+    const bond = await createClearingBond(format);
 
     // Sign and publish bond creation transaction
     const signedBondTx = await signTransaction(bond.unsignedTx);
@@ -216,6 +216,13 @@ async function main() {
     );
   } catch (error) {
     logError(`\nScript failed: ${error.message}`);
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+    }
+    if (error.stack) {
+      console.error('Stack trace:', error.stack);
+    }
     logError("\nTroubleshooting:");
     logError("   • Ensure Gateway API is running (check .env GATEWAY_URL)");
     logError("   • Verify BOND_CONTRACT_ID exists");
