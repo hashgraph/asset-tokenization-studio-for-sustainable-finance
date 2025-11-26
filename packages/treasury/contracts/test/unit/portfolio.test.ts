@@ -19,8 +19,11 @@ describe("Portfolio operations", () => {
   let paymentTokenMockContract: ContractFactory;
   let paymentToken: Contract;
 
-  beforeEach(async () => {
+  before(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
+  });
+
+  beforeEach(async () => {
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,

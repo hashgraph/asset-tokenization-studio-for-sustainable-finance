@@ -19,8 +19,11 @@ describe("Proceeds management operations", () => {
   let paymentToken: Contract;
   let environmentalAsset: Contract;
 
-  beforeEach(async () => {
+  before(async () => {
     [signer_A, signer_B] = await ethers.getSigners();
+  });
+
+  beforeEach(async () => {
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,
       saveOutput: false,
