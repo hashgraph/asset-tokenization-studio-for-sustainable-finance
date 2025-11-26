@@ -89,6 +89,10 @@ import { CreatePrimaryMarketFiltersAdapter } from "@port/primarymarket/usecase/c
 import { CheckPrimaryMarketFactoryExistsDomainService } from "@domain/primarymarketfactory/services/CheckPrimaryMarketFactoryExistsDomainService"
 import { GetPrimaryMarketFactoryHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactory/GetPrimaryMarketFactoryHttpAdapter"
 import { GetPrimaryMarketFactoryQueryHandler } from "@app/primarymarketfactory/getprimarymarketfactory/query/GetPrimaryMarketFactoryQueryHandler"
+import { GetPrimaryMarketFactoryRoleMembersHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactoryrolemembers/GetPrimaryMarketFactoryRoleMembersHttpAdapter"
+import { GrantPrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantprimarymarketfactoryrole/GrantPrimaryMarketFactoryRoleTransactionHttpAdapter"
+import { RevokePrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokeprimarymarketfactoryrole/RevokePrimaryMarketFactoryRoleTransactionHttpAdapter"
+import { GetPrimaryMarketFactoryUserRolesHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactoryuserroles/GetPrimaryMarketFactoryUserRolesHttpAdapter"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -123,6 +127,10 @@ export const CONTROLLERS = [
   PausePrimaryMarketFactoryTransactionHttpAdapter,
   UnpausePrimaryMarketFactoryTransactionHttpAdapter,
   DeployPrimaryMarketTransactionHttpAdapter,
+  GetPrimaryMarketFactoryRoleMembersHttpAdapter,
+  GrantPrimaryMarketFactoryRoleTransactionHttpAdapter,
+  RevokePrimaryMarketFactoryRoleTransactionHttpAdapter,
+  GetPrimaryMarketFactoryUserRolesHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
