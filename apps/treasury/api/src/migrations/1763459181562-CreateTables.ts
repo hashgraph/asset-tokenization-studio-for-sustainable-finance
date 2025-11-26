@@ -45,6 +45,9 @@ export class CreateTables1763459181562 implements MigrationInterface {
             )
         `)
     await queryRunner.query(`
+            CREATE TYPE "public"."EventStore_status_enum" AS ENUM ('FAILED', 'PROCESSED')
+        `)
+    await queryRunner.query(`
             CREATE TABLE "EventStore" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),

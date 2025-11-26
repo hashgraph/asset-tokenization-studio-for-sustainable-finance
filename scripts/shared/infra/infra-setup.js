@@ -38,7 +38,7 @@ const CONFIG = {
       postgres: {
         name: 'PostgreSQL',
         container: 'green_bonds_postgres',
-        healthUrl: null, // Will check via docker health
+        healthUrl: null,
         port: 5432
       },
       pgadmin: {
@@ -64,7 +64,9 @@ const CONFIG = {
     env: {
       PORT: '3001',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5432'
+      POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'ats_db',
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
   primaryMarketApi: {
@@ -76,7 +78,23 @@ const CONFIG = {
     env: {
       PORT: '3002',
       POSTGRESQL_HOST: 'localhost',
-      POSTGRESQL_PORT: '5432'
+      POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'primary_market_db',
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
+    }
+  },
+  treasuryApi: {
+    name: 'Treasury API',
+    path: '../../../apps/treasury/api',
+    port: 3003,
+    healthUrl: 'http://localhost:3003/health',
+    command: 'npm run start:dev',
+    env: {
+      PORT: '3003',
+      POSTGRESQL_HOST: 'localhost',
+      POSTGRESQL_PORT: '5432',
+      POSTGRESQL_DB: 'treasury_db',
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28011666'
     }
   },
   gateway: {
@@ -88,8 +106,8 @@ const CONFIG = {
     env: {
       PORT: '3000',
       LOG_LEVEL: 'log',
-      PATHS: '/api/v1/ats,/api/v1/primary-markets',
-      ROUTES: 'http://localhost:3001,http://localhost:3002',
+      PATHS: '/api/v1/ats,/api/v1/treasuries',
+      ROUTES: 'http://localhost:3001,http://localhost:3003',
       API_KEY_HEADER_NAME: 'x-api-key',
       API_KEYS: 'demo-key-1,demo-key-2,your-secret-api-key',
       TIMEOUT: '30000'
@@ -124,7 +142,7 @@ const CONFIG = {
     name: 'Transaction Sender',
     path: '../../../apps/shared/transaction-sender',
     port: 3005,
-    healthUrl: 'http://localhost:3005',
+    healthUrl: 'http://localhost:3005/api/v1/health',
     command: 'npm run start:dev',
     env: {
       PORT: '3005',
@@ -216,6 +234,9 @@ async function startDockerServices() {
         log('✅ All Docker services are healthy', colors.green);
         log('🌐 Service URLs:', colors.blue);
         log('• PostgreSQL: localhost:5432 (postgres/postgres)', colors.blue);
+        log('  - ATS Database: ats_db', colors.blue);
+        log('  - Primary Market Database: primary_market_db', colors.blue);
+        log('  - Treasury Database: treasury_db', colors.blue);
         log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)', colors.blue);
         log('• RabbitMQ Management: http://localhost:15672 (guest/guest)', colors.blue);
         return true;
@@ -291,6 +312,14 @@ function startNodeService(service, customEnv = null) {
       });
     } else if (service.path.includes('apps/primary-market/api')) {
       const workspaceName = '@hashgraph/green-bonds-primary-market-api';
+      child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
+        cwd: workspaceRoot,
+        stdio: ['pipe', 'pipe', 'pipe'],
+        detached: false,
+        env: env
+      });
+    } else if (service.path.includes('apps/treasury/api')) {
+      const workspaceName = '@hashgraph/green-bonds-treasury-api';
       child = spawn('npm', ['run', 'start:dev', '--workspace', workspaceName], {
         cwd: workspaceRoot,
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -407,7 +436,7 @@ async function startNodeServices() {
   }
   
   // Start ATS API and Primary Market API first, then Gateway (which proxies to both), then Transaction Sender
-  const services = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.gateway, CONFIG.transactionSender];
+  const services = [CONFIG.atsApi, CONFIG.primaryMarketApi, CONFIG.treasuryApi, CONFIG.gateway, CONFIG.transactionSender];
   const processes = [];
 
   for (const service of services) {
@@ -503,6 +532,7 @@ async function stopAllInfrastructure() {
   await stopNodeProcessOnPort(3000, 'API Gateway');
   await stopNodeProcessOnPort(3001, 'ATS API');
   await stopNodeProcessOnPort(3002, 'Primary Market API');
+  await stopNodeProcessOnPort(3003, 'Treasury API');
   await stopNodeProcessOnPort(3005, 'Transaction Sender');
   
   // Stop Docker services
@@ -558,6 +588,9 @@ async function startFullInfrastructure() {
   log('• Primary Market API (Direct): http://localhost:3002/api/v1/primary-markets');
   log('• Primary Market API Swagger (Direct): http://localhost:3002/api');
   log('• Primary Market API (via Gateway): http://localhost:3000/api/v1/primary-markets');
+  log('• Treasury API (Direct): http://localhost:3003/api/v1/treasury');
+  log('• Treasury API Swagger (Direct): http://localhost:3003/api');
+  log('• Treasury API (via Gateway): http://localhost:3000/api/v1/treasury');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');
   log('• RabbitMQ: http://localhost:15672 (guest/guest)');

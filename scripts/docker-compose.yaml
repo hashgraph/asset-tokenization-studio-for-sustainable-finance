@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database for ATS API
+  # PostgreSQL Database - Single instance with multiple databases
   postgres:
     image: postgres:15-alpine
     container_name: green_bonds_postgres
@@ -14,6 +14,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d postgres']
       interval: 10s

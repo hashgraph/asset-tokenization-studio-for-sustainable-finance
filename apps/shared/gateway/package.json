@@ -19,9 +19,9 @@
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
     "@nestjs/axios": "4.0.1",
-    "@nestjs/common": "11.0.1",
-    "@nestjs/core": "11.0.1",
-    "@nestjs/platform-express": "11.0.1",
+    "@nestjs/common": "11.1.6",
+    "@nestjs/core": "11.1.6",
+    "@nestjs/platform-express": "11.1.6",
     "@nestjs/swagger": "11.2.0",
     "axios": "1.13.2",
     "http-proxy-middleware": "3.0.5",
