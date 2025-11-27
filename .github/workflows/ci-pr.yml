@@ -1,0 +1,260 @@
+name: CI - Pull Request
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  # ============================================================================
+  # PHASE 1: Change Detection
+  # ============================================================================
+  detect-changes:
+    name: 🔍 Detect Changed Modules
+    runs-on: token-studio-linux-large
+    outputs:
+      contracts: ${{ steps.changes.outputs.contracts }}
+      apis: ${{ steps.changes.outputs.apis }}
+      shared: ${{ steps.changes.outputs.shared }}
+      any-changes: ${{ steps.changes.outputs.any-changes }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Detect changed modules
+        id: changes
+        run: node .github/scripts/detect-changes.js
+
+      - name: Detection Summary
+        run: |
+          echo "### 🔍 Change Detection Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Contracts:** ${{ steps.changes.outputs.contracts }}" >> $GITHUB_STEP_SUMMARY
+          echo "**APIs:** ${{ steps.changes.outputs.apis }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Shared:** ${{ steps.changes.outputs.shared }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Change detection complete" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
+  # SMART CONTRACT TESTS
+  # Phase 2 Implementation - Currently Placeholders
+  # ============================================================================
+
+  test-ats-contracts:
+    name: 🧪 ATS Contracts
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.contracts, 'ats')
+    uses: ./.github/workflows/_reusable-test-contracts.yml
+    with:
+      module: ats
+      coverage-threshold: 90
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-treasury-contracts:
+    name: 🧪 Treasury Contracts
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.contracts, 'treasury')
+    uses: ./.github/workflows/_reusable-test-contracts.yml
+    with:
+      module: treasury
+      coverage-threshold: 90
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-primary-market-contracts:
+    name: 🧪 Primary Market Contracts
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.contracts, 'primary-market')
+    uses: ./.github/workflows/_reusable-test-contracts.yml
+    with:
+      module: primary-market
+      coverage-threshold: 90
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # API TESTS
+  # Phase 3 Implementation - Currently Placeholders
+  # ============================================================================
+
+  test-ats-api:
+    name: 🧪 ATS API
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.apis, 'ats')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: ats
+      app-type: api
+      has-e2e: false  # TODO: Update when E2E tests are added
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-primary-market-api:
+    name: 🧪 Primary Market API
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.apis, 'primary-market')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: primary-market
+      app-type: api
+      has-e2e: true  # This module has E2E tests
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-treasury-api:
+    name: 🧪 Treasury API
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.apis, 'treasury')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: treasury
+      app-type: api
+      has-e2e: false  # TODO: Update when E2E tests are added
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # SHARED LIBRARY TESTS
+  # Phase 3 Implementation - Currently Placeholders
+  # ============================================================================
+
+  test-shared-core:
+    name: 🧪 Shared Core Library
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.shared, 'core')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: shared-core
+      app-type: library
+      has-e2e: false
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-blockchain-listener:
+    name: 🧪 Blockchain Listener Library
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.shared, 'blockchain-listener')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: blockchain-listener
+      app-type: library
+      has-e2e: false
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # SHARED APPLICATION TESTS
+  # Phase 3 Implementation - Currently Placeholders
+  # ============================================================================
+
+  test-gateway:
+    name: 🧪 Gateway Application
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.shared, 'gateway')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: gateway
+      app-type: api
+      has-e2e: false  # TODO: Update when tests are added
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  test-transaction-sender:
+    name: 🧪 Transaction Sender Application
+    needs: detect-changes
+    if: contains(needs.detect-changes.outputs.shared, 'transaction-sender')
+    uses: ./.github/workflows/_reusable-test-nestjs.yml
+    with:
+      module: transaction-sender
+      app-type: api
+      has-e2e: false  # TODO: Update when tests are added
+      node-version: '22'
+    secrets:
+      codecov-token: ${{ secrets.CODECOV_TOKEN }}
+
+  # ============================================================================
+  # FINAL STATUS CHECK
+  # Aggregates all job results to provide single pass/fail status
+  # ============================================================================
+
+  ci-success:
+    name: ✅ CI Success
+    runs-on: token-studio-linux-large
+    needs:
+      # Contract tests
+      - test-ats-contracts
+      - test-treasury-contracts
+      - test-primary-market-contracts
+      # API tests
+      - test-ats-api
+      - test-primary-market-api
+      - test-treasury-api
+      # Shared library tests
+      - test-shared-core
+      - test-blockchain-listener
+      # Shared application tests
+      - test-gateway
+      - test-transaction-sender
+    if: always()
+    steps:
+      - name: Check all jobs status
+        run: |
+          echo "### 🎯 CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Check for failures
+          if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ]; then
+            echo "❌ **Status:** One or more jobs failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Failed Jobs:**" >> $GITHUB_STEP_SUMMARY
+
+            # List failed jobs
+            [[ "${{ needs.test-ats-contracts.result }}" = "failure" ]] && echo "- ATS Contracts" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-treasury-contracts.result }}" = "failure" ]] && echo "- Treasury Contracts" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-primary-market-contracts.result }}" = "failure" ]] && echo "- Primary Market Contracts" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-ats-api.result }}" = "failure" ]] && echo "- ATS API" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-primary-market-api.result }}" = "failure" ]] && echo "- Primary Market API" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-treasury-api.result }}" = "failure" ]] && echo "- Treasury API" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-shared-core.result }}" = "failure" ]] && echo "- Shared Core" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-blockchain-listener.result }}" = "failure" ]] && echo "- Blockchain Listener" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-gateway.result }}" = "failure" ]] && echo "- Gateway" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.test-transaction-sender.result }}" = "failure" ]] && echo "- Transaction Sender" >> $GITHUB_STEP_SUMMARY
+
+            exit 1
+          fi
+
+          echo "✅ **Status:** All jobs passed or were skipped" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Job Summary:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Total jobs: 10" >> $GITHUB_STEP_SUMMARY
+          echo "- Passed: ${{ needs.*.result == 'success' && '10' || 'Partial' }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Skipped: Jobs for unchanged modules" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 CI pipeline complete!" >> $GITHUB_STEP_SUMMARY

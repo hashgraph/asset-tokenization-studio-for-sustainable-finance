@@ -1,0 +1,119 @@
+name: Test NestJS (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        description: 'Module name (e.g., primary-market, treasury, ats, shared-core, blockchain-listener, gateway, transaction-sender)'
+        required: true
+        type: string
+      app-type:
+        description: 'Application type: api or library'
+        required: true
+        type: string
+      has-e2e:
+        description: 'Whether module has E2E tests'
+        required: false
+        type: boolean
+        default: false
+      node-version:
+        description: 'Node.js version to use'
+        required: false
+        type: string
+        default: '22'
+    secrets:
+      codecov-token:
+        description: 'Codecov upload token'
+        required: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test-nestjs:
+    name: Test ${{ inputs.module }} (${{ inputs.app-type }})
+    runs-on: token-studio-linux-large
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Cache Jest
+        uses: actions/cache@v4
+        with:
+          path: |
+            .jest-cache
+            **/node_modules/.cache/jest
+          key: ${{ runner.os }}-jest-${{ inputs.module }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-${{ inputs.module }}-
+            ${{ runner.os }}-jest-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build dependencies
+        run: |
+          echo "Building dependencies for ${{ inputs.module }}..."
+          # TODO Phase 3: Add dependency building logic
+          # Build contracts if needed, shared libraries, etc.
+          echo "✅ Placeholder: Dependency builds would run here"
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests for ${{ inputs.module }} (${{ inputs.app-type }})..."
+          # TODO Phase 3: Implement actual test execution
+          # For APIs: npm run test --workspace=@hashgraph/green-bonds-${{ inputs.module }}-api
+          # For libraries: npm run test --workspace=@hashgraph/green-bonds-${{ inputs.module }}
+          echo "✅ Placeholder: Unit tests would run here"
+
+      - name: Run E2E tests
+        if: inputs.has-e2e
+        run: |
+          echo "Running E2E tests for ${{ inputs.module }}..."
+          # TODO Phase 3: Implement E2E test execution
+          # npm run test:e2e --workspace=@hashgraph/green-bonds-${{ inputs.module }}-api
+          echo "✅ Placeholder: E2E tests would run here"
+
+      - name: Upload coverage to Codecov
+        if: always() && secrets.codecov-token != ''
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.codecov-token }}
+          flags: ${{ inputs.module }}-${{ inputs.app-type }}
+          name: ${{ inputs.module }}-${{ inputs.app-type }}
+          fail_ci_if_error: false
+          verbose: true
+          # TODO Phase 3: Add actual coverage file path
+          # files: ./apps/${{ inputs.module }}/api/coverage/lcov.info or ./packages/shared/${{ inputs.module }}/coverage/lcov.info
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "### 🧪 ${{ inputs.module }} Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Module:** ${{ inputs.module }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ inputs.app-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Has E2E:** ${{ inputs.has-e2e }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Node Version:** ${{ inputs.node-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **Status:** Placeholder workflow - Phase 3 implementation pending" >> $GITHUB_STEP_SUMMARY
