@@ -5,9 +5,9 @@ export class ClearedRedeemByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly clearingId: number
+  readonly clearingId: string
   readonly amount: string
-  readonly expirationDate: number
+  readonly expirationDate: string
   readonly data: string
   readonly operatorData: string
 
@@ -17,9 +17,9 @@ export class ClearedRedeemByPartitionDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    clearingId: number,
+    clearingId: string,
     amount: string,
-    expirationDate: number,
+    expirationDate: string,
     data: string,
     operatorData: string,
   ) {

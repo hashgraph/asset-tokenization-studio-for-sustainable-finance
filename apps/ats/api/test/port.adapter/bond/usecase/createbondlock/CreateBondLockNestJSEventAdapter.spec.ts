@@ -95,12 +95,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       })
 
       const event = new LockedByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
         "1735689600",
       )
@@ -146,12 +146,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await bondLockRepository.save(existingBondLock)
 
       const event = new LockedByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
         "1735689600",
       )
@@ -176,12 +176,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
 
       for (const lockId of lockIds) {
         const event = new LockedByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${lockId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          lockId,
+          String(lockId),
           `${1000 * lockId}`,
           "1735689600",
         )
@@ -214,12 +214,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       })
 
       const event = new LockedByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
         "1735689600",
       )
@@ -251,12 +251,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       })
 
       const event = new LockedByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
         "1735689600",
       )
@@ -297,12 +297,12 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
 
       for (let i = 0; i < partitions.length; i++) {
         const event = new LockedByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${i}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
-          i + 1,
+          String(i + 1),
           "1000",
           "1735689600",
         )

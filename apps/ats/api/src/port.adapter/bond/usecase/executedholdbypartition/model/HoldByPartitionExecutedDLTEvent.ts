@@ -4,7 +4,7 @@ import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 export class HoldByPartitionExecutedDLTEvent extends DLTEvent {
   readonly tokenHolder: string
   readonly partition: string
-  readonly holdId: number
+  readonly holdId: string
   readonly amount: string
   readonly to: string
 
@@ -13,7 +13,7 @@ export class HoldByPartitionExecutedDLTEvent extends DLTEvent {
     transactionHash: string,
     tokenHolder: string,
     partition: string,
-    holdId: number,
+    holdId: string,
     amount: string,
     to: string,
   ) {

@@ -125,7 +125,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         2, // ClearingOperationType.HOLD
       )
 
@@ -147,7 +147,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
+        "999",
         2, // ClearingOperationType.HOLD
       )
 
@@ -182,7 +182,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         2, // ClearingOperationType.HOLD
       )
 
@@ -205,7 +205,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         heldBalance: "0",
       })
 
-      const clearingIds = [1, 2, 3]
+      const clearingIds = ["1", "2", "3"]
 
       for (const clearingId of clearingIds) {
         await createTestClearing(clearingId, ClearingStatus.PENDING)
@@ -255,7 +255,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         2, // ClearingOperationType.HOLD
       )
 
@@ -312,7 +312,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
-          i + 1,
+          String(i + 1),
           2, // ClearingOperationType.HOLD
         )
 
@@ -354,7 +354,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
+          String(clearingId),
           2, // ClearingOperationType.HOLD
         )
 
