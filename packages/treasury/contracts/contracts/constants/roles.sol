@@ -20,6 +20,3 @@ bytes32 constant PROCEEDS_FULL_MANAGER_ROLE = 0x2fa449e97717e92b32320917db3073c2
 
 // keccak256('green.bonds.platform.treasury.role.payout');
 bytes32 constant PAYOUT_ROLE = 0x096259e60fc84b10645035350be6adc907cf0cd20b1a7866e1ea9c7502a8265e;
-
-// keccak256('green.bonds.platform.treasury.role.redemption');
-bytes32 constant REDEMPTION_ROLE = 0x75e1cb791887e8c7a9a1aafbb8997773bd21a9f3c83f4a70066ba5ebf7bd8ef9;

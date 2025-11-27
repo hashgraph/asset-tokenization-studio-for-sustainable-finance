@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";
 import { FactoryRegulationData as AtsFactoryRegulationData } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/constants/regulation.sol";
+import { MockBond } from "./MockBond.sol";
 // solhint-enable max-line-length
 
 /**
@@ -50,9 +51,13 @@ contract MockAtsFactory {
             return address(0);
         }
 
-        bondAddress = nextBondAddress;
-        emit MockBondDeployed(bondAddress, bondData, regulationData);
+        MockBond bond = new MockBond(
+            "Mock Bond",
+            "MBOND",
+            bondData.security.rbacs
+        );
 
-        nextBondAddress = address(uint160(nextBondAddress) + 1);
+        bondAddress = address(bond);
+        emit MockBondDeployed(bondAddress, bondData, regulationData);
     }
 }

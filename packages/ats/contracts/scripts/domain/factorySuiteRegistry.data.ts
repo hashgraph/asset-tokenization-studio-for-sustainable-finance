@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-11-17T14:26:26.720Z
+ * Generated: 2025-11-27T12:43:10.090Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6
@@ -161,7 +161,8 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 
   MockBond: {
     name: "MockBond",
-    description: "Minimal mock bond contract for testing FactorySuite deployment",
+    description: "Mock bond contract with AccessControl for testing FactorySuite RBAC functionality",
+    inheritance: ["AccessControl"],
     factory: (signer) => new MockBond__factory(signer),
   },
 
