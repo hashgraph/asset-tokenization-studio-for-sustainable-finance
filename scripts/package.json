@@ -34,6 +34,7 @@
     "ats:get-clearings-hold": "node ats/bond/clearing/get-clearings-hold.js",
     "ats:approve-clearing": "node ats/bond/clearing/approve-clearing.js",
     "ats:cancel-clearing": "node ats/bond/clearing/cancel-clearing.js",
+    "ats:pause-unpause": "node ats/bond/pause-unpause.js",
     "primary-market:offering": "node primary-market/offering/offering-simulator.js",
     "all:start": "node shared/infra/infra-setup.js start",
     "all:stop": "node shared/infra/infra-setup.js stop",

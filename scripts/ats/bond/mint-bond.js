@@ -6,15 +6,6 @@ const { gatewayClient } = require("../../shared/lib/gateway-client");
 const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
 const { getLatestBond } = require("./document/set-bond-document");
 
-/**
- * Mint bonds to a specific holder
- * @param {string} bondContractId - The bond contract ID
- * @param {string} holderAccountId - The holder account ID
- * @param {string} partition - The partition (optional)
- * @param {string} amount - Amount of bonds to mint
- * @param {string} format - Blockchain format (hedera/ethereum)
- * @returns {Promise<Object>} Transaction response with unsignedTx
- */
 async function mintBond(bondContractId, holderAccountId, partition, amount, format) {
   log(`\n💰 Minting ${amount} bonds to holder ${holderAccountId} in bond ${bondContractId}...`, colors.bright);
 
@@ -36,7 +27,7 @@ async function mintBond(bondContractId, holderAccountId, partition, amount, form
   try {
     const response = await gatewayClient.post(
       `/api/v1/ats/bonds/${bondContractId}/holders/${holderEvmAddress}/mint`,
-      mintBondRequest
+      mintBondRequest,
     );
 
     logSuccess("Bond mint transaction created successfully!");
@@ -110,13 +101,7 @@ async function main() {
     const stepOffset = bondContractId === process.env.BOND_CONTRACT_ID ? 0 : 1;
 
     logHeader(`📝 Step ${stepOffset + 1}: Creating Mint Transaction...`);
-    const mintTransaction = await mintBond(
-      bondContractId,
-      holderAccountId,
-      partition,
-      amount,
-      format
-    );
+    const mintTransaction = await mintBond(bondContractId, holderAccountId, partition, amount, format);
 
     logHeader(`✍️  Step ${stepOffset + 2}: Signing Transaction...`);
     const signedMintTx = await signTransaction(mintTransaction.unsignedTx);
