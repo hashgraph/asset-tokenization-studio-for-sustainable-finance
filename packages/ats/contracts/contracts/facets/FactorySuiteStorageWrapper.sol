@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
-import "hardhat/console.sol";
+
 // solhint-disable max-line-length
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -74,22 +74,13 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
 
         IAtsFactory.BondData memory modifiedBondData = bondData;
         modifiedBondData.security.rbacs = rbacs;
-        console.log("rbacs length:", rbacs.length);
-        for (uint256 i = 0; i < rbacs.length; i++) {
-            console.logBytes32(rbacs[i].role);
-            for (uint256 j = 0; j < rbacs[i].members.length; j++) {
-                console.log(" Member:", rbacs[i].members[j]);
-            }
-        }
 
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
-        try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
+        try bondFactory.deployBond(modifiedBondData, factoryRegulationData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
         } catch {
-            console.log("Bond deployment failed");
             revert IFactorySuite.BondDeploymentFailed();
         }
-        console.log("bondAddress:", bondAddress);
     }
 
     /**
@@ -160,8 +151,6 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
     }
 
     function _configTreasuryContract(address bondAddress, address treasuryAddress) internal {
-        console.log("bondAddress:", bondAddress);
-        console.log("treasuryAddress:", treasuryAddress);
         IAccessControl(bondAddress).grantRole(_MATURITY_REDEEMER_ROLE, treasuryAddress);
         IAccessControl(bondAddress).renounceRole(_DEFAULT_ADMIN_ROLE, address(this));
     }

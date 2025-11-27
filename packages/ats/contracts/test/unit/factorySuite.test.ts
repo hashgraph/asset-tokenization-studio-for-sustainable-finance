@@ -15,7 +15,7 @@ import {
   deployBondSuiteAndExtractContracts,
 } from "@test";
 import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
-import { MockERC721__factory } from "@contract-types";
+import { MockERC721__factory, MockBond__factory } from "@contract-types";
 
 describe("FactorySuite - Business Logic Tests", () => {
   async function setupFixture() {
@@ -34,7 +34,7 @@ describe("FactorySuite - Business Logic Tests", () => {
   }
 
   describe("deployBondSuite - Happy Path", () => {
-    it.only("GIVEN valid bond, treasury, and KPI parameters WHEN deploying bond suite THEN success", async () => {
+    it("GIVEN valid bond, treasury, and KPI parameters WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
 
@@ -547,6 +547,86 @@ describe("FactorySuite - Business Logic Tests", () => {
       // Verify portfolio was initialized with all environmental assets
       expect(await treasury.portfolioInitialized()).to.equal(true);
       expect(await treasury.getEnvironmentalAssetsCount()).to.equal(2);
+    });
+  });
+
+  describe("deployBondSuite - RBAC Configuration", () => {
+    it("GIVEN valid bond suite WHEN deployed THEN Treasury has MATURITY_REDEEMER_ROLE on Bond", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      // Use TypeChain factory to get typed contract instance
+      const bond = MockBond__factory.connect(bondAddress, admin);
+
+      // MATURITY_REDEEMER_ROLE constant from ATS contracts
+      const MATURITY_REDEEMER_ROLE = "0xa0d696902e9ed231892dc96649f0c62b808a1cb9dd1269e78e0adc1cc4b8358c";
+
+      expect(await bond.hasRole(MATURITY_REDEEMER_ROLE, treasury.address)).to.equal(true);
+    });
+
+    it("GIVEN valid bond suite WHEN deployed THEN FactorySuite has renounced DEFAULT_ADMIN_ROLE", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      const { bondAddress } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        validBondData,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      const bond = MockBond__factory.connect(bondAddress, admin);
+      const DEFAULT_ADMIN_ROLE = ethers.constants.HashZero;
+
+      expect(await bond.hasRole(DEFAULT_ADMIN_ROLE, factorySuite.address)).to.equal(false);
+    });
+
+    it("GIVEN bondData with admin WHEN deployed THEN original admin retains DEFAULT_ADMIN_ROLE", async () => {
+      const { factorySuite, mockAtsFactory, admin, user, testData } = await loadFixture(setupFixture);
+      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+
+      // Create bondData WITH an explicit admin in RBAC
+      const bondDataWithAdmin = {
+        ...validBondData,
+        security: {
+          ...validBondData.security,
+          rbacs: [
+            {
+              role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+              members: [user.address], // user is the original admin
+            },
+          ],
+        },
+      };
+
+      const { bondAddress } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        bondDataWithAdmin,
+        validFactoryRegulationData,
+        validTreasuryData,
+        validKpiData,
+      );
+
+      const bond = MockBond__factory.connect(bondAddress, admin);
+      const DEFAULT_ADMIN_ROLE = ethers.constants.HashZero;
+
+      // Verify original admin (user) specified in bondData still has admin role
+      expect(await bond.hasRole(DEFAULT_ADMIN_ROLE, user.address)).to.equal(true);
     });
   });
 });

@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-11-17T14:26:26.720Z
+ * Generated: 2025-11-27T11:17:12.427Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 6
@@ -103,6 +103,11 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     inheritance: ["AtsCommon"],
     methods: [
       {
+        name: "_configTreasuryContract",
+        signature: "_configTreasuryContract(address,address)",
+        selector: "0xb24820b3",
+      },
+      {
         name: "_configureTreasuryContract",
         signature: "_configureTreasuryContract(address,IFactorySuite.TreasuryData,address)",
         selector: "0xf9a24525",
@@ -161,7 +166,8 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 
   MockBond: {
     name: "MockBond",
-    description: "Minimal mock bond contract for testing FactorySuite deployment",
+    description: "Mock bond contract with AccessControl for testing FactorySuite RBAC functionality",
+    inheritance: ["AccessControl"],
     factory: (signer) => new MockBond__factory(signer),
   },
 
