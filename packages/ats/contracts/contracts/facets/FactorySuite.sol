@@ -71,6 +71,8 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
 
         treasuryAddress = _deployTreasuryContract(treasuryData, bondAddress);
 
+        _configTreasuryContract(bondAddress,treasuryAddress);
+
         emit BondSuiteDeployed(
             _msgSender(),
             bondAddress,

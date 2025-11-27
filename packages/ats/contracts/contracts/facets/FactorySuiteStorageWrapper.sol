@@ -1,11 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity ^0.8.0;
-
+import "hardhat/console.sol";
 // solhint-disable max-line-length
 import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
+import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
+import {
+    _DEFAULT_ADMIN_ROLE,
+    _MATURITY_REDEEMER_ROLE
+} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
 import { IKpi } from "../interfaces/IKpi.sol";
@@ -32,12 +38,58 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
         AtsFactoryRegulationData calldata factoryRegulationData,
         address // kpiAddress - reserved for future use
     ) internal returns (address bondAddress) {
+        uint256 originalLength = bondData.security.rbacs.length;
+
+        IResolverProxy.Rbac[] memory rbacs = new IResolverProxy.Rbac[](originalLength + 1);
+        uint256 finalLength = 0;
+        bool adminFound = false;
+
+        for (uint256 i = 0; i < originalLength; i++) {
+            IResolverProxy.Rbac memory currentRbac = bondData.security.rbacs[i];
+
+            if (currentRbac.role == _DEFAULT_ADMIN_ROLE) {
+                adminFound = true;
+                address[] memory newMembers = new address[](currentRbac.members.length + 1);
+                for (uint256 j = 0; j < currentRbac.members.length; j++) {
+                    newMembers[j] = currentRbac.members[j];
+                }
+                newMembers[currentRbac.members.length] = address(this);
+                rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
+            } else {
+                rbacs[finalLength++] = currentRbac;
+            }
+        }
+
+        if (!adminFound) {
+            address[] memory adminMembers = new address[](1);
+            adminMembers[0] = address(this);
+            rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
+        }
+
+        if (adminFound) {
+            assembly {
+                mstore(rbacs, finalLength) // Resize array if ADMIN was found (we allocated one extra slot)
+            }
+        }
+
+        IAtsFactory.BondData memory modifiedBondData = bondData;
+        modifiedBondData.security.rbacs = rbacs;
+        console.log("rbacs length:", rbacs.length);
+        for (uint256 i = 0; i < rbacs.length; i++) {
+            console.logBytes32(rbacs[i].role);
+            for (uint256 j = 0; j < rbacs[i].members.length; j++) {
+                console.log(" Member:", rbacs[i].members[j]);
+            }
+        }
+
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
         try bondFactory.deployBond(bondData, factoryRegulationData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
         } catch {
+            console.log("Bond deployment failed");
             revert IFactorySuite.BondDeploymentFailed();
         }
+        console.log("bondAddress:", bondAddress);
     }
 
     /**
@@ -105,5 +157,12 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
     ) internal {
         ILifeCycleCashFlow(treasuryAddress).initialize_LifeCycleCashFlow(bondAddress);
         IPortfolio(treasuryAddress).initialize_Portfolio(treasuryData.paymentToken, treasuryData.environmentalAssets);
+    }
+
+    function _configTreasuryContract(address bondAddress, address treasuryAddress) internal {
+        console.log("bondAddress:", bondAddress);
+        console.log("treasuryAddress:", treasuryAddress);
+        IAccessControl(bondAddress).grantRole(_MATURITY_REDEEMER_ROLE, treasuryAddress);
+        IAccessControl(bondAddress).renounceRole(_DEFAULT_ADMIN_ROLE, address(this));
     }
 }

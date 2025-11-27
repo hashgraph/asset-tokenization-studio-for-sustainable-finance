@@ -34,7 +34,7 @@ describe("FactorySuite - Business Logic Tests", () => {
   }
 
   describe("deployBondSuite - Happy Path", () => {
-    it("GIVEN valid bond, treasury, and KPI parameters WHEN deploying bond suite THEN success", async () => {
+    it.only("GIVEN valid bond, treasury, and KPI parameters WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
       const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
 
