@@ -16,7 +16,7 @@ export class CancelClearingOperationNestJSEventAdapter
   async handle(event: ClearingOperationCanceledDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CancelClearingCommand(
-        event.clearingId,
+        Number(event.clearingId),
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,

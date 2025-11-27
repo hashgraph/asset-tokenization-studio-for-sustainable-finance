@@ -6,7 +6,7 @@ export class LockByPartitionReleasedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly lockId: number
+  readonly lockId: string
 
   constructor(
     contractId: string,
@@ -14,7 +14,7 @@ export class LockByPartitionReleasedDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    lockId: number,
+    lockId: string,
   ) {
     super(contractId, transactionHash)
     this.operator = operator

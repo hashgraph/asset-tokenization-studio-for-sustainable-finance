@@ -23,7 +23,7 @@ export class ExecutedHoldByPartitionNestJSEventAdapter
       new ExecuteBondHoldCommand(
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
-        event.holdId,
+        Number(event.holdId),
         event.partition,
         event.amount,
         await ConverterUtils.getHederaAddressFromEvm(event.to),

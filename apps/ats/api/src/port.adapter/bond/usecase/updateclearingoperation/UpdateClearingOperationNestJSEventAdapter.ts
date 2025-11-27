@@ -23,7 +23,7 @@ export class ClearingOperationApprovedNestJSEventAdapter
   async handle(event: ClearingOperationApprovedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ApproveClearingCommand(
-        event.clearingId,
+        Number(event.clearingId),
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
@@ -44,7 +44,7 @@ export class ClearingOperationReclaimedNestJSEventAdapter
   async handle(event: ClearingOperationReclaimedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ReclaimClearingCommand(
-        event.clearingId,
+        Number(event.clearingId),
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,

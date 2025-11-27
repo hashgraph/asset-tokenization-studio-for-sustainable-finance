@@ -6,7 +6,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly holdId: number
+  readonly holdId: string
   readonly amount: string
   readonly expirationTimestamp: string
   readonly escrow: string
@@ -20,7 +20,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    holdId: number,
+    holdId: string,
     amount: string,
     expirationTimestamp: string,
     escrow: string,

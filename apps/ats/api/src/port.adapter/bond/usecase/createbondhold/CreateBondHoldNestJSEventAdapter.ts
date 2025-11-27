@@ -14,7 +14,7 @@ export class CreateBondHoldNestJSEventAdapter implements CreateBondHoldPort, Eve
   async handle(event: HeldByPartitionDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CreateBondHoldCommand(
-        event.holdId,
+        Number(event.holdId),
         await ConverterUtils.getHederaAddressFromEvm(event.contractId),
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,

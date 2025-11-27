@@ -63,7 +63,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
   describe("UpdateBondHolderBalanceNestJSEventAdapter", () => {
     it("should create a new bond holder balance when IssuedByPartitionDLTEvent is published for a new holder", async () => {
       const event = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -101,7 +101,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       })
 
       const event = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -132,7 +132,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       for (const amount of amounts) {
         const event = new IssuedByPartitionDLTEvent(
-          EVM_CONTRACT_ADDRESS,
+          CONTRACT_ID,
           "0x1234567890abcdef",
           PARTITION,
           OPERATOR,
@@ -162,7 +162,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       const partition2 = "0x697373756564000000000000000000000000000000000000000000000000000"
 
       const event1 = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         partition1,
         OPERATOR,
@@ -172,7 +172,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       )
 
       const event2 = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         partition2,
         OPERATOR,
@@ -222,7 +222,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       const holder2AccountId = "0.0.6974345"
 
       const event1 = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -232,7 +232,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       )
 
       const event2 = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -281,7 +281,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       const largeAmount = "999999999999999999999999999"
 
       const event = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -314,7 +314,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       })
 
       const event = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -345,7 +345,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       const contract2Id = "0.0.6974345"
 
       const event1 = new IssuedByPartitionDLTEvent(
-        contract1EvmAddress,
+        contract1Id,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -355,7 +355,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       )
 
       const event2 = new IssuedByPartitionDLTEvent(
-        contract2EvmAddress,
+        contract2Id,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -397,7 +397,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
     it("should handle zero amount correctly", async () => {
       const event = new IssuedByPartitionDLTEvent(
-        EVM_CONTRACT_ADDRESS,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,
@@ -426,7 +426,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       const evmHolderAddress = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
       const event = new IssuedByPartitionDLTEvent(
-        evmContractAddress,
+        CONTRACT_ID,
         "0x1234567890abcdef",
         PARTITION,
         OPERATOR,

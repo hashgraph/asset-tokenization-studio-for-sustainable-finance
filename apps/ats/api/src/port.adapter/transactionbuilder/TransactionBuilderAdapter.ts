@@ -292,7 +292,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   async createBondLockTransaction(req: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition ?? this.DEFAULT_PARTITION
-    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
 
     return await this.buildAndReturnTransactionResponse(
       ILock__factory.createInterface(),
@@ -301,7 +300,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [partition, req.amount, holderEvmAddress, req.expirationTimestamp],
+      [partition, req.amount, req.holderAccountId, req.expirationTimestamp],
     )
   }
 
@@ -329,7 +328,6 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   async releaseBondLockTransaction(req: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse> {
     const partition = req.partition ?? this.DEFAULT_PARTITION
-    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
 
     return await this.buildAndReturnTransactionResponse(
       ILock__factory.createInterface(),
@@ -338,7 +336,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_MEDIUM_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [partition, req.lockId, holderEvmAddress],
+      [partition, req.lockId, req.holderAccountId],
     )
   }
 
