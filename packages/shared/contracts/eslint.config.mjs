@@ -4,5 +4,6 @@
  * @see https://eslint.org/docs/latest/use/configure/configuration-files
  */
 import rootConfig from "../../../eslint.config.mjs";
+import tseslint from "typescript-eslint";
 
-export default [...rootConfig];
+export default tseslint.config(...rootConfig);
