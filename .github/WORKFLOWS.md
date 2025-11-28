@@ -138,14 +138,16 @@ node .github/scripts/detect-changes.js
 
 ## 🔧 Configuration
 
-### Required Secrets
+### Optional Secrets
 
-Add these secrets to your GitHub repository:
+Add these secrets to your GitHub repository for enhanced features:
 
-1. **`CODECOV_TOKEN`** (Required for Phase 2)
+1. **`CODECOV_TOKEN`** (Optional - Recommended for Phase 2)
    - Get from: https://codecov.io/
-   - Used for: Coverage reporting
-   - Required by: `_reusable-test-contracts.yml`
+   - Used for: Coverage reporting and PR comments
+   - Used by: `_reusable-test-contracts.yml`
+   - **If not configured**: Coverage is still checked locally, but not uploaded to Codecov
+   - **Benefit**: Historical tracking, visual reports, PR comments with coverage diffs
 
 ### Runner Configuration
 

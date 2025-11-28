@@ -19,8 +19,8 @@ on:
         default: '22'
     secrets:
       codecov-token:
-        description: 'Codecov upload token'
-        required: true
+        description: 'Codecov upload token (optional - skips upload if not provided)'
+        required: false
 
 permissions:
   contents: read
@@ -144,6 +144,7 @@ jobs:
       - name: Upload coverage to Codecov
         if: always()
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           token: ${{ secrets.codecov-token }}
           files: ${{ env.MODULE_PATH }}/coverage/lcov.info
