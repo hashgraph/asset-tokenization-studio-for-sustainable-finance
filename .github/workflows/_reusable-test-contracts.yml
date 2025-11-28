@@ -29,7 +29,8 @@ permissions:
 jobs:
   test-contracts:
     name: Test ${{ inputs.module }} Contracts
-    runs-on: token-studio-linux-large
+    # runs-on: token-studio-linux-large
+    runs-on: ubuntu-latest
     env:
       # Workspace name mapping
       WORKSPACE_NAME: >-

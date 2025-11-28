@@ -33,7 +33,8 @@ permissions:
 jobs:
   test-nestjs:
     name: Test ${{ inputs.module }} (${{ inputs.app-type }})
-    runs-on: token-studio-linux-large
+    # runs-on: token-studio-linux-large
+    runs-on: ubuntu-latest
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
