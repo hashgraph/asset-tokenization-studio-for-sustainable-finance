@@ -78,7 +78,8 @@
     "scripts:docker:stop": "npm run docker:stop --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
-    "scripts:test:bond": "npm run bond --workspace=@hashgraph/green-bonds-scripts"
+    "scripts:test:bond": "npm run bond --workspace=@hashgraph/green-bonds-scripts",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@eslint/js": "9.37.0",
@@ -89,9 +90,11 @@
     "eslint-plugin-prettier": "5.5.4",
     "eslint-plugin-unused-imports": "4.2.0",
     "globals": "16.4.0",
+    "hardhat": "2.26.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "prettier": "3.6.2",
-    "prettier-plugin-solidity": "2.1.0",
-    "hardhat": "2.26.5"
+    "prettier-plugin-solidity": "2.1.0"
   },
   "overrides": {
     "@typechain/ethers-v5": "10.2.1",
