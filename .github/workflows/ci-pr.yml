@@ -21,7 +21,9 @@ jobs:
   # ============================================================================
   detect-changes:
     name: 🔍 Detect Changed Modules
-    runs-on: token-studio-linux-large
+    # runs-on: token-studio-linux-large
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
     outputs:
       contracts: ${{ steps.changes.outputs.contracts }}
       apis: ${{ steps.changes.outputs.apis }}
@@ -208,6 +210,7 @@ jobs:
     name: ✅ CI Success
     runs-on: token-studio-linux-large
     needs:
+      - detect-changes
       # Contract tests
       - test-ats-contracts
       - test-treasury-contracts
@@ -229,13 +232,14 @@ jobs:
           echo "### 🎯 CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Check for failures
+          # Check for failures (excluding detect-changes which should never fail)
           if [ "${{ contains(needs.*.result, 'failure') }}" = "true" ]; then
             echo "❌ **Status:** One or more jobs failed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Failed Jobs:**" >> $GITHUB_STEP_SUMMARY
 
             # List failed jobs
+            [[ "${{ needs.detect-changes.result }}" = "failure" ]] && echo "- Change Detection" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-ats-contracts.result }}" = "failure" ]] && echo "- ATS Contracts" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-treasury-contracts.result }}" = "failure" ]] && echo "- Treasury Contracts" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-primary-market-contracts.result }}" = "failure" ]] && echo "- Primary Market Contracts" >> $GITHUB_STEP_SUMMARY
@@ -252,9 +256,35 @@ jobs:
 
           echo "✅ **Status:** All jobs passed or were skipped" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Count job statuses
+          PASSED=0
+          SKIPPED=0
+          [[ "${{ needs.test-ats-contracts.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-treasury-contracts.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-primary-market-contracts.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-ats-api.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-primary-market-api.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-treasury-api.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-shared-core.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-blockchain-listener.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-gateway.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+          [[ "${{ needs.test-transaction-sender.result }}" = "success" ]] && PASSED=$((PASSED + 1))
+
+          [[ "${{ needs.test-ats-contracts.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-treasury-contracts.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-primary-market-contracts.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-ats-api.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-primary-market-api.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-treasury-api.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-shared-core.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-blockchain-listener.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-gateway.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+          [[ "${{ needs.test-transaction-sender.result }}" = "skipped" ]] && SKIPPED=$((SKIPPED + 1))
+
           echo "**Job Summary:**" >> $GITHUB_STEP_SUMMARY
           echo "- Total jobs: 10" >> $GITHUB_STEP_SUMMARY
-          echo "- Passed: ${{ needs.*.result == 'success' && '10' || 'Partial' }}" >> $GITHUB_STEP_SUMMARY
-          echo "- Skipped: Jobs for unchanged modules" >> $GITHUB_STEP_SUMMARY
+          echo "- Passed: $PASSED" >> $GITHUB_STEP_SUMMARY
+          echo "- Skipped: $SKIPPED (unchanged modules)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🎉 CI pipeline complete!" >> $GITHUB_STEP_SUMMARY

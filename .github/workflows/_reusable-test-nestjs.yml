@@ -95,8 +95,9 @@ jobs:
           echo "✅ Placeholder: E2E tests would run here"
 
       - name: Upload coverage to Codecov
-        if: always() && secrets.codecov-token != ''
+        if: always()
         uses: codecov/codecov-action@v4
+        continue-on-error: true
         with:
           token: ${{ secrets.codecov-token }}
           flags: ${{ inputs.module }}-${{ inputs.app-type }}
