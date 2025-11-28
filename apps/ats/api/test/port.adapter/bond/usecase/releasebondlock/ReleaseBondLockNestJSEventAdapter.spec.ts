@@ -107,12 +107,12 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await bondLockRepository.save(existingBondLock)
 
       const event = new LockByPartitionReleasedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
       )
 
       await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
@@ -148,12 +148,12 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       })
 
       const event = new LockByPartitionReleasedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        99,
+        "99",
       )
 
       await expect(eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)).rejects.toThrow(
@@ -188,12 +188,12 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       for (const lockId of lockIds) {
         const event = new LockByPartitionReleasedDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${lockId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          lockId,
+          String(lockId),
         )
 
         await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
@@ -245,17 +245,16 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       const converterSpy = jest.mocked(ConverterUtils.getHederaAddressFromEvm)
 
       const event = new LockByPartitionReleasedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
       )
 
       await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
 
-      expect(converterSpy).toHaveBeenCalledWith("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
       expect(converterSpy).toHaveBeenCalledWith("0xb3533f32594B689F19A94C608490451478F7197b")
       expect(converterSpy).toHaveBeenCalledWith("0x48ca774f6942166bf37e178ccc1e861947ead8c7")
     })
@@ -285,12 +284,12 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       })
 
       const event = new LockByPartitionReleasedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
       )
 
       await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
@@ -338,12 +337,12 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         })
 
         const event = new LockByPartitionReleasedDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${i}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
-          i + 1,
+          String(i + 1),
         )
 
         await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)

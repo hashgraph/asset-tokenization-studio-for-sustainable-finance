@@ -12,16 +12,9 @@ const ROLES = {
   CORPORATE_ACTION_ROLE: "0x8a139eeb747b9809192ae3de1b88acfd2568c15241a5c4f85db0443a536d77d6",
   LOCKER_ROLE: "0xd8aa8c6f92fe8ac3f3c0f88216e25f7c08b3a6c374b4452a04d200c29786ce88",
   ISSUER_ROLE: "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842",
+  PAUSER_ROLE: "0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb",
 };
 
-/**
- * Grant a role to an account
- * @param {string} contractId - The contract ID
- * @param {string} userAccountId - The user account ID to grant the role to
- * @param {string} roleId - The role ID (bytes32)
- * @param {string} format - Blockchain format (hedera/ethereum)
- * @returns {Promise<Object>} Transaction response with unsignedTx
- */
 async function grantRole(contractId, userAccountId, roleId, format) {
   log(`\n🔐 Granting role to ${userAccountId}...`, colors.bright);
 
@@ -38,7 +31,7 @@ async function grantRole(contractId, userAccountId, roleId, format) {
   try {
     const response = await gatewayClient.post(
       `/api/v1/ats/bonds/${contractId}/roles/${roleId}/users/${userEvmAddress}`,
-      grantRoleRequest
+      grantRoleRequest,
     );
 
     logSuccess("Role grant transaction created successfully!");
@@ -61,8 +54,8 @@ async function grantAllRoles(contractId, userAccountId, format) {
   logHeader("🔐 Granting All Required Roles");
 
   const rolesToGrant = process.env.ROLES
-    ? process.env.ROLES.split(',').map(r => r.trim())
-    : ['ISSUER_ROLE', 'LOCKER_ROLE', 'CORPORATE_ACTION_ROLE', 'DOCUMENTER_ROLE', 'CONTROL_LIST_ROLE'];
+    ? process.env.ROLES.split(",").map((r) => r.trim())
+    : ["ISSUER_ROLE", "LOCKER_ROLE", "CORPORATE_ACTION_ROLE", "DOCUMENTER_ROLE", "CONTROL_LIST_ROLE"];
 
   for (const roleName of rolesToGrant) {
     if (!ROLES[roleName]) {

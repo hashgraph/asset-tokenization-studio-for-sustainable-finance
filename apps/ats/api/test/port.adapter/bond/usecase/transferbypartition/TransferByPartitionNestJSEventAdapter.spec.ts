@@ -102,7 +102,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new TransferByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -143,7 +143,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new TransferByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -176,7 +176,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       const event = new TransferByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -216,7 +216,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         const event = new TransferByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           partition,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -253,7 +253,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new TransferByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -288,7 +288,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new TransferByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x0000000000000000000000000000000000000000000000000000000000000001",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
@@ -333,7 +333,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       for (const transfer of transfers) {
         const event = new TransferByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
           "0x0000000000000000000000000000000000000000000000000000000000000001",
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",

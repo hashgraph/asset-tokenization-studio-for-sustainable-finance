@@ -1,9 +1,14 @@
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { logSuccess, logError, logInfo, log, colors } = require('../../shared/lib/logger');
+const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
 
 async function createBond(format) {
   log(`\n📋 Creating ${format.toUpperCase()} bond...`, colors.bright);
-  
+
+  // Convert ACCOUNT_ID to EVM address
+  const accountEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(process.env.ACCOUNT_ID);
+  logInfo(`Using account EVM address: ${accountEvmAddress}`);
+
   const createBondTransactionRequest = {
   securityTokenToCreate: {
     name: "test",
@@ -20,7 +25,7 @@ async function createBond(format) {
     externalPausesAddresses: [],
     externalControlListsAddresses: [],
     externalKycListsAddresses: [],
-    diamondOwnerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
+    diamondOwnerAccountAddress: accountEvmAddress,
     currency: "0x858368",
     numberOfUnits: "1000000",
     nominalValue: "100",
@@ -43,12 +48,12 @@ async function createBond(format) {
     resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
     configVersion: 1,
     paymentTokenAddress: "0x0000000000000000000000000000000000629238",
-    ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
+    ownerAccountAddress: accountEvmAddress,
     environmentalAssetsAddresses: []
   },
   kpiData: {
-    adminAddress: process.env.ACCOUNT_EVM_ADDRESS,
-    ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS
+    adminAddress: accountEvmAddress,
+    ownerAccountAddress: accountEvmAddress
   },
   format: format,
   accountId: process.env.ACCOUNT_ID,

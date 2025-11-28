@@ -6,7 +6,7 @@ export class ClearingOperationApprovedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly clearingId: number
+  readonly clearingId: string
   readonly clearingOperationType: ClearingOperationType
 
   constructor(
@@ -15,7 +15,7 @@ export class ClearingOperationApprovedDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    clearingId: number,
+    clearingId: string,
     clearingOperationType: ClearingOperationType,
   ) {
     super(contractId, transactionHash)

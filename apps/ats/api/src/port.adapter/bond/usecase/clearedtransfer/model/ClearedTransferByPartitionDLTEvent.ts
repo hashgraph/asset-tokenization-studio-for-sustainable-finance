@@ -5,9 +5,9 @@ export class ClearedTransferByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly clearingId: number
+  readonly clearingId: string
   readonly amount: string
-  readonly expirationDate: number
+  readonly expirationDate: string
   readonly to: string
   readonly data: string
   readonly operatorData: string
@@ -18,9 +18,9 @@ export class ClearedTransferByPartitionDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    clearingId: number,
+    clearingId: string,
     amount: string,
-    expirationDate: number,
+    expirationDate: string,
     to: string,
     data: string,
     operatorData: string,
