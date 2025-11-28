@@ -16,18 +16,30 @@ const args = process.argv.slice(2);
 const autoFix = args.includes("--fix");
 
 /**
- * Detect base branch (origin/develop or origin/main)
+ * Detect base branch for comparison
+ * Priority: GITHUB_BASE_REF (CI) > origin/develop > origin/main
  */
 function getBaseBranch() {
+  // In GitHub Actions PRs, use the base branch from the PR
+  if (process.env.GITHUB_BASE_REF) {
+    const baseBranch = `origin/${process.env.GITHUB_BASE_REF}`;
+    console.log(`Using GitHub PR base branch: ${baseBranch}`);
+    return baseBranch;
+  }
+
+  // Locally, compare against develop or main
   try {
     execSync("git rev-parse --verify origin/develop", { stdio: "pipe" });
+    console.log("Using base branch: origin/develop");
     return "origin/develop";
   } catch {
     try {
       execSync("git rev-parse --verify origin/main", { stdio: "pipe" });
+      console.log("Using base branch: origin/main");
       return "origin/main";
     } catch {
       console.error("Error: Neither origin/develop nor origin/main exists");
+      console.error("Hint: Fetch remote branches with: git fetch origin");
       process.exit(1);
     }
   }

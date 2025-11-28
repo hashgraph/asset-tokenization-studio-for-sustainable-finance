@@ -14,7 +14,7 @@ This document describes the GitHub Actions CI/CD workflows for the Green Bonds P
 ├── scripts/
 │   ├── detect-changes.js                 # Intelligent change detection
 │   ├── format-changed.js                 # Format only changed files
-│   ├── lint-changed.js                   # Lint only changed JS/TS files
+│   ├── lint-js-changed.js                # Lint only changed JS/TS files
 │   └── lint-sol-changed.js               # Lint only changed Solidity files
 └── WORKFLOWS.md                          # This file
 ```
