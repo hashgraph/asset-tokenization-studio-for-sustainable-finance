@@ -36,3 +36,5 @@ contract FactorySuiteFacet is IStaticFunctionSelectors, FactorySuite {
         staticInterfaceIds[0] = type(IFactorySuite).interfaceId;
     }
 }
+
+// Test change for CI workflow validation
