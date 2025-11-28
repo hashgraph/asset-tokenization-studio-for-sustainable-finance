@@ -3,10 +3,10 @@
  * Extends root configuration with NestJS and Jest-specific settings
  * @see https://eslint.org/docs/latest/use/configure/configuration-files
  */
-import rootConfig from "../../../eslint.config.mjs";
-import globals from "globals";
-import tseslint from "typescript-eslint";
-import jest from "eslint-plugin-jest";
+import rootConfig from "../../../eslint.config.mjs"
+import globals from "globals"
+import tseslint from "typescript-eslint"
+import jest from "eslint-plugin-jest"
 
 export default tseslint.config(
   ...rootConfig,
@@ -51,4 +51,4 @@ export default tseslint.config(
       ],
     },
   },
-);
+)

@@ -3,9 +3,9 @@
  * Extends root configuration with NestJS-specific settings
  * @see https://eslint.org/docs/latest/use/configure/configuration-files
  */
-import rootConfig from "../../../eslint.config.mjs";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import rootConfig from "../../../eslint.config.mjs"
+import globals from "globals"
+import tseslint from "typescript-eslint"
 
 export default tseslint.config(
   ...rootConfig,
@@ -31,4 +31,4 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-assignment": "off",
     },
   },
-);
+)

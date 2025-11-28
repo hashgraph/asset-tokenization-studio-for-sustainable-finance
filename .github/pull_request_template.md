@@ -21,25 +21,30 @@ This helps reviewers understand the scope and triggers the appropriate CI workfl
 -->
 
 ### Smart Contracts
+
 - [ ] ATS Contracts (`packages/ats/contracts/`)
 - [ ] Treasury Contracts (`packages/treasury/contracts/`)
 - [ ] Primary Market Contracts (`packages/primary-market/contracts/`)
 - [ ] Shared Contracts (`packages/shared/contracts/`)
 
 ### APIs
+
 - [ ] ATS API (`apps/ats/api/`)
 - [ ] Primary Market API (`apps/primary-market/api/`)
 - [ ] Treasury API (`apps/treasury/api/`)
 
 ### Shared Libraries
+
 - [ ] Shared Core (`packages/shared/core/`)
 - [ ] Blockchain Listener (`packages/shared/blockchain-listener/`)
 
 ### Shared Applications
+
 - [ ] Gateway (`apps/shared/gateway/`)
 - [ ] Transaction Sender (`apps/shared/transaction-sender/`)
 
 ### Infrastructure
+
 - [ ] CI/CD Workflows (`.github/workflows/`)
 - [ ] Scripts (`scripts/`)
 - [ ] Root Configuration
@@ -141,36 +146,42 @@ Our CI will check for changesets automatically.
 ## Checklist
 
 ### Code Quality
+
 - [ ] Style guidelines followed ✅
 - [ ] ESLint passed - No new warnings ⚠️
 - [ ] Prettier formatted - Code formatted correctly 💅
 - [ ] Solidity linting passed (if contracts changed) 🔒
 
 ### Testing
+
 - [ ] Local tests pass ✅
 - [ ] Effective tests added for new functionality ✔️
 - [ ] Coverage meets thresholds (see Coverage Impact above) 📊
 - [ ] E2E tests added/updated (if API changes) 🔄
 
 ### Documentation
+
 - [ ] Code comments added for complex logic 📝
 - [ ] JSDoc/TSDoc added for public APIs 📚
 - [ ] README updated (if user-facing changes) 📖
 - [ ] ADR created (if architectural decision) 🏗️
 
 ### Dependencies & Build
+
 - [ ] No new dependencies added OR new dependencies justified ⚖️
 - [ ] Build passes (`npm run build` for affected modules) 🏗️
 - [ ] No TypeScript errors ✅
 - [ ] Dependency graph respected (Treasury → ATS → Primary Market) 🔗
 
 ### Security & Compliance
+
 - [ ] No secrets or sensitive data in code 🔐
 - [ ] PGP signed commits (`-S` flag) ✍️
 - [ ] DCO sign-off (`--signoff` flag) ✅
 - [ ] No AI references in commits or code 🤖
 
 ### Hedera/Blockchain (if applicable)
+
 - [ ] Gas costs optimized ⛽
 - [ ] Smart contract security reviewed 🛡️
 - [ ] Event emissions appropriate 📡

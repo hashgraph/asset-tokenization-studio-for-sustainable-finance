@@ -4,26 +4,26 @@ on:
   workflow_call:
     inputs:
       module:
-        description: 'Module name (e.g., primary-market, treasury, ats, shared-core, blockchain-listener, gateway, transaction-sender)'
+        description: "Module name (e.g., primary-market, treasury, ats, shared-core, blockchain-listener, gateway, transaction-sender)"
         required: true
         type: string
       app-type:
-        description: 'Application type: api or library'
+        description: "Application type: api or library"
         required: true
         type: string
       has-e2e:
-        description: 'Whether module has E2E tests'
+        description: "Whether module has E2E tests"
         required: false
         type: boolean
         default: false
       node-version:
-        description: 'Node.js version to use'
+        description: "Node.js version to use"
         required: false
         type: string
-        default: '22'
+        default: "22"
     secrets:
       codecov-token:
-        description: 'Codecov upload token'
+        description: "Codecov upload token"
         required: false
 
 permissions:

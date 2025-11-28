@@ -12,74 +12,70 @@
  * - Special rules for shared modules
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+const { execSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
 
 // Module path mappings
 const MODULE_PATHS = {
   // Smart Contracts
-  'ats-contracts': 'packages/ats/contracts',
-  'treasury-contracts': 'packages/treasury/contracts',
-  'primary-market-contracts': 'packages/primary-market/contracts',
-  'shared-contracts': 'packages/shared/contracts',
+  "ats-contracts": "packages/ats/contracts",
+  "treasury-contracts": "packages/treasury/contracts",
+  "primary-market-contracts": "packages/primary-market/contracts",
+  "shared-contracts": "packages/shared/contracts",
 
   // Shared Libraries
-  'shared-core': 'packages/shared/core',
-  'blockchain-listener': 'packages/shared/blockchain-listener',
+  "shared-core": "packages/shared/core",
+  "blockchain-listener": "packages/shared/blockchain-listener",
 
   // APIs
-  'ats-api': 'apps/ats/api',
-  'primary-market-api': 'apps/primary-market/api',
-  'treasury-api': 'apps/treasury/api',
+  "ats-api": "apps/ats/api",
+  "primary-market-api": "apps/primary-market/api",
+  "treasury-api": "apps/treasury/api",
 
   // Shared Apps
-  'gateway': 'apps/shared/gateway',
-  'transaction-sender': 'apps/shared/transaction-sender',
+  gateway: "apps/shared/gateway",
+  "transaction-sender": "apps/shared/transaction-sender",
 
   // Scripts
-  'scripts': 'scripts'
+  scripts: "scripts",
 };
 
 // Dependency graph - if module X changes, also test these modules
 const DEPENDENCIES = {
   // Treasury is foundation - if it changes, test everything that depends on it
-  'treasury-contracts': ['ats-contracts', 'primary-market-contracts'],
+  "treasury-contracts": ["ats-contracts", "primary-market-contracts"],
 
   // ATS contracts are used by primary market
-  'ats-contracts': ['primary-market-contracts'],
+  "ats-contracts": ["primary-market-contracts"],
 
   // Primary market contracts don't have dependencies
-  'primary-market-contracts': [],
+  "primary-market-contracts": [],
 
   // Shared core is foundation - if it changes, test ALL modules
-  'shared-core': [
-    'blockchain-listener',
-    'ats-api',
-    'primary-market-api',
-    'treasury-api',
-    'gateway',
-    'transaction-sender'
+  "shared-core": [
+    "blockchain-listener",
+    "ats-api",
+    "primary-market-api",
+    "treasury-api",
+    "gateway",
+    "transaction-sender",
   ],
 
   // Blockchain listener is used by all APIs
-  'blockchain-listener': [
-    'ats-api',
-    'primary-market-api',
-    'treasury-api'
-  ],
+  "blockchain-listener": ["ats-api", "primary-market-api", "treasury-api"],
 
   // Contract changes trigger dependent API tests
-  'ats-contracts': ['ats-api'],
-  'primary-market-contracts': ['primary-market-api'],
-  'treasury-contracts': ['treasury-api'],
+  "ats-contracts": ["ats-api"],
+  "primary-market-contracts": ["primary-market-api"],
+  "treasury-contracts": ["treasury-api"],
 
   // APIs don't have dependencies
-  'ats-api': [],
-  'primary-market-api': [],
-  'treasury-api': [],
-  'gateway': [],
-  'transaction-sender': []
+  "ats-api": [],
+  "primary-market-api": [],
+  "treasury-api": [],
+  gateway: [],
+  "transaction-sender": [],
 };
 
 /**
@@ -94,23 +90,23 @@ function getChangedFiles() {
       // In GitHub Actions - compare against base branch
       const baseBranch = `origin/${githubRef}`;
       const command = `git diff --name-only ${baseBranch}...HEAD`;
-      const output = execSync(command, { encoding: 'utf-8' });
-      return output.trim().split('\n').filter(Boolean);
+      const output = execSync(command, { encoding: "utf-8" });
+      return output.trim().split("\n").filter(Boolean);
     } else {
       // Local development - compare against develop
-      const command = 'git diff --name-only origin/develop...HEAD';
+      const command = "git diff --name-only origin/develop...HEAD";
       try {
-        const output = execSync(command, { encoding: 'utf-8' });
-        return output.trim().split('\n').filter(Boolean);
+        const output = execSync(command, { encoding: "utf-8" });
+        return output.trim().split("\n").filter(Boolean);
       } catch (error) {
         // Fallback to uncommitted changes
-        console.warn('Could not compare with origin/develop, using uncommitted changes');
-        const output = execSync('git diff --name-only HEAD', { encoding: 'utf-8' });
-        return output.trim().split('\n').filter(Boolean);
+        console.warn("Could not compare with origin/develop, using uncommitted changes");
+        const output = execSync("git diff --name-only HEAD", { encoding: "utf-8" });
+        return output.trim().split("\n").filter(Boolean);
       }
     }
   } catch (error) {
-    console.error('Error getting changed files:', error.message);
+    console.error("Error getting changed files:", error.message);
     return [];
   }
 }
@@ -124,26 +120,26 @@ function mapFilesToModules(changedFiles) {
   for (const file of changedFiles) {
     // Check each module path
     for (const [module, modulePath] of Object.entries(MODULE_PATHS)) {
-      if (file.startsWith(modulePath + '/')) {
+      if (file.startsWith(modulePath + "/")) {
         affectedModules.add(module);
         break;
       }
     }
 
     // Special cases
-    if (file.startsWith('.github/workflows/')) {
+    if (file.startsWith(".github/workflows/")) {
       // Workflow changes don't trigger tests, only quality checks
       continue;
     }
 
     if (file.match(/\.(eslintrc|prettierrc|eslint\.config|prettier\.config)/)) {
       // Root config changes trigger quality checks for all
-      affectedModules.add('__quality__');
+      affectedModules.add("__quality__");
     }
 
-    if (file === 'package.json' || file === 'package-lock.json') {
+    if (file === "package.json" || file === "package-lock.json") {
       // Root package changes might affect all modules
-      affectedModules.add('__all__');
+      affectedModules.add("__all__");
     }
   }
 
@@ -169,13 +165,13 @@ function addDependentModules(modules) {
   }
 
   // If __all__ flag is set, return all modules
-  if (allModules.has('__all__')) {
-    return Object.keys(MODULE_PATHS).filter(m => m !== 'scripts');
+  if (allModules.has("__all__")) {
+    return Object.keys(MODULE_PATHS).filter((m) => m !== "scripts");
   }
 
   // Add dependencies for each affected module
   for (const module of modules) {
-    if (module !== '__quality__' && module !== '__all__') {
+    if (module !== "__quality__" && module !== "__all__") {
       addDeps(module);
     }
   }
@@ -192,21 +188,21 @@ function categorizeModules(modules) {
   const shared = [];
 
   for (const module of modules) {
-    if (module === '__quality__' || module === '__all__') continue;
+    if (module === "__quality__" || module === "__all__") continue;
 
-    if (module.endsWith('-contracts')) {
+    if (module.endsWith("-contracts")) {
       // Extract domain name (e.g., 'ats' from 'ats-contracts')
-      const domain = module.replace('-contracts', '');
+      const domain = module.replace("-contracts", "");
       contracts.push(domain);
-    } else if (module.endsWith('-api')) {
+    } else if (module.endsWith("-api")) {
       // Extract domain name (e.g., 'primary-market' from 'primary-market-api')
-      const domain = module.replace('-api', '');
+      const domain = module.replace("-api", "");
       apis.push(domain);
-    } else if (module.startsWith('shared-') || module === 'blockchain-listener') {
+    } else if (module.startsWith("shared-") || module === "blockchain-listener") {
       // Shared libraries
-      const name = module.replace('shared-', '');
+      const name = module.replace("shared-", "");
       shared.push(name);
-    } else if (module === 'gateway' || module === 'transaction-sender') {
+    } else if (module === "gateway" || module === "transaction-sender") {
       // Shared applications
       shared.push(module);
     }
@@ -215,7 +211,7 @@ function categorizeModules(modules) {
   return {
     contracts: [...new Set(contracts)],
     apis: [...new Set(apis)],
-    shared: [...new Set(shared)]
+    shared: [...new Set(shared)],
   };
 }
 
@@ -239,12 +235,12 @@ function outputResults(results) {
     fs.appendFileSync(githubOutput, `any-changes=${anyChanges}\n`);
   } else {
     // Local development - print to console
-    console.log('\n=== Change Detection Results ===');
+    console.log("\n=== Change Detection Results ===");
     console.log(`Contracts: ${contractsJson}`);
     console.log(`APIs: ${apisJson}`);
     console.log(`Shared: ${sharedJson}`);
     console.log(`Any changes: ${anyChanges}`);
-    console.log('\n=== GitHub Actions Output ===');
+    console.log("\n=== GitHub Actions Output ===");
     console.log(`contracts=${contractsJson}`);
     console.log(`apis=${apisJson}`);
     console.log(`shared=${sharedJson}`);
@@ -258,13 +254,13 @@ function outputResults(results) {
  * Main execution
  */
 function main() {
-  console.log('🔍 Detecting changed modules...\n');
+  console.log("🔍 Detecting changed modules...\n");
 
   // Step 1: Get changed files
   const changedFiles = getChangedFiles();
   console.log(`Found ${changedFiles.length} changed files`);
   if (changedFiles.length > 0 && changedFiles.length <= 10) {
-    console.log('Changed files:', changedFiles);
+    console.log("Changed files:", changedFiles);
   }
 
   // Step 2: Map files to modules
@@ -278,14 +274,14 @@ function main() {
   // Step 4: Categorize for GitHub Actions
   const results = categorizeModules(allAffectedModules);
   console.log(`\nCategorized results:`);
-  console.log(`  - Contracts: ${results.contracts.join(', ') || 'none'}`);
-  console.log(`  - APIs: ${results.apis.join(', ') || 'none'}`);
-  console.log(`  - Shared: ${results.shared.join(', ') || 'none'}`);
+  console.log(`  - Contracts: ${results.contracts.join(", ") || "none"}`);
+  console.log(`  - APIs: ${results.apis.join(", ") || "none"}`);
+  console.log(`  - Shared: ${results.shared.join(", ") || "none"}`);
 
   // Step 5: Output for GitHub Actions
   outputResults(results);
 
-  console.log('\n✅ Change detection complete');
+  console.log("\n✅ Change detection complete");
 }
 
 // Run if executed directly
@@ -299,5 +295,5 @@ module.exports = {
   addDependentModules,
   categorizeModules,
   MODULE_PATHS,
-  DEPENDENCIES
+  DEPENDENCIES,
 };
