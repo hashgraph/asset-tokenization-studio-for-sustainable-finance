@@ -210,6 +210,7 @@ jobs:
     name: ✅ CI Success
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs:
       - detect-changes
       # Contract tests
