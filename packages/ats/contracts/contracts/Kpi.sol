@@ -3,10 +3,10 @@ pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import { ArraysUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ArraysUpgradeable.sol";
 import { AccessControl } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol";
 import { Pause } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
+import { DateTime } from "@quant-finance/solidity-datetime/contracts/DateTime.sol";
 import { KPI_DATA_MANAGER_ROLE } from "./constants/roles.sol";
 // solhint-disable-next-line no-unused-import
 import { KPI_STORAGE_LOCATION } from "./constants/storageLocation.sol";
@@ -14,8 +14,6 @@ import { IKpi } from "./interfaces/IKpi.sol";
 // solhint-enable max-line-length
 
 contract Kpi is IKpi, AccessControl, Pause, Initializable {
-    using ArraysUpgradeable for uint256[];
-
     modifier validDate(uint256 _date) {
         if (_date == 0) revert InvalidDate(_date);
         _;
@@ -37,19 +35,28 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
             revert DateBeforeMinimum(toDate, kpiStorage.minValidDate);
         }
 
-        if (kpiStorage.kpiData[toDate].exists) {
+        if (kpiStorage.exists[toDate]) {
             revert KpiDataAlreadyExists(toDate);
         }
 
-        uint256 insertIndex = kpiStorage.timestampsIndex.findUpperBound(toDate);
-        kpiStorage.timestampsIndex.push(0);
-        for (uint256 i = kpiStorage.timestampsIndex.length - 1; i > insertIndex; i--) {
-            kpiStorage.timestampsIndex[i] = kpiStorage.timestampsIndex[i - 1];
-            kpiStorage.kpiData[kpiStorage.timestampsIndex[i]].index = i;
-        }
-        kpiStorage.timestampsIndex[insertIndex] = toDate;
+        // Store the value
+        kpiStorage.kpiValues[toDate] = kpiValue;
+        kpiStorage.exists[toDate] = true;
 
-        kpiStorage.kpiData[toDate] = KpiEntry({ value: kpiValue, index: insertIndex, exists: true });
+        // Extract date components
+        (uint256 year, uint256 month, uint256 day) = DateTime.timestampToDate(toDate);
+
+        // Update hierarchical sums
+        uint256 dayKey = year * 10000 + month * 100 + day;
+        uint256 monthKey = year * 100 + month;
+        uint256 yearKey = year;
+
+        kpiStorage.dailySums[dayKey] += kpiValue;
+        kpiStorage.monthlySums[monthKey] += kpiValue;
+        kpiStorage.yearlySums[yearKey] += kpiValue;
+
+        // Add to day bucket (maintains insertion order within day)
+        kpiStorage.dayTimestamps[dayKey].push(toDate);
 
         emit KpiDataAdded(toDate, kpiValue);
     }
@@ -61,29 +68,59 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         if (fromDate > toDate) revert InvalidDateRange(fromDate, toDate);
         KpiStorage storage kpiStorage = _getKpiStorage();
 
-        // Optimization: Fast path using direct lookup if dates exist exactly
-        // This avoids binary search when querying with exact stored dates 
-        uint256 startIndex = kpiStorage.kpiData[fromDate].exists
-            ? kpiStorage.kpiData[fromDate].index
-            : kpiStorage.timestampsIndex.findUpperBound(fromDate);
-        uint256 endIndex = kpiStorage.kpiData[toDate].exists
-            ? kpiStorage.kpiData[toDate].index + 1
-            : kpiStorage.timestampsIndex.findUpperBound(toDate + 1);
-        if (startIndex == kpiStorage.timestampsIndex.length) {
-            return 0;
-        }
+        uint256 current = fromDate;
 
-        for (uint256 i = startIndex; i < endIndex; i++) {
-            uint256 timestamp = kpiStorage.timestampsIndex[i];
-            KpiEntry storage kpiData = kpiStorage.kpiData[timestamp];
+        while (current <= toDate) {
+            (uint256 year, uint256 month, uint256 day) = DateTime.timestampToDate(current);
 
-            kpiAggregatedValue += kpiData.value;
+            // Calculate period boundaries
+            uint256 nextYearStart = DateTime.timestampFromDate(year + 1, 1, 1);
+            uint256 nextMonthStart = DateTime.addMonths(
+                DateTime.timestampFromDate(year, month, 1),
+                1
+            );
+            uint256 nextDayStart = DateTime.addDays(
+                DateTime.timestampFromDate(year, month, day),
+                1
+            );
+
+            // CASE 1: Full year (starts Jan 1 and entire year fits in range)
+            if (day == 1 && month == 1 && (nextYearStart - 1) <= toDate) {
+                kpiAggregatedValue += kpiStorage.yearlySums[year];
+                current = nextYearStart;
+                continue;
+            }
+
+            // CASE 2: Full month (starts day 1 and entire month fits in range)
+            if (day == 1 && (nextMonthStart - 1) <= toDate) {
+                kpiAggregatedValue += kpiStorage.monthlySums[year * 100 + month];
+                current = nextMonthStart;
+                continue;
+            }
+
+            // CASE 3: Full day
+            if (current <= DateTime.timestampFromDate(year, month, day) && (nextDayStart - 1) <= toDate) {
+                kpiAggregatedValue += kpiStorage.dailySums[year * 10000 + month * 100 + day];
+                current = nextDayStart;
+                continue;
+            }
+
+            // CASE 4: Partial day - iterate through timestamps
+            uint256[] storage timestamps = kpiStorage.dayTimestamps[year * 10000 + month * 100 + day];
+
+            for (uint256 i = 0; i < timestamps.length; i++) {
+                if (timestamps[i] >= fromDate && timestamps[i] <= toDate) {
+                    kpiAggregatedValue += kpiStorage.kpiValues[timestamps[i]];
+                }
+            }
+
+            current = nextDayStart;
         }
 
         return kpiAggregatedValue;
     }
 
-    function initialize(IResolverProxy.Rbac[] memory rbacs) public onlyUninitialized(_getKpiStorage().initialized) {
+    function initialize(IResolverProxy.Rbac[] memory rbacs) public override onlyUninitialized(_getKpiStorage().initialized) {
         KpiStorage storage kpiStorage = _getKpiStorage();
         kpiStorage.initialized = true;
         for (uint256 rbacIndex; rbacIndex < rbacs.length; ++rbacIndex) {

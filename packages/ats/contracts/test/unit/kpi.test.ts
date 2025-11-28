@@ -79,23 +79,28 @@ describe("Kpi", () => {
       await expect(kpi.addKpiData(2, 200)).to.emit(kpi, "KpiDataAdded").withArgs(2, 200);
     });
 
-    it("GIVEN KPI data added out of order WHEN adding intermediate dates THEN data is correctly reordered and aggregation works", async () => {
-      await kpi.addKpiData(30, 300);
-      await kpi.addKpiData(10, 100);
-      await kpi.addKpiData(20, 200);
+    it("GIVEN KPI data added slightly out of order within retry window WHEN adding intermediate dates THEN data is correctly reordered and aggregation works", async () => {
+      await kpi.addKpiData(100, 100);
+      await kpi.addKpiData(200, 200);
+      await kpi.addKpiData(300, 300);
+      await kpi.addKpiData(500, 500);
+      // Insert 400 within retry window (1 position back)
+      await kpi.addKpiData(400, 400);
 
-      expect(await kpi.getKpiData(10, 30)).to.equal(600);
-      expect(await kpi.getKpiData(10, 20)).to.equal(300);
-      expect(await kpi.getKpiData(20, 30)).to.equal(500);
+      expect(await kpi.getKpiData(100, 500)).to.equal(1500);
+      expect(await kpi.getKpiData(300, 500)).to.equal(1200);
     });
 
-    it("GIVEN multiple KPI entries WHEN inserting at beginning THEN data is correctly reordered", async () => {
-      await kpi.addKpiData(20, 200);
-      await kpi.addKpiData(30, 300);
-      await kpi.addKpiData(10, 100);
-
-      expect(await kpi.getKpiData(10, 30)).to.equal(600);
-      expect(await kpi.getKpiData(10, 10)).to.equal(100);
+    it("GIVEN multiple KPI entries WHEN inserting at beginning THEN data is correctly ordered", async () => {
+      await kpi.addKpiData(200, 200);
+      await kpi.addKpiData(300, 300);
+      await kpi.addKpiData(400, 400);
+      await kpi.addKpiData(500, 500);
+      await kpi.addKpiData(600, 600);
+      await kpi.addKpiData(700, 700);
+      // Insert at beginning
+      await expect(kpi.addKpiData(100, 100)).to.emit(kpi, "KpiDataAdded").withArgs(100, 100);
+      expect(await kpi.getKpiData(100, 700)).to.equal(2800);
     });
 
     it("GIVEN multiple KPI entries WHEN inserting in middle THEN data is correctly reordered", async () => {
@@ -196,6 +201,76 @@ describe("Kpi", () => {
 
     it("GIVEN fromDate greater than toDate WHEN calling getKpiData THEN fail with InvalidDateRange", async () => {
       await expect(kpi.getKpiData(30, 10)).to.be.revertedWithCustomError(kpi, "InvalidDateRange");
+    });
+
+    it("GIVEN KPI at exact fromDate boundary WHEN querying range THEN include fromDate value", async () => {
+      await kpi.addKpiData(1, 100);
+      await kpi.addKpiData(15, 150);
+      await kpi.addKpiData(20, 200);
+      // Query from 1 to 16 should include KPIs at 1 and 15
+      const agg = await kpi.getKpiData(1, 16);
+      expect(agg).to.equal(250); // 100 + 150
+    });
+
+    it("GIVEN KPI after fromDate boundary WHEN querying range THEN exclude data before fromDate", async () => {
+      await kpi.addKpiData(1, 100);
+      await kpi.addKpiData(15, 150);
+      await kpi.addKpiData(20, 200);
+      // Query from 2 to 16 should only include KPI at 15 (excludes 1, excludes 20)
+      const agg = await kpi.getKpiData(2, 16);
+      expect(agg).to.equal(150); // Only 15
+    });
+
+    it("GIVEN KPI at exact toDate boundary WHEN querying range THEN include toDate value", async () => {
+      await kpi.addKpiData(1, 100);
+      await kpi.addKpiData(15, 150);
+      await kpi.addKpiData(20, 200);
+      // Query from 10 to 20 should include KPIs at 15 and 20
+      const agg = await kpi.getKpiData(10, 20);
+      expect(agg).to.equal(350); // 150 + 200
+    });
+
+    it("GIVEN multiple KPIs WHEN fromDate and toDate are both non-exact THEN include only values within range", async () => {
+      await kpi.addKpiData(5, 50);
+      await kpi.addKpiData(10, 100);
+      await kpi.addKpiData(15, 150);
+      await kpi.addKpiData(20, 200);
+      await kpi.addKpiData(25, 250);
+      // Query from 8 to 22 should include 10, 15, 20 (exclude 5 and 25)
+      const agg = await kpi.getKpiData(8, 22);
+      expect(agg).to.equal(450); // 100 + 150 + 200
+    });
+
+    it("GIVEN fromDate equals toDate with NO exact data WHEN querying THEN return zero", async () => {
+      await kpi.addKpiData(10, 100);
+      await kpi.addKpiData(20, 200);
+      // Query for timestamp 15 (between 10 and 20, but no data at 15)
+      const agg = await kpi.getKpiData(15, 15);
+      expect(agg).to.equal(0);
+    });
+
+    it("GIVEN single KPI data point WHEN querying ranges around it THEN only include when in range", async () => {
+      await kpi.addKpiData(100, 1000);
+      // Before the data point
+      expect(await kpi.getKpiData(1, 99)).to.equal(0);
+      // Exactly at the data point
+      expect(await kpi.getKpiData(100, 100)).to.equal(1000);
+      // Range including the data point
+      expect(await kpi.getKpiData(50, 150)).to.equal(1000);
+      // After the data point
+      expect(await kpi.getKpiData(101, 200)).to.equal(0);
+    });
+
+    it("GIVEN data at boundaries WHEN querying exact boundaries THEN include boundary values", async () => {
+      await kpi.addKpiData(10, 100);
+      await kpi.addKpiData(20, 200);
+      await kpi.addKpiData(30, 300);
+      // Exact match at both boundaries
+      expect(await kpi.getKpiData(10, 30)).to.equal(600);
+      // First boundary exact, second not
+      expect(await kpi.getKpiData(10, 25)).to.equal(300);
+      // First boundary not exact, second exact
+      expect(await kpi.getKpiData(15, 30)).to.equal(500);
     });
   });
 

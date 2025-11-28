@@ -11,27 +11,24 @@ import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contract
  * @dev This interface defines the standard for storing and retrieving Kpi data with optimized queries
  */
 interface IKpi {
-    /**
-     * @notice Struct containing Kpi entry for a specific date
-     * @param value The Kpi value for the given date
-     * @param index The index of the Kpi entry in the timestamps array
-     */
-    struct KpiEntry {
-        uint256 value;
-        uint256 index;
-        bool exists;
-    }
 
-    /**
-     * @notice Storage structure for Kpi data using unstructured storage pattern
-     * @param KpiData Mapping from timestamp to KpiEntry struct
-     * @param timestampsIndex Array of timestamps for efficient range queries
-     * @param initialized Boolean flag indicating if the storage has been initialized
-     * @param minValidDate Minimum valid date from which KPI data is accepted (0 = no minimum)
-     */
     struct KpiStorage {
-        mapping(uint256 timestamp => KpiEntry) kpiData;
-        uint256[] timestampsIndex;
+        // --- Jerarquía de Sumas (Para saltos rápidos) ---
+        mapping(uint256 => uint256) yearlySums;   // Key: YYYY
+        mapping(uint256 => uint256) monthlySums;  // Key: YYYYMM
+        mapping(uint256 => uint256) dailySums;    // Key: YYYYMMDD (Nueva capa de seguridad)
+
+        // --- Los datos crudos (Buckets diarios) ---
+        // En lugar de guardar timestamps por mes, los guardamos por DÍA.
+        // Key: YYYYMMDD => Lista de timestamps exactos de ese día.
+        // Esto garantiza que el array nunca sea gigante.
+        mapping(uint256 => uint256[]) dayTimestamps;
+
+        // --- Valores exactos ---
+        mapping(uint256 => uint256) kpiValues;
+        mapping(uint256 => bool) exists;
+
+        // --- Control fields ---
         bool initialized;
         uint256 minValidDate;
     }
@@ -81,6 +78,13 @@ interface IKpi {
      * @param minValidDate The minimum valid date configured
      */
     error DateBeforeMinimum(uint256 providedDate, uint256 minValidDate);
+
+    /**
+     * @notice Thrown when trying to insert KPI data too far in the past (beyond retry window)
+     * @param providedDate The date that was provided
+     * @param minAllowedDate The minimum allowed date based on retry window
+     */
+    error InsertTooOld(uint256 providedDate, uint256 minAllowedDate);
 
     function initialize(IResolverProxy.Rbac[] memory rbacs) external;
 
