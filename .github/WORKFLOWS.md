@@ -12,7 +12,10 @@ This document describes the GitHub Actions CI/CD workflows for the Green Bonds P
 │   ├── _reusable-test-contracts.yml      # Reusable contract test workflow
 │   └── _reusable-test-nestjs.yml         # Reusable NestJS test workflow
 ├── scripts/
-│   └── detect-changes.js                 # Intelligent change detection
+│   ├── detect-changes.js                 # Intelligent change detection
+│   ├── format-changed.js                 # Format only changed files
+│   ├── lint-changed.js                   # Lint only changed JS/TS files
+│   └── lint-sol-changed.js               # Lint only changed Solidity files
 └── WORKFLOWS.md                          # This file
 ```
 
@@ -23,16 +26,19 @@ This document describes the GitHub Actions CI/CD workflows for the Green Bonds P
 Main workflow that orchestrates all CI checks for pull requests.
 
 **Triggers:**
+
 - Pull requests to `develop` or `main` branches
 - Manual trigger via `workflow_dispatch`
 
 **Features:**
+
 - 🔍 Intelligent change detection
 - 🧪 Selective testing (only affected modules)
 - 📦 Dependency-aware testing
 - ✅ Aggregated status check
 
 **Modules Tested:**
+
 - **Smart Contracts:** ATS, Treasury, Primary Market
 - **APIs:** ATS API, Primary Market API, Treasury API
 - **Shared Libraries:** Core, Blockchain Listener
@@ -40,14 +46,110 @@ Main workflow that orchestrates all CI checks for pull requests.
 
 ### Code Quality (`ci-quality.yml`)
 
-Runs code quality checks on every PR.
+**Status:** ✅ **OPTIMIZED** - Three-layer quality enforcement with conditional execution
 
-**Checks:**
-- ESLint (TypeScript)
-- Prettier (Formatting)
-- Solhint (Solidity)
+Runs code quality checks with smart optimization for faster feedback.
 
-**Always runs** - not affected by change detection.
+#### 🎯 Three-Layer Quality Enforcement
+
+**1. Pre-commit Hooks (Local)**
+
+- Runs on staged files only (fastest)
+- Auto-fixes issues before commit
+- Uses Husky + lint-staged
+- Blocks commits with quality issues
+
+**2. Changed-File Scripts (Local/PR)**
+
+- Checks only files changed vs base branch
+- Used in CI for pull requests
+- 60-70% faster than full checks
+- Provides quick local feedback
+
+**3. Full Repository Checks (Push)**
+
+- Runs on entire monorepo
+- Only on push to main/develop
+- Ensures overall codebase quality
+- Catches edge cases
+
+#### 📝 Conditional Execution
+
+**Pull Request Mode** (Changed files only):
+
+```yaml
+if: github.event_name == 'pull_request'
+run: npm run format:changed:check  # Only changed files
+run: npm run lint:js:changed       # Only changed JS/TS
+run: npm run lint:sol:changed      # Only changed Solidity
+```
+
+**Push Mode** (Full repository):
+
+```yaml
+if: github.event_name == 'push'
+run: npm run format:check          # All files
+run: npm run lint:js               # All JS/TS
+run: npm run lint:sol              # All Solidity
+```
+
+#### ✅ Quality Checks
+
+- **ESLint** - TypeScript/JavaScript linting
+- **Prettier** - Code formatting consistency
+- **Solhint** - Solidity linting and best practices
+
+#### 🚀 Performance Impact
+
+| Mode         | Scope           | Typical Time | Use Case             |
+| ------------ | --------------- | ------------ | -------------------- |
+| Pre-commit   | Staged files    | 3-10s        | Before every commit  |
+| Changed-file | Changed vs base | 30-60s       | Pull requests        |
+| Full         | Entire repo     | 2-5min       | Push to main/develop |
+
+#### 🛠️ Supporting Scripts
+
+**Format Changed Files:**
+
+```bash
+# Check formatting
+npm run format:changed:check
+
+# Auto-fix formatting
+npm run format:changed
+```
+
+**Lint Changed Files:**
+
+```bash
+# Lint JS/TS
+npm run lint:js:changed
+npm run lint:js:changed:fix
+
+# Lint Solidity
+npm run lint:sol:changed
+npm run lint:sol:changed:fix
+
+# Lint all languages
+npm run lint:changed
+npm run lint:changed:fix
+```
+
+#### 🔧 Pre-commit Hook Configuration
+
+**Managed by:** Husky 9 + lint-staged 15
+
+**Staged file checks:**
+
+- **JS/TS files**: ESLint --fix + Prettier --write
+- **Solidity files**: Solhint --fix + Prettier --write
+- **JSON/YAML/MD**: Prettier --write
+
+**Bypass hook** (use sparingly):
+
+```bash
+git commit --no-verify -m "message"
+```
 
 ## 🧪 Testing Workflows
 
@@ -58,6 +160,7 @@ Runs code quality checks on every PR.
 Reusable workflow for testing Solidity smart contracts.
 
 **Features:**
+
 - 🔨 Hardhat compilation
 - 🧪 Automated test execution
 - 📊 Coverage generation
@@ -66,23 +169,26 @@ Reusable workflow for testing Solidity smart contracts.
 - 🏗️ Dependency building (Treasury → ATS → Primary Market)
 
 **Usage:**
+
 ```yaml
 test-ats-contracts:
   uses: ./.github/workflows/_reusable-test-contracts.yml
   with:
     module: ats
     coverage-threshold: 90
-    node-version: '22'
+    node-version: "22"
   secrets:
     codecov-token: ${{ secrets.CODECOV_TOKEN }}
 ```
 
 **Supported Modules:**
+
 - `ats` - Asset Tokenization Studio contracts
 - `treasury` - Treasury management contracts
 - `primary-market` - Primary market offering contracts
 
 **Coverage Files:**
+
 - `packages/{module}/contracts/coverage/lcov.info`
 - `packages/{module}/contracts/coverage/coverage-summary.json`
 
@@ -93,6 +199,7 @@ test-ats-contracts:
 Reusable workflow for testing NestJS applications and libraries.
 
 **Planned Features:**
+
 - Jest unit tests
 - E2E tests (for APIs)
 - Coverage reporting
@@ -105,29 +212,36 @@ The `detect-changes.js` script intelligently detects which modules have changed 
 **Key Features:**
 
 ### 1. File-to-Module Mapping
+
 Maps changed files to affected modules:
+
 ```javascript
 'ats-contracts': 'packages/ats/contracts/**'
 'primary-market-api': 'apps/primary-market/api/**'
 ```
 
 ### 2. Dependency Graph
+
 Automatically tests dependent modules:
+
 - Treasury changes → Tests ATS + Primary Market
 - ATS changes → Tests Primary Market
 - Shared Core changes → Tests ALL modules
 
 ### 3. Special Rules
+
 - Root config changes → Quality checks only
 - Shared Core changes → Test all modules
 - Workflow changes → Quality checks only
 
 **Testing Locally:**
+
 ```bash
 node .github/scripts/detect-changes.js
 ```
 
 **Output Format:**
+
 ```json
 {
   "contracts": ["ats", "treasury"],
@@ -152,11 +266,13 @@ Add these secrets to your GitHub repository for enhanced features:
 ### Runner Configuration
 
 All workflows use the self-hosted runner:
+
 ```yaml
 runs-on: token-studio-linux-large
 ```
 
 **Requirements:**
+
 - Node.js 22
 - npm workspaces support
 - Hardhat
@@ -166,17 +282,18 @@ runs-on: token-studio-linux-large
 
 ### Thresholds by Module
 
-| Module | Threshold | Enforcement |
-|--------|-----------|-------------|
-| Treasury Contracts | 90% | ✅ Enforced |
-| ATS Contracts | 90% | ✅ Enforced |
-| Primary Market Contracts | 90% | ✅ Enforced |
-| APIs | 80% | ⏳ Phase 3 |
-| Shared Libraries | 85% | ⏳ Phase 3 |
+| Module                   | Threshold | Enforcement |
+| ------------------------ | --------- | ----------- |
+| Treasury Contracts       | 90%       | ✅ Enforced |
+| ATS Contracts            | 90%       | ✅ Enforced |
+| Primary Market Contracts | 90%       | ✅ Enforced |
+| APIs                     | 80%       | ⏳ Phase 3  |
+| Shared Libraries         | 85%       | ⏳ Phase 3  |
 
 ### Coverage Reports
 
 Coverage is reported via:
+
 1. **Codecov Dashboard** - Historical trends and PR comments
 2. **GitHub Actions Summary** - Inline summary in workflow run
 3. **PR Status Checks** - Pass/fail based on thresholds
@@ -184,12 +301,14 @@ Coverage is reported via:
 ## 🎯 Implementation Phases
 
 ### ✅ Phase 1: Foundation (Complete)
+
 - Change detection script
 - Quality checks workflow
 - Main orchestrator with placeholders
 - Reusable workflow templates
 
 ### ✅ Phase 2: Contract Testing (Complete)
+
 - Full contract test implementation
 - Hardhat test execution
 - Coverage threshold enforcement
@@ -197,23 +316,27 @@ Coverage is reported via:
 - Dependency building
 
 ### ⏳ Phase 3: API & Library Testing (Pending)
+
 - NestJS unit test execution
 - E2E test support
 - Jest coverage reporting
 - Cross-layer dependency testing
 
 ### ⏳ Phase 4: Build Validation (Pending)
+
 - TypeScript compilation checks
 - Solidity compilation validation
 - Build failure detection
 
 ### ⏳ Phase 5: Optimization (Pending)
+
 - PR comment with test results
 - Cache optimization
 - Performance improvements
 - Workflow status badges
 
 ### ⏳ Phase 6: Release & Deploy (Deferred)
+
 - Changesets integration
 - NPM publishing
 - Container builds
@@ -222,12 +345,14 @@ Coverage is reported via:
 ## 🔍 Debugging Workflows
 
 ### View Workflow Runs
+
 ```bash
 gh run list --workflow=ci-pr.yml
 gh run view <run-id>
 ```
 
 ### Test Change Detection Locally
+
 ```bash
 # See what modules would be affected
 node .github/scripts/detect-changes.js
@@ -237,6 +362,7 @@ GITHUB_BASE_REF=develop node .github/scripts/detect-changes.js
 ```
 
 ### Manual Workflow Trigger
+
 ```bash
 # Trigger from GitHub UI
 # Or via CLI:
@@ -244,6 +370,7 @@ gh workflow run ci-pr.yml
 ```
 
 ### Check Workflow Syntax
+
 ```bash
 # Using actionlint (if installed)
 actionlint .github/workflows/*.yml
@@ -254,12 +381,14 @@ actionlint .github/workflows/*.yml
 ### Adding a New Contract Module
 
 1. **Update change detection** (`.github/scripts/detect-changes.js`):
+
 ```javascript
-MODULE_PATHS['new-module-contracts'] = 'packages/new-module/contracts'
-DEPENDENCIES['new-module-contracts'] = ['ats-contracts']
+MODULE_PATHS["new-module-contracts"] = "packages/new-module/contracts";
+DEPENDENCIES["new-module-contracts"] = ["ats-contracts"];
 ```
 
 2. **Add job to ci-pr.yml**:
+
 ```yaml
 test-new-module-contracts:
   name: 🧪 New Module Contracts
@@ -274,22 +403,225 @@ test-new-module-contracts:
 ```
 
 3. **Add to root package.json** (if needed):
+
 ```json
 "new-module:contracts:test": "npm run test --workspace=@hashgraph/green-bonds-platform-new-module-contracts"
+```
+
+## 🔧 Pre-commit Hooks Troubleshooting
+
+### Hook Not Running
+
+**Symptom:** Commits succeed without running quality checks
+
+**Solutions:**
+
+1. **Verify Husky installation:**
+
+   ```bash
+   ls -la .husky/pre-commit
+   # Should show executable file with #!/bin/sh
+   ```
+
+2. **Reinstall Husky:**
+
+   ```bash
+   npm run prepare
+   # This runs: husky
+   ```
+
+3. **Check Git hooks path:**
+   ```bash
+   git config core.hooksPath
+   # Should show: .husky
+   ```
+
+### Hook Fails on Unstaged Changes
+
+**Symptom:** `lint-staged` reports "No staged files match"
+
+**Cause:** You have changes but haven't staged them
+
+**Solution:**
+
+```bash
+# Stage your changes first
+git add .
+
+# Then commit
+git commit -m "your message"
+```
+
+### ESLint/Prettier Conflicts
+
+**Symptom:** Hook runs but reports formatting conflicts
+
+**Cause:** ESLint and Prettier have different formatting rules
+
+**Solution:**
+
+1. **Auto-fix all issues:**
+
+   ```bash
+   npm run lint:fix
+   ```
+
+2. **Stage the fixes:**
+
+   ```bash
+   git add .
+   ```
+
+3. **Commit again:**
+   ```bash
+   git commit -m "your message"
+   ```
+
+### Solhint Errors Cannot Be Auto-Fixed
+
+**Symptom:** Hook fails with Solidity linting errors
+
+**Cause:** Some Solidity linting rules require manual fixes
+
+**Solution:**
+
+1. **Review the error output** - it will show file and line number
+
+2. **Fix manually** in your editor
+
+3. **Stage and commit:**
+   ```bash
+   git add packages/*/contracts/**/*.sol
+   git commit -m "your message"
+   ```
+
+### Hook Takes Too Long
+
+**Symptom:** Pre-commit hook runs for 30+ seconds
+
+**Cause:** Too many staged files or complex linting rules
+
+**Solutions:**
+
+1. **Commit smaller changesets:**
+
+   ```bash
+   # Instead of staging everything
+   git add specific/files/only
+   git commit -m "focused change"
+   ```
+
+2. **Skip hook temporarily** (use sparingly):
+
+   ```bash
+   git commit --no-verify -m "WIP: will fix later"
+   ```
+
+3. **Run checks before staging:**
+   ```bash
+   npm run quality:changed  # Check only changed files
+   npm run lint:fix         # Fix all issues
+   git add .
+   git commit -m "message"  # Hook will be fast
+   ```
+
+### Changed-File Scripts Report No Changes
+
+**Symptom:** Scripts report "No changed files detected"
+
+**Cause:** Working from main/develop branch without commits
+
+**Solution:**
+
+1. **Create a feature branch:**
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+2. **Make and commit changes:**
+
+   ```bash
+   # Make changes
+   git add .
+   git commit -m "feat: your feature"
+   ```
+
+3. **Now changed-file scripts work:**
+   ```bash
+   npm run lint:changed
+   # Compares feature branch vs origin/develop
+   ```
+
+### Base Branch Detection Fails
+
+**Symptom:** Scripts error with "Neither origin/develop nor origin/main exists"
+
+**Cause:** Remote branches not fetched
+
+**Solution:**
+
+```bash
+# Fetch remote branches
+git fetch origin
+
+# Verify branches exist
+git branch -r | grep -E "origin/(develop|main)"
+
+# If they don't exist, fetch all
+git fetch --all
+```
+
+### Permission Denied on Pre-commit Hook
+
+**Symptom:** `bash: .husky/pre-commit: Permission denied`
+
+**Cause:** Hook file is not executable
+
+**Solution:**
+
+```bash
+chmod +x .husky/pre-commit
+git add .husky/pre-commit
+git commit -m "fix: make pre-commit hook executable"
+```
+
+### Windows Line Ending Issues
+
+**Symptom:** Hook fails with `\r` or CRLF errors
+
+**Cause:** Git converting LF to CRLF on Windows
+
+**Solution:**
+
+```bash
+# Configure Git to not convert line endings
+git config core.autocrlf false
+
+# Reinstall Husky
+npm run prepare
+
+# Verify hook has LF endings
+file .husky/pre-commit
+# Should show: ASCII text (not "ASCII text, with CRLF line terminators")
 ```
 
 ## 🐛 Common Issues
 
 ### Issue: Cache miss on Hardhat artifacts
+
 **Solution:** Hardhat cache keys include Solidity file hashes. Changes to contracts invalidate cache (expected behavior).
 
 ### Issue: Coverage threshold fails unexpectedly
+
 **Solution:** Check `coverage/coverage-summary.json` for actual coverage. Threshold is based on **line coverage**.
 
 ### Issue: Dependency build fails
+
 **Solution:** Ensure build order is correct. Check `detect-changes.js` dependency graph.
 
 ### Issue: npm ci fails
+
 **Solution:** Delete `node_modules` and `package-lock.json`, then run `npm install` locally to regenerate lock file.
 
 ## 📞 Support
