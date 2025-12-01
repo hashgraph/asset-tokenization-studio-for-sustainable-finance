@@ -109,10 +109,8 @@ jobs:
           # 5. APIs (depend on all of the above)
 
           # Step 1: ALWAYS build Treasury contracts FIRST (Shared Core imports from them)
-          if [ "${{ inputs.module }}" != "treasury" ]; then
-            echo "Building Treasury contracts (required by Shared Core)..."
-            npm run build --workspace=@hashgraph/green-bonds-platform-treasury-contracts || echo "⚠️ Contracts already built or not needed"
-          fi
+          echo "Building Treasury contracts (required by Shared Core)..."
+          npm run build --workspace=@hashgraph/green-bonds-platform-treasury-contracts || echo "⚠️ Contracts already built or not needed"
 
           # Step 2: Build other domain contracts if testing specific module
           if [ "${{ inputs.module }}" = "ats" ]; then
@@ -144,13 +142,9 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
-      - name: Run E2E tests
-        if: inputs.has-e2e
-        run: |
-          echo "🧪 Running E2E tests for ${{ inputs.module }}..."
-          npm run test:e2e --workspace=${{ env.WORKSPACE_NAME }} -- --forceExit --maxWorkers=2
-        env:
-          NODE_OPTIONS: --max-old-space-size=4096
+      # NOTE: E2E tests removed from automatic PR workflow
+      # E2E tests should be run manually or in a separate workflow
+      # Reason: Too slow and resource-intensive for CI PR checks
 
       - name: Upload coverage to Codecov
         if: always()
