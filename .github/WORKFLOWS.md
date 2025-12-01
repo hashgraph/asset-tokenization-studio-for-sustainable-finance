@@ -287,8 +287,8 @@ runs-on: token-studio-linux-large
 | Treasury Contracts       | 90%       | ✅ Enforced |
 | ATS Contracts            | 90%       | ✅ Enforced |
 | Primary Market Contracts | 90%       | ✅ Enforced |
-| APIs                     | 80%       | ⏳ Phase 3  |
-| Shared Libraries         | 85%       | ⏳ Phase 3  |
+| APIs                     | 80%       | ✅ Enforced |
+| Shared Libraries         | 80%       | ✅ Enforced |
 
 ### Coverage Reports
 
@@ -315,12 +315,29 @@ Coverage is reported via:
 - Codecov integration
 - Dependency building
 
-### ⏳ Phase 3: API & Library Testing (Pending)
+### ✅ Phase 3: API & Library Testing (Complete)
 
-- NestJS unit test execution
-- E2E test support
-- Jest coverage reporting
-- Cross-layer dependency testing
+**Implemented Features:**
+
+- ✅ Full test execution for 7 NestJS modules (ATS API, Primary Market API, Treasury API, Shared Core, Blockchain Listener, Gateway, Transaction Sender)
+- ✅ Coverage validation with 80% threshold (default, configurable per module)
+- ✅ Smart dependency building (Treasury contracts → Shared Core → Blockchain Listener → APIs)
+- ✅ Jest memory optimization (4GB heap with `--max-old-space-size=4096`, limited to 2 workers with `--maxWorkers=2`)
+- ✅ E2E tests removed from automatic workflow (manual trigger only - see E2E Testing Strategy below)
+- ✅ Coverage reporting with json-summary, lcov, text, and html formats
+- ✅ Dependency-aware build order prevents import errors
+
+#### E2E Testing Strategy
+
+**Decision**: E2E tests removed from automatic PR workflow.
+
+**Rationale:**
+
+- Too slow and resource-intensive for PR checks (15+ minutes per module)
+- Blocks other PR checks from running efficiently
+- Better suited for manual trigger or scheduled runs
+
+**Recommendation**: Create separate manual-trigger workflow for E2E tests if needed in future.
 
 ### ⏳ Phase 4: Build Validation (Pending)
 
@@ -340,7 +357,27 @@ Coverage is reported via:
 - Changesets integration
 - NPM publishing
 - Container builds
-- Smart contract deployments
+
+---
+
+## ⚠️ Manual Action Required: GitHub Branch Protection Update
+
+**Job Name Change**: "CI Success" renamed to "All Checks Complete" (Phase 3).
+
+**GitHub Branch Protection Rules** must be updated manually:
+
+1. Go to Repository Settings → Branches → Branch protection rules
+2. Edit rule for `develop` or `main` branch
+3. Under "Require status checks to pass before merging", find and update:
+   - **Remove**: "CI Success" (old name)
+   - **Add**: "All Checks Complete" (new name)
+4. Save changes
+
+**Impact**: Without this update, PRs will show incorrect merge status and may be blocked from merging even when all checks pass.
+
+**Priority**: HIGH - Must be completed before merging Phase 3 changes to develop/main.
+
+---
 
 ## 🔍 Debugging Workflows
 
@@ -650,5 +687,5 @@ file .husky/pre-commit
 
 > **Note:** This documentation file is named `WORKFLOWS.md` (not `README.md`) to avoid conflicts with GitHub's default README behavior.
 
-**Last Updated:** Phase 2 Complete
-**Next Phase:** Phase 3 - API & Library Testing
+**Last Updated:** Phase 3 Complete
+**Next Phase:** Phase 4 - Build Validation

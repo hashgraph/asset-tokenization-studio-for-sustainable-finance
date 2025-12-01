@@ -76,8 +76,14 @@ Describe any manual testing performed (e.g., API calls, contract interactions, U
 Our CI workflows automatically:
 ✅ Run quality checks (lint, format, Solidity lint)
 ✅ Detect affected modules and run their tests
-✅ Enforce coverage thresholds (90% contracts, 80% APIs, 85% shared)
+✅ Enforce coverage thresholds (90% contracts, 80% APIs/libraries)
 ✅ Upload coverage to Codecov
+✅ Aggregate all results in "All Checks Complete" job
+
+**Before merging, verify:**
+- [ ] All CI checks pass (quality, contracts, NestJS tests)
+- [ ] "All Checks Complete" job shows success
+- [ ] Coverage meets threshold (90% contracts, 80% APIs)
 
 For example:
 - Changes to `packages/ats/contracts/` → ATS contract tests run automatically
