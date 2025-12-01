@@ -35,7 +35,7 @@ jobs:
     name: Test ${{ inputs.module }} (${{ inputs.app-type }})
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       # Workspace name mapping
       WORKSPACE_NAME: >-
@@ -140,13 +140,17 @@ jobs:
       - name: Run unit tests with coverage
         run: |
           echo "🧪 Running unit tests with coverage for ${{ inputs.module }}..."
-          npm run test:cov --workspace=${{ env.WORKSPACE_NAME }}
+          npm run test:cov --workspace=${{ env.WORKSPACE_NAME }} -- --forceExit --maxWorkers=2
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Run E2E tests
         if: inputs.has-e2e
         run: |
           echo "🧪 Running E2E tests for ${{ inputs.module }}..."
-          npm run test:e2e --workspace=${{ env.WORKSPACE_NAME }}
+          npm run test:e2e --workspace=${{ env.WORKSPACE_NAME }} -- --forceExit --maxWorkers=2
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Upload coverage to Codecov
         if: always()
