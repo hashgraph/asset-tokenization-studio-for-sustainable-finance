@@ -35,6 +35,10 @@ import { CancelOfferingTransactionAppService } from "@app/transaction/canceloffe
 import { ExecuteOfferingTransactionAppService } from "@app/transaction/executeoffering/service/ExecuteOfferingTransactionAppService"
 import { CancelOfferingTransactionHttpAdapter } from "@port/transaction/usecase/cancelOffering/CancelOfferingTransactionHttpAdapter"
 import { ExecuteOfferingTransactionHttpAdapter } from "@port/transaction/usecase/executeOffering/ExecuteOfferingTransactionHttpAdapter"
+import { ExecuteOfferingBySubscriptionIdTransactionHttpAdapter } from "@port/transaction/usecase/executeofferingbysubscriptionid/ExecuteOfferingBySubscriptionIdTransactionHttpAdapter"
+import { CancelOfferingBySubscriptionIdTransactionHttpAdapter } from "@port/transaction/usecase/cancelofferingbysubscriptionid/CancelOfferingBySubscriptionIdTransactionHttpAdapter"
+import { ExecuteOfferingBySubscriptionIdTransactionAppService } from "@app/transaction/executeofferingbysubscriptionid/service/ExecuteOfferingBySubscriptionIdTransactionAppService"
+import { CancelOfferingBySubscriptionIdTransactionAppService } from "@app/transaction/cancelofferingbysubscriptionid/service/CancelOfferingBySubscriptionIdTransactionAppService"
 import { ExecuteOfferingNestJSEventAdapter } from "@port/offering/usecase/executeoffering/ExecuteOfferingNestJSEventAdapter"
 import { CancelOfferingNestJSEventAdapter } from "@port/offering/usecase/canceloffering/CancelOfferingNestJSEventAdapter"
 import { CancelSubscriptionTransactionAppService } from "@app/transaction/cancelsubscription/service/CancelSubscriptionTransactionAppService"
@@ -93,6 +97,9 @@ import { GetPrimaryMarketFactoryRoleMembersHttpAdapter } from "@port/primarymark
 import { GrantPrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/grantprimarymarketfactoryrole/GrantPrimaryMarketFactoryRoleTransactionHttpAdapter"
 import { RevokePrimaryMarketFactoryRoleTransactionHttpAdapter } from "@port/transaction/usecase/revokeprimarymarketfactoryrole/RevokePrimaryMarketFactoryRoleTransactionHttpAdapter"
 import { GetPrimaryMarketFactoryUserRolesHttpAdapter } from "@port/primarymarketfactory/usecase/getprimarymarketfactoryuserroles/GetPrimaryMarketFactoryUserRolesHttpAdapter"
+import { GetPrimaryMarketUserRolesHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketuserroles/GetPrimaryMarketUserRolesHttpAdapter"
+import { GetOfferingsHttpAdapter } from "@port/offering/usecase/getofferings/GetOfferingsHttpAdapter"
+import { GetOfferingsQueryHandler } from "@app/offering/getofferings/query/GetOfferingsQueryHandler"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -122,6 +129,8 @@ export const CONTROLLERS = [
   CancelSubscriptionTransactionHttpAdapter,
   CancelOfferingTransactionHttpAdapter,
   ExecuteOfferingTransactionHttpAdapter,
+  ExecuteOfferingBySubscriptionIdTransactionHttpAdapter,
+  CancelOfferingBySubscriptionIdTransactionHttpAdapter,
   PausePrimaryMarketTransactionHttpAdapter,
   UnpausePrimaryMarketTransactionHttpAdapter,
   PausePrimaryMarketFactoryTransactionHttpAdapter,
@@ -131,11 +140,13 @@ export const CONTROLLERS = [
   GrantPrimaryMarketFactoryRoleTransactionHttpAdapter,
   RevokePrimaryMarketFactoryRoleTransactionHttpAdapter,
   GetPrimaryMarketFactoryUserRolesHttpAdapter,
+  GetPrimaryMarketUserRolesHttpAdapter,
   GetSubscriptionHttpAdapter,
   GetPrimaryMarketHttpAdapter,
   GetPrimaryMarketsHttpAdapter,
   GetPrimaryMarketBondsHttpAdapter,
   GetPrimaryMarketBondOfferingsHttpAdapter,
+  GetOfferingsHttpAdapter,
   GetSubscriptionsHttpAdapter,
   GetSubscriptionsByInvestorHttpAdapter,
   GetRoleMembersHttpAdapter,
@@ -185,15 +196,18 @@ export const PROVIDERS = [
   GetSubscriptionsQueryHandler,
   CancelOfferingTransactionAppService,
   ExecuteOfferingTransactionAppService,
+  ExecuteOfferingBySubscriptionIdTransactionAppService,
+  CancelOfferingBySubscriptionIdTransactionAppService,
   ExecuteOfferingNestJSEventAdapter,
   CancelOfferingNestJSEventAdapter,
   GetPrimaryMarketQueryHandler,
   GetPrimaryMarketsQueryHandler,
   GetPrimaryMarketBondsQueryHandler,
-  GetPrimaryMarketBondOfferingsQueryHandler,
   GetSubscriptionsByInvestorQueryHandler,
   GetOfferingQueryHandler,
+  GetOfferingsQueryHandler,
   GetPrimaryMarketFactoryQueryHandler,
+  GetPrimaryMarketBondOfferingsQueryHandler,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

@@ -13,6 +13,8 @@ import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOffe
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
 import { BuildDeployPrimaryMarketTransactionRequest } from "./model/BuildDeployPrimaryMarketTransactionRequest"
+import { BuildExecuteOfferingBySubscriptionIdTransactionRequest } from "./model/BuildExecuteOfferingBySubscriptionIdTransactionRequest"
+import { BuildCancelOfferingBySubscriptionIdTransactionRequest } from "./model/BuildCancelOfferingBySubscriptionIdTransactionRequest"
 import {
   IPrimaryMarket__factory,
   IFactoryPrimaryMarket__factory,
@@ -89,6 +91,32 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       account: request.accountId!,
       format: request.format as "hedera" | "ethereum",
       args: [request.offeringId, request.start, request.end],
+    })
+  }
+
+  async executeOfferingBySubscriptionIds(
+    request: BuildExecuteOfferingBySubscriptionIdTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "executeOfferingBySubscriptionId",
+      contractId: request.contractId,
+      gas: this.EXECUTE_OFFERING_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.subscriptionIds],
+    })
+  }
+
+  async cancelOfferingBySubscriptionIds(
+    request: BuildCancelOfferingBySubscriptionIdTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildTransaction({
+      functionName: "cancelOfferingBySubscriptionId",
+      contractId: request.contractId,
+      gas: this.CANCEL_OFFERING_GAS,
+      account: request.accountId!,
+      format: request.format as "hedera" | "ethereum",
+      args: [request.offeringId, request.subscriptionIds],
     })
   }
 
