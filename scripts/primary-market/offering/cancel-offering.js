@@ -21,6 +21,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
 const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
 const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
 const { createOffering } = require('./offering-service');
@@ -256,8 +257,8 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Configuration parameters
-    const resolverContractId = '0.0.7352465';
-    const configVersion = 0;
+    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const configVersion = CONFIG_VERSION;
     const bondContractId = '0.0.7319744'; // Default bond contract ID
     const userAccountId = process.env.ACCOUNT_ID;
 

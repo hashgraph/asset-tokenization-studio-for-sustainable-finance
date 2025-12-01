@@ -13,6 +13,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
 const { deployPrimaryMarket } = require('./deploy-primary-market');
 const { waitForPrimaryMarketDeployment } = require('./get-latest-primary-market');
 
@@ -62,8 +63,8 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
     
     // Configuration parameters
-    const resolverContractId = '0.0.7352465';
-    const configVersion = 0;
+    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const configVersion = CONFIG_VERSION;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
     logInfo(`Config Version: ${configVersion}`);
