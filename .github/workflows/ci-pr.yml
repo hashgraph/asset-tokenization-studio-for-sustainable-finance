@@ -54,13 +54,59 @@ jobs:
           echo "✅ Change detection complete" >> $GITHUB_STEP_SUMMARY
 
   # ============================================================================
+  # PHASE 2: Dependency Setup (Shared across all test jobs)
+  # ============================================================================
+  setup:
+    name: 📦 Install Dependencies
+    needs: detect-changes
+    if: needs.detect-changes.outputs.any-changes == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+      - name: Setup Summary
+        run: |
+          echo "### 📦 Dependency Installation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
+            echo "✅ **Cache Hit**: Dependencies restored from cache" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "📥 **Fresh Install**: Dependencies installed and cached" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Cache Key**: \`${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}\`" >> $GITHUB_STEP_SUMMARY
+
+  # ============================================================================
   # SMART CONTRACT TESTS
   # Phase 2 Implementation - Currently Placeholders
   # ============================================================================
 
   test-ats-contracts:
     name: 🧪 ATS Contracts
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.contracts, 'ats')
     uses: ./.github/workflows/_reusable-test-contracts.yml
     with:
@@ -72,7 +118,7 @@ jobs:
 
   test-treasury-contracts:
     name: 🧪 Treasury Contracts
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.contracts, 'treasury')
     uses: ./.github/workflows/_reusable-test-contracts.yml
     with:
@@ -84,7 +130,7 @@ jobs:
 
   test-primary-market-contracts:
     name: 🧪 Primary Market Contracts
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.contracts, 'primary-market')
     uses: ./.github/workflows/_reusable-test-contracts.yml
     with:
@@ -101,7 +147,7 @@ jobs:
 
   test-ats-api:
     name: 🧪 ATS API
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.apis, 'ats')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -114,7 +160,7 @@ jobs:
 
   test-primary-market-api:
     name: 🧪 Primary Market API
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.apis, 'primary-market')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -127,7 +173,7 @@ jobs:
 
   test-treasury-api:
     name: 🧪 Treasury API
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.apis, 'treasury')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -145,7 +191,7 @@ jobs:
 
   test-shared-core:
     name: 🧪 Shared Core Library
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.shared, 'core')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -158,7 +204,7 @@ jobs:
 
   test-blockchain-listener:
     name: 🧪 Blockchain Listener Library
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.shared, 'blockchain-listener')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -176,7 +222,7 @@ jobs:
 
   test-gateway:
     name: 🧪 Gateway Application
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.shared, 'gateway')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -189,7 +235,7 @@ jobs:
 
   test-transaction-sender:
     name: 🧪 Transaction Sender Application
-    needs: detect-changes
+    needs: [detect-changes, setup]
     if: contains(needs.detect-changes.outputs.shared, 'transaction-sender')
     uses: ./.github/workflows/_reusable-test-nestjs.yml
     with:
@@ -212,6 +258,7 @@ jobs:
     timeout-minutes: 10
     needs:
       - detect-changes
+      - setup
       # Contract tests
       - test-ats-contracts
       - test-treasury-contracts
@@ -241,6 +288,7 @@ jobs:
 
             # List failed jobs
             [[ "${{ needs.detect-changes.result }}" = "failure" ]] && echo "- Change Detection" >> $GITHUB_STEP_SUMMARY
+            [[ "${{ needs.setup.result }}" = "failure" ]] && echo "- Dependency Setup" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-ats-contracts.result }}" = "failure" ]] && echo "- ATS Contracts" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-treasury-contracts.result }}" = "failure" ]] && echo "- Treasury Contracts" >> $GITHUB_STEP_SUMMARY
             [[ "${{ needs.test-primary-market-contracts.result }}" = "failure" ]] && echo "- Primary Market Contracts" >> $GITHUB_STEP_SUMMARY
