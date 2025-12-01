@@ -39,6 +39,9 @@ export class PostgresModule {
       migrationsRun: false,
       // migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/migrations/*{.ts,.js}"],
       autoLoadEntities: true,
+      extra: {
+        options: `-c lock_timeout=${configService.get(ConfigKeys.POSTGRESQL_LOCK_TIMEOUT, "10")}s`,
+      }
     } as TypeOrmModuleOptions
   }
 }

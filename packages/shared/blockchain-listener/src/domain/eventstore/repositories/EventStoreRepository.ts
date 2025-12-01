@@ -3,5 +3,5 @@
 import { EventStore } from "@domain/eventstore/model/EventStore"
 
 export interface EventStoreRepository {
-  save(eventStore: EventStore): Promise<EventStore>
+  save(eventStore: EventStore, transactionId?: string): Promise<EventStore>
 }

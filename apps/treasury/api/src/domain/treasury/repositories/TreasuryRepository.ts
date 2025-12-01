@@ -2,7 +2,7 @@ import { Treasury } from "@domain/treasury/model/Treasury"
 import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface TreasuryRepository {
-  save(treasury: Treasury): Promise<Treasury>
+  save(treasury: Treasury, transactionId?: string): Promise<Treasury>
 
   findByContractId(contractId: string): Promise<Treasury | null>
 

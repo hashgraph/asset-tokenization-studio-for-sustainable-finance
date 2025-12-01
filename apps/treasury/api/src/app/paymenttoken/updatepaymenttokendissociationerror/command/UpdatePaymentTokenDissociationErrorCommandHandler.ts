@@ -19,14 +19,14 @@ export class UpdatePaymentTokenDissociationErrorCommandHandler
 
   @Validate()
   async execute(command: UpdatePaymentTokenDissociationErrorCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const tokens = await this.paymentTokenRepository.findAllRemovedByContractIdAndTreasuryContractId(
         command.paymentTokenContractId,
         command.treasuryContractId,
       )
       for (const token of tokens) {
         token.clearDissociationError()
-        await this.paymentTokenRepository.save(token)
+        await this.paymentTokenRepository.save(token, transactionId)
       }
     })
     this.eventBus.publish(

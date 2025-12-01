@@ -2,4 +2,5 @@
 
 export class GetBlockToProcessQueryResponse {
   readonly blockNumber: number
+  readonly syncStateStatus: string
 }

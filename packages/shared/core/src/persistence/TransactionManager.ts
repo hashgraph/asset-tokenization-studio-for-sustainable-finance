@@ -8,5 +8,5 @@ export interface TransactionManager {
    * @param work The function to execute within the transaction
    * @returns The result of the work function
    */
-  execute<T>(work: () => Promise<T>): Promise<T>
+  execute<T>(work: (transactionId: string) => Promise<T>): Promise<T>
 }

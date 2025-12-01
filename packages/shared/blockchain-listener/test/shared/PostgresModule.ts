@@ -3,7 +3,7 @@
 import { DynamicModule, Module } from "@nestjs/common"
 import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
 import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
-import { EVENT_LISTENER_ENTITIES } from "../../src/Components"
+import { EVENT_LISTENER_ENTITIES, EVENT_LISTENER_MIGRATIONS } from "../../src/Components"
 
 const ORM_TYPE: string = "postgres"
 
@@ -33,9 +33,13 @@ export class PostgresModule {
   static getDefaultPostgreSqlConfig(): TypeOrmModuleOptions {
     return {
       type: ORM_TYPE,
-      synchronize: true,
-      migrationsRun: false,
+      synchronize: false,
+      migrationsRun: true,
+      migrations: EVENT_LISTENER_MIGRATIONS,
       autoLoadEntities: true,
+      extra: {
+        options: `-c lock_timeout=${process.env.POSTGRESQL_LOCK_TIMEOUT || 10}s`,
+      },
     } as TypeOrmModuleOptions
   }
 }

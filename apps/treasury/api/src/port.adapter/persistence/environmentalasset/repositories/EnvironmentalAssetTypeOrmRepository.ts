@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Repository, IsNull, Not } from "typeorm"
-import { InjectRepository } from "@nestjs/typeorm"
+import { IsNull, Not } from "typeorm"
 import { EnvironmentalAsset } from "@domain/environmentalasset/model/EnvironmentalAsset"
 import { EnvironmentalAssetRepository } from "@domain/environmentalasset/repositories/EnvironmentalAssetRepository"
 import { EnvironmentalAssetPersistence } from "../model/EnvironmentalAssetPersistence"
-import { Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BaseRepository, Page, PageOptions, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { plainToInstance } from "class-transformer"
 
 @Singleton()
-export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRepository {
-  constructor(
-    @InjectRepository(EnvironmentalAssetPersistence)
-    private readonly repository: Repository<EnvironmentalAssetPersistence>,
-  ) {}
+export class EnvironmentalAssetTypeOrmRepository
+  extends BaseRepository<EnvironmentalAssetPersistence>
+  implements EnvironmentalAssetRepository
+{
+  constructor() {
+    super(EnvironmentalAssetPersistence)
+  }
 
   @Validate()
-  async save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset> {
-    const savedPersistence = await this.repository.save(this.fromDomain(environmentalAsset))
+  async save(environmentalAsset: EnvironmentalAsset, transactionId?: string): Promise<EnvironmentalAsset> {
+    const savedPersistence = await this.getRepository(transactionId).save(this.fromDomain(environmentalAsset))
     return this.toDomain(savedPersistence)
   }
 
   async findByContractId(contractId: string): Promise<EnvironmentalAsset | null> {
-    const persistence = await this.repository.findOne({
+    const persistence = await this.getRepository().findOne({
       where: {
         contractId: contractId,
         removalDate: IsNull(),
@@ -40,7 +40,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     contractId: string,
     treasuryId: string,
   ): Promise<EnvironmentalAssetPersistence | null> {
-    return this.repository.findOne({
+    return this.getRepository().findOne({
       where: {
         contractId,
         treasuryId,
@@ -52,7 +52,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
   async findAllByTreasuryId(treasuryId: string, options: PageOptions): Promise<Page<EnvironmentalAsset>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
 
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { treasuryId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
@@ -75,7 +75,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     treasuryContractId: string,
     removed?: boolean,
   ): Promise<boolean> {
-    return this.repository.exists({
+    return this.getRepository().exists({
       relations: {
         treasury: true,
       },
@@ -93,7 +93,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     contractId: string,
     treasuryContractId: string,
   ): Promise<EnvironmentalAsset | null> {
-    const persistence = await this.repository.findOne({
+    const persistence = await this.getRepository().findOne({
       relations: {
         treasury: true,
       },
@@ -112,7 +112,7 @@ export class EnvironmentalAssetTypeOrmRepository implements EnvironmentalAssetRe
     contractId: string,
     treasuryContractId: string,
   ): Promise<EnvironmentalAsset[]> {
-    const persistences = await this.repository.find({
+    const persistences = await this.getRepository().find({
       relations: {
         treasury: true,
       },

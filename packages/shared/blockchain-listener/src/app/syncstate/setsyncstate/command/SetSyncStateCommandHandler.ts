@@ -5,6 +5,7 @@ import { SyncState } from "@domain/syncstate/model/SyncState"
 import { SetSyncStateCommand } from "./SetSyncStateCommand"
 import type { SyncStateRepository } from "@domain/syncstate/repositories/SyncStateRepository"
 import { SyncStateSetEvent } from "@domain/syncstate/events/SyncStateSetEvent"
+import { SyncStateStatus } from "@domain/syncstate/model/SyncStateStatus"
 
 @Singleton()
 @Handler(SetSyncStateCommand)
@@ -16,13 +17,15 @@ export default class SetSyncStateCommandHandler implements CommandHandler<SetSyn
 
   @Validate()
   async execute(command: SetSyncStateCommand): Promise<void> {
-    const syncState = new SyncState()
-    syncState.lastBlockNumber = command.lastBlockNumber
+    const syncState = (await this.syncStateRepository.get(command.transactionId)) ?? new SyncState()
+    syncState.status = <SyncStateStatus>command.status
+    if (command.lastBlockNumber) {
+      syncState.lastBlockNumber = command.lastBlockNumber
+    }
 
-    const persistedSyncState = await this.syncStateRepository.get()
-    await this.syncStateRepository.save(persistedSyncState ? { ...syncState, id: persistedSyncState.id } : syncState)
+    await this.syncStateRepository.save(syncState, command.transactionId)
 
-    const event = new SyncStateSetEvent(command.lastBlockNumber)
+    const event = new SyncStateSetEvent(command.lastBlockNumber, command.status)
 
     this.eventBus.publish(event)
   }

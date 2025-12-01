@@ -22,7 +22,7 @@ export class UpdatePaymentTokenDomainService {
     decimals: number,
     dissociationError: number,
   ): Promise<UpdatePaymentTokenDomainServiceResponse> {
-    return await this.transactionManager.execute(async () => {
+    return await this.transactionManager.execute(async (transactionId) => {
       const treasury = await this.treasuryRepository.findByContractId(treasuryContractId)
       if (!treasury) {
         throw TreasuryNotFoundError.contractIdsError([treasuryContractId])
@@ -32,7 +32,7 @@ export class UpdatePaymentTokenDomainService {
       if (treasury.paymentToken) {
         treasury.paymentToken.removalDate = new Date()
         treasury.paymentToken.dissociationError = dissociationError || undefined
-        await this.paymentTokenRepository.save(treasury.paymentToken)
+        await this.paymentTokenRepository.save(treasury.paymentToken, transactionId)
       }
 
       // Create new payment token
@@ -43,7 +43,7 @@ export class UpdatePaymentTokenDomainService {
       treasury.paymentToken = newPaymentToken
 
       // Update treasury with new payment token (cascade will save the new payment token)
-      await this.treasuryRepository.save(treasury)
+      await this.treasuryRepository.save(treasury, transactionId)
 
       return new UpdatePaymentTokenDomainServiceResponse(treasury)
     })

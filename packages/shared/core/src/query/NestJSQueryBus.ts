@@ -9,7 +9,7 @@ import { Logger } from "../logger/Logger"
 @Singleton()
 export class NestJSQueryBus implements QueryBus {
   private readonly logger = new Logger(NestJSQueryBus.name)
-  private readonly excludedQueriesForDebug = ["GetEventFiltersQuery"]
+  private readonly excludedQueriesForDebug = ["GetEventFiltersQuery", "GetBlockToProcessQuery"]
 
   constructor(private internalQueryBus: InternalNestJSQueryBus) {}
 

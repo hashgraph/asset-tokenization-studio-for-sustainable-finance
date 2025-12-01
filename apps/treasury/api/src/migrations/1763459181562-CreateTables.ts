@@ -45,44 +45,6 @@ export class CreateTables1763459181562 implements MigrationInterface {
             )
         `)
     await queryRunner.query(`
-            CREATE TYPE "public"."EventStore_status_enum" AS ENUM ('FAILED', 'PROCESSED')
-        `)
-    await queryRunner.query(`
-            CREATE TABLE "EventStore" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "status" "public"."EventStore_status_enum" NOT NULL,
-                "eventName" character varying NOT NULL,
-                "data" character varying NOT NULL,
-                "errorReason" character varying,
-                CONSTRAINT "PK_7d0597360826c0cc7e590282359" PRIMARY KEY ("id")
-            )
-        `)
-    await queryRunner.query(`
-            CREATE TABLE "SyncState" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "lastBlockNumber" integer NOT NULL,
-                CONSTRAINT "PK_cb20b83abf4b4758b9157ddb768" PRIMARY KEY ("id")
-            )
-        `)
-    await queryRunner.query(`
-            CREATE TABLE "EventFilter" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "contractAddress" character varying NOT NULL,
-                "eventName" character varying NOT NULL,
-                "eventSignature" character varying NOT NULL,
-                CONSTRAINT "PK_af11c2e04446e53c3d48b1a99f8" PRIMARY KEY ("id")
-            )
-        `)
-    await queryRunner.query(`
             CREATE TABLE "EnvironmentalAsset" (
                 "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
@@ -314,15 +276,6 @@ export class CreateTables1763459181562 implements MigrationInterface {
         `)
     await queryRunner.query(`
             DROP TABLE "EnvironmentalAsset"
-        `)
-    await queryRunner.query(`
-            DROP TABLE "EventFilter"
-        `)
-    await queryRunner.query(`
-            DROP TABLE "SyncState"
-        `)
-    await queryRunner.query(`
-            DROP TABLE "EventStore"
         `)
     await queryRunner.query(`
             DROP TABLE "Treasury"

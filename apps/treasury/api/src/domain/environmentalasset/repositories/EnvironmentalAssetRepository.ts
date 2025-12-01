@@ -3,7 +3,7 @@ import { EnvironmentalAsset } from "@domain/environmentalasset/model/Environment
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface EnvironmentalAssetRepository {
-  save(environmentalAsset: EnvironmentalAsset): Promise<EnvironmentalAsset>
+  save(environmentalAsset: EnvironmentalAsset, transactionId?: string): Promise<EnvironmentalAsset>
 
   findByContractIdAndTreasuryId(contractId: string, treasuryId: string): Promise<EnvironmentalAsset | null>
 

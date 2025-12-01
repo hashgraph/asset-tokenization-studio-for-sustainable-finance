@@ -19,14 +19,14 @@ export class UpdateEnvironmentalAssetDissociationErrorCommandHandler
 
   @Validate()
   async execute(command: UpdateEnvironmentalAssetDissociationErrorCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const tokens = await this.environmentalAssetRepository.findAllRemovedByContractIdAndTreasuryContractId(
         command.environmentalAssetContractId,
         command.treasuryContractId,
       )
       for (const token of tokens) {
         token.clearDissociationError()
-        await this.environmentalAssetRepository.save(token)
+        await this.environmentalAssetRepository.save(token, transactionId)
       }
     })
     this.eventBus.publish(
