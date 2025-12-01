@@ -101,7 +101,6 @@ jobs:
 
   # ============================================================================
   # SMART CONTRACT TESTS
-  # Phase 2 Implementation - Currently Placeholders
   # ============================================================================
 
   test-ats-contracts:
@@ -142,7 +141,6 @@ jobs:
 
   # ============================================================================
   # API TESTS
-  # Phase 3 Implementation - Currently Placeholders
   # ============================================================================
 
   test-ats-api:
@@ -153,6 +151,7 @@ jobs:
     with:
       module: ats
       app-type: api
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -165,6 +164,7 @@ jobs:
     with:
       module: primary-market
       app-type: api
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -177,13 +177,13 @@ jobs:
     with:
       module: treasury
       app-type: api
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   # ============================================================================
   # SHARED LIBRARY TESTS
-  # Phase 3 Implementation - Currently Placeholders
   # ============================================================================
 
   test-shared-core:
@@ -194,6 +194,7 @@ jobs:
     with:
       module: shared-core
       app-type: library
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -206,13 +207,13 @@ jobs:
     with:
       module: blockchain-listener
       app-type: library
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
 
   # ============================================================================
   # SHARED APPLICATION TESTS
-  # Phase 3 Implementation - Currently Placeholders
   # ============================================================================
 
   test-gateway:
@@ -223,6 +224,7 @@ jobs:
     with:
       module: gateway
       app-type: api
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -235,6 +237,7 @@ jobs:
     with:
       module: transaction-sender
       app-type: api
+      coverage-threshold: 80
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
