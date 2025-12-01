@@ -75,7 +75,7 @@ async function waitForPaymentTokenUpdate(treasuryContractId, expectedPaymentToke
   throw new Error(`Timeout: Payment token was not updated after ${maxRetries} attempts`);
 }
 
-async function verifyTreasuryPaymentTokenUpdate() {
+async function verifyTreasuryPaymentTokenUpdate(treasuryContractId) {
   logHeader('🧪 Running Treasury Payment Token Update Verification...');
 
   // Validate signing configuration before starting
@@ -85,16 +85,21 @@ async function verifyTreasuryPaymentTokenUpdate() {
   }
 
   try {
-    // Step 1: Deploy bond, wait for treasury, and apply all roles
-    log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
-    const treasury = await deployBondWaitTreasuryAndApplyRoles();
-    
-    const treasuryContractId = treasury.contractId;
-    logSuccess(`Treasury deployed: ${treasuryContractId}`);
+   let contractId;
+    if (treasuryContractId)  {
+      contractId = treasuryContractId;
+    } else {
+      // Step 1: Deploy bond, wait for treasury, and apply all roles
+      log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
+      const treasury = await deployBondWaitTreasuryAndApplyRoles();
+
+      contractId = treasury.contractId;
+      logSuccess(`Treasury deployed: ${contractId}`);
+    }
     
     // Step 2: Get initial treasury state and current payment token
     log('\n2️⃣  Verifying initial treasury state...');
-    let treasuryDetails = await getTreasuryByContractId(treasuryContractId);
+    let treasuryDetails = await getTreasuryByContractId(contractId);
     const initialPaymentToken = treasuryDetails.paymentToken?.contractId || 'None';
     log(`   Initial payment token: ${initialPaymentToken}`, colors.cyan);
     
@@ -104,11 +109,11 @@ async function verifyTreasuryPaymentTokenUpdate() {
     log('\n3️⃣  Updating payment token...');
     log(`   Changing from ${initialPaymentToken} to ${newPaymentTokenId}`, colors.bright);
     
-    await updatePaymentToken(treasuryContractId, newPaymentTokenId);
+    await updatePaymentToken(contractId, newPaymentTokenId);
     
     // Step 4: Wait and verify payment token was updated
     log('\n4️⃣  Verifying payment token update...');
-    treasuryDetails = await waitForPaymentTokenUpdate(treasuryContractId, newPaymentTokenId);
+    treasuryDetails = await waitForPaymentTokenUpdate(contractId, newPaymentTokenId);
     
     logSuccess(`Payment token successfully changed!`);
     log(`   Previous: ${initialPaymentToken}`, colors.cyan);
