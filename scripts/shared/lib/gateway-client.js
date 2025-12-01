@@ -46,6 +46,10 @@ class GatewayClient {
     return this.request('PUT', endpoint, data, options);
   }
 
+  async patch(endpoint, data, options = {}) {
+    return this.request('PATCH', endpoint, data, options);
+  }
+
   async delete(endpoint, options = {}) {
     return this.request('DELETE', endpoint, null, options);
   }

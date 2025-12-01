@@ -11,12 +11,13 @@ import { BondHoldResponse } from "./model/BondHoldResponse"
 export class GetBondHoldHttpAdapter implements GetBondHoldPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
-  @Get(":bondContractId/holders/:holderAccountId/holds/:holdId")
+  @Get(":bondContractId/holders/:holderAccountId/partitions/:partition/holds/:holdId")
   async getBondHold(
     @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
+    @Param("partition") partition: string,
     @Param("holdId", ParseIntPipe) holdId: number,
   ): Promise<BondHoldResponse> {
-    return await this.queryBus.execute(new GetBondHoldQuery(bondContractId, holderAccountId, holdId))
+    return await this.queryBus.execute(new GetBondHoldQuery(bondContractId, holderAccountId, holdId, partition))
   }
 }

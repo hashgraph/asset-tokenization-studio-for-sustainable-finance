@@ -5,11 +5,12 @@ import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface BondHoldRepository {
   save(bondHold: BondHold): Promise<BondHold>
-  findById(id: number): Promise<BondHold | null>
+  findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null>
   findByContractIdAndHolderAndHoldId(
     contractId: string,
     holderAccountId: string,
     holdId: number,
+    partition: string,
   ): Promise<BondHold | null>
   findByContractIdAndHolder(
     contractId: string,
@@ -23,5 +24,10 @@ export interface BondHoldRepository {
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<BondHold>>
-  deleteByIdAndContractIdAndHolderAccountId(id: number, contractId: string, holderAccountId: string): Promise<void>
+  deleteByIdAndContractIdAndHolderAccountId(
+    id: number,
+    contractId: string,
+    holderAccountId: string,
+    partition: string,
+  ): Promise<void>
 }

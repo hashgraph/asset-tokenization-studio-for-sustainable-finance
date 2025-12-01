@@ -5,7 +5,7 @@ export class HoldByPartitionReclaimedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
-  readonly holdId: number
+  readonly holdId: string
   readonly amount: string
 
   constructor(
@@ -14,7 +14,7 @@ export class HoldByPartitionReclaimedDLTEvent extends DLTEvent {
     operator: string,
     tokenHolder: string,
     partition: string,
-    holdId: number,
+    holdId: string,
     amount: string,
   ) {
     super(contractId, transactionHash)

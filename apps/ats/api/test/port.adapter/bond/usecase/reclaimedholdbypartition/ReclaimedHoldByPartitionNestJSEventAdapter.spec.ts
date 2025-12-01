@@ -93,12 +93,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new HoldByPartitionReclaimedDLTEvent(
-        CONTRACT_ADDRESS,
+        CONTRACT_HEDERA_ID,
         "0x1234567890abcdef",
         OPERATOR_ADDRESS,
         HOLDER_ADDRESS,
         "0x0000000000000000000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "50",
       )
 
@@ -106,7 +106,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Verify hold was deleted
       const deletedHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID },
+        where: {
+          id: 1,
+          contractId: CONTRACT_HEDERA_ID,
+          holderAccountId: HOLDER_HEDERA_ID,
+          partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        },
       })
       expect(deletedHold).toBeNull()
 
@@ -153,12 +158,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new HoldByPartitionReclaimedDLTEvent(
-        CONTRACT_ADDRESS,
+        CONTRACT_HEDERA_ID,
         "0x1234567890abcdef",
         OPERATOR_ADDRESS,
         HOLDER_ADDRESS,
         "0x0000000000000000000000000000000000000000000000000000000000000000",
-        2,
+        "2",
         "75", // Reclaim always returns full amount
       )
 
@@ -166,7 +171,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Verify hold was deleted
       const deletedHold = await bondHoldRepository.findOne({
-        where: { id: 2, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID },
+        where: {
+          id: 2,
+          contractId: CONTRACT_HEDERA_ID,
+          holderAccountId: HOLDER_HEDERA_ID,
+          partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        },
       })
       expect(deletedHold).toBeNull()
 
@@ -213,12 +223,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Holder reclaims their own expired hold
       const event = new HoldByPartitionReclaimedDLTEvent(
-        CONTRACT_ADDRESS,
+        CONTRACT_HEDERA_ID,
         "0x1234567890abcdef",
         HOLDER_ADDRESS, // Operator is the holder
         HOLDER_ADDRESS,
         "0x0000000000000000000000000000000000000000000000000000000000000000",
-        3,
+        "3",
         "30",
       )
 
@@ -226,7 +236,12 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Verify hold was deleted
       const deletedHold = await bondHoldRepository.findOne({
-        where: { id: 3, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID },
+        where: {
+          id: 3,
+          contractId: CONTRACT_HEDERA_ID,
+          holderAccountId: HOLDER_HEDERA_ID,
+          partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        },
       })
       expect(deletedHold).toBeNull()
 

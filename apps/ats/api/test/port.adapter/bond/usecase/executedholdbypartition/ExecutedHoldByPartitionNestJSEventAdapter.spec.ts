@@ -104,7 +104,7 @@ describe("ExecutedHoldByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new HoldByPartitionExecutedDLTEvent(
-        CONTRACT_ADDRESS,
+        CONTRACT_HEDERA_ID,
         "0x1234567890abcdef",
         HOLDER_ADDRESS,
         "0x0000000000000000000000000000000000000000000000000000000000000000",
@@ -117,7 +117,7 @@ describe("ExecutedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Verify hold was deleted
       const deletedHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID },
+        where: { id: 1, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID, partition: "0x0000000000000000000000000000000000000000000000000000000000000000" },
       })
       expect(deletedHold).toBeNull()
 
@@ -175,7 +175,7 @@ describe("ExecutedHoldByPartitionNestJSEventAdapter Integration", () => {
       })
 
       const event = new HoldByPartitionExecutedDLTEvent(
-        CONTRACT_ADDRESS,
+        CONTRACT_HEDERA_ID,
         "0x1234567890abcdef",
         HOLDER_ADDRESS,
         "0x0000000000000000000000000000000000000000000000000000000000000000",
