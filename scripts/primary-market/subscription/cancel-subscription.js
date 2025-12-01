@@ -440,10 +440,16 @@ async function main() {
     });
 
     // ============================================
-    // Step 9: Verify Subscription Status Changed
+    // Step 9: Verify Subscription Status Changed to CANCELLED
     // ============================================
-    logHeader('Step 9: Verify Subscription Status Changed');
+    logHeader('Step 9: Verify Subscription Status Changed to CANCELLED');
     const updatedSubscription = await waitForSubscriptionStatusChange(marketContractId, offeringId, subscriptionId);
+    
+    if (updatedSubscription.status !== 'CANCELLED') {
+      logError(`⚠️  Expected subscription status to be CANCELLED but got: ${updatedSubscription.status}`);
+      throw new Error(`Subscription status is ${updatedSubscription.status}, expected CANCELLED`);
+    }
+    
     logSuccess(`✅ Subscription status updated after cancellation!`);
     logInfo(`Final Status: ${updatedSubscription.status}`);
     log('');

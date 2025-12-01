@@ -139,6 +139,24 @@ async function getLatestSubscription(marketContractId, offeringId) {
 }
 
 /**
+ * Get a specific subscription by ID
+ * @param {string} marketContractId - The primary market contract ID
+ * @param {string} offeringId - The offering ID
+ * @param {number} subscriptionId - The subscription ID
+ * @returns {Promise<Object>} The subscription details
+ */
+async function getSubscription(marketContractId, offeringId, subscriptionId) {
+  try {
+    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/${subscriptionId}`;
+    const response = await gatewayClient.get(endpoint);
+    return response.data;
+  } catch (error) {
+    logError(`Failed to get subscription: ${error.message}`);
+    throw error;
+  }
+}
+
+/**
  * Wait for subscription to be created by polling the database
  * @param {string} marketContractId - The primary market contract ID
  * @param {string} offeringId - The offering ID
@@ -415,13 +433,24 @@ async function main() {
     });
 
     // ============================================
-    // Step 10: Verify Offering Status Changed to EXECUTED
+    // Step 10: Verify Offering and Subscription Status Changed
     // ============================================
-    logHeader('Step 10: Verify Offering Status Changed');
+    logHeader('Step 10: Verify Offering and Subscription Status Changed');
     await new Promise(resolve => setTimeout(resolve, 15000)); // Wait for transaction to process
+    
     const finalOffering = await getOffering(marketContractId, offeringId);
     logSuccess(`✅ Offering status updated after execution!`);
-    logInfo(`Final Status: ${finalOffering.status}`);
+    logInfo(`Offering Final Status: ${finalOffering.status}`);
+    
+    // Verify subscription status changed from SUBMITTED
+    const finalSubscription = await getSubscription(marketContractId, offeringId, subscriptionId);
+    if (finalSubscription.status === 'SUBMITTED') {
+      logError(`⚠️  Subscription status is still SUBMITTED after execution`);
+      throw new Error('Subscription status did not change from SUBMITTED');
+    }
+    
+    logSuccess(`✅ Subscription status updated after execution!`);
+    logInfo(`Subscription Final Status: ${finalSubscription.status}`);
     log('');
 
     // ============================================

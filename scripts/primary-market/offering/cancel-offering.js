@@ -195,6 +195,12 @@ async function waitForSubscriptionStatusChange(marketContractId, offeringId, sub
   logInfo(`🔍 Fetching subscription status from database...`);
   const subscription = await getSubscription(marketContractId, offeringId, subscriptionId);
   
+  // Verify status changed from SUBMITTED
+  if (subscription.status === 'SUBMITTED') {
+    logError(`⚠️  Subscription status is still SUBMITTED after cancellation`);
+    throw new Error('Subscription status did not change from SUBMITTED');
+  }
+  
   return subscription;
 }
 
