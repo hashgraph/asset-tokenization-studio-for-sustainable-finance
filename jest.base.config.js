@@ -7,7 +7,7 @@ module.exports = {
     "^.+\\.(t|j)s$": "ts-jest",
   },
   collectCoverageFrom: ["**/*.(t|j)s"],
-  coverageDirectory: "../coverage",
+  coverageDirectory: "coverage",
   coverageReporters: [
     "json-summary", // Required for CI coverage threshold checks
     "lcov", // Required for Codecov uploads
