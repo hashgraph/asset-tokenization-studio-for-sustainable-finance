@@ -98,7 +98,7 @@ async function waitForTreasuryState(contractId, expectedPausedState, maxRetries 
   throw new Error(`Timeout: Treasury did not reach ${stateName} state after ${maxRetries} attempts`);
 }
 
-async function verifyTreasuryPauseUnpause() {
+async function verifyTreasuryPauseUnpause(treasuryContractId) {
   logHeader('🧪 Running Treasury Pause/Unpause Verification...');
 
   // Validate signing configuration before starting
@@ -108,12 +108,17 @@ async function verifyTreasuryPauseUnpause() {
   }
 
   try {
-    // Step 1: Deploy bond, wait for treasury, and apply all roles
-    log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
-    const treasury = await deployBondWaitTreasuryAndApplyRoles();
+    let contractId;
+    if (treasuryContractId)  {
+      contractId = treasuryContractId;
+    } else {
+      // Step 1: Deploy bond, wait for treasury, and apply all roles
+      log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
+      const treasury = await deployBondWaitTreasuryAndApplyRoles();
     
-    const contractId = treasury.contractId;
-    logSuccess(`Treasury deployed: ${contractId}`);
+      contractId = treasury.contractId;
+      logSuccess(`Treasury deployed: ${contractId}`);
+    }
     
     // Step 2: Verify initial state (should be unpaused)
     log('\n2️⃣  Verifying initial treasury state...');
