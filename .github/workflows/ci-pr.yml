@@ -153,7 +153,6 @@ jobs:
     with:
       module: ats
       app-type: api
-      has-e2e: false # TODO: Update when E2E tests are added
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -166,7 +165,6 @@ jobs:
     with:
       module: primary-market
       app-type: api
-      has-e2e: true # This module has E2E tests
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -179,7 +177,6 @@ jobs:
     with:
       module: treasury
       app-type: api
-      has-e2e: false # TODO: Update when E2E tests are added
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -197,7 +194,6 @@ jobs:
     with:
       module: shared-core
       app-type: library
-      has-e2e: false
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -210,7 +206,6 @@ jobs:
     with:
       module: blockchain-listener
       app-type: library
-      has-e2e: false
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -228,7 +223,6 @@ jobs:
     with:
       module: gateway
       app-type: api
-      has-e2e: false # TODO: Update when tests are added
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -241,7 +235,6 @@ jobs:
     with:
       module: transaction-sender
       app-type: api
-      has-e2e: false # TODO: Update when tests are added
       node-version: "22"
     secrets:
       codecov-token: ${{ secrets.CODECOV_TOKEN }}
