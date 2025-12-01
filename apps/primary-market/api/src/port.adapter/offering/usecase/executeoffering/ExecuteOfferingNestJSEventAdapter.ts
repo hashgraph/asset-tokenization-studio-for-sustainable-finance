@@ -14,7 +14,7 @@ export class ExecuteOfferingNestJSEventAdapter implements ExecuteOfferingPort, E
   async handle(event: OfferingExecutedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ExecuteOfferingCommand(
-        event.offeringId,
+        Number(event.offeringId),
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
         event.result,

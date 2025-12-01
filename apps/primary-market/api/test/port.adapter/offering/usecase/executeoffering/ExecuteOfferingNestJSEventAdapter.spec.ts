@@ -109,12 +109,12 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingExecutedDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        1,
+        "1",
         "0x0000000000000000000000000000000000001234",
         [
-          { subscriptionId: 1, status: OfferingProcessStatus.SUCCEEDED },
-          { subscriptionId: 2, status: OfferingProcessStatus.SUCCEEDED },
-          { subscriptionId: 3, status: OfferingProcessStatus.FAILED },
+          { subscriptionId: "1", status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: "2", status: OfferingProcessStatus.SUCCEEDED },
+          { subscriptionId: "3", status: OfferingProcessStatus.FAILED },
         ],
       )
 
@@ -137,7 +137,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingExecutedDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        999,
+        "999",
         "0x0000000000000000000000000000000000001234",
         [],
       )
@@ -172,9 +172,9 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingExecutedDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        1,
+        "1",
         "0x0000000000000000000000000000000000001234",
-        [{ subscriptionId: 999, status: OfferingProcessStatus.SUCCEEDED }],
+        [{ subscriptionId: "999", status: OfferingProcessStatus.SUCCEEDED }],
       )
 
       await expect(eventBus.publishSync(event, OfferingExecutedDLTEvent.name)).rejects.toThrow()
@@ -207,7 +207,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingExecutedDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        1,
+        "1",
         "0x0000000000000000000000000000000000009999",
         [],
       )
@@ -242,7 +242,7 @@ describe("ExecuteOfferingNestJSEventAdapter Integration", () => {
       const event = new OfferingExecutedDLTEvent(
         "0.0.1234567",
         "0x123456789",
-        1,
+        "1",
         "0x0000000000000000000000000000000000001234",
         [],
       )

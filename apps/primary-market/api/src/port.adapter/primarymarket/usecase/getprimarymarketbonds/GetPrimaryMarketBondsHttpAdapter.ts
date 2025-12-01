@@ -9,7 +9,7 @@ import {
   ApiPaginatedResponse,
 } from "@hashgraph/green-bonds-shared-core"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
-import { GetPrimaryMarketBondsPort } from "./GetPrimaryMarketsPort"
+import { GetPrimaryMarketBondsPort } from "./GetPrimaryMarketBondsPort"
 import { PrimaryMarketBondResponse } from "./model/PrimaryMarketBondResponse"
 import { GetPrimaryMarketBondsQuery } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQuery"
 import { ApiOperation, ApiTags } from "@nestjs/swagger"

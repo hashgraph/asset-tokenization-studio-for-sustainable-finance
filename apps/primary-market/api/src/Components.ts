@@ -46,7 +46,7 @@ import { GetPrimaryMarketsHttpAdapter } from "@port/primarymarket/usecase/getpri
 import { GetPrimaryMarketsQueryHandler } from "@app/primarymarket/getprimarymarkets/query/GetPrimaryMarketsQueryHandler"
 import { GetSubscriptionsHttpAdapter } from "@port/subscription/usecase/getsubscriptions/GetSubscriptionsHttpAdapter"
 import { GetSubscriptionsQueryHandler } from "@app/subscription/getsubscriptions/query/GetSubscriptionsQueryHandler"
-import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbonds/GetPrimaryMarketsHttpAdapter"
+import { GetPrimaryMarketBondsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbonds/GetPrimaryMarketBondsHttpAdapter"
 import { GetPrimaryMarketBondsQueryHandler } from "@app/primarymarket/getprimarymarketbonds/query/GetPrimaryMarketBondsQueryHandler"
 import { GetPrimaryMarketBondOfferingsHttpAdapter } from "@port/primarymarket/usecase/getprimarymarketbondofferings/GetPrimaryMarketBondOfferingsHttpAdapter"
 import { GetPrimaryMarketBondOfferingsQueryHandler } from "@app/primarymarket/getprimarymarketbondofferings/query/GetPrimaryMarketBondOfferingsQueryHandler"
