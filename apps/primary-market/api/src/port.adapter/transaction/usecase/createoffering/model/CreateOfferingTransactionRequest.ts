@@ -6,20 +6,20 @@ import { ApiProperty } from "@nestjs/swagger"
 
 export class CreateOfferingTransactionRequest extends BaseTransactionRequest {
   @ApiProperty({
-    description: "The EVM address of the treasury contract",
-    example: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+    description: "The contract ID of the treasury contract (e.g., 0.0.12345)",
+    example: "0.0.12345",
   })
   @IsNotEmpty()
   @IsString()
-  treasuryAddress: string
+  treasuryContractId: string
 
   @ApiProperty({
-    description: "The EVM address of the payment token contract",
-    example: "0x0000000000000000000000000000000000629238",
+    description: "The contract ID of the payment token contract (e.g., 0.0.67890)",
+    example: "0.0.67890",
   })
   @IsNotEmpty()
   @IsString()
-  paymentTokenAddress: string
+  paymentTokenContractId: string
 
   @ApiProperty({
     description: "The size of each lot in the offering",

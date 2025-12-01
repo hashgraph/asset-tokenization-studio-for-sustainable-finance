@@ -12,6 +12,7 @@ const config = {
   HEDERA_PRIVATE_KEY: process.env.HEDERA_PRIVATE_KEY,
   ETHEREUM_PRIVATE_KEY: process.env.ETHEREUM_PRIVATE_KEY,
   ETHEREUM_GAS_PRICE_GWEI: process.env.ETHEREUM_GAS_PRICE_GWEI || '600',
+  ACCOUNT_ID: process.env.ACCOUNT_ID,
 };
 
 // Console colors

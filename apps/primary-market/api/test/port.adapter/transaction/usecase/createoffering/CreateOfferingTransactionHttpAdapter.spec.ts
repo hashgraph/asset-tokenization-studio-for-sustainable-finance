@@ -49,8 +49,8 @@ describe("CreateOfferingTransaction API Integration", () => {
       const createOfferingRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
-        treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        treasuryContractId: "0.0.12345",
+        paymentTokenContractId: "0.0.67890",
         lotSize: "1000",
         minLots: "100",
         maxLots: "10000",
@@ -81,8 +81,8 @@ describe("CreateOfferingTransaction API Integration", () => {
         const createOfferingRequest = {
           format: format,
           accountId: "0.0.5466269",
-          treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+          treasuryContractId: "0.0.12345",
+          paymentTokenContractId: "0.0.67890",
           lotSize: "1000",
           minLots: "100",
           maxLots: "10000",
@@ -111,7 +111,7 @@ describe("CreateOfferingTransaction API Integration", () => {
         {},
         { format: "hedera" },
         { format: "hedera", accountId: "0.0.12345" },
-        { format: "hedera", accountId: "0.0.12345", treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7" },
+        { format: "hedera", accountId: "0.0.12345", treasuryContractId: "0.0.12345" },
       ]
 
       for (const invalidRequest of invalidRequests) {
@@ -128,8 +128,8 @@ describe("CreateOfferingTransaction API Integration", () => {
       const createOfferingRequest = {
         format: "hedera",
         accountId: "0.0.12345",
-        treasuryAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-        paymentTokenAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        treasuryContractId: "0.0.12345",
+        paymentTokenContractId: "0.0.67890",
         lotSize: "1000",
         minLots: "100",
         maxLots: "10000",

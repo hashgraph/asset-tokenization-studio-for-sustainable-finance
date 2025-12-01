@@ -66,7 +66,7 @@ async function main() {
     
     // Configuration parameters
     // TODO: Replace these with actual values or command line arguments
-    const resolverContractId = '0.0.7297268';
+    const resolverContractId = '0.0.7352465';
     const configVersion = 0;
     
     logInfo(`Resolver Contract ID: ${resolverContractId}`);

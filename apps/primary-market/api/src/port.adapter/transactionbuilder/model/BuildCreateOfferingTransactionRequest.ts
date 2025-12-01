@@ -4,8 +4,8 @@ import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 
 export class BuildCreateOfferingTransactionRequest extends BaseBuildTransactionRequest {
   bondContractId: string
-  treasuryAddress: string
-  paymentTokenAddress: string
+  treasuryContractId: string
+  paymentTokenContractId: string
   lotSize: string
   minLots: string
   maxLots: string
