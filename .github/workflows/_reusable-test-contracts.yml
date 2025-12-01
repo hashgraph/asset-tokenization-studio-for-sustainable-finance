@@ -31,6 +31,7 @@ jobs:
     name: Test ${{ inputs.module }} Contracts
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       # Workspace name mapping
       WORKSPACE_NAME: >-

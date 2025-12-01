@@ -35,6 +35,7 @@ jobs:
     name: Test ${{ inputs.module }} (${{ inputs.app-type }})
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
