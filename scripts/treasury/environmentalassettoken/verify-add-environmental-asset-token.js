@@ -33,9 +33,9 @@ async function createEnvironmentalAssetToken() {
   let receipt = await submit.getReceipt(client);
 
   const tokenId = receipt.tokenId;
-  console.log(`✅ Token creado: ${tokenId.toString()}`);
+  log(`✅ Created token: ${tokenId.toString()}`);
   const evmAddress = tokenId.toSolidityAddress();
-  console.log(`🧬 Dirección EVM (ERC-721 compatible): ${evmAddress}`);
+  log(`🧬 EVM address (ERC-721 compatible): ${evmAddress}`);
 
   return tokenId;
 }
