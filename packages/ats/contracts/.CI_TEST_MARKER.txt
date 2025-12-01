@@ -1,6 +1,0 @@
-This file marks a test commit for CI workflow validation.
-
-The CI workflows should detect changes to contract files and execute the appropriate test workflows.
-
-Created: 2025-11-28
-Purpose: Validate that GitHub Actions workflows execute correctly when contract files change.

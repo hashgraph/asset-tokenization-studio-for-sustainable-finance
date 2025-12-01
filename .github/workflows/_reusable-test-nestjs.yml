@@ -33,7 +33,6 @@ permissions:
 jobs:
   test-nestjs:
     name: Test ${{ inputs.module }} (${{ inputs.app-type }})
-    # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
