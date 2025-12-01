@@ -14,33 +14,9 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { deployPrimaryMarket } = require('./deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('./get-latest-primary-market');
+const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
 const { createOffering } = require('../offering/offering-service');
 const { waitForOfferingCreation } = require('../offering/create-offering');
-const { deployHTSToken } = require('../offering/hts-token-service');
-
-// Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
-
-/**
- * Grant OFFERING_CREATOR_ROLE to a user
- */
-async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  const grantRoleRequest = {
-    format: format,
-    accountId: process.env.ACCOUNT_ID,
-  };
-
-  try {
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${OFFERING_CREATOR_ROLE}/users/${userAccountId}`;
-    const response = await gatewayClient.post(endpoint, grantRoleRequest);
-    return { ...grantRoleRequest, unsignedTx: response.data.unsignedTx };
-  } catch (error) {
-    logError(`Failed to create grant role transaction: ${error.message}`);
-    throw error;
-  }
-}
 
 /**
  * Get all bonds in a primary market (paginated)
@@ -134,54 +110,15 @@ async function main() {
     log('');
 
     // ============================================
-    // Step 1: Deploy HTS Payment Token
+    // Steps 1-3: Setup Primary Market with Token and Role
     // ============================================
-    logHeader('Step 1: Deploy HTS Payment Token');
-    const { tokenId } = await deployHTSToken(
-      'Market Bonds Token',
-      'MBT',
-      6,
-      1_000_000_000_000
+    const { marketContractId, tokenId } = await setupPrimaryMarketWithToken(
+      format,
+      resolverContractId,
+      configVersion,
+      userAccountId,
+      { name: 'Market Bonds Token', symbol: 'MBT', decimals: 6, initialSupply: 1_000_000_000_000 }
     );
-    logSuccess(`✅ HTS Token deployed: ${tokenId}`);
-    log('');
-
-    // ============================================
-    // Step 2: Deploy Primary Market
-    // ============================================
-    logHeader('Step 2: Deploy Primary Market');
-    const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
-
-    logHeader('🔐 Signing deployment transaction...');
-    const signedDeploymentTx = await signTransaction(deploymentTx.unsignedTx);
-    logSuccess('Deployment transaction signed successfully!');
-
-    await publishSignedTransaction(signedDeploymentTx, {
-      description: 'Deploy Primary Market',
-    });
-
-    const deployedMarket = await waitForPrimaryMarketDeployment();
-    const marketContractId = deployedMarket.contractId;
-
-    logSuccess(`✅ Primary Market deployed: ${marketContractId}`);
-    log('');
-
-    // ============================================
-    // Step 3: Grant OFFERING_CREATOR_ROLE
-    // ============================================
-    logHeader('Step 3: Grant OFFERING_CREATOR_ROLE');
-    const grantRoleTx = await grantOfferingCreatorRole(format, marketContractId, userAccountId);
-
-    logHeader('🔐 Signing grant role transaction...');
-    const signedGrantRoleTx = await signTransaction(grantRoleTx.unsignedTx);
-    logSuccess('Grant role transaction signed successfully!');
-
-    await publishSignedTransaction(signedGrantRoleTx, {
-      description: 'Grant OFFERING_CREATOR_ROLE',
-    });
-
-    await waitForUserRoleUpdate(marketContractId, OFFERING_CREATOR_ROLE, userAccountId, true);
-    logSuccess(`✅ OFFERING_CREATOR_ROLE granted to ${userAccountId}`);
     log('');
 
     // ============================================

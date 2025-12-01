@@ -21,14 +21,13 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
+const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
 const { createOffering } = require('./offering-service');
 const { waitForOfferingCreation } = require('./create-offering');
-const { deployHTSToken, approveTokenAllowance } = require('./hts-token-service');
-
-// Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
+const { approveTokenAllowance, deployHTSToken } = require('./hts-token-service');
+const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
+const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
 
 /**
  * Get offering details from the database
@@ -159,38 +158,6 @@ async function waitForSubscriptionCreation(marketContractId, offeringId, initial
   }
   
   return latestSubscription;
-}
-
-/**
- * Grant OFFERING_CREATOR_ROLE to a user
- */
-async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  logHeader(`🔐 Granting OFFERING_CREATOR_ROLE in ${format.toUpperCase()} Primary Market...`);
-
-  const grantRoleRequest = {
-    format: format,
-    accountId: process.env.ACCOUNT_ID,
-  };
-
-  try {
-    logInfo('Sending grant role request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${OFFERING_CREATOR_ROLE}/users/${userAccountId}`;
-    const response = await gatewayClient.post(endpoint, grantRoleRequest);
-
-    logSuccess(`${format.toUpperCase()} Grant OFFERING_CREATOR_ROLE transaction created!`);
-    logInfo(`Market Contract ID: ${marketContractId}`);
-    logInfo(`Role ID: ${OFFERING_CREATOR_ROLE}`);
-    logInfo(`User Account ID: ${userAccountId}`);
-    logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 50)}...`);
-
-    return { ...grantRoleRequest, unsignedTx: response.data.unsignedTx };
-  } catch (error) {
-    logError(`Failed to create grant role transaction: ${error.message}`);
-    if (error.response?.data) {
-      logError(`Response data: ${JSON.stringify(error.response.data, null, 2)}`);
-    }
-    throw error;
-  }
 }
 
 /**

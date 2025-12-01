@@ -20,14 +20,10 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
+const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
 const { createOffering } = require('../offering/offering-service');
 const { waitForOfferingCreation } = require('../offering/create-offering');
-const { deployHTSToken, approveTokenAllowance } = require('../offering/hts-token-service');
-
-// Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
+const { approveTokenAllowance } = require('../offering/hts-token-service');
 
 /**
  * Get offering details from the database
@@ -152,29 +148,6 @@ async function getSubscriptionsByInvestor(investorAccountId, options = {}) {
     return response.data;
   } catch (error) {
     logError(`Failed to get subscriptions by investor: ${error.message}`);
-    if (error.response?.data) {
-      logError(`Response data: ${JSON.stringify(error.response.data, null, 2)}`);
-    }
-    throw error;
-  }
-}
-
-/**
- * Grant OFFERING_CREATOR_ROLE to a user
- */
-async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  const grantRoleRequest = {
-    format: format,
-    accountId: process.env.ACCOUNT_ID,
-  };
-
-  try {
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${OFFERING_CREATOR_ROLE}/users/${userAccountId}`;
-    const response = await gatewayClient.post(endpoint, grantRoleRequest);
-
-    return { ...grantRoleRequest, unsignedTx: response.data.unsignedTx };
-  } catch (error) {
-    logError(`Failed to create grant role transaction: ${error.message}`);
     if (error.response?.data) {
       logError(`Response data: ${JSON.stringify(error.response.data, null, 2)}`);
     }
