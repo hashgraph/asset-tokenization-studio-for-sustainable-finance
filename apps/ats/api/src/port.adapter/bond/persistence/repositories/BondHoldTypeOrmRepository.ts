@@ -19,9 +19,9 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     return (await this.repository.save(bondHold as unknown as BondHoldPersistence)) as BondHold
   }
 
-  async findById(id: number): Promise<BondHold | null> {
+  async findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null> {
     return (await this.repository.findOne({
-      where: { id },
+      where: { id, contractId, holderAccountId, partition },
     })) as BondHold | null
   }
 
@@ -29,9 +29,10 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     contractId: string,
     holderAccountId: string,
     holdId: number,
+    partition: string,
   ): Promise<BondHold | null> {
     return (await this.repository.findOne({
-      where: { contractId, holderAccountId, id: holdId },
+      where: { contractId, holderAccountId, id: holdId, partition },
     })) as BondHold | null
   }
 
@@ -82,7 +83,8 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     id: number,
     contractId: string,
     holderAccountId: string,
+    partition: string,
   ): Promise<void> {
-    await this.repository.delete({ id, contractId, holderAccountId })
+    await this.repository.delete({ id, contractId, holderAccountId, partition })
   }
 }

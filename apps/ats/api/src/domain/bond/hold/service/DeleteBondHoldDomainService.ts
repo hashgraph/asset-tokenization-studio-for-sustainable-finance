@@ -13,6 +13,7 @@ export class DeleteBondHoldDomainService {
       request.contractId,
       request.holderAccountId,
       request.holdId,
+      request.partition,
     )
 
     if (!existingHold) {
@@ -23,6 +24,7 @@ export class DeleteBondHoldDomainService {
       request.holdId,
       request.contractId,
       request.holderAccountId,
+      request.partition,
     )
   }
 }

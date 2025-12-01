@@ -29,7 +29,7 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
       )
 
       await this.deleteBondHoldDomainService.execute(
-        new DeleteBondHoldDomainServiceRequest(command.contractId, command.holderAccountId, command.holdId),
+        new DeleteBondHoldDomainServiceRequest(command.contractId, command.holderAccountId, command.holdId, command.partition),
       )
 
       this.eventBus.publish(

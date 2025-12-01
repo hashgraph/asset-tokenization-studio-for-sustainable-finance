@@ -23,6 +23,7 @@ export class GetBondHoldQueryHandler implements QueryHandler<GetBondHoldQuery, B
       query.bondContractId,
       query.holderAccountId,
       query.holdId,
+      query.partition,
     )
 
     if (!hold) {

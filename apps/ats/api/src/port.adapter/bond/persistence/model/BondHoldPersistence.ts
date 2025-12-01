@@ -12,7 +12,7 @@ export class BondHoldPersistence {
   @PrimaryColumn({ type: "varchar", length: 255 })
   holderAccountId: string
 
-  @Column({ type: "varchar", length: 255 })
+  @PrimaryColumn({ type: "varchar", length: 255 })
   partition: string
 
   @Column({ type: "varchar" })

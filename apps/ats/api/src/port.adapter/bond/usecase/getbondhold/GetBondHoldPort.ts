@@ -3,5 +3,10 @@
 import { BondHoldResponse } from "./model/BondHoldResponse"
 
 export interface GetBondHoldPort {
-  getBondHold(bondContractId: string, holderAccountId: string, holdId: number): Promise<BondHoldResponse>
+  getBondHold(
+    bondContractId: string,
+    holderAccountId: string,
+    partition: string,
+    holdId: number,
+  ): Promise<BondHoldResponse>
 }

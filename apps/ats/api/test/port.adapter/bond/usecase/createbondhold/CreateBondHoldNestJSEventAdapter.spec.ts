@@ -112,24 +112,26 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       )
 
       const event = new HeldByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        "1000",
-        "1735689600",
-        "0xa1b2c3d4e5f6789012345678901234567890abcd",
-        "0xb3533f32594B689F19A94C608490451478F7197b",
-        "0x",
+        "1",
+        {
+          amount: "1000",
+          expirationTimestamp: "1735689600",
+          escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+          to: "0xb3533f32594B689F19A94C608490451478F7197b",
+          data: "0x",
+        },
         "0x",
       )
 
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
       })
 
       expect(savedBondHold).toBeDefined()
@@ -168,24 +170,26 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       )
 
       const event = new HeldByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        "1000",
-        "1735689600",
-        "0xa1b2c3d4e5f6789012345678901234567890abcd",
-        "0x0000000000000000000000000000000000000000",
-        "0x",
+        "1",
+        {
+          amount: "1000",
+          expirationTimestamp: "1735689600",
+          escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+          to: "0x0000000000000000000000000000000000000000",
+          data: "0x",
+        },
         "0x",
       )
 
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
       })
 
       expect(savedBondHold).toBeDefined()
@@ -212,17 +216,19 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       await bondHoldRepository.save(existingBondHold)
 
       const event = new HeldByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        "1000",
-        "1735689600",
-        "0xa1b2c3d4e5f6789012345678901234567890abcd",
-        "0xb3533f32594B689F19A94C608490451478F7197b",
-        "0x",
+        "1",
+        {
+          amount: "1000",
+          expirationTimestamp: "1735689600",
+          escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+          to: "0xb3533f32594B689F19A94C608490451478F7197b",
+          data: "0x",
+        },
         "0x",
       )
 
@@ -244,24 +250,26 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
       for (const holdId of holdIds) {
         const event = new HeldByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${holdId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          holdId,
-          `${1000 * holdId}`,
-          "1735689600",
-          "0xa1b2c3d4e5f6789012345678901234567890abcd",
-          "0xb3533f32594B689F19A94C608490451478F7197b",
-          "0x",
+          `${holdId}`,
+          {
+            amount: `${1000 * holdId}`,
+            expirationTimestamp: "1735689600",
+            escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+            to: "0xb3533f32594B689F19A94C608490451478F7197b",
+            data: "0x",
+          },
           "0x",
         )
 
         await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
         const savedBondHold = await bondHoldRepository.findOne({
-          where: { id: holdId, contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+          where: { id: holdId, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
         })
 
         expect(savedBondHold).toBeDefined()
@@ -284,24 +292,26 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       )
 
       const event = new HeldByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        "1000",
-        "1735689600",
-        "0xa1b2c3d4e5f6789012345678901234567890abcd",
-        "0xb3533f32594B689F19A94C608490451478F7197b",
-        "0x",
+        "1",
+        {
+          amount: "1000",
+          expirationTimestamp: "1735689600",
+          escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+          to: "0xb3533f32594B689F19A94C608490451478F7197b",
+          data: "0x",
+        },
         "0x",
       )
 
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
       })
 
       expect(savedBondHold).toBeDefined()
@@ -325,17 +335,19 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       )
 
       const event = new HeldByPartitionDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        "1000",
-        "1735689600",
-        "0xa1b2c3d4e5f6789012345678901234567890abcd",
-        "0xb3533f32594B689F19A94C608490451478F7197b",
-        "0x",
+        "1",
+        {
+          amount: "1000",
+          expirationTimestamp: "1735689600",
+          escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+          to: "0xb3533f32594B689F19A94C608490451478F7197b",
+          data: "0x",
+        },
         "0x",
       )
 
@@ -373,24 +385,26 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
       for (let i = 0; i < partitions.length; i++) {
         const event = new HeldByPartitionDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${i}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
-          i + 1,
-          "1000",
-          "1735689600",
-          "0xa1b2c3d4e5f6789012345678901234567890abcd",
-          "0xb3533f32594B689F19A94C608490451478F7197b",
-          "0x",
+          "1",
+          {
+            amount: "1000",
+            expirationTimestamp: "1735689600",
+            escrow: "0xa1b2c3d4e5f6789012345678901234567890abcd",
+            to: "0xb3533f32594B689F19A94C608490451478F7197b",
+            data: "0x",
+          },
           "0x",
         )
 
         await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
         const savedBondHold = await bondHoldRepository.findOne({
-          where: { id: i + 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+          where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: partitions[i] },
         })
 
         expect(savedBondHold).toBeDefined()
