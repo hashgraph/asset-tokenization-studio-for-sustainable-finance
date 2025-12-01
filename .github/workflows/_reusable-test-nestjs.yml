@@ -101,28 +101,38 @@ jobs:
         run: |
           echo "📦 Building dependencies for ${{ inputs.module }}..."
 
-          # Always build shared core first (foundation for everything)
-          if [ "${{ inputs.module }}" != "shared-core" ]; then
-            echo "Building Shared Core (foundation)..."
-            npm run build --workspace=@hashgraph/green-bonds-shared-core
+          # CRITICAL: Build order must respect dependencies
+          # 1. Treasury contracts (NO dependencies, provides types to Shared Core)
+          # 2. Other domain contracts (depend on Treasury)
+          # 3. Shared Core (depends on Treasury contract types)
+          # 4. Blockchain Listener (depends on Shared Core)
+          # 5. APIs (depend on all of the above)
+
+          # Step 1: ALWAYS build Treasury contracts FIRST (Shared Core imports from them)
+          if [ "${{ inputs.module }}" != "treasury" ]; then
+            echo "Building Treasury contracts (required by Shared Core)..."
+            npm run build --workspace=@hashgraph/green-bonds-platform-treasury-contracts || echo "⚠️ Contracts already built or not needed"
           fi
 
-          # Build blockchain listener if needed (used by all APIs)
-          if [ "${{ inputs.app-type }}" = "api" ] && [ "${{ inputs.module }}" != "blockchain-listener" ]; then
-            echo "Building Blockchain Listener (API dependency)..."
-            npm run build --workspace=@hashgraph/green-bonds-blockchain-listener
-          fi
-
-          # Build domain contracts for API tests (provides TypeScript types)
+          # Step 2: Build other domain contracts if testing specific module
           if [ "${{ inputs.module }}" = "ats" ]; then
             echo "Building ATS contracts (for types)..."
             npm run build --workspace=@hashgraph/green-bonds-platform-ats-contracts || echo "⚠️ Contracts already built or not needed"
           elif [ "${{ inputs.module }}" = "primary-market" ]; then
             echo "Building Primary Market contracts (for types)..."
             npm run build --workspace=@hashgraph/green-bonds-platform-primarymarket-contracts || echo "⚠️ Contracts already built or not needed"
-          elif [ "${{ inputs.module }}" = "treasury" ]; then
-            echo "Building Treasury contracts (for types)..."
-            npm run build --workspace=@hashgraph/green-bonds-platform-treasury-contracts || echo "⚠️ Contracts already built or not needed"
+          fi
+
+          # Step 3: Build Shared Core (depends on Treasury contract types)
+          if [ "${{ inputs.module }}" != "shared-core" ]; then
+            echo "Building Shared Core (foundation)..."
+            npm run build --workspace=@hashgraph/green-bonds-shared-core
+          fi
+
+          # Step 4: Build Blockchain Listener if needed (depends on Shared Core, used by all APIs)
+          if [ "${{ inputs.app-type }}" = "api" ] && [ "${{ inputs.module }}" != "blockchain-listener" ]; then
+            echo "Building Blockchain Listener (API dependency)..."
+            npm run build --workspace=@hashgraph/green-bonds-blockchain-listener
           fi
 
           echo "✅ Dependencies built successfully"
