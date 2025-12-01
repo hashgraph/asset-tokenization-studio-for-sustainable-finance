@@ -252,7 +252,7 @@ jobs:
   # ============================================================================
 
   ci-success:
-    name: ✅ CI Success
+    name: All Checks Complete
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
     timeout-minutes: 10

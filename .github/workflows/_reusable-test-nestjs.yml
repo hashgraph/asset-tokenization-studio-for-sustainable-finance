@@ -36,6 +36,29 @@ jobs:
     # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      # Workspace name mapping
+      WORKSPACE_NAME: >-
+        ${{
+          inputs.module == 'ats' && '@hashgraph/green-bonds-ats-api' ||
+          inputs.module == 'primary-market' && '@hashgraph/green-bonds-primary-market-api' ||
+          inputs.module == 'treasury' && '@hashgraph/green-bonds-treasury-api' ||
+          inputs.module == 'gateway' && '@hashgraph/green-bonds-gateway' ||
+          inputs.module == 'transaction-sender' && '@hashgraph/green-bonds-transaction-sender' ||
+          inputs.module == 'shared-core' && '@hashgraph/green-bonds-shared-core' ||
+          inputs.module == 'blockchain-listener' && '@hashgraph/green-bonds-blockchain-listener' ||
+          ''
+        }}
+      # Module path for coverage files
+      MODULE_PATH: >-
+        ${{
+          (inputs.app-type == 'api' && inputs.module != 'gateway' && inputs.module != 'transaction-sender') && format('apps/{0}/api', inputs.module) ||
+          inputs.module == 'gateway' && 'apps/shared/gateway' ||
+          inputs.module == 'transaction-sender' && 'apps/shared/transaction-sender' ||
+          (inputs.app-type == 'library' && inputs.module == 'shared-core') && 'packages/shared/core' ||
+          (inputs.app-type == 'library' && inputs.module == 'blockchain-listener') && 'packages/shared/blockchain-listener' ||
+          ''
+        }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@v2
@@ -76,26 +99,44 @@ jobs:
 
       - name: Build dependencies
         run: |
-          echo "Building dependencies for ${{ inputs.module }}..."
-          # TODO Phase 3: Add dependency building logic
-          # Build contracts if needed, shared libraries, etc.
-          echo "✅ Placeholder: Dependency builds would run here"
+          echo "📦 Building dependencies for ${{ inputs.module }}..."
 
-      - name: Run unit tests
+          # Always build shared core first (foundation for everything)
+          if [ "${{ inputs.module }}" != "shared-core" ]; then
+            echo "Building Shared Core (foundation)..."
+            npm run build --workspace=@hashgraph/green-bonds-shared-core
+          fi
+
+          # Build blockchain listener if needed (used by all APIs)
+          if [ "${{ inputs.app-type }}" = "api" ] && [ "${{ inputs.module }}" != "blockchain-listener" ]; then
+            echo "Building Blockchain Listener (API dependency)..."
+            npm run build --workspace=@hashgraph/green-bonds-blockchain-listener
+          fi
+
+          # Build domain contracts for API tests (provides TypeScript types)
+          if [ "${{ inputs.module }}" = "ats" ]; then
+            echo "Building ATS contracts (for types)..."
+            npm run build --workspace=@hashgraph/green-bonds-platform-ats-contracts || echo "⚠️ Contracts already built or not needed"
+          elif [ "${{ inputs.module }}" = "primary-market" ]; then
+            echo "Building Primary Market contracts (for types)..."
+            npm run build --workspace=@hashgraph/green-bonds-platform-primarymarket-contracts || echo "⚠️ Contracts already built or not needed"
+          elif [ "${{ inputs.module }}" = "treasury" ]; then
+            echo "Building Treasury contracts (for types)..."
+            npm run build --workspace=@hashgraph/green-bonds-platform-treasury-contracts || echo "⚠️ Contracts already built or not needed"
+          fi
+
+          echo "✅ Dependencies built successfully"
+
+      - name: Run unit tests with coverage
         run: |
-          echo "Running unit tests for ${{ inputs.module }} (${{ inputs.app-type }})..."
-          # TODO Phase 3: Implement actual test execution
-          # For APIs: npm run test --workspace=@hashgraph/green-bonds-${{ inputs.module }}-api
-          # For libraries: npm run test --workspace=@hashgraph/green-bonds-${{ inputs.module }}
-          echo "✅ Placeholder: Unit tests would run here"
+          echo "🧪 Running unit tests with coverage for ${{ inputs.module }}..."
+          npm run test:cov --workspace=${{ env.WORKSPACE_NAME }}
 
       - name: Run E2E tests
         if: inputs.has-e2e
         run: |
-          echo "Running E2E tests for ${{ inputs.module }}..."
-          # TODO Phase 3: Implement E2E test execution
-          # npm run test:e2e --workspace=@hashgraph/green-bonds-${{ inputs.module }}-api
-          echo "✅ Placeholder: E2E tests would run here"
+          echo "🧪 Running E2E tests for ${{ inputs.module }}..."
+          npm run test:e2e --workspace=${{ env.WORKSPACE_NAME }}
 
       - name: Upload coverage to Codecov
         if: always()
@@ -103,12 +144,11 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.codecov-token }}
+          files: ${{ env.MODULE_PATH }}/coverage/lcov.info
           flags: ${{ inputs.module }}-${{ inputs.app-type }}
           name: ${{ inputs.module }}-${{ inputs.app-type }}
           fail_ci_if_error: false
           verbose: true
-          # TODO Phase 3: Add actual coverage file path
-          # files: ./apps/${{ inputs.module }}/api/coverage/lcov.info or ./packages/shared/${{ inputs.module }}/coverage/lcov.info
 
       - name: Test Summary
         if: always()
@@ -117,7 +157,27 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Module:** ${{ inputs.module }}" >> $GITHUB_STEP_SUMMARY
           echo "**Type:** ${{ inputs.app-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workspace:** ${{ env.WORKSPACE_NAME }}" >> $GITHUB_STEP_SUMMARY
           echo "**Has E2E:** ${{ inputs.has-e2e }}" >> $GITHUB_STEP_SUMMARY
           echo "**Node Version:** ${{ inputs.node-version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "⚠️ **Status:** Placeholder workflow - Phase 3 implementation pending" >> $GITHUB_STEP_SUMMARY
+
+          # Extract coverage data if available
+          COVERAGE_FILE="${{ env.MODULE_PATH }}/coverage/coverage-summary.json"
+          if [ -f "$COVERAGE_FILE" ]; then
+            echo "**Coverage Results:**" >> $GITHUB_STEP_SUMMARY
+
+            LINES_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.lines.pct)")
+            BRANCHES_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.branches.pct)")
+            FUNCTIONS_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.functions.pct)")
+            STATEMENTS_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.statements.pct)")
+
+            echo "- Lines: ${LINES_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Branches: ${BRANCHES_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Functions: ${FUNCTIONS_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Statements: ${STATEMENTS_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **Status:** All tests completed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Coverage summary not available" >> $GITHUB_STEP_SUMMARY
+          fi
