@@ -287,8 +287,8 @@ runs-on: token-studio-linux-large
 | Treasury Contracts       | 90%       | ✅ Enforced |
 | ATS Contracts            | 90%       | ✅ Enforced |
 | Primary Market Contracts | 90%       | ✅ Enforced |
-| APIs                     | 80%       | ⏳ Phase 3  |
-| Shared Libraries         | 85%       | ⏳ Phase 3  |
+| APIs                     | 80%       | ✅ Enforced |
+| Shared Libraries         | 80%       | ✅ Enforced |
 
 ### Coverage Reports
 
@@ -298,49 +298,89 @@ Coverage is reported via:
 2. **GitHub Actions Summary** - Inline summary in workflow run
 3. **PR Status Checks** - Pass/fail based on thresholds
 
-## 🎯 Implementation Phases
+## 🎯 Implemented Features
 
-### ✅ Phase 1: Foundation (Complete)
+### ✅ Infrastructure & Foundation
 
-- Change detection script
-- Quality checks workflow
-- Main orchestrator with placeholders
+- Change detection script with dependency graph
+- Code quality workflow (ESLint, Prettier, Solhint)
+- Main PR orchestrator workflow
 - Reusable workflow templates
 
-### ✅ Phase 2: Contract Testing (Complete)
+### ✅ Smart Contract Testing
 
-- Full contract test implementation
-- Hardhat test execution
-- Coverage threshold enforcement
-- Codecov integration
-- Dependency building
+- Full Hardhat test execution
+- Coverage threshold enforcement (90%)
+- Codecov integration with PR comments
+- Smart dependency building (Treasury → ATS → Primary Market)
 
-### ⏳ Phase 3: API & Library Testing (Pending)
+### ✅ API & Library Testing
 
-- NestJS unit test execution
-- E2E test support
-- Jest coverage reporting
-- Cross-layer dependency testing
+**NestJS Module Testing:**
 
-### ⏳ Phase 4: Build Validation (Pending)
+- ✅ Full test execution for 7 modules (ATS API, Primary Market API, Treasury API, Shared Core, Blockchain Listener, Gateway, Transaction Sender)
+- ✅ Coverage validation with 80% threshold (configurable per module)
+- ✅ Smart dependency building (Treasury contracts → Shared Core → Blockchain Listener → APIs)
+- ✅ Jest memory optimization (4GB heap with `--max-old-space-size=4096`, limited to 2 workers with `--maxWorkers=2`)
+- ✅ E2E tests removed from automatic workflow (manual trigger only - see E2E Testing Strategy below)
+- ✅ Coverage reporting with json-summary, lcov, text, and html formats
+- ✅ Dependency-aware build order prevents import errors
+
+#### E2E Testing Strategy
+
+**Decision**: E2E tests removed from automatic PR workflow.
+
+**Rationale:**
+
+- Too slow and resource-intensive for PR checks (15+ minutes per module)
+- Blocks other PR checks from running efficiently
+- Better suited for manual trigger or scheduled runs
+
+**Recommendation**: Create separate manual-trigger workflow for E2E tests if needed in future.
+
+## 🔮 Future Enhancements
+
+### Planned Improvements
+
+**Build Validation:**
 
 - TypeScript compilation checks
 - Solidity compilation validation
 - Build failure detection
 
-### ⏳ Phase 5: Optimization (Pending)
+**Optimization:**
 
 - PR comment with test results
 - Cache optimization
 - Performance improvements
 - Workflow status badges
 
-### ⏳ Phase 6: Release & Deploy (Deferred)
+**Release & Deploy:**
 
 - Changesets integration
 - NPM publishing
 - Container builds
-- Smart contract deployments
+
+---
+
+## ⚠️ Manual Action Required: GitHub Branch Protection Update
+
+**Job Name Change**: "CI Success" renamed to "All Checks Complete".
+
+**GitHub Branch Protection Rules** must be updated manually:
+
+1. Go to Repository Settings → Branches → Branch protection rules
+2. Edit rule for `develop` or `main` branch
+3. Under "Require status checks to pass before merging", find and update:
+   - **Remove**: "CI Success" (old name)
+   - **Add**: "All Checks Complete" (new name)
+4. Save changes
+
+**Impact**: Without this update, PRs will show incorrect merge status and may be blocked from merging even when all checks pass.
+
+**Priority**: HIGH - Must be completed before merging these CI workflow changes to develop/main.
+
+---
 
 ## 🔍 Debugging Workflows
 
@@ -650,5 +690,5 @@ file .husky/pre-commit
 
 > **Note:** This documentation file is named `WORKFLOWS.md` (not `README.md`) to avoid conflicts with GitHub's default README behavior.
 
-**Last Updated:** Phase 2 Complete
-**Next Phase:** Phase 3 - API & Library Testing
+**Last Updated:** December 2025
+**Status:** All testing and quality features complete. Future enhancements planned for build validation and optimization.

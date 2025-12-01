@@ -20,7 +20,6 @@ jobs:
   # ============================================================================
   detect-changes:
     name: 🔍 Detect Changed Modules
-    # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -249,7 +248,6 @@ jobs:
 
   ci-success:
     name: All Checks Complete
-    # runs-on: token-studio-linux-large
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs:
