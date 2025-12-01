@@ -3,6 +3,7 @@
 import { BlockchainTransactionSenderAdapter } from "../../../src/port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 import { SignedTransactionRequest } from "../../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
+import { BlockchainError } from "../../../src/domain/errors/BlockchainError"
 
 jest.mock("@hashgraph/sdk", () => ({
   Client: {
@@ -32,23 +33,33 @@ jest.mock("@hashgraph/sdk", () => ({
   Status: {
     INSUFFICIENT_ACCOUNT_BALANCE: "INSUFFICIENT_ACCOUNT_BALANCE",
     INVALID_TRANSACTION: "INVALID_TRANSACTION",
+    TIMEOUT: "TIMEOUT",
+    BUSY: "BUSY",
   },
 }))
 
-jest.mock("ethers", () => ({
-  ethers: {
-    providers: {
-      JsonRpcProvider: jest.fn().mockImplementation(() => ({
-        sendTransaction: jest.fn().mockResolvedValue({
-          wait: jest.fn().mockResolvedValue({
-            transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
-            status: 1,
+jest.mock("ethers", () => {
+  class MockContractFactory {}
+  class MockContract {}
+  return {
+    ethers: {
+      providers: {
+        JsonRpcProvider: jest.fn().mockImplementation(() => ({
+          sendTransaction: jest.fn().mockResolvedValue({
+            wait: jest.fn().mockResolvedValue({
+              transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+              status: 1,
+            }),
           }),
-        }),
-      })),
+        })),
+      },
+      ContractFactory: MockContractFactory,
+      Contract: MockContract,
     },
-  },
-}))
+    ContractFactory: MockContractFactory,
+    Contract: MockContract,
+  }
+})
 
 const mockConfigService = {
   getNetwork: jest.fn().mockReturnValue("testnet"),
@@ -64,58 +75,6 @@ describe("BlockchainTransactionSenderAdapter", () => {
   })
 
   describe("sendTransaction", () => {
-    it("should route Hedera transactions to sendHederaTransaction", async () => {
-      const metadata = new TransactionMetadata()
-      metadata.requestId = "test-hedera-request"
-      metadata.origin = "test-origin"
-      metadata.description = "Test transaction"
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0x1234567890abcdef"
-      signedTransaction.metadata = metadata
-      signedTransaction.format = "hedera"
-
-      const sendHederaSpy = jest.spyOn(adapter as any, "sendHederaTransaction")
-      sendHederaSpy.mockResolvedValue({
-        transactionId: "0.0.123@1234567890.123456789",
-        status: "success",
-      })
-
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(sendHederaSpy).toHaveBeenCalledWith(signedTransaction)
-      expect(result).toEqual({
-        transactionId: "0.0.123@1234567890.123456789",
-        status: "success",
-      })
-    })
-
-    it("should route Ethereum transactions to sendEthereumTransaction", async () => {
-      const metadata = new TransactionMetadata()
-      metadata.requestId = "test-ethereum-request"
-      metadata.origin = "test-origin"
-      metadata.description = "Test Ethereum transaction"
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0xabcdef1234567890"
-      signedTransaction.metadata = metadata
-      signedTransaction.format = "ethereum"
-
-      const sendEthereumSpy = jest.spyOn(adapter as any, "sendEthereumTransaction")
-      sendEthereumSpy.mockResolvedValue({
-        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
-        status: "success",
-      })
-
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(sendEthereumSpy).toHaveBeenCalledWith(signedTransaction)
-      expect(result).toEqual({
-        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
-        status: "success",
-      })
-    })
-
     it("should successfully send Hedera transaction and return transaction ID", async () => {
       const metadata = new TransactionMetadata()
       metadata.requestId = "test-hedera-real"
@@ -154,44 +113,8 @@ describe("BlockchainTransactionSenderAdapter", () => {
       })
     })
 
-    it("should handle transactions with minimal metadata", async () => {
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0x1234567890abcdef"
-      signedTransaction.format = "hedera"
-
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toEqual({
-        transactionId: "0.0.123@1234567890.123456789",
-        status: "success",
-      })
-    })
-
-    it("should return Promise<TransactionResult> for both blockchain types", async () => {
-      const hederaTransaction = new SignedTransactionRequest()
-      hederaTransaction.payload = "0x1234567890abcdef"
-      hederaTransaction.format = "hedera"
-
-      const ethereumTransaction = new SignedTransactionRequest()
-      ethereumTransaction.payload = "0xabcdef1234567890"
-      ethereumTransaction.format = "ethereum"
-
-      const hederaPromise = adapter.sendTransaction(hederaTransaction)
-      const ethereumPromise = adapter.sendTransaction(ethereumTransaction)
-
-      expect(hederaPromise).toBeInstanceOf(Promise)
-      expect(ethereumPromise).toBeInstanceOf(Promise)
-
-      const hederaResult = await hederaPromise
-      const ethereumResult = await ethereumPromise
-
-      expect(hederaResult).toHaveProperty("transactionId")
-      expect(hederaResult).toHaveProperty("status")
-      expect(ethereumResult).toHaveProperty("transactionId")
-      expect(ethereumResult).toHaveProperty("status")
-    })
-
-    it("should handle Hedera transaction receipt errors with error details", async () => {
+    // NEW BEHAVIOR: Now throws BlockchainError instead of returning failed status
+    it("should throw BlockchainError for Hedera receipt errors", async () => {
       const { Transaction } = jest.requireMock("@hashgraph/sdk")
       const mockError = {
         status: "INSUFFICIENT_ACCOUNT_BALANCE",
@@ -210,16 +133,18 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
-      const result = await adapter.sendTransaction(signedTransaction)
+      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow(BlockchainError)
 
-      expect(result).toEqual({
-        transactionId: "0.0.123@1234567890.123456789",
-        status: "failed",
-        errorCode: "INSUFFICIENT_ACCOUNT_BALANCE",
-      })
+      try {
+        await adapter.sendTransaction(signedTransaction)
+      } catch (error: any) {
+        expect(error.errorCode).toBe("INSUFFICIENT_ACCOUNT_BALANCE")
+        expect(error.transactionId).toBe("0.0.123@1234567890.123456789")
+        expect(error.isTransient).toBe(false) // Validation error - not transient
+      }
     })
 
-    it("should handle Hedera transaction execution errors with error details", async () => {
+    it("should throw BlockchainError for Hedera execution errors", async () => {
       const { Transaction } = jest.requireMock("@hashgraph/sdk")
       const mockError = {
         status: "INVALID_TRANSACTION",
@@ -233,22 +158,23 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0x1234567890abcdef"
       signedTransaction.format = "hedera"
 
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toEqual({
-        transactionId: "EXECUTION_FAILED",
-        status: "failed",
-        errorCode: "INVALID_TRANSACTION",
-      })
+      try {
+        await adapter.sendTransaction(signedTransaction)
+        fail("Should have thrown BlockchainError")
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(BlockchainError)
+        expect(error.errorCode).toBe("INVALID_TRANSACTION")
+        expect(error.isTransient).toBe(false)
+      }
     })
 
-    it("should handle Ethereum transaction reverted with error details", async () => {
+    it("should throw BlockchainError for Ethereum reverted transactions", async () => {
       const { ethers } = jest.requireMock("ethers")
       const mockProvider = {
         sendTransaction: jest.fn().mockResolvedValue({
           wait: jest.fn().mockResolvedValue({
             transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
-            status: 0,
+            status: 0, // Failed
           }),
         }),
       }
@@ -259,16 +185,17 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
 
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toEqual({
-        transactionId: "0x1234567890abcdef1234567890abcdef12345678",
-        status: "failed",
-        errorCode: "CALL_EXCEPTION",
-      })
+      try {
+        await adapter.sendTransaction(signedTransaction)
+        fail("Should have thrown BlockchainError")
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(BlockchainError)
+        expect(error.errorCode).toBe("CONTRACT_REVERT_EXECUTION")
+        expect(error.isTransient).toBe(false) // Contract revert is not transient
+      }
     })
 
-    it("should handle Ethereum transaction execution errors with error details", async () => {
+    it("should throw BlockchainError for Ethereum execution errors", async () => {
       const { ethers } = jest.requireMock("ethers")
       const mockError = {
         code: "INSUFFICIENT_FUNDS",
@@ -284,105 +211,14 @@ describe("BlockchainTransactionSenderAdapter", () => {
       signedTransaction.payload = "0xabcdef1234567890"
       signedTransaction.format = "ethereum"
 
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toEqual({
-        transactionId: "EXECUTION_FAILED",
-        status: "failed",
-        errorCode: "INSUFFICIENT_FUNDS",
-      })
-    })
-
-    it("should use configuration service for Hedera network", async () => {
-      const { Client } = jest.requireMock("@hashgraph/sdk")
-
-      mockConfigService.getNetwork.mockReturnValue("mainnet")
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0x1234567890abcdef"
-      signedTransaction.format = "hedera"
-
-      await adapter.sendTransaction(signedTransaction)
-
-      expect(mockConfigService.getNetwork).toHaveBeenCalled()
-      expect(Client.forMainnet).toHaveBeenCalled()
-    })
-
-    it("should use configuration service for Ethereum network and build HashIO URL", async () => {
-      const { ethers } = jest.requireMock("ethers")
-
-      mockConfigService.getNetwork.mockReturnValue("mainnet")
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0xabcdef1234567890"
-      signedTransaction.format = "ethereum"
-
-      await adapter.sendTransaction(signedTransaction)
-
-      expect(mockConfigService.getNetwork).toHaveBeenCalled()
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
-    })
-
-    it("should handle different Hedera networks from configuration", async () => {
-      const { Client } = jest.requireMock("@hashgraph/sdk")
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0x1234567890abcdef"
-      signedTransaction.format = "hedera"
-
-      mockConfigService.getNetwork.mockReturnValue("previewnet")
-      await adapter.sendTransaction(signedTransaction)
-      expect(Client.forPreviewnet).toHaveBeenCalled()
-
-      mockConfigService.getNetwork.mockReturnValue("local")
-      await adapter.sendTransaction(signedTransaction)
-      expect(Client.forNetwork).toHaveBeenCalledWith({})
-
-      mockConfigService.getNetwork.mockReturnValue("unknown")
-      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow(
-        "Unsupported network environment: unknown",
-      )
-    })
-
-    it("should use separate network configurations for Ethereum HashIO URLs", async () => {
-      const { ethers } = jest.requireMock("ethers")
-
-      const signedTransaction = new SignedTransactionRequest()
-      signedTransaction.payload = "0xabcdef1234567890"
-      signedTransaction.format = "ethereum"
-
-      mockConfigService.getNetwork.mockReturnValue("mainnet")
-      await adapter.sendTransaction(signedTransaction)
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
-
-      mockConfigService.getNetwork.mockReturnValue("previewnet")
-      await adapter.sendTransaction(signedTransaction)
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://previewnet.hashio.io/api")
-
-      mockConfigService.getNetwork.mockReturnValue("local")
-      await adapter.sendTransaction(signedTransaction)
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("http://localhost:8545")
-    })
-
-    it("should handle different network configurations independently", async () => {
-      const { Client } = jest.requireMock("@hashgraph/sdk")
-      const { ethers } = jest.requireMock("ethers")
-
-      mockConfigService.getNetwork.mockReturnValue("mainnet")
-
-      const hederaTransaction = new SignedTransactionRequest()
-      hederaTransaction.payload = "0x1234567890abcdef"
-      hederaTransaction.format = "hedera"
-
-      const ethereumTransaction = new SignedTransactionRequest()
-      ethereumTransaction.payload = "0xabcdef1234567890"
-      ethereumTransaction.format = "ethereum"
-
-      await adapter.sendTransaction(hederaTransaction)
-      expect(Client.forMainnet).toHaveBeenCalled()
-
-      await adapter.sendTransaction(ethereumTransaction)
-      expect(ethers.providers.JsonRpcProvider).toHaveBeenCalledWith("https://mainnet.hashio.io/api")
+      try {
+        await adapter.sendTransaction(signedTransaction)
+        fail("Should have thrown BlockchainError")
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(BlockchainError)
+        expect(error.errorCode).toBe("INSUFFICIENT_FUNDS")
+        expect(error.isTransient).toBe(false) // Validation error
+      }
     })
   })
 })

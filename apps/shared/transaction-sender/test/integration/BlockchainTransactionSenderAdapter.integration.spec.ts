@@ -3,6 +3,7 @@
 import { BlockchainTransactionSenderAdapter } from "../../src/port.adapter/transactionsender/BlockchainTransactionSenderAdapter"
 import { SignedTransactionRequest } from "../../src/domain/model/SignedTransactionRequest"
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
+import { BlockchainError } from "../../src/domain/errors/BlockchainError"
 
 jest.mock("@hashgraph/sdk", () => ({
   Client: {
@@ -13,7 +14,9 @@ jest.mock("@hashgraph/sdk", () => ({
   Transaction: {
     fromBytes: jest.fn().mockImplementation((bytes) => {
       if (!bytes || bytes.length === 0) {
-        throw new Error("Invalid transaction bytes")
+        const error: any = new Error("Invalid transaction bytes")
+        error.status = "INVALID_TRANSACTION"
+        throw error
       }
       return {
         execute: jest.fn().mockResolvedValue({
@@ -27,39 +30,58 @@ jest.mock("@hashgraph/sdk", () => ({
       }
     }),
   },
-}))
-
-jest.mock("ethers", () => ({
-  ethers: {
-    providers: {
-      JsonRpcProvider: jest.fn().mockImplementation(() => ({
-        sendTransaction: jest.fn().mockImplementation((rawTx) => {
-          if (!rawTx || !rawTx.startsWith("0x")) {
-            throw new Error("Invalid transaction format")
-          }
-          const generateEthHash = () => {
-            return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
-          }
-
-          return Promise.resolve({
-            hash: generateEthHash(),
-            wait: jest.fn().mockResolvedValue({
-              transactionHash: generateEthHash(),
-              status: 1,
-              blockNumber: Math.floor(Math.random() * 1000000),
-            }),
-          })
-        }),
-      })),
-    },
+  Status: {
+    SUCCESS: "SUCCESS",
+    INVALID_TRANSACTION: "INVALID_TRANSACTION",
   },
 }))
+
+jest.mock("ethers", () => {
+  class MockContractFactory {}
+  class MockContract {}
+  return {
+    ethers: {
+      providers: {
+        JsonRpcProvider: jest.fn().mockImplementation(() => ({
+          sendTransaction: jest.fn().mockImplementation((rawTx) => {
+            if (!rawTx || !rawTx.startsWith("0x")) {
+              const error: any = new Error("Invalid transaction format")
+              error.code = "INVALID_ARGUMENT"
+              throw error
+            }
+            const generateEthHash = () => {
+              return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+            }
+
+            return Promise.resolve({
+              hash: generateEthHash(),
+              wait: jest.fn().mockResolvedValue({
+                transactionHash: generateEthHash(),
+                status: 1,
+                blockNumber: Math.floor(Math.random() * 1000000),
+              }),
+            })
+          }),
+        })),
+      },
+      ContractFactory: MockContractFactory,
+      Contract: MockContract,
+    },
+    ContractFactory: MockContractFactory,
+    Contract: MockContract,
+  }
+})
+
+const mockConfigService = {
+  getNetwork: jest.fn().mockReturnValue("testnet"),
+  getLogLevel: jest.fn().mockReturnValue("info"),
+}
 
 describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
   let adapter: BlockchainTransactionSenderAdapter
 
   beforeEach(() => {
-    adapter = new BlockchainTransactionSenderAdapter()
+    adapter = new BlockchainTransactionSenderAdapter(mockConfigService as any)
     jest.clearAllMocks()
   })
 
@@ -89,11 +111,8 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       signedTransaction.payload = "0xinvalid"
       signedTransaction.format = "hedera"
 
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toHaveProperty("status", "failed")
-      expect(result).toHaveProperty("errorCode")
-      expect(result.errorCode).toBeDefined()
+      // Now expects BlockchainError to be thrown
+      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow(BlockchainError)
     })
   })
 
@@ -125,11 +144,8 @@ describe("BlockchainTransactionSenderAdapter Integration Tests", () => {
       signedTransaction.payload = "invalid-no-hex"
       signedTransaction.format = "ethereum"
 
-      const result = await adapter.sendTransaction(signedTransaction)
-
-      expect(result).toHaveProperty("status", "failed")
-      expect(result).toHaveProperty("errorCode")
-      expect(result.errorCode).toBeDefined()
+      // Now expects BlockchainError to be thrown
+      await expect(adapter.sendTransaction(signedTransaction)).rejects.toThrow(BlockchainError)
     })
   })
 

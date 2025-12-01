@@ -6,6 +6,8 @@ import { SendSignedTransactionCommand } from "./SendSignedTransactionCommand"
 import { SignedTransactionRequest } from "@domain/model/SignedTransactionRequest"
 import { SignedTransactionSentEvent } from "@domain/events/SignedTransactionSentEvent"
 import type { BlockchainTransactionSenderPort } from "@port/transactionsender/BlockchainTransactionSenderPort"
+import { BlockchainError } from "@domain/errors/BlockchainError"
+import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"
 
 @Singleton()
 @Handler(SendSignedTransactionCommand)
@@ -22,7 +24,25 @@ export class SendSignedTransactionCommandHandler implements CommandHandler<SendS
     signedTransaction.metadata = command.metadata
     signedTransaction.format = command.format
 
-    const transactionResponse = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
+    let transactionResponse: BlockchainTransactionResponse
+
+    try {
+      transactionResponse = await this.blockchainTransactionSender.sendTransaction(signedTransaction)
+    } catch (error: any) {
+      if (error instanceof BlockchainError) {
+        transactionResponse = {
+          transactionId: error.transactionId,
+          status: "failed",
+          errorCode: error.errorCode,
+        }
+      } else {
+        transactionResponse = {
+          transactionId: "EXECUTION_FAILED",
+          status: "failed",
+          errorCode: "UNKNOWN_ERROR",
+        }
+      }
+    }
 
     const event = new SignedTransactionSentEvent(
       command.payload,
