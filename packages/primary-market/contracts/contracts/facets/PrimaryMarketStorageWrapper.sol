@@ -171,6 +171,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         // INTERACTIONS: External call last
         IERC20 token = IERC20(offering.info.paymentToken);
         token.transfer(subscription.investor, subscription.amountPaid);
+
+        emit IPrimaryMarket.SubscriptionCancelled(_offeringId, _subscriptionId);
     }
 
     function _executeOffering(

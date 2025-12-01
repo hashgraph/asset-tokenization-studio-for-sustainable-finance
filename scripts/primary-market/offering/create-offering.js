@@ -3,48 +3,12 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
+const { deployAndWaitForPrimaryMarket, grantOfferingCreatorRoleAndWait } = require('../shared/setup-service');
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
+const { createOffering: createOfferingService } = require('./offering-service');
 const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
 const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
-const { createOffering: createOfferingService } = require('./offering-service');
-
-// Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
-
-/**
- * Grant the OFFERING_CREATOR_ROLE to a user in a Primary Market
- * @param {string} format - The blockchain format (hedera or ethereum)
- * @param {string} marketContractId - The primary market contract ID
- * @param {string} userAccountId - The user account ID to grant the role to
- * @returns {Promise<Object>} The grant role transaction details
- */
-async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  logHeader(`🔐 Granting OFFERING_CREATOR_ROLE in ${format.toUpperCase()} Primary Market...`);
-
-  const grantRoleRequest = {
-    format: format,
-    accountId: process.env.ACCOUNT_ID
-  };
-
-  try {
-    logInfo('Sending grant role request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${OFFERING_CREATOR_ROLE}/users/${userAccountId}`;
-    const response = await gatewayClient.post(endpoint, grantRoleRequest);
-
-    logSuccess(`${format.toUpperCase()} Grant OFFERING_CREATOR_ROLE transaction created!`);
-    logInfo(`Market Contract ID: ${marketContractId}`);
-    logInfo(`Role ID: ${OFFERING_CREATOR_ROLE}`);
-    logInfo(`User Account ID: ${userAccountId}`);
-    logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 50)}...`);
-
-    return { ...grantRoleRequest, unsignedTx: response.data.unsignedTx };
-  } catch (error) {
-    logError(`Failed to create grant role transaction: ${error.message}`);
-    if (error.response?.data) {
-      logError(`Response data: ${JSON.stringify(error.response.data, null, 2)}`);
-    }
-    throw error;
-  }
-}
 
 /**
  * Create an offering in a Primary Market (wrapper for offering-service)
@@ -143,8 +107,8 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Hardcoded configuration parameters
-    const resolverContractId = '0.0.7352465';
-    const configVersion = 0;
+    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const configVersion = CONFIG_VERSION;
     const bondContractId = '0.0.7319744'; // TODO: Set bond contract ID
     const userAccountId = process.env.ACCOUNT_ID;
 
@@ -282,9 +246,7 @@ if (require.main === module) {
 }
 
 module.exports = {
-  grantOfferingCreatorRole,
   createOffering,
   waitForOfferingCreation,
-  getLatestOffering,
-  OFFERING_CREATOR_ROLE
+  getLatestOffering
 };

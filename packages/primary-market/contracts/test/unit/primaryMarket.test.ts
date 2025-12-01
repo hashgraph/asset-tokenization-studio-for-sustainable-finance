@@ -700,7 +700,9 @@ describe("PrimaryMarket", () => {
       await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
 
       // Cancel the subscription while offering is still active
-      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
+        .to.emit(primaryMarket, "SubscriptionCancelled")
+        .withArgs(offeringId, 1);
 
       // Move past endDate
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
@@ -1667,7 +1669,9 @@ describe("PrimaryMarket", () => {
       const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
 
       // Cancel subscription
-      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, subscriptionId);
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, subscriptionId))
+        .to.emit(primaryMarket, "SubscriptionCancelled")
+        .withArgs(offeringId, subscriptionId);
 
       // Check refund
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
@@ -1730,7 +1734,9 @@ describe("PrimaryMarket", () => {
       await primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots);
 
       // Cancel first time
-      await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+      await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
+        .to.emit(primaryMarket, "SubscriptionCancelled")
+        .withArgs(offeringId, 1);
 
       // Cancel again should fail
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
@@ -1815,7 +1821,9 @@ describe("PrimaryMarket", () => {
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
-        await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+        await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
+          .to.emit(primaryMarket, "SubscriptionCancelled")
+          .withArgs(offeringId, 1);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
         expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);
@@ -1889,7 +1897,9 @@ describe("PrimaryMarket", () => {
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
-        await primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1);
+        await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, 1))
+          .to.emit(primaryMarket, "SubscriptionCancelled")
+          .withArgs(offeringId, 1);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
         expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);

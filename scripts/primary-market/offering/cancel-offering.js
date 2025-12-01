@@ -21,14 +21,14 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
+const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
 const { createOffering } = require('./offering-service');
 const { waitForOfferingCreation } = require('./create-offering');
 const { deployHTSToken, approveTokenAllowance } = require('./hts-token-service');
-
-// Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
+const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
+const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
 
 /**
  * Get offering details from the database
@@ -195,6 +195,12 @@ async function waitForSubscriptionStatusChange(marketContractId, offeringId, sub
   logInfo(`🔍 Fetching subscription status from database...`);
   const subscription = await getSubscription(marketContractId, offeringId, subscriptionId);
   
+  // Verify status changed from SUBMITTED
+  if (subscription.status === 'SUBMITTED') {
+    logError(`⚠️  Subscription status is still SUBMITTED after cancellation`);
+    throw new Error('Subscription status did not change from SUBMITTED');
+  }
+  
   return subscription;
 }
 
@@ -234,38 +240,6 @@ async function cancelOffering(format, marketContractId, offeringId, start = 0, e
 }
 
 /**
- * Grant OFFERING_CREATOR_ROLE to a user
- */
-async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  logHeader(`🔐 Granting OFFERING_CREATOR_ROLE in ${format.toUpperCase()} Primary Market...`);
-
-  const grantRoleRequest = {
-    format: format,
-    accountId: process.env.ACCOUNT_ID,
-  };
-
-  try {
-    logInfo('Sending grant role request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${OFFERING_CREATOR_ROLE}/users/${userAccountId}`;
-    const response = await gatewayClient.post(endpoint, grantRoleRequest);
-
-    logSuccess(`${format.toUpperCase()} Grant OFFERING_CREATOR_ROLE transaction created!`);
-    logInfo(`Market Contract ID: ${marketContractId}`);
-    logInfo(`Role ID: ${OFFERING_CREATOR_ROLE}`);
-    logInfo(`User Account ID: ${userAccountId}`);
-    logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 50)}...`);
-
-    return { ...grantRoleRequest, unsignedTx: response.data.unsignedTx };
-  } catch (error) {
-    logError(`Failed to create grant role transaction: ${error.message}`);
-    if (error.response?.data) {
-      logError(`Response data: ${JSON.stringify(error.response.data, null, 2)}`);
-    }
-    throw error;
-  }
-}
-
-/**
  * Main execution function
  */
 async function main() {
@@ -289,8 +263,8 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Configuration parameters
-    const resolverContractId = '0.0.7352465';
-    const configVersion = 0;
+    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const configVersion = CONFIG_VERSION;
     const bondContractId = '0.0.7319744'; // Default bond contract ID
     const userAccountId = process.env.ACCOUNT_ID;
 
