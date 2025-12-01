@@ -71,7 +71,7 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
     
     // Configuration parameters
-    const resolverContractId = process.env.RESOLVER_CONTRACT_ID || '0.0.7297268';
+    const resolverContractId = process.env.RESOLVER_CONTRACT_ID || '0.0.7352465';
     const configVersion = parseInt(process.env.CONFIG_VERSION || '0');
     const userAccountId = process.env.ACCOUNT_ID;
     const rolesToGrant = process.env.ROLES_TO_GRANT ? process.env.ROLES_TO_GRANT.split(',') : ['0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a'];

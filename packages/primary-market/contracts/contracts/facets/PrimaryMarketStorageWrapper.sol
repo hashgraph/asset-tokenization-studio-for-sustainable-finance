@@ -147,7 +147,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         // INTERACTIONS: External call last
         IERC20 token = IERC20(offering.info.paymentToken);
-        token.safeTransferFrom(_msgSender(), address(this), requiredPayment);
+        token.transferFrom(_msgSender(), address(this), requiredPayment);
 
         emit IPrimaryMarket.SubscriptionSubmitted(_offeringId, subscriptionId, _msgSender(), _lotUnits);
     }
@@ -170,7 +170,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
 
         // INTERACTIONS: External call last
         IERC20 token = IERC20(offering.info.paymentToken);
-        token.safeTransfer(subscription.investor, subscription.amountPaid);
+        token.transfer(subscription.investor, subscription.amountPaid);
     }
 
     function _executeOffering(

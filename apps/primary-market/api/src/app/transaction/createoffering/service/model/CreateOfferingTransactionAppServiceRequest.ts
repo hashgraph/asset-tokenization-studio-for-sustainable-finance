@@ -10,11 +10,11 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
 
   @IsNotEmpty()
   @IsString()
-  readonly treasuryAddress: string
+  readonly treasuryContractId: string
 
   @IsNotEmpty()
   @IsString()
-  readonly paymentTokenAddress: string
+  readonly paymentTokenContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
@@ -61,8 +61,8 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
     accountId: string,
     contractId: string,
     bondContractId: string,
-    treasuryAddress: string,
-    paymentTokenAddress: string,
+    treasuryContractId: string,
+    paymentTokenContractId: string,
     lotSize: string,
     minLots: string,
     maxLots: string,
@@ -76,8 +76,8 @@ export class CreateOfferingTransactionAppServiceRequest extends BaseTransactionA
   ) {
     super(format, accountId, contractId)
     this.bondContractId = bondContractId
-    this.treasuryAddress = treasuryAddress
-    this.paymentTokenAddress = paymentTokenAddress
+    this.treasuryContractId = treasuryContractId
+    this.paymentTokenContractId = paymentTokenContractId
     this.lotSize = lotSize
     this.minLots = minLots
     this.maxLots = maxLots

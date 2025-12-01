@@ -13,7 +13,8 @@ async function getLatestPrimaryMarket() {
       params: {
         page: 1,
         limit: 1,
-        sort: 'createdAt,desc'
+        orderBy: 'createdAt',
+        order: 'desc'
       }
     });
     

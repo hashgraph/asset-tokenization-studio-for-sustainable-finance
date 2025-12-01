@@ -59,19 +59,21 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "0x123456789", // transactionHash
         "1", // offeringId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
-        "0x0000000000000000000000000000000000001235", // asset (bond)
-        "0x0000000000000000000000000000000000001236", // treasury
-        "0x0000000000000000000000000000000000001237", // payment token
-        "100", // price
-        6, // priceDecimals
-        "1000", // lotSize
-        "100", // minLots
-        "10000", // maxLots
-        "5000", // targetLots
-        0, // targetQuantityRule
-        "1640995200", // startDate
-        "1672531200", // endDate
-        0, // deadlineRule
+        {
+          asset: "0x0000000000000000000000000000000000001235", // bond
+          treasury: "0x0000000000000000000000000000000000001236",
+          paymentToken: "0x0000000000000000000000000000000000001237",
+          lotSize: "1000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
+          targetQuantityRule: 0,
+          startDate: "1640995200",
+          endDate: "1672531200",
+          deadlineRule: 0,
+          price: "100",
+          priceDecimals: 6,
+        },
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -132,19 +134,21 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "0x123456789", // transactionHash
         "1", // Same offeringId
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
-        "0x0000000000000000000000000000000000001235", // asset (bond)
-        "0x0000000000000000000000000000000000001236", // treasury
-        "0x0000000000000000000000000000000000001237", // payment token
-        "100", // price
-        6, // priceDecimals
-        "1000",
-        "100",
-        "10000",
-        "5000",
-        0,
-        "1640995200",
-        "1672531200",
-        0,
+        {
+          asset: "0x0000000000000000000000000000000000001235", // bond
+          treasury: "0x0000000000000000000000000000000000001236",
+          paymentToken: "0x0000000000000000000000000000000000001237",
+          lotSize: "1000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
+          targetQuantityRule: 0,
+          startDate: "1640995200",
+          endDate: "1672531200",
+          deadlineRule: 0,
+          price: "100",
+          priceDecimals: 6,
+        },
       )
 
       await expect(eventBus.publishSync(event, OfferingCreatedDLTEvent.name)).rejects.toThrow()
@@ -163,19 +167,21 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           "0x123456789", // transactionHash
           String(offeringId),
           "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
-          "0x0000000000000000000000000000000000001235", // asset (bond)
-          "0x0000000000000000000000000000000000001236", // treasury
-          "0x0000000000000000000000000000000000001237", // payment token
-          "100", // price
-          6, // priceDecimals
-          "1000",
-          "100",
-          "10000",
-          "5000",
-          0,
-          "1640995200",
-          "1672531200",
-          0,
+          {
+            asset: "0x0000000000000000000000000000000000001235", // bond
+            treasury: "0x0000000000000000000000000000000000001236",
+            paymentToken: "0x0000000000000000000000000000000000001237",
+            lotSize: "1000",
+            minLots: "100",
+            maxLots: "10000",
+            targetLots: "5000",
+            targetQuantityRule: 0,
+            startDate: "1640995200",
+            endDate: "1672531200",
+            deadlineRule: 0,
+            price: "100",
+            priceDecimals: 6,
+          },
         )
 
         await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)
@@ -206,19 +212,21 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
         "0x123456789", // transactionHash
         "1",
         "0x0000000000000000000000000000000000001234", // operator (valid EVM address)
-        "0x0000000000000000000000000000000000001235", // asset (bond)
-        "0x0000000000000000000000000000000000001236", // treasury
-        "0x0000000000000000000000000000000000001237", // payment token
-        "100", // price
-        6, // priceDecimals
-        "1000",
-        "100",
-        "10000",
-        "5000",
-        0,
-        "1640995200",
-        "1672531200",
-        0,
+        {
+          asset: "0x0000000000000000000000000000000000001235", // bond
+          treasury: "0x0000000000000000000000000000000000001236",
+          paymentToken: "0x0000000000000000000000000000000000001237",
+          lotSize: "1000",
+          minLots: "100",
+          maxLots: "10000",
+          targetLots: "5000",
+          targetQuantityRule: 0,
+          startDate: "1640995200",
+          endDate: "1672531200",
+          deadlineRule: 0,
+          price: "100",
+          priceDecimals: 6,
+        },
       )
 
       await eventBus.publishSync(event, OfferingCreatedDLTEvent.name)

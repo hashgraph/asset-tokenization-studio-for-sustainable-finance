@@ -67,7 +67,7 @@ describe("CreatePrimaryMarketFiltersAdapter Integration", () => {
       expect(capturedCommand!.contractAddress).toBe("0x00000000000000000000000000000000001299d7")
       expect(capturedCommand!.eventSignatures).toEqual(
         expect.arrayContaining([
-          "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 price,uint8 priceDecimals,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule) offering)",
+          "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule,uint256 price,uint8 priceDecimals) offering)",
           "RoleGranted(address indexed operator,address indexed account,bytes32 indexed role)",
           "RoleRenounced(address indexed account, bytes32 indexed role)",
           "RolesApplied(bytes32[] roles, bool[] actives, address account)",
@@ -98,7 +98,7 @@ describe("CreatePrimaryMarketFiltersAdapter Integration", () => {
       expect(capturedCommand).toBeDefined()
       expect(capturedCommand!.eventSignatures).toHaveLength(10)
       expect(capturedCommand!.eventSignatures).toEqual([
-        "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 price,uint8 priceDecimals,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule) offering)",
+        "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule,uint256 price,uint8 priceDecimals) offering)",
         "RoleGranted(address indexed operator,address indexed account,bytes32 indexed role)",
         "RoleRenounced(address indexed account, bytes32 indexed role)",
         "RolesApplied(bytes32[] roles, bool[] actives, address account)",

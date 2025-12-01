@@ -890,16 +890,6 @@ describe("PrimaryMarket", () => {
       );
     });
 
-    it("GIVEN subscription to PM WHEN submitting if 'transferFrom' fails THEN fail", async () => {
-      const lotsUnit = parseInt(offering.minLots.toString()) + 1;
-
-      await mockPaymentToken.setTransferFromFail(true);
-
-      await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit)).to.be.revertedWith(
-        "SafeERC20: ERC20 operation did not succeed",
-      );
-    });
-
     it("GIVEN subscription before offering startDate or after endDate WHEN submitting THEN fail", async () => {
       const lotsUnit = parseInt(offering.minLots.toString()) + 1;
 

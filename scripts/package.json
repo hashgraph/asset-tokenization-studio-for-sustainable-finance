@@ -26,6 +26,8 @@
     "primary-market:apply-roles": "node primary-market/primarymarket/apply-roles.js",
     "primary-market:role-management-functionality": "node primary-market/primarymarket/role-management-functionality.js",
     "primary-market:pause-unpause-functionality": "node primary-market/primarymarket/pause-unpause-functionality.js",
+    "primary-market:create-offering": "node primary-market/offering/create-offering.js",
+    "primary-market:cancel-offering": "node primary-market/offering/cancel-offering.js",
     "ats:create-clearing-redeem": "node ats/bond/clearing/create-clearing-redeem.js",
     "ats:create-clearing-transfer": "node ats/bond/clearing/create-clearing-transfer.js",
     "ats:create-clearing-hold": "node ats/bond/clearing/create-clearing-hold.js",

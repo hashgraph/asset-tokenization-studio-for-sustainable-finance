@@ -14,7 +14,7 @@ export class CancelOfferingNestJSEventAdapter implements CancelOfferingPort, Eve
   async handle(event: OfferingCancelledDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new CancelOfferingCommand(
-        event.offeringId,
+        Number(event.offeringId),
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
         event.result,
