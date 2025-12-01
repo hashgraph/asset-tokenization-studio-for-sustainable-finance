@@ -16,10 +16,15 @@ export class GetBondHoldQuery extends Query<BondHoldQueryResponse> {
   @IsNumber()
   readonly holdId: number
 
-  constructor(bondContractId: string, holderAccountId: string, holdId: number) {
+  @IsNotEmpty()
+  @IsString()
+  readonly partition: string
+
+  constructor(bondContractId: string, holderAccountId: string, holdId: number, partition: string) {
     super()
     this.bondContractId = bondContractId
     this.holderAccountId = holderAccountId
     this.holdId = holdId
+    this.partition = partition
   }
 }

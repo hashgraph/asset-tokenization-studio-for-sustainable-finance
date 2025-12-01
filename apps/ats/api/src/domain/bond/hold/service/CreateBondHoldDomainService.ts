@@ -17,6 +17,7 @@ export class CreateBondHoldDomainService {
       request.bondContractId,
       request.holderAccountId,
       request.holdId,
+      request.partition,
     )
 
     if (existingHold) {

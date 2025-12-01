@@ -21,9 +21,9 @@ export class ReclaimedHoldByPartitionNestJSEventAdapter
   async handle(event: HoldByPartitionReclaimedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ReclaimBondHoldCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
-        event.holdId,
+        Number(event.holdId),
         event.partition,
         event.amount,
       ),

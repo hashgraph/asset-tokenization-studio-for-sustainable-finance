@@ -4,5 +4,6 @@ export class DeleteBondHoldDomainServiceRequest {
     public readonly contractId: string,
     public readonly holderAccountId: string,
     public readonly holdId: number,
+    public readonly partition: string,
   ) {}
 }

@@ -78,7 +78,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       const holdId = 1
 
       await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${holdId}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/testPartition/holds/${holdId}`)
         .send()
         .expect(HttpStatus.NOT_FOUND)
     })
@@ -90,7 +90,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       await createBond(bondContractId)
 
       await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${holdId}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/testPartition/holds/${holdId}`)
         .send()
         .expect(HttpStatus.NOT_FOUND)
     })
@@ -116,7 +116,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.OK)
 
@@ -157,7 +157,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
 
       // Try to access holder1's hold with holder2 in the URL
       await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holder2}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holder2}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.NOT_FOUND)
     })
@@ -185,7 +185,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
 
       // Try to access bond1's hold with bond2 in the URL
       await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId2}/holders/${holderAccountId}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId2}/holders/${holderAccountId}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.NOT_FOUND)
     })
@@ -196,7 +196,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       const invalidHoldId = "invalid"
 
       await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${invalidHoldId}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/somePartition/holds/${invalidHoldId}`)
         .send()
         .expect(HttpStatus.BAD_REQUEST)
     })
@@ -222,7 +222,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.OK)
 
@@ -260,7 +260,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.OK)
 
@@ -319,7 +319,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
 
       // Request hold2
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${hold2.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/${hold2.partition}/holds/${hold2.id}`)
         .send()
         .expect(HttpStatus.OK)
 
@@ -350,7 +350,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/holds/${hold.id}`)
+        .get(`/api/v1/ats/bonds/${bondContractId}/holders/${holderAccountId}/partitions/${hold.partition}/holds/${hold.id}`)
         .send()
         .expect(HttpStatus.OK)
 

@@ -21,7 +21,7 @@ export class ExecutedHoldByPartitionNestJSEventAdapter
   async handle(event: HoldByPartitionExecutedDLTEvent): Promise<void> {
     await this.commandBus.execute(
       new ExecuteBondHoldCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         Number(event.holdId),
         event.partition,

@@ -12,17 +12,20 @@ export class CreateBondHoldNestJSEventAdapter implements CreateBondHoldPort, Eve
 
   @Handler(HeldByPartitionDLTEvent)
   async handle(event: HeldByPartitionDLTEvent): Promise<void> {
+    const escrow = event.hold.escrow || ""
+    const to = event.hold.to || ""
+
     await this.commandBus.execute(
       new CreateBondHoldCommand(
         Number(event.holdId),
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
-        event.amount,
-        new Date(Number(event.expirationTimestamp) * 1000),
-        await ConverterUtils.getHederaAddressFromEvm(event.escrow),
-        await ConverterUtils.getHederaAddressFromEvm(event.to),
-        event.data,
+        event.hold?.amount,
+        new Date(Number(event.hold.expirationTimestamp) * 1000),
+        escrow ? await ConverterUtils.getHederaAddressFromEvm(escrow) : "",
+        to ? await ConverterUtils.getHederaAddressFromEvm(to) : "",
+        event.hold.data,
         event.operatorData,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
       ),

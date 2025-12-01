@@ -2,16 +2,20 @@
 
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
+interface Hold {
+  amount: string
+  expirationTimestamp: string
+  escrow: string
+  to: string
+  data: string
+}
+
 export class HeldByPartitionDLTEvent extends DLTEvent {
   readonly operator: string
   readonly tokenHolder: string
   readonly partition: string
   readonly holdId: string
-  readonly amount: string
-  readonly expirationTimestamp: string
-  readonly escrow: string
-  readonly to: string
-  readonly data: string
+  readonly hold: Hold
   readonly operatorData: string
 
   constructor(
@@ -21,11 +25,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
     tokenHolder: string,
     partition: string,
     holdId: string,
-    amount: string,
-    expirationTimestamp: string,
-    escrow: string,
-    to: string,
-    data: string,
+    hold: Hold,
     operatorData: string,
   ) {
     super(contractId, transactionHash)
@@ -33,11 +33,7 @@ export class HeldByPartitionDLTEvent extends DLTEvent {
     this.tokenHolder = tokenHolder
     this.partition = partition
     this.holdId = holdId
-    this.amount = amount
-    this.expirationTimestamp = expirationTimestamp
-    this.escrow = escrow
-    this.to = to
-    this.data = data
+    this.hold = hold
     this.operatorData = operatorData
   }
 }
