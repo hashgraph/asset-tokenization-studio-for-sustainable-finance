@@ -103,14 +103,9 @@ jobs:
           echo "🔨 Compiling ${{ inputs.module }} contracts..."
           npm run compile --workspace=${{ env.WORKSPACE_NAME }}
 
-      - name: Run tests
+      - name: Run tests with coverage
         run: |
-          echo "🧪 Running tests for ${{ inputs.module }} contracts..."
-          npm run test --workspace=${{ env.WORKSPACE_NAME }}
-
-      - name: Generate coverage report
-        run: |
-          echo "📊 Generating coverage report for ${{ inputs.module }} contracts..."
+          echo "🧪 Running tests with coverage for ${{ inputs.module }} contracts..."
           npm run coverage --workspace=${{ env.WORKSPACE_NAME }}
 
       - name: Check coverage threshold
