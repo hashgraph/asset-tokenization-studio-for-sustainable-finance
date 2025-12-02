@@ -12,6 +12,8 @@ import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updatecle
 import { ReclaimClearingCommand } from "@app/bond/reclaimclearing/command/ReclaimClearingCommand"
 import { ApproveClearingCommand } from "@app/bond/approveclearing/command/ApproveClearingCommand"
 import { UpdateClearingOperationPort } from "@port/bond/usecase/updateclearingoperation/UpdateClearingOperationPort"
+import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
+import { utils } from "ethers"
 
 @Singleton()
 export class ClearingOperationApprovedNestJSEventAdapter
@@ -21,14 +23,25 @@ export class ClearingOperationApprovedNestJSEventAdapter
 
   @Handler(ClearingOperationApprovedDLTEvent)
   async handle(event: ClearingOperationApprovedDLTEvent): Promise<void> {
+    let holdId: number | undefined
+    if (
+      event.clearingOperationType === ClearingOperationType.HOLD &&
+      event.operationData &&
+      event.operationData !== "0x"
+    ) {
+      const decodedData = utils.defaultAbiCoder.decode(["uint256"], event.operationData)
+      holdId = Number(decodedData[0])
+    }
+
     await this.commandBus.execute(
       new ApproveClearingCommand(
         Number(event.clearingId),
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
         event.clearingOperationType,
+        holdId,
       ),
     )
   }
@@ -45,7 +58,7 @@ export class ClearingOperationReclaimedNestJSEventAdapter
     await this.commandBus.execute(
       new ReclaimClearingCommand(
         Number(event.clearingId),
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
