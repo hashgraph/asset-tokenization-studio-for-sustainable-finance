@@ -1,6 +1,6 @@
-const { Client, AccountId, PrivateKey, TokenMintTransaction } = require('@hashgraph/sdk');
+const { Client, AccountId, PrivateKey } = require('@hashgraph/sdk');
 const { createPaymentToken } = require('./verify-update-treasury-payment-token');
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
@@ -11,6 +11,7 @@ const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
  * Transfer a payment token to Treasury
  * @param {string} treasuryContractId - Treasury contract ID
  * @param {string} paymentTokenContractId - The payment token contract ID
+ * @param {string} sourceAccountId - The account transferring the payment tokens
  */
 async function transferPaymentTokenToTreasury(treasuryContractId, paymentTokenContractId, sourceAccountId) {
   log(`\n💱 Transferring payment token for treasury ${treasuryContractId} (${paymentTokenContractId}) from ${sourceAccountId}...`, colors.yellow);
@@ -23,8 +24,6 @@ async function transferPaymentTokenToTreasury(treasuryContractId, paymentTokenCo
   };
 
   // Step 1: Get unsigned transaction from API
-  gatewayClient.baseURL = "http://localhost:3003";
-  log(`/api/v1/payment-tokens/${paymentTokenContractId}/treasuries/${treasuryContractId}/transfer`);
   const response = await gatewayClient.post(
     `/api/v1/payment-tokens/${paymentTokenContractId}/treasuries/${treasuryContractId}/transfer`,
     requestBody
@@ -110,7 +109,7 @@ async function verifyTransferPaymentTokenToTreasury(treasuryContractId) {
         }
       };
 
-      const treasury = await deployBondWaitTreasuryAndApplyRoles(undefined, overridePaymentTokenAddress);
+      const treasury = await deployBondWaitTreasuryAndApplyRoles(overridePaymentTokenAddress);
 
       contractId = treasury.contractId;
       logSuccess(`Treasury deployed: ${contractId}`);

@@ -6,6 +6,11 @@ const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
+/**
+ * Wipe the payment token from the treasury account
+ * @param {string} paymentTokenId - The payment token contract ID
+ * @param {string} treasuryContractId - Treasury contract ID
+ */
 async function wipePaymentToken(paymentTokenId, treasuryContractId) {
   log(`\n💱 Wiping payment token ${paymentTokenId} for treasury ${treasuryContractId}...`, colors.yellow);
   const client = Client.forTestnet();
@@ -60,6 +65,7 @@ async function dissociatePaymentToken(treasuryContractId, paymentTokenContractId
 /**
  * Wait for payment token dissociated (with retries)
  * @param {string} treasuryContractId - Treasury contract ID
+ * @param {string} paymentTokenId - The payment token contract ID
  * @param {number} maxRetries - Maximum number of retries
  * @param {number} retryInterval - Interval between retries in milliseconds
  */

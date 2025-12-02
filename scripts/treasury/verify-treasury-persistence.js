@@ -120,7 +120,7 @@ async function applyTreasuryRoles(treasuryContractId, userAccountId) {
  * Deploy a bond, wait for treasury, and apply all roles to the signing account
  * @returns {Promise<Object>} The created treasury object with contractId, bondContractId, createdAt, etc.
  */
-async function deployBondWaitTreasuryAndApplyRoles(paymentTokenContractId, overridesBondCreationRequest = {}) {
+async function deployBondWaitTreasuryAndApplyRoles(overridesBondCreationRequest = {}) {
   const treasury = await deployBondAndWaitForTreasury(overridesBondCreationRequest);
   
   log(`\n📋 Applying all treasury roles to signing account...`, colors.bright);

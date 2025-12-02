@@ -1,5 +1,5 @@
-const { Client, AccountId, PrivateKey, TokenMintTransaction } = require('@hashgraph/sdk');
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { Client, AccountId, PrivateKey } = require('@hashgraph/sdk');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { verifyTransferPaymentTokenToTreasury } = require('./verify-transfer-payment-token-to-treasury');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
