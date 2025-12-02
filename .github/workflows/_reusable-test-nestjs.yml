@@ -1,0 +1,238 @@
+name: Test NestJS (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      module:
+        description: "Module name (e.g., primary-market, treasury, ats, shared-core, blockchain-listener, gateway, transaction-sender)"
+        required: true
+        type: string
+      app-type:
+        description: "Application type: api or library"
+        required: true
+        type: string
+      coverage-threshold:
+        description: "Minimum coverage percentage required"
+        required: false
+        type: number
+        default: 80
+      node-version:
+        description: "Node.js version to use"
+        required: false
+        type: string
+        default: "22"
+    secrets:
+      codecov-token:
+        description: "Codecov upload token"
+        required: false
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test-nestjs:
+    name: Test ${{ inputs.module }} (${{ inputs.app-type }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Workspace name mapping
+      WORKSPACE_NAME: >-
+        ${{
+          inputs.module == 'ats' && '@hashgraph/green-bonds-ats-api' ||
+          inputs.module == 'primary-market' && '@hashgraph/green-bonds-primary-market-api' ||
+          inputs.module == 'treasury' && '@hashgraph/green-bonds-treasury-api' ||
+          inputs.module == 'gateway' && '@hashgraph/green-bonds-gateway' ||
+          inputs.module == 'transaction-sender' && '@hashgraph/green-bonds-transaction-sender' ||
+          inputs.module == 'shared-core' && '@hashgraph/green-bonds-shared-core' ||
+          inputs.module == 'blockchain-listener' && '@hashgraph/green-bonds-blockchain-listener' ||
+          ''
+        }}
+      # Script prefix mapping (module prefix for root-level scripts)
+      SCRIPT_PREFIX: >-
+        ${{
+          inputs.module == 'ats' && 'ats:api' ||
+          inputs.module == 'primary-market' && 'primary-market:api' ||
+          inputs.module == 'treasury' && 'treasury:api' ||
+          inputs.module == 'gateway' && 'gateway' ||
+          inputs.module == 'transaction-sender' && 'transaction-sender' ||
+          inputs.module == 'shared-core' && 'shared:core' ||
+          inputs.module == 'blockchain-listener' && 'shared:listener' ||
+          ''
+        }}
+      # Module path for coverage files
+      MODULE_PATH: >-
+        ${{
+          (inputs.app-type == 'api' && inputs.module != 'gateway' && inputs.module != 'transaction-sender') && format('apps/{0}/api', inputs.module) ||
+          inputs.module == 'gateway' && 'apps/shared/gateway' ||
+          inputs.module == 'transaction-sender' && 'apps/shared/transaction-sender' ||
+          (inputs.app-type == 'library' && inputs.module == 'shared-core') && 'packages/shared/core' ||
+          (inputs.app-type == 'library' && inputs.module == 'blockchain-listener') && 'packages/shared/blockchain-listener' ||
+          ''
+        }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Restore dependencies from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+            ~/.npm
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-deps-
+          fail-on-cache-miss: true
+
+      - name: Cache Jest
+        uses: actions/cache@v4
+        with:
+          path: |
+            .jest-cache
+            **/node_modules/.cache/jest
+          key: ${{ runner.os }}-jest-${{ inputs.module }}-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-${{ inputs.module }}-
+            ${{ runner.os }}-jest-
+
+      - name: Build dependencies
+        run: |
+          echo "📦 Building dependencies for ${{ inputs.module }}..."
+
+          # CRITICAL: Build order must respect dependencies
+          # 1. Treasury contracts (NO dependencies, provides types to Shared Core)
+          # 2. Other domain contracts (depend on Treasury)
+          # 3. Shared Core (depends on Treasury contract types)
+          # 4. Blockchain Listener (depends on Shared Core)
+          # 5. APIs (depend on all of the above)
+
+          # Step 1: ALWAYS build Treasury contracts FIRST (Shared Core imports from them)
+          echo "Building Treasury contracts (required by Shared Core)..."
+          npm run treasury:contracts:build
+
+          # Step 2: Build other domain contracts if testing specific module
+          if [ "${{ inputs.module }}" = "ats" ]; then
+            echo "Building ATS contracts (for types)..."
+            npm run ats:contracts:build
+          elif [ "${{ inputs.module }}" = "primary-market" ]; then
+            echo "Building Primary Market contracts (for types)..."
+            npm run primary-market:contracts:build
+          fi
+
+          # Step 3: Build Shared Core (depends on Treasury contract types)
+          if [ "${{ inputs.module }}" != "shared-core" ]; then
+            echo "Building Shared Core (foundation)..."
+            npm run shared:core:build
+          fi
+
+          # Step 4: Build Blockchain Listener if needed (depends on Shared Core, used by all APIs)
+          if [ "${{ inputs.app-type }}" = "api" ] && [ "${{ inputs.module }}" != "blockchain-listener" ]; then
+            echo "Building Blockchain Listener (API dependency)..."
+            npm run shared:listener:build
+          fi
+
+          echo "✅ Dependencies built successfully"
+
+      - name: Run unit tests with coverage
+        run: |
+          echo "🧪 Running unit tests with coverage for ${{ inputs.module }}..."
+          # CI scripts include: --forceExit (prevents CI hangs) and --maxWorkers=2 (prevents memory exhaustion)
+          npm run ${{ env.SCRIPT_PREFIX }}:test:coverage:ci
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      # NOTE: E2E tests removed from automatic PR workflow
+      # E2E tests should be run manually or in a separate workflow
+      # Reason: Too slow and resource-intensive for CI PR checks
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE_FILE="${{ env.MODULE_PATH }}/coverage/coverage-summary.json"
+
+          if [ ! -f "$COVERAGE_FILE" ]; then
+            echo "❌ Coverage file not found: $COVERAGE_FILE"
+            exit 1
+          fi
+
+          # Extract total coverage percentage
+          TOTAL_COVERAGE=$(node -e "
+            const fs = require('fs');
+            const coverage = JSON.parse(fs.readFileSync('$COVERAGE_FILE', 'utf8'));
+            const total = coverage.total;
+            const pct = total.lines.pct;
+            console.log(pct);
+          ")
+
+          echo "📈 Total line coverage: ${TOTAL_COVERAGE}%"
+          echo "🎯 Required threshold: ${{ inputs.coverage-threshold }}%"
+
+          # Compare coverage with threshold
+          if (( $(echo "$TOTAL_COVERAGE < ${{ inputs.coverage-threshold }}" | bc -l) )); then
+            echo "❌ Coverage ${TOTAL_COVERAGE}% is below threshold ${{ inputs.coverage-threshold }}%"
+            exit 1
+          fi
+
+          echo "✅ Coverage meets threshold!"
+
+      - name: Upload coverage to Codecov
+        if: always()
+        uses: codecov/codecov-action@v4
+        continue-on-error: true
+        with:
+          token: ${{ secrets.codecov-token }}
+          files: ${{ env.MODULE_PATH }}/coverage/lcov.info
+          flags: ${{ inputs.module }}-${{ inputs.app-type }}
+          name: ${{ inputs.module }}-${{ inputs.app-type }}
+          fail_ci_if_error: false
+          verbose: true
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "### 🧪 ${{ inputs.module }} Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Module:** ${{ inputs.module }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Type:** ${{ inputs.app-type }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Workspace:** ${{ env.WORKSPACE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Coverage Threshold:** ${{ inputs.coverage-threshold }}%" >> $GITHUB_STEP_SUMMARY
+          echo "**Node Version:** ${{ inputs.node-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract coverage data if available
+          COVERAGE_FILE="${{ env.MODULE_PATH }}/coverage/coverage-summary.json"
+          if [ -f "$COVERAGE_FILE" ]; then
+            echo "**Coverage Results:**" >> $GITHUB_STEP_SUMMARY
+
+            LINES_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.lines.pct)")
+            BRANCHES_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.branches.pct)")
+            FUNCTIONS_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.functions.pct)")
+            STATEMENTS_PCT=$(node -e "const fs=require('fs'); const c=JSON.parse(fs.readFileSync('$COVERAGE_FILE','utf8')); console.log(c.total.statements.pct)")
+
+            echo "- Lines: ${LINES_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Branches: ${BRANCHES_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Functions: ${FUNCTIONS_PCT}%" >> $GITHUB_STEP_SUMMARY
+            echo "- Statements: ${STATEMENTS_PCT}%" >> $GITHUB_STEP_SUMMARY
+
+            if (( $(echo "${LINES_PCT} >= ${{ inputs.coverage-threshold }}" | bc -l) )); then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "✅ **Status:** All tests passed, coverage meets threshold" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "❌ **Status:** Coverage below threshold" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⚠️ Coverage summary not available" >> $GITHUB_STEP_SUMMARY
+          fi
