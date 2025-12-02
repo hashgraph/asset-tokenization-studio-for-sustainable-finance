@@ -8,7 +8,7 @@ import { CreateBondLockDomainServiceRequest } from "./model/CreateBondLockDomain
 export class CreateBondLockDomainService {
   constructor(@Inject() private readonly bondLockRepository: BondLockRepository) {}
 
-  async execute(request: CreateBondLockDomainServiceRequest): Promise<BondLock> {
+  async execute(request: CreateBondLockDomainServiceRequest, transactionId?: string): Promise<BondLock> {
     const now = new Date()
 
     const existingLock = await this.bondLockRepository.findByBondContractIdAndId(request.bondContractId, request.lockId)
@@ -29,6 +29,6 @@ export class CreateBondLockDomainService {
       updatedAt: now,
     })
 
-    return await this.bondLockRepository.save(bondLock)
+    return await this.bondLockRepository.save(bondLock, transactionId)
   }
 }

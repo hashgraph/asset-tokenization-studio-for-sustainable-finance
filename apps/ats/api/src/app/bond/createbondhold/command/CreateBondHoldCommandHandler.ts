@@ -19,8 +19,8 @@ export class CreateBondHoldCommandHandler implements CommandHandler<CreateBondHo
 
   @Validate()
   async execute(command: CreateBondHoldCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
-      const bondHold = await this.createBondHoldDomainService.execute(command)
+    await this.transactionManager.execute(async (transactionId) => {
+      const bondHold = await this.createBondHoldDomainService.execute(command, transactionId)
 
       //Check if the bond holder balance exists and update it if it does
       await this.decreaseBondHolderAvailableBalanceDomainService.execute(
@@ -29,6 +29,7 @@ export class CreateBondHoldCommandHandler implements CommandHandler<CreateBondHo
         bondHold.partition,
         bondHold.amount,
         "held",
+        transactionId,
       )
 
       this.eventBus.publish(

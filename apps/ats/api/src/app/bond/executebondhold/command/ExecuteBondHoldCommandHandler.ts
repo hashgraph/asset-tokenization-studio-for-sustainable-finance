@@ -19,13 +19,14 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
 
   @Validate()
   async execute(command: ExecuteBondHoldCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       await this.executeHoldBondHolderBalanceDomainService.execute(
         command.contractId,
         command.holderAccountId,
         command.toAccountId,
         command.partition,
         command.amount,
+        transactionId,
       )
 
       await this.deleteBondHoldDomainService.execute(

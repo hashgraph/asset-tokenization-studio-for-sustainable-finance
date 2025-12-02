@@ -13,6 +13,7 @@ export class UnlockBondHolderBalanceDomainService {
     holderAccountId: string,
     partition: string,
     unlockAmount: string,
+    transactionId?: string,
   ): Promise<void> {
     const bondHolderBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -41,6 +42,6 @@ export class UnlockBondHolderBalanceDomainService {
     bondHolderBalance.lockedBalance = (locked - unlockAmountBigInt).toString()
     bondHolderBalance.updatedAt = new Date()
 
-    await this.bondHolderBalanceRepository.save(bondHolderBalance)
+    await this.bondHolderBalanceRepository.save(bondHolderBalance, transactionId)
   }
 }

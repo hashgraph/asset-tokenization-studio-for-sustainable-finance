@@ -27,8 +27,8 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
 
   @Validate()
   async execute(command: ReclaimClearingCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
-      const deletedClearing = await this.updateClearingStatusByType(command)
+    await this.transactionManager.execute(async (transactionId) => {
+      const deletedClearing = await this.updateClearingStatusByType(command, transactionId)
 
       await this.updateClearingBondHolderBalanceDomainService.execute(
         deletedClearing.bondContractId,
@@ -36,13 +36,14 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
         deletedClearing.partition,
         deletedClearing.amount,
         "CLEARING_UNLOCK",
+        transactionId,
       )
 
       this.eventBus.publish(new ClearingReclaimedEvent(deletedClearing))
     })
   }
 
-  private async updateClearingStatusByType(command: ReclaimClearingCommand) {
+  private async updateClearingStatusByType(command: ReclaimClearingCommand, transactionId?: string) {
     const request = new UpdateClearingStatusDomainServiceRequest()
     request.bondContractId = command.bondContractId
     request.holderAccountId = command.holderAccountId
@@ -51,11 +52,11 @@ export class ReclaimClearingCommandHandler implements CommandHandler<ReclaimClea
 
     switch (command.clearingOperationType) {
       case ClearingOperationType.HOLD:
-        return await this.updateClearingHoldStatusDomainService.execute(request)
+        return await this.updateClearingHoldStatusDomainService.execute(request, transactionId)
       case ClearingOperationType.TRANSFER:
-        return await this.updateClearingTransferStatusDomainService.execute(request)
+        return await this.updateClearingTransferStatusDomainService.execute(request, transactionId)
       case ClearingOperationType.REDEEM:
-        return await this.updateClearingRedeemStatusDomainService.execute(request)
+        return await this.updateClearingRedeemStatusDomainService.execute(request, transactionId)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

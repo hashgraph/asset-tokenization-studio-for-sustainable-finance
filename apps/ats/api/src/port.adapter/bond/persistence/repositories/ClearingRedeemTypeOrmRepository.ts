@@ -1,21 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
-import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BaseRepository } from "@hashgraph/green-bonds-shared-core"
+import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { ClearingRedeem } from "@domain/bond/clearing/model/ClearingRedeem"
 import { BondClearingRedeemPersistence } from "../model/BondClearingRedeemPersistence"
 import { ClearingRedeemRepository } from "@domain/bond/clearing/repository/ClearingRedeemRepository"
 
 @Injectable()
-export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository {
-  constructor(
-    @InjectRepository(BondClearingRedeemPersistence)
-    private readonly repository: Repository<BondClearingRedeemPersistence>,
-  ) {}
+export class ClearingRedeemTypeOrmRepository
+  extends BaseRepository<BondClearingRedeemPersistence>
+  implements ClearingRedeemRepository
+{
+  constructor() {
+    super(BondClearingRedeemPersistence)
+  }
 
-  async save(clearing: ClearingRedeem): Promise<ClearingRedeem> {
-    return (await this.repository.save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
+  async save(clearing: ClearingRedeem, transactionId?: string): Promise<ClearingRedeem> {
+    return (await this.getRepository(transactionId).save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
   }
 
   async findByContractIdHolderAccountIdAndId(
@@ -23,7 +24,7 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     holderAccountId: string,
     clearingId: number,
   ): Promise<ClearingRedeem | null> {
-    const persistence = await this.repository.findOne({
+    const persistence = await this.getRepository().findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
     })
     if (!persistence) return null
@@ -36,7 +37,7 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     options: PageOptions,
   ): Promise<Page<ClearingRedeem>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { bondContractId, holderAccountId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
@@ -54,11 +55,11 @@ export class ClearingRedeemTypeOrmRepository implements ClearingRedeemRepository
     }
   }
 
-  async update(clearing: ClearingRedeem): Promise<ClearingRedeem> {
-    return (await this.repository.save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
+  async update(clearing: ClearingRedeem, transactionId?: string): Promise<ClearingRedeem> {
+    return (await this.getRepository(transactionId).save(clearing as unknown as BondClearingRedeemPersistence)) as ClearingRedeem
   }
 
   async deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void> {
-    await this.repository.delete({ bondContractId, holderAccountId, id: clearingId })
+    await this.getRepository().delete({ bondContractId, holderAccountId, id: clearingId })
   }
 }

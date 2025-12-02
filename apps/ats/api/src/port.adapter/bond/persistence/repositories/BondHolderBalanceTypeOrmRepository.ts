@@ -1,21 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { BondHolderBalanceRepository } from "@domain/bond/holderbalance/repository/BondHolderBalanceRepository"
 import { BondHolderBalance } from "@domain/bond/holderbalance/model/BondHolderBalance"
 import { BondHolderBalancePersistence } from "../model/BondHolderBalancePersistence"
-import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BaseRepository } from "@hashgraph/green-bonds-shared-core"
+import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
-export class BondHolderBalanceTypeOrmRepository implements BondHolderBalanceRepository {
-  constructor(
-    @InjectRepository(BondHolderBalancePersistence)
-    private readonly repository: Repository<BondHolderBalancePersistence>,
-  ) {}
+export class BondHolderBalanceTypeOrmRepository
+  extends BaseRepository<BondHolderBalancePersistence>
+  implements BondHolderBalanceRepository
+{
+  constructor() {
+    super(BondHolderBalancePersistence)
+  }
 
-  async save(bondHolderBalance: BondHolderBalance): Promise<BondHolderBalance> {
-    return (await this.repository.save(
+  async save(bondHolderBalance: BondHolderBalance, transactionId?: string): Promise<BondHolderBalance> {
+    return (await this.getRepository(transactionId).save(
       bondHolderBalance as unknown as BondHolderBalancePersistence,
     )) as BondHolderBalance
   }
@@ -25,14 +26,14 @@ export class BondHolderBalanceTypeOrmRepository implements BondHolderBalanceRepo
     holderAccountId: string,
     partition: string,
   ): Promise<BondHolderBalance | null> {
-    return (await this.repository.findOne({
+    return (await this.getRepository().findOne({
       where: { contractId: bondContractId, holderAccountId, partition },
     })) as BondHolderBalance | null
   }
 
   async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondHolderBalance>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { contractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
@@ -56,7 +57,7 @@ export class BondHolderBalanceTypeOrmRepository implements BondHolderBalanceRepo
     options: PageOptions,
   ): Promise<Page<BondHolderBalance>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { contractId, holderAccountId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,

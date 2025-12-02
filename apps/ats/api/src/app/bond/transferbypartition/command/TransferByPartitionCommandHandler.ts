@@ -17,13 +17,14 @@ export class TransferByPartitionCommandHandler implements CommandHandler<Transfe
 
   @Validate()
   async execute(command: TransferByPartitionCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       await this.transferBondHolderBalanceDomainService.execute(
         command.bondContractId,
         command.fromAccountId,
         command.toAccountId,
         command.partition,
         command.amount,
+        transactionId,
       )
       this.eventBus.publish(
         new TransferByPartitionEvent(

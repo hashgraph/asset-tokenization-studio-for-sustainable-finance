@@ -10,7 +10,7 @@ import { CreateBondHoldDomainServiceRequest } from "./model/CreateBondHoldDomain
 export class CreateBondHoldDomainService {
   constructor(@Inject() private readonly bondHoldRepository: BondHoldRepository) {}
 
-  async execute(request: CreateBondHoldDomainServiceRequest): Promise<BondHold> {
+  async execute(request: CreateBondHoldDomainServiceRequest, transactionId?: string): Promise<BondHold> {
     const now = new Date()
 
     const existingHold = await this.bondHoldRepository.findByContractIdAndHolderAndHoldId(
@@ -40,6 +40,6 @@ export class CreateBondHoldDomainService {
       updatedAt: now,
     })
 
-    return await this.bondHoldRepository.save(bondHold)
+    return await this.bondHoldRepository.save(bondHold, transactionId)
   }
 }

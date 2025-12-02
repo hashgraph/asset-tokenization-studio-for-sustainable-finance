@@ -13,7 +13,7 @@ export class CreateClearingHoldDomainService {
     private readonly clearingRepository: ClearingHoldRepository,
   ) {}
 
-  async execute(request: CreateClearingHoldDomainServiceRequest): Promise<ClearingHold> {
+  async execute(request: CreateClearingHoldDomainServiceRequest, transactionId?: string): Promise<ClearingHold> {
     const existingClearing = await this.clearingRepository.findByContractIdHolderAccountIdAndId(
       request.bondContractId,
       request.holderAccountId,
@@ -40,6 +40,6 @@ export class CreateClearingHoldDomainService {
     clearing.createdAt = date
     clearing.updatedAt = date
 
-    return await this.clearingRepository.save(clearing)
+    return await this.clearingRepository.save(clearing, transactionId)
   }
 }
