@@ -1,21 +1,19 @@
 module.exports = {
   testTimeout: 30000,
-  moduleFileExtensions: [
-    "js",
-    "json",
-    "ts"
-  ],
+  moduleFileExtensions: ["js", "json", "ts"],
   rootDir: ".",
   testRegex: ".*\\.spec\\.ts$",
   transform: {
-    "^.+\\.(t|j)s$": "ts-jest"
+    "^.+\\.(t|j)s$": "ts-jest",
   },
-  collectCoverageFrom: [
-    "**/*.(t|j)s"
+  collectCoverageFrom: ["**/*.(t|j)s"],
+  coverageDirectory: "coverage",
+  coverageReporters: [
+    "json-summary", // Required for CI coverage threshold checks
+    "lcov", // Required for Codecov uploads
+    "text", // Human-readable console output
+    "html", // HTML reports for local development
   ],
-  coverageDirectory: "../coverage",
   testEnvironment: "node",
-  transformIgnorePatterns: [
-    "node_modules/(?!(p-retry|retry|is-network-error)/)"
-  ]
+  transformIgnorePatterns: ["node_modules/(?!(p-retry|retry|is-network-error)/)"],
 };
