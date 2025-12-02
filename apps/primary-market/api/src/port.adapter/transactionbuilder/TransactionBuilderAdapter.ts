@@ -22,12 +22,12 @@ import {
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  private readonly OFFERING_CREATION_GAS = 5_000_000
+  private readonly OFFERING_CREATION_GAS = 700_000
   private readonly SUBSCRIPTION_SUBMIT_GAS = 700_000
   private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
   private readonly CANCEL_OFFERING_GAS = 700_000
-  private readonly DEPLOY_PRIMARY_MARKET_GAS = 10_000_000
+  private readonly DEPLOY_PRIMARY_MARKET_GAS = 700_000
 
   private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
   private readonly DEFAULT_PRIMARY_MARKET_CONFIG_ID =
