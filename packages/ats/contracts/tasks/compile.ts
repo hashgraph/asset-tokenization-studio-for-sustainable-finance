@@ -9,6 +9,10 @@ import { task } from "hardhat/config";
  * This ensures the registry is always up-to-date with the latest compiled contracts.
  * The registry generation runs silently to avoid cluttering compilation output.
  *
+ * Registry generation is skipped when:
+ * - CI=true (automatically set by GitHub Actions and most CI systems)
+ * - SKIP_REGISTRY=true (manual override for local development)
+ *
  * Workflow:
  * 1. Run default Hardhat compilation (Solidity → artifacts → TypeChain)
  * 2. Run registry generation (scan contracts → extract metadata → generate TS registry)
@@ -18,6 +22,14 @@ import { task } from "hardhat/config";
 task(TASK_COMPILE, "Compile contracts and generate registry", async function (taskArguments, hre, runSuper) {
   // Run default compilation
   await runSuper(taskArguments);
+
+  // Skip registry generation in CI or when explicitly disabled
+  const skipRegistry = process.env.CI === "true" || process.env.SKIP_REGISTRY === "true";
+
+  if (skipRegistry) {
+    console.log("⏭️  Skipping registry generation (CI mode)");
+    return;
+  }
 
   // Generate registry after successful compilation
   // Use silent mode to minimize output during compilation

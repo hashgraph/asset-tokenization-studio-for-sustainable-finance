@@ -33,8 +33,8 @@ permissions:
 jobs:
   test-nestjs:
     name: Test ${{ inputs.module }} (${{ inputs.app-type }})
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
+    runs-on: green-bond-linux-medium
+    timeout-minutes: 20
     env:
       # Workspace name mapping
       WORKSPACE_NAME: >-

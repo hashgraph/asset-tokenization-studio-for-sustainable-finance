@@ -29,7 +29,7 @@ permissions:
 jobs:
   test-contracts:
     name: Test ${{ inputs.module }} Contracts
-    runs-on: ubuntu-latest
+    runs-on: green-bond-linux-medium
     timeout-minutes: 10
     env:
       # Workspace name mapping

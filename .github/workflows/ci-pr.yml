@@ -20,7 +20,7 @@ jobs:
   # ============================================================================
   detect-changes:
     name: 🔍 Detect Changed Modules
-    runs-on: ubuntu-latest
+    runs-on: green-bond-linux-medium
     timeout-minutes: 15
     outputs:
       contracts: ${{ steps.changes.outputs.contracts }}
@@ -59,7 +59,7 @@ jobs:
     name: 📦 Install Dependencies
     needs: detect-changes
     if: needs.detect-changes.outputs.any-changes == 'true'
-    runs-on: ubuntu-latest
+    runs-on: green-bond-linux-medium
     timeout-minutes: 10
     steps:
       - name: Checkout code
@@ -248,7 +248,7 @@ jobs:
 
   ci-success:
     name: All Checks Complete
-    runs-on: ubuntu-latest
+    runs-on: green-bond-linux-medium
     timeout-minutes: 10
     needs:
       - detect-changes
