@@ -4,7 +4,7 @@ const { signTransaction, validateSigningConfig } = require('../../shared/lib/tra
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { createBond } = require('./bond-service');
 
-async function runBondCreationSimulator() {
+async function runBondCreationSimulator(overridesBondCreationRequest = {}) {
   logHeader('🚀 Running Bond Creation Simulator...');
   
   if (!validateSigningConfig()) {
@@ -12,9 +12,9 @@ async function runBondCreationSimulator() {
   }
   
   const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
-  
-  const bond = await createBond(format);
-  
+
+  const bond = await createBond(format, overridesBondCreationRequest);
+
   try {
     const signedTx = await signTransaction(bond.unsignedTx);
     

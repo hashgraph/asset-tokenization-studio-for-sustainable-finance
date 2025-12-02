@@ -160,7 +160,7 @@ async function verifyAddEnvironmentalAssetToken(treasuryContractId) {
 }
 
 if (require.main === module) {
-  verifyAddEnvironmentalAssetToken("0.0.7346278");
+  verifyAddEnvironmentalAssetToken();
 }
 
 module.exports = {

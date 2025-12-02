@@ -19,14 +19,13 @@ async function getTreasuryByContractId(contractId) {
  * Deploy a bond and wait for the associated treasury to be persisted
  * @returns {Promise<Object>} The created treasury object with contractId, bondContractId, createdAt, etc.
  */
-async function deployBondAndWaitForTreasury() {
+async function deployBondAndWaitForTreasury(overridesBondCreationRequest = {}) {
   const startTime = new Date();
   startTime.setSeconds(startTime.getSeconds() - 5);
-  
   log(`Start time (with buffer): ${startTime.toISOString()}`, colors.cyan);
 
   log('\n📝 Executing Bond Simulator...', colors.yellow);
-  await runBondCreationSimulator();
+  await runBondCreationSimulator(overridesBondCreationRequest);
 
   log('\n🔍 Waiting for Treasury to be persisted...', colors.yellow);
   
@@ -121,8 +120,8 @@ async function applyTreasuryRoles(treasuryContractId, userAccountId) {
  * Deploy a bond, wait for treasury, and apply all roles to the signing account
  * @returns {Promise<Object>} The created treasury object with contractId, bondContractId, createdAt, etc.
  */
-async function deployBondWaitTreasuryAndApplyRoles() {
-  const treasury = await deployBondAndWaitForTreasury();
+async function deployBondWaitTreasuryAndApplyRoles(paymentTokenContractId, overridesBondCreationRequest = {}) {
+  const treasury = await deployBondAndWaitForTreasury(overridesBondCreationRequest);
   
   log(`\n📋 Applying all treasury roles to signing account...`, colors.bright);
   await applyTreasuryRoles(treasury.contractId, process.env.ACCOUNT_ID);

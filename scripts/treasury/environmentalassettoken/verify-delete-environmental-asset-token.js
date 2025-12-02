@@ -137,12 +137,8 @@ async function verifyDeleteEnvironmentalAssetToken(treasuryContractId, withDisso
     
     logHeader('✅ Treasury Environmental Asset Token Deleting Verification PASSED!');
 
-    if (withDissociationFailure) {
-      return [contractId, environmentalAssetTokenId, serialNumber];
-    } else {
-      return [contractId, environmentalAssetTokenId];
-    }
-    
+    return [contractId, environmentalAssetTokenId, serialNumber];
+
   } catch (error) {
     logError(`Verification failed: ${error.message}`);
     process.exit(1);

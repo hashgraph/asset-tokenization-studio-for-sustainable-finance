@@ -2,14 +2,13 @@ const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { logSuccess, logError, logInfo, log, colors } = require('../../shared/lib/logger');
 const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
 
-async function createBond(format) {
+async function createBond(format, overrides = {}) {
   log(`\n📋 Creating ${format.toUpperCase()} bond...`, colors.bright);
 
   // Convert ACCOUNT_ID to EVM address
   const accountEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(process.env.ACCOUNT_ID);
   logInfo(`Using account EVM address: ${accountEvmAddress}`);
-
-  const createBondTransactionRequest = {
+  const defaults = {
   securityTokenToCreate: {
     name: "test",
     symbol: "test",
@@ -59,7 +58,8 @@ async function createBond(format) {
   accountId: process.env.ACCOUNT_ID,
   factoryAddress: "0x32bc5B65eFf7d3eFc4CC3B62A66c8445E8675982",
 };
-  
+
+  const createBondTransactionRequest = mergeDeep(defaults, overrides);
   try {
     const response = await gatewayClient.post('/api/v1/ats/bonds', createBondTransactionRequest);
     console.log('Response data:', response.data);
@@ -73,6 +73,19 @@ async function createBond(format) {
     logError(`Failed to create bond: ${error.message}`);
     throw error;
   }
+}
+
+function mergeDeep(target, source) {
+  for (const key of Object.keys(source)) {
+    if (
+      source[key] instanceof Object &&
+      key in target &&
+      !(source[key] instanceof Array)
+    ) {
+      Object.assign(source[key], mergeDeep(target[key], source[key]));
+    }
+  }
+  return { ...target, ...source };
 }
 
 module.exports = {
