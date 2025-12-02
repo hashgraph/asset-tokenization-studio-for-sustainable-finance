@@ -138,7 +138,7 @@ async function main() {
     const data = args.DATA || process.env.DATA || "0x"; // Optional data
 
     // Expiration timestamp - default to 2 minutes from now (short for testing)
-    const expirationMinutes = parseInt(args.EXPIRATION_MINUTES || process.env.EXPIRATION_MINUTES) || 2;
+    const expirationMinutes = parseInt(args.EXPIRATION_MINUTES || process.env.EXPIRATION_MINUTES) || 15;
     const expirationTimestamp = new Date(Date.now() + expirationMinutes * 60 * 1000);
 
     if (!holderAccountId) {
@@ -217,11 +217,11 @@ async function main() {
   } catch (error) {
     logError(`\nScript failed: ${error.message}`);
     if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+      console.error("Response status:", error.response.status);
+      console.error("Response data:", JSON.stringify(error.response.data, null, 2));
     }
     if (error.stack) {
-      console.error('Stack trace:', error.stack);
+      console.error("Stack trace:", error.stack);
     }
     logError("\nTroubleshooting:");
     logError("   • Ensure Gateway API is running (check .env GATEWAY_URL)");
