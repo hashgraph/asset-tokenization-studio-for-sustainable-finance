@@ -198,7 +198,7 @@ async function executeOfferingBySubscriptionId(format, marketContractId, offerin
   
   try {
     logInfo('Sending execute offering by subscription IDs request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`;
+    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executions`;
     const response = await gatewayClient.post(endpoint, executeRequest);
     
     logSuccess(`${format.toUpperCase()} Execute offering by subscription IDs transaction created!`);

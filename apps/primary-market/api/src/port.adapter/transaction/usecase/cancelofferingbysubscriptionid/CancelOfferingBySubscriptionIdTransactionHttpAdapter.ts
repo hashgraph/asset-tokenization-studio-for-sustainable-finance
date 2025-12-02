@@ -18,7 +18,7 @@ export class CancelOfferingBySubscriptionIdTransactionHttpAdapter
 
   @ApiOperation({ summary: "Cancels an offering by specific subscription IDs" })
   @ApiResponse({ status: 200, description: "OK", type: TransactionResponse })
-  @Delete(":marketContractId/offerings/:offeringId/subscriptions/cancel")
+  @Delete(":marketContractId/offerings/:offeringId/subscription-cancellations")
   async cancelOfferingBySubscriptionIdTransaction(
     @Param("marketContractId") marketContractId: string,
     @Param("offeringId") offeringId: number,

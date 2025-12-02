@@ -42,7 +42,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
     }
   })
 
-  describe("POST /primary-markets/:marketContractId/offerings/:offeringId/subscriptions/execute", () => {
+  describe("POST /primary-markets/:marketContractId/offerings/:offeringId/subscription-executes", () => {
     it("should execute offering by subscription IDs with valid request data", async () => {
       const marketContractId = "0.0.67890"
       const offeringId = "1"
@@ -53,7 +53,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(201)
 
@@ -74,7 +74,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
           .send(executeRequest)
           .expect(201)
 
@@ -91,7 +91,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(201)
 
@@ -109,7 +109,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(201)
 
@@ -126,7 +126,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(201)
 
@@ -140,7 +140,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+          .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -156,7 +156,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(400)
     })
@@ -171,7 +171,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(400)
     })
@@ -186,7 +186,7 @@ describe("ExecuteOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/execute`)
+        .post(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`)
         .send(executeRequest)
         .expect(400)
     })

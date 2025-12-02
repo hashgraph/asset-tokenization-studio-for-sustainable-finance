@@ -223,7 +223,7 @@ async function cancelOfferingBySubscriptionId(format, marketContractId, offering
 
   try {
     logInfo('Sending cancel offering by subscription IDs request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`;
+    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`;
     const response = await gatewayClient.delete(endpoint, { data: cancelRequest });
 
     logSuccess(`${format.toUpperCase()} Cancel offering by subscription IDs transaction created!`);

@@ -42,7 +42,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
     }
   })
 
-  describe("DELETE /primary-markets/:marketContractId/offerings/:offeringId/subscriptions/cancel", () => {
+  describe("DELETE /primary-markets/:marketContractId/offerings/:offeringId/subscription-cancellations", () => {
     it("should cancel offering by subscription IDs with valid request data", async () => {
       const marketContractId = "0.0.67890"
       const offeringId = "1"
@@ -53,7 +53,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(200)
 
@@ -74,7 +74,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
         }
 
         const response = await request(app.getHttpServer())
-          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
           .send(cancelRequest)
           .expect(200)
 
@@ -91,7 +91,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(200)
 
@@ -109,7 +109,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(200)
 
@@ -126,7 +126,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(200)
 
@@ -140,7 +140,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
 
       for (const invalidRequest of invalidRequests) {
         await request(app.getHttpServer())
-          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+          .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
           .send(invalidRequest)
           .expect(400)
       }
@@ -156,7 +156,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(400)
     })
@@ -171,7 +171,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(400)
     })
@@ -186,7 +186,7 @@ describe("CancelOfferingBySubscriptionIdTransaction API Integration", () => {
       }
 
       await request(app.getHttpServer())
-        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions/cancel`)
+        .delete(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-cancellations`)
         .send(cancelRequest)
         .expect(400)
     })

@@ -18,7 +18,7 @@ export class ExecuteOfferingBySubscriptionIdTransactionHttpAdapter
 
   @ApiOperation({ summary: "Executes an offering by specific subscription IDs" })
   @ApiResponse({ status: 201, description: "OK", type: TransactionResponse })
-  @Post(":marketContractId/offerings/:offeringId/subscriptions/execute")
+  @Post(":marketContractId/offerings/:offeringId/subscription-executes")
   async executeOfferingBySubscriptionIdTransaction(
     @Param("marketContractId") marketContractId: string,
     @Param("offeringId") offeringId: number,
