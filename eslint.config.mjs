@@ -1,15 +1,16 @@
 /**
  * Root ESLint configuration for Green Bonds Platform monorepo
- * Generic TypeScript configuration - packages can import and extend this
+ * Exports plain array - packages wrap with tseslint.config()
+ * Uses `recommended` baseline (not recommendedTypeChecked) for broad compatibility
  * @see https://eslint.org/docs/latest/use/configure/configuration-files
  */
-import js from "@eslint/js";
-import typescript from "@typescript-eslint/eslint-plugin";
-import typescriptParser from "@typescript-eslint/parser";
-import prettier from "eslint-plugin-prettier";
+import eslint from "@eslint/js";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
+import tseslint from "typescript-eslint";
 
+/** @type {import('typescript-eslint').Config} */
 const rootConfig = [
   // Base configuration - ignores
   {
@@ -54,16 +55,17 @@ const rootConfig = [
     ],
   },
 
-  // Default configuration for all JS/TS files
+  // Base recommended rules
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintPluginPrettierRecommended,
+
+  // Language options and globals
   {
-    files: ["**/*.{js,mjs,cjs,ts,tsx,mts}"],
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: "module",
-      parser: typescriptParser,
       parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: "module",
         projectService: true, // Modern TypeScript-ESLint v8 - zero config for monorepos
         tsconfigRootDir: import.meta.dirname,
       },
@@ -72,14 +74,18 @@ const rootConfig = [
         ...globals.es2020,
       },
     },
+  },
+
+  // Additional plugins
+  {
     plugins: {
-      "@typescript-eslint": typescript,
-      prettier,
       "unused-imports": unusedImports,
     },
+  },
+
+  // Custom rule overrides
+  {
     rules: {
-      ...js.configs.recommended.rules,
-      ...typescript.configs.recommended.rules,
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
@@ -91,12 +97,6 @@ const rootConfig = [
       ],
       "unused-imports/no-unused-imports": "error",
       "@typescript-eslint/no-var-requires": "off",
-      "prettier/prettier": [
-        "error",
-        {
-          endOfLine: "auto",
-        },
-      ],
     },
   },
 ];
