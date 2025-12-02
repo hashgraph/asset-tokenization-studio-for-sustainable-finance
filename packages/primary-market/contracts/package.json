@@ -75,7 +75,7 @@
     "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.9.tgz",
     "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
     "@eslint/js": "^9.36.0",
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6", 
+    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",

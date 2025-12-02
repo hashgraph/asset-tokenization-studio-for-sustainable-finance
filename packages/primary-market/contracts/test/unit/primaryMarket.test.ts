@@ -168,6 +168,19 @@ describe("PrimaryMarket", () => {
     };
   }
 
+  async function createSubscriptions(
+    offeringId: number,
+    offering: IPrimaryMarket.OfferingStruct,
+    numSubscriptions: number,
+  ) {
+    await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
+
+    for (let i = 0; i < numSubscriptions; i++) {
+      const investor = i % 2 == 0 ? investor1 : investor2;
+      await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
+    }
+  }
+
   before(async () => {
     const signers = await ethers.getSigners();
     [, admin, offeringCreator, investor1, investor2, investor3, treasury] = signers;
@@ -680,7 +693,7 @@ describe("PrimaryMarket", () => {
       expect(status).to.equal(3); // EXECUTABLE
     });
 
-    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE", async () => {
+    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE_AND_EXECUTABLE", async () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
       // Subscribe but don't reach target (only 30 lots out of 100)
@@ -690,10 +703,10 @@ describe("PrimaryMarket", () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(4); // CANCELLABLE
+      expect(status).to.equal(4); // CANCELLABLE_AND_EXECUTABLE
     });
 
-    it("GIVEN target not reached and past endDate with all subscriptions cancelled WHEN checking status THEN CANCELLED", async () => {
+    it("GIVEN target not reached and past endDate with all subscriptions cancelled WHEN checking status THEN PROCESSED", async () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
       // Subscribe but don't reach target
@@ -707,9 +720,9 @@ describe("PrimaryMarket", () => {
       // Move past endDate
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
-      // Status should be CANCELLED (pendingSubscribedLots = 0)
+      // Status should be PROCESSED (pendingSubscribedLots = 0)
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(6); // CANCELLED
+      expect(status).to.equal(5); // PROCESSED
     });
   });
 
@@ -913,7 +926,7 @@ describe("PrimaryMarket", () => {
 
       offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
-      expect(offeringStatus).to.equal(6); //CANCELED
+      expect(offeringStatus).to.equal(5); //PROCESSED
     });
 
     it("GIVEN subscription for offering that has already reached its target when over subscription not allowed WHEN submitting THEN fail", async () => {
@@ -1013,28 +1026,32 @@ describe("PrimaryMarket", () => {
       await createOffering(0, 0);
     });
 
-    async function reachTarget() {
+    async function reachTarget(reach: boolean = true) {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
-      const iterations = parseInt(offering.targetLots.toString()) / parseInt(offering.minLots.toString());
+      let iterations = parseInt(offering.targetLots.toString()) / parseInt(offering.minLots.toString());
+
+      if (!reach) iterations--;
 
       for (let i = 0; i < iterations; i++) {
         const investor = i % 2 == 0 ? investor1 : investor2;
         await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
       }
 
-      const remainder = parseInt(offering.targetLots.toString()) - iterations * parseInt(offering.minLots.toString());
+      if (reach) {
+        const remainder = parseInt(offering.targetLots.toString()) - iterations * parseInt(offering.minLots.toString());
 
-      if (remainder > 0) {
-        for (let j = 0; j < remainder; j++) {
-          const investor = j % 2 == 0 ? investor1 : investor2;
-          await primaryMarket.connect(investor).submitSubscription(offeringId, 1);
+        if (remainder > 0) {
+          for (let j = 0; j < remainder; j++) {
+            const investor = j % 2 == 0 ? investor1 : investor2;
+            await primaryMarket.connect(investor).submitSubscription(offeringId, 1);
+          }
         }
       }
     }
 
-    async function executeSuccess(paginatedMethod: boolean = true) {
-      await reachTarget();
+    async function executeSuccess(paginatedMethod: boolean = true, reach: boolean = true) {
+      await reachTarget(reach);
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
@@ -1052,9 +1069,9 @@ describe("PrimaryMarket", () => {
 
       const investorsList: string[] = [];
 
-      for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+      for (let i = 0; i < Math.floor(totalSubscriptions.toNumber() / 2); i++) {
         for (let j = 1; j <= 2; j++) {
-          const subscription = await primaryMarket.getSubscription(offeringId, i + j);
+          const subscription = await primaryMarket.getSubscription(offeringId, 2 * i + j);
 
           let tokens = 0;
 
@@ -1101,10 +1118,60 @@ describe("PrimaryMarket", () => {
         expect(alreadyProcessed).to.deep.equal([]);
       }
 
+      if (totalSubscriptions.toNumber() % 2 != 0) {
+        const subscription = await primaryMarket.getSubscription(offeringId, totalSubscriptions.toNumber());
+
+        let tokens = 0;
+
+        if (investorsSubscriptions.get(subscription.investor)) {
+          tokens = investorsSubscriptions.get(subscription.investor)!.tokens;
+        } else investorsList.push(subscription.investor);
+
+        tokens += subscription.lotUnits.toNumber() * parseInt(offering.lotSize.toString());
+        const price = tokens * nominalValue;
+        investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
+
+        const tx = paginatedMethod
+          ? await primaryMarket
+              .connect(offeringCreator)
+              .executeOffering(offeringId, totalSubscriptions.toNumber() - 1, 1)
+          : await primaryMarket
+              .connect(offeringCreator)
+              .executeOfferingBySubscriptionId(offeringId, [totalSubscriptions.toNumber()]);
+
+        const receipt = await tx.wait();
+
+        // Find the event
+        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+        expect(event).to.not.be.undefined;
+        expect(event!.args).to.not.be.undefined;
+
+        // Check scalar args
+        expect(event!.args!.offeringId).to.equal(offeringId);
+        expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+
+        // Convert BigNumbers to numbers for array comparison
+        const succeeded = event!
+          .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
+          .map((r: any) => r.subscriptionId.toNumber());
+        expect(succeeded).to.deep.equal([totalSubscriptions.toNumber()]);
+
+        const failed = event!
+          .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
+          .map((r: any) => r.subscriptionId.toNumber());
+        expect(failed).to.deep.equal([]);
+
+        const alreadyProcessed = event!
+          .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+          .map((r: any) => r.subscriptionId.toNumber());
+        expect(alreadyProcessed).to.deep.equal([]);
+      }
+
       const TreasuryBalanceAfter = await mockPaymentToken.balanceOf(treasuryAddress);
       const PrimaryMarketBalanceAfter = await mockPaymentToken.balanceOf(primaryMarketAddress);
       const TotalAssetSupplyAfter = await mockAsset.getTotalSupply();
-      const TotalAssets = parseInt(offering.targetLots.toString()) * parseInt(offering.lotSize.toString());
+      let TotalAssets = parseInt(offering.targetLots.toString()) * parseInt(offering.lotSize.toString());
+      if (!reach) TotalAssets -= parseInt(offering.lotSize.toString());
       const TotalCost =
         (BigInt(10 ** paymentTokenDecimals) * BigInt(TotalAssets) * BigInt(nominalValue)) /
         BigInt(10 ** (nominalValueDecimals + AssetDecimals));
@@ -1120,11 +1187,15 @@ describe("PrimaryMarket", () => {
     }
 
     it("GIVEN executable offering WHEN executing paginated method THEN success", async () => {
-      await executeSuccess(true);
+      await executeSuccess(true, true);
     });
 
     it("GIVEN executable offering WHEN executing non paginated method THEN success", async () => {
-      await executeSuccess(false);
+      await executeSuccess(false, true);
+    });
+
+    it("GIVEN cancellable and executable offering WHEN executing THEN success", async () => {
+      await executeSuccess(true, false);
     });
 
     it("GIVEN executable offering WHEN executing same subscriptions THEN success", async () => {
@@ -1272,18 +1343,6 @@ describe("PrimaryMarket", () => {
         .withArgs(offeringId);
     });
 
-    it("GIVEN cancellable offering WHEN executing THEN fail", async () => {
-      await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
-
-      await expect(primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, 100))
-        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
-        .withArgs(offeringId);
-
-      await expect(primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1, 2]))
-        .to.be.revertedWithCustomError(primaryMarket, "OfferingCannotBeExecuted")
-        .withArgs(offeringId);
-    });
-
     it("GIVEN offering WHEN executing by subscription IDs with non-existing subscription THEN revert", async () => {
       // Create and reach target first
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
@@ -1358,7 +1417,7 @@ describe("PrimaryMarket", () => {
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, offering.minLots)).to.be.rejected;
     });
 
-    it("GIVEN offering after endDate with all subscriptions executed WHEN checking status THEN EXECUTED", async () => {
+    it("GIVEN offering after endDate with all subscriptions executed WHEN checking status THEN PROCESSED", async () => {
       await reachTarget();
       await mockPrecompiled.setPrecompiledTransferStatus(true);
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
@@ -1368,9 +1427,9 @@ describe("PrimaryMarket", () => {
         .connect(offeringCreator)
         .executeOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
-      // Check status should be EXECUTED (pendingSubscribedLots = 0)
+      // Check status should be PROCESSED (pendingSubscribedLots = 0)
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(5); // EXECUTED
+      expect(status).to.equal(5); // PROCESSED
     });
   });
 
@@ -1407,24 +1466,15 @@ describe("PrimaryMarket", () => {
       await createOffering(0, 0);
     });
 
-    async function createSubscriptions(numSubscriptions: number) {
-      await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
-
-      for (let i = 0; i < numSubscriptions; i++) {
-        const investor = i % 2 == 0 ? investor1 : investor2;
-        await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
-      }
-    }
-
     it("GIVEN cancellable offering with subscriptions WHEN cancelling THEN success", async () => {
       const numSubscriptions = 10;
-      await createSubscriptions(numSubscriptions);
+      await createSubscriptions(offeringId, offering, numSubscriptions);
 
       // Move past endDate to make it cancellable (target not reached)
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(4); // CANCELLABLE
+      expect(status).to.equal(4); // CANCELLABLE_AND_EXECUTABLE
 
       // Get initial balances
       const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
@@ -1489,7 +1539,7 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN cancellable offering WHEN cancelling by subscription IDs THEN success", async () => {
       const numSubscriptions = 5;
-      await createSubscriptions(numSubscriptions);
+      await createSubscriptions(offeringId, offering, numSubscriptions);
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
@@ -1617,7 +1667,7 @@ describe("PrimaryMarket", () => {
 
     it("GIVEN cancellable offering with multiple subscriptions WHEN cancelling all THEN pendingLots = 0", async () => {
       const numSubscriptions = 5;
-      await createSubscriptions(numSubscriptions);
+      await createSubscriptions(offeringId, offering, numSubscriptions);
 
       // Move past endDate to make it cancellable (target not reached)
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
@@ -2031,7 +2081,7 @@ describe("PrimaryMarket", () => {
         await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscriptions);
 
         const status = await primaryMarket.getOfferingStatus(offeringId);
-        expect(status).to.equal(5); // EXECUTED
+        expect(status).to.equal(5); // PROCESSED
       });
 
       it("WHEN cancelling offering with super large price THEN success with batch processing", async () => {
@@ -2084,7 +2134,7 @@ describe("PrimaryMarket", () => {
           .cancelOfferingBySubscriptionId(offeringId, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
 
         const status = await primaryMarket.getOfferingStatus(offeringId);
-        expect(status).to.equal(6); // CANCELLED
+        expect(status).to.equal(5); // PROCESSED
       });
     });
   });
