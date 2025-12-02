@@ -162,7 +162,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       "PAYER_ACCOUNT_NOT_FOUND",
       "ACCOUNT_DELETED",
       "UNAUTHORIZED",
-      "CONTRACT_REVERT_EXECUTION",
+      "CONTRACT_REVERT_EXECUTED",
     ]
 
     // Retry everything except known client errors
@@ -195,12 +195,12 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
 
     // Validation errors (client-side, 4xx-like) - do NOT retry these
     const clientErrors = [
-      "CONTRACT_REVERT_EXECUTION", // Contract revert (business logic rejection)
-      "CALL_EXCEPTION", // Contract call failed
-      "INSUFFICIENT_FUNDS", // Not enough balance
-      "NONCE_EXPIRED", // Transaction nonce issue
-      "REPLACEMENT_UNDERPRICED", // Gas price too low
-      "UNPREDICTABLE_GAS_LIMIT", // Gas estimation failed
+      "CONTRACT_REVERT_EXECUTED",  // Contract revert (business logic rejection)
+      "CALL_EXCEPTION",             // Contract call failed
+      "INSUFFICIENT_FUNDS",         // Not enough balance
+      "NONCE_EXPIRED",              // Transaction nonce issue
+      "REPLACEMENT_UNDERPRICED",    // Gas price too low
+      "UNPREDICTABLE_GAS_LIMIT",    // Gas estimation failed
       "INVALID_ARGUMENT",
     ]
 
