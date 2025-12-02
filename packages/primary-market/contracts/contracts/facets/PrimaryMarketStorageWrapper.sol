@@ -468,17 +468,16 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         // Calculate if target is reached (comparing lots directly)
-        bool targetReached = offering.totalSubscribedLots > offering.info.targetLots - 1;
+        bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
 
         // After end date
         if (_blockTimestamp() > offering.info.endDate) {
             // All policies: after deadline, check if executable or only cancellable
+            if (offering.pendingSubscribedLots == 0) return IPrimaryMarket.OfferingStatus.PROCESSED;
             if (targetReached) {
-                if (offering.pendingSubscribedLots == 0) return IPrimaryMarket.OfferingStatus.EXECUTED;
                 return IPrimaryMarket.OfferingStatus.EXECUTABLE;
             } else {
-                if (offering.pendingSubscribedLots == 0) return IPrimaryMarket.OfferingStatus.CANCELLED;
-                return IPrimaryMarket.OfferingStatus.CANCELLABLE;
+                return IPrimaryMarket.OfferingStatus.CANCELLABLE_OR_EXECUTABLE;
             }
         }
 
