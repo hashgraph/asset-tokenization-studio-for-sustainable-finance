@@ -109,6 +109,9 @@ export interface DeployFactorySuiteSystemOptions {
 
   /** Path to save deployment output */
   outputPath?: string;
+
+  /** Override transaction confirmations (useful for testing on instant networks) */
+  confirmations?: number;
 }
 
 /**
@@ -152,14 +155,14 @@ export async function deployFactorySuiteSystem(
   network: string,
   options: DeployFactorySuiteSystemOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, confirmations: optionsConfirmations } = options;
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
 
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);
-  const confirmations = networkConfig.confirmations;
+  const confirmations = optionsConfirmations !== undefined ? optionsConfirmations : networkConfig.confirmations;
   const enableRetry = networkConfig.retryOptions.maxRetries > 0;
   const verifyDeployment = networkConfig.verifyDeployment;
   const retryOptions = networkConfig.retryOptions;
@@ -294,6 +297,7 @@ export async function deployFactorySuiteSystem(
         },
       ],
       network,
+      confirmations,
     });
 
     if (!factorySuiteProxyResult.success) {

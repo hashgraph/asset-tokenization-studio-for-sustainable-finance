@@ -29,9 +29,6 @@ export const TREASURY_ROLES = {
 
   /**  keccak256('green.bonds.platform.treasury.role.payout') */
   PAYOUT_ROLE: "0x096259e60fc84b10645035350be6adc907cf0cd20b1a7866e1ea9c7502a8265e",
-
-  /**  keccak256('green.bonds.platform.treasury.role.redemption') */
-  REDEMPTION_ROLE: "0x75e1cb791887e8c7a9a1aafbb8997773bd21a9f3c83f4a70066ba5ebf7bd8ef9",
 } as const;
 
 // Resolver Keys

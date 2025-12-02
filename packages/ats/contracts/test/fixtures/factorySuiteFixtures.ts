@@ -55,6 +55,7 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
   const deployment = await deployFactorySuiteSystem(deployer, "hardhat", {
     useTimeTravel,
     saveOutput: false, // Don't save deployment files during tests
+    confirmations: 0, // Force 0 confirmations for tests (hardhat instant network)
   });
 
   // Get typed contract instances
@@ -133,6 +134,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   const deployment = await deployFactorySuiteSystem(deployer, "hardhat", {
     useTimeTravel: false, // Don't need TimeTravel for business logic tests
     saveOutput: false,
+    confirmations: 0, // Force 0 confirmations for hardhat instant network
   });
 
   // Get typed contract instances for Diamond proxy
@@ -147,7 +149,10 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   )) as IBusinessLogicResolver;
 
   // Get AccessControl and Pause facets for test setup
-  const accessControl = await ethers.getContractAt("IAccessControl", deployment.infrastructure.factorySuite.proxy);
+  const accessControl = await ethers.getContractAt(
+    "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/accessControl/IAccessControl.sol:IAccessControl",
+    deployment.infrastructure.factorySuite.proxy,
+  );
   const pause = await ethers.getContractAt("IPause", deployment.infrastructure.factorySuite.proxy);
 
   // ========================================
@@ -171,7 +176,9 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     facetFactories[facetName] = facetDef.factory(deployer, false);
   }
 
-  const mockFacetsResult = await deployFacets(facetFactories);
+  const mockFacetsResult = await deployFacets(facetFactories, {
+    confirmations: 0,
+  });
 
   if (!mockFacetsResult.success || mockFacetsResult.deployed.size !== 1) {
     throw new Error("Failed to deploy MockTreasuryFacet");

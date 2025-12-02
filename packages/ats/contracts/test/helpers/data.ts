@@ -65,6 +65,7 @@ export function createTestDataSets(fixture: {
     bondDetails: {
       currency: ethers.utils.hexlify(ethers.utils.toUtf8Bytes("USD")),
       nominalValue: ethers.utils.parseEther("100"),
+      nominalValueDecimals: 18,
       startingDate: Math.floor(Date.now() / 1000),
       maturityDate: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60,
     },
