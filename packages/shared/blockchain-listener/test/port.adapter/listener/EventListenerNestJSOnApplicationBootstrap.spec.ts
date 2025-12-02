@@ -122,6 +122,104 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     })
   })
 
+  it("should skip event if the event has been already processed", async () => {
+    const blockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Transfer",
+      signature: "Transfer(address indexed from,address indexed to,uint256 value)",
+      from: "testFrom",
+      to: "testTo",
+      value: 1000000,
+    } as BlockchainEvent
+    const errorBlockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Error",
+      signature: "Error(uint256 field)",
+      field: 1000000,
+    } as BlockchainEvent
+    await internalEventStoreRepository.save({
+      status: EventStoreStatus.PROCESSED,
+      eventName: blockchainEvent.name,
+      data: JSON.stringify(blockchainEvent),
+    })
+
+    const logsBloom = "0x000001"
+    jest.spyOn(hederaPort, "getBlock").mockResolvedValue({ logsBloom } as GetBlockResponse)
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([blockchainEvent])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValue([errorBlockchainEvent]) // To stop processing blocks
+    await app.init()
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
+    expect(await internalEventStoreRepository.countBy({ eventName: blockchainEvent.name })).toEqual(1)
+
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+  })
+
+  it("should process event if the event has been already processed in FAILED status", async () => {
+    const blockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Transfer",
+      signature: "Transfer(address indexed from,address indexed to,uint256 value)",
+      from: "testFrom",
+      to: "testTo",
+      value: 1000000,
+    } as BlockchainEvent
+    const errorBlockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Error",
+      signature: "Error(uint256 field)",
+      field: 1000000,
+    } as BlockchainEvent
+    await internalEventStoreRepository.save({
+      status: EventStoreStatus.FAILED,
+      eventName: blockchainEvent.name,
+      data: JSON.stringify(blockchainEvent),
+    })
+
+    const logsBloom = "0x000001"
+    jest.spyOn(hederaPort, "getBlock").mockResolvedValue({ logsBloom } as GetBlockResponse)
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([blockchainEvent])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValue([errorBlockchainEvent]) // To stop processing blocks
+    await app.init()
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
+    expect(await internalEventStoreRepository.countBy({ eventName: blockchainEvent.name })).toEqual(2)
+    const eventStore = await internalEventStoreRepository.findOneBy({
+      eventName: blockchainEvent.name,
+      status: EventStoreStatus.PROCESSED,
+    })
+    expect(eventStore).toEqual({
+      id: expect.any(String),
+      status: EventStoreStatus.PROCESSED,
+      eventName: blockchainEvent.name,
+      data: JSON.stringify(blockchainEvent),
+      errorReason: null,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+  })
+
   it("should process event from dynamically created event filter", async () => {
     const blockchainEvent = {
       transactionHash: "testTransactionHash",

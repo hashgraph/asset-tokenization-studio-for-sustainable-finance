@@ -40,8 +40,20 @@ const REPOSITORIES: Provider[] = [
   },
 ]
 
+const RABBIT_PROVIDERS =
+  process.env.RABBITMQ_PUBLISH_ENABLED === "false"
+    ? []
+    : [
+        PublishEventPortNestJSEventAdapter,
+        {
+          provide: "EventPublisherPort",
+          useClass: RabbitMQEventPublisherAdapter,
+        },
+      ]
+
 export const EVENT_LISTENER_PROVIDERS = [
   ...REPOSITORIES,
+  ...RABBIT_PROVIDERS,
   ProcessEventDomainService,
   ProcessEventCommandHandler,
   AddEventFiltersCommandHandler,
@@ -51,7 +63,6 @@ export const EVENT_LISTENER_PROVIDERS = [
   GetEventFiltersQueryHandler,
   ProcessBlocksAppService,
   EventListenerNestJSOnApplicationBootstrap,
-  PublishEventPortNestJSEventAdapter,
   BlockchainListenerHealthIndicator,
   {
     provide: "ConfigService",

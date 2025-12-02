@@ -16,6 +16,7 @@ import { GetEventFiltersQueryResponse } from "@app/eventfilter/geteventfilters/q
 import { EventStoreCommandResponse } from "@app/eventstore/processevent/command/EventStoreCommandResponse"
 import { GetBlockRequest } from "@port/blockchain/model/GetBlockRequest"
 import { SyncStateStatus } from "@domain/syncstate/model/SyncStateStatus"
+import type { EventStoreRepository } from "@domain/eventstore/repositories/EventStoreRepository"
 
 @Singleton()
 export class ProcessBlocksAppService {
@@ -28,6 +29,7 @@ export class ProcessBlocksAppService {
     @Inject() private readonly hederaPort: HederaPort,
     @Inject() private readonly configService: ConfigService,
     @Inject() private readonly transactionManager: TransactionManager,
+    @Inject() private readonly eventStoreRepository: EventStoreRepository,
   ) {}
 
   async execute(): Promise<void> {
@@ -86,6 +88,16 @@ export class ProcessBlocksAppService {
           contractEvents,
         })
         for (const event of events) {
+          if (
+            await this.eventStoreRepository.existsByEventNameAndDataAndStatus(
+              (event as any).name,
+              JSON.stringify(event),
+              EventStoreStatus.PROCESSED,
+            )
+          ) {
+            this.logger.log(`Skipping event ${event.name} from block ${this.blockNumber} as it is already processed`)
+            continue
+          }
           this.logger.log(`Processing event ${event.name} from block ${this.blockNumber}`)
           const eventStore: EventStoreCommandResponse = await this.commandBus.execute(
             new ProcessEventCommand(event as Event, transactionId),
