@@ -1,7 +1,7 @@
 const { deployBondWaitTreasuryAndApplyRoles } = require('./verify-treasury-persistence');
 const { mintBond } = require('../ats/bond/mint-bond');
 const { setBondCoupon, getCouponsForBond } = require('../ats/bond/coupon/set-bond-coupon');
-const { updatePaymentToken, waitForPaymentTokenUpdate } = require('./paymenttoken/verify-update-treasury-payment-token');
+const { deployHTSToken } = require('../primary-market/offering/hts-token-service');
 const { gatewayClient } = require('../shared/lib/gateway-client');
 const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../shared/lib/logger');
 const { config } = require('../shared/lib/config');
@@ -9,10 +9,6 @@ const { signTransaction, validateSigningConfig } = require('../shared/lib/transa
 const { publishSignedTransaction } = require('../shared/lib/infrastructure');
 const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
 const { Client, PrivateKey, TransferTransaction } = require('@hashgraph/sdk');
-
-// USDC contract ID on Hedera testnet
-const USDC_TOKEN_ID = '0.0.429274';
-// Amount to mint to treasury for distributions (in USDC units, assuming 6 decimals)
 
 // Coupon Configurations - Two coupons for testing both endpoints
 const COUPON_CONFIGS = [
@@ -183,27 +179,38 @@ async function verifyTreasuryDistributions() {
   const mintAmount = process.env.MINT_AMOUNT || "500000";
 
   try {
-    // 1. Deploy Bond and Treasury with all roles
-    log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
-    const treasury = await deployBondWaitTreasuryAndApplyRoles();
+    // 1. Deploy Custom Payment Token
+    log('\n1️⃣  Deploying custom payment token...');
+    const { tokenId: paymentTokenId, evmAddress: paymentTokenEvmAddress } = await deployHTSToken(
+      'Test Payment Token',
+      'TPT',
+      6,
+      10_000_000_000 // 10,000 tokens with 6 decimals
+    );
+    logSuccess(`Payment token deployed: ${paymentTokenId}`);
+    logSuccess(`Payment token EVM address: ${paymentTokenEvmAddress}`);
+
+    // 2. Deploy Bond and Treasury with Custom Payment Token
+    log('\n2️⃣  Deploying bond with custom payment token...');
+    const overrides = {
+      treasuryData: {
+        paymentTokenAddress: paymentTokenEvmAddress
+      }
+    };
+    const treasury = await deployBondWaitTreasuryAndApplyRoles(paymentTokenId, overrides);
     const bondContractId = treasury.bondContractId;
     const treasuryId = treasury.contractId;
 
     logSuccess(`Bond deployed: ${bondContractId}`);
     logSuccess(`Treasury deployed: ${treasuryId}`);
 
-    // 1.1 Update Payment Token to USDC
-    log('\n1️⃣.1️⃣  Updating payment token to USDC...');
-    await updatePaymentToken(treasuryId, USDC_TOKEN_ID);
-    await waitForPaymentTokenUpdate(treasuryId, USDC_TOKEN_ID, 24);
-    logSuccess(`Payment token updated to USDC (${USDC_TOKEN_ID})`);
+    // 3. Fund Treasury with Custom Payment Token
+    log('\n3️⃣  Funding treasury with payment tokens...');
+    await fundTreasuryWithToken(treasuryId, paymentTokenId, 4_000_000); // 4 tokens with 6 decimals
+    logSuccess('Treasury funded with payment tokens');
 
-    // 1.2 Fund Treasury with USDC
-    log('\n1️⃣.2️⃣  Funding treasury with USDC...');
-    await fundTreasuryWithUSDC(treasuryId, 4000000);
-
-    // 2. Mint tokens to holders
-    log('\n2️⃣  Minting tokens to holders...');
+    // 4. Mint tokens to holders
+    log('\n4️⃣  Minting tokens to holders...');
     log(`   Minting ${mintAmount} tokens to ${holderAccount1}...`, colors.cyan);
     const mint1 = await mintBond(bondContractId, holderAccount1, "", mintAmount, format);
     await publishSignedTransaction(await signTransaction(mint1.unsignedTx));
@@ -219,8 +226,8 @@ async function verifyTreasuryDistributions() {
     log('⏳ Waiting for minting to be processed (10 seconds)...', colors.yellow);
     await new Promise(resolve => setTimeout(resolve, 10000));
 
-    // 3. Set first coupon
-    log('\n3️⃣  Setting first coupon on bond...');
+    // 5. Set first coupon
+    log('\n5️⃣  Setting first coupon on bond...');
     log(`   ${COUPON_CONFIGS[0].name}`, colors.cyan);
     const couponTx1 = await setBondCoupon(
       bondContractId,
@@ -237,8 +244,8 @@ async function verifyTreasuryDistributions() {
     log('⏳ Waiting 5 seconds before creating second coupon...', colors.yellow);
     await new Promise(resolve => setTimeout(resolve, 5000));
 
-    // 4. Set second coupon
-    log('\n4️⃣  Setting second coupon on bond...');
+    // 6. Set second coupon
+    log('\n6️⃣  Setting second coupon on bond...');
     log(`   ${COUPON_CONFIGS[1].name}`, colors.cyan);
     const couponTx2 = await setBondCoupon(
       bondContractId,
@@ -252,8 +259,8 @@ async function verifyTreasuryDistributions() {
     await publishSignedTransaction(await signTransaction(couponTx2.unsignedTx));
     logSuccess('Second coupon transaction published');
 
-    // 5. Wait for both coupons to be persisted in ATS
-    log('\n5️⃣  Waiting for both coupons to be persisted in ATS database...');
+    // 7. Wait for both coupons to be persisted in ATS
+    log('\n7️⃣  Waiting for both coupons to be persisted in ATS database...');
     const coupons = await waitForCoupon(bondContractId, 2);
     const distributionId1 = coupons[0];
     const distributionId2 = coupons[1];
@@ -269,8 +276,8 @@ async function verifyTreasuryDistributions() {
       await new Promise(resolve => setTimeout(resolve, waitTime + 5000)); // Add 5s buffer
     }
 
-    // 7. Execute first distribution (paginated)
-    log('\n6️⃣  Executing first distribution (paginated by transactions)...');
+    // 8. Execute first distribution (paginated)
+    log('\n8️⃣  Executing first distribution (paginated by transactions)...');
     await executeDistributionPaginated(treasuryId, distributionId1);
     
     log('⏳ Waiting for distribution to be processed (10 seconds)...', colors.yellow);
@@ -279,8 +286,8 @@ async function verifyTreasuryDistributions() {
     // 7.1 Verify first distribution status
     await verifyDistributionStatus(treasuryId, distributionId1);
 
-    // 8. Execute second distribution (by specific holders)
-    log('\n7️⃣  Executing second distribution (by holder addresses)...');
+    // 9. Execute second distribution (by specific holders)
+    log('\n9️⃣  Executing second distribution (by holder addresses)...');
     const holderAddresses = [holderAccount1];
     if (holderAccount1 !== holderAccount2) {
       holderAddresses.push(holderAccount2);
@@ -325,22 +332,37 @@ module.exports = {
 };
 
 /**
- * Fund treasury with USDC
+ * Fund treasury with custom payment token
  */
-async function fundTreasuryWithUSDC(treasuryId, amount = 1000000) { // 1 USDC (6 decimals)
-  log(`\n💰 Funding treasury ${treasuryId} with ${amount} USDC...`, colors.yellow);
+async function fundTreasuryWithToken(treasuryId, tokenId, amount) {
+  log(`\n💰 Funding treasury ${treasuryId} with ${amount} payment tokens...`, colors.yellow);
 
   const client = Client.forTestnet();
-  const operatorKey = PrivateKey.fromStringDer(process.env.HEDERA_PRIVATE_KEY);
+  const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
+  const privateKeyStr = format === 'hedera' ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
+  
+  let operatorKey;
+  if (format === 'ethereum') {
+    const cleanKey = privateKeyStr.startsWith('0x') ? privateKeyStr.slice(2) : privateKeyStr;
+    operatorKey = PrivateKey.fromStringECDSA(cleanKey);
+  } else {
+    try {
+      operatorKey = PrivateKey.fromStringED25519(privateKeyStr);
+    } catch {
+      operatorKey = PrivateKey.fromStringDer(privateKeyStr);
+    }
+  }
+  
   client.setOperator(process.env.ACCOUNT_ID, operatorKey);
 
   const transferTx = await new TransferTransaction()
-    .addTokenTransfer(USDC_TOKEN_ID, process.env.ACCOUNT_ID, -amount)
-    .addTokenTransfer(USDC_TOKEN_ID, treasuryId, amount)
+    .addTokenTransfer(tokenId, process.env.ACCOUNT_ID, -amount)
+    .addTokenTransfer(tokenId, treasuryId, amount)
     .execute(client);
 
   const receipt = await transferTx.getReceipt(client);
-  logSuccess(`Funded treasury with USDC. Status: ${receipt.status.toString()}`);
+  client.close();
+  logSuccess(`Funded treasury with payment tokens. Status: ${receipt.status.toString()}`);
 }
 
 /**

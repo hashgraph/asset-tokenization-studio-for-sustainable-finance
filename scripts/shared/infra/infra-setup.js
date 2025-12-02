@@ -66,7 +66,7 @@ const CONFIG = {
       POSTGRESQL_HOST: 'localhost',
       POSTGRESQL_PORT: '5432',
       POSTGRESQL_DB: 'ats_db',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28309577'
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28314451'
     }
   },
   primaryMarketApi: {
@@ -80,7 +80,7 @@ const CONFIG = {
       POSTGRESQL_HOST: 'localhost',
       POSTGRESQL_PORT: '5432',
       POSTGRESQL_DB: 'primary_market_db',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28309577'
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28314451'
     }
   },
   treasuryApi: {
@@ -94,7 +94,7 @@ const CONFIG = {
       POSTGRESQL_HOST: 'localhost',
       POSTGRESQL_PORT: '5432',
       POSTGRESQL_DB: 'treasury_db',
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28309577'
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: '28314451'
     }
   },
   gateway: {
