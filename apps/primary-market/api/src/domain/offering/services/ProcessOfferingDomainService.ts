@@ -31,7 +31,7 @@ export class ProcessOfferingDomainService {
 
     existingOffering.ensureOperatorMatches(operatorAccountId)
 
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const subscriptionsToUpdate: Subscription[] = []
 
       for (const result of processResults) {
@@ -63,7 +63,7 @@ export class ProcessOfferingDomainService {
       }
 
       for (const subscription of subscriptionsToUpdate) {
-        await this.subscriptionRepository.save(subscription)
+        await this.subscriptionRepository.save(subscription, transactionId)
       }
     })
   }
