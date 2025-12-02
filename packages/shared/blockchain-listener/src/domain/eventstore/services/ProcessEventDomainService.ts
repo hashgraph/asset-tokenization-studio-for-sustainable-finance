@@ -12,7 +12,7 @@ export class ProcessEventDomainService {
     @Inject() private readonly eventBus: EventBus,
   ) {}
 
-  async execute(blockchainEvent: Event): Promise<EventStore> {
+  async execute(blockchainEvent: Event, transactionId: string): Promise<EventStore> {
     const eventStore = new EventStore()
     eventStore.eventName = (blockchainEvent as any).name
     eventStore.data = JSON.stringify(blockchainEvent)
@@ -26,6 +26,6 @@ export class ProcessEventDomainService {
       eventStore.failed(error.message as string)
     }
 
-    return await this.eventStoreRepository.save(eventStore)
+    return await this.eventStoreRepository.save(eventStore, transactionId)
   }
 }

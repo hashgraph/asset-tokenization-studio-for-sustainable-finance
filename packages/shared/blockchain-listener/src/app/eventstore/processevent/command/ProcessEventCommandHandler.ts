@@ -18,7 +18,7 @@ export class ProcessEventCommandHandler implements CommandHandler<ProcessEventCo
 
   @Validate()
   async execute(command: ProcessEventCommand): Promise<EventStoreCommandResponse> {
-    const eventStore = await this.processEventDomainService.execute(command.event)
+    const eventStore = await this.processEventDomainService.execute(command.event, command.transactionId)
     this.eventBus.publish(
       new EventProcessedEvent(eventStore.id, eventStore.eventName, eventStore.status, eventStore.errorReason),
     )

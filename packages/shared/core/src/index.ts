@@ -25,6 +25,7 @@ export { EntityFoundError } from "./errors/EntityFoundError"
 export { RestExceptionFilter } from "./errors/RestExceptionFilter"
 export { UnsupportedOperationError } from "./errors/UnsupportedOperationError"
 export { ValidationError } from "./errors/ValidationError"
+export { DatabaseLockTimeoutError } from "./errors/DatabaseLockTimeoutError"
 
 export { Event } from "./event/Event"
 export { DLTEvent } from "./event/DLTEvent"
@@ -36,6 +37,7 @@ export { Logger } from "./logger/Logger"
 
 export { BaseEntity } from "./persistence/BaseEntity"
 export { BaseEntityPersistence } from "./persistence/BaseEntityPersistence"
+export { BaseRepository } from "./persistence/BaseRepository"
 export { TransactionManager } from "./persistence/TransactionManager"
 export { TypeOrmTransactionManager } from "./persistence/typeorm/TypeOrmTransactionManager"
 

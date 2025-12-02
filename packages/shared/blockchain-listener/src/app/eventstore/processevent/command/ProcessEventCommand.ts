@@ -8,8 +8,8 @@ export class ProcessEventCommand extends Command<EventStoreCommandResponse> {
   @IsDefined()
   readonly event: Event
 
-  constructor(event: Event) {
-    super()
+  constructor(event: Event, transactionId) {
+    super(transactionId)
     this.event = event
   }
 }

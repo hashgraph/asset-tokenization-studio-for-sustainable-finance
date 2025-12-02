@@ -22,6 +22,8 @@ import { SyncStatePersistence } from "@port/persistence/syncstate/model/SyncStat
 import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
 import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
 import { BlockchainListenerHealthIndicator } from "@port/health/BlockchainListenerHealthIndicator"
+import { TypeOrmTransactionManager } from "../../core/dist/persistence/typeorm/TypeOrmTransactionManager"
+import { CreateTables1759133092414 } from "./migrations/1759133092414-CreateTables"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -63,6 +65,10 @@ export const EVENT_LISTENER_PROVIDERS = [
     provide: "EventPublisherPort",
     useClass: RabbitMQEventPublisherAdapter,
   },
+  {
+    provide: "TransactionManager",
+    useClass: TypeOrmTransactionManager,
+  },
 ]
 
 export const EVENT_LISTENER_ENTITIES: EntityClassOrSchema[] = [
@@ -70,3 +76,5 @@ export const EVENT_LISTENER_ENTITIES: EntityClassOrSchema[] = [
   EventFilterPersistence,
   SyncStatePersistence,
 ]
+
+export const EVENT_LISTENER_MIGRATIONS = [CreateTables1759133092414]

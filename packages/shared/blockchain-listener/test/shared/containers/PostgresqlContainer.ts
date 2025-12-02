@@ -3,6 +3,7 @@
 import { GenericContainer, StartedTestContainer } from "testcontainers"
 import process from "process"
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
+import { EVENT_LISTENER_MIGRATIONS } from "../../../src/Components"
 
 export class PostgreSqlContainer {
   private static INTERNAL_PORT = 5432
@@ -33,8 +34,9 @@ export class PostgreSqlContainer {
       username: PostgreSqlContainer.USER,
       password: PostgreSqlContainer.PASSWORD,
       database: PostgreSqlContainer.DATABASE,
-      synchronize: true,
-      migrationsRun: false,
+      synchronize: false,
+      migrationsRun: true,
+      migrations: EVENT_LISTENER_MIGRATIONS,
       logging: false,
     }
   }

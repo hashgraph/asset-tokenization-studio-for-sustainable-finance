@@ -4,9 +4,9 @@ import { INestApplication } from "@nestjs/common"
 import { App } from "supertest/types"
 import { Test, TestingModule } from "@nestjs/testing"
 import { PostgreSqlContainer } from "../../shared/containers/PostgresqlContainer"
-import { Repository } from "typeorm"
+import { DataSource, IsNull, Not, Repository } from "typeorm"
 import { EventStorePersistence } from "@port/persistence/eventstore/model/EventStorePersistence"
-import { getRepositoryToken } from "@nestjs/typeorm"
+import { getDataSourceToken, getRepositoryToken } from "@nestjs/typeorm"
 import { CommandBus, Event, EventListener, Handler, SharedModule, Singleton } from "@hashgraph/green-bonds-shared-core"
 import BlockchainEvent from "@domain/event/BlockchainEvent"
 import { EVENT_LISTENER_PROVIDERS } from "../../../src/Components"
@@ -20,15 +20,18 @@ import { AddEventFiltersCommand } from "@app/eventfilter/addeventfilters/command
 import { TerminusModule } from "@nestjs/terminus"
 import { PublishEventPortNestJSEventAdapter } from "@port/event/usecase/publishevent/PublishEventPortNestJSEventAdapter"
 import { RabbitMQEventPublisherAdapter } from "@port/eventpublisher/RabbitMQEventPublisherAdapter"
+import { SyncStateStatus } from "@domain/syncstate/model/SyncStateStatus"
 
 describe("EventListenerNestJSOnApplicationBootstrap", () => {
   let app: INestApplication<App>
+  let app2: INestApplication<App>
   let container: PostgreSqlContainer
   let internalEventStoreRepository: Repository<EventStorePersistence>
   let internalSyncStateRepository: Repository<SyncStatePersistence>
   let internalEventFilterRepository: Repository<EventFilterPersistence>
   let hederaPort: HederaPort
   let commandBus: CommandBus
+  let dataSource: DataSource
 
   const blockNumber = 25169554
   const contract = "0xfd22c05d4d922f01baf6538237c80d1b0ec485b8"
@@ -38,6 +41,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     process.env.BLOCKCHAIN_LISTENER_POLL_INTERVAL = 3000
     process.env.BLOCKCHAIN_LISTENER_CONTRACTS = contract
     process.env.BLOCKCHAIN_LISTENER_EVENTS = "Transfer(address indexed from,address indexed to,uint256 value)"
+    process.env.POSTGRESQL_LOCK_TIMEOUT = "1"
   })
 
   beforeEach(async () => {
@@ -51,11 +55,15 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
+    app2 = moduleFixture.createNestApplication()
     internalEventStoreRepository = app.get(getRepositoryToken(EventStorePersistence))
     internalSyncStateRepository = app.get(getRepositoryToken(SyncStatePersistence))
     internalEventFilterRepository = app.get(getRepositoryToken(EventFilterPersistence))
     hederaPort = app.get("HederaPort")
     commandBus = app.get("CommandBus")
+    dataSource = app.get(getDataSourceToken())
+
+    await internalSyncStateRepository.deleteAll()
   })
 
   afterAll(async () => {
@@ -107,6 +115,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     expect(syncStates[0]).toEqual({
       id: expect.any(String),
       lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -187,6 +196,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     const logsBloom = "0x000001"
     const storedBlockNumber = blockNumber + 1000
     const syncState = new SyncStatePersistence()
+    syncState.status = SyncStateStatus.OK
     syncState.lastBlockNumber = storedBlockNumber
     await internalSyncStateRepository.save(syncState)
 
@@ -231,6 +241,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     expect(syncStates[0]).toEqual({
       id: expect.any(String),
       lastBlockNumber: storedBlockNumber + 1,
+      status: SyncStateStatus.FAILED,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -254,6 +265,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     const logsBloom = "0x000001"
     const storedBlockNumber = blockNumber - 1000
     const syncState = new SyncStatePersistence()
+    syncState.status = SyncStateStatus.FAILED
     syncState.lastBlockNumber = storedBlockNumber
     await internalSyncStateRepository.save(syncState)
 
@@ -280,6 +292,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     expect(syncStates[0]).toEqual({
       id: expect.any(String),
       lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -326,6 +339,7 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     expect(syncStates[0]).toEqual({
       id: expect.any(String),
       lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -339,6 +353,124 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
     await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
     expect(await internalEventStoreRepository.find()).toHaveLength(0)
     expect(await internalSyncStateRepository.find()).toHaveLength(0)
+  })
+
+  it("should process blocks when there are multiple app instances", async () => {
+    const errorBlockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Error",
+      signature: "Error(uint256 field)",
+      field: 1000000,
+    } as BlockchainEvent
+
+    const syncState = new SyncStatePersistence()
+    syncState.lastBlockNumber = blockNumber
+    syncState.status = SyncStateStatus.OK
+    await internalSyncStateRepository.save(syncState)
+
+    jest.spyOn(hederaPort, "getBlock").mockResolvedValue({ logsBloom: "0x000001" } as GetBlockResponse)
+    // Process 4 blocks
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValue([errorBlockchainEvent]) // To stop processing blocks
+
+    // Start 2 applications
+    await Promise.all([app.init(), app2.init()])
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
+
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: blockNumber + 4,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+  })
+
+  it("should stop processing blocks when an instance has failed", async () => {
+    const errorBlockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Error",
+      signature: "Error(uint256 field)",
+      field: 1000000,
+    } as BlockchainEvent
+
+    const syncState = new SyncStatePersistence()
+    syncState.lastBlockNumber = blockNumber
+    syncState.status = SyncStateStatus.OK
+    await internalSyncStateRepository.save(syncState)
+
+    jest.spyOn(hederaPort, "getBlock").mockResolvedValue({ logsBloom: "0x000001" } as GetBlockResponse)
+    // Process 4 blocks
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([errorBlockchainEvent])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValue([])
+
+    // Start 2 applications
+    await Promise.all([app.init(), app2.init()])
+
+    await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
+
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: blockNumber,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+  })
+
+  it("should keep on processing blocks when the database lock gets timeout ", async () => {
+    const errorBlockchainEvent = {
+      transactionHash: "testTransactionHash",
+      name: "Error",
+      signature: "Error(uint256 field)",
+      field: 1000000,
+    } as BlockchainEvent
+
+    const syncState = new SyncStatePersistence()
+    syncState.status = SyncStateStatus.OK
+    syncState.lastBlockNumber = blockNumber
+    await internalSyncStateRepository.save(syncState)
+
+    jest.spyOn(hederaPort, "getBlock").mockResolvedValue({ logsBloom: "0x000001" } as GetBlockResponse)
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValueOnce([])
+    jest.spyOn(hederaPort, "fetchEvents").mockResolvedValue([errorBlockchainEvent]) // To stop processing blocks
+
+    dataSource.transaction(async (entitymanager) => {
+      entitymanager.findOne(SyncStatePersistence, {
+        where: {
+          lastBlockNumber: Not(IsNull()),
+        },
+        lock: {
+          mode: "pessimistic_write",
+        },
+      })
+      await new Promise((resolve) => setTimeout(resolve, 1500)) // Wait some delay to force lock timeout
+    })
+
+    await app.init()
+
+    await new Promise((resolve) => setTimeout(resolve, 2000)) // Wait time for processing to be completed
+
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: blockNumber + 1,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
   })
 })
 

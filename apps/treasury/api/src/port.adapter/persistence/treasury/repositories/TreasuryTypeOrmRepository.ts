@@ -1,28 +1,25 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Page, PageOptions, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
-import { Repository } from "typeorm"
-import { InjectRepository } from "@nestjs/typeorm"
+import { BaseRepository, Page, PageOptions, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { TreasuryRepository } from "@domain/treasury/repositories/TreasuryRepository"
 import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPersistence"
 import { Treasury } from "@domain/treasury/model/Treasury"
 import { plainToInstance } from "class-transformer"
 
 @Singleton()
-export class TreasuryTypeOrmRepository implements TreasuryRepository {
-  constructor(
-    @InjectRepository(TreasuryPersistence)
-    private readonly treasuryRepository: Repository<TreasuryPersistence>,
-  ) {}
+export class TreasuryTypeOrmRepository extends BaseRepository<TreasuryPersistence> implements TreasuryRepository {
+  constructor() {
+    super(TreasuryPersistence)
+  }
 
   @Validate()
-  async save(treasury: Treasury): Promise<Treasury> {
-    const persistence = await this.treasuryRepository.save(treasury as TreasuryPersistence)
+  async save(treasury: Treasury, transactionId?: string): Promise<Treasury> {
+    const persistence = await this.getRepository(transactionId).save(treasury as TreasuryPersistence)
     return persistence as Treasury
   }
 
   async findByContractId(contractId: string): Promise<Treasury | null> {
-    const persistence = await this.treasuryRepository.findOne({
+    const persistence = await this.getRepository().findOne({
       where: { contractId },
       relations: ["paymentToken"],
     })
@@ -30,13 +27,13 @@ export class TreasuryTypeOrmRepository implements TreasuryRepository {
   }
 
   async findByBondContractId(bondContractId: string): Promise<Treasury | null> {
-    return this.toDomain(await this.treasuryRepository.findOneBy({ bondContractId }))
+    return this.toDomain(await this.getRepository().findOneBy({ bondContractId }))
   }
 
   async findAll(pageOptions: PageOptions): Promise<Page<Treasury>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
-    const [persistences, total] = await this.treasuryRepository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       order: { [pageOptions.order.orderBy]: orderDirection },
       skip: (pageOptions.page - 1) * pageOptions.limit,
       take: pageOptions.limit,

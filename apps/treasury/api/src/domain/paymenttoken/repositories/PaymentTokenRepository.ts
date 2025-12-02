@@ -4,7 +4,7 @@ import { PaymentToken } from "@domain/paymenttoken/model/PaymentToken"
 import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface PaymentTokenRepository {
-  save(paymentToken: PaymentToken): Promise<PaymentToken>
+  save(paymentToken: PaymentToken, transactionId?: string): Promise<PaymentToken>
 
   findById(id: string): Promise<PaymentToken | null>
 
