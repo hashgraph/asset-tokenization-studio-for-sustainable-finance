@@ -2,7 +2,7 @@ const { Client, AccountId, PrivateKey, TokenMintTransaction } = require('@hashgr
 const { verifyAddEnvironmentalAssetToken } = require('./verify-add-environmental-asset-token')
 const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { log, logSuccess, logError, logHeader, colors } = require('../../shared/lib/logger');
+const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
@@ -42,6 +42,7 @@ async function transferEnvironmentalAssetTokenToTreasury(treasuryContractId, env
   };
 
   // Step 1: Get unsigned transaction from API
+  gatewayClient.baseURL = "http://localhost:3003";
   const response = await gatewayClient.post(
     `/api/v1/environmental-assets/${environmentalAssetTokenContractId}/treasuries/${treasuryContractId}/transfer`,
     requestBody
@@ -75,7 +76,7 @@ async function waitForEnvironmentalAssetTokenToTreasuryTransferred(treasuryContr
     log(`   Attempt ${i + 1}/${maxRetries}...`);
 
     try {
-      const response = await gatewayClient.get(`/api/v1/environmental-assets/${environmentalAssetTokenId}/treasuries/${treasuryContractId}/transfers`);
+      const response = await gatewayClient.get(`/api/v1/treasuries/${treasuryContractId}/environmental-assets/${environmentalAssetTokenId}/transfers`);
       if (response.data && response.data.total > 0) {
         const accountId = response.data.items[0].accountId;
         const tokenId = response.data.items[0].tokenId;
@@ -152,7 +153,7 @@ async function verifyTransferEnvironmentalAssetTokenToTreasury(treasuryContractI
 }
 
 if (require.main === module) {
-  verifyTransferEnvironmentalAssetTokenToTreasury("0.0.7346278");
+  verifyTransferEnvironmentalAssetTokenToTreasury();
 }
 
 module.exports = {

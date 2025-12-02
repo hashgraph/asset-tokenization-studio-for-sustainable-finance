@@ -1,9 +1,60 @@
+const { Client, AccountId, PrivateKey, TokenCreateTransaction, TokenType, TokenSupplyType, TransferTransaction } = require('@hashgraph/sdk');
 const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
+
+async function createPaymentToken() {
+  const client = Client.forTestnet();
+  const operatorId = AccountId.fromString(process.env.ACCOUNT_ID);
+  const operatorKey = PrivateKey.fromStringDer(process.env.HEDERA_PRIVATE_KEY);
+  client.setOperator(operatorId, operatorKey);
+
+  const tokenTransaction = await new TokenCreateTransaction()
+      .setTokenName("Treasury Payment Token")
+      .setTokenSymbol("TPT")
+      .setTokenType(TokenType.FungibleCommon)
+      .setDecimals(0)
+      .setInitialSupply(1)
+      .setTreasuryAccountId(operatorId)
+      .setSupplyType(TokenSupplyType.Finite)
+      .setMaxSupply(10)
+      .setAdminKey(operatorKey)
+      .setSupplyKey(operatorKey)
+      .setWipeKey(operatorKey)
+      .setPauseKey(operatorKey)
+      .setFreezeKey(operatorKey)
+      .setAutoRenewAccountId(operatorId)
+      .setAutoRenewPeriod(7776000); // 90 days
+
+  let submit = await tokenTransaction.execute(client);
+  let receipt = await submit.getReceipt(client);
+
+  const tokenId = receipt.tokenId;
+  log(`✅ Created payment token: ${tokenId.toString()}`);
+  const paymentTokenEvmAddress = tokenId.toSolidityAddress();
+  log(`🧬 EVM address (ERC-21 compatible): ${paymentTokenEvmAddress}`);
+
+  return [tokenId, paymentTokenEvmAddress];
+}
+
+async function transferPaymentToken(paymentTokenId, treasuryContractId) {
+  log(`\n💱 Transferring payment token ${paymentTokenId} to treasury ${treasuryContractId}...`, colors.yellow);
+  const client = Client.forTestnet();
+  const operatorId = AccountId.fromString(process.env.ACCOUNT_ID);
+  const operatorKey = PrivateKey.fromStringDer(process.env.HEDERA_PRIVATE_KEY);
+  client.setOperator(operatorId, operatorKey);
+
+  const transferTx = await new TransferTransaction()
+    .addTokenTransfer(paymentTokenId, operatorId, -1)    // sender
+    .addTokenTransfer(paymentTokenId, treasuryContractId, 1)     // contract receiver
+
+  const submit = await transferTx.execute(client);
+  const receipt = await submit.getReceipt(client);
+  console.log(`🎨 Payment tokens transferred to Treasury`);
+}
 
 /**
  * Update treasury payment token
@@ -19,16 +70,15 @@ async function updatePaymentToken(treasuryContractId, newPaymentTokenContractId)
     accountId: process.env.ACCOUNT_ID,
     paymentTokenContractId: newPaymentTokenContractId
   };
-  
+
   // Step 1: Get unsigned transaction from API
   const response = await gatewayClient.put(
     `/api/v1/treasuries/${treasuryContractId}/payment-tokens`,
     requestBody
   );
+
   const unsignedTx = response.data.unsignedTx;
-  
   log(`   Unsigned transaction received`, colors.cyan);
-  
   // Step 2: Sign the transaction
   const signedTx = await signTransaction(unsignedTx);
   logSuccess('Payment token update transaction signed successfully!');
@@ -75,7 +125,7 @@ async function waitForPaymentTokenUpdate(treasuryContractId, expectedPaymentToke
   throw new Error(`Timeout: Payment token was not updated after ${maxRetries} attempts`);
 }
 
-async function verifyTreasuryPaymentTokenUpdate(treasuryContractId) {
+async function verifyTreasuryPaymentTokenUpdate(treasuryContractId, withDissociationFailure = false) {
   logHeader('🧪 Running Treasury Payment Token Update Verification...');
 
   // Validate signing configuration before starting
@@ -85,33 +135,48 @@ async function verifyTreasuryPaymentTokenUpdate(treasuryContractId) {
   }
 
   try {
-   let contractId;
+    let contractId;
+    let paymentTokenId, paymentTokenEvmAddress;
     if (treasuryContractId)  {
       contractId = treasuryContractId;
     } else {
-      // Step 1: Deploy bond, wait for treasury, and apply all roles
+      // Step 1: Create a payment token
+      [paymentTokenId, paymentTokenEvmAddress] = await createPaymentToken();
+
+      // Step 2: Deploy bond, wait for treasury, and apply all roles
       log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
-      const treasury = await deployBondWaitTreasuryAndApplyRoles();
+      const overridePaymentTokenAddress = {
+        treasuryData: {
+          paymentTokenAddress: paymentTokenEvmAddress,
+        }
+      };
+
+      const treasury = await deployBondWaitTreasuryAndApplyRoles(undefined, overridePaymentTokenAddress);
 
       contractId = treasury.contractId;
       logSuccess(`Treasury deployed: ${contractId}`);
     }
     
-    // Step 2: Get initial treasury state and current payment token
+    // Step 3: Get initial treasury state and current payment token
     log('\n2️⃣  Verifying initial treasury state...');
     let treasuryDetails = await getTreasuryByContractId(contractId);
     const initialPaymentToken = treasuryDetails.paymentToken?.contractId || 'None';
     log(`   Initial payment token: ${initialPaymentToken}`, colors.cyan);
-    
-    // Step 3: Update payment token to a new one
+
+    if (withDissociationFailure) {
+      // Step4: Transfer the just minted token to the Treasury
+      await transferPaymentToken(paymentTokenId, contractId, 1)
+    }
+
+    // Step 5: Update payment token to a new one
     // Using a different payment token ID (example: USDC on Hedera testnet)
-    const newPaymentTokenId = '0.0.429274';
+    const newPaymentTokenId = "0.0.429274";
     log('\n3️⃣  Updating payment token...');
     log(`   Changing from ${initialPaymentToken} to ${newPaymentTokenId}`, colors.bright);
     
     await updatePaymentToken(contractId, newPaymentTokenId);
     
-    // Step 4: Wait and verify payment token was updated
+    // Step 6: Wait and verify payment token was updated
     log('\n4️⃣  Verifying payment token update...');
     treasuryDetails = await waitForPaymentTokenUpdate(contractId, newPaymentTokenId);
     
@@ -120,7 +185,9 @@ async function verifyTreasuryPaymentTokenUpdate(treasuryContractId) {
     log(`   Current: ${treasuryDetails.paymentToken?.contractId || 'None'}`, colors.green);
     
     logHeader('✅ Treasury Payment Token Update Verification PASSED!');
-    
+
+    return [contractId, initialPaymentToken];
+
   } catch (error) {
     logError(`Verification failed: ${error.message}`);
     process.exit(1);
@@ -128,10 +195,11 @@ async function verifyTreasuryPaymentTokenUpdate(treasuryContractId) {
 }
 
 if (require.main === module) {
-  verifyTreasuryPaymentTokenUpdate();
+  verifyTreasuryPaymentTokenUpdate(undefined, true);
 }
 
 module.exports = {
+  createPaymentToken,
   updatePaymentToken,
   waitForPaymentTokenUpdate,
   verifyTreasuryPaymentTokenUpdate
