@@ -82,7 +82,7 @@ const config: HardhatUserConfig = {
     target: "ethers-v5",
   },
   mocha: {
-    timeout: 3_000_000,
+    timeout: 60_000, // 60 seconds per test (reduced from 50 min)
   },
   dependencyCompiler: {
     paths: [
