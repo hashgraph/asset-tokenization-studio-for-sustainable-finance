@@ -1,29 +1,21 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# Gateway
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A NestJS application that acts as an API Gateway for the 3 APIs of the solution, ats, primary-market and treasury.
+
+## Configure .env
+You can copy .env.sample to .env to have every property that the application is going to need.
+
+- `PORT`: The port where the app is going to be listening (default: `3000`).
+- `LOG_LEVEL`: Log level of the application. The level indicated includes higher level in this list of levels: `"verbose", "debug", "log", "warn", "error", "fatal"`, for example log level includes warn, error and fatal levels.
+- `PATHS`: Comma separated paths of the APIs this gateway routes. Each value should have a corresponding value in the same position in the `ROUTES` property. 
+  Should be the same value as configured in the example env file. Treasury API have 3 different paths, ATS and Primary Market only 1 (default: `empty`).
+- `ROUTES`: Comma separated list of routes this API Gateway will route to for each received path configured in ´PATHS´ property. We should take into account that treasury route should be repeated 3 times.(default: `empty`).
+- `API_KEY_HEADER_NAME`: Header name that will be used for authentication (default: `X-API-Key`)
+- `API_KEYS`: Comma separated list of valid API keys that can be used for authentication. (default: `30000` (30 seconds))
+- `TIMEOUT`: Timeout in milliseconds the Gateway should wait for the API call before a timeout error.
+- `LOG_RESPONSE_BODY_LIMIT`: Max char number that will be logged for each call (default: `500`)
 
 ## Project setup
 
@@ -37,7 +29,7 @@ $ npm install
 # development
 $ npm run start
 
-# watch mode
+# development watch mode
 $ npm run start:dev
 
 # production mode
@@ -47,11 +39,8 @@ $ npm run start:prod
 ## Run tests
 
 ```bash
-# unit tests
+# run tests
 $ npm run test
-
-# e2e tests
-$ npm run test:e2e
 
 # test coverage
 $ npm run test:cov
@@ -70,29 +59,22 @@ $ mau deploy
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
+## Health Check Endpoint
+A health check endpoint is available under `api/v1/health`. All of the 3 APIs (ats, primary-market and treasury) will be checked in the Gateway health check.
+
+## API Doc Endpoint
+An API documentation endpoint is available under `api/v1/docs`. This will serve the API doc of the 3 APIs (ats, primary-market and treasury) in the same page in the browser.
+
 ## Resources
 
 Check out a few resources that may come in handy when working with NestJS:
 
 - Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
 - To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
 - Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
 - Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Green Bond Gateway is [Apache 2.0 licensed](../../..//LICENSE).
