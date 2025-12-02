@@ -693,7 +693,7 @@ describe("PrimaryMarket", () => {
       expect(status).to.equal(3); // EXECUTABLE
     });
 
-    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE_AND_EXECUTABLE", async () => {
+    it("GIVEN target not reached and past endDate WHEN checking status THEN CANCELLABLE_OR_EXECUTABLE", async () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
       // Subscribe but don't reach target (only 30 lots out of 100)
@@ -703,7 +703,7 @@ describe("PrimaryMarket", () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(4); // CANCELLABLE_AND_EXECUTABLE
+      expect(status).to.equal(4); // CANCELLABLE_OR_EXECUTABLE
     });
 
     it("GIVEN target not reached and past endDate with all subscriptions cancelled WHEN checking status THEN PROCESSED", async () => {
@@ -1474,7 +1474,7 @@ describe("PrimaryMarket", () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
       const status = await primaryMarket.getOfferingStatus(offeringId);
-      expect(status).to.equal(4); // CANCELLABLE_AND_EXECUTABLE
+      expect(status).to.equal(4); // CANCELLABLE_OR_EXECUTABLE
 
       // Get initial balances
       const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);

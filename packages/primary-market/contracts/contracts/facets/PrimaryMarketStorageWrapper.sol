@@ -477,7 +477,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             if (targetReached) {
                 return IPrimaryMarket.OfferingStatus.EXECUTABLE;
             } else {
-                return IPrimaryMarket.OfferingStatus.CANCELLABLE_AND_EXECUTABLE;
+                return IPrimaryMarket.OfferingStatus.CANCELLABLE_OR_EXECUTABLE;
             }
         }
 

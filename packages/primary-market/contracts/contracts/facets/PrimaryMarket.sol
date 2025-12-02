@@ -86,7 +86,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     modifier offeringIsReadyForExecution(uint256 _offeringId) {
         if (
             !_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.EXECUTABLE) &&
-            !_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.CANCELLABLE_AND_EXECUTABLE)
+            !_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.CANCELLABLE_OR_EXECUTABLE)
         ) {
             revert OfferingCannotBeExecuted(_offeringId);
         }
@@ -94,7 +94,7 @@ abstract contract PrimaryMarket is IPrimaryMarket, PrimaryMarketStorageWrapper {
     }
 
     modifier offeringIsReadyForCancellation(uint256 _offeringId) {
-        if (!_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.CANCELLABLE_AND_EXECUTABLE)) {
+        if (!_isOfferingStatus(_offeringId, IPrimaryMarket.OfferingStatus.CANCELLABLE_OR_EXECUTABLE)) {
             revert OfferingCannotBeCancelled(_offeringId);
         }
         _;

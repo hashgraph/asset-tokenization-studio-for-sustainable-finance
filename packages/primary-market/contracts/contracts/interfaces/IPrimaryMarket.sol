@@ -58,7 +58,7 @@ interface IPrimaryMarket {
         OPEN, // Accepting subscriptions
         CLOSED, // Not accepting subscriptions but cannot be executed or cancelled yet
         EXECUTABLE, // Can be executed
-        CANCELLABLE_AND_EXECUTABLE, // can eb both executed or cancelled (target not reached after deadline)
+        CANCELLABLE_OR_EXECUTABLE, // can be both executed or cancelled (target not reached after deadline)
         PROCESSED // Already executed or cancelled
     }
 
