@@ -22,7 +22,7 @@ import {
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
-  private readonly OFFERING_CREATION_GAS = 700_000
+  private readonly OFFERING_CREATION_GAS = 2_500_000
   private readonly SUBSCRIPTION_SUBMIT_GAS = 700_000
   private readonly SUBSCRIPTION_CANCEL_GAS = 700_000
   private readonly EXECUTE_OFFERING_GAS = 700_000
