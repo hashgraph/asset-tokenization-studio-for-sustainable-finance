@@ -7,6 +7,8 @@ import { BuildExecuteOfferingTransactionRequest } from "./model/BuildExecuteOffe
 import { BuildCancelOfferingTransactionRequest } from "./model/BuildCancelOfferingTransactionRequest"
 import { BuildCancelSubscriptionTransactionRequest } from "./model/BuildCancelSubscriptionTransactionRequest"
 import { BuildDeployPrimaryMarketTransactionRequest } from "./model/BuildDeployPrimaryMarketTransactionRequest"
+import { BuildExecuteOfferingBySubscriptionIdTransactionRequest } from "./model/BuildExecuteOfferingBySubscriptionIdTransactionRequest"
+import { BuildCancelOfferingBySubscriptionIdTransactionRequest } from "./model/BuildCancelOfferingBySubscriptionIdTransactionRequest"
 
 export interface TransactionBuilderPort extends BaseTransactionBuilderPort {
   createOffering(request: BuildCreateOfferingTransactionRequest): Promise<BuildTransactionResponse>
@@ -14,5 +16,11 @@ export interface TransactionBuilderPort extends BaseTransactionBuilderPort {
   cancelSubscription(request: BuildCancelSubscriptionTransactionRequest): Promise<BuildTransactionResponse>
   executeOffering(request: BuildExecuteOfferingTransactionRequest): Promise<BuildTransactionResponse>
   cancelOffering(request: BuildCancelOfferingTransactionRequest): Promise<BuildTransactionResponse>
+  executeOfferingBySubscriptionIds(
+    request: BuildExecuteOfferingBySubscriptionIdTransactionRequest,
+  ): Promise<BuildTransactionResponse>
+  cancelOfferingBySubscriptionIds(
+    request: BuildCancelOfferingBySubscriptionIdTransactionRequest,
+  ): Promise<BuildTransactionResponse>
   deployPrimaryMarket(request: BuildDeployPrimaryMarketTransactionRequest): Promise<BuildTransactionResponse>
 }

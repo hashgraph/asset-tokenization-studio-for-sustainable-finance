@@ -12,4 +12,5 @@ export interface OfferingRepository {
     bondContractId: string,
     pageOptions: PageOptions,
   ): Promise<Page<Offering>>
+  findByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<Offering>>
 }
