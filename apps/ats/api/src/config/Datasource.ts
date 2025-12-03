@@ -1,18 +1,21 @@
 import { DataSource } from "typeorm"
 import { ENTITIES } from "../Components"
+import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-listener"
 import { ConfigService } from "@nestjs/config"
 import { ConfigKeys } from "@config/ConfigKeys"
 
 const configService = new ConfigService()
+
+const ATS_API_ENTITIES = ENTITIES.filter((entity) => !EVENT_LISTENER_ENTITIES.includes(entity))
 
 const Datasource = new DataSource({
   type: "postgres",
   host: configService.get<string>(ConfigKeys.POSTGRESQL_HOST),
   port: configService.get<number>(ConfigKeys.POSTGRESQL_PORT, 5432),
   username: configService.get<string>(ConfigKeys.POSTGRESQL_USER),
-  password: configService.get(<string>ConfigKeys.POSTGRESQL_PASSWORD),
+  password: configService.get<string>(ConfigKeys.POSTGRESQL_PASSWORD),
   database: configService.get<string>(ConfigKeys.POSTGRESQL_DB),
-  entities: ENTITIES,
+  entities: ATS_API_ENTITIES,
 })
 
 export default Datasource

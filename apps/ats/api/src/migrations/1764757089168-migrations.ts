@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migrations1764691701822 implements MigrationInterface {
-    name = 'Migrations1764691701822'
+export class Migrations1764757089168 implements MigrationInterface {
+    name = 'Migrations1764757089168'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -14,48 +14,6 @@ export class Migrations1764691701822 implements MigrationInterface {
                 "roleId" character varying NOT NULL,
                 "contractId" character varying NOT NULL,
                 CONSTRAINT "PK_83fd6b024a41173978f5b2b9b79" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
-            CREATE TYPE "public"."EventStore_status_enum" AS ENUM('FAILED', 'PROCESSED')
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "EventStore" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "status" "public"."EventStore_status_enum" NOT NULL,
-                "eventName" character varying NOT NULL,
-                "data" character varying NOT NULL,
-                "errorReason" character varying,
-                CONSTRAINT "PK_7d0597360826c0cc7e590282359" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
-            CREATE TYPE "public"."SyncState_status_enum" AS ENUM('OK', 'FAILED')
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "SyncState" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "status" "public"."SyncState_status_enum" NOT NULL,
-                "lastBlockNumber" integer,
-                CONSTRAINT "PK_cb20b83abf4b4758b9157ddb768" PRIMARY KEY ("id")
-            )
-        `);
-        await queryRunner.query(`
-            CREATE TABLE "EventFilter" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "contractAddress" character varying NOT NULL,
-                "eventName" character varying NOT NULL,
-                "eventSignature" character varying NOT NULL,
-                CONSTRAINT "PK_af11c2e04446e53c3d48b1a99f8" PRIMARY KEY ("id")
             )
         `);
         await queryRunner.query(`
@@ -374,21 +332,6 @@ export class Migrations1764691701822 implements MigrationInterface {
         `);
         await queryRunner.query(`
             DROP TABLE "Bonds"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "EventFilter"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "SyncState"
-        `);
-        await queryRunner.query(`
-            DROP TYPE "public"."SyncState_status_enum"
-        `);
-        await queryRunner.query(`
-            DROP TABLE "EventStore"
-        `);
-        await queryRunner.query(`
-            DROP TYPE "public"."EventStore_status_enum"
         `);
         await queryRunner.query(`
             DROP TABLE "UserRole"
