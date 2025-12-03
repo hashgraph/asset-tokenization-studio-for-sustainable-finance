@@ -1,23 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
+import { Singleton, Page, PageOptions, BaseRepository } from "@hashgraph/green-bonds-shared-core"
 import { SubscriptionRepository } from "@domain/subscription/repositories/SubscriptionRepository"
 import { Subscription } from "@domain/subscription/model/Subscription"
 import { SubscriptionPersistence } from "../model/SubscriptionPersistence"
 import { plainToInstance } from "class-transformer"
-import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
-@Injectable()
-export class SubscriptionTypeORMRepository implements SubscriptionRepository {
-  constructor(
-    @InjectRepository(SubscriptionPersistence)
-    private readonly repository: Repository<SubscriptionPersistence>,
-  ) {}
+@Singleton()
+export class SubscriptionTypeORMRepository
+  extends BaseRepository<SubscriptionPersistence>
+  implements SubscriptionRepository
+{
+  constructor() {
+    super(SubscriptionPersistence)
+  }
 
-  async save(subscription: Subscription): Promise<Subscription> {
-    const saved = await this.repository.save(subscription as unknown as SubscriptionPersistence)
+  async save(subscription: Subscription, transactionId?: string): Promise<Subscription> {
+    const saved = await this.getRepository(transactionId).save(subscription as unknown as SubscriptionPersistence)
     return this.toDomain(saved)
   }
 
@@ -26,7 +25,7 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
     offeringId: number,
     marketId: string,
   ): Promise<Subscription | null> {
-    const persistence = await this.repository.findOne({
+    const persistence = await this.getRepository().findOne({
       where: {
         id: subscriptionId,
         offeringId,
@@ -44,7 +43,7 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
   ): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: {
         offeringId,
         marketId,
@@ -68,7 +67,7 @@ export class SubscriptionTypeORMRepository implements SubscriptionRepository {
   async findByInvestorAccountId(investorAccountId: string, pageOptions: PageOptions): Promise<Page<Subscription>> {
     const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
 
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: {
         investorAccountId,
       },
