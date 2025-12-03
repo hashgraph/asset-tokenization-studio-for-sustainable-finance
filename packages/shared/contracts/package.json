@@ -7,15 +7,10 @@
   "types": "./build/index.d.ts",
   "typesVersions": {
     "*": {
-      "scripts": [
-        "./build/index.d.ts"
-      ]
+      "scripts": ["./build/index.d.ts"]
     }
   },
-  "files": [
-    "build/",
-    "!build/**/*.map"
-  ],
+  "files": ["build/", "!build/**/*.map"],
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
@@ -31,12 +26,7 @@
     },
     "./package.json": "./package.json"
   },
-  "keywords": [
-    "hedera",
-    "green-bonds",
-    "infrastructure",
-    "orchestration"
-  ],
+  "keywords": ["hedera", "green-bonds", "infrastructure", "orchestration"],
   "author": "",
   "license": "Apache-2.0",
   "scripts": {
@@ -55,13 +45,10 @@
     "deploy:hedera:preview": "NETWORK=hedera-preview npm run deploy",
     "deploy:hedera:testnet": "NETWORK=hedera-testnet npm run deploy",
     "deploy:hedera:mainnet": "NETWORK=hedera-mainnet npm run deploy",
-    "local:hardhat": "npx hardhat node",
-    "deploy-hts-token": "npx ts-node -r tsconfig-paths/register scripts/integration/testnet/deployHTSToken.ts",
-    "approve-hts-native": "npx ts-node -r tsconfig-paths/register scripts/integration/testnet/approveHTSTokenNative.ts",
-    "grant-role": "npx ts-node -r tsconfig-paths/register scripts/integration/testnet/grantRole.ts"
+    "local:hardhat": "npx hardhat node"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "2.0.0",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.9.tgz",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "dotenv": "^16.0.0",
