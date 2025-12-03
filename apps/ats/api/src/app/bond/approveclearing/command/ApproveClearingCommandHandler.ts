@@ -15,6 +15,9 @@ import { UnsupportedClearingOperationTypeError } from "@domain/bond/clearing/err
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
 import type { ClearingTransfer } from "@domain/bond/clearing/model/ClearingTransfer"
+import type { ClearingHold } from "@domain/bond/clearing/model/ClearingHold"
+import { CreateBondHoldDomainService } from "@domain/bond/hold/service/CreateBondHoldDomainService"
+import { CreateBondHoldDomainServiceRequest } from "@domain/bond/hold/service/model/CreateBondHoldDomainServiceRequest"
 
 @Singleton()
 @Handler(ApproveClearingCommand)
@@ -26,6 +29,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
     private readonly approveHoldClearingBalanceDomainService: ApproveHoldClearingBalanceDomainService,
     private readonly approveRedeemClearingBalanceDomainService: ApproveRedeemClearingBalanceDomainService,
     private readonly approveTransferClearingBalanceDomainService: ApproveTransferClearingBalanceDomainService,
+    private readonly createBondHoldDomainService: CreateBondHoldDomainService,
     @Inject() private readonly transactionManager: TransactionManager,
     @Inject() private readonly eventBus: EventBus,
   ) {}
@@ -36,14 +40,34 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
       const approvedClearing = await this.updateClearingStatusByType(command)
 
       switch (command.clearingOperationType) {
-        case ClearingOperationType.HOLD:
+        case ClearingOperationType.HOLD: {
+          const holdClearing = approvedClearing as ClearingHold
           await this.approveHoldClearingBalanceDomainService.execute(
-            approvedClearing.bondContractId,
-            approvedClearing.holderAccountId,
-            approvedClearing.partition,
-            approvedClearing.amount,
+            holdClearing.bondContractId,
+            holdClearing.holderAccountId,
+            holdClearing.partition,
+            holdClearing.amount,
           )
+
+          if (command.holdId !== undefined) {
+            const createBondHoldRequest = new CreateBondHoldDomainServiceRequest(
+              holdClearing.bondContractId,
+              command.holdId,
+              holdClearing.holderAccountId,
+              holdClearing.partition,
+              holdClearing.amount,
+              holdClearing.expirationDate,
+              holdClearing.escrowAccountId,
+              holdClearing.toAccountId ?? holdClearing.escrowAccountId,
+              holdClearing.data ?? "",
+              holdClearing.operatorData ?? "",
+              holdClearing.operatorAccountId,
+            )
+
+            await this.createBondHoldDomainService.execute(createBondHoldRequest)
+          }
           break
+        }
 
         case ClearingOperationType.REDEEM:
           await this.approveRedeemClearingBalanceDomainService.execute(

@@ -27,6 +27,9 @@ export class ApproveClearingCommand extends Command<void> {
   @IsNotEmpty()
   clearingOperationType: ClearingOperationType
 
+  @IsNumber()
+  holdId?: number
+
   constructor(
     clearingId: number,
     bondContractId: string,
@@ -34,6 +37,7 @@ export class ApproveClearingCommand extends Command<void> {
     partition: string,
     operatorAccountId: string,
     clearingOperationType: ClearingOperationType,
+    holdId?: number,
   ) {
     super()
     this.clearingId = clearingId
@@ -42,5 +46,6 @@ export class ApproveClearingCommand extends Command<void> {
     this.partition = partition
     this.operatorAccountId = operatorAccountId
     this.clearingOperationType = clearingOperationType
+    this.holdId = holdId
   }
 }
