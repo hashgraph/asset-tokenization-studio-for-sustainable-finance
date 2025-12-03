@@ -18,6 +18,7 @@ export class UpdateClearingBondHolderBalanceDomainService {
     partition: string,
     amount: string,
     operation: "CLEARING_LOCK" | "CLEARING_UNLOCK",
+    transactionId?: string,
   ): Promise<void> {
     const balance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -70,6 +71,6 @@ export class UpdateClearingBondHolderBalanceDomainService {
         throw InvalidClearingOperationError.unknownOperation(operation)
     }
 
-    await this.bondHolderBalanceRepository.save(balance)
+    await this.bondHolderBalanceRepository.save(balance, transactionId)
   }
 }

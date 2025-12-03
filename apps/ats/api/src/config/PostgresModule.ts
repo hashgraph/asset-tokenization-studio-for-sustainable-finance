@@ -4,6 +4,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from "@nestjs/typeorm"
 import { EntityClassOrSchema } from "@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type"
 import { ConfigKeys } from "./ConfigKeys"
 import { ENTITIES } from "../Components"
+import { EVENT_LISTENER_MIGRATIONS } from "@hashgraph/green-bonds-blockchain-listener"
 
 @Module({})
 export class PostgresModule {
@@ -35,13 +36,13 @@ export class PostgresModule {
       username: configService.get(ConfigKeys.POSTGRESQL_USER),
       password: configService.get(ConfigKeys.POSTGRESQL_PASSWORD),
       database: configService.get(ConfigKeys.POSTGRESQL_DB),
-      synchronize: true,
-      migrationsRun: false,
-      // migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/migrations/*{.ts,.js}"],
+      synchronize: false,
+      migrationsRun: true,
+      migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/migrations/*{.ts,.js}"],
       autoLoadEntities: true,
       extra: {
         options: `-c lock_timeout=${configService.get(ConfigKeys.POSTGRESQL_LOCK_TIMEOUT, "10")}s`,
-      }
+      },
     } as TypeOrmModuleOptions
   }
 }

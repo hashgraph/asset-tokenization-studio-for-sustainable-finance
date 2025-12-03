@@ -1,21 +1,22 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
-import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BaseRepository } from "@hashgraph/green-bonds-shared-core"
+import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { ClearingHold } from "@domain/bond/clearing/model/ClearingHold"
 import { BondClearingHoldPersistence } from "../model/BondClearingHoldPersistence"
 import { ClearingHoldRepository } from "@domain/bond/clearing/repository/ClearingHoldRepository"
 
 @Injectable()
-export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
-  constructor(
-    @InjectRepository(BondClearingHoldPersistence)
-    private readonly repository: Repository<BondClearingHoldPersistence>,
-  ) {}
+export class ClearingHoldTypeOrmRepository
+  extends BaseRepository<BondClearingHoldPersistence>
+  implements ClearingHoldRepository
+{
+  constructor() {
+    super(BondClearingHoldPersistence)
+  }
 
-  async save(clearing: ClearingHold): Promise<ClearingHold> {
-    return (await this.repository.save(clearing as unknown as BondClearingHoldPersistence)) as ClearingHold
+  async save(clearing: ClearingHold, transactionId?: string): Promise<ClearingHold> {
+    return (await this.getRepository(transactionId).save(clearing as unknown as BondClearingHoldPersistence)) as ClearingHold
   }
 
   async findByContractIdHolderAccountIdAndId(
@@ -23,7 +24,7 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     holderAccountId: string,
     clearingId: number,
   ): Promise<ClearingHold | null> {
-    const persistence = await this.repository.findOne({
+    const persistence = await this.getRepository().findOne({
       where: { bondContractId, holderAccountId, id: clearingId },
     })
     if (!persistence) return null
@@ -36,7 +37,7 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     options: PageOptions,
   ): Promise<Page<ClearingHold>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { bondContractId, holderAccountId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
@@ -54,11 +55,11 @@ export class ClearingHoldTypeOrmRepository implements ClearingHoldRepository {
     }
   }
 
-  async update(clearing: ClearingHold): Promise<ClearingHold> {
-    return (await this.repository.save(clearing as unknown as BondClearingHoldPersistence)) as ClearingHold
+  async update(clearing: ClearingHold, transactionId?: string): Promise<ClearingHold> {
+    return (await this.getRepository(transactionId).save(clearing as unknown as BondClearingHoldPersistence)) as ClearingHold
   }
 
   async deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void> {
-    await this.repository.delete({ bondContractId, holderAccountId, id: clearingId })
+    await this.getRepository().delete({ bondContractId, holderAccountId, id: clearingId })
   }
 }

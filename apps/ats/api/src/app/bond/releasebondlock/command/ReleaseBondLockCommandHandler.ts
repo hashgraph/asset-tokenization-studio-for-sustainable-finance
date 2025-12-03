@@ -22,7 +22,7 @@ export class ReleaseBondLockCommandHandler implements CommandHandler<ReleaseBond
 
   @Validate()
   async execute(command: ReleaseBondLockCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const existingLock = await this.bondLockRepository.findByBondContractIdAndId(
         command.bondContractId,
         command.lockId,
@@ -36,6 +36,7 @@ export class ReleaseBondLockCommandHandler implements CommandHandler<ReleaseBond
         command.holderAccountId,
         command.partition,
         existingLock.amount,
+        transactionId,
       )
       this.eventBus.publish(
         new ReleasedBondLockEvent(

@@ -19,7 +19,7 @@ export class CreateClearingTransferCommandHandler implements CommandHandler<Crea
 
   @Validate()
   async execute(command: CreateClearingTransferCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const request = new CreateClearingTransferDomainServiceRequest()
       request.bondContractId = command.bondContractId
       request.holderAccountId = command.holderAccountId
@@ -32,7 +32,7 @@ export class CreateClearingTransferCommandHandler implements CommandHandler<Crea
       request.operatorData = command.operatorData
       request.operatorAccountId = command.operatorAccountId
 
-      const savedClearing = await this.createClearingTransferDomainService.execute(request)
+      const savedClearing = await this.createClearingTransferDomainService.execute(request, transactionId)
 
       await this.updateClearingBondHolderBalanceDomainService.execute(
         savedClearing.bondContractId,
@@ -40,6 +40,7 @@ export class CreateClearingTransferCommandHandler implements CommandHandler<Crea
         savedClearing.partition,
         savedClearing.amount,
         "CLEARING_LOCK",
+        transactionId,
       )
 
       this.eventBus.publish(new ClearingCreatedEvent(savedClearing))

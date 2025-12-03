@@ -4,7 +4,7 @@ import type { BondHold } from "../model/BondHold"
 import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface BondHoldRepository {
-  save(bondHold: BondHold): Promise<BondHold>
+  save(bondHold: BondHold, transactionId?: string): Promise<BondHold>
   findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null>
   findByContractIdAndHolderAndHoldId(
     contractId: string,

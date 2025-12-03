@@ -19,7 +19,7 @@ export class CreateClearingRedeemCommandHandler implements CommandHandler<Create
 
   @Validate()
   async execute(command: CreateClearingRedeemCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const request = new CreateClearingRedeemDomainServiceRequest()
       request.bondContractId = command.bondContractId
       request.holderAccountId = command.holderAccountId
@@ -31,7 +31,7 @@ export class CreateClearingRedeemCommandHandler implements CommandHandler<Create
       request.operatorData = command.operatorData
       request.operator = command.operatorAccountId
 
-      const savedClearing = await this.createClearingRedeemDomainService.execute(request)
+      const savedClearing = await this.createClearingRedeemDomainService.execute(request, transactionId)
 
       await this.updateClearingBondHolderBalanceDomainService.execute(
         savedClearing.bondContractId,
@@ -39,6 +39,7 @@ export class CreateClearingRedeemCommandHandler implements CommandHandler<Create
         savedClearing.partition,
         savedClearing.amount,
         "CLEARING_LOCK",
+        transactionId,
       )
 
       this.eventBus.publish(new ClearingRedeemCreatedEvent(savedClearing))

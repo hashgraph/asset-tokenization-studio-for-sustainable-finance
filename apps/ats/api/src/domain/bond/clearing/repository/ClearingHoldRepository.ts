@@ -3,7 +3,7 @@ import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { ClearingHold } from "../model/ClearingHold"
 
 export interface ClearingHoldRepository {
-  save(clearing: ClearingHold): Promise<ClearingHold>
+  save(clearing: ClearingHold, transactionId?: string): Promise<ClearingHold>
   findByContractIdHolderAccountIdAndId(
     bondContractId: string,
     holderAccountId: string,
@@ -14,6 +14,6 @@ export interface ClearingHoldRepository {
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<ClearingHold>>
-  update(clearing: ClearingHold): Promise<ClearingHold>
+  update(clearing: ClearingHold, transactionId?: string): Promise<ClearingHold>
   deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void>
 }

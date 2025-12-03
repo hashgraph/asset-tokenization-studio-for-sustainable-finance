@@ -12,7 +12,7 @@ export class UpdateClearingRedeemStatusDomainService {
     private readonly clearingRepository: ClearingRedeemRepository,
   ) {}
 
-  async execute(request: UpdateClearingStatusDomainServiceRequest): Promise<ClearingRedeem> {
+  async execute(request: UpdateClearingStatusDomainServiceRequest, transactionId?: string): Promise<ClearingRedeem> {
     const clearing = await this.clearingRepository.findByContractIdHolderAccountIdAndId(
       request.bondContractId,
       request.holderAccountId,
@@ -28,6 +28,6 @@ export class UpdateClearingRedeemStatusDomainService {
     clearing.status = request.newStatus
     clearing.updatedAt = new Date()
 
-    return await this.clearingRepository.update(clearing)
+    return await this.clearingRepository.update(clearing, transactionId)
   }
 }

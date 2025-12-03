@@ -3,7 +3,7 @@ import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { BondHolderBalance } from "../model/BondHolderBalance"
 
 export interface BondHolderBalanceRepository {
-  save(bondHolderBalance: BondHolderBalance): Promise<BondHolderBalance>
+  save(bondHolderBalance: BondHolderBalance, transactionId?: string): Promise<BondHolderBalance>
   findByContractIdHolderAccountIdAndPartition(
     bondContractId: string,
     holderAccountId: string,

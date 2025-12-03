@@ -15,6 +15,7 @@ export class ApproveTransferClearingBalanceDomainService {
     toAccountId: string,
     partition: string,
     amount: string,
+    transactionId?: string,
   ): Promise<void> {
     const senderBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -41,7 +42,7 @@ export class ApproveTransferClearingBalanceDomainService {
 
     senderBalance.clearingBalance = (senderClearing - transferAmount).toString()
     senderBalance.updatedAt = new Date()
-    await this.bondHolderBalanceRepository.save(senderBalance)
+    await this.bondHolderBalanceRepository.save(senderBalance, transactionId)
 
     const receiverBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -52,7 +53,7 @@ export class ApproveTransferClearingBalanceDomainService {
     if (receiverBalance) {
       receiverBalance.availableBalance = (BigInt(receiverBalance.availableBalance) + transferAmount).toString()
       receiverBalance.updatedAt = new Date()
-      await this.bondHolderBalanceRepository.save(receiverBalance)
+      await this.bondHolderBalanceRepository.save(receiverBalance, transactionId)
     } else {
       const newReceiverBalance = new BondHolderBalance()
       newReceiverBalance.contractId = bondContractId
@@ -62,7 +63,7 @@ export class ApproveTransferClearingBalanceDomainService {
       newReceiverBalance.lockedBalance = "0"
       newReceiverBalance.clearingBalance = "0"
       newReceiverBalance.heldBalance = "0"
-      await this.bondHolderBalanceRepository.save(newReceiverBalance)
+      await this.bondHolderBalanceRepository.save(newReceiverBalance, transactionId)
     }
   }
 }
