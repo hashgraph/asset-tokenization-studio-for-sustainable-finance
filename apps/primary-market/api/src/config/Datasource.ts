@@ -6,7 +6,7 @@ import { EVENT_LISTENER_ENTITIES } from "@hashgraph/green-bonds-blockchain-liste
 
 const configService = new ConfigService()
 
-const ATS_API_ENTITIES = ENTITIES.filter((entity) => !EVENT_LISTENER_ENTITIES.includes(entity))
+const PRIMARY_MARKET_API_ENTITIES = ENTITIES.filter((entity) => !EVENT_LISTENER_ENTITIES.includes(entity))
 
 const Datasource = new DataSource({
   type: "postgres",
@@ -15,7 +15,7 @@ const Datasource = new DataSource({
   username: configService.get<string>(ConfigKeys.POSTGRESQL_USER),
   password: configService.get(<string>ConfigKeys.POSTGRESQL_PASSWORD),
   database: configService.get<string>(ConfigKeys.POSTGRESQL_DB),
-  entities: ATS_API_ENTITIES,
+  entities: PRIMARY_MARKET_API_ENTITIES,
 })
 
 export default Datasource
