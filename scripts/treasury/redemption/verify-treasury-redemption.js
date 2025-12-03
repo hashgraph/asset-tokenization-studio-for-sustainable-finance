@@ -1,17 +1,14 @@
-const { deployBondWaitTreasuryAndApplyRoles } = require('./verify-treasury-persistence');
-const { mintBond } = require('../ats/bond/mint-bond');
-const { deployHTSToken } = require('../primary-market/offering/hts-token-service');
-const { gatewayClient } = require('../shared/lib/gateway-client');
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../shared/lib/logger');
-const { config } = require('../shared/lib/config');
-const { signTransaction, validateSigningConfig } = require('../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../shared/lib/infrastructure');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
+const { mintBond } = require('../../ats/bond/mint-bond');
+const { deployHTSToken } = require('../../primary-market/offering/hts-token-service');
+const { gatewayClient } = require('../../shared/lib/gateway-client');
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../../shared/lib/logger');
+const { config } = require('../../shared/lib/config');
+const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
+const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { Client, PrivateKey, TransferTransaction } = require('@hashgraph/sdk');
 
 // TODO: TRY THIS TEST WHEN NEW SMART CONTRACTS CHANGES ARE DEPLOYED
-
-// REDEEMER_ROLE constant
-const REDEEMER_ROLE = '0xa0d696902e9ed231892dc96649f0c62b808a1cb9dd1269e78e0adc1cc4b8358c';
 
 /**
  * Execute a redemption paginated by transactions
@@ -121,42 +118,7 @@ async function executeRedemptionByHolders(treasuryId, holderAccountIds, maxBatch
   return response.data;
 }
 
-/**
- * Grant REDEEMER_ROLE to the treasury contract
- */
-async function grantRedeemerRole(treasuryId) {
-  log(`\n🔑 Granting REDEEMER_ROLE to treasury contract ${treasuryId}...`, colors.yellow);
 
-  const requestBody = {
-    format: config.BLOCKCHAIN_FORMAT,
-    accountId: process.env.ACCOUNT_ID,
-    rolesToGrant: [REDEEMER_ROLE],
-    rolesToRevoke: []
-  };
-
-  // Grant role to the treasury contract itself
-  const response = await gatewayClient.post(
-    `/api/v1/treasuries/${treasuryId}/users/${treasuryId}/roles`,
-    requestBody
-  );
-  const unsignedTx = response.data.unsignedTx;
-  
-  log(`   Unsigned transaction received`, colors.cyan);
-  
-  // Sign the transaction
-  const signedTx = await signTransaction(unsignedTx);
-  logSuccess('REDEEMER_ROLE grant transaction signed successfully!');
-  
-  // Publish to transaction sender
-  await publishSignedTransaction(signedTx);
-  logSuccess('REDEEMER_ROLE grant transaction published to message queue');
-  
-  // Wait a bit for the role to be applied
-  log(`   Waiting for role to be applied (5 seconds)...`, colors.yellow);
-  await new Promise(resolve => setTimeout(resolve, 5000));
-  
-  return response.data;
-}
 
 /**
  * Verify redemption status
@@ -289,17 +251,12 @@ async function verifyTreasuryRedemptions() {
     log('⏳ Waiting for minting to be processed (10 seconds)...', colors.yellow);
     await new Promise(resolve => setTimeout(resolve, 10000));
 
-    // 4. Grant REDEEMER_ROLE to treasury contract
-    log('\n4️⃣  Granting REDEEMER_ROLE to treasury contract...');
-    await grantRedeemerRole(treasuryId);
-    logSuccess('REDEEMER_ROLE granted to treasury contract');
-
-    // 5. Fund Treasury with Custom Payment Token
-    log('\n5️⃣  Funding treasury with payment tokens...');
+    // 4. Fund Treasury with Custom Payment Token
+    log('\n4️⃣  Funding treasury with payment tokens...');
     await fundTreasuryWithToken(treasuryId, paymentTokenId, 60000000000); // 60.000 tokens with 6 decimals
     logSuccess('Treasury funded with payment tokens');
 
-    // 6. Wait for maturity date to pass
+    // 5. Wait for maturity date to pass
     const waitTime = maturityDateMs - Date.now();
     if (waitTime > 0) {
       log(`\n⏳ Waiting ${Math.ceil(waitTime / 1000)} seconds for maturity date to pass...`, colors.yellow);
@@ -309,14 +266,14 @@ async function verifyTreasuryRedemptions() {
       logInfo('Maturity date has already passed');
     }
 
-    // 7. Execute first redemption (paginated)
-    log('\n7️⃣  Executing first redemption (paginated by transactions)...');
+    // 6. Execute redemption (paginated)
+    log('\n6️⃣  Executing redemption (paginated by transactions)...');
     await executeRedemptionPaginated(treasuryId);
     
     log('⏳ Waiting for redemption to be processed (10 seconds)...', colors.yellow);
     await new Promise(resolve => setTimeout(resolve, 10000));
 
-    // 7.1 Verify first redemption status
+    // 7. Verify redemption status
     await verifyRedemptionStatus(treasuryId);
 
     logHeader('✅ Treasury Redemptions Verification PASSED!');
@@ -343,6 +300,5 @@ if (require.main === module) {
 module.exports = {
   verifyTreasuryRedemptions,
   executeRedemptionPaginated,
-  executeRedemptionByHolders,
-  grantRedeemerRole
+  executeRedemptionByHolders
 };

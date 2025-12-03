@@ -1,12 +1,12 @@
-const { deployBondWaitTreasuryAndApplyRoles } = require('./verify-treasury-persistence');
-const { mintBond } = require('../ats/bond/mint-bond');
-const { setBondCoupon, getCouponsForBond } = require('../ats/bond/coupon/set-bond-coupon');
-const { deployHTSToken } = require('../primary-market/offering/hts-token-service');
-const { gatewayClient } = require('../shared/lib/gateway-client');
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../shared/lib/logger');
-const { config } = require('../shared/lib/config');
-const { signTransaction, validateSigningConfig } = require('../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../shared/lib/infrastructure');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
+const { mintBond } = require('../../ats/bond/mint-bond');
+const { setBondCoupon, getCouponsForBond } = require('../../ats/bond/coupon/set-bond-coupon');
+const { deployHTSToken } = require('../../primary-market/offering/hts-token-service');
+const { gatewayClient } = require('../../shared/lib/gateway-client');
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../../shared/lib/logger');
+const { config } = require('../../shared/lib/config');
+const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
+const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
 const { Client, PrivateKey, TransferTransaction } = require('@hashgraph/sdk');
 
