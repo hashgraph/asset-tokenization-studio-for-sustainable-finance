@@ -32,16 +32,8 @@ export class RabbitMQDecoratorFactory {
     return process.env.RABBITMQ_ETHEREUM_ROUTING_KEY || "ethereumFormat.incoming"
   }
 
-  private static getHederaOutgoingQueueName(): string {
-    return process.env.RABBITMQ_HEDERA_OUTGOING_QUEUE_NAME || "hederaFormat.outgoing"
-  }
-
   private static getHederaOutgoingRoutingKey(): string {
     return process.env.RABBITMQ_HEDERA_OUTGOING_ROUTING_KEY || "hederaFormat.outgoing"
-  }
-
-  private static getEthereumOutgoingQueueName(): string {
-    return process.env.RABBITMQ_ETHEREUM_OUTGOING_QUEUE_NAME || "ethereumFormat.outgoing"
   }
 
   private static getEthereumOutgoingRoutingKey(): string {
@@ -68,7 +60,6 @@ export class RabbitMQDecoratorFactory {
     return {
       exchange: this.getExchangeName(),
       routingKey: this.getHederaOutgoingRoutingKey(),
-      queue: this.getHederaOutgoingQueueName(),
     }
   }
 
@@ -76,7 +67,6 @@ export class RabbitMQDecoratorFactory {
     return {
       exchange: this.getExchangeName(),
       routingKey: this.getEthereumOutgoingRoutingKey(),
-      queue: this.getEthereumOutgoingQueueName(),
     }
   }
 }

@@ -65,12 +65,7 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
           receiptError,
         )
 
-        throw new BlockchainError(
-          `Hedera receipt error: ${errorCode}`,
-          errorCode,
-          transactionId,
-          isTransient,
-        )
+        throw new BlockchainError(`Hedera receipt error: ${errorCode}`, errorCode, transactionId, isTransient)
       }
     } catch (executionError: any) {
       if (executionError instanceof BlockchainError) {
@@ -82,17 +77,9 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
         : "EXECUTION_ERROR"
       const isTransient = this.isHederaErrorTransient(errorCode)
 
-      this.logger.error(
-        `Hedera transaction execution error: ${errorCode} (transient: ${isTransient})`,
-        executionError,
-      )
+      this.logger.error(`Hedera transaction execution error: ${errorCode} (transient: ${isTransient})`, executionError)
 
-      throw new BlockchainError(
-        `Hedera execution error: ${errorCode}`,
-        errorCode,
-        "EXECUTION_FAILED",
-        isTransient,
-      )
+      throw new BlockchainError(`Hedera execution error: ${errorCode}`, errorCode, "EXECUTION_FAILED", isTransient)
     } finally {
       client.close()
     }
@@ -147,22 +134,18 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       const isTransient = this.isEthereumErrorTransient(errorCode, httpStatusCode)
 
       this.logger.error(
-        `Ethereum transaction execution error: ${errorCode}${httpStatusCode ? ` (HTTP ${httpStatusCode})` : ""} (transient: ${isTransient})`,
+        "Ethereum transaction execution error: " +
+          `${errorCode}${httpStatusCode ? ` (HTTP ${httpStatusCode})` : ""} (transient: ${isTransient})`,
         error,
       )
 
-      throw new BlockchainError(
-        `Ethereum execution error: ${errorCode}`,
-        errorCode,
-        transactionId,
-        isTransient,
-      )
+      throw new BlockchainError(`Ethereum execution error: ${errorCode}`, errorCode, transactionId, isTransient)
     }
   }
 
   /**
    * Determines if a Hedera error is transient (should be retried).
-   * 
+   *
    * Philosophy: Retry by default (optimistic approach).
    * Only explicitly avoid retrying known validation/business logic errors (client-side, 4xx-like).
    * Unknown errors are retried - better to retry and fail than miss a transient error.
@@ -188,12 +171,12 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
 
   /**
    * Determines if an Ethereum error is transient (should be retried).
-   * 
+   *
    * Philosophy: Retry by default (optimistic approach).
    * Use HTTP status codes when available (most reliable).
    * For error codes, only explicitly avoid retrying known client errors.
    * Unknown errors are retried - better to retry and fail than miss a transient error.
-   * 
+   *
    * HTTP codes:
    * - 4xx (client errors): validation/user errors → do NOT retry
    * - 5xx (server errors): infrastructure errors → DO retry
@@ -205,19 +188,19 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
       if (httpStatusCode >= 400 && httpStatusCode < 500) {
         return httpStatusCode === 429 || httpStatusCode === 408
       }
-      
+
       // Retry server errors (5xx) and unknown codes
       return true
     }
 
     // Validation errors (client-side, 4xx-like) - do NOT retry these
     const clientErrors = [
-      "CONTRACT_REVERT_EXECUTION",  // Contract revert (business logic rejection)
-      "CALL_EXCEPTION",             // Contract call failed
-      "INSUFFICIENT_FUNDS",         // Not enough balance
-      "NONCE_EXPIRED",              // Transaction nonce issue
-      "REPLACEMENT_UNDERPRICED",    // Gas price too low
-      "UNPREDICTABLE_GAS_LIMIT",    // Gas estimation failed
+      "CONTRACT_REVERT_EXECUTION", // Contract revert (business logic rejection)
+      "CALL_EXCEPTION", // Contract call failed
+      "INSUFFICIENT_FUNDS", // Not enough balance
+      "NONCE_EXPIRED", // Transaction nonce issue
+      "REPLACEMENT_UNDERPRICED", // Gas price too low
+      "UNPREDICTABLE_GAS_LIMIT", // Gas estimation failed
       "INVALID_ARGUMENT",
     ]
 
