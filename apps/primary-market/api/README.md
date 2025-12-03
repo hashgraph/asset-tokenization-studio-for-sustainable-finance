@@ -50,7 +50,27 @@ $ npm install --save @nestjs/typeorm typeorm pg
 $ npm install --save nestjs-paginate
 $ npm install --save @nestjs/swagger
 ```
+## Configure .env
+You can copy .env.example to .env to have every property that the application is going to need.
 
+- `PORT`: The port where the app is going to be listening (default: `3000`).
+- `LOG_LEVEL`: Log level of the application. The level indicated includes higher level in this list of levels: `"verbose", "debug", "log", "warn", "error", "fatal"`, for example log level includes warn, error and fatal levels.
+- `HEDERA_NETWORK`: Hedera network to connect to. Can be testnet, previewnet or mainnet  (default value: `tesnet`).
+- `POSTGRESQL_HOST`: Host where the database is listening connections (default: `localhost`).
+- `POSTGRESQL_PORT`: Port where the database is listening connections (default: `5432`).
+- `POSTGRESQL_USER`: Database user to connect (default: `postgres`)
+- `POSTGRESQL_PASSWORD`: Database password to connect (default: `postgres`)
+- `POSTGRESQL_DB`: Database name (default: `postgres`)
+- `BLOCKCHAIN_LISTENER_BLOCK_NUMBER`: Block number the library will start listening events from. This can be used in case you want to start listening events from a specific block number. Usually should be empty (default: `empty`).
+- `BLOCKCHAIN_LISTENER_POLL_INTERVAL`: Time interval in milliseconds the listener will wait for a new block to be included in the network (default: `3000` (3 seconds))
+- `BLOCKCHAIN_LISTENER_CONTRACTS`: List of semicolon separated contract addresses in EVM format the library will listen events from.
+  This property is for the contract addresses that are fixed for each environment, e.g. for factories. Each value should have a corresponding value in the same position in the `BLOCKCHAIN_LISTENER_EVENTS` property (default: `empty`).
+- `BLOCKCHAIN_LISTENER_EVENTS`: List of semicolon separated event signatures related to the corresponding smart contract address. The signature is the signature of the event in Solidity including indexed keywords and parameter names (use default value in .env.example).
+- `RABBITMQ_PUBLISH_ENABLED`: Toggle to enable/disable publishing events to RabbitMQ. When false, there is no need to set other RabbitMQ properties (`true|false`, default: `true`).
+- `RABBITMQ_URI`: RabbitMQ connection URI (default: `amqp://localhost:5672`).
+- `RABBITMQ_EXCHANGE_NAME`: Exchange name to publish to (default: `greenbond.events`).
+- `RABBITMQ_CONNECTION_WAIT`: Whether to wait for connection on bootstrap. If true, server will fail to start if connection fails. Recommendation is to set it to false (`true|false`, default: `false`).
+- `RABBITMQ_BLOCKCHAIN_ROUTING_KEY`: Base routing key for blockchain events. The complete routing key the event will be published to includes the name of the event, for example, for the event Transfer, having this property as blockchain.events, will be blockchain.events.Transfer (default: `blockchain.events`).
 
 ## Project setup
 
@@ -96,6 +116,12 @@ $ mau deploy
 ```
 
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+
+## Health Check Endpoint
+A health check endpoint is available under `api/v1/health`.
+
+## API Doc Endpoint
+An API documentation endpoint is available under `api/v1/docs`.
 
 ## Resources
 

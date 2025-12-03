@@ -1,24 +1,28 @@
 # Blockchain Listener
 
-This package listens to on-chain events from Hedera Mirror Node and persists them into the EventStore. It also exposes a configurable RabbitMQ publisher (via `@golevelup/nestjs-rabbitmq`) to forward domain DLT events to your message bus.
+## Description
 
-## RabbitMQ Publishing
+This package listens to smart contract events from Hedera Mirror Node and sends them for the backend to consume. Event can also be sent to a RabbitMQ queue.
 
-Inbound publishing uses `PublishEventPortNestJSEventAdapter`, which listens to `*DLTEvent` via NestJS EventEmitter and delegates to the outbound `EventPublisherPort` implemented by `RabbitMQEventPublisherAdapter`. Messages are published as JSON to a configured exchange and routing key composed by a base plus the `eventName`.
+## Configure .env
 
-### Environment Variables
+The properties the library export for the applications are the following:
 
-These variables follow the same conventions as the `transaction-sender` package where possible:
-
-- `RABBITMQ_URI` or `RABBITMQ_URL`: RabbitMQ connection URI (e.g., `amqp://localhost:5672`).
+- `HEDERA_NETWORK`: Hedera network to connect to. Can be testnet, previewnet or mainnet  (default value: `tesnet`).
+- `BLOCKCHAIN_LISTENER_BLOCK_NUMBER`: Block number the library will start listening events from. This can be used in case you want to start listening events from a specific block number. Usually should be empty (default: `empty`).
+- `BLOCKCHAIN_LISTENER_POLL_INTERVAL`: Time interval in milliseconds the listener will wait for a new block to be included in the network (default: `3000` (3 seconds)) 
+- `BLOCKCHAIN_LISTENER_CONTRACTS`: List of semicolon separated contract addresses in EVM format the library will listen events from.
+  This property is for the contract addresses that are fixed for each environment, e.g. for factories. Each value should have a corresponding value in the same position in the `BLOCKCHAIN_LISTENER_EVENTS` property (default: `empty`).
+- `BLOCKCHAIN_LISTENER_EVENTS`: List of semicolon separated event signatures related to the corresponding smart contract address. The signature is the signature of the event in Solidity including indexed keywords and parameter names (default: `empty`).
+- `RABBITMQ_PUBLISH_ENABLED`: Toggle to enable/disable publishing events to RabbitMQ. When false, there is no need to set other RabbitMQ properties (`true|false`, default: `true`).
+- `RABBITMQ_URI`: RabbitMQ connection URI (default: `amqp://localhost:5672`).
 - `RABBITMQ_EXCHANGE_NAME`: Exchange name to publish to (default: `greenbond.events`).
-- `RABBITMQ_CONNECTION_WAIT`: Whether to wait for connection on bootstrap (`true|false`, default: `false`).
-- `RABBITMQ_BLOCKCHAIN_ROUTING_KEY`: Base routing key for blockchain events (default: `blockchain.events`).
-- `RABBITMQ_PUBLISH_ENABLED`: Toggle to enable/disable publishing (`true|false`, default: `true`).
+- `RABBITMQ_CONNECTION_WAIT`: Whether to wait for connection on bootstrap. If true, server will fail to start if connection fails. Recommendation is to set it to false (`true|false`, default: `false`).
+- `RABBITMQ_BLOCKCHAIN_ROUTING_KEY`: Base routing key for blockchain events. The complete routing key the event will be published to includes the name of the event, for example, for the event Transfer, having this property as blockchain.events, will be blockchain.events.Transfer (default: `blockchain.events`).
 
-### Message Format
+## Message Format
 
-Published message (generic DLT event):
+Published message:
 ```
 {
   "eventName": "<name>",

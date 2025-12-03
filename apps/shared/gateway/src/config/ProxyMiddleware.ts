@@ -71,7 +71,7 @@ export class ProxyMiddleware implements NestMiddleware {
   }
 
   use(req: any, res: any, next: (error?: any) => void) {
-    this.authService.signIn(req.header(process.env.API_KEY_HEADER_NAME))
+    this.authService.signIn(req.header(process.env.API_KEY_HEADER_NAME ?? "X-API-Key"))
     this.proxy(req, res, next)
   }
 
