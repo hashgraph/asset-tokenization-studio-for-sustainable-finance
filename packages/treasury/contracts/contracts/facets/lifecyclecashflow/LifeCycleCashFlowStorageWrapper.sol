@@ -230,7 +230,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     }
                     continue;
                 } else {
-                    results[index].amount = amount;
+                    results[index].amount = int64(int256(amount));
                 }
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
@@ -399,7 +399,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                     }
                     continue;
                 } else {
-                    results[index].amount = amount;
+                    results[index].amount = int64(int256(amount));
                 }
 
                 if (!_valueFitsInInt64(uint256(uint64(batchInfo.totalAmount)) + amount)) {
