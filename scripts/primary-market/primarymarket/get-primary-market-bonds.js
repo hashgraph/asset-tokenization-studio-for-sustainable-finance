@@ -14,7 +14,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION, BOND_CONTRACT_ID, TREASURY_CONTRACT_ID } = require('../shared/test-config');
 const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
 const { createOffering } = require('../offering/offering-service');
 const { waitForOfferingCreation } = require('../offering/create-offering');
@@ -101,7 +101,7 @@ async function main() {
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
-    const bondContractId = '0.0.7319744';
+    const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
@@ -129,7 +129,7 @@ async function main() {
     const now = Date.now();
     
     const offeringParams = {
-      treasuryContractId: '0.0.7319745',
+      treasuryContractId: TREASURY_CONTRACT_ID,
       paymentTokenContractId: tokenId,
       lotSize: '1000',
       minLots: '1',

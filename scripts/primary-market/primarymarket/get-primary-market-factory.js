@@ -8,6 +8,7 @@
 
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
+const { FACTORY_CONTRACT_ID } = require('../shared/test-config');
 
 /**
  * Get primary market factory by contract ID
@@ -50,7 +51,7 @@ async function main() {
     log('=====================================\n', colors.cyan);
     
     // Factory contract ID - this should be a known factory contract ID
-    const factoryContractId = '0.0.7352542';
+    const factoryContractId = FACTORY_CONTRACT_ID;
 
     logInfo(`Factory Contract ID: ${factoryContractId}`);
     log('');

@@ -10,6 +10,7 @@
 
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
+const { FACTORY_CONTRACT_ID } = require('../shared/test-config');
 
 /**
  * Get all members of a specific role in a factory (paginated)
@@ -78,7 +79,7 @@ async function main() {
     log('=====================================\n', colors.cyan);
     
     // Configuration parameters
-    const factoryContractId = '0.0.7352542';
+    const factoryContractId = FACTORY_CONTRACT_ID;
     // Example role ID - MARKET_CREATOR_ROLE (you may need to adjust this)
     const roleId = '0x2fa449e97717e92b32320917db3073c2407e0bc636bc1367e879e379239e26e5';
 

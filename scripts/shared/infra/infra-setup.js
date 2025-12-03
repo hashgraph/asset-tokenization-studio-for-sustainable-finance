@@ -582,14 +582,15 @@ async function startFullInfrastructure() {
 
   log('\n🌐 Access Points:', colors.blue);
   log('• API Gateway: http://localhost:3000 (🔒 Requires x-api-key header)');
+  log('• API Gateway Swagger: http://localhost:3000/api/v1/docs');
   log('• ATS API (Direct): http://localhost:3001/api/v1/ats');
-  log('• ATS API Swagger (Direct): http://localhost:3001/api');
+  log('• ATS API Swagger (Direct): http://localhost:3001/api/v1/docs');
   log('• ATS API (via Gateway): http://localhost:3000/api/v1/ats');
   log('• Primary Market API (Direct): http://localhost:3002/api/v1/primary-markets');
-  log('• Primary Market API Swagger (Direct): http://localhost:3002/api');
+  log('• Primary Market API Swagger (Direct): http://localhost:3002/api/v1/docs');
   log('• Primary Market API (via Gateway): http://localhost:3000/api/v1/primary-markets');
   log('• Treasury API (Direct): http://localhost:3003/api/v1/treasury');
-  log('• Treasury API Swagger (Direct): http://localhost:3003/api');
+  log('• Treasury API Swagger (Direct): http://localhost:3003/api/v1/docs');
   log('• Treasury API (via Gateway): http://localhost:3000/api/v1/treasury');
   log('• Transaction Sender: http://localhost:3005');
   log('• PgAdmin: http://localhost:5050 (admin@admin.com/admin)');

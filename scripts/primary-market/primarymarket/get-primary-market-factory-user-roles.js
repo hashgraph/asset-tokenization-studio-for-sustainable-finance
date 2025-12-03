@@ -10,6 +10,7 @@
 
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
+const { FACTORY_CONTRACT_ID } = require('../shared/test-config');
 
 /**
  * Get all roles for a specific user in a factory (paginated)
@@ -84,7 +85,7 @@ async function main() {
     }
     
     // Configuration parameters
-    const factoryContractId = '0.0.7352542';
+    const factoryContractId = FACTORY_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Factory Contract ID: ${factoryContractId}`);

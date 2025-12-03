@@ -21,8 +21,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
-const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION, BOND_CONTRACT_ID, TREASURY_CONTRACT_ID } = require('../shared/test-config');
 const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
 const { createOffering } = require('./offering-service');
 const { waitForOfferingCreation } = require('./create-offering');
@@ -198,7 +197,7 @@ async function executeOfferingBySubscriptionId(format, marketContractId, offerin
   
   try {
     logInfo('Sending execute offering by subscription IDs request to gateway...');
-    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executions`;
+    const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscription-executes`;
     const response = await gatewayClient.post(endpoint, executeRequest);
     
     logSuccess(`${format.toUpperCase()} Execute offering by subscription IDs transaction created!`);
@@ -243,7 +242,7 @@ async function main() {
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
-    const bondContractId = '0.0.7319744'; // Default bond contract ID
+    const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
@@ -327,7 +326,7 @@ async function main() {
     logHeader('Step 5: Create Offering');
     const now = Date.now();
     const offeringParams = {
-      treasuryContractId: '0.0.7319745',
+      treasuryContractId: TREASURY_CONTRACT_ID,
       paymentTokenContractId: paymentTokenContractId,
       lotSize: '1000',
       minLots: '1',

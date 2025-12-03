@@ -9,7 +9,7 @@
  * 5. Creates an offering
  * 6. Waits for offering to be OPEN
  * 7. Submits a subscription
- * 8. Waits for offering to be CANCELLABLE
+ * 8. Waits for offering to be CANCELLABLE_OR_EXECUTABLE
  * 9. Cancels the offering by subscription ID
  * 10. Verifies subscription status changed
  *
@@ -21,8 +21,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
-const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION, BOND_CONTRACT_ID, TREASURY_CONTRACT_ID } = require('../shared/test-config');
 const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
 const { createOffering } = require('./offering-service');
 const { waitForOfferingCreation } = require('./create-offering');
@@ -268,7 +267,7 @@ async function main() {
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
-    const bondContractId = '0.0.7319744'; // Default bond contract ID
+    const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
@@ -352,7 +351,7 @@ async function main() {
     logHeader('Step 5: Create Offering');
     const now = Date.now();
     const offeringParams = {
-      treasuryContractId: '0.0.7319745',
+      treasuryContractId: TREASURY_CONTRACT_ID,
       paymentTokenContractId: paymentTokenContractId,
       lotSize: '1000',
       minLots: '1',
@@ -433,11 +432,11 @@ async function main() {
     log('');
 
     // ============================================
-    // Step 8: Wait for offering status to be CANCELLABLE
+    // Step 8: Wait for offering status to be CANCELLABLE_OR_EXECUTABLE
     // ============================================
-    logHeader('Step 8: Wait for offering to be CANCELLABLE');
-    await waitForOfferingStatus(marketContractId, offeringId, 'CANCELLABLE');
-    logSuccess(`✅ Offering is now CANCELLABLE (ready to cancel)`);
+    logHeader('Step 8: Wait for offering to be CANCELLABLE_OR_EXECUTABLE');
+    await waitForOfferingStatus(marketContractId, offeringId, 'CANCELLABLE_OR_EXECUTABLE');
+    logSuccess(`✅ Offering is now CANCELLABLE_OR_EXECUTABLE (ready to cancel)`);
     log('');
 
     // ============================================
