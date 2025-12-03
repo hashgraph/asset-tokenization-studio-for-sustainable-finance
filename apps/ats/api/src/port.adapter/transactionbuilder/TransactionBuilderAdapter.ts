@@ -60,6 +60,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly CORPORATE_ACTION_ROLE = "0x8a139eeb747b9809192ae3de1b88acfd2568c15241a5c4f85db0443a536d77d6"
   private readonly LOCKER_ROLE = "0xd8aa8c6f92fe8ac3f3c0f88216e25f7c08b3a6c374b4452a04d200c29786ce88"
   private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
+  private readonly CLEARING_APPROVER_ROLE = "0x7b688898673e16c47810f5da9ce1262a3d7d022dfe27c8ff9305371cd435c619"
 
   private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
   private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
@@ -115,6 +116,12 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
           },
           {
             role: this.ISSUER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.CLEARING_APPROVER_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],

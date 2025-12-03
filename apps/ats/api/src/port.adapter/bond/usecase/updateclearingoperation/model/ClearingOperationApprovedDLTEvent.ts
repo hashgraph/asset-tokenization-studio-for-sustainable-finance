@@ -8,6 +8,7 @@ export class ClearingOperationApprovedDLTEvent extends DLTEvent {
   readonly partition: string
   readonly clearingId: string
   readonly clearingOperationType: ClearingOperationType
+  readonly operationData: string
 
   constructor(
     contractId: string,
@@ -17,6 +18,7 @@ export class ClearingOperationApprovedDLTEvent extends DLTEvent {
     partition: string,
     clearingId: string,
     clearingOperationType: ClearingOperationType,
+    operationData: string,
   ) {
     super(contractId, transactionHash)
     this.operator = operator
@@ -24,5 +26,6 @@ export class ClearingOperationApprovedDLTEvent extends DLTEvent {
     this.partition = partition
     this.clearingId = clearingId
     this.clearingOperationType = clearingOperationType
+    this.operationData = operationData
   }
 }

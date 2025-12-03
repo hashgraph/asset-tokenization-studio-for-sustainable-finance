@@ -4,7 +4,7 @@ import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 import { Subscription } from "../model/Subscription"
 
 export interface SubscriptionRepository {
-  save(subscription: Subscription): Promise<Subscription>
+  save(subscription: Subscription, transactionId?: string): Promise<Subscription>
   findBySubscriptionIdOfferingIdAndMarketId(
     subscriptionId: number,
     offeringId: number,

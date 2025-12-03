@@ -26,7 +26,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
 
   @Validate()
   async execute(command: CancelClearingCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
+    await this.transactionManager.execute(async (transactionId) => {
       const deletedClearing = await this.deleteClearingByType(command)
 
       await this.updateClearingBondHolderBalanceDomainService.execute(
@@ -35,6 +35,7 @@ export class CancelClearingCommandHandler implements CommandHandler<CancelCleari
         deletedClearing.partition,
         deletedClearing.amount,
         "CLEARING_UNLOCK",
+        transactionId,
       )
 
       this.eventBus.publish(new ClearingCanceledEvent(deletedClearing))

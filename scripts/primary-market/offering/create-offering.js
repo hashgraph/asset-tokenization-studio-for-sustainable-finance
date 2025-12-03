@@ -9,6 +9,7 @@ const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/r
 const { createOffering: createOfferingService } = require('./offering-service');
 const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
 const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
+const { deployHTSToken } = require('./hts-token-service');
 
 /**
  * Create an offering in a Primary Market (wrapper for offering-service)
@@ -111,11 +112,26 @@ async function main() {
     const configVersion = CONFIG_VERSION;
     const bondContractId = '0.0.7319744'; // TODO: Set bond contract ID
     const userAccountId = process.env.ACCOUNT_ID;
+    const treasuryContractId = '0.0.7319745';
+
+    // ============================================
+    // Step 1: Deploy HTS Payment Token
+    // ============================================
+    logHeader('Step 1: Deploy HTS Payment Token');
+    const { tokenId, evmAddress: paymentTokenAddress } = await deployHTSToken(
+      'Test Payment Token',
+      'TPT',
+      6,
+      1_000_000_000_000 // 1,000,000 tokens with 6 decimals
+    );
+    logSuccess(`✅ HTS Token deployed: ${tokenId}`);
+    logInfo(`Payment Token EVM Address: ${paymentTokenAddress}`);
+    log('');
 
     // Hardcoded offering parameters
     const offeringParams = {
-      treasuryContractId: '0.0.12345',
-      paymentTokenContractId: '0.0.7352585',
+      treasuryContractId: treasuryContractId,
+      paymentTokenContractId: tokenId, // Use the dynamically deployed token
       lotSize: '1000',
       minLots: '1',
       maxLots: '10000',
@@ -141,9 +157,9 @@ async function main() {
     log('');
 
     // ============================================
-    // Step 1: Deploy Primary Market
+    // Step 2: Deploy Primary Market
     // ============================================
-    logHeader('Step 1: Deploy Primary Market');
+    logHeader('Step 2: Deploy Primary Market');
     const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
 
     logHeader('🔐 Signing deployment transaction...');
@@ -164,9 +180,9 @@ async function main() {
     log('');
 
     // ============================================
-    // Step 2: Grant OFFERING_CREATOR_ROLE
+    // Step 3: Grant OFFERING_CREATOR_ROLE
     // ============================================
-    logHeader('Step 2: Grant OFFERING_CREATOR_ROLE');
+    logHeader('Step 3: Grant OFFERING_CREATOR_ROLE');
     const grantRoleTx = await grantOfferingCreatorRole(format, marketContractId, userAccountId);
 
     logHeader('🔐 Signing grant role transaction...');
@@ -186,9 +202,9 @@ async function main() {
     log('');
 
     // ============================================
-    // Step 3: Create Offering
+    // Step 4: Create Offering
     // ============================================
-    logHeader('Step 3: Create Offering');
+    logHeader('Step 4: Create Offering');
     const createOfferingTx = await createOffering(format, marketContractId, bondContractId, offeringParams);
 
     logHeader('🔐 Signing create offering transaction...');
@@ -217,6 +233,7 @@ async function main() {
     // ============================================
     logHeader('✨ CREATE OFFERING COMPLETED!');
     log('=====================================', colors.green);
+    log(`Payment Token ID: ${tokenId}`, colors.green);
     log(`Primary Market ID: ${marketContractId}`, colors.green);
     log(`Offering ID: ${offeringId}`, colors.green);
     log(`Bond Contract ID: ${bondContractId}`, colors.green);

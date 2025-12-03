@@ -32,8 +32,8 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
 
   @Validate()
   async execute(command: ApproveClearingCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
-      const approvedClearing = await this.updateClearingStatusByType(command)
+    await this.transactionManager.execute(async (transactionId) => {
+      const approvedClearing = await this.updateClearingStatusByType(command, transactionId)
 
       switch (command.clearingOperationType) {
         case ClearingOperationType.HOLD:
@@ -42,6 +42,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
             approvedClearing.holderAccountId,
             approvedClearing.partition,
             approvedClearing.amount,
+            transactionId,
           )
           break
 
@@ -51,6 +52,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
             approvedClearing.holderAccountId,
             approvedClearing.partition,
             approvedClearing.amount,
+            transactionId,
           )
           break
 
@@ -62,6 +64,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
             transferClearing.toAccountId,
             transferClearing.partition,
             transferClearing.amount,
+            transactionId,
           )
           break
         }
@@ -74,7 +77,7 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
     })
   }
 
-  private async updateClearingStatusByType(command: ApproveClearingCommand) {
+  private async updateClearingStatusByType(command: ApproveClearingCommand, transactionId?: string) {
     const request = new UpdateClearingStatusDomainServiceRequest()
     request.bondContractId = command.bondContractId
     request.holderAccountId = command.holderAccountId
@@ -83,11 +86,11 @@ export class ApproveClearingCommandHandler implements CommandHandler<ApproveClea
 
     switch (command.clearingOperationType) {
       case ClearingOperationType.HOLD:
-        return await this.updateClearingHoldStatusDomainService.execute(request)
+        return await this.updateClearingHoldStatusDomainService.execute(request, transactionId)
       case ClearingOperationType.TRANSFER:
-        return await this.updateClearingTransferStatusDomainService.execute(request)
+        return await this.updateClearingTransferStatusDomainService.execute(request, transactionId)
       case ClearingOperationType.REDEEM:
-        return await this.updateClearingRedeemStatusDomainService.execute(request)
+        return await this.updateClearingRedeemStatusDomainService.execute(request, transactionId)
       default:
         throw UnsupportedClearingOperationTypeError.forType(command.clearingOperationType)
     }

@@ -88,6 +88,29 @@ export class OfferingTypeORMRepository implements OfferingRepository {
     }
   }
 
+  async findByMarketId(marketId: string, pageOptions: PageOptions): Promise<Page<Offering>> {
+    const orderDirection = pageOptions.order.order.toUpperCase() as "ASC" | "DESC"
+
+    const [persistences, total] = await this.repository.findAndCount({
+      where: {
+        marketId: marketId,
+      },
+      order: { [pageOptions.order.orderBy]: orderDirection },
+      skip: (pageOptions.page - 1) * pageOptions.limit,
+      take: pageOptions.limit,
+    })
+
+    const items = persistences.map((p) => this.toDomain(p))
+
+    return {
+      items,
+      total,
+      page: pageOptions.page,
+      limit: pageOptions.limit,
+      totalPages: Math.ceil(total / pageOptions.limit),
+    }
+  }
+
   private toDomain(persistence: OfferingPersistence): Offering {
     return plainToInstance(Offering, persistence)
   }

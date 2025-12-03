@@ -13,6 +13,7 @@ export class ReleaseHoldBondHolderBalanceDomainService {
     holderAccountId: string,
     partition: string,
     releaseAmount: string,
+    transactionId?: string,
   ): Promise<void> {
     const bondHolderBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
@@ -41,6 +42,6 @@ export class ReleaseHoldBondHolderBalanceDomainService {
     bondHolderBalance.heldBalance = (held - releaseAmountBigInt).toString()
     bondHolderBalance.updatedAt = new Date()
 
-    await this.bondHolderBalanceRepository.save(bondHolderBalance)
+    await this.bondHolderBalanceRepository.save(bondHolderBalance, transactionId)
   }
 }

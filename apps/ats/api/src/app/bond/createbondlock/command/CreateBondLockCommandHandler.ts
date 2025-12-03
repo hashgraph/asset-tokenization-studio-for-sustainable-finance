@@ -19,8 +19,8 @@ export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLo
 
   @Validate()
   async execute(command: CreateBondLockCommand): Promise<void> {
-    await this.transactionManager.execute(async () => {
-      const bondLock = await this.createBondLockDomainService.execute(command)
+    await this.transactionManager.execute(async (transactionId) => {
+      const bondLock = await this.createBondLockDomainService.execute(command, transactionId)
 
       await this.decreaseBondHolderAvailableBalanceDomainService.execute(
         bondLock.contractId,
@@ -28,6 +28,7 @@ export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLo
         bondLock.partition,
         bondLock.amount,
         "locked",
+        transactionId,
       )
 
       this.eventBus.publish(

@@ -1,26 +1,24 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Injectable } from "@nestjs/common"
-import { InjectRepository } from "@nestjs/typeorm"
-import { Repository } from "typeorm"
 import { BondHoldRepository } from "@domain/bond/hold/repository/BondHoldRepository"
 import { BondHold } from "@domain/bond/hold/model/BondHold"
 import { BondHoldPersistence } from "../model/BondHoldPersistence"
+import { BaseRepository } from "@hashgraph/green-bonds-shared-core"
 import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 @Injectable()
-export class BondHoldTypeOrmRepository implements BondHoldRepository {
-  constructor(
-    @InjectRepository(BondHoldPersistence)
-    private readonly repository: Repository<BondHoldPersistence>,
-  ) {}
+export class BondHoldTypeOrmRepository extends BaseRepository<BondHoldPersistence> implements BondHoldRepository {
+  constructor() {
+    super(BondHoldPersistence)
+  }
 
-  async save(bondHold: BondHold): Promise<BondHold> {
-    return (await this.repository.save(bondHold as unknown as BondHoldPersistence)) as BondHold
+  async save(bondHold: BondHold, transactionId?: string): Promise<BondHold> {
+    return (await this.getRepository(transactionId).save(bondHold as unknown as BondHoldPersistence)) as BondHold
   }
 
   async findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null> {
-    return (await this.repository.findOne({
+    return (await this.getRepository().findOne({
       where: { id, contractId, holderAccountId, partition },
     })) as BondHold | null
   }
@@ -31,7 +29,7 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     holdId: number,
     partition: string,
   ): Promise<BondHold | null> {
-    return (await this.repository.findOne({
+    return (await this.getRepository().findOne({
       where: { contractId, holderAccountId, id: holdId, partition },
     })) as BondHold | null
   }
@@ -42,7 +40,7 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     page: number,
     pageSize: number,
   ): Promise<BondHold[]> {
-    const persistences = await this.repository.find({
+    const persistences = await this.getRepository().find({
       where: { contractId, holderAccountId },
       order: { createdAt: "DESC" },
       take: pageSize,
@@ -53,7 +51,7 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
   }
 
   async countByContractIdAndHolder(contractId: string, holderAccountId: string): Promise<number> {
-    return await this.repository.count({
+    return await this.getRepository().count({
       where: { contractId, holderAccountId },
     })
   }
@@ -63,7 +61,7 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<BondHold>> {
-    const [persistences, total] = await this.repository.findAndCount({
+    const [persistences, total] = await this.getRepository().findAndCount({
       where: { contractId, holderAccountId },
       order: { createdAt: "DESC" },
       take: pageOptions.limit,
@@ -85,6 +83,6 @@ export class BondHoldTypeOrmRepository implements BondHoldRepository {
     holderAccountId: string,
     partition: string,
   ): Promise<void> {
-    await this.repository.delete({ id, contractId, holderAccountId, partition })
+    await this.getRepository().delete({ id, contractId, holderAccountId, partition })
   }
 }

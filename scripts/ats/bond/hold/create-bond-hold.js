@@ -136,7 +136,7 @@ async function createBondWithWhitelist(format) {
       startingDate: new Date(1880997600000),
       maturityDate: new Date(1980997600000),
       configVersion: 0,
-      resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
+      resolverAddress: process.env.RESOLVER_ADDRESS,
       proceedRecipientAddresses: [],
       proceedRecipientsData: [],
     },
@@ -148,7 +148,7 @@ async function createBondWithWhitelist(format) {
       info: "test",
     },
     treasuryData: {
-      resolverAddress: "0x9d88BFbEd510011059ef619f00e8EAAc27D9a683",
+      resolverAddress: process.env.RESOLVER_ADDRESS,
       configVersion: 1,
       paymentTokenAddress: "0x0000000000000000000000000000000000629238",
       ownerAccountAddress: accountEvmAddress,
@@ -160,7 +160,7 @@ async function createBondWithWhitelist(format) {
     },
     format: format,
     accountId: process.env.ACCOUNT_ID,
-    factoryAddress: "0x32bc5B65eFf7d3eFc4CC3B62A66c8445E8675982",
+    factoryAddress: process.env.FACTORY_ADDRESS,
   };
 
   try {
