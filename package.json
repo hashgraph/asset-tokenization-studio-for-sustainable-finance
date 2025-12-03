@@ -72,7 +72,7 @@
     "ats:api:test:integration": "npm run test:integration --workspace=@hashgraph/green-bonds-ats-api",
     "ats:api:test:watch": "npm run test:watch --workspace=@hashgraph/green-bonds-ats-api",
     "ats:api:test:coverage": "npm run test:coverage --workspace=@hashgraph/green-bonds-ats-api",
-    "ats:api:test:coverage:ci": "npm run test:coverage --workspace=@hashgraph/green-bonds-ats-api -- --ci --maxWorkers=2",
+    "ats:api:test:coverage:ci": "npm run test:coverage --workspace=@hashgraph/green-bonds-ats-api -- --ci",
     "ats:api:docker:up": "npm run docker:up --workspace=@hashgraph/green-bonds-ats-api",
     "ats:api:docker:down": "npm run docker:down --workspace=@hashgraph/green-bonds-ats-api",
     "treasury:contracts:clean": "npm run clean --workspace=@hashgraph/green-bonds-platform-treasury-contracts",
