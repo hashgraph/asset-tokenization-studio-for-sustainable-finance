@@ -2,13 +2,17 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { AddProceedRecipientTransactionRequest } from "./model/AddProceedRecipientTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { AddProceedRecipientTransactionAppService } from "@app/bond/transaction/addproceedrecipienttransaction/service/AddProceedRecipientTransactionAppService"
 import { AddProceedRecipientTransactionAppServiceRequest } from "@app/bond/transaction/addproceedrecipienttransaction/service/model/AddProceedRecipientTransactionAppServiceRequest"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class AddProceedRecipientTransactionHttpAdapter {
   constructor(private readonly addProceedRecipientTransactionAppService: AddProceedRecipientTransactionAppService) {}
 
+  @ApiOperation({ summary: "Add proceed recipient to bond" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/proceeds-recipients")
   async addProceedRecipientTransaction(
     @Param("bondContractId") contractId: string,

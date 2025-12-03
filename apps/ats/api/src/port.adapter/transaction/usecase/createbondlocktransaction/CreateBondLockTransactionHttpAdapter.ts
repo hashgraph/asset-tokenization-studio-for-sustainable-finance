@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { CreateBondLockTransactionRequest } from "./model/CreateBondLockTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateBondLockTransactionPort } from "./CreateBondLockTransactionPort"
 import { CreateBondLockTransactionAppServiceRequest } from "@app/bond/transaction/createbondlocktransaction/service/model/CreateBondLockTransactionAppServiceRequest"
 import { CreateBondLockTransactionAppService } from "@app/bond/transaction/createbondlocktransaction/service/CreateBondLockTransactionAppService"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class CreateBondLockTransactionHttpAdapter implements CreateBondLockTransactionPort {
   constructor(private readonly createBondLockTransactionAppService: CreateBondLockTransactionAppService) {}
 
+  @ApiOperation({ summary: "Create a bond lock" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/holders/:holderAccountId/locks")
   async createBondLockTransaction(
     @Param("bondContractId") bondContractId: string,

@@ -2,15 +2,19 @@
 
 import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetBondLockPort } from "./GetBondLockPort"
 import { GetBondLockQuery } from "@app/bond/getbondlock/query/GetBondLockQuery"
 import { BondLockResponse } from "@port/bond/usecase/getbondlock/model/BondLockResponse"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class GetBondLockHttpAdapter implements GetBondLockPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
+  @ApiOperation({ summary: "Get bond lock details by holder and lock ID" })
+  @ApiResponse({ status: 200, type: BondLockResponse })
   @Get(":bondContractId/holders/:holderAccountId/locks/:lockId")
   async getBondLock(
     @Param("bondContractId") bondContractId: string,

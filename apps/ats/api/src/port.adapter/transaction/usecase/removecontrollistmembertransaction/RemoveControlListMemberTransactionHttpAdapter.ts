@@ -2,16 +2,20 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { RemoveControlListMemberTransactionRequest } from "./model/RemoveControlListMemberTransactionRequest"
 import { Body, Delete, Param } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { RemoveControlListMemberTransactionPort } from "./RemoveControlListMemberTransactionPort"
 import { RemoveControlListMemberTransactionAppService } from "@app/bond/transaction/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
 import { RemoveControlListMemberTransactionAppServiceRequest } from "@app/bond/transaction/removecontrollistmembertransaction/service/model/RemoveControlListMemberTransactionAppServiceRequest"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class RemoveControlListMemberTransactionHttpAdapter implements RemoveControlListMemberTransactionPort {
   constructor(
     private readonly deleteControlListMemberTransactionAppService: RemoveControlListMemberTransactionAppService,
   ) {}
 
+  @ApiOperation({ summary: "Remove member from bond control list" })
+  @ApiResponse({ status: 200, type: TransactionResponse })
   @Delete(":bondContractId/control-list/:holderAccountId")
   async deleteControlListMemberTransaction(
     @Param("bondContractId") contractId: string,
