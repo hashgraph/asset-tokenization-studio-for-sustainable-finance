@@ -106,10 +106,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     const eventSignatures: EventSignatureRequest[] = []
     request.contractEvents.forEach((contractEvent) => {
       const normalizedEventSignatureHash = utils.id(this.normalizeEventSignature(contractEvent.eventSignature))
-      if (
-        //isContractAddressInBloom(request.logsBloom, contractEvent.contractAddress) &&
-        isTopicInBloom(request.logsBloom, normalizedEventSignatureHash)
-      ) {
+      if (isTopicInBloom(request.logsBloom, normalizedEventSignatureHash)) {
         eventSignatures.push({
           contractAddress: contractEvent.contractAddress,
           eventSignature: contractEvent.eventSignature,
@@ -228,7 +225,9 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   private decodeLog(request: DecodeLogRequest): BlockchainEvent {
     try {
       const eventSignature: string = request.eventSignatures.find(
-        (eventSignature) => eventSignature.normalizedEventSignatureHash === request.topics[0],
+        (eventSignature) =>
+          eventSignature.normalizedEventSignatureHash === request.topics[0] &&
+          eventSignature.contractAddress.toLowerCase() === request.address.toLowerCase(),
       )?.eventSignature
       if (!eventSignature) {
         return null
@@ -320,6 +319,7 @@ interface GetContractsResultsLogsByBlockHashResponse {
   readonly data: string
   readonly topics: string[]
   readonly contract_id: string
+  readonly address: string
 }
 
 interface GetContractsResultsByBlockHashRequest {

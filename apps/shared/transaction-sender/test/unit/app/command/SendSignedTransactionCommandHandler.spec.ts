@@ -131,7 +131,7 @@ describe("SendSignedTransactionCommandHandler", () => {
       const publishedEvent = mockEventBus.publish.mock.calls[0][0] as SignedTransactionSentEvent
       expect(publishedEvent.status).toBe("failed")
       expect(publishedEvent.transactionHash).toBe("EXECUTION_FAILED")
-      expect(publishedEvent.errorCode ).toBe("INSUFFICIENT_ACCOUNT_BALANCE")
+      expect(publishedEvent.errorCode).toBe("INSUFFICIENT_ACCOUNT_BALANCE")
     })
 
     it("should propagate errorCode when transaction fails", async () => {

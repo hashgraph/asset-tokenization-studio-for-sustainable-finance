@@ -13,6 +13,11 @@ export class RevokeRoleNestJSEventAdapter implements RevokeRolePort, EventListen
   @Handler(RoleRevokedDLTEvent)
   async handle(event: RoleRevokedDLTEvent): Promise<void> {
     const accountId = await ConverterUtils.getHederaAddressFromEvm(event.account)
-    await this.commandBus.execute(new RevokeRoleCommand(accountId, event.role, event.contractId))
+    try {
+      await this.commandBus.execute(new RevokeRoleCommand(accountId, event.role, event.contractId))
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {
+      // Intentionally suppressed - role revocation failures should not halt event processing
+    }
   }
 }

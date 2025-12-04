@@ -150,6 +150,6 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
         IPortfolio(treasuryAddress).initialize_Portfolio(treasuryData.paymentToken, treasuryData.environmentalAssets);
 
         IAccessControl(bondAddress).grantRole(_MATURITY_REDEEMER_ROLE, treasuryAddress);
-        IAccessControl(bondAddress).renounceRole(_DEFAULT_ADMIN_ROLE, address(this));
+        IAccessControl(bondAddress).revokeRole(_DEFAULT_ADMIN_ROLE, address(this));
     }
 }
