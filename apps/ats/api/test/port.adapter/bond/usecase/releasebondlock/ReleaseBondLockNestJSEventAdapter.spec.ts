@@ -241,7 +241,6 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         operatorAccountId: "0.0.1234567",
       })
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       const converterSpy = jest.mocked(ConverterUtils.getHederaAddressFromEvm)
 
       const event = new LockByPartitionReleasedDLTEvent(

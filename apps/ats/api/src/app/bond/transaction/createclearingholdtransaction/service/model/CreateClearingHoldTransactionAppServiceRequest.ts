@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionAppServiceRequest } from "@hashgraph/green-bonds-shared-core"
-import { IsNotEmpty, IsString, IsNumber, IsOptional, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsString, IsOptional, IsNumberString } from "class-validator"
 
 export class CreateClearingHoldTransactionAppServiceRequest extends BaseTransactionAppServiceRequest {
   @IsNotEmpty()
