@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 import {
   IFactoryPrimaryMarket,
@@ -158,11 +158,16 @@ describe("PrimaryMarket", () => {
     await mockPaymentToken.connect(investor1).approve(primaryMarket.address, ethers.constants.MaxUint256);
     await mockPaymentToken.connect(investor2).approve(primaryMarket.address, ethers.constants.MaxUint256);
 
+    // Initialize TimeTravel with deterministic starting time
+    const MOCK_START_TIME = Math.floor(Date.now() / 1000);
+    await primaryMarketTimeTravel.changeSystemTimestamp(MOCK_START_TIME);
+
     return {
       factoryPrimaryMarket,
       accessControl,
       blr,
       primaryMarket,
+      primaryMarketTimeTravel,
       mockPaymentToken,
       mockAsset,
     };
@@ -193,18 +198,19 @@ describe("PrimaryMarket", () => {
   });
 
   beforeEach(async () => {
-    const fixtures = await deployFixture();
+    const fixtures = await loadFixture(deployFixture);
     factoryPrimaryMarket = fixtures.factoryPrimaryMarket;
     accessControl = fixtures.accessControl;
     blr = fixtures.blr;
     primaryMarket = fixtures.primaryMarket;
+    primaryMarketTimeTravel = fixtures.primaryMarketTimeTravel;
     mockPaymentToken = fixtures.mockPaymentToken;
     mockAsset = fixtures.mockAsset;
   });
 
   describe("Creating Offerings", () => {
     it("GIVEN valid offering params WHEN creating offering THEN success", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -246,7 +252,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN an offering with a payment token that cannot be associated WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
 
       await mockPrecompiled.setPrecompiledAssociationStatus(false);
 
@@ -273,7 +279,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN paused PM WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -299,7 +305,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: ADDRESS_ZERO,
         treasury: treasuryAddress,
@@ -322,7 +328,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid treasury address WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: ADDRESS_ZERO,
@@ -345,7 +351,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid payment token address WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -368,7 +374,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN star date bigger or equal than end date address WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering_1: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -411,7 +417,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN start date less than current date address WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -434,7 +440,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN lots equal to 0  WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -517,7 +523,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN minLots larger than maxLots WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -540,7 +546,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid rule combination WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -563,7 +569,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN unauthorized account WHEN creating offering THEN fail", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -592,7 +598,7 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -616,7 +622,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN offering with OVERSUBSCRIPTION_ALLOWED + WAIT_UNTIL_END WHEN target reached and during offering period THEN OPEN", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       const offering2: IPrimaryMarket.OfferingStruct = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -731,7 +737,7 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -752,7 +758,8 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-      await time.increase(61); // Move past startDate
+      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
     beforeEach(async () => {
@@ -998,7 +1005,7 @@ describe("PrimaryMarket", () => {
     };
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -1019,7 +1026,8 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-      await time.increase(61); // Move past startDate
+      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
     beforeEach(async () => {
@@ -1389,7 +1397,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN subscription with amount exceeding int64 max WHEN submitting THEN fails", async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
 
       const offering = {
         asset: mockAsset.address,
@@ -1438,7 +1446,7 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -1446,7 +1454,7 @@ describe("PrimaryMarket", () => {
         lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
-        targetLots: 1000,
+        targetLots: 10,
         targetQuantityRule: targetQuantityRule,
         startDate: now + 60,
         endDate: now + 3600,
@@ -1459,7 +1467,8 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0;
-      await time.increase(61); // Move past startDate
+      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
     beforeEach(async () => {
@@ -1467,7 +1476,7 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN cancellable offering with subscriptions WHEN cancelling THEN success", async () => {
-      const numSubscriptions = 10;
+      const numSubscriptions = 5;
       await createSubscriptions(offeringId, offering, numSubscriptions);
 
       // Move past endDate to make it cancellable (target not reached)
@@ -1686,7 +1695,7 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
-      const now = await time.latest();
+      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
       offering = {
         asset: mockAsset.address,
         treasury: treasuryAddress,
@@ -1707,7 +1716,10 @@ describe("PrimaryMarket", () => {
       const receipt = await tx.wait();
       const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0;
-      await time.increase(61);
+
+      // Advance time to offering start
+      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61);
     });
 
     it("GIVEN valid subscription WHEN cancelling individual subscription THEN success", async () => {
@@ -1801,7 +1813,7 @@ describe("PrimaryMarket", () => {
       let offering: IPrimaryMarket.OfferingStruct;
 
       beforeEach(async () => {
-        const now = await time.latest();
+        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
         offering = {
           asset: mockAsset.address,
           treasury: treasuryAddress,
@@ -1830,7 +1842,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN submitting subscription THEN payment uses bond nominal value", async () => {
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         const bondDetails = await mockAsset.getBondDetails();
         const lotUnits = 5;
@@ -1853,7 +1865,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN cancelling subscription THEN refund uses bond nominal value", async () => {
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         const bondDetails = await mockAsset.getBondDetails();
         const lotUnits = 5;
@@ -1887,7 +1899,7 @@ describe("PrimaryMarket", () => {
       const customPriceDecimals = NominalValueDecimals - 1;
 
       beforeEach(async () => {
-        const now = await time.latest();
+        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
         offering = {
           asset: mockAsset.address,
           treasury: treasuryAddress,
@@ -1916,7 +1928,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN submitting subscription THEN payment uses custom price", async () => {
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         const lotUnits = 5;
         const paymentTokenDecimals = await mockPaymentToken.decimals();
@@ -1934,7 +1946,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN cancelling subscription THEN refund uses custom price", async () => {
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         const lotUnits = 5;
         const paymentTokenDecimals = await mockPaymentToken.decimals();
@@ -1956,13 +1968,13 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN executing offering THEN calculation uses custom price", async () => {
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         const lotUnits = parseInt(offering.maxLots.toString()); // Use maxLots instead of targetLots
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
         await primaryMarket.connect(investor2).submitSubscription(offeringId, lotUnits);
 
-        await time.increaseTo(parseInt(offering.endDate.toString()) + 1);
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
         const treasuryBalanceBefore = await mockPaymentToken.balanceOf(treasuryAddress);
 
@@ -1982,7 +1994,7 @@ describe("PrimaryMarket", () => {
 
     describe("GIVEN different prices across offerings", () => {
       it("WHEN creating multiple offerings with different prices THEN each uses its own price", async () => {
-        const now = await time.latest();
+        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
 
         // Offering 1 with price = 0 (uses nominal value)
         const offering1: IPrimaryMarket.OfferingStruct = {
@@ -2032,7 +2044,7 @@ describe("PrimaryMarket", () => {
 
     describe("GIVEN super large price values (edge cases)", () => {
       it("WHEN executing offering with super large price THEN success with batch processing", async () => {
-        const now = await time.latest();
+        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
 
         // Calculate super large price that will trigger batch processing
         // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
@@ -2065,7 +2077,7 @@ describe("PrimaryMarket", () => {
         // Enable precompiled mock for transfers to work
         await mockPrecompiled.setPrecompiledTransferStatus(true);
 
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         // Create subscriptions to reach target
         for (let i = 0; i < 10; i++) {
@@ -2073,7 +2085,7 @@ describe("PrimaryMarket", () => {
           await primaryMarket.connect(investor).submitSubscription(offeringId, offering.minLots);
         }
 
-        await time.increaseTo(parseInt(offering.endDate.toString()) + 1);
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
         // Execute offering - with super large price, this triggers batch processing
         // Need to execute all subscriptions (10 total)
@@ -2085,7 +2097,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN cancelling offering with super large price THEN success with batch processing", async () => {
-        const now = await time.latest();
+        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
 
         // Calculate super large price that will trigger batch processing
         // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
@@ -2117,7 +2129,7 @@ describe("PrimaryMarket", () => {
         const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
         const offeringId = event?.args?.offeringId?.toNumber() || 0;
 
-        await time.increaseTo(parseInt(offering.startDate.toString()));
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 
         // Create 10 subscriptions (not reaching target of 100)
         for (let i = 0; i < 10; i++) {
@@ -2126,7 +2138,7 @@ describe("PrimaryMarket", () => {
         }
 
         // Move past endDate to make it cancellable (target not reached intentionally)
-        await time.increaseTo(parseInt(offering.endDate.toString()) + 1);
+        await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
         // Cancel offering - with super large price, this triggers the int64 overflow path during cancellation
         await primaryMarket

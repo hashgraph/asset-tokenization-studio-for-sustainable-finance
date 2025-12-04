@@ -66,10 +66,9 @@
     "test:factory-primaryMarket": "npx hardhat test test/unit/factoryPrimaryMarket.test.ts",
     "test:primaryMarketFacet": "npx hardhat test test/unit/primaryMarketFacet.test.ts",
     "test:primaryMarket": "npx hardhat test test/unit/primaryMarket.test.ts",
-    "test:kpi": "npx hardhat test test/unit/kpi.test.ts",
     "coverage": "npx hardhat coverage",
     "coverage:factory-primaryMarket": "npx hardhat coverage --solcoverjs .solcover.factory-primaryMarket.js --testfiles 'test/unit/factoryPrimaryMarket*.test.ts'",
-    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/unit/kpi.test.ts'"
+    "coverage:primaryMarket": "npx hardhat coverage --solcoverjs .solcover.primaryMarket.js --testfiles 'test/unit/primaryMarket*.test.ts'"
   },
   "devDependencies": {
     "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-1.17.9.tgz",

@@ -10,10 +10,10 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-11-11T16:22:08.584Z
+ * Generated: 2025-12-03T15:36:03.667Z
  * Facets: 3
  * Infrastructure: 0
- * Mocks: 2
+ * Mocks: 5
  *
  * @module domain/atsRegistry.data
  */
@@ -25,9 +25,16 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   LifeCycleCashFlowFacet__factory,
+  LifeCycleCashFlowFacetTimeTravel__factory,
   PortfolioFacet__factory,
+  PortfolioFacetTimeTravel__factory,
   ProceedsManagementFacet__factory,
+  ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
+  EnvironmentalAssetMock__factory,
+  IAssetMock__factory,
+  PaymentTokenMock__factory,
+  PrecompiledMock__factory,
 } from "@contract-types";
 
 /**
@@ -72,40 +79,47 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     events: [
       {
         name: "DistributionByAddressesExecuted",
-        signature: "DistributionByAddressesExecuted(uint256,address[],PaymentResult)",
-        topic0: "0x904690171fb7f4ccd0a7d54ce5a5f5ccc3a99db44887f3273fb25057e6baa925",
+        signature: "DistributionByAddressesExecuted(uint256,address[],PaymentResult[])",
+        topic0: "0x03815c4b5a5b52db3377bfdec2da0e3429b093e2deb48becc3c095ff47b2bf43",
       },
       {
         name: "DistributionExecuted",
-        signature: "DistributionExecuted(uint256,uint256,uint256,PaymentResult)",
-        topic0: "0xdcf46063e5f848ee891ffaf92a4fbec6e66a69b922b1a32139a3a45a710ce178",
+        signature: "DistributionExecuted(uint256,uint256,uint256,PaymentResult[])",
+        topic0: "0x580c6d069fdd80c11ed31dc7142a0ec32f761259457979ae3c01c4385b3a97a1",
       },
       {
         name: "RedemptionByAddressesExecuted",
-        signature: "RedemptionByAddressesExecuted(address[],PaymentResult)",
-        topic0: "0x6715cfb86a68ae2311b0e3787ebeb6116b0f1ad7a3d2a34a74e8f457afcaa5de",
+        signature: "RedemptionByAddressesExecuted(address[],PaymentResult[])",
+        topic0: "0x23022a29f7f7cba45d27acb88c9b9ac31c0f22ecf10901ed72614bde838af060",
       },
       {
         name: "RedemptionExecuted",
-        signature: "RedemptionExecuted(uint256,uint256,PaymentResult)",
-        topic0: "0x53624287e1ed47ba62383f4753edc9250cfde9679148e123758f922b27b071b6",
-      },
-      {
-        name: "TokenAssociated",
-        signature: "TokenAssociated(address)",
-        topic0: "0xbbbf805ef99ca7d0b7d2cc769719f2a281c9b3331a3642efa75a712e3094a166",
+        signature: "RedemptionExecuted(uint256,uint256,PaymentResult[])",
+        topic0: "0x3c9813deaa8242335f61080f0d4af196feca59ee8fb7417664c4ff3d781a28d4",
       },
     ],
     errors: [
-      { name: "AssociateTokenFailed", signature: "AssociateTokenFailed(address)", selector: "0x809ba4e8" },
-      { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
+      { name: "AssetNominalValueError", signature: "AssetNominalValueError(address)", selector: "0xe4446cce" },
+      {
+        name: "BalanceOfByPartitionError",
+        signature: "BalanceOfByPartitionError(address,address,bytes32)",
+        selector: "0xe7cfb56c",
+      },
+      { name: "GetAssetDecimalsFailed", signature: "GetAssetDecimalsFailed(address)", selector: "0xe80be37a" },
       { name: "GetTokenDecimalsFailed", signature: "GetTokenDecimalsFailed(address,int256)", selector: "0x1b245d57" },
-      { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
       { name: "InvalidAsset", signature: "InvalidAsset(address)", selector: "0x6f79c78a" },
       { name: "InvalidTokenDecimals", signature: "InvalidTokenDecimals(address,int32)", selector: "0xf6aad11a" },
       { name: "NotPaymentDate", signature: "NotPaymentDate(uint256,uint256)", selector: "0x094c9a35" },
+      {
+        name: "RedeemAtMaturityByPartitionError",
+        signature: "RedeemAtMaturityByPartitionError(address,address,bytes32)",
+        selector: "0xba5b0d48",
+      },
     ],
-    factory: (signer, useTimeTravel = false) => new LifeCycleCashFlowFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel
+        ? new LifeCycleCashFlowFacetTimeTravel__factory(signer)
+        : new LifeCycleCashFlowFacet__factory(signer),
   },
 
   PortfolioFacet: {
@@ -169,7 +183,8 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
-    factory: (signer, useTimeTravel = false) => new PortfolioFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel ? new PortfolioFacetTimeTravel__factory(signer) : new PortfolioFacet__factory(signer),
   },
 
   ProceedsManagementFacet: {
@@ -204,23 +219,11 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
         signature: "ProceedsRecipientFunded(address,uint256)",
         topic0: "0xcd3bd02373135760752c559bafe27f647d370918e1503ab6fa3a1abde942a57b",
       },
-      {
-        name: "TokenAssociated",
-        signature: "TokenAssociated(address)",
-        topic0: "0xbbbf805ef99ca7d0b7d2cc769719f2a281c9b3331a3642efa75a712e3094a166",
-      },
     ],
     errors: [
-      { name: "AssociateTokenFailed", signature: "AssociateTokenFailed(address)", selector: "0x809ba4e8" },
-      { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
-      { name: "GetTokenDecimalsFailed", signature: "GetTokenDecimalsFailed(address,int256)", selector: "0x1b245d57" },
-      { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
-      { name: "InvalidAsset", signature: "InvalidAsset(address)", selector: "0x6f79c78a" },
-      { name: "InvalidTokenDecimals", signature: "InvalidTokenDecimals(address,int32)", selector: "0xf6aad11a" },
       { name: "NotAllowedAmount", signature: "NotAllowedAmount(uint256)", selector: "0x36337fc1" },
       { name: "NotAllowedSerialNumber", signature: "NotAllowedSerialNumber(uint256)", selector: "0xdd850fcb" },
       { name: "NotEnoughBalance", signature: "NotEnoughBalance(uint256)", selector: "0x74e0caad" },
-      { name: "NotPaymentDate", signature: "NotPaymentDate(uint256,uint256)", selector: "0x094c9a35" },
       { name: "NotTokenIdOwner", signature: "NotTokenIdOwner(uint256)", selector: "0xf8da8c29" },
       {
         name: "TransferEnvironmentalAssetTokenFailed",
@@ -234,7 +237,10 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
       { name: "WrongProceedsRecipient", signature: "WrongProceedsRecipient(address)", selector: "0x41d435ea" },
     ],
-    factory: (signer, useTimeTravel = false) => new ProceedsManagementFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel
+        ? new ProceedsManagementFacetTimeTravel__factory(signer)
+        : new ProceedsManagementFacet__factory(signer),
   },
 };
 
@@ -263,17 +269,28 @@ export const TOTAL_INFRASTRUCTURE_CONTRACTS = 0 as const;
 export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> = {
   LifeCycleCashFlowStorageWrapper: {
     name: "LifeCycleCashFlowStorageWrapper",
-    inheritance: ["ILifeCycleCashFlowStorageWrapper", "AtsCommon", "PortfolioStorageWrapper"],
+    inheritance: ["AtsCommon", "PortfolioStorageWrapper"],
     methods: [
       { name: "_checkAsset", signature: "_checkAsset(address)", selector: "0xa4a7d604" },
       { name: "_checkDistributionDate", signature: "_checkDistributionDate(address,uint256)", selector: "0x529b9723" },
       { name: "_checkPaymentDate", signature: "_checkPaymentDate(uint256,uint256)", selector: "0xcc6e19f6" },
+      { name: "_checkRedemptionDate", signature: "_checkRedemptionDate(address)", selector: "0xfeac9f97" },
       {
         name: "_createTransferAccounts",
         signature: "_createTransferAccounts(address[],address)",
         selector: "0x5dcc8abc",
       },
       { name: "_createTransferAmounts", signature: "_createTransferAmounts(int64[],int64)", selector: "0x89b63daf" },
+      {
+        name: "_executeBondRedemption",
+        signature: "_executeBondRedemption(address,uint256,uint256)",
+        selector: "0x0c361d5d",
+      },
+      {
+        name: "_executeBondRedemptionByAddresses",
+        signature: "_executeBondRedemptionByAddresses(address,address[])",
+        selector: "0x5abd5278",
+      },
       {
         name: "_executeDistribution",
         signature: "_executeDistribution(address,uint256,uint256,uint256)",
@@ -285,17 +302,29 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
         selector: "0xd77831e3",
       },
       { name: "_getAsset", signature: "_getAsset()", selector: "0xf19ee2a9" },
+      { name: "_getAssetHolders", signature: "_getAssetHolders(address,uint256,uint256)", selector: "0x4c4962b9" },
       {
         name: "_getDistributionAmount",
-        signature: "_getDistributionAmount(address,uint256,address,uint256,address)",
-        selector: "0x6afd6edc",
+        signature: "_getDistributionAmount(address,uint256,address,uint8)",
+        selector: "0xbe40da6c",
       },
       {
         name: "_getDistributionExecutionDate",
         signature: "_getDistributionExecutionDate(address,uint256)",
         selector: "0xff17bd92",
       },
-      { name: "_getHolders", signature: "_getHolders(address,uint256,uint256,uint256)", selector: "0x4941c53f" },
+      {
+        name: "_getDistributionHolders",
+        signature: "_getDistributionHolders(address,uint256,uint256,uint256)",
+        selector: "0xdb277d9e",
+      },
+      { name: "_getPaymentTokenDecimals", signature: "_getPaymentTokenDecimals(address)", selector: "0x20caecae" },
+      {
+        name: "_getRedemptionAmount",
+        signature: "_getRedemptionAmount(address,address,uint8)",
+        selector: "0xa2e003bd",
+      },
+      { name: "_getRedemptionDate", signature: "_getRedemptionDate(address)", selector: "0xc6fe7baf" },
       {
         name: "_isDistributionHolderPaid",
         signature: "_isDistributionHolderPaid(uint256,address)",
@@ -306,29 +335,39 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
       { name: "_lifeCycleCashFlowStorage", signature: "_lifeCycleCashFlowStorage()", selector: "0x105bec10" },
       {
         name: "_payBatchHoldersDistribution",
-        signature: "_payBatchHoldersDistribution(uint256,address,address[],int64[],int64)",
-        selector: "0x6ffbea34",
+        signature: "_payBatchHoldersDistribution(uint256,address[],int64[],int64,address)",
+        selector: "0xd13a5f37",
+      },
+      {
+        name: "_payBatchHoldersRedemption",
+        signature: "_payBatchHoldersRedemption(address[],int64[],int64,address)",
+        selector: "0xcc30a0ca",
       },
       {
         name: "_payHoldersDistribution",
         signature: "_payHoldersDistribution(address,uint256,address[])",
         selector: "0x312b66c3",
       },
-      {
-        name: "_populateSourceArrayFromDataArray",
-        signature: "_populateSourceArrayFromDataArray(address[],uint256,address[])",
-        selector: "0x854a92c4",
-      },
+      { name: "_payHoldersRedemption", signature: "_payHoldersRedemption(address,address[])", selector: "0xbd1d84f2" },
       {
         name: "_populateSourceArraysFromDataArrays",
-        signature: "_populateSourceArraysFromDataArrays(address[],uint256,address[],uint256[],int64[])",
-        selector: "0xb337da4d",
+        signature:
+          "_populateSourceArraysFromDataArrays(bool,address[],int64[],ILifeCycleCashFlow.PaymentResult[],uint256)",
+        selector: "0xa34c4fe9",
       },
       {
         name: "_processBatchDistribution",
-        signature: "_processBatchDistribution(uint256,address,BatchInfo,PayingArraysIndexes,PaymentResult)",
-        selector: "0x2bc3d17b",
+        signature: "_processBatchDistribution(uint256,BatchInfo,address,ILifeCycleCashFlow.PaymentResult[],uint256)",
+        selector: "0x1978f933",
       },
+      {
+        name: "_processBatchRedemption",
+        signature: "_processBatchRedemption(BatchInfo,address,ILifeCycleCashFlow.PaymentResult[],uint256)",
+        selector: "0x31ea19b2",
+      },
+      { name: "_redeemBondHolders", signature: "_redeemBondHolders(address,address[])", selector: "0xd44744d2" },
+      { name: "_resizeAmountsArray", signature: "_resizeAmountsArray(int64[],uint256)", selector: "0x3764cd4d" },
+      { name: "_resizeHoldersArray", signature: "_resizeHoldersArray(address[],uint256)", selector: "0x443534a9" },
       { name: "_setAsset", signature: "_setAsset(address)", selector: "0x227a7417" },
       {
         name: "_setDistributionHolderPaid",
@@ -342,13 +381,12 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
       },
       { name: "_valueFitsInInt64", signature: "_valueFitsInInt64(uint256)", selector: "0x0fa2162a" },
       { name: "_valueFitsInUint8", signature: "_valueFitsInUint8(int32)", selector: "0x5dfddfb2" },
-      { name: "getPaymentTokenDecimals", signature: "getPaymentTokenDecimals(address)", selector: "0xf8fd4dcf" },
     ],
   },
 
   PortfolioStorageWrapper: {
     name: "PortfolioStorageWrapper",
-    inheritance: ["IPortfolioStorageWrapper", "AtsCommon", "HederaTokenService"],
+    inheritance: ["AtsCommon", "HederaTokenService"],
     methods: [
       {
         name: "_addEnvironmentalAssetToken",
@@ -356,7 +394,7 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
         selector: "0x669f86c9",
       },
       { name: "_associateToken", signature: "_associateToken(address)", selector: "0xda61c642" },
-      { name: "_checkNotAddressZero", signature: "_checkNotAddressZero(address)", selector: "0xad04de19" },
+      { name: "_checkAddress", signature: "_checkAddress(address)", selector: "0xc4851d02" },
       { name: "_dissociateToken", signature: "_dissociateToken(address)", selector: "0xb57ba73f" },
       {
         name: "_dissociateTokenAllowNotAssociated",
@@ -388,7 +426,7 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
 
   ProceedsManagementStorageWrapper: {
     name: "ProceedsManagementStorageWrapper",
-    inheritance: ["IProceedsManagementStorageWrapper", "LifeCycleCashFlowStorageWrapper"],
+    inheritance: ["LifeCycleCashFlowStorageWrapper"],
     methods: [
       { name: "_checkProceedRecipient", signature: "_checkProceedRecipient(address)", selector: "0x2403cb2d" },
       { name: "_fundProceedsRecipient", signature: "_fundProceedsRecipient(address,uint256)", selector: "0xdf536407" },
@@ -420,25 +458,78 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "AssetMock",
     inheritance: ["IAssetMock"],
     methods: [
+      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
+      { name: "fullRedeemAtMaturity", signature: "fullRedeemAtMaturity(address)", selector: "0xd0db5fb2" },
       { name: "getBondDetails", signature: "getBondDetails()", selector: "0x4ce02414" },
       { name: "getCoupon", signature: "getCoupon(uint256)", selector: "0x936e3169" },
+      { name: "getCouponAmountFor", signature: "getCouponAmountFor(uint256,address)", selector: "0x439efc2e" },
       { name: "getCouponFor", signature: "getCouponFor(uint256,address)", selector: "0xbba7b56d" },
       { name: "getCouponHolders", signature: "getCouponHolders(uint256,uint256,uint256)", selector: "0xa92e8371" },
+      { name: "getPrincipalFor", signature: "getPrincipalFor(address)", selector: "0x6f131c78" },
+      { name: "getSecurityHolders", signature: "getSecurityHolders(uint256,uint256)", selector: "0x81438d2f" },
       { name: "isProceedRecipient", signature: "isProceedRecipient(address)", selector: "0xb9b6def1" },
     ],
     factory: (signer) => new AssetMock__factory(signer),
   },
 
+  EnvironmentalAssetMock: {
+    name: "EnvironmentalAssetMock",
+    inheritance: ["ERC721"],
+    methods: [
+      { name: "approveFor", signature: "approveFor(address,uint256)", selector: "0x532017a3" },
+      { name: "mint", signature: "mint(address)", selector: "0x6a627842" },
+    ],
+    factory: (signer) => new EnvironmentalAssetMock__factory(signer),
+  },
+
   IAssetMock: {
     name: "IAssetMock",
-    factory: (signer) => new AssetMock__factory(signer),
+    factory: (signer) => new IAssetMock__factory(signer),
+  },
+
+  PaymentTokenMock: {
+    name: "PaymentTokenMock",
+    description: "Mock ERC20 token for testing Treasury contracts",
+    inheritance: ["ERC20"],
+    methods: [
+      { name: "approveFor", signature: "approveFor(address,address,uint256)", selector: "0x2b991746" },
+      { name: "balanceOf", signature: "balanceOf(address)", selector: "0x70a08231" },
+      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
+      { name: "getTransferFromFail", signature: "getTransferFromFail()", selector: "0xcce1bcd3" },
+      { name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" },
+      { name: "setTransferFromFail", signature: "setTransferFromFail(bool)", selector: "0x99fc7099" },
+      { name: "transferFrom", signature: "transferFrom(address,address,uint256)", selector: "0x23b872dd" },
+    ],
+    factory: (signer) => new PaymentTokenMock__factory(signer),
+  },
+
+  PrecompiledMock: {
+    name: "PrecompiledMock",
+    inheritance: ["IPrecompiledMock", "PrecompiledMockStorageWrapper"],
+    methods: [
+      { name: "associateToken", signature: "associateToken(address,address)", selector: "0x49146bde" },
+      { name: "dissociateToken", signature: "dissociateToken(address,address)", selector: "0x099794e8" },
+      { name: "getFungibleTokenInfo", signature: "getFungibleTokenInfo(address)", selector: "0x3f28a19b" },
+      { name: "getPrecompiledNegativeDecimals", signature: "getPrecompiledNegativeDecimals()", selector: "0xac7d125a" },
+      { name: "getPrecompiledTransferStatus", signature: "getPrecompiledTransferStatus()", selector: "0x684d4b1a" },
+      {
+        name: "setPrecompiledNegativeDecimals",
+        signature: "setPrecompiledNegativeDecimals(bool)",
+        selector: "0xa406c73e",
+      },
+      { name: "setPrecompiledTransferStatus", signature: "setPrecompiledTransferStatus(bool)", selector: "0xba02bb5f" },
+      { name: "transferNFT", signature: "transferNFT(address,address,address,int64)", selector: "0x5cfc9011" },
+      { name: "transferToken", signature: "transferToken(address,address,address,int64)", selector: "0xeca36917" },
+      { name: "transferTokens", signature: "transferTokens(address,address[],int64[])", selector: "0x82bba493" },
+    ],
+    factory: (signer) => new PrecompiledMock__factory(signer),
   },
 };
 
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 2 as const;
+export const TOTAL_MOCKS = 5 as const;
 
 /**
  * All role identifiers extracted from contracts.
@@ -450,10 +541,9 @@ export const ROLES = {
   PAYOUT_ROLE: "0x096259e60fc84b10645035350be6adc907cf0cd20b1a7866e1ea9c7502a8265e",
   PORTFOLIO_MANAGER_ROLE: "0xf8f1da56e510d0db422582238e75a932b72ae6165ad31a4c2eb993e0c9196a06",
   PROCEEDS_FULL_MANAGER_ROLE: "0x2fa449e97717e92b32320917db3073c2407e0bc636bc1367e879e379239e26e5",
-  REDEMPTION_ROLE: "0x75e1cb791887e8c7a9a1aafbb8997773bd21a9f3c83f4a70066ba5ebf7bd8ef9",
 } as const;
 
 /**
  * Total number of unique roles in the registry.
  */
-export const TOTAL_ROLES = 7 as const;
+export const TOTAL_ROLES = 6 as const;

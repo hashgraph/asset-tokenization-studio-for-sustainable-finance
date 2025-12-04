@@ -52,6 +52,7 @@
     "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
     "compile": "npx hardhat compile",
     "compile:force": "npx hardhat compile --force",
+    "generate:registry": "npx ts-node -r tsconfig-paths/register scripts/tools/generateRegistry.ts",
     "coverage": "npx hardhat coverage",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
