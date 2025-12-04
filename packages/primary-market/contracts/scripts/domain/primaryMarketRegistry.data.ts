@@ -10,7 +10,7 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-11-18T14:24:26.877Z
+ * Generated: 2025-12-03T15:35:00.872Z
  * Facets: 2
  * Infrastructure: 0
  * Mocks: 3
@@ -103,8 +103,8 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     events: [
       {
         name: "OfferingCancelled",
-        signature: "OfferingCancelled(uint256,address,uint256[],uint256[],uint256[])",
-        topic0: "0x01fb443b7f3319b2748d7d92d15bf7196525489a6cdb31f9db79ae1e422a7159",
+        signature: "OfferingCancelled(uint256,address,OfferingProcessResult[])",
+        topic0: "0x21aec337b1cfc4936e2313335d0f0e2a0eaff13c51e1b051f75fdfc6ceeb1a2b",
       },
       {
         name: "OfferingCreated",
@@ -113,8 +113,8 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
       {
         name: "OfferingExecuted",
-        signature: "OfferingExecuted(uint256,address,uint256[],uint256[],uint256[])",
-        topic0: "0x2e51755fe6caa3a08db37bec3fb62375809e5372f596340fb46fbf208ebb070d",
+        signature: "OfferingExecuted(uint256,address,OfferingProcessResult[])",
+        topic0: "0x764a09bbea99cddb25510540919713073eb920814e2fc92991be0b7b53e054db",
       },
       {
         name: "SubscriptionCancelled",
@@ -225,7 +225,18 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     description: "Storage layout for Primary Market facet using diamond storage pattern",
     inheritance: ["AtsCommon", "HederaTokenService"],
     methods: [
-      { name: "_addToList", signature: "_addToList(uint256[],uint256,uint256[],uint256)", selector: "0x6905658a" },
+      {
+        name: "_addToList",
+        signature:
+          "_addToList(uint256[],uint256,IPrimaryMarket.OfferingProcessResult[],uint256,IPrimaryMarket.OfferingProcessStatus)",
+        selector: "0xb560f63c",
+      },
+      { name: "_adjustDecimals", signature: "_adjustDecimals(uint256,DecimalsAdjustmentInfo)", selector: "0xe04b6fda" },
+      {
+        name: "_calculateDecimalsAdjustmentInfo",
+        signature: "_calculateDecimalsAdjustmentInfo(uint8,address)",
+        selector: "0x308cd12f",
+      },
       { name: "_cancelOffering", signature: "_cancelOffering(uint256,uint256,uint256)", selector: "0x8e9394c4" },
       {
         name: "_cancelOfferingBySubscriptionIds",
@@ -265,21 +276,16 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
       {
         name: "_payBatch",
         signature:
-          "_payBatch(OfferingState,ProcessOfferingInfo,address,TransferItem[],int64,uint256[],IPrimaryMarket.OfferingProcessResult,uint256[])",
-        selector: "0xf4874f1b",
+          "_payBatch(OfferingState,ProcessOfferingInfo,address,TransferItem[],int64,uint256[],IPrimaryMarket.OfferingProcessResult[],uint256[],uint256)",
+        selector: "0x2af7c348",
       },
       { name: "_primaryMarketStorage", signature: "_primaryMarketStorage()", selector: "0x35bd2ae6" },
       { name: "_processOffering", signature: "_processOffering(ProcessOfferingInfo)", selector: "0x5fdfbff2" },
       {
         name: "_processSubscription",
         signature:
-          "_processSubscription(OfferingState,ProcessOfferingInfo,uint256,IPrimaryMarket.OfferingProcessResult,uint256[],uint256[],int64,TransferItem[])",
-        selector: "0xe99c0058",
-      },
-      {
-        name: "_resizeResults",
-        signature: "_resizeResults(IPrimaryMarket.OfferingProcessResult,uint256[])",
-        selector: "0xd8421de3",
+          "_processSubscription(OfferingState,ProcessOfferingInfo,uint256,IPrimaryMarket.OfferingProcessResult[],uint256[],uint256[],int64,TransferItem[],uint256)",
+        selector: "0x6287b8ce",
       },
       { name: "_submitSubscription", signature: "_submitSubscription(uint256,uint256)", selector: "0x3f7c6a4c" },
       { name: "_valueFitsInInt64", signature: "_valueFitsInInt64(uint256)", selector: "0x0fa2162a" },
@@ -305,6 +311,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     description: "Mock bond contract for testing Primary Market",
     inheritance: ["IBondRead"],
     methods: [
+      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
       { name: "getBalanceOf", signature: "getBalanceOf(address)", selector: "0x9b96eece" },
       { name: "getBondDetails", signature: "getBondDetails()", selector: "0x4ce02414" },
       { name: "getCoupon", signature: "getCoupon(uint256)", selector: "0x936e3169" },
@@ -317,6 +324,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       { name: "getTotalSupply", signature: "getTotalSupply()", selector: "0xc4e41b22" },
       { name: "issue", signature: "issue(address,uint256,bytes)", selector: "0xbb3acde9" },
       { name: "setNominalValue", signature: "setNominalValue(uint256)", selector: "0xe1299345" },
+      { name: "setNominalValueDecimals", signature: "setNominalValueDecimals(uint8)", selector: "0x29a092b7" },
     ],
     errors: [{ name: "NotImplemented", signature: "NotImplemented()", selector: "0xd6234725" }],
     factory: (signer) => new MockBond__factory(signer),
@@ -331,6 +339,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
       { name: "getTransferFromFail", signature: "getTransferFromFail()", selector: "0xcce1bcd3" },
       { name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" },
+      { name: "setDecimals", signature: "setDecimals(uint8)", selector: "0x7a1395aa" },
       { name: "setTransferFromFail", signature: "setTransferFromFail(bool)", selector: "0x99fc7099" },
       { name: "transferFrom", signature: "transferFrom(address,address,uint256)", selector: "0x23b872dd" },
     ],

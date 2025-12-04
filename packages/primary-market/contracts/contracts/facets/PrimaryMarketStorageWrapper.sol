@@ -24,14 +24,12 @@ import {
  */
 abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
     using SafeERC20 for IERC20;
-
     // only for insternal use
     enum CountIndex {
         PROCESSED_SUBSCRIPTION_INDEX,
         SUBSCRIPTION_ID_INDEX,
         TRANSFER_INDEX
     }
-    uint256 internal constant _COUNT_INDEX_SIZE = 3;
 
     struct TransferItem {
         int64 amount;
@@ -68,6 +66,8 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         mapping(uint256 => OfferingState) offerings; // offeringId => OfferingState
         uint256 nextOfferingId; // Counter for offering IDs (IDs are sequential: 1, 2, 3, ...)
     }
+
+    uint256 internal constant _COUNT_INDEX_SIZE = 3;
 
     /**
      * @notice Internal implementation for creating an offering
@@ -327,84 +327,6 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
     }
 
-    // solhint-disable-next-line function-max-lines
-    function _payBatch(
-        OfferingState storage offering,
-        ProcessOfferingInfo memory _processOfferingInfo,
-        address paymentToken,
-        TransferItem[] memory transferItems,
-        int64 totalToTransfer,
-        uint256[] memory subscriptionIds,
-        IPrimaryMarket.OfferingProcessResult[] memory processResult,
-        uint256[] memory indexCounts,
-        uint256 totalLots
-    ) private {
-        uint256 nextIndex = _processOfferingInfo.isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
-        transferItems[nextIndex].amount = -totalToTransfer;
-        transferItems[nextIndex].destination = address(this);
-
-        int64[] memory amounts = new int64[](nextIndex + 1);
-        address[] memory destinations = new address[](nextIndex + 1);
-
-        for (uint256 i = 0; i < nextIndex + 1; ++i) {
-            amounts[i] = transferItems[i].amount;
-            destinations[i] = transferItems[i].destination;
-        }
-
-        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
-            indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)] = _addToList(
-                subscriptionIds,
-                indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
-                processResult,
-                indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)],
-                IPrimaryMarket.OfferingProcessStatus.SUCCEEDED
-            );
-            for (uint256 i = 0; i < indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]; ++i) {
-                if (_processOfferingInfo.isExecution) {
-                    offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
-
-                    uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
-
-                    IERC1594(offering.info.asset).issue(
-                        offering.subscriptions[subscriptionIds[i]].investor,
-                        amountToMint,
-                        "0x"
-                    );
-                } else offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
-            }
-            offering.pendingSubscribedLots -= totalLots;
-            return;
-        }
-        indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)] = _addToList(
-            subscriptionIds,
-            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
-            processResult,
-            indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)],
-            IPrimaryMarket.OfferingProcessStatus.FAILED
-        );
-    }
-
-    function _calculateDecimalsAdjustmentInfo(
-        uint8 nominalValueDecimals,
-        address paymentToken
-    ) private view returns (DecimalsAdjustmentInfo memory decimalsAdjustmentInfo) {
-        uint8 paymentTokenDecimals = IERC20Metadata(paymentToken).decimals();
-
-        decimalsAdjustmentInfo = DecimalsAdjustmentInfo(false, 1);
-
-        if (nominalValueDecimals == paymentTokenDecimals) return decimalsAdjustmentInfo;
-
-        uint256 decimalDiff = 0;
-
-        if (nominalValueDecimals > paymentTokenDecimals) {
-            decimalDiff = uint256(uint8(nominalValueDecimals - paymentTokenDecimals));
-        } else {
-            decimalDiff = uint256(uint8(paymentTokenDecimals - nominalValueDecimals));
-            decimalsAdjustmentInfo.multiply = true;
-        }
-        decimalsAdjustmentInfo.factor = 10 ** decimalDiff;
-    }
-
     /**
      * @notice Internal implementation for getting total offerings
      * @return total_ Total offerings created
@@ -468,6 +390,7 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
         }
 
         // Calculate if target is reached (comparing lots directly)
+        // solhint-disable-next-line gas-strict-inequalities
         bool targetReached = offering.totalSubscribedLots >= offering.info.targetLots;
 
         // After end date
@@ -621,6 +544,84 @@ abstract contract PrimaryMarketStorageWrapper is AtsCommon, HederaTokenService {
             });
             ++newListInitialIndex;
         }
+    }
+
+    // solhint-disable-next-line function-max-lines
+    function _payBatch(
+        OfferingState storage offering,
+        ProcessOfferingInfo memory _processOfferingInfo,
+        address paymentToken,
+        TransferItem[] memory transferItems,
+        int64 totalToTransfer,
+        uint256[] memory subscriptionIds,
+        IPrimaryMarket.OfferingProcessResult[] memory processResult,
+        uint256[] memory indexCounts,
+        uint256 totalLots
+    ) private {
+        uint256 nextIndex = _processOfferingInfo.isExecution ? 1 : indexCounts[uint256(CountIndex.TRANSFER_INDEX)];
+        transferItems[nextIndex].amount = -totalToTransfer;
+        transferItems[nextIndex].destination = address(this);
+
+        int64[] memory amounts = new int64[](nextIndex + 1);
+        address[] memory destinations = new address[](nextIndex + 1);
+
+        for (uint256 i = 0; i < nextIndex + 1; ++i) {
+            amounts[i] = transferItems[i].amount;
+            destinations[i] = transferItems[i].destination;
+        }
+
+        if (transferTokens(paymentToken, destinations, amounts) == HederaResponseCodes.SUCCESS) {
+            indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)] = _addToList(
+                subscriptionIds,
+                indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
+                processResult,
+                indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)],
+                IPrimaryMarket.OfferingProcessStatus.SUCCEEDED
+            );
+            for (uint256 i = 0; i < indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)]; ++i) {
+                if (_processOfferingInfo.isExecution) {
+                    offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.EXECUTED;
+
+                    uint256 amountToMint = offering.subscriptions[subscriptionIds[i]].lotUnits * offering.info.lotSize;
+
+                    IERC1594(offering.info.asset).issue(
+                        offering.subscriptions[subscriptionIds[i]].investor,
+                        amountToMint,
+                        "0x"
+                    );
+                } else offering.subscriptions[subscriptionIds[i]].status = IPrimaryMarket.SubscriptionStatus.CANCELLED;
+            }
+            offering.pendingSubscribedLots -= totalLots;
+            return;
+        }
+        indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)] = _addToList(
+            subscriptionIds,
+            indexCounts[uint256(CountIndex.SUBSCRIPTION_ID_INDEX)],
+            processResult,
+            indexCounts[uint256(CountIndex.PROCESSED_SUBSCRIPTION_INDEX)],
+            IPrimaryMarket.OfferingProcessStatus.FAILED
+        );
+    }
+
+    function _calculateDecimalsAdjustmentInfo(
+        uint8 nominalValueDecimals,
+        address paymentToken
+    ) private view returns (DecimalsAdjustmentInfo memory decimalsAdjustmentInfo) {
+        uint8 paymentTokenDecimals = IERC20Metadata(paymentToken).decimals();
+
+        decimalsAdjustmentInfo = DecimalsAdjustmentInfo(false, 1);
+
+        if (nominalValueDecimals == paymentTokenDecimals) return decimalsAdjustmentInfo;
+
+        uint256 decimalDiff = 0;
+
+        if (nominalValueDecimals > paymentTokenDecimals) {
+            decimalDiff = uint256(uint8(nominalValueDecimals - paymentTokenDecimals));
+        } else {
+            decimalDiff = uint256(uint8(paymentTokenDecimals - nominalValueDecimals));
+            decimalsAdjustmentInfo.multiply = true;
+        }
+        decimalsAdjustmentInfo.factor = 10 ** decimalDiff;
     }
 
     function _isValidAmount(uint256 amount) private pure returns (bool) {

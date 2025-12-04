@@ -91,6 +91,7 @@ jobs:
           path: |
             node_modules
             */*/node_modules
+            */*/*/node_modules
             ~/.npm
           key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |

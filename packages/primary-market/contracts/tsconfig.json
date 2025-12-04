@@ -21,9 +21,10 @@
       "@scripts": ["./scripts/index.ts"],
       "@scripts/infrastructure": ["./scripts/infrastructure/index.ts"],
       "@scripts/domain": ["./scripts/domain/index.ts"],
+      "@tasks": ["./tasks/index.ts"],
       "@test": ["./test/index.ts"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*"],
+  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
   "exclude": ["node_modules"]
 }
