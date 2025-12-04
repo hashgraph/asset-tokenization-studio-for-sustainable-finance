@@ -23,7 +23,9 @@ export class DeployPrimaryMarketTransactionHttpAdapter implements DeployPrimaryM
   async deployPrimaryMarketTransaction(
     @Body() request: DeployPrimaryMarketTransactionRequest,
   ): Promise<TransactionResponse> {
-    const primaryMarketFactoryEvmAddress = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+    const blockchainListenerContracts = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+
+    const primaryMarketFactoryEvmAddress = blockchainListenerContracts.split(/[;,]/)[0].trim()
     const primaryMarketFactoryContractId = await ConverterUtils.getHederaAddressFromEvm(primaryMarketFactoryEvmAddress)
 
     const appServiceRequest = new DeployPrimaryMarketTransactionAppServiceRequest(

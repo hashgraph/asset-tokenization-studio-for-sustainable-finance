@@ -16,7 +16,9 @@ export class CreateBondTransactionHttpAdapter implements CreateBondTransactionPo
 
   @Post()
   async createBondTransaction(@Body() request: CreateBondTransactionRequest): Promise<TransactionResponse> {
-    const factorySuiteEvmAddress = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+    const blockchainListenerContracts = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+    const factorySuiteEvmAddress = blockchainListenerContracts.split(/[;,]/)[0].trim()
+
     const factorySuiteContractId = await ConverterUtils.getHederaAddressFromEvm(factorySuiteEvmAddress)
 
     const appServiceRequest = new CreateBondTransactionAppServiceRequest(

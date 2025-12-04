@@ -40,6 +40,7 @@
     "primary-market:apply-roles": "node primary-market/primarymarket/apply-roles.js",
     "primary-market:role-management-functionality": "node primary-market/primarymarket/role-management-functionality.js",
     "primary-market:pause-unpause-functionality": "node primary-market/primarymarket/pause-unpause-functionality.js",
+    "primary-market:factory-pause-unpause-functionality": "node primary-market/primarymarket/factory-pause-unpause-functionality.js",
     "primary-market:create-offering": "node primary-market/offering/create-offering.js",
     "primary-market:cancel-offering": "node primary-market/offering/cancel-offering.js",
     "primary-market:execute-offering": "node primary-market/offering/execute-offering.js",
