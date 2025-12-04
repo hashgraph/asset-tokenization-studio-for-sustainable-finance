@@ -81,34 +81,34 @@ interface IPrimaryMarket {
         OfferingProcessStatus status;
     }
 
-    /// @notice Structure representing a market offering
+    /// @notice Structure representing a market offering (packed for gas efficiency)
     /// @param asset The address of the asset being offered
+    /// @param targetQuantityRule Rule for handling oversubscription
+    /// @param deadlineRule Rule for handling deadlines
+    /// @param priceDecimals if = 0 asset nominal value decimals will be set as the price decimals
     /// @param treasury The address receiving payments
     /// @param paymentToken The token used for payments
     /// @param lotSize Size of each lot in tokens (minimum tradable unit)
     /// @param minLots Minimum number of lots per investor (minLots * lotSize = minimum investment)
     /// @param maxLots Maximum number of lots per investor (maxLots * lotSize = maximum investment)
     /// @param targetLots Target number of lots for the offering (targetLots * lotSize = target amount)
-    /// @param targetQuantityRule Rule for handling oversubscription
     /// @param startDate Timestamp when offering starts
     /// @param endDate Timestamp when offering ends
-    /// @param deadlineRule Rule for handling deadlines
     /// @param price if = 0 asset nominal value will be set as the price when creating the Offering
-    /// @param priceDecimals if = 0 asset nominal value decimals will be set as the price decimals when creating the Offering
     struct Offering {
         address asset;
+        TargetQuantityRule targetQuantityRule;
+        DeadlineRule deadlineRule;
+        uint8 priceDecimals;
         address treasury;
         address paymentToken;
         uint256 lotSize;
         uint256 minLots;
         uint256 maxLots;
         uint256 targetLots;
-        TargetQuantityRule targetQuantityRule;
         uint256 startDate;
         uint256 endDate;
-        DeadlineRule deadlineRule;
         uint256 price;
-        uint8 priceDecimals;
     }
 
     /// @notice Emitted when a new offering is created

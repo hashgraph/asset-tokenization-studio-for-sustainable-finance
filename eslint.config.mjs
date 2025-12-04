@@ -99,6 +99,19 @@ const rootConfig = [
       "@typescript-eslint/no-var-requires": "off",
     },
   },
+
+  // Test files - relax rules for Chai/Mocha assertions
+  {
+    files: ["**/test/**/*.ts", "**/*.test.ts", "**/*.spec.ts"],
+    languageOptions: {
+      globals: {
+        ...globals.mocha,
+      },
+    },
+    rules: {
+      "@typescript-eslint/no-unused-expressions": "off", // Chai assertions use property expressions
+    },
+  },
 ];
 
 export default rootConfig;

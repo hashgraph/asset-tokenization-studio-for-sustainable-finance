@@ -767,8 +767,8 @@ describe("PrimaryMarket", () => {
     });
 
     async function checkSubscriptionSuccess() {
-      let paymentDecimals = await mockPaymentToken.decimals();
-      let nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentDecimals = await mockPaymentToken.decimals();
+      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
       let decimalsDiff = 0;
       let multiply = false;
 
@@ -951,7 +951,7 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
 
-      let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+      const offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
       expect(offeringStatus).to.equal(2); //CLOSED
     });
@@ -973,7 +973,7 @@ describe("PrimaryMarket", () => {
         .to.be.revertedWithCustomError(primaryMarket, "SubscriptionNotAcceptedForOffering")
         .withArgs(offeringId);
 
-      let offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
+      const offeringStatus = await primaryMarket.getOfferingStatus(offeringId);
 
       expect(offeringStatus).to.equal(3); //EXECUTABLE
     });
@@ -1415,9 +1415,9 @@ describe("PrimaryMarket", () => {
         priceDecimals: 0,
       };
 
-      let tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
-      let receipt = await tx.wait();
-      let event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
+      const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
+      const receipt = await tx.wait();
+      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
       offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);

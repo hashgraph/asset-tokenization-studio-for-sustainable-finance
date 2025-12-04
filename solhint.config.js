@@ -21,8 +21,6 @@ module.exports = {
     // Solidity syntax and style
     "constructor-syntax": "error",
     "const-name-snakecase": "error",
-    "contract-name-camelcase": "error",
-    "event-name-camelcase": "error",
     "func-name-mixedcase": "error",
     "func-param-name-mixedcase": "error",
     "modifier-name-mixedcase": "error",
@@ -32,6 +30,7 @@ module.exports = {
 
     // Import and ordering rules
     "imports-on-top": "error",
+    "import-path-check": "off", // Disabled: false positives with monorepo hoisted dependencies
     "visibility-modifier-order": "error",
     ordering: "error",
 
