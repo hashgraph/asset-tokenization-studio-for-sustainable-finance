@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsNumber, IsEnum } from "class-validator"
+import { IsNotEmpty, IsString, IsNumber, IsEnum, IsOptional } from "class-validator"
 import { Command } from "@hashgraph/green-bonds-shared-core"
 import { ClearingOperationType } from "@domain/bond/clearing/model/ClearingOperationType"
 
@@ -27,6 +27,7 @@ export class ApproveClearingCommand extends Command<void> {
   @IsNotEmpty()
   clearingOperationType: ClearingOperationType
 
+  @IsOptional()
   @IsNumber()
   holdId?: number
 

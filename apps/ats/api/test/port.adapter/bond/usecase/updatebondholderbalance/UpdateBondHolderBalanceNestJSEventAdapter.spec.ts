@@ -13,7 +13,7 @@ import { IssuedByPartitionDLTEvent } from "@port/bond/usecase/updatebondholderba
 
 describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
-  const EVM_CONTRACT_ADDRESS = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+  const _EVM_CONTRACT_ADDRESS = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
   const HOLDER_ACCOUNT_ID = "0.0.6823801"
   const EVM_HOLDER_ADDRESS = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
   const PARTITION = "0x7265736572766564000000000000000000000000000000000000000000000000"
@@ -339,8 +339,8 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
     })
 
     it("should create balances for different contracts independently", async () => {
-      const contract1EvmAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
-      const contract2EvmAddress = "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b"
+      const _contract1EvmAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const _contract2EvmAddress = "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b"
       const contract1Id = "0.0.6974684"
       const contract2Id = "0.0.6974345"
 
@@ -422,7 +422,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
     })
 
     it("should correctly convert EVM addresses to Hedera account IDs", async () => {
-      const evmContractAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
+      const _evmContractAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
       const evmHolderAddress = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
       const event = new IssuedByPartitionDLTEvent(

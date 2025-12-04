@@ -29,7 +29,12 @@ export class ReclaimBondHoldCommandHandler implements CommandHandler<ReclaimBond
       )
 
       await this.deleteBondHoldDomainService.execute(
-        new DeleteBondHoldDomainServiceRequest(command.contractId, command.holderAccountId, command.holdId, command.partition),
+        new DeleteBondHoldDomainServiceRequest(
+          command.contractId,
+          command.holderAccountId,
+          command.holdId,
+          command.partition,
+        ),
       )
 
       this.eventBus.publish(
