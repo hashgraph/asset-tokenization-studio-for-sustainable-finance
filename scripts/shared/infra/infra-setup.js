@@ -66,7 +66,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "ats_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28395963",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
     },
   },
   primaryMarketApi: {
@@ -80,7 +80,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "primary_market_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28395963",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
     },
   },
   treasuryApi: {
@@ -94,7 +94,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "treasury_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28395963",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
     },
   },
   gateway: {
@@ -106,8 +106,8 @@ const CONFIG = {
     env: {
       PORT: "3000",
       LOG_LEVEL: "log",
-      PATHS: "/api/v1/ats,/api/v1/treasuries,/api/v1/environmental-assets,/api/v1/payment-tokens",
-      ROUTES: "http://localhost:3001,http://localhost:3003,http://localhost:3003,http://localhost:3003",
+      PATHS: "/api/v1/ats,/api/v1/primary-markets,/api/v1/treasuries,/api/v1/environmental-assets,/api/v1/payment-tokens",
+      ROUTES: "http://localhost:3001,http://localhost:3002,http://localhost:3003,http://localhost:3003,http://localhost:3003",
       API_KEY_HEADER_NAME: "x-api-key",
       API_KEYS: "demo-key-1,demo-key-2,your-secret-api-key",
       TIMEOUT: "30000",
