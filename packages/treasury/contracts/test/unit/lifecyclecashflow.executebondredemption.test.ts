@@ -236,7 +236,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(1);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(30000);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionExecuted event is emitted with the holder in SUCCEEDED status", async () => {
@@ -318,7 +318,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(1);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(461168601800000);
         });
       });
     });
@@ -471,7 +471,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(30000);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a redemption twice, THEN a RedemptionByAddressesExecuted event is emitted with the holder in SUCCEEDED status", async () => {
@@ -588,8 +588,8 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.results[1].holder).to.equal(signer_A.address);
           expect(event.args.results[0].status).to.equal(1);
           expect(event.args.results[1].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
-          expect(event.args.results[1].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(9000000000000000000n);
+          expect(event.args.results[1].amount).to.equal(9000000000000000000n);
         });
       });
 
