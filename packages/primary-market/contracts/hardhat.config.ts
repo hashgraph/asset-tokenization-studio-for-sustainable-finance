@@ -55,7 +55,7 @@ const config: HardhatUserConfig = {
     noColors: true, // Recommended for file output
   },
   mocha: {
-    timeout: 3_000_000,
+    timeout: 60_000, // 60 seconds per test (reduced from 50 min)
   },
   dodoc: {
     runOnCompile: false,
