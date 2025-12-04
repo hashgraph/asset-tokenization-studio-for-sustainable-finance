@@ -54,7 +54,7 @@ export class SyncRedemptionAppService {
             new AddRedemptionHolderCommand(
               item.holder,
               RedemptionHolderStatus.FAILED,
-              undefined,
+              item.amount,
               treasuryId,
               paymentTokenId,
             ),

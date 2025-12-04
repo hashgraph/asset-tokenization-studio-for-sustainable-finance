@@ -66,7 +66,7 @@ export class SyncDistributionAppService {
             new AddDistributionHolderCommand(
               item.holder,
               DistributionHolderStatus.FAILED,
-              undefined,
+              item.amount,
               distributionId,
               paymentTokenId,
             ),

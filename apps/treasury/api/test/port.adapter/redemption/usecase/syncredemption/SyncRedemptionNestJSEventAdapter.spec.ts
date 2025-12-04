@@ -97,12 +97,13 @@ describe("SyncRedemption Integration", () => {
     const evmSuccessAddresses = ["0xevmAddress1", "0xevmAddress2", "0xevmAddress3"]
     const evmFailedAddresses = ["0xevmAddress4"]
     const paidAmounts = ["1000000", "2000000", "3000000"]
+    const failedAmount = "4000000" // Amount that was attempted but payment failed
 
     const result: PaymentResultEventModel[] = [
       { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
       { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
       { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
-      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[0], status: 1, amount: failedAmount },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, result)
@@ -141,7 +142,7 @@ describe("SyncRedemption Integration", () => {
     expect(failedHolders[0]).toMatchObject({
       holderAccountId: "0.0.200",
       status: RedemptionHolderStatus.FAILED,
-      amount: null,
+      amount: failedAmount,
       treasuryId: treasury.id,
       paymentTokenId: treasury.paymentToken!.id,
     })
@@ -209,12 +210,13 @@ describe("SyncRedemption Integration", () => {
     const evmSuccessAddresses = ["0xevmAddress5", "0xevmAddress6"]
     const evmFailedAddresses = ["0xevmAddress7", "0xevmAddress8"]
     const paidAmounts = ["5000000", "6000000"]
+    const failedAmounts = ["7000000", "8000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultEventModel[] = [
       { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
       { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
-      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
     ]
 
     const event = new RedemptionByAddressesExecutedDLTEvent(
@@ -234,7 +236,8 @@ describe("SyncRedemption Integration", () => {
 
     const failedHolders = savedHolders.filter((h) => h.status === <string>RedemptionHolderStatus.FAILED)
     expect(failedHolders).toHaveLength(2)
-    failedHolders.forEach((holder) => expect(holder.amount).toBeNull())
+    expect(failedHolders[0].amount).toBe(failedAmounts[0])
+    expect(failedHolders[1].amount).toBe(failedAmounts[1])
 
     expect(publishedEvents).toHaveLength(4)
     expect(publishedEvents.every((e) => e.constructor.name === RedemptionHolderAddedEvent.name)).toBe(true)
@@ -253,11 +256,12 @@ describe("SyncRedemption Integration", () => {
     })
 
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
+    const failedAmounts = ["1000000", "2000000", "3000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
+      { holder: evmFailedAddresses[2], status: 1, amount: failedAmounts[2] },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
@@ -267,7 +271,9 @@ describe("SyncRedemption Integration", () => {
     const holders = await internalRedemptionHolderRepository.find()
     expect(holders).toHaveLength(3)
     expect(holders.every((h) => h.status === <string>RedemptionHolderStatus.FAILED)).toBe(true)
-    expect(holders.every((h) => h.amount === null)).toBe(true)
+    expect(holders[0].amount).toBe(failedAmounts[0])
+    expect(holders[1].amount).toBe(failedAmounts[1])
+    expect(holders[2].amount).toBe(failedAmounts[2])
   })
 
   it("should throw error if treasury does not have payment token", async () => {
