@@ -1,5 +1,5 @@
 const { Client, AccountId, PrivateKey, TransferTransaction, NftId } = require('@hashgraph/sdk');
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { mintEnvironmentalAssetToken } = require('./verify-transfer-environmental-asset-token-to-treasury')
 const { verifyAddEnvironmentalAssetToken } = require('./verify-add-environmental-asset-token')
 const { gatewayClient } = require('../../shared/lib/gateway-client');
@@ -8,7 +8,12 @@ const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
-
+/**
+ * Transfer an environmental asset token
+ * @param {string} environmentalAssetTokenId - An environmental asset token contract ID
+ * @param {number} serialNumber - An environmental asset token serial number
+ * @param {string} treasuryContractId - Treasury contract ID
+ */
 async function transferEnvironmentalAssetToken(environmentalAssetTokenId, serialNumber, treasuryContractId) {
   log(`\n💱 Transferring environmental asset token ${environmentalAssetTokenId} - ${serialNumber} to treasury ${treasuryContractId}...`, colors.yellow);
   const client = Client.forTestnet();
@@ -63,6 +68,7 @@ async function deleteEnvironmentalAssetToken(treasuryContractId, environmentalAs
 /**
  * Wait for environmental asset token deleted (with retries)
  * @param {string} treasuryContractId - Treasury contract ID
+ *
  * @param {number} maxRetries - Maximum number of retries
  * @param {number} retryInterval - Interval between retries in milliseconds
  */

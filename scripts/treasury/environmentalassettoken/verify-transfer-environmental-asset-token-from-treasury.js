@@ -1,6 +1,6 @@
 const { Client, AccountId, PrivateKey, TokenMintTransaction } = require('@hashgraph/sdk');
 const { mintEnvironmentalAssetToken, verifyTransferEnvironmentalAssetTokenToTreasury } = require('./verify-transfer-environmental-asset-token-to-treasury')
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
@@ -49,7 +49,7 @@ async function transferEnvironmentalAssetTokenFromTreasury(treasuryContractId, e
  * Wait for environmental asset token transferred (with retries)
  * @param {string} treasuryContractId - Treasury contract ID
  * @param {string} environmentalAssetTokenId - Expected environmental asset token contract ID
- *
+ * @param {string} environmentalAssetTokenSerial - Expected environmental asset token serial number
  * @param {string} destinationAccountId - The account receiving the payment tokens
  * @param {number} maxRetries - Maximum number of retries
  * @param {number} retryInterval - Interval between retries in milliseconds

@@ -1,11 +1,14 @@
 const { Client, AccountId, PrivateKey, TokenCreateTransaction, TokenType, TokenSupplyType } = require('@hashgraph/sdk');
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
+/**
+ * Create an environmental asset token
+ */
 async function createEnvironmentalAssetToken() {
   const client = Client.forTestnet();
   const operatorId = AccountId.fromString(process.env.ACCOUNT_ID);
