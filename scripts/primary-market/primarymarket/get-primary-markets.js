@@ -8,14 +8,14 @@
  * Usage: node scripts/primary-market/primarymarket/get-primary-markets.js
  */
 
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
-const { deployPrimaryMarket } = require('./deploy-primary-market');
-const { waitForPrimaryMarketDeployment } = require('./get-latest-primary-market');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { config } = require("../../shared/lib/config");
+const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require("../shared/test-config");
+const { deployPrimaryMarket } = require("./deploy-primary-market");
+const { waitForPrimaryMarketDeployment } = require("./get-latest-primary-market");
 
 /**
  * Get all primary markets (paginated)
@@ -28,27 +28,27 @@ const { waitForPrimaryMarketDeployment } = require('./get-latest-primary-market'
  */
 async function getPrimaryMarkets(options = {}) {
   logHeader(`🔍 Getting Primary Markets...`);
-  
-  const { page = 1, limit = 10, orderBy = 'createdAt', order = 'desc' } = options;
-  
+
+  const { page = 1, limit = 10, orderBy = "createdAt", order = "desc" } = options;
+
   try {
-    const endpoint = '/api/v1/primary-markets';
+    const endpoint = "/api/v1/primary-markets";
     const response = await gatewayClient.get(endpoint, {
       params: {
         page,
         limit,
         orderBy,
-        order
-      }
+        order,
+      },
     });
-    
+
     logSuccess(`✅ Primary markets retrieved successfully!`);
     logInfo(`Total Primary Markets: ${response.data.total}`);
     logInfo(`Page: ${response.data.page} of ${response.data.totalPages}`);
     logInfo(`Items per Page: ${response.data.limit}`);
     logInfo(`Markets on this page: ${response.data.items.length}`);
-    log('');
-    
+    log("");
+
     // Display each primary market
     if (response.data.items.length > 0) {
       response.data.items.forEach((market, index) => {
@@ -56,13 +56,13 @@ async function getPrimaryMarkets(options = {}) {
         logInfo(`  Contract ID: ${market.contractId}`);
         logInfo(`  Is Paused: ${market.isPaused}`);
         logInfo(`  Created At: ${market.createdAt}`);
-        log('');
+        log("");
       });
     } else {
-      logInfo('No primary markets found.');
-      log('');
+      logInfo("No primary markets found.");
+      log("");
     }
-    
+
     return response.data;
   } catch (error) {
     logError(`Failed to get primary markets: ${error.message}`);
@@ -78,48 +78,48 @@ async function getPrimaryMarkets(options = {}) {
  */
 async function main() {
   try {
-    logHeader('🚀 AUTOMATED GET PRIMARY MARKETS SCRIPT');
-    log('=====================================\n', colors.cyan);
-    
+    logHeader("🚀 AUTOMATED GET PRIMARY MARKETS SCRIPT");
+    log("=====================================\n", colors.cyan);
+
     // Validate configuration
     if (!validateSigningConfig()) {
       process.exit(1);
     }
-    
+
     if (!process.env.ACCOUNT_ID) {
-      logError('ACCOUNT_ID not found in environment variables');
-      logInfo('Please set ACCOUNT_ID in your .env file');
+      logError("ACCOUNT_ID not found in environment variables");
+      logInfo("Please set ACCOUNT_ID in your .env file");
       process.exit(1);
     }
-    
+
     // Get format from environment
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
-    
+
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
     logInfo(`Config Version: ${configVersion}`);
-    log('');
+    log("");
 
     const deployedMarkets = [];
 
     // ============================================
     // Step 1: Deploy Primary Markets
     // ============================================
-    logHeader('Step 1: Deploy Primary Markets');
+    logHeader("Step 1: Deploy Primary Markets");
     const numberOfMarkets = 2;
-    
+
     for (let i = 0; i < numberOfMarkets; i++) {
       logInfo(`Deploying primary market ${i + 1}/${numberOfMarkets}...`);
-      
+
       const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
 
-      logHeader('🔐 Signing deployment transaction...');
+      logHeader("🔐 Signing deployment transaction...");
       const signedDeploymentTx = await signTransaction(deploymentTx.unsignedTx);
-      logSuccess('Deployment transaction signed successfully!');
+      logSuccess("Deployment transaction signed successfully!");
 
       await publishSignedTransaction(signedDeploymentTx, {
         description: `Deploy Primary Market ${i + 1}`,
@@ -130,28 +130,27 @@ async function main() {
 
       logSuccess(`✅ Primary Market ${i + 1} deployed: ${deployedMarket.contractId}`);
     }
-    log('');
+    log("");
 
     // ============================================
     // Step 2: Get Primary Markets
     // ============================================
-    logHeader('Step 2: Get Primary Markets');
+    logHeader("Step 2: Get Primary Markets");
     const allMarkets = await getPrimaryMarkets({
       page: 1,
       limit: 10,
-      orderBy: 'createdAt',
-      order: 'desc'
+      orderBy: "createdAt",
+      order: "desc",
     });
 
     // ============================================
     // Summary
     // ============================================
-    logHeader('✨ GET PRIMARY MARKETS COMPLETED!');
-    log('=====================================', colors.green);
-    log(`Deployed Markets: ${deployedMarkets.join(', ')}`, colors.green);
+    logHeader("✨ GET PRIMARY MARKETS COMPLETED!");
+    log("=====================================", colors.green);
+    log(`Deployed Markets: ${deployedMarkets.join(", ")}`, colors.green);
     log(`Total Markets in System: ${allMarkets.total}`, colors.green);
-    log('\n✅ Successfully retrieved primary markets!\n', colors.green);
-    
+    log("\n✅ Successfully retrieved primary markets!\n", colors.green);
   } catch (error) {
     logError(`Script execution failed: ${error.message}`);
     if (error.stack) {

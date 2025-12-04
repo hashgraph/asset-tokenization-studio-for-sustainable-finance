@@ -1,14 +1,19 @@
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION, BOND_CONTRACT_ID, TREASURY_CONTRACT_ID } = require('../shared/test-config');
-const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
-const { createOffering: createOfferingService } = require('./offering-service');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
-const { deployHTSToken } = require('./hts-token-service');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { config } = require("../../shared/lib/config");
+const {
+  RESOLVER_CONTRACT_ID,
+  CONFIG_VERSION,
+  BOND_CONTRACT_ID,
+  TREASURY_CONTRACT_ID,
+} = require("../shared/test-config");
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require("../shared/role-service");
+const { createOffering: createOfferingService } = require("./offering-service");
+const { deployPrimaryMarket } = require("../primarymarket/deploy-primary-market");
+const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require("../primarymarket/get-latest-primary-market");
+const { deployHTSToken } = require("./hts-token-service");
 
 /**
  * Create an offering in a Primary Market (wrapper for offering-service)
@@ -32,14 +37,17 @@ async function getLatestOffering(marketContractId, bondContractId) {
   log(`\n🔍 Fetching latest offering...`, colors.bright);
 
   try {
-    const response = await gatewayClient.get(`/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`, {
-      params: {
-        page: 1,
-        limit: 1,
-        orderBy: 'createdAt',
-        order: 'desc'
-      }
-    });
+    const response = await gatewayClient.get(
+      `/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`,
+      {
+        params: {
+          page: 1,
+          limit: 1,
+          orderBy: "createdAt",
+          order: "desc",
+        },
+      },
+    );
 
     if (response.data?.items && response.data.items.length > 0) {
       const latestOffering = response.data.items[0];
@@ -48,7 +56,7 @@ async function getLatestOffering(marketContractId, bondContractId) {
       logInfo(`Created at: ${latestOffering.createdAt}`);
       return latestOffering;
     } else {
-      logError('No offerings found in the system');
+      logError("No offerings found in the system");
       return null;
     }
   } catch (error) {
@@ -68,16 +76,16 @@ async function getLatestOffering(marketContractId, bondContractId) {
  * @returns {Promise<Object>} The created offering
  */
 async function waitForOfferingCreation(marketContractId, bondContractId, initialWaitMs = 15000) {
-  logInfo(`⏳ Waiting ${initialWaitMs/1000} seconds for transaction to be processed...`);
+  logInfo(`⏳ Waiting ${initialWaitMs / 1000} seconds for transaction to be processed...`);
 
   // Initial wait to allow transaction to be processed
-  await new Promise(resolve => setTimeout(resolve, initialWaitMs));
+  await new Promise((resolve) => setTimeout(resolve, initialWaitMs));
 
   logInfo(`🔍 Fetching latest offering from database...`);
   const latestOffering = await getLatestOffering(marketContractId, bondContractId);
 
   if (!latestOffering) {
-    throw new Error('No offering found in database after creation');
+    throw new Error("No offering found in database after creation");
   }
 
   return latestOffering;
@@ -88,8 +96,8 @@ async function waitForOfferingCreation(marketContractId, bondContractId, initial
  */
 async function main() {
   try {
-    logHeader('🚀 CREATE OFFERING SCRIPT');
-    log('=====================================\n', colors.cyan);
+    logHeader("🚀 CREATE OFFERING SCRIPT");
+    log("=====================================\n", colors.cyan);
 
     // Validate configuration
     if (!validateSigningConfig()) {
@@ -97,8 +105,8 @@ async function main() {
     }
 
     if (!process.env.ACCOUNT_ID) {
-      logError('ACCOUNT_ID not found in environment variables');
-      logInfo('Please set ACCOUNT_ID in your .env file');
+      logError("ACCOUNT_ID not found in environment variables");
+      logInfo("Please set ACCOUNT_ID in your .env file");
       process.exit(1);
     }
 
@@ -116,36 +124,36 @@ async function main() {
     // ============================================
     // Step 1: Deploy HTS Payment Token
     // ============================================
-    logHeader('Step 1: Deploy HTS Payment Token');
+    logHeader("Step 1: Deploy HTS Payment Token");
     const { tokenId, evmAddress: paymentTokenAddress } = await deployHTSToken(
-      'Test Payment Token',
-      'TPT',
+      "Test Payment Token",
+      "TPT",
       6,
-      1_000_000_000_000 // 1,000,000 tokens with 6 decimals
+      1_000_000_000_000, // 1,000,000 tokens with 6 decimals
     );
     logSuccess(`✅ HTS Token deployed: ${tokenId}`);
     logInfo(`Payment Token EVM Address: ${paymentTokenAddress}`);
-    log('');
+    log("");
 
     // Hardcoded offering parameters
     const offeringParams = {
       treasuryContractId: treasuryContractId,
       paymentTokenContractId: tokenId, // Use the dynamically deployed token
-      lotSize: '1000',
-      minLots: '1',
-      maxLots: '10000',
-      targetLots: '5000',
+      lotSize: "1000",
+      minLots: "1",
+      maxLots: "10000",
+      targetLots: "5000",
       targetQuantityRule: 0, // 0: AT_LEAST, 1: AT_MOST, 2: BETWEEN
       startDate: new Date(Date.now() + 60000), // 1 minute from now
       endDate: new Date(Date.now() + 86400000 * 30), // 30 days from now
       deadlineRule: 0, // 0: SOFT, 1: HARD
-      price: '100',
-      priceDecimals: 2
+      price: "100",
+      priceDecimals: 2,
     };
 
     if (!bondContractId) {
-      logError('Bond Contract ID is not set in the script');
-      logInfo('Please update the bondContractId variable in create-offering.js');
+      logError("Bond Contract ID is not set in the script");
+      logInfo("Please update the bondContractId variable in create-offering.js");
       process.exit(1);
     }
 
@@ -153,22 +161,22 @@ async function main() {
     logInfo(`Config Version: ${configVersion}`);
     logInfo(`Bond Contract ID: ${bondContractId}`);
     logInfo(`User Account ID: ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 2: Deploy Primary Market
     // ============================================
-    logHeader('Step 2: Deploy Primary Market');
+    logHeader("Step 2: Deploy Primary Market");
     const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
 
-    logHeader('🔐 Signing deployment transaction...');
+    logHeader("🔐 Signing deployment transaction...");
     const signedDeploymentTx = await signTransaction(deploymentTx.unsignedTx);
-    logSuccess('Deployment transaction signed successfully!');
+    logSuccess("Deployment transaction signed successfully!");
 
     await publishSignedTransaction(signedDeploymentTx, {
-      description: 'Deploy Primary Market',
+      description: "Deploy Primary Market",
       resolverContractId: resolverContractId,
-      configVersion: configVersion
+      configVersion: configVersion,
     });
 
     // Wait for deployment and get the contract ID from the database
@@ -176,48 +184,48 @@ async function main() {
     const marketContractId = deployedMarket.contractId;
 
     logSuccess(`✅ Primary Market deployed: ${marketContractId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 3: Grant OFFERING_CREATOR_ROLE
     // ============================================
-    logHeader('Step 3: Grant OFFERING_CREATOR_ROLE');
+    logHeader("Step 3: Grant OFFERING_CREATOR_ROLE");
     const grantRoleTx = await grantOfferingCreatorRole(format, marketContractId, userAccountId);
 
-    logHeader('🔐 Signing grant role transaction...');
+    logHeader("🔐 Signing grant role transaction...");
     const signedGrantRoleTx = await signTransaction(grantRoleTx.unsignedTx);
-    logSuccess('Grant role transaction signed successfully!');
+    logSuccess("Grant role transaction signed successfully!");
 
     await publishSignedTransaction(signedGrantRoleTx, {
-      description: 'Grant OFFERING_CREATOR_ROLE',
+      description: "Grant OFFERING_CREATOR_ROLE",
       marketContractId: marketContractId,
       userAccountId: userAccountId,
-      roleId: OFFERING_CREATOR_ROLE
+      roleId: OFFERING_CREATOR_ROLE,
     });
 
     // Verify role was granted
     await waitForUserRoleUpdate(marketContractId, OFFERING_CREATOR_ROLE, userAccountId, true);
     logSuccess(`✅ OFFERING_CREATOR_ROLE granted to ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 4: Create Offering
     // ============================================
-    logHeader('Step 4: Create Offering');
+    logHeader("Step 4: Create Offering");
     const createOfferingTx = await createOffering(format, marketContractId, bondContractId, offeringParams);
 
-    logHeader('🔐 Signing create offering transaction...');
+    logHeader("🔐 Signing create offering transaction...");
     const signedCreateOfferingTx = await signTransaction(createOfferingTx.unsignedTx);
-    logSuccess('Create offering transaction signed successfully!');
+    logSuccess("Create offering transaction signed successfully!");
 
     await publishSignedTransaction(signedCreateOfferingTx, {
-      description: 'Create Offering',
+      description: "Create Offering",
       marketContractId: marketContractId,
       bondContractId: bondContractId,
       lotSize: offeringParams.lotSize,
       targetLots: offeringParams.targetLots,
       price: offeringParams.price,
-      priceDecimals: offeringParams.priceDecimals
+      priceDecimals: offeringParams.priceDecimals,
     });
 
     // Wait for offering to be created and get the offering ID
@@ -225,19 +233,19 @@ async function main() {
     const offeringId = createdOffering.id;
 
     logSuccess(`✅ Offering created: ID ${offeringId}`);
-    log('');
+    log("");
 
     // ============================================
     // Summary
     // ============================================
-    logHeader('✨ CREATE OFFERING COMPLETED!');
-    log('=====================================', colors.green);
+    logHeader("✨ CREATE OFFERING COMPLETED!");
+    log("=====================================", colors.green);
     log(`Payment Token ID: ${tokenId}`, colors.green);
     log(`Primary Market ID: ${marketContractId}`, colors.green);
     log(`Offering ID: ${offeringId}`, colors.green);
     log(`Bond Contract ID: ${bondContractId}`, colors.green);
-    log('', colors.green);
-    log('Offering Details:', colors.cyan);
+    log("", colors.green);
+    log("Offering Details:", colors.cyan);
     log(`  • Lot Size: ${createdOffering.lotSize}`, colors.green);
     log(`  • Min Lots: ${createdOffering.minLots}`, colors.green);
     log(`  • Max Lots: ${createdOffering.maxLots}`, colors.green);
@@ -245,8 +253,7 @@ async function main() {
     log(`  • Price: ${createdOffering.price} (${createdOffering.priceDecimals} decimals)`, colors.green);
     log(`  • Start Date: ${createdOffering.startDate}`, colors.green);
     log(`  • End Date: ${createdOffering.endDate}`, colors.green);
-    log('\nThe offering has been successfully created!\n', colors.green);
-
+    log("\nThe offering has been successfully created!\n", colors.green);
   } catch (error) {
     logError(`Script execution failed: ${error.message}`);
     if (error.stack) {
@@ -264,5 +271,5 @@ if (require.main === module) {
 module.exports = {
   createOffering,
   waitForOfferingCreation,
-  getLatestOffering
+  getLatestOffering,
 };

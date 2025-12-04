@@ -1,17 +1,17 @@
 /**
  * Shared Setup Service for Primary Market Scripts
- * 
+ *
  * This module provides reusable functions for common setup operations
  * to avoid code duplication across multiple scripts.
  */
 
-const { signTransaction } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { logSuccess, logHeader } = require('../../shared/lib/logger');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
-const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('./role-service');
-const { deployHTSToken } = require('../offering/hts-token-service');
+const { signTransaction } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { logSuccess, logHeader } = require("../../shared/lib/logger");
+const { deployPrimaryMarket } = require("../primarymarket/deploy-primary-market");
+const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require("../primarymarket/get-latest-primary-market");
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require("./role-service");
+const { deployHTSToken } = require("../offering/hts-token-service");
 
 /**
  * Deploy a Primary Market and return its contract ID
@@ -21,22 +21,22 @@ const { deployHTSToken } = require('../offering/hts-token-service');
  * @returns {Promise<string>} The deployed market contract ID
  */
 async function deployAndWaitForPrimaryMarket(format, resolverContractId, configVersion) {
-  logHeader('Deploy Primary Market');
+  logHeader("Deploy Primary Market");
   const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
 
-  logHeader('🔐 Signing deployment transaction...');
+  logHeader("🔐 Signing deployment transaction...");
   const signedDeploymentTx = await signTransaction(deploymentTx.unsignedTx);
-  logSuccess('Deployment transaction signed successfully!');
+  logSuccess("Deployment transaction signed successfully!");
 
   await publishSignedTransaction(signedDeploymentTx, {
-    description: 'Deploy Primary Market',
+    description: "Deploy Primary Market",
   });
 
   const deployedMarket = await waitForPrimaryMarketDeployment();
   const marketContractId = deployedMarket.contractId;
 
   logSuccess(`✅ Primary Market deployed: ${marketContractId}`);
-  
+
   return marketContractId;
 }
 
@@ -48,15 +48,15 @@ async function deployAndWaitForPrimaryMarket(format, resolverContractId, configV
  * @returns {Promise<void>}
  */
 async function grantOfferingCreatorRoleAndWait(format, marketContractId, userAccountId) {
-  logHeader('Grant OFFERING_CREATOR_ROLE');
+  logHeader("Grant OFFERING_CREATOR_ROLE");
   const grantRoleTx = await grantOfferingCreatorRole(format, marketContractId, userAccountId);
 
-  logHeader('🔐 Signing grant role transaction...');
+  logHeader("🔐 Signing grant role transaction...");
   const signedGrantRoleTx = await signTransaction(grantRoleTx.unsignedTx);
-  logSuccess('Grant role transaction signed successfully!');
+  logSuccess("Grant role transaction signed successfully!");
 
   await publishSignedTransaction(signedGrantRoleTx, {
-    description: 'Grant OFFERING_CREATOR_ROLE',
+    description: "Grant OFFERING_CREATOR_ROLE",
   });
 
   await waitForUserRoleUpdate(marketContractId, OFFERING_CREATOR_ROLE, userAccountId, true);
@@ -72,7 +72,7 @@ async function grantOfferingCreatorRoleAndWait(format, marketContractId, userAcc
  * @returns {Promise<string>} The token ID
  */
 async function deployPaymentToken(name, symbol, decimals, initialSupply) {
-  logHeader('Deploy HTS Payment Token');
+  logHeader("Deploy HTS Payment Token");
   const { tokenId } = await deployHTSToken(name, symbol, decimals, initialSupply);
   logSuccess(`✅ HTS Token deployed: ${tokenId}`);
   return tokenId;
@@ -90,10 +90,10 @@ async function deployPaymentToken(name, symbol, decimals, initialSupply) {
 async function setupPrimaryMarketWithToken(format, resolverContractId, configVersion, userAccountId, tokenConfig) {
   // Deploy HTS Payment Token
   const tokenId = await deployPaymentToken(
-    tokenConfig.name || 'Test Token',
-    tokenConfig.symbol || 'TST',
+    tokenConfig.name || "Test Token",
+    tokenConfig.symbol || "TST",
     tokenConfig.decimals || 6,
-    tokenConfig.initialSupply || 1_000_000_000_000
+    tokenConfig.initialSupply || 1_000_000_000_000,
   );
 
   // Deploy Primary Market

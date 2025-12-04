@@ -1,5 +1,5 @@
-const axios = require('axios');
-const { config } = require('./config');
+const axios = require("axios");
+const { config } = require("./config");
 
 class GatewayClient {
   constructor() {
@@ -12,15 +12,15 @@ class GatewayClient {
       method: method.toUpperCase(),
       url: `${this.baseURL}${endpoint}`,
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': this.apiKey,
-        ...options.headers
+        "Content-Type": "application/json",
+        "x-api-key": this.apiKey,
+        ...options.headers,
       },
       timeout: this.timeout,
-      ...options
+      ...options,
     };
 
-    if (data && ['POST', 'PUT', 'PATCH'].includes(config.method)) {
+    if (data && ["POST", "PUT", "PATCH"].includes(config.method)) {
       config.data = data;
     }
 
@@ -29,34 +29,34 @@ class GatewayClient {
       return response;
     } catch (error) {
       if (error.response?.status === 401) {
-        throw new Error('Authentication failed. Check your API key configuration.');
+        throw new Error("Authentication failed. Check your API key configuration.");
       }
       throw error;
     }
   }
   async get(endpoint, options = {}) {
-    return this.request('GET', endpoint, null, options);
+    return this.request("GET", endpoint, null, options);
   }
 
   async post(endpoint, data, options = {}) {
-    return this.request('POST', endpoint, data, options);
+    return this.request("POST", endpoint, data, options);
   }
 
   async put(endpoint, data, options = {}) {
-    return this.request('PUT', endpoint, data, options);
+    return this.request("PUT", endpoint, data, options);
   }
 
   async patch(endpoint, data, options = {}) {
-    return this.request('PATCH', endpoint, data, options);
+    return this.request("PATCH", endpoint, data, options);
   }
 
   async delete(endpoint, options = {}) {
-    return this.request('DELETE', endpoint, null, options);
+    return this.request("DELETE", endpoint, null, options);
   }
 }
 const gatewayClient = new GatewayClient();
 
 module.exports = {
   GatewayClient,
-  gatewayClient
+  gatewayClient,
 };

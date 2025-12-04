@@ -1,15 +1,15 @@
 /**
  * Shared Role Management Service for Primary Market Scripts
- * 
+ *
  * This module provides reusable functions for role management operations
  * to avoid code duplication across multiple scripts.
  */
 
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, logHeader } = require('../../shared/lib/logger');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, logHeader } = require("../../shared/lib/logger");
 
 // Primary Market Roles
-const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a';
+const OFFERING_CREATOR_ROLE = "0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066b62303daf04262f7a";
 
 /**
  * Grant OFFERING_CREATOR_ROLE to a user in a Primary Market
@@ -19,7 +19,7 @@ const OFFERING_CREATOR_ROLE = '0x92944c9c92092ce6378722a2bd46389bb09cbb7a1846066
  * @returns {Promise<Object>} The grant role transaction details
  */
 async function grantOfferingCreatorRole(format, marketContractId, userAccountId) {
-  return await grantRole(format, marketContractId, OFFERING_CREATOR_ROLE, userAccountId, 'OFFERING_CREATOR_ROLE');
+  return await grantRole(format, marketContractId, OFFERING_CREATOR_ROLE, userAccountId, "OFFERING_CREATOR_ROLE");
 }
 
 /**
@@ -41,7 +41,7 @@ async function grantRole(format, marketContractId, roleId, userAccountId, roleNa
   };
 
   try {
-    logInfo('Sending grant role request to gateway...');
+    logInfo("Sending grant role request to gateway...");
     const endpoint = `/api/v1/primary-markets/${marketContractId}/roles/${roleId}/users/${userAccountId}`;
     const response = await gatewayClient.post(endpoint, grantRoleRequest);
 
