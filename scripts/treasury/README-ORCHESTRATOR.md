@@ -35,8 +35,9 @@ The orchestrator executes the following scripts in order:
    - Transfer FROM Treasury
    - Delete Environmental Asset Token
    - Dissociate Environmental Asset Token
-6. **Distributions** 📊
-7. **Redemption** 💵
+6. **Proceeds Recipient Fund** 💵
+7. **Distributions** 📊
+8. **Redemption** 💰
 
 ## ⚙️ Configuration
 
@@ -62,6 +63,7 @@ const customConfig = {
     deleteToken: true,
     dissociate: true
   },
+  proceedsRecipient: true,
   distribution: true,
   redemption: true
 };
@@ -161,6 +163,7 @@ MINT_AMOUNT=500000
    - **Pause/Unpause** and **Roles**: Use the orchestrator's deployed treasury
    - **Payment Token** (transfer/dissociate): Create their own treasury with custom token setup
    - **Environmental Assets**: Create their own treasury with custom token setup
+   - **Proceeds Recipient Fund**: Creates its own treasury with custom payment token setup
    - **Distribution** and **Redemption**: Create complete infrastructure (bonds, tokens, holders)
 
 3. **Script Dependencies**: Some test functions have internal dependencies:

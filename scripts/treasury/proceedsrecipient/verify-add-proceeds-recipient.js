@@ -90,12 +90,16 @@ async function waitForProceedsRecipientAdded(bondContractId, proceedsRecipient, 
       const response = await gatewayClient.get(`/api/v1/ats/bonds/${bondContractId}/proceeds-recipients`);
       if (response.data && response.data.total > 0) {
         const items = response.data.items;
+        log(`   Found ${items.length} proceeds recipient(s)`, colors.cyan);
         for (let j = 0; j < items.length; j++) {
-          const proceedRecipient = response.data.items[j];
-          if (proceedRecipient.proceedRecipientAddress == proceedsRecipient) {
+          const proceedsRecipientItem = items[j];
+          log(`   Checking proceeds recipient: ${proceedsRecipientItem.proceedRecipientAddress}`, colors.cyan);
+          if (proceedsRecipientItem.proceedRecipientAddress.toLowerCase() === proceedsRecipient.toLowerCase()) {
+            logSuccess(`Proceeds recipient found: ${proceedsRecipientItem.proceedRecipientAddress}`);
             return;
           }
         }
+        log(`   Proceeds recipient ${proceedsRecipient} not found in the list`, colors.yellow);
       } else {
         logInfo("Proceeds recipient not yet added for the Bond");
       }

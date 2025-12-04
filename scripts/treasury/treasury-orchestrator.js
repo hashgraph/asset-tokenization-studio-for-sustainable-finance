@@ -10,6 +10,7 @@ const { verifyTransferEnvironmentalAssetTokenToTreasury } = require('./environme
 const { verifyTransferEnvironmentalAssetTokenFromTreasury } = require('./environmentalassettoken/verify-transfer-environmental-asset-token-from-treasury');
 const { verifyDeleteEnvironmentalAssetToken } = require('./environmentalassettoken/verify-delete-environmental-asset-token');
 const { verifyDissociateEnvironmentalAssetToken } = require('./environmentalassettoken/verify-dissociate-environmental-asset-token');
+const { verifyFundProceedsRecipient } = require('./proceedsrecipient/verify-fund-proceeds-recipient');
 const { verifyTreasuryDistributions } = require('./distribution/verify-treasury-distributions');
 const { verifyTreasuryRedemptions } = require('./redemption/verify-treasury-redemption');
 const { log, logSuccess, logError, logHeader, colors } = require('../shared/lib/logger');
@@ -25,18 +26,19 @@ const DEFAULT_CONFIG = {
   paymentToken: {
     enabled: true,
     updateToken: true,
-    transferToTreasury: false,
-    transferFromTreasury: false,
+    transferToTreasury: false, //TODO: Enable  when synthentic events from Hedera could be read
+    transferFromTreasury: false, //TODO: Enable  when synthentic events from Hedera could be read
     dissociate: true
   },
   environmentalAssets: {
     enabled: true,
     addToken: true,
-    transferToTreasury: false,
-    transferFromTreasury: false,
+    transferToTreasury: false, //TODO: Enable  when synthentic events from Hedera could be read
+    transferFromTreasury: false, //TODO: Enable  when synthentic events from Hedera could be read
     deleteToken: true,
     dissociate: true
   },
+  proceedsRecipient: false, //TODO: Enable  when synthentic events from Hedera could be read
   distribution: true,
   redemption: true
 };
@@ -66,7 +68,7 @@ async function runTreasuryOrchestrator(config = DEFAULT_CONFIG, overridesBondCre
     if (config.deployBondAndTreasury) {
       logHeader('📦 Step 1: Deploying Bond and Treasury');
       try {
-        treasury = await deployBondWaitTreasuryAndApplyRoles(null, overridesBondCreationRequest);
+        treasury = await deployBondWaitTreasuryAndApplyRoles(overridesBondCreationRequest);
         bondContractId = treasury.bondContractId;
         logSuccess(`✅ Bond and Treasury deployed successfully!`);
         log(`   Treasury Contract ID: ${treasury.contractId}`, colors.cyan);
@@ -306,10 +308,29 @@ async function runTreasuryOrchestrator(config = DEFAULT_CONFIG, overridesBondCre
     }
 
     // ========================================
-    // 6. DISTRIBUTION TESTS
+    // 6. PROCEEDS RECIPIENT FUND TEST
+    // ========================================
+    if (config.proceedsRecipient) {
+      logHeader('💵 Step 6: Testing Proceeds Recipient Fund');
+      try {
+        log('   (Creating new treasury with custom payment token setup)', colors.cyan);
+        await verifyFundProceedsRecipient();
+        logSuccess('✅ Proceeds Recipient Fund tests passed!');
+        results.passed.push('Proceeds Recipient Fund');
+      } catch (error) {
+        logError(`❌ Failed proceeds recipient fund tests: ${error.message}`);
+        results.failed.push({ step: 'Proceeds Recipient Fund', error: error.message });
+      }
+    } else {
+      log('⏭️  Skipping Proceeds Recipient Fund tests', colors.yellow);
+      results.skipped.push('Proceeds Recipient Fund');
+    }
+
+    // ========================================
+    // 7. DISTRIBUTION TESTS
     // ========================================
     if (config.distribution) {
-      logHeader('📊 Step 6: Testing Treasury Distributions');
+      logHeader('📊 Step 7: Testing Treasury Distributions');
       try {
         await verifyTreasuryDistributions();
         logSuccess('✅ Treasury Distributions tests passed!');
@@ -324,10 +345,10 @@ async function runTreasuryOrchestrator(config = DEFAULT_CONFIG, overridesBondCre
     }
 
     // ========================================
-    // 7. REDEMPTION TESTS
+    // 8. REDEMPTION TESTS
     // ========================================
     if (config.redemption) {
-      logHeader('💵 Step 7: Testing Treasury Redemption');
+      logHeader('� Step 8: Testing Treasury Redemption');
       try {
         await verifyTreasuryRedemptions();
         logSuccess('✅ Treasury Redemption tests passed!');
