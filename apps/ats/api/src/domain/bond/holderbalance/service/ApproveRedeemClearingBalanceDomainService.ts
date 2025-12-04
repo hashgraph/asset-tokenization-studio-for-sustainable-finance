@@ -8,7 +8,13 @@ import { InsufficientBondHolderBalanceError } from "@domain/bond/holderbalance/e
 export class ApproveRedeemClearingBalanceDomainService {
   constructor(@Inject() private readonly bondHolderBalanceRepository: BondHolderBalanceRepository) {}
 
-  async execute(bondContractId: string, holderAccountId: string, partition: string, amount: string, transactionId?: string): Promise<void> {
+  async execute(
+    bondContractId: string,
+    holderAccountId: string,
+    partition: string,
+    amount: string,
+    transactionId?: string,
+  ): Promise<void> {
     const bondHolderBalance = await this.bondHolderBalanceRepository.findByContractIdHolderAccountIdAndPartition(
       bondContractId,
       holderAccountId,

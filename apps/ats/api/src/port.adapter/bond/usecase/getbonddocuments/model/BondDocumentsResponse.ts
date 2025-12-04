@@ -10,6 +10,9 @@ export class BondDocumentResponse {
   @ApiProperty({ description: "URI of the document", example: "https://example.com/documents/prospectus.pdf" })
   uri: string
 
-  @ApiProperty({ description: "Hash of the document", example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef" })
+  @ApiProperty({
+    description: "Hash of the document",
+    example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+  })
   hash: string
 }
