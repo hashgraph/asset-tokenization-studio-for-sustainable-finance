@@ -10,26 +10,6 @@ const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
 const { Client, PrivateKey, TransferTransaction } = require('@hashgraph/sdk');
 
-// Coupon Configurations - Two coupons for testing both endpoints
-const COUPON_CONFIGS = [
-  {
-    name: "First Coupon (Paginated)",
-    recordDate: new Date(Date.now() + 60000), // 1 minute from now
-    executionDate: new Date(Date.now() + 90000), // 1.5 minutes from now
-    rate: "250", // 2.50%
-    rateDecimals: "2",
-    period: "31536000" // 1 year
-  },
-  {
-    name: "Second Coupon (By Holders)",
-    recordDate: new Date(Date.now() + 120000), // 2 minutes from now
-    executionDate: new Date(Date.now() + 150000), // 2.5 minutes from now
-    rate: "375", // 3.75%
-    rateDecimals: "2",
-    period: "31536000" // 1 year
-  }
-];
-
 /**
  * Execute a distribution paginated by transactions
  */
@@ -177,6 +157,24 @@ async function verifyTreasuryDistributions() {
   const holderAccount1 = process.env.HOLDER_ACCOUNT_1 || process.env.ACCOUNT_ID;
   const holderAccount2 = process.env.HOLDER_ACCOUNT_2 || process.env.ACCOUNT_ID;
   const mintAmount = process.env.MINT_AMOUNT || "500000";
+  const COUPON_CONFIGS = [
+  {
+    name: "First Coupon (Paginated)",
+    recordDate: new Date(Date.now() + 60000), // 1 minute from now
+    executionDate: new Date(Date.now() + 90000), // 1.5 minutes from now
+    rate: "250", // 2.50%
+    rateDecimals: "2",
+    period: "31536000" // 1 year
+  },
+  {
+    name: "Second Coupon (By Holders)",
+    recordDate: new Date(Date.now() + 120000), // 2 minutes from now
+    executionDate: new Date(Date.now() + 150000), // 2.5 minutes from now
+    rate: "375", // 3.75%
+    rateDecimals: "2",
+    period: "31536000" // 1 year
+  }
+];
 
   try {
     // 1. Deploy Custom Payment Token
