@@ -1,34 +1,30 @@
 // SPDX-License-Identifier: Apache-2.0
 
-// @ts-check
-import eslint from "@eslint/js";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+/**
+ * ESLint configuration for Shared Core
+ * Extends root configuration with library-specific settings
+ * @see https://eslint.org/docs/latest/use/configure/configuration-files
+ */
+import rootConfig from "../../../eslint.config.mjs"
+import globals from "globals"
+import tseslint from "typescript-eslint"
 
 export default tseslint.config(
-  {
-    ignores: ["eslint.config.mjs"],
-  },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
+  ...rootConfig,
+
+  // Library-specific overrides
   {
     languageOptions: {
       globals: {
-        ...globals.node,
         ...globals.jest,
       },
       sourceType: "commonjs",
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
     },
   },
+
+  // Relax strict type-checking rules (warn on floating promises)
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-floating-promises": "warn",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/no-unsafe-return": "off",
@@ -37,4 +33,4 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-assignment": "off",
     },
   },
-);
+)

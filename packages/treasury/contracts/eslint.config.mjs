@@ -5,8 +5,9 @@
  */
 import rootConfig from "../../../eslint.config.mjs";
 import globals from "globals";
+import tseslint from "typescript-eslint";
 
-export default [
+export default tseslint.config(
   ...rootConfig,
 
   // Hardhat/Mocha test files - add test globals and relax rules
@@ -21,4 +22,4 @@ export default [
       "@typescript-eslint/no-unused-expressions": "off", // Chai assertions use expressions
     },
   },
-];
+);

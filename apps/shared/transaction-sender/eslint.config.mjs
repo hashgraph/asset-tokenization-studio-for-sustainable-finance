@@ -1,44 +1,41 @@
-// @ts-check
-import eslint from "@eslint/js"
+/**
+ * ESLint configuration for Shared Transaction Sender
+ * Extends root configuration with NestJS and Jest-specific settings
+ * @see https://eslint.org/docs/latest/use/configure/configuration-files
+ */
+import rootConfig from "../../../eslint.config.mjs"
 import globals from "globals"
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import tseslint from "typescript-eslint"
-import jest from 'eslint-plugin-jest';
+import jest from "eslint-plugin-jest"
 
 export default tseslint.config(
-  {
-    ignores: ["eslint.config.mjs"],
-  },
-  eslint.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-  eslintPluginPrettierRecommended,
+  ...rootConfig,
+
+  // NestJS/Jest-specific overrides
   {
     languageOptions: {
       globals: {
-        ...globals.node,
         ...globals.jest,
       },
       sourceType: "commonjs",
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
-      },
     },
   },
-    {
-      files: ['test/**'],
-      plugins: {
-        jest,
-      },
-      rules: {
-        // Turn off rule for tests
-        '@typescript-eslint/unbound-method': 'off',
-        'jest/unbound-method': 'error',
-      },
+
+  // Jest plugin for test files
+  {
+    files: ["test/**"],
+    plugins: {
+      jest,
     },
+    rules: {
+      "@typescript-eslint/unbound-method": "off",
+      "jest/unbound-method": "error",
+    },
+  },
+
+  // Relax strict type-checking rules for NestJS backend
   {
     rules: {
-      "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-floating-promises": "off",
       "@typescript-eslint/no-unsafe-argument": "off",
       "@typescript-eslint/no-unsafe-return": "off",
