@@ -16,7 +16,7 @@ contract MockBond is IBondRead {
     uint8 public nominalValueDecimals;
     mapping(address => uint256) private _balance;
     uint256 private _totalSupply;
-    uint8 _decimals;
+    uint8 private _decimals;
 
     error NotImplemented();
 
@@ -48,10 +48,6 @@ contract MockBond is IBondRead {
     function issue(address _tokenHolder, uint256 _value, bytes calldata /*_data*/) external {
         _balance[_tokenHolder] += _value;
         _totalSupply += _value;
-    }
-
-    function decimals() public view returns (uint8) {
-        return _decimals;
     }
 
     function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
@@ -98,5 +94,9 @@ contract MockBond is IBondRead {
 
     function getTotalCouponHolders(uint256) external pure override returns (uint256) {
         return 0;
+    }
+
+    function decimals() public view returns (uint8) {
+        return _decimals;
     }
 }
