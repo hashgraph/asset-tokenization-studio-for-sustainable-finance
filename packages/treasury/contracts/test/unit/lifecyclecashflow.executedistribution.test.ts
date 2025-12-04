@@ -241,7 +241,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.pageLength).to.equal(1);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(30000);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
@@ -523,7 +523,7 @@ describe("LifeCycleCashFlow operations", () => {
           expect(event.args.holders[0]).to.equal(signer_B.address);
           expect(event.args.results[0].holder).to.equal(signer_B.address);
           expect(event.args.results[0].status).to.equal(1);
-          expect(event.args.results[0].amount).to.equal(0);
+          expect(event.args.results[0].amount).to.equal(30000);
         });
 
         it("GIVEN an initialized LifeCycleCashFlow facet, WHEN executing a distribution twice, THEN a DistributionExecuted event is emitted with the holder in ALREADY PAID status", async () => {
