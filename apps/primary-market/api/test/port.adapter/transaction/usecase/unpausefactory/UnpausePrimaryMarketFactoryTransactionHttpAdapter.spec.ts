@@ -25,7 +25,7 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
     }).compile()
 
     app = moduleFixture.createNestApplication()
-    app.setGlobalPrefix("api/v1/primary-market")
+    app.setGlobalPrefix("api/v1/")
     app.useLogger(false)
     await app.init()
   })
@@ -49,7 +49,7 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
       }
 
       const response = await request(app.getHttpServer())
-        .post(`/api/v1/primary-market/factories/${marketContractId}/unpause`)
+        .post(`/api/v1/primary-markets/factories/${marketContractId}/unpause`)
         .send(unpauseFactoryRequest)
         .expect(201)
 
@@ -68,7 +68,7 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-market/factories/${marketContractId}/unpause`)
+          .post(`/api/v1/primary-markets/factories/${marketContractId}/unpause`)
           .send(unpauseFactoryRequest)
           .expect(201)
       }
@@ -85,7 +85,7 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
         }
 
         await request(app.getHttpServer())
-          .post(`/api/v1/primary-market/factories/${marketContractId}/unpause`)
+          .post(`/api/v1/primary-markets/factories/${marketContractId}/unpause`)
           .send(unpauseFactoryRequest)
           .expect(400)
       }
@@ -96,7 +96,7 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
       const unpauseFactoryRequest = {}
 
       await request(app.getHttpServer())
-        .post(`/api/v1/primary-market/factories/${marketContractId}/unpause`)
+        .post(`/api/v1/primary-markets/factories/${marketContractId}/unpause`)
         .send(unpauseFactoryRequest)
         .expect(400)
     })
