@@ -36,7 +36,9 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   }
 
   private async seedPrimaryMarketFactory() {
-    const primaryMarketFactoryEvmAddress = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+    const blockchainListenerContracts = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+
+    const primaryMarketFactoryEvmAddress = blockchainListenerContracts.split(/[;,]/)[0].trim()
 
     if (!primaryMarketFactoryEvmAddress) {
       this.logger.warn("BLOCKCHAIN_LISTENER_CONTRACTS not configured, skipping PrimaryMarketFactory seeding")

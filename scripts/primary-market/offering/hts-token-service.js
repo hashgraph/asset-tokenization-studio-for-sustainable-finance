@@ -8,9 +8,9 @@ const {
   Hbar,
   TokenMintTransaction,
   AccountAllowanceApproveTransaction,
-} = require('@hashgraph/sdk');
-const { logSuccess, logError, logInfo, logHeader } = require('../../shared/lib/logger');
-const { config } = require('../../shared/lib/config');
+} = require("@hashgraph/sdk");
+const { logSuccess, logError, logInfo, logHeader } = require("../../shared/lib/logger");
+const { config } = require("../../shared/lib/config");
 
 /**
  * Deploy an HTS token for testing
@@ -20,7 +20,12 @@ const { config } = require('../../shared/lib/config');
  * @param {number} initialSupply - Initial supply to mint
  * @returns {Promise<{tokenId: string, evmAddress: string}>} Token details
  */
-async function deployHTSToken(tokenName = 'Auto Test Token', tokenSymbol = 'ATT', tokenDecimals = 6, initialSupply = 1_000_000_000) {
+async function deployHTSToken(
+  tokenName = "Auto Test Token",
+  tokenSymbol = "ATT",
+  tokenDecimals = 6,
+  initialSupply = 1_000_000_000,
+) {
   logHeader(`🪙 Deploying HTS Token: ${tokenName} (${tokenSymbol})`);
 
   let client;
@@ -30,18 +35,18 @@ async function deployHTSToken(tokenName = 'Auto Test Token', tokenSymbol = 'ATT'
     client = Client.forTestnet();
 
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
-    const privateKeyStr = format === 'hedera' ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
+    const privateKeyStr = format === "hedera" ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
     const accountId = config.ACCOUNT_ID;
 
     if (!privateKeyStr || !accountId) {
-      throw new Error('HEDERA_PRIVATE_KEY/ETHEREUM_PRIVATE_KEY and ACCOUNT_ID must be set');
+      throw new Error("HEDERA_PRIVATE_KEY/ETHEREUM_PRIVATE_KEY and ACCOUNT_ID must be set");
     }
 
     // Parse operator key based on format
     let operatorKey;
-    if (format === 'ethereum') {
+    if (format === "ethereum") {
       // For Ethereum format, remove 0x prefix if present and use ECDSA
-      const cleanKey = privateKeyStr.startsWith('0x') ? privateKeyStr.slice(2) : privateKeyStr;
+      const cleanKey = privateKeyStr.startsWith("0x") ? privateKeyStr.slice(2) : privateKeyStr;
       operatorKey = PrivateKey.fromStringECDSA(cleanKey);
     } else {
       // For Hedera format, try ED25519 first, then DER
@@ -63,7 +68,7 @@ async function deployHTSToken(tokenName = 'Auto Test Token', tokenSymbol = 'ATT'
     logInfo(`  • Initial Supply: ${initialSupply / Math.pow(10, tokenDecimals)} ${tokenSymbol}`);
 
     // Create the token (no KYC, no Freeze for easier testing)
-    logInfo('Creating HTS token...');
+    logInfo("Creating HTS token...");
     const tokenCreateTx = new TokenCreateTransaction()
       .setTokenName(tokenName)
       .setTokenSymbol(tokenSymbol)
@@ -85,14 +90,14 @@ async function deployHTSToken(tokenName = 'Auto Test Token', tokenSymbol = 'ATT'
     const tokenCreateRx = await tokenCreateSubmit.getReceipt(client);
 
     if (!tokenCreateRx.tokenId) {
-      throw new Error('Token creation failed - no token ID in receipt');
+      throw new Error("Token creation failed - no token ID in receipt");
     }
 
     const tokenId = tokenCreateRx.tokenId;
     logSuccess(`✅ Token created: ${tokenId.toString()}`);
 
     // Mint initial supply
-    logInfo('Minting initial supply...');
+    logInfo("Minting initial supply...");
     const mintTx = new TokenMintTransaction()
       .setTokenId(tokenId)
       .setAmount(initialSupply)
@@ -103,7 +108,7 @@ async function deployHTSToken(tokenName = 'Auto Test Token', tokenSymbol = 'ATT'
     const mintSubmit = await mintSign.execute(client);
     await mintSubmit.getReceipt(client);
 
-    const tokenEvmAddress = '0x' + tokenId.num.toString(16).padStart(40, '0');
+    const tokenEvmAddress = "0x" + tokenId.num.toString(16).padStart(40, "0");
     logSuccess(`✅ Minted ${initialSupply / Math.pow(10, tokenDecimals)} ${tokenSymbol}`);
     logInfo(`Token ID: ${tokenId.toString()}`);
     logInfo(`Token EVM Address: ${tokenEvmAddress}`);
@@ -137,18 +142,18 @@ async function approveTokenAllowance(tokenId, spenderAccountId) {
     client = Client.forTestnet();
 
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
-    const privateKeyStr = format === 'hedera' ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
+    const privateKeyStr = format === "hedera" ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
     const accountId = config.ACCOUNT_ID;
 
     if (!privateKeyStr || !accountId) {
-      throw new Error('HEDERA_PRIVATE_KEY/ETHEREUM_PRIVATE_KEY and ACCOUNT_ID must be set');
+      throw new Error("HEDERA_PRIVATE_KEY/ETHEREUM_PRIVATE_KEY and ACCOUNT_ID must be set");
     }
 
     // Parse operator key based on format
     let operatorKey;
-    if (format === 'ethereum') {
+    if (format === "ethereum") {
       // For Ethereum format, remove 0x prefix if present and use ECDSA
-      const cleanKey = privateKeyStr.startsWith('0x') ? privateKeyStr.slice(2) : privateKeyStr;
+      const cleanKey = privateKeyStr.startsWith("0x") ? privateKeyStr.slice(2) : privateKeyStr;
       operatorKey = PrivateKey.fromStringECDSA(cleanKey);
     } else {
       // For Hedera format, try ED25519 first, then DER
@@ -162,7 +167,7 @@ async function approveTokenAllowance(tokenId, spenderAccountId) {
     const operatorAccountId = AccountId.fromString(accountId);
     client.setOperator(operatorAccountId, operatorKey);
 
-    const token = require('@hashgraph/sdk').TokenId.fromString(tokenId);
+    const token = require("@hashgraph/sdk").TokenId.fromString(tokenId);
     const spender = AccountId.fromString(spenderAccountId);
     const approveAmount = Number.MAX_SAFE_INTEGER; // Use max safe integer instead of int64 max
 
@@ -171,7 +176,7 @@ async function approveTokenAllowance(tokenId, spenderAccountId) {
     logInfo(`Token: ${tokenId}`);
     logInfo(`Amount: ${approveAmount} (max allowance)`);
 
-    logInfo('Submitting allowance approval transaction...');
+    logInfo("Submitting allowance approval transaction...");
     const approveTx = new AccountAllowanceApproveTransaction()
       .approveTokenAllowance(token, operatorAccountId, spender, approveAmount)
       .setMaxTransactionFee(new Hbar(10))

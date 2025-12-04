@@ -1,5 +1,5 @@
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors } = require('../../shared/lib/logger');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors } = require("../../shared/lib/logger");
 
 /**
  * Create an offering in a Primary Market
@@ -26,7 +26,7 @@ async function createOffering(format, marketContractId, bondContractId, params =
     endDate: params.endDate || new Date(Date.now() + 86400000 * 30), // 30 days from now
     deadlineRule: params.deadlineRule !== undefined ? params.deadlineRule : 0, // 0: SOFT, 1: HARD
     price: params.price || "100",
-    priceDecimals: params.priceDecimals !== undefined ? params.priceDecimals : 2
+    priceDecimals: params.priceDecimals !== undefined ? params.priceDecimals : 2,
   };
 
   try {
@@ -40,7 +40,9 @@ async function createOffering(format, marketContractId, bondContractId, params =
     logInfo(`Min Lots: ${createOfferingTransactionRequest.minLots}`);
     logInfo(`Max Lots: ${createOfferingTransactionRequest.maxLots}`);
     logInfo(`Target Lots: ${createOfferingTransactionRequest.targetLots}`);
-    logInfo(`Price: ${createOfferingTransactionRequest.price} (${createOfferingTransactionRequest.priceDecimals} decimals)`);
+    logInfo(
+      `Price: ${createOfferingTransactionRequest.price} (${createOfferingTransactionRequest.priceDecimals} decimals)`,
+    );
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 50)}...`);
 
     return { ...createOfferingTransactionRequest, unsignedTx: response.data.unsignedTx };
@@ -54,5 +56,5 @@ async function createOffering(format, marketContractId, bondContractId, params =
 }
 
 module.exports = {
-  createOffering
+  createOffering,
 };

@@ -12,7 +12,7 @@ import { UnpausePrimaryMarketFactoryTransactionPort } from "./UnpausePrimaryMark
 import { UnpausePrimaryMarketFactoryTransactionRequest } from "./model/UnpausePrimaryMarketFactoryTransactionRequest"
 
 @ApiTags("Primary Market")
-@RestController("")
+@RestController("primary-markets")
 export class UnpausePrimaryMarketFactoryTransactionHttpAdapter implements UnpausePrimaryMarketFactoryTransactionPort {
   constructor(private readonly unpauseTransactionAppService: UnpauseTransactionAppService) {}
 

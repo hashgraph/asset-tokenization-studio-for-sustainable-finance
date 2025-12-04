@@ -30,7 +30,7 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
 
     try {
       await this.seedFactory()
-      await this.seedDefaultUserRole()
+      this.seedDefaultUserRole()
 
       this.logger.log("Database seeding completed successfully")
     } catch (error) {
@@ -39,7 +39,9 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
   }
 
   private async seedFactory() {
-    const atsFactoryEvmAddress = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+    const blockchainListenerContracts = this.configService.get<string>("BLOCKCHAIN_LISTENER_CONTRACTS") ?? ""
+
+    const atsFactoryEvmAddress = blockchainListenerContracts.split(/[;,]/)[0].trim()
 
     if (!atsFactoryEvmAddress) {
       this.logger.warn("BLOCKCHAIN_LISTENER_CONTRACTS not configured, skipping ATS Factory seeding")
@@ -61,7 +63,7 @@ export class DatabaseSeederService implements OnApplicationBootstrap {
     }
   }
 
-  private async seedDefaultUserRole() {
+  private seedDefaultUserRole() {
     return // Add user role seeding logic here if needed (in case you know what roles the factory already has)
   }
 }

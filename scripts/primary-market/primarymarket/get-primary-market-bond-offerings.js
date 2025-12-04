@@ -11,15 +11,20 @@
  * Usage: node scripts/primary-market/primarymarket/get-primary-market-bond-offerings.js
  */
 
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
-const { setupPrimaryMarketWithToken } = require('../shared/setup-service');
-const { createOffering } = require('../offering/offering-service');
-const { waitForOfferingCreation } = require('../offering/create-offering');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { config } = require("../../shared/lib/config");
+const {
+  RESOLVER_CONTRACT_ID,
+  CONFIG_VERSION,
+  BOND_CONTRACT_ID,
+  TREASURY_CONTRACT_ID,
+} = require("../shared/test-config");
+const { setupPrimaryMarketWithToken } = require("../shared/setup-service");
+const { createOffering } = require("../offering/offering-service");
+const { waitForOfferingCreation } = require("../offering/create-offering");
 
 /**
  * Get all offerings for a specific bond in a primary market (paginated)
@@ -34,9 +39,9 @@ const { waitForOfferingCreation } = require('../offering/create-offering');
  */
 async function getPrimaryMarketBondOfferings(marketContractId, bondContractId, options = {}) {
   logHeader(`🔍 Getting Bond Offerings...`);
-  
-  const { page = 1, limit = 10, orderBy = 'createdAt', order = 'desc' } = options;
-  
+
+  const { page = 1, limit = 10, orderBy = "createdAt", order = "desc" } = options;
+
   try {
     const endpoint = `/api/v1/primary-markets/${marketContractId}/bonds/${bondContractId}/offerings`;
     const response = await gatewayClient.get(endpoint, {
@@ -44,10 +49,10 @@ async function getPrimaryMarketBondOfferings(marketContractId, bondContractId, o
         page,
         limit,
         orderBy,
-        order
-      }
+        order,
+      },
     });
-    
+
     logSuccess(`✅ Bond offerings retrieved successfully!`);
     logInfo(`Market Contract ID: ${marketContractId}`);
     logInfo(`Bond Contract ID: ${bondContractId}`);
@@ -55,8 +60,8 @@ async function getPrimaryMarketBondOfferings(marketContractId, bondContractId, o
     logInfo(`Page: ${response.data.page} of ${response.data.totalPages}`);
     logInfo(`Items per Page: ${response.data.limit}`);
     logInfo(`Offerings on this page: ${response.data.items.length}`);
-    log('');
-    
+    log("");
+
     // Display each offering
     response.data.items.forEach((offering, index) => {
       log(`Offering #${index + 1}:`, colors.cyan);
@@ -77,9 +82,9 @@ async function getPrimaryMarketBondOfferings(marketContractId, bondContractId, o
       logInfo(`  Price Decimals: ${offering.priceDecimals}`);
       logInfo(`  Status: ${offering.status}`);
       logInfo(`  Created At: ${offering.createdAt}`);
-      log('');
+      log("");
     });
-    
+
     return response.data;
   } catch (error) {
     logError(`Failed to get bond offerings: ${error.message}`);
@@ -95,35 +100,35 @@ async function getPrimaryMarketBondOfferings(marketContractId, bondContractId, o
  */
 async function main() {
   try {
-    logHeader('🚀 AUTOMATED GET PRIMARY MARKET BOND OFFERINGS SCRIPT');
-    log('=====================================\n', colors.cyan);
-    
+    logHeader("🚀 AUTOMATED GET PRIMARY MARKET BOND OFFERINGS SCRIPT");
+    log("=====================================\n", colors.cyan);
+
     // Validate configuration
     if (!validateSigningConfig()) {
       process.exit(1);
     }
-    
+
     if (!process.env.ACCOUNT_ID) {
-      logError('ACCOUNT_ID not found in environment variables');
-      logInfo('Please set ACCOUNT_ID in your .env file');
+      logError("ACCOUNT_ID not found in environment variables");
+      logInfo("Please set ACCOUNT_ID in your .env file");
       process.exit(1);
     }
-    
+
     // Get format from environment
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
-    
+
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
-    const bondContractId = '0.0.7319744';
+    const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
     logInfo(`Config Version: ${configVersion}`);
     logInfo(`Bond Contract ID: ${bondContractId}`);
     logInfo(`User Account ID: ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Steps 1-3: Setup Primary Market with Token and Role
@@ -133,32 +138,32 @@ async function main() {
       resolverContractId,
       configVersion,
       userAccountId,
-      { name: 'Bond Offerings Token', symbol: 'BOT', decimals: 6, initialSupply: 1_000_000_000_000 }
+      { name: "Bond Offerings Token", symbol: "BOT", decimals: 6, initialSupply: 1_000_000_000_000 },
     );
-    log('');
+    log("");
 
     // ============================================
     // Step 4: Create Offerings for the Bond
     // ============================================
-    logHeader('Step 4: Create Offerings for the Bond');
+    logHeader("Step 4: Create Offerings for the Bond");
     const now = Date.now();
     const numberOfOfferings = 2;
-    
+
     for (let i = 0; i < numberOfOfferings; i++) {
       logInfo(`Creating offering ${i + 1}/${numberOfOfferings}...`);
-      
+
       const offeringParams = {
-        treasuryContractId: '0.0.7319745',
+        treasuryContractId: TREASURY_CONTRACT_ID,
         paymentTokenContractId: tokenId,
-        lotSize: '1000',
-        minLots: '1',
-        maxLots: '50',
-        targetLots: '1000',
+        lotSize: "1000",
+        minLots: "1",
+        maxLots: "50",
+        targetLots: "1000",
         targetQuantityRule: 0,
-        startDate: new Date(now + 60000 + (i * 10000)),
-        endDate: new Date(now + 180000 + (i * 10000)),
+        startDate: new Date(now + 60000 + i * 10000),
+        endDate: new Date(now + 180000 + i * 10000),
         deadlineRule: 0,
-        price: '0',
+        price: "0",
         priceDecimals: 2,
       };
 
@@ -172,30 +177,29 @@ async function main() {
       const createdOffering = await waitForOfferingCreation(marketContractId, bondContractId);
       logSuccess(`✅ Offering ${i + 1} created: ID ${createdOffering.id}`);
     }
-    log('');
+    log("");
 
     // ============================================
     // Step 5: Get Bond Offerings
     // ============================================
-    logHeader('Step 5: Get Bond Offerings');
+    logHeader("Step 5: Get Bond Offerings");
     const bondOfferings = await getPrimaryMarketBondOfferings(marketContractId, bondContractId, {
       page: 1,
       limit: 10,
-      orderBy: 'createdAt',
-      order: 'desc'
+      orderBy: "createdAt",
+      order: "desc",
     });
 
     // ============================================
     // Summary
     // ============================================
-    logHeader('✨ GET PRIMARY MARKET BOND OFFERINGS COMPLETED!');
-    log('=====================================', colors.green);
+    logHeader("✨ GET PRIMARY MARKET BOND OFFERINGS COMPLETED!");
+    log("=====================================", colors.green);
     log(`Primary Market ID: ${marketContractId}`, colors.green);
     log(`Bond Contract ID: ${bondContractId}`, colors.green);
     log(`Total Offerings: ${bondOfferings.total}`, colors.green);
     log(`Offerings Created: ${numberOfOfferings}`, colors.green);
-    log('\n✅ Successfully retrieved bond offerings!\n', colors.green);
-    
+    log("\n✅ Successfully retrieved bond offerings!\n", colors.green);
   } catch (error) {
     logError(`Script execution failed: ${error.message}`);
     if (error.stack) {

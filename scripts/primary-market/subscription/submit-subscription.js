@@ -14,19 +14,23 @@
  * Usage: node scripts/primary-market/subscription/submit-subscription.js
  */
 
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { config } = require('../../shared/lib/config');
-const { RESOLVER_CONTRACT_ID, CONFIG_VERSION } = require('../shared/test-config');
-const { deployAndWaitForPrimaryMarket, grantOfferingCreatorRoleAndWait } = require('../shared/setup-service');
-const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require('../shared/role-service');
-const { createOffering } = require('../offering/offering-service');
-const { waitForOfferingCreation } = require('../offering/create-offering');
-const { deployHTSToken, approveTokenAllowance } = require('../offering/hts-token-service');
-const { deployPrimaryMarket } = require('../primarymarket/deploy-primary-market');
-const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require('../primarymarket/get-latest-primary-market');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { config } = require("../../shared/lib/config");
+const {
+  RESOLVER_CONTRACT_ID,
+  CONFIG_VERSION,
+  BOND_CONTRACT_ID,
+  TREASURY_CONTRACT_ID,
+} = require("../shared/test-config");
+const { grantOfferingCreatorRole, OFFERING_CREATOR_ROLE } = require("../shared/role-service");
+const { createOffering } = require("../offering/offering-service");
+const { waitForOfferingCreation } = require("../offering/create-offering");
+const { deployHTSToken, approveTokenAllowance } = require("../offering/hts-token-service");
+const { deployPrimaryMarket } = require("../primarymarket/deploy-primary-market");
+const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require("../primarymarket/get-latest-primary-market");
 
 /**
  * Get offering details from the database
@@ -53,21 +57,29 @@ async function getOffering(marketContractId, offeringId) {
  * @param {number} intervalMs - Interval between polls in milliseconds (default: 2000)
  * @returns {Promise<Object>} The offering with the expected status
  */
-async function waitForOfferingStatus(marketContractId, offeringId, expectedStatus, maxAttempts = 60, intervalMs = 2000) {
+async function waitForOfferingStatus(
+  marketContractId,
+  offeringId,
+  expectedStatus,
+  maxAttempts = 60,
+  intervalMs = 2000,
+) {
   logInfo(`⏳ Waiting for offering to reach status: ${expectedStatus}...`);
-  
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const offering = await getOffering(marketContractId, offeringId);
-    
+
     if (offering.status === expectedStatus) {
       logSuccess(`✅ Offering status is now: ${expectedStatus}`);
       return offering;
     }
-    
-    logInfo(`Attempt ${attempt}/${maxAttempts}: Current status is ${offering.status}, waiting for ${expectedStatus}...`);
-    await new Promise(resolve => setTimeout(resolve, intervalMs));
+
+    logInfo(
+      `Attempt ${attempt}/${maxAttempts}: Current status is ${offering.status}, waiting for ${expectedStatus}...`,
+    );
+    await new Promise((resolve) => setTimeout(resolve, intervalMs));
   }
-  
+
   throw new Error(`Timeout: Offering did not reach status ${expectedStatus} after ${maxAttempts} attempts`);
 }
 
@@ -81,24 +93,24 @@ async function waitForOfferingStatus(marketContractId, offeringId, expectedStatu
  */
 async function submitSubscription(format, marketContractId, offeringId, lotUnits) {
   logHeader(`📋 Submitting subscription in ${format.toUpperCase()} Primary Market...`);
-  
+
   const subscriptionRequest = {
     format: format,
     accountId: process.env.ACCOUNT_ID,
-    lotUnits: lotUnits.toString()
+    lotUnits: lotUnits.toString(),
   };
-  
+
   try {
-    logInfo('Sending subscription request to gateway...');
+    logInfo("Sending subscription request to gateway...");
     const endpoint = `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`;
     const response = await gatewayClient.post(endpoint, subscriptionRequest);
-    
+
     logSuccess(`${format.toUpperCase()} Subscription transaction created!`);
     logInfo(`Market Contract ID: ${marketContractId}`);
     logInfo(`Offering ID: ${offeringId}`);
     logInfo(`Lot Units: ${lotUnits}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 50)}...`);
-    
+
     return { ...subscriptionRequest, unsignedTx: response.data.unsignedTx };
   } catch (error) {
     logError(`Failed to create subscription transaction: ${error.message}`);
@@ -117,15 +129,18 @@ async function submitSubscription(format, marketContractId, offeringId, lotUnits
  */
 async function getLatestSubscription(marketContractId, offeringId) {
   try {
-    const response = await gatewayClient.get(`/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`, {
-      params: {
-        page: 1,
-        limit: 1,
-        orderBy: 'createdAt',
-        order: 'desc'
-      }
-    });
-    
+    const response = await gatewayClient.get(
+      `/api/v1/primary-markets/${marketContractId}/offerings/${offeringId}/subscriptions`,
+      {
+        params: {
+          page: 1,
+          limit: 1,
+          orderBy: "createdAt",
+          order: "desc",
+        },
+      },
+    );
+
     if (response.data?.items && response.data.items.length > 0) {
       return response.data.items[0];
     }
@@ -144,18 +159,18 @@ async function getLatestSubscription(marketContractId, offeringId) {
  * @returns {Promise<Object>} The created subscription
  */
 async function waitForSubscriptionCreation(marketContractId, offeringId, initialWaitMs = 15000) {
-  logInfo(`⏳ Waiting ${initialWaitMs/1000} seconds for subscription transaction to be processed...`);
-  
+  logInfo(`⏳ Waiting ${initialWaitMs / 1000} seconds for subscription transaction to be processed...`);
+
   // Initial wait to allow transaction to be processed
-  await new Promise(resolve => setTimeout(resolve, initialWaitMs));
-  
+  await new Promise((resolve) => setTimeout(resolve, initialWaitMs));
+
   logInfo(`🔍 Fetching latest subscription from database...`);
   const latestSubscription = await getLatestSubscription(marketContractId, offeringId);
-  
+
   if (!latestSubscription) {
-    throw new Error('No subscription found in database after creation');
+    throw new Error("No subscription found in database after creation");
   }
-  
+
   return latestSubscription;
 }
 
@@ -164,64 +179,64 @@ async function waitForSubscriptionCreation(marketContractId, offeringId, initial
  */
 async function main() {
   try {
-    logHeader('🚀 AUTOMATED SUBMIT SUBSCRIPTION SCRIPT');
-    log('=====================================\n', colors.cyan);
-    
+    logHeader("🚀 AUTOMATED SUBMIT SUBSCRIPTION SCRIPT");
+    log("=====================================\n", colors.cyan);
+
     // Validate configuration
     if (!validateSigningConfig()) {
       process.exit(1);
     }
-    
+
     if (!process.env.ACCOUNT_ID) {
-      logError('ACCOUNT_ID not found in environment variables');
-      logInfo('Please set ACCOUNT_ID in your .env file');
+      logError("ACCOUNT_ID not found in environment variables");
+      logInfo("Please set ACCOUNT_ID in your .env file");
       process.exit(1);
     }
-    
+
     // Get format from environment
     const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
-    
+
     // Configuration parameters
     const resolverContractId = RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
-    const bondContractId = '0.0.7319744'; // Default bond contract ID
+    const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
     logInfo(`Config Version: ${configVersion}`);
     logInfo(`Bond Contract ID: ${bondContractId}`);
     logInfo(`User Account ID: ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 1: Deploy HTS Payment Token
     // ============================================
-    logHeader('Step 1: Deploy HTS Payment Token');
+    logHeader("Step 1: Deploy HTS Payment Token");
     const { tokenId, evmAddress: paymentTokenAddress } = await deployHTSToken(
-      'Subscription Payment Token',
-      'SPT',
+      "Subscription Payment Token",
+      "SPT",
       6,
-      1_000_000_000_000 // 1 million tokens
+      1_000_000_000_000, // 1 million tokens
     );
     const paymentTokenContractId = tokenId; // Use tokenId as contractId
     logSuccess(`✅ HTS Token deployed: ${tokenId}`);
     logSuccess(`✅ Contract ID: ${paymentTokenContractId}`);
     logSuccess(`✅ EVM Address: ${paymentTokenAddress}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 2: Deploy Primary Market
     // ============================================
-    logHeader('Step 2: Deploy Primary Market');
+    logHeader("Step 2: Deploy Primary Market");
     const deploymentTx = await deployPrimaryMarket(format, resolverContractId, configVersion);
 
-    logHeader('🔐 Signing deployment transaction...');
+    logHeader("🔐 Signing deployment transaction...");
     const signedDeploymentTx = await signTransaction(deploymentTx.unsignedTx);
-    logSuccess('Deployment transaction signed successfully!');
+    logSuccess("Deployment transaction signed successfully!");
 
     await publishSignedTransaction(signedDeploymentTx, {
-      description: 'Deploy Primary Market',
+      description: "Deploy Primary Market",
       resolverContractId: resolverContractId,
       configVersion: configVersion,
     });
@@ -231,28 +246,28 @@ async function main() {
     const marketContractId = deployedMarket.contractId;
 
     logSuccess(`✅ Primary Market deployed: ${marketContractId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 3: Approve Token Allowance
     // ============================================
-    logHeader('Step 3: Approve Token Allowance for Primary Market');
+    logHeader("Step 3: Approve Token Allowance for Primary Market");
     await approveTokenAllowance(tokenId, marketContractId);
     logSuccess(`✅ Primary Market can now spend tokens!`);
-    log('');
+    log("");
 
     // ============================================
     // Step 4: Grant OFFERING_CREATOR_ROLE
     // ============================================
-    logHeader('Step 4: Grant OFFERING_CREATOR_ROLE');
+    logHeader("Step 4: Grant OFFERING_CREATOR_ROLE");
     const grantRoleTx = await grantOfferingCreatorRole(format, marketContractId, userAccountId);
 
-    logHeader('🔐 Signing grant role transaction...');
+    logHeader("🔐 Signing grant role transaction...");
     const signedGrantRoleTx = await signTransaction(grantRoleTx.unsignedTx);
-    logSuccess('Grant role transaction signed successfully!');
+    logSuccess("Grant role transaction signed successfully!");
 
     await publishSignedTransaction(signedGrantRoleTx, {
-      description: 'Grant OFFERING_CREATOR_ROLE',
+      description: "Grant OFFERING_CREATOR_ROLE",
       marketContractId: marketContractId,
       userAccountId: userAccountId,
       roleId: OFFERING_CREATOR_ROLE,
@@ -261,25 +276,25 @@ async function main() {
     // Verify role was granted
     await waitForUserRoleUpdate(marketContractId, OFFERING_CREATOR_ROLE, userAccountId, true);
     logSuccess(`✅ OFFERING_CREATOR_ROLE granted to ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 5: Create Offering
     // ============================================
-    logHeader('Step 5: Create Offering');
+    logHeader("Step 5: Create Offering");
     const now = Date.now();
     const offeringParams = {
-      treasuryContractId: '0.0.7319745',
+      treasuryContractId: TREASURY_CONTRACT_ID,
       paymentTokenContractId: tokenId, // Use the dynamically deployed token
-      lotSize: '1000',
-      minLots: '1',
-      maxLots: '50',
-      targetLots: '1000',
+      lotSize: "1000",
+      minLots: "1",
+      maxLots: "50",
+      targetLots: "1000",
       targetQuantityRule: 0, // 0: AT_LEAST
       startDate: new Date(now + 60000), // 60 seconds from now
       endDate: new Date(now + 120000), // 2 minutes from now
       deadlineRule: 0, // 0: SOFT
-      price: '0',
+      price: "0",
       priceDecimals: 2,
     };
 
@@ -289,12 +304,12 @@ async function main() {
 
     const createOfferingTx = await createOffering(format, marketContractId, bondContractId, offeringParams);
 
-    logHeader('🔐 Signing create offering transaction...');
+    logHeader("🔐 Signing create offering transaction...");
     const signedCreateOfferingTx = await signTransaction(createOfferingTx.unsignedTx);
-    logSuccess('Create offering transaction signed successfully!');
+    logSuccess("Create offering transaction signed successfully!");
 
     await publishSignedTransaction(signedCreateOfferingTx, {
-      description: 'Create Offering',
+      description: "Create Offering",
       marketContractId: marketContractId,
       bondContractId: bondContractId,
       lotSize: offeringParams.lotSize,
@@ -308,29 +323,29 @@ async function main() {
     const offeringId = createdOffering.id;
 
     logSuccess(`✅ Offering created: ID ${offeringId}`);
-    log('');
+    log("");
 
     // ============================================
     // Step 6: Wait for offering status to be OPEN
     // ============================================
-    logHeader('Step 6: Wait for offering to be OPEN');
-    await waitForOfferingStatus(marketContractId, offeringId, 'OPEN');
+    logHeader("Step 6: Wait for offering to be OPEN");
+    await waitForOfferingStatus(marketContractId, offeringId, "OPEN");
     logSuccess(`✅ Offering is now OPEN and ready for subscriptions`);
-    log('');
+    log("");
 
     // ============================================
     // Step 7: Submit Subscription
     // ============================================
-    logHeader('Step 7: Submit Subscription');
-    const lotUnits = '10'; // Subscribe to 10 lot units
+    logHeader("Step 7: Submit Subscription");
+    const lotUnits = "10"; // Subscribe to 10 lot units
     const submitSubscriptionTx = await submitSubscription(format, marketContractId, offeringId, lotUnits);
 
-    logHeader('🔐 Signing submit subscription transaction...');
+    logHeader("🔐 Signing submit subscription transaction...");
     const signedSubmitSubscriptionTx = await signTransaction(submitSubscriptionTx.unsignedTx);
-    logSuccess('Submit subscription transaction signed successfully!');
+    logSuccess("Submit subscription transaction signed successfully!");
 
     await publishSignedTransaction(signedSubmitSubscriptionTx, {
-      description: 'Submit Subscription',
+      description: "Submit Subscription",
       marketContractId: marketContractId,
       offeringId: offeringId,
       lotUnits: lotUnits,
@@ -343,13 +358,13 @@ async function main() {
     logSuccess(`✅ Subscription created: ID ${subscriptionId}`);
     logInfo(`Status: ${createdSubscription.status}`);
     logInfo(`Lot Units: ${createdSubscription.lotUnits}`);
-    log('');
+    log("");
 
     // ============================================
     // Summary
     // ============================================
-    logHeader('✨ AUTOMATED SUBMIT SUBSCRIPTION COMPLETED!');
-    log('=====================================', colors.green);
+    logHeader("✨ AUTOMATED SUBMIT SUBSCRIPTION COMPLETED!");
+    log("=====================================", colors.green);
     log(`HTS Token ID: ${tokenId}`, colors.green);
     log(`Payment Token Contract ID: ${paymentTokenContractId}`, colors.green);
     log(`Payment Token EVM Address: ${paymentTokenAddress}`, colors.green);
@@ -357,9 +372,8 @@ async function main() {
     log(`Offering ID: ${offeringId}`, colors.green);
     log(`Subscription ID: ${subscriptionId}`, colors.green);
     log(`Lot Units: ${lotUnits}`, colors.green);
-    log('\n✅ The complete submit subscription flow executed successfully!\n', colors.green);
-    log('🎉 All automated steps completed without manual intervention!\n', colors.green);
-    
+    log("\n✅ The complete submit subscription flow executed successfully!\n", colors.green);
+    log("🎉 All automated steps completed without manual intervention!\n", colors.green);
   } catch (error) {
     logError(`Script execution failed: ${error.message}`);
     if (error.stack) {
