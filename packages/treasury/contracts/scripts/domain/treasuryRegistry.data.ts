@@ -10,10 +10,10 @@
  *
  * Import from '../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-12-03T15:36:03.667Z
+ * Generated: 2025-12-04T14:25:13.308Z
  * Facets: 3
  * Infrastructure: 0
- * Mocks: 5
+ * Mocks: 4
  *
  * @module domain/atsRegistry.data
  */
@@ -32,7 +32,6 @@ import {
   ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
   EnvironmentalAssetMock__factory,
-  IAssetMock__factory,
   PaymentTokenMock__factory,
   PrecompiledMock__factory,
 } from "@contract-types";
@@ -456,7 +455,6 @@ export const TOTAL_STORAGE_WRAPPERS = 3 as const;
 export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
   AssetMock: {
     name: "AssetMock",
-    inheritance: ["IAssetMock"],
     methods: [
       { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
       { name: "fullRedeemAtMaturity", signature: "fullRedeemAtMaturity(address)", selector: "0xd0db5fb2" },
@@ -480,11 +478,6 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       { name: "mint", signature: "mint(address)", selector: "0x6a627842" },
     ],
     factory: (signer) => new EnvironmentalAssetMock__factory(signer),
-  },
-
-  IAssetMock: {
-    name: "IAssetMock",
-    factory: (signer) => new IAssetMock__factory(signer),
   },
 
   PaymentTokenMock: {
@@ -529,7 +522,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 5 as const;
+export const TOTAL_MOCKS = 4 as const;
 
 /**
  * All role identifiers extracted from contracts.
