@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { CancelClearingTransactionRequest } from "./model/CancelClearingTransactionRequest"
 import { Body, Param, Delete } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CancelClearingTransactionPort } from "./CancelClearingTransactionPort"
 import { CancelClearingTransactionAppServiceRequest } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class CancelClearingTransactionHttpAdapter implements CancelClearingTransactionPort {
   constructor(private readonly cancelClearingTransactionAppService: CancelClearingTransactionAppService) {}
 
+  @ApiOperation({ summary: "Cancel a clearing transaction" })
+  @ApiResponse({ status: 200, type: TransactionResponse })
   @Delete(":bondContractId/holders/:holderAccountId/clearings/:clearingId")
   async cancelClearingTransaction(
     @Param("bondContractId") bondContractId: string,

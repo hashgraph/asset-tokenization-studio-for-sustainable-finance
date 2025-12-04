@@ -4,7 +4,9 @@ import { HealthPort } from "@port/health/HealthPort"
 import { Controller, Get } from "@nestjs/common"
 import { HealthCheckService, TypeOrmHealthIndicator, HealthCheck } from "@nestjs/terminus"
 import { BlockchainListenerHealthIndicator } from "@hashgraph/green-bonds-blockchain-listener"
+import { ApiExcludeController } from "@nestjs/swagger"
 
+@ApiExcludeController()
 @Controller("health")
 export class HealthHttpAdapter implements HealthPort {
   constructor(

@@ -2,15 +2,19 @@
 
 import { Inject, RestController, PageResponse, PageOptionsRequest } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param, Query } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetHolderBalancesPort } from "./GetHolderBalancesPort"
 import { GetHolderBalancesQuery } from "@app/bond/getholderbalances/query/GetHolderBalancesQuery"
 import { HolderBalancesResponse } from "./model/HolderBalancesResponse"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class GetHolderBalancesHttpAdapter implements GetHolderBalancesPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
+  @ApiOperation({ summary: "Get holder balances" })
+  @ApiResponse({ status: 200, type: HolderBalancesResponse, isArray: true })
   @Get(":bondContractId/holders/:holderAccountId/balances")
   async getHolderBalances(
     @Param("bondContractId") bondContractId: string,

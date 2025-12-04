@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { ExecuteHoldRequest } from "./model/ExecuteHoldRequest"
 import { Body, Param, ParseIntPipe, Patch } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ExecuteHoldPort } from "./ExecuteHoldPort"
 import { ExecuteHoldAppService } from "@app/bond/transaction/executeholdtransaction/service/ExecuteHoldAppService"
 import { ExecuteHoldAppServiceRequest } from "@app/bond/transaction/executeholdtransaction/service/model/ExecuteHoldAppServiceRequest"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class ExecuteHoldHttpAdapter implements ExecuteHoldPort {
   constructor(private readonly executeHoldAppService: ExecuteHoldAppService) {}
 
+  @ApiOperation({ summary: "Execute a bond hold" })
+  @ApiResponse({ status: 200, type: TransactionResponse })
   @Patch(":bondContractId/holders/:holderAccountId/holds/:holdId")
   async executeHold(
     @Param("bondContractId") bondContractId: string,

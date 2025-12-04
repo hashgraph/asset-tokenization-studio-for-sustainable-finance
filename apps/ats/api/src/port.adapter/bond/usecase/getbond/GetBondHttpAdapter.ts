@@ -2,16 +2,20 @@
 
 import { Inject, RestController } from "@hashgraph/green-bonds-shared-core"
 import { Get, Param } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import type { QueryBus } from "@hashgraph/green-bonds-shared-core"
 import { GetBondPort } from "./GetBondPort"
 import { GetBondResponse } from "./model/GetBondResponse"
 import { GetBondQuery } from "@app/bond/getbond/query/GetBondQuery"
 import { GetBondQueryResponse } from "@app/bond/getbond/query/GetBondQueryResponse"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class GetBondHttpAdapter implements GetBondPort {
   constructor(@Inject() private readonly queryBus: QueryBus) {}
 
+  @ApiOperation({ summary: "Get bond details by contract ID" })
+  @ApiResponse({ status: 200, type: GetBondResponse })
   @Get("/:bondContractId")
   async getBond(@Param("bondContractId") bondContractId: string): Promise<GetBondResponse> {
     const queryResult = await this.queryBus.execute(new GetBondQuery(bondContractId))
