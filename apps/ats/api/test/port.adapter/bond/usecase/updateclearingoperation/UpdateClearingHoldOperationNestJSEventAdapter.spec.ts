@@ -125,7 +125,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -149,7 +149,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       const event = new ClearingOperationApprovedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -184,7 +184,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -220,7 +220,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       for (const clearingId of clearingIds) {
         const event = new ClearingOperationApprovedDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${clearingId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -260,7 +260,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       })
 
       const event = new ClearingOperationApprovedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -306,7 +306,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       })
 
       const event = new ClearingOperationReclaimedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -329,7 +329,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       const event = new ClearingOperationReclaimedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -364,7 +364,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
       })
 
       const event = new ClearingOperationReclaimedDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -400,7 +400,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       for (const clearingId of clearingIds) {
         const event = new ClearingOperationReclaimedDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${clearingId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",

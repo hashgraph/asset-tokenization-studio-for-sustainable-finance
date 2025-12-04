@@ -224,7 +224,6 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
         lockedBalance: "0",
       })
 
-      // eslint-disable-next-line @typescript-eslint/unbound-method
       const converterSpy = jest.mocked(ConverterUtils.getHederaAddressFromEvm)
 
       const event = new RedeemedByPartitionDLTEvent(

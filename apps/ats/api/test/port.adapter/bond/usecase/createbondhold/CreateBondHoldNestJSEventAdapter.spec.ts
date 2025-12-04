@@ -131,7 +131,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+        where: {
+          id: 1,
+          contractId: "0.0.6974684",
+          holderAccountId: "0.0.7654321",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        },
       })
 
       expect(savedBondHold).toBeDefined()
@@ -189,7 +194,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+        where: {
+          id: 1,
+          contractId: "0.0.6974684",
+          holderAccountId: "0.0.7654321",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        },
       })
 
       expect(savedBondHold).toBeDefined()
@@ -269,7 +279,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
         const savedBondHold = await bondHoldRepository.findOne({
-          where: { id: holdId, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+          where: {
+            id: holdId,
+            contractId: "0.0.6974684",
+            holderAccountId: "0.0.7654321",
+            partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+          },
         })
 
         expect(savedBondHold).toBeDefined()
@@ -311,7 +326,12 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
       const savedBondHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: "0x7265736572766564000000000000000000000000000000000000000000000000" },
+        where: {
+          id: 1,
+          contractId: "0.0.6974684",
+          holderAccountId: "0.0.7654321",
+          partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
+        },
       })
 
       expect(savedBondHold).toBeDefined()

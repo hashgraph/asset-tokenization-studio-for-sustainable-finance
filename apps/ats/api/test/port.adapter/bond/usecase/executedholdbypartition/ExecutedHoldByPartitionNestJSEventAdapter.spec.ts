@@ -117,7 +117,12 @@ describe("ExecutedHoldByPartitionNestJSEventAdapter Integration", () => {
 
       // Verify hold was deleted
       const deletedHold = await bondHoldRepository.findOne({
-        where: { id: 1, contractId: CONTRACT_HEDERA_ID, holderAccountId: HOLDER_HEDERA_ID, partition: "0x0000000000000000000000000000000000000000000000000000000000000000" },
+        where: {
+          id: 1,
+          contractId: CONTRACT_HEDERA_ID,
+          holderAccountId: HOLDER_HEDERA_ID,
+          partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
+        },
       })
       expect(deletedHold).toBeNull()
 

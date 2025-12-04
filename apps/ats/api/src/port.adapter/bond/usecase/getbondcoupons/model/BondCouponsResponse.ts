@@ -7,7 +7,7 @@ export class BondCouponsResponse {
   @ApiProperty({
     description: "Array of coupon identifiers",
     example: ["COUP001", "COUP002", "COUP003"],
-    type: [String]
+    type: [String],
   })
   couponIds: string[]
 }
