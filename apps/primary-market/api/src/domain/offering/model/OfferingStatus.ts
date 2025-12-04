@@ -5,9 +5,8 @@ export enum OfferingStatus {
   OPEN = "OPEN",
   CLOSED = "CLOSED",
   EXECUTABLE = "EXECUTABLE",
-  CANCELLABLE = "CANCELLABLE",
-  EXECUTED = "EXECUTED",
-  CANCELLED = "CANCELLED",
+  CANCELLABLE_OR_EXECUTABLE = "CANCELLABLE_OR_EXECUTABLE",
+  PROCESSED = "PROCESSED",
 }
 
 const numericToOfferingStatus: Record<number, OfferingStatus> = {
@@ -15,9 +14,8 @@ const numericToOfferingStatus: Record<number, OfferingStatus> = {
   1: OfferingStatus.OPEN,
   2: OfferingStatus.CLOSED,
   3: OfferingStatus.EXECUTABLE,
-  4: OfferingStatus.CANCELLABLE,
-  5: OfferingStatus.EXECUTED,
-  6: OfferingStatus.CANCELLED,
+  4: OfferingStatus.CANCELLABLE_OR_EXECUTABLE,
+  5: OfferingStatus.PROCESSED,
 }
 
 export function numericStatusToOfferingStatus(numericStatus: number): OfferingStatus {

@@ -12,7 +12,7 @@ import { PausePrimaryMarketFactoryTransactionPort } from "./PausePrimaryMarketFa
 import { PausePrimaryMarketFactoryTransactionRequest } from "./model/PausePrimaryMarketFactoryTransactionRequest"
 
 @ApiTags("Primary Market")
-@RestController("")
+@RestController("primary-markets")
 export class PausePrimaryMarketFactoryTransactionHttpAdapter implements PausePrimaryMarketFactoryTransactionPort {
   constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 

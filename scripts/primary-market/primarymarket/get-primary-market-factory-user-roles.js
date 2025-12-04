@@ -8,8 +8,9 @@
  * Usage: node scripts/primary-market/primarymarket/get-primary-market-factory-user-roles.js
  */
 
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
+const { FACTORY_CONTRACT_ID } = require("../shared/test-config");
 
 /**
  * Get all roles for a specific user in a factory (paginated)
@@ -24,9 +25,9 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../..
  */
 async function getPrimaryMarketFactoryUserRoles(factoryContractId, userAccountId, options = {}) {
   logHeader(`🔍 Getting Factory User Roles...`);
-  
-  const { page = 1, limit = 10, orderBy = 'roleId', order = 'asc' } = options;
-  
+
+  const { page = 1, limit = 10, orderBy = "roleId", order = "asc" } = options;
+
   try {
     const endpoint = `/api/v1/primary-markets/factories/${factoryContractId}/users/${userAccountId}/roles`;
     const response = await gatewayClient.get(endpoint, {
@@ -34,10 +35,10 @@ async function getPrimaryMarketFactoryUserRoles(factoryContractId, userAccountId
         page,
         limit,
         orderBy,
-        order
-      }
+        order,
+      },
     });
-    
+
     logSuccess(`✅ Factory user roles retrieved successfully!`);
     logInfo(`Factory Contract ID: ${factoryContractId}`);
     logInfo(`User Account ID: ${userAccountId}`);
@@ -45,20 +46,20 @@ async function getPrimaryMarketFactoryUserRoles(factoryContractId, userAccountId
     logInfo(`Page: ${response.data.page} of ${response.data.totalPages}`);
     logInfo(`Items per Page: ${response.data.limit}`);
     logInfo(`Roles on this page: ${response.data.items.length}`);
-    log('');
-    
+    log("");
+
     // Display each role
     if (response.data.items.length > 0) {
       response.data.items.forEach((role, index) => {
         log(`Role #${index + 1}:`, colors.cyan);
         logInfo(`  Role ID: ${role.roleId}`);
-        log('');
+        log("");
       });
     } else {
-      logInfo('No roles found for this user. The user may not have any roles assigned in the factory yet.');
-      log('');
+      logInfo("No roles found for this user. The user may not have any roles assigned in the factory yet.");
+      log("");
     }
-    
+
     return response.data;
   } catch (error) {
     logError(`Failed to get factory user roles: ${error.message}`);
@@ -74,22 +75,22 @@ async function getPrimaryMarketFactoryUserRoles(factoryContractId, userAccountId
  */
 async function main() {
   try {
-    logHeader('🚀 GET PRIMARY MARKET FACTORY USER ROLES SCRIPT');
-    log('=====================================\n', colors.cyan);
-    
+    logHeader("🚀 GET PRIMARY MARKET FACTORY USER ROLES SCRIPT");
+    log("=====================================\n", colors.cyan);
+
     if (!process.env.ACCOUNT_ID) {
-      logError('ACCOUNT_ID not found in environment variables');
-      logInfo('Please set ACCOUNT_ID in your .env file');
+      logError("ACCOUNT_ID not found in environment variables");
+      logInfo("Please set ACCOUNT_ID in your .env file");
       process.exit(1);
     }
-    
+
     // Configuration parameters
-    const factoryContractId = '0.0.7352542';
+    const factoryContractId = FACTORY_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;
 
     logInfo(`Factory Contract ID: ${factoryContractId}`);
     logInfo(`User Account ID: ${userAccountId}`);
-    log('');
+    log("");
 
     // ============================================
     // Get Factory User Roles
@@ -97,20 +98,19 @@ async function main() {
     const userRoles = await getPrimaryMarketFactoryUserRoles(factoryContractId, userAccountId, {
       page: 1,
       limit: 10,
-      orderBy: 'roleId',
-      order: 'asc'
+      orderBy: "roleId",
+      order: "asc",
     });
 
     // ============================================
     // Summary
     // ============================================
-    logHeader('✨ GET FACTORY USER ROLES COMPLETED!');
-    log('=====================================', colors.green);
+    logHeader("✨ GET FACTORY USER ROLES COMPLETED!");
+    log("=====================================", colors.green);
     log(`Factory Contract ID: ${factoryContractId}`, colors.green);
     log(`User Account ID: ${userAccountId}`, colors.green);
     log(`Total Roles: ${userRoles.total}`, colors.green);
-    log('\n✅ Successfully retrieved factory user roles!\n', colors.green);
-    
+    log("\n✅ Successfully retrieved factory user roles!\n", colors.green);
   } catch (error) {
     logError(`Script execution failed: ${error.message}`);
     if (error.stack) {

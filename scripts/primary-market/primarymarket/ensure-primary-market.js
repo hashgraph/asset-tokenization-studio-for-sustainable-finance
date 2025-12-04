@@ -1,5 +1,5 @@
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { logSuccess, logError, logInfo, log, colors, logHeader } = require('../../shared/lib/logger');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../../shared/lib/logger");
 
 /**
  * Check if a primary market exists in the database by contract ID
@@ -59,9 +59,8 @@ async function ensurePrimaryMarketExists(contractId, options = {}) {
     logInfo(`- You may need to manually trigger event replay or restart the listener`);
 
     throw new Error(`Primary Market ${contractId} does not exist in database`);
-
   } catch (error) {
-    if (error.message.includes('does not exist in database')) {
+    if (error.message.includes("does not exist in database")) {
       throw error;
     }
     logError(`Failed to check/create primary market: ${error.message}`);
@@ -86,13 +85,13 @@ async function getPrimaryMarketOrLatest(contractId = null) {
   // If no contract ID provided, get the latest one
   logInfo(`No Primary Market specified, fetching latest...`);
   try {
-    const response = await gatewayClient.get('/api/v1/primary-markets', {
+    const response = await gatewayClient.get("/api/v1/primary-markets", {
       params: {
         page: 1,
         limit: 1,
-        orderBy: 'createdAt',
-        order: 'desc'
-      }
+        orderBy: "createdAt",
+        order: "desc",
+      },
     });
 
     if (response.data?.items && response.data.items.length > 0) {
@@ -100,7 +99,7 @@ async function getPrimaryMarketOrLatest(contractId = null) {
       logSuccess(`Found latest primary market: ${latestMarket.contractId}`);
       return latestMarket;
     } else {
-      throw new Error('No primary markets found in the system');
+      throw new Error("No primary markets found in the system");
     }
   } catch (error) {
     logError(`Failed to fetch primary markets: ${error.message}`);
@@ -111,5 +110,5 @@ async function getPrimaryMarketOrLatest(contractId = null) {
 module.exports = {
   getPrimaryMarketByContractId,
   ensurePrimaryMarketExists,
-  getPrimaryMarketOrLatest
+  getPrimaryMarketOrLatest,
 };
