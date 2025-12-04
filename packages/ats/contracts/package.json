@@ -70,9 +70,11 @@
     "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
     "prepack": "npm run build"
   },
+  "dependencies": {
+    "@hashgraph/asset-tokenization-contracts": "2.0.0"
+  },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "2.0.0",
     "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
