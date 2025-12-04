@@ -4,8 +4,8 @@ import { UpdateClearingStatusTransactionRequest } from "./model/UpdateClearingSt
 import { Body, Param, Patch } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { UpdateClearingStatusTransactionPort } from "./UpdateClearingStatusTransactionPort"
-import { UpdateClearingHoldTransactionAppService } from "@app/bond/transaction/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
-import { UpdateClearingTransactionAppServiceRequest } from "@app/bond/transaction/updateclearingholdtransaction/service/model/UpdateClearingTransactionAppServiceRequest"
+import { UpdateClearingHoldTransactionAppService } from "@app/transaction/clearing/updateclearingholdtransaction/service/UpdateClearingHoldTransactionAppService"
+import { UpdateClearingTransactionAppServiceRequest } from "@app/transaction/clearing/updateclearingholdtransaction/service/model/UpdateClearingTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

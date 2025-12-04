@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
-import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
+import { ClearingOperationType } from "@app/transaction/clearing/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 
 export class BuildReclaimClearingTransactionRequest extends BaseTransactionRequest {
   holderAccountId: string

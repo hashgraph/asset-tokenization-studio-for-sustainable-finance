@@ -2,17 +2,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { HeldByPartitionDLTEvent } from "@port/bond/usecase/createbondhold/model/HeldByPartitionDLTEvent"
-import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
+import { HeldByPartitionDLTEvent } from "@port/hold/usecase/createbondhold/model/HeldByPartitionDLTEvent"
+import { BondHoldPersistence } from "@port/hold/persistence/model/BondHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondHoldFoundError } from "@domain/bond/hold/errors/BondHoldFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { BondHoldFoundError } from "@domain/hold/errors/BondHoldFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("CreateBondHoldNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -215,7 +215,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "500",
-        expirationTimestamp: new Date("2024-12-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.9999999",
         toAccountId: "0.0.7654321",
         data: "0x",

@@ -4,8 +4,8 @@ import { ExecuteHoldRequest } from "./model/ExecuteHoldRequest"
 import { Body, Param, ParseIntPipe, Patch } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ExecuteHoldPort } from "./ExecuteHoldPort"
-import { ExecuteHoldAppService } from "@app/bond/transaction/executeholdtransaction/service/ExecuteHoldAppService"
-import { ExecuteHoldAppServiceRequest } from "@app/bond/transaction/executeholdtransaction/service/model/ExecuteHoldAppServiceRequest"
+import { ExecuteHoldAppService } from "@app/transaction/hold/executeholdtransaction/service/ExecuteHoldAppService"
+import { ExecuteHoldAppServiceRequest } from "@app/transaction/hold/executeholdtransaction/service/model/ExecuteHoldAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

@@ -9,7 +9,7 @@ import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { MaxSupplySetDLTEvent } from "@port/bond/usecase/setbondcap/model/MaxSupplySetDLTEvent"
+import { MaxSupplySetDLTEvent } from "@port/cap/usecase/setbondcap/model/MaxSupplySetDLTEvent"
 
 describe("SetBondCapNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"

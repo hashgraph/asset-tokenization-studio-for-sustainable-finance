@@ -9,8 +9,8 @@ import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { BondDocumentPersistence } from "@port/bond/persistence/model/BondDocumentPersistence"
-import { DocumentUpdatedDLTEvent } from "@port/bond/usecase/setbonddocument/model/DocumentUpdatedDLTEvent"
+import { BondDocumentPersistence } from "@port/document/persistence/model/BondDocumentPersistence"
+import { DocumentUpdatedDLTEvent } from "@port/document/usecase/setbonddocument/model/DocumentUpdatedDLTEvent"
 
 describe("SetBondDocumentNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"

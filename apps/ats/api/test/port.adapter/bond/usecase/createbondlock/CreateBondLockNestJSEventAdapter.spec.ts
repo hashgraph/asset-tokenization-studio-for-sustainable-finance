@@ -2,17 +2,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { LockedByPartitionDLTEvent } from "@port/bond/usecase/createbondlock/model/LockedByPartitionDLTEvent"
-import { BondLockPersistence } from "@port/bond/persistence/model/BondLockPersistence"
+import { LockedByPartitionDLTEvent } from "@port/lock/usecase/createbondlock/model/LockedByPartitionDLTEvent"
+import { BondLockPersistence } from "@port/lock/persistence/model/BondLockPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondLockFoundError } from "@domain/bond/lock/errors/BondLockFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { BondLockFoundError } from "@domain/lock/errors/BondLockFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("CreateBondLockNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -139,7 +139,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "500",
-        expirationTimestamp: new Date("2024-12-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         operatorAccountId: "0.0.1234567",
       }
 

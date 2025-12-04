@@ -49,7 +49,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         accountId: "0.0.5466269",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456",
         data: "0x",
       }
@@ -71,7 +71,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         accountId: "0.0.5466269", // Transaction signer (holds their own tokens)
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456", // Who can execute/release the hold
         data: "0x",
       }
@@ -92,7 +92,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456",
         data: "0x",
       }
@@ -113,7 +113,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456",
       }
 
@@ -142,7 +142,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
           format: format,
           accountId: "0.0.5466269",
           amount: "1000",
-          expirationTimestamp: "2025-12-31T23:59:59Z",
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           escrowAccountId: "0.0.123456",
         }
 
@@ -163,7 +163,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
           format: format,
           accountId: "0.0.5466269",
           amount: "1000",
-          expirationTimestamp: "2025-12-31T23:59:59Z",
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           escrowAccountId: "0.0.123456",
         }
 
@@ -181,7 +181,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456",
       }
 
@@ -211,7 +211,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
       const createBondHoldRequest: Partial<CreateBondHoldTransactionRequest> = {
         format: "hedera",
         accountId: "0.0.5466269",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.123456",
       }
 
@@ -244,7 +244,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       await request(app.getHttpServer())
@@ -260,7 +260,7 @@ describe("CreateBondHoldTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "invalid-amount",
-        expirationTimestamp: "2025-12-31T23:59:59Z",
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
         escrowAccountId: "0.0.123456",
       }
 

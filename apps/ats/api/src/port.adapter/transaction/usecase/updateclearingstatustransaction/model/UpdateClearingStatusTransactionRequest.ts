@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 import { BaseTransactionRequest } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsEnum, IsOptional } from "class-validator"
-import { ClearingActionType } from "@app/bond/transaction/updateclearingholdtransaction/service/model/ClearingActionType"
-import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
+import { ClearingActionType } from "@app/transaction/clearing/updateclearingholdtransaction/service/model/ClearingActionType"
+import { ClearingOperationType } from "@app/transaction/clearing/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 import { ApiProperty } from "@nestjs/swagger"
 
 export class UpdateClearingStatusTransactionRequest extends BaseTransactionRequest {

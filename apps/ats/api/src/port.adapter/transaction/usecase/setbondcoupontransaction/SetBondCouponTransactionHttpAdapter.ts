@@ -4,8 +4,8 @@ import { SetBondCouponTransactionRequest } from "./model/SetBondCouponTransactio
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { SetBondCouponTransactionPort } from "./SetBondCouponTransactionPort"
-import { SetBondCouponTransactionAppService } from "@app/bond/transaction/setbondcoupontransaction/service/SetBondCouponTransactionAppService"
-import { SetBondCouponTransactionAppServiceRequest } from "@app/bond/transaction/setbondcoupontransaction/service/model/SetBondCouponTransactionAppServiceRequest"
+import { SetBondCouponTransactionAppService } from "@app/transaction/coupon/setbondcoupontransaction/service/SetBondCouponTransactionAppService"
+import { SetBondCouponTransactionAppServiceRequest } from "@app/transaction/coupon/setbondcoupontransaction/service/model/SetBondCouponTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

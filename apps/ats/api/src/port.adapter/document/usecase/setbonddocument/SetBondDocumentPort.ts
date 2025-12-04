@@ -1,0 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+import { DocumentUpdatedDLTEvent } from "@port/document/usecase/setbonddocument/model/DocumentUpdatedDLTEvent"
+
+export interface SetBondDocumentPort {
+  handle(event: DocumentUpdatedDLTEvent): Promise<void>
+}

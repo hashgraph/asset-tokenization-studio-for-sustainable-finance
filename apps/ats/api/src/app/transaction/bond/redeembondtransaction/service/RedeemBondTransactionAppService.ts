@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+import { Inject, Singleton, TransactionAppServiceResponse } from "@hashgraph/green-bonds-shared-core"
+import type { TransactionBuilderPort } from "@port/transactionbuilder/TransactionBuilderPort"
+import { RedeemBondTransactionAppServiceRequest } from "@app/transaction/bond/redeembondtransaction/service/model/RedeemBondTransactionAppServiceRequest"
+
+@Singleton()
+export class RedeemBondTransactionAppService {
+  constructor(@Inject() private readonly transactionBuilderPort: TransactionBuilderPort) {}
+
+  async execute(request: RedeemBondTransactionAppServiceRequest): Promise<TransactionAppServiceResponse> {
+    return await this.transactionBuilderPort.redeemBondTransaction(request)
+  }
+}

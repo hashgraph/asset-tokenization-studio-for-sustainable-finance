@@ -4,8 +4,8 @@ import { CreateBondLockTransactionRequest } from "./model/CreateBondLockTransact
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateBondLockTransactionPort } from "./CreateBondLockTransactionPort"
-import { CreateBondLockTransactionAppServiceRequest } from "@app/bond/transaction/createbondlocktransaction/service/model/CreateBondLockTransactionAppServiceRequest"
-import { CreateBondLockTransactionAppService } from "@app/bond/transaction/createbondlocktransaction/service/CreateBondLockTransactionAppService"
+import { CreateBondLockTransactionAppServiceRequest } from "@app/transaction/lock/createbondlocktransaction/service/model/CreateBondLockTransactionAppServiceRequest"
+import { CreateBondLockTransactionAppService } from "@app/transaction/lock/createbondlocktransaction/service/CreateBondLockTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

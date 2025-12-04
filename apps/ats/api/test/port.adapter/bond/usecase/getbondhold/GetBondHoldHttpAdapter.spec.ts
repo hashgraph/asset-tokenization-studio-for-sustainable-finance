@@ -3,14 +3,14 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { HttpStatus, INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
+import { BondHoldPersistence } from "@port/hold/persistence/model/BondHoldPersistence"
 
 describe("GetBondHoldHttpAdapter API Integration", () => {
   let app: INestApplication
@@ -149,7 +149,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
         holderAccountId: holder1,
         partition: "default",
         amount: "1000",
-        expirationTimestamp: new Date("2026-06-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.2001",
         toAccountId: "0.0.3001",
         data: "",
@@ -177,7 +177,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
         holderAccountId: holderAccountId,
         partition: "default",
         amount: "1000",
-        expirationTimestamp: new Date("2026-06-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.2001",
         toAccountId: "0.0.3001",
         data: "",
@@ -259,7 +259,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
         holderAccountId: holderAccountId,
         partition: "default",
         amount: "1000",
-        expirationTimestamp: new Date("2026-06-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.2001",
         toAccountId: "0.0.3001",
         data: "",
@@ -353,7 +353,7 @@ describe("GetBondHoldHttpAdapter API Integration", () => {
         holderAccountId: holderAccountId,
         partition: "default",
         amount: largeAmount,
-        expirationTimestamp: new Date("2026-06-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         escrowAccountId: "0.0.2001",
         toAccountId: "0.0.3001",
         data: "",

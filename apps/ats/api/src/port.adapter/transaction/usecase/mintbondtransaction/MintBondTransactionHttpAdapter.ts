@@ -4,8 +4,8 @@ import { MintBondTransactionRequest } from "./model/MintBondTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { MintBondTransactionPort } from "./MintBondTransactionPort"
-import { MintBondTransactionAppServiceRequest } from "@app/bond/transaction/mintbondtransaction/service/model/MintBondTransactionAppServiceRequest"
-import { MintBondTransactionAppService } from "@app/bond/transaction/mintbondtransaction/service/MintBondTransactionAppService"
+import { MintBondTransactionAppServiceRequest } from "@app/transaction/bond/mintbondtransaction/service/model/MintBondTransactionAppServiceRequest"
+import { MintBondTransactionAppService } from "@app/transaction/bond/mintbondtransaction/service/MintBondTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

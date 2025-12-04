@@ -49,13 +49,14 @@ describe("GetUserRoles API Integration", () => {
       const userAccountId = "0.0.12345"
 
       const mockResponse: PageResponse<GetUserRoleResponse> = {
-        data: [
+        items: [
           { roleId: "0x0000000000000000000000000000000000000000000000000000000000000001" },
           { roleId: "0x0000000000000000000000000000000000000000000000000000000000000002" },
         ],
-        totalCount: 2,
+        total: 2,
         page: 0,
-        pageSize: 10,
+        limit: 10,
+        totalPages: 1,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -65,8 +66,8 @@ describe("GetUserRoles API Integration", () => {
         .expect(200)
 
       expect(response.body).toEqual(mockResponse)
-      expect(response.body.data).toHaveLength(2)
-      expect(response.body.data[0]).toHaveProperty("roleId")
+      expect(response.body.items).toHaveLength(2)
+      expect(response.body.items[0]).toHaveProperty("roleId")
     })
 
     it("should handle pagination parameters", async () => {
@@ -74,10 +75,11 @@ describe("GetUserRoles API Integration", () => {
       const userAccountId = "0.0.12345"
 
       const mockResponse: PageResponse<GetUserRoleResponse> = {
-        data: [{ roleId: "0x0000000000000000000000000000000000000000000000000000000000000001" }],
-        totalCount: 10,
+        items: [{ roleId: "0x0000000000000000000000000000000000000000000000000000000000000001" }],
+        total: 10,
         page: 1,
-        pageSize: 5,
+        limit: 5,
+        totalPages: 2,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -88,7 +90,7 @@ describe("GetUserRoles API Integration", () => {
         .expect(200)
 
       expect(response.body.page).toBe(1)
-      expect(response.body.pageSize).toBe(5)
+      expect(response.body.limit).toBe(5)
     })
 
     it("should return empty array when no roles found", async () => {
@@ -96,10 +98,11 @@ describe("GetUserRoles API Integration", () => {
       const userAccountId = "0.0.12345"
 
       const mockResponse: PageResponse<GetUserRoleResponse> = {
-        data: [],
-        totalCount: 0,
+        items: [],
+        total: 0,
         page: 0,
-        pageSize: 10,
+        limit: 10,
+        totalPages: 0,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -108,8 +111,8 @@ describe("GetUserRoles API Integration", () => {
         .get(`/api/v1/ats/bonds/${bondContractId}/users/${userAccountId}/roles`)
         .expect(200)
 
-      expect(response.body.data).toEqual([])
-      expect(response.body.totalCount).toBe(0)
+      expect(response.body.items).toEqual([])
+      expect(response.body.total).toBe(0)
     })
   })
 })

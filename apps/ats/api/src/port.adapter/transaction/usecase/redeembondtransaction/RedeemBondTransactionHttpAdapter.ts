@@ -4,8 +4,8 @@ import { RedeemBondTransactionRequest } from "./model/RedeemBondTransactionReque
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { RedeemBondTransactionPort } from "./RedeemBondTransactionPort"
-import { RedeemBondTransactionAppServiceRequest } from "@app/bond/transaction/redeembondtransaction/service/model/RedeemBondTransactionAppServiceRequest"
-import { RedeemBondTransactionAppService } from "@app/bond/transaction/redeembondtransaction/service/RedeemBondTransactionAppService"
+import { RedeemBondTransactionAppServiceRequest } from "@app/transaction/bond/redeembondtransaction/service/model/RedeemBondTransactionAppServiceRequest"
+import { RedeemBondTransactionAppService } from "@app/transaction/bond/redeembondtransaction/service/RedeemBondTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")
