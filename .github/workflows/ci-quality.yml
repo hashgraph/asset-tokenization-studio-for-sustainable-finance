@@ -1,0 +1,104 @@
+name: CI - Code Quality
+
+on:
+  pull_request:
+    # branches: [develop, main]
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [develop, main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  quality-checks:
+    name: Code Quality Checks
+    runs-on: green-bond-linux-medium
+    timeout-minutes: 20
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache npm dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Full quality checks on push to main/develop branches
+      - name: Check code formatting (Full)
+        if: github.event_name == 'push'
+        run: npm run format:check
+        continue-on-error: false
+
+      - name: Lint TypeScript (Full)
+        if: github.event_name == 'push'
+        run: npm run lint:js
+        continue-on-error: false
+
+      - name: Lint Solidity contracts (Full)
+        if: github.event_name == 'push'
+        run: npm run contracts:lint
+        continue-on-error: false
+
+      # Changed-file quality checks on pull requests
+      - name: Check formatting (Changed Files)
+        if: github.event_name == 'pull_request'
+        run: npm run format:changed:check
+        continue-on-error: false
+
+      - name: Lint TypeScript (Changed Files)
+        if: github.event_name == 'pull_request'
+        run: npm run lint:js:changed
+        continue-on-error: false
+
+      - name: Lint Solidity (Changed Files)
+        if: github.event_name == 'pull_request'
+        run: npm run lint:sol:changed
+        continue-on-error: false
+
+      - name: Quality Check Summary
+        if: always()
+        run: |
+          echo "### Code Quality Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "push" ]; then
+            echo "✅ All quality checks passed! (Full scan)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Mode:** Full repository scan" >> $GITHUB_STEP_SUMMARY
+            echo "**Trigger:** Push to ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ All quality checks passed! (Changed files only)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Mode:** Changed files only (vs ${{ github.base_ref }})" >> $GITHUB_STEP_SUMMARY
+            echo "**Trigger:** Pull request" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Checks performed:**" >> $GITHUB_STEP_SUMMARY
+          echo "- ESLint (TypeScript/JavaScript)" >> $GITHUB_STEP_SUMMARY
+          echo "- Prettier (Code formatting)" >> $GITHUB_STEP_SUMMARY
+          echo "- Solhint (Solidity linting)" >> $GITHUB_STEP_SUMMARY

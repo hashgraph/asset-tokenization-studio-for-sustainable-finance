@@ -6,6 +6,9 @@ const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
+/**
+ * Create a payment token
+ */
 async function createPaymentToken() {
   const client = Client.forTestnet();
   const operatorId = AccountId.fromString(process.env.ACCOUNT_ID);
@@ -40,6 +43,11 @@ async function createPaymentToken() {
   return [tokenId, paymentTokenEvmAddress];
 }
 
+/**
+ * Transfer a payment token to the treasury
+ * @param {string} paymentTokenId - The payment token contract ID
+ * @param {string} treasuryContractId - Treasury contract ID
+ */
 async function transferPaymentToken(paymentTokenId, treasuryContractId) {
   log(`\n💱 Transferring payment token ${paymentTokenId} to treasury ${treasuryContractId}...`, colors.yellow);
   const client = Client.forTestnet();
@@ -151,7 +159,7 @@ async function verifyTreasuryPaymentTokenUpdate(treasuryContractId, withDissocia
         }
       };
 
-      const treasury = await deployBondWaitTreasuryAndApplyRoles(undefined, overridePaymentTokenAddress);
+      const treasury = await deployBondWaitTreasuryAndApplyRoles(overridePaymentTokenAddress);
 
       contractId = treasury.contractId;
       logSuccess(`Treasury deployed: ${contractId}`);
@@ -200,6 +208,7 @@ if (require.main === module) {
 
 module.exports = {
   createPaymentToken,
+  transferPaymentToken,
   updatePaymentToken,
   waitForPaymentTokenUpdate,
   verifyTreasuryPaymentTokenUpdate

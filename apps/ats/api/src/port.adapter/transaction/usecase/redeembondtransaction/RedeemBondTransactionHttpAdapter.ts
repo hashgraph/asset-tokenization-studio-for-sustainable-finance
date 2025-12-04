@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { RedeemBondTransactionRequest } from "./model/RedeemBondTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { RedeemBondTransactionPort } from "./RedeemBondTransactionPort"
 import { RedeemBondTransactionAppServiceRequest } from "@app/bond/transaction/redeembondtransaction/service/model/RedeemBondTransactionAppServiceRequest"
 import { RedeemBondTransactionAppService } from "@app/bond/transaction/redeembondtransaction/service/RedeemBondTransactionAppService"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class RedeemBondTransactionHttpAdapter implements RedeemBondTransactionPort {
   constructor(private readonly redeemBondTransactionAppService: RedeemBondTransactionAppService) {}
 
+  @ApiOperation({ summary: "Redeem bond tokens" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/holders/redeem")
   async redeemBondTransaction(
     @Param("bondContractId") bondContractId: string,

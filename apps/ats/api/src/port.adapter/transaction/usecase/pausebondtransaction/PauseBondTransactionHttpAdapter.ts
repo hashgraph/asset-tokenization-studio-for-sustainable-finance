@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import {
   PauseTransactionAppService,
   PauseTransactionAppServiceRequest,
@@ -11,10 +12,13 @@ import {
 import { PauseBondTransactionPort } from "@port/transaction/usecase/pausebondtransaction/PauseBondTransactionPort"
 import { PauseBondTransactionRequest } from "@port/transaction/usecase/pausebondtransaction/model/PauseBondTransactionRequest"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class PauseBondTransactionHttpAdapter implements PauseBondTransactionPort {
   constructor(private readonly pauseTransactionAppService: PauseTransactionAppService) {}
 
+  @ApiOperation({ summary: "Pause a bond" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/pause")
   async pauseBond(
     @Param("bondContractId") bondContractId: string,
