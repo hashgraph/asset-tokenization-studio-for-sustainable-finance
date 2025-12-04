@@ -1,12 +1,16 @@
 const { Client, AccountId, PrivateKey, TokenMintTransaction } = require('@hashgraph/sdk');
 const { verifyAddEnvironmentalAssetToken } = require('./verify-add-environmental-asset-token')
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { gatewayClient } = require('../../shared/lib/gateway-client');
 const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
 const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
+/**
+ * Mint an environmental asset token
+ * @param {string} environmentalAssetTokenId - An environmental asset token contract ID
+ */
 async function mintEnvironmentalAssetToken(environmentalAssetTokenId) {
   const client = Client.forTestnet();
   const operatorId = AccountId.fromString(process.env.ACCOUNT_ID);
@@ -42,7 +46,6 @@ async function transferEnvironmentalAssetTokenToTreasury(treasuryContractId, env
   };
 
   // Step 1: Get unsigned transaction from API
-  gatewayClient.baseURL = "http://localhost:3003";
   const response = await gatewayClient.post(
     `/api/v1/environmental-assets/${environmentalAssetTokenContractId}/treasuries/${treasuryContractId}/transfer`,
     requestBody
@@ -66,6 +69,8 @@ async function transferEnvironmentalAssetTokenToTreasury(treasuryContractId, env
  * Wait for environmental asset token added (with retries)
  * @param {string} treasuryContractId - Treasury contract ID
  * @param {string} expectedEnvironmentalAssetTokenId - Expected environmental asset token contract ID
+ * @param {string} expectedEnvironmentalAssetTokenSerial - Expected environmental asset token serial number
+ * @param {string} sourceAccountId - The account transferring the environmental asset token
  * @param {number} maxRetries - Maximum number of retries
  * @param {number} retryInterval - Interval between retries in milliseconds
  */

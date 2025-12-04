@@ -1,5 +1,5 @@
 const { Client, AccountId, PrivateKey, TokenWipeTransaction } = require('@hashgraph/sdk');
-const { deployBondWaitTreasuryAndApplyRoles, getTreasuryByContractId } = require('../verify-treasury-persistence');
+const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
 const { verifyAddEnvironmentalAssetToken } = require('./verify-add-environmental-asset-token')
 const { verifyDeleteEnvironmentalAssetToken } = require('./verify-delete-environmental-asset-token')
 const { gatewayClient } = require('../../shared/lib/gateway-client');
@@ -8,6 +8,12 @@ const { config } = require('../../shared/lib/config');
 const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
 const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
 
+/**
+ * Wipe an environmental asset token from the treasury account
+ * @param {string} environmentalAssetTokenId - An environmental asset token contract ID
+ * @param {number} serialNumber - An environmental asset token serial number
+ * @param {string} treasuryContractId - Treasury contract ID
+ */
 async function wipeEnvironmentalAssetToken(environmentalAssetTokenId, serialNumber, treasuryContractId) {
   log(`\n💱 Wiping environmental asset token ${environmentalAssetTokenId} - ${serialNumber} for treasury ${treasuryContractId}...`, colors.yellow);
   const client = Client.forTestnet();
