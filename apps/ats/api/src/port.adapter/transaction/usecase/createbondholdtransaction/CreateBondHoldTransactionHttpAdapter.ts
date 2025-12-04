@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { CreateBondHoldTransactionRequest } from "./model/CreateBondHoldTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateBondHoldTransactionPort } from "./CreateBondHoldTransactionPort"
 import { CreateBondHoldTransactionAppServiceRequest } from "@app/bond/transaction/createbondholdtransaction/service/model/CreateBondHoldTransactionAppServiceRequest"
 import { CreateBondHoldTransactionAppService } from "@app/bond/transaction/createbondholdtransaction/service/CreateBondHoldTransactionAppService"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class CreateBondHoldTransactionHttpAdapter implements CreateBondHoldTransactionPort {
   constructor(private readonly createBondHoldTransactionAppService: CreateBondHoldTransactionAppService) {}
 
+  @ApiOperation({ summary: "Create a bond hold" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/holders/:holderAccountId/holds")
   async createBondHoldTransaction(
     @Param("bondContractId") bondContractId: string,

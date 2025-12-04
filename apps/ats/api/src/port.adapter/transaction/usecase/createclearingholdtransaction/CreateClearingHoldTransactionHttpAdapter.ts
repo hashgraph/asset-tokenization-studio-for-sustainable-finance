@@ -2,14 +2,18 @@
 import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { CreateClearingHoldTransactionRequest } from "./model/CreateClearingHoldTransactionRequest"
 import { Body, Param, Post } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateClearingHoldTransactionPort } from "./CreateClearingHoldTransactionPort"
 import { CreateClearingHoldTransactionAppServiceRequest } from "@app/bond/transaction/createclearingholdtransaction/service/model/CreateClearingHoldTransactionAppServiceRequest"
 import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
 
+@ApiTags("ATS")
 @RestController("bonds")
 export class CreateClearingHoldTransactionHttpAdapter implements CreateClearingHoldTransactionPort {
   constructor(private readonly createClearingHoldTransactionAppService: CreateClearingHoldTransactionAppService) {}
 
+  @ApiOperation({ summary: "Create a clearing hold transaction" })
+  @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/holders/:holderAccountId/clearings/hold")
   async createClearingTransaction(
     @Param("bondContractId") bondContractId: string,
