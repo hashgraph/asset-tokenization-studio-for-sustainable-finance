@@ -7,6 +7,8 @@ export class ApiDocService {
   async buildApiDoc(): Promise<OpenAPIObject> {
     const routes = Array.from(new Set(process.env.ROUTES.split(",")))
     const apiDocs = await Promise.all(routes.map((route) => this.getApiDoc(route)))
+    const apiKeyHeaderName = process.env.API_KEY_HEADER_NAME ?? "X-API-Key"
+
     return {
       info: {
         title: "Green Bonds API",
@@ -15,7 +17,18 @@ export class ApiDocService {
       },
       openapi: apiDocs[0].openapi,
       paths: Object.assign({}, ...apiDocs.map((apiDoc) => apiDoc.paths)),
-      components: { schemas: Object.assign({}, ...apiDocs.map((apiDoc) => apiDoc.components.schemas)) },
+      components: {
+        schemas: Object.assign({}, ...apiDocs.map((apiDoc) => apiDoc.components.schemas)),
+        securitySchemes: {
+          ApiKeyAuth: {
+            type: "apiKey",
+            in: "header",
+            name: apiKeyHeaderName,
+            description: "API key for authentication. Use the key provided in your environment configuration.",
+          },
+        },
+      },
+      security: [{ ApiKeyAuth: [] }],
     }
   }
 
