@@ -6,10 +6,10 @@ import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { Repository } from "typeorm"
-import { BondProceedRecipientPersistence } from "@port/bond/persistence/model/BondProceedRecipientPersistence"
+import { BondProceedRecipientPersistence } from "@port/proceedrecipient/persistence/model/BondProceedRecipientPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ProceedRecipientRemovedDLTEvent } from "@port/bond/usecase/removeproceedrecipient/model/ProceedRecipientRemovedDLTEvent"
-import { RemoveProceedRecipientNestJSEventAdapter } from "@port/bond/usecase/removeproceedrecipient/RemoveProceedRecipientNestJSEventAdapter"
+import { ProceedRecipientRemovedDLTEvent } from "@port/proceedrecipient/usecase/removeproceedrecipient/model/ProceedRecipientRemovedDLTEvent"
+import { RemoveProceedRecipientNestJSEventAdapter } from "@port/proceedrecipient/usecase/removeproceedrecipient/RemoveProceedRecipientNestJSEventAdapter"
 
 describe("RemoveProceedRecipientNestJSEventAdapter", () => {
   let app: INestApplication

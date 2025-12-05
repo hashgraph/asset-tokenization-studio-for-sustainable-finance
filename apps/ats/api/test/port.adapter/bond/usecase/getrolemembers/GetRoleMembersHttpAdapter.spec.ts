@@ -49,10 +49,11 @@ describe("GetRoleMembers API Integration", () => {
       const roleId = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
       const mockResponse: PageResponse<GetRoleMemberResponse> = {
-        data: [{ userAccountId: "0.0.12345" }, { userAccountId: "0.0.12346" }],
-        totalCount: 2,
+        items: [{ userAccountId: "0.0.12345" }, { userAccountId: "0.0.12346" }],
+        total: 2,
         page: 0,
-        pageSize: 10,
+        limit: 10,
+        totalPages: 1,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -62,8 +63,8 @@ describe("GetRoleMembers API Integration", () => {
         .expect(200)
 
       expect(response.body).toEqual(mockResponse)
-      expect(response.body.data).toHaveLength(2)
-      expect(response.body.data[0]).toHaveProperty("userAccountId")
+      expect(response.body.items).toHaveLength(2)
+      expect(response.body.items[0]).toHaveProperty("userAccountId")
     })
 
     it("should handle pagination parameters", async () => {
@@ -71,10 +72,11 @@ describe("GetRoleMembers API Integration", () => {
       const roleId = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
       const mockResponse: PageResponse<GetRoleMemberResponse> = {
-        data: [{ userAccountId: "0.0.12345" }],
-        totalCount: 10,
+        items: [{ userAccountId: "0.0.12345" }],
+        total: 10,
         page: 1,
-        pageSize: 5,
+        limit: 5,
+        totalPages: 2,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -85,7 +87,7 @@ describe("GetRoleMembers API Integration", () => {
         .expect(200)
 
       expect(response.body.page).toBe(1)
-      expect(response.body.pageSize).toBe(5)
+      expect(response.body.limit).toBe(5)
     })
 
     it("should return empty array when no members found", async () => {
@@ -93,10 +95,11 @@ describe("GetRoleMembers API Integration", () => {
       const roleId = "0x0000000000000000000000000000000000000000000000000000000000000001"
 
       const mockResponse: PageResponse<GetRoleMemberResponse> = {
-        data: [],
-        totalCount: 0,
+        items: [],
+        total: 0,
         page: 0,
-        pageSize: 10,
+        limit: 10,
+        totalPages: 0,
       }
 
       jest.spyOn(queryBus, "execute").mockResolvedValue(mockResponse)
@@ -105,8 +108,8 @@ describe("GetRoleMembers API Integration", () => {
         .get(`/api/v1/ats/bonds/${bondContractId}/roles/${roleId}/members`)
         .expect(200)
 
-      expect(response.body.data).toEqual([])
-      expect(response.body.totalCount).toBe(0)
+      expect(response.body.items).toEqual([])
+      expect(response.body.total).toBe(0)
     })
   })
 })

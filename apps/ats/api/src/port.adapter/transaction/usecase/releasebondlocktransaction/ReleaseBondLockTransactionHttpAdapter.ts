@@ -4,8 +4,8 @@ import { ReleaseBondLockTransactionRequest } from "./model/ReleaseBondLockTransa
 import { Body, Delete, Param } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ReleaseBondLockTransactionPort } from "./ReleaseBondLockTransactionPort"
-import { ReleaseBondLockTransactionAppServiceRequest } from "@app/bond/transaction/releasebondlocktransaction/service/model/ReleaseBondLockTransactionAppServiceRequest"
-import { ReleaseBondLockTransactionAppService } from "@app/bond/transaction/releasebondlocktransaction/service/ReleaseBondLockTransactionAppService"
+import { ReleaseBondLockTransactionAppServiceRequest } from "@app/transaction/lock/releasebondlocktransaction/service/model/ReleaseBondLockTransactionAppServiceRequest"
+import { ReleaseBondLockTransactionAppService } from "@app/transaction/lock/releasebondlocktransaction/service/ReleaseBondLockTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

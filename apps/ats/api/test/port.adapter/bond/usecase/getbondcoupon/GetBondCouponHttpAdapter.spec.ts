@@ -3,14 +3,14 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { HttpStatus, INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondCouponPersistence } from "@port/bond/persistence/model/BondCouponPersistence"
+import { BondCouponPersistence } from "@port/coupon/persistence/model/BondCouponPersistence"
 
 describe("GetBondCouponHttpAdapter API Integration", () => {
   let app: INestApplication

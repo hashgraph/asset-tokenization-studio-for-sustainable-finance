@@ -49,7 +49,7 @@ describe("CreateBondLockTransaction API Integration", () => {
         accountId: "0.0.5466269",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       const response = await request(app.getHttpServer())
@@ -68,7 +68,7 @@ describe("CreateBondLockTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       const response = await request(app.getHttpServer())
@@ -96,7 +96,7 @@ describe("CreateBondLockTransaction API Integration", () => {
           format: format,
           accountId: "0.0.5466269",
           amount: "1000",
-          expirationTimestamp: new Date(1735689600000),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         }
 
         await request(app.getHttpServer())
@@ -116,7 +116,7 @@ describe("CreateBondLockTransaction API Integration", () => {
           format: format,
           accountId: "0.0.5466269",
           amount: "1000",
-          expirationTimestamp: new Date(1735689600000),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         }
 
         await request(app.getHttpServer())
@@ -133,7 +133,7 @@ describe("CreateBondLockTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       await request(app.getHttpServer())
@@ -149,7 +149,7 @@ describe("CreateBondLockTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       await request(app.getHttpServer())
@@ -178,7 +178,7 @@ describe("CreateBondLockTransaction API Integration", () => {
       const createBondLockRequest: Partial<CreateBondLockTransactionRequest> = {
         format: "hedera",
         accountId: "0.0.5466269",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       await request(app.getHttpServer())
@@ -209,7 +209,7 @@ describe("CreateBondLockTransaction API Integration", () => {
         format: "hedera",
         accountId: "0.0.5466269",
         amount: "invalid-amount",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       }
 
       await request(app.getHttpServer())

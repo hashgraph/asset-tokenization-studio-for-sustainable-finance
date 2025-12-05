@@ -2,17 +2,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { RedeemedByPartitionDLTEvent } from "@port/bond/usecase/redeembondholderbalance/model/RedeemedByPartitionDLTEvent"
+import { RedeemedByPartitionDLTEvent } from "@port/holderbalance/usecase/redeembondholderbalance/model/RedeemedByPartitionDLTEvent"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
-import { BondHolderBalanceNotFoundError } from "@domain/bond/holderbalance/errors/BondHolderBalanceNotFoundError"
-import { InsufficientBondHolderBalanceError } from "@domain/bond/holderbalance/errors/InsufficientBondHolderBalanceError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
+import { BondHolderBalanceNotFoundError } from "@domain/holderbalance/errors/BondHolderBalanceNotFoundError"
+import { InsufficientBondHolderBalanceError } from "@domain/holderbalance/errors/InsufficientBondHolderBalanceError"
 
 describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
   let app: INestApplication

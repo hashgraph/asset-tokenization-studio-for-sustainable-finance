@@ -144,10 +144,12 @@ describe("GetEnvironmentalAssetHoldings API Integration", () => {
       })
 
       const createdTokens: EnvironmentalAssetTokenPersistence[] = []
+      const baseTime = new Date("2025-01-01T00:00:00.000Z")
       for (let i = 1; i <= 5; i++) {
         const token = await environmentalAssetTokenRepository.save({
           environmentalAssetId: environmentalAsset.id,
           tokenId: i,
+          createdAt: new Date(baseTime.getTime() + i * 1000), // Ensure unique timestamps
         })
         createdTokens.push(token)
       }

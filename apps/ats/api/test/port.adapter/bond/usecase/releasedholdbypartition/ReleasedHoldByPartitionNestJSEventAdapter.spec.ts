@@ -2,15 +2,15 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
-import { BondHoldPersistence } from "@port/bond/persistence/model/BondHoldPersistence"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { BondHoldPersistence } from "@port/hold/persistence/model/BondHoldPersistence"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { HoldByPartitionReleasedDLTEvent } from "@port/bond/usecase/releasedholdbypartition/model/HoldByPartitionReleasedDLTEvent"
+import { HoldByPartitionReleasedDLTEvent } from "@port/hold/usecase/releasedholdbypartition/model/HoldByPartitionReleasedDLTEvent"
 
 describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
   let app: INestApplication

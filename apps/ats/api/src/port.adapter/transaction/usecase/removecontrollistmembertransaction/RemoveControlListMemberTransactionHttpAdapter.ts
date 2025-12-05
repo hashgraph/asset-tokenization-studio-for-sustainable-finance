@@ -4,8 +4,8 @@ import { RemoveControlListMemberTransactionRequest } from "./model/RemoveControl
 import { Body, Delete, Param } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { RemoveControlListMemberTransactionPort } from "./RemoveControlListMemberTransactionPort"
-import { RemoveControlListMemberTransactionAppService } from "@app/bond/transaction/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
-import { RemoveControlListMemberTransactionAppServiceRequest } from "@app/bond/transaction/removecontrollistmembertransaction/service/model/RemoveControlListMemberTransactionAppServiceRequest"
+import { RemoveControlListMemberTransactionAppService } from "@app/transaction/controlllist/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
+import { RemoveControlListMemberTransactionAppServiceRequest } from "@app/transaction/controlllist/removecontrollistmembertransaction/service/model/RemoveControlListMemberTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

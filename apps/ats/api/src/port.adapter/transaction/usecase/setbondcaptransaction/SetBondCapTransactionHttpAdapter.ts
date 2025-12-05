@@ -4,8 +4,8 @@ import { SetBondCapTransactionRequest } from "./model/SetBondCapTransactionReque
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { SetBondCapTransactionPort } from "./SetBondCapTransactionPort"
-import { SetBondCapTransactionAppService } from "@app/bond/transaction/setbondcaptransaction/service/SetBondCapTransactionAppService"
-import { SetBondCapTransactionAppServiceRequest } from "@app/bond/transaction/setbondcaptransaction/service/model/SetBondCapTransactionAppServiceRequest"
+import { SetBondCapTransactionAppService } from "@app/transaction/cap/setbondcaptransaction/service/SetBondCapTransactionAppService"
+import { SetBondCapTransactionAppServiceRequest } from "@app/transaction/cap/setbondcaptransaction/service/model/SetBondCapTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

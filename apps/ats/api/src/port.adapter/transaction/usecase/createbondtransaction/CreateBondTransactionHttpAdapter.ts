@@ -3,8 +3,8 @@ import { ConverterUtils, RestController, TransactionResponse } from "@hashgraph/
 import { CreateBondTransactionRequest } from "./model/CreateBondTransactionRequest"
 import { Body, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
-import { CreateBondTransactionAppService } from "@app/bond/transaction/createbondtransaction/service/CreateBondTransactionAppService"
-import { CreateBondTransactionAppServiceRequest } from "@app/bond/transaction/createbondtransaction/service/model/CreateBondTransactionAppServiceRequest"
+import { CreateBondTransactionAppService } from "@app/transaction/bond/createbondtransaction/service/CreateBondTransactionAppService"
+import { CreateBondTransactionAppServiceRequest } from "@app/transaction/bond/createbondtransaction/service/model/CreateBondTransactionAppServiceRequest"
 import { CreateBondTransactionPort } from "./CreateBondTransactionPort"
 import { ConfigService } from "@nestjs/config"
 

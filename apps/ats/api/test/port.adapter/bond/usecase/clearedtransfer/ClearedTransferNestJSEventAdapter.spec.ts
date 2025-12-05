@@ -2,18 +2,18 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ClearedTransferByPartitionDLTEvent } from "@port/bond/usecase/clearedtransfer/model/ClearedTransferByPartitionDLTEvent"
-import { BondClearingTransferPersistence } from "@port/bond/persistence/model/BondClearingTransferPersistence"
+import { ClearedTransferByPartitionDLTEvent } from "@port/clearing/usecase/clearedtransfer/model/ClearedTransferByPartitionDLTEvent"
+import { BondClearingTransferPersistence } from "@port/clearing/persistence/model/BondClearingTransferPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingTransferFoundError } from "@domain/bond/clearing/errors/ClearingTransferFoundError"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { ClearingTransferFoundError } from "@domain/clearing/errors/ClearingTransferFoundError"
+import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("ClearedTransferNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -102,9 +102,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
         "0.0.1234567",
         "0.0.7654321",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
-        1735689600,
+        "1735689600",
         "0.0.8888888",
         "0x1234",
         "0x5678",
@@ -162,9 +162,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
         "0.0.1234567",
         "0.0.7654321",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
-        1735689600,
+        "1735689600",
         "0.0.8888888",
         "0x1234",
         "0x5678",
@@ -195,9 +195,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
           "0.0.1234567",
           "0.0.7654321",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
+          clearingId.toString(),
           `${1000 * clearingId}`,
-          1735689600,
+          "1735689600",
           "0.0.8888888",
           "0x1234",
           "0x5678",
@@ -236,9 +236,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
         "0.0.1234567",
         "0.0.7654321",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
-        1735689600,
+        "1735689600",
         "0.0.8888888",
         "0x1234",
         "0x5678",
@@ -279,9 +279,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
         "0.0.1234567",
         "0.0.7654321",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         "1000",
-        1735689600,
+        "1735689600",
         "0.0.8888888",
         "0x1234",
         "0x5678",
@@ -332,9 +332,9 @@ describe("ClearedTransferNestJSEventAdapter Integration", () => {
           "0.0.1234567",
           "0.0.7654321",
           partitions[i],
-          i + 1,
+          (i + 1).toString(),
           "1000",
-          1735689600,
+          "1735689600",
           "0.0.8888888",
           "0x1234",
           "0x5678",

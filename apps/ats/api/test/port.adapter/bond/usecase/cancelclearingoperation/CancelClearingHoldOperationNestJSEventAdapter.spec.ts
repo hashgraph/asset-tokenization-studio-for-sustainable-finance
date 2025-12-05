@@ -2,18 +2,18 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ClearingOperationCanceledDLTEvent } from "@port/bond/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
-import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
+import { ClearingOperationCanceledDLTEvent } from "@port/clearing/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
+import { BondClearingHoldPersistence } from "@port/clearing/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
-import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { ClearingNotFoundError } from "@domain/clearing/errors/ClearingNotFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -208,7 +208,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       const clearingIds = ["1", "2", "3"]
 
       for (const clearingId of clearingIds) {
-        await createTestClearing(clearingId, ClearingStatus.PENDING)
+        await createTestClearing(Number(clearingId), ClearingStatus.PENDING)
       }
 
       for (const clearingId of clearingIds) {
@@ -225,7 +225,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ClearingOperationCanceledDLTEvent.name)
 
         const canceledClearing = await clearingHoldRepository.findOne({
-          where: { id: clearingId, bondContractId: "0.0.6974684" },
+          where: { id: Number(clearingId), bondContractId: "0.0.6974684" },
         })
 
         expect(canceledClearing).toBeNull()

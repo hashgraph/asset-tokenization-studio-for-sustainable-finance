@@ -2,20 +2,20 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ClearingOperationApprovedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationApprovedDLTEvent"
-import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
-import { ClearingOperationCanceledDLTEvent } from "@port/bond/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
-import { BondClearingTransferPersistence } from "@port/bond/persistence/model/BondClearingTransferPersistence"
+import { ClearingOperationApprovedDLTEvent } from "@port/clearing/usecase/updateclearingoperation/model/ClearingOperationApprovedDLTEvent"
+import { ClearingOperationReclaimedDLTEvent } from "@port/clearing/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
+import { ClearingOperationCanceledDLTEvent } from "@port/clearing/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
+import { BondClearingTransferPersistence } from "@port/clearing/persistence/model/BondClearingTransferPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
-import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { ClearingNotFoundError } from "@domain/clearing/errors/ClearingNotFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -128,8 +128,9 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        0, // ClearingOperationType.TRANSFER
+        "1",
+        0, // ClearingOperationType.TRANSFER,
+        "1",
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -152,8 +153,9 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
-        0, // ClearingOperationType.TRANSFER
+        "999",
+        0, // ClearingOperationType.TRANSFER,
+        "1",
       )
 
       await expect(eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)).rejects.toThrow(
@@ -187,8 +189,9 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        0, // ClearingOperationType.TRANSFER
+        "1",
+        0, // ClearingOperationType.TRANSFER,
+        "1",
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -223,8 +226,9 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
-          0, // ClearingOperationType.TRANSFER
+          clearingId.toString(),
+          0, // ClearingOperationType.TRANSFER,
+          "1",
         )
 
         await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -264,7 +268,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -288,7 +292,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
+        "999",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -323,7 +327,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -355,7 +359,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -377,7 +381,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
+        "999",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -412,7 +416,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -448,7 +452,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
+          clearingId.toString(),
           0, // ClearingOperationType.TRANSFER
         )
 
@@ -485,7 +489,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         0, // ClearingOperationType.TRANSFER
       )
 
@@ -545,7 +549,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           partitions[i],
-          i + 1,
+          (i + 1).toString(),
           0, // ClearingOperationType.TRANSFER
         )
 
@@ -587,7 +591,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
+          clearingId.toString(),
           0, // ClearingOperationType.TRANSFER
         )
 
