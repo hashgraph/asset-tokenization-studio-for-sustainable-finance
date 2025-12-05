@@ -7,8 +7,8 @@ import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-s
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
-import { ClearingActionType } from "@app/bond/transaction/updateclearingholdtransaction/service/model/ClearingActionType"
-import { ClearingOperationType } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
+import { ClearingActionType } from "@app/transaction/clearing/updateclearingholdtransaction/service/model/ClearingActionType"
+import { ClearingOperationType } from "@app/transaction/clearing/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
 
 describe("UpdateClearingStatusTransaction API Integration", () => {
   let app: INestApplication

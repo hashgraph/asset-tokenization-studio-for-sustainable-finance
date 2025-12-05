@@ -4,8 +4,8 @@ import { TransferByPartitionTransactionRequest } from "./model/TransferByPartiti
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { TransferByPartitionTransactionPort } from "./TransferByPartitionTransactionPort"
-import { TransferByPartitionTransactionAppServiceRequest } from "@app/bond/transaction/transferbypartitiontransaction/service/model/TransferByPartitionTransactionAppServiceRequest"
-import { TransferByPartitionTransactionAppService } from "@app/bond/transaction/transferbypartitiontransaction/service/TransferByPartitionTransactionAppService"
+import { TransferByPartitionTransactionAppServiceRequest } from "@app/transaction/holderbalance/transferbypartitiontransaction/service/model/TransferByPartitionTransactionAppServiceRequest"
+import { TransferByPartitionTransactionAppService } from "@app/transaction/holderbalance/transferbypartitiontransaction/service/TransferByPartitionTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

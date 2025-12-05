@@ -4,8 +4,8 @@ import { CreateClearingHoldTransactionRequest } from "./model/CreateClearingHold
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateClearingHoldTransactionPort } from "./CreateClearingHoldTransactionPort"
-import { CreateClearingHoldTransactionAppServiceRequest } from "@app/bond/transaction/createclearingholdtransaction/service/model/CreateClearingHoldTransactionAppServiceRequest"
-import { CreateClearingHoldTransactionAppService } from "@app/bond/transaction/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
+import { CreateClearingHoldTransactionAppServiceRequest } from "@app/transaction/clearing/createclearingholdtransaction/service/model/CreateClearingHoldTransactionAppServiceRequest"
+import { CreateClearingHoldTransactionAppService } from "@app/transaction/clearing/createclearingholdtransaction/service/CreateClearingHoldTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

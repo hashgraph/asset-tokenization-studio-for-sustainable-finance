@@ -48,7 +48,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         data: "0x1234",
       }
@@ -78,7 +78,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
-          expirationTimestamp: new Date(1735689600000),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
           data: "0x1234",
         }
@@ -103,7 +103,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
-          expirationTimestamp: new Date(1735689600000),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           toAddress: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         }
 
@@ -143,7 +143,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
         format: "hedera",
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         amount: "1000",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
       }
 
@@ -164,7 +164,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: -100,
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
       }
 
@@ -207,7 +207,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
           accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
           partition,
           amount: "1000",
-          expirationTimestamp: new Date(1735689600000),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
         }
 
@@ -228,7 +228,7 @@ describe("CreateClearingTransferTransaction API Integration", () => {
         accountId: "0xAabbCcDdEeFf0011223344556677889900AaBbCc",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "999999999999999999",
-        expirationTimestamp: new Date(1735689600000),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         toAccountId: "0xa1b2c3d4e5f6789012345678901234567890abcd",
       }
 

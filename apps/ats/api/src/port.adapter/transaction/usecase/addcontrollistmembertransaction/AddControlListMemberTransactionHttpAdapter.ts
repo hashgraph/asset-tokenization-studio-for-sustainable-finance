@@ -4,8 +4,8 @@ import { AddControlListMemberTransactionRequest } from "./model/AddControlListMe
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { AddControlListMemberTransactionPort } from "./AddControlListMemberTransactionPort"
-import { AddControlListMemberTransactionAppService } from "@app/bond/transaction/addcontrollistmembertransaction/service/AddControlListMemberTransactionAppService"
-import { AddControlListMemberTransactionAppServiceRequest } from "@app/bond/transaction/addcontrollistmembertransaction/service/model/AddControlListMemberTransactionAppServiceRequest"
+import { AddControlListMemberTransactionAppService } from "@app/transaction/controlllist/addcontrollistmembertransaction/service/AddControlListMemberTransactionAppService"
+import { AddControlListMemberTransactionAppServiceRequest } from "@app/transaction/controlllist/addcontrollistmembertransaction/service/model/AddControlListMemberTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

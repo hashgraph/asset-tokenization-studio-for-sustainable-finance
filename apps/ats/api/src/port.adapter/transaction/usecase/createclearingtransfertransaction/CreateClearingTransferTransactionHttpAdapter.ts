@@ -4,8 +4,8 @@ import { CreateClearingTransferTransactionRequest } from "./model/CreateClearing
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateClearingTransferTransactionPort } from "./CreateClearingTransferTransactionPort"
-import { CreateClearingTransferTransactionAppServiceRequest } from "@app/bond/transaction/createclearingtransfertransaction/service/model/CreateClearingTransferTransactionAppServiceRequest"
-import { CreateClearingTransferTransactionAppService } from "@app/bond/transaction/createclearingtransfertransaction/service/CreateClearingTransferTransactionAppService"
+import { CreateClearingTransferTransactionAppServiceRequest } from "@app/transaction/clearing/createclearingtransfertransaction/service/model/CreateClearingTransferTransactionAppServiceRequest"
+import { CreateClearingTransferTransactionAppService } from "@app/transaction/clearing/createclearingtransfertransaction/service/CreateClearingTransferTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

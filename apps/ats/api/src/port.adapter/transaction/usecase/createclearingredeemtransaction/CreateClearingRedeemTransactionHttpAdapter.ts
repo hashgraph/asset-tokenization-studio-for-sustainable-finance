@@ -4,8 +4,8 @@ import { CreateClearingRedeemTransactionRequest } from "./model/CreateClearingRe
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CreateClearingRedeemTransactionPort } from "./CreateClearingRedeemTransactionPort"
-import { CreateClearingRedeemTransactionAppServiceRequest } from "@app/bond/transaction/createclearingredeemtransaction/service/model/CreateClearingRedeemTransactionAppServiceRequest"
-import { CreateClearingRedeemTransactionAppService } from "@app/bond/transaction/createclearingredeemtransaction/service/CreateClearingRedeemTransactionAppService"
+import { CreateClearingRedeemTransactionAppServiceRequest } from "@app/transaction/clearing/createclearingredeemtransaction/service/model/CreateClearingRedeemTransactionAppServiceRequest"
+import { CreateClearingRedeemTransactionAppService } from "@app/transaction/clearing/createclearingredeemtransaction/service/CreateClearingRedeemTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

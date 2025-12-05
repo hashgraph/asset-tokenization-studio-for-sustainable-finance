@@ -2,19 +2,20 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ClearingOperationApprovedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationApprovedDLTEvent"
-import { ClearingOperationReclaimedDLTEvent } from "@port/bond/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
-import { BondClearingHoldPersistence } from "@port/bond/persistence/model/BondClearingHoldPersistence"
+import { ClearingOperationApprovedDLTEvent } from "@port/clearing/usecase/updateclearingoperation/model/ClearingOperationApprovedDLTEvent"
+import { ClearingOperationReclaimedDLTEvent } from "@port/clearing/usecase/updateclearingoperation/model/ClearingOperationReclaimedDLTEvent"
+import { BondClearingHoldPersistence } from "@port/clearing/persistence/model/BondClearingHoldPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { ClearingStatus } from "@domain/bond/clearing/model/ClearingStatus"
-import { ClearingNotFoundError } from "@domain/bond/clearing/errors/ClearingNotFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { ClearingNotFoundError } from "@domain/clearing/errors/ClearingNotFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
+import { utils } from "ethers"
 
 describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -130,8 +131,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        2, // ClearingOperationType.HOLD
+        "1",
+        2, // ClearingOperationType.HOLD,
+        utils.defaultAbiCoder.encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -154,8 +156,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
-        2, // ClearingOperationType.HOLD
+        "999",
+        2, // ClearingOperationType.HOLD,
+        utils.defaultAbiCoder.encode(["uint256"], [1]),
       )
 
       await expect(eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)).rejects.toThrow(
@@ -189,8 +192,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        2, // ClearingOperationType.HOLD
+        "1",
+        2, // ClearingOperationType.HOLD,
+        utils.defaultAbiCoder.encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -225,8 +229,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
-          2, // ClearingOperationType.HOLD
+          clearingId.toString(),
+          2, // ClearingOperationType.HOLD,
+          utils.defaultAbiCoder.encode(["uint256"], [1]),
         )
 
         await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -265,8 +270,9 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
-        2, // ClearingOperationType.HOLD
+        "1",
+        2, // ClearingOperationType.HOLD,
+        utils.defaultAbiCoder.encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -311,7 +317,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         2,
       )
 
@@ -334,7 +340,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        999,
+        "999",
         2,
       )
 
@@ -369,7 +375,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x7265736572766564000000000000000000000000000000000000000000000000",
-        1,
+        "1",
         2,
       )
 
@@ -405,7 +411,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
           "0x7265736572766564000000000000000000000000000000000000000000000000",
-          clearingId,
+          clearingId.toString(),
           2,
         )
 

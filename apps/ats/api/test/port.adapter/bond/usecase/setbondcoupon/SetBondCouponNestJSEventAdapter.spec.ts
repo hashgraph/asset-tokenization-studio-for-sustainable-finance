@@ -2,15 +2,15 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { BondCouponPersistence } from "@port/bond/persistence/model/BondCouponPersistence"
-import { CouponSetDLTEvent } from "@port/bond/usecase/setbondcoupon/model/CouponSetDLTEvent"
+import { BondCouponPersistence } from "@port/coupon/persistence/model/BondCouponPersistence"
+import { CouponSetDLTEvent } from "@port/coupon/usecase/setbondcoupon/model/CouponSetDLTEvent"
 import { BondNotFoundError } from "@domain/bond/errors/BondNotFoundError"
 
 describe("SetBondCouponNestJSEventAdapter Integration", () => {

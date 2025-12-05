@@ -2,14 +2,14 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
-import { BondControlListMemberPersistence } from "@port/bond/persistence/model/BondControlListMemberPersistence"
+import { BondControlListMemberPersistence } from "@port/controllist/persistence/model/BondControlListMemberPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { RemovedFromControlListDLTEvent } from "@port/bond/usecase/removecontrollistmember/model/RemovedFromControlListDLTEvent"
+import { RemovedFromControlListDLTEvent } from "@port/controllist/usecase/removecontrollistmember/model/RemovedFromControlListDLTEvent"
 import { BondNotFoundError } from "@domain/bond/errors/BondNotFoundError"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 

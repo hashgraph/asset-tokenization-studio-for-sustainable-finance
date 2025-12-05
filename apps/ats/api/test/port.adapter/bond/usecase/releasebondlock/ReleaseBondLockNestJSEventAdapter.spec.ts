@@ -2,17 +2,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { ConverterUtils, EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { LockByPartitionReleasedDLTEvent } from "@port/bond/usecase/releasebondlock/model/LockByPartitionReleasedDLTEvent"
-import { BondLockPersistence } from "@port/bond/persistence/model/BondLockPersistence"
+import { LockByPartitionReleasedDLTEvent } from "@port/lock/usecase/releasebondlock/model/LockByPartitionReleasedDLTEvent"
+import { BondLockPersistence } from "@port/lock/persistence/model/BondLockPersistence"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondLockNotFoundError } from "@domain/bond/lock/errors/BondLockNotFoundError"
-import { BondHolderBalancePersistence } from "@port/bond/persistence/model/BondHolderBalancePersistence"
+import { BondLockNotFoundError } from "@domain/lock/errors/BondLockNotFoundError"
+import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 
 describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -100,7 +100,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
-        expirationTimestamp: new Date("2024-12-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         operatorAccountId: "0.0.1234567",
       }
 
@@ -181,7 +181,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "2000",
-          expirationTimestamp: new Date("2024-12-01"),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           operatorAccountId: "0.0.1234567",
         })
       }
@@ -237,7 +237,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
-        expirationTimestamp: new Date("2024-12-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         operatorAccountId: "0.0.1234567",
       })
 
@@ -278,7 +278,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
-        expirationTimestamp: new Date("2024-12-01"),
+        expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
         operatorAccountId: "0.0.1234567",
       })
 
@@ -331,7 +331,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
           holderAccountId: "0.0.7654321",
           partition: partitions[i],
           amount: "1000",
-          expirationTimestamp: new Date("2024-12-01"),
+          expirationTimestamp: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           operatorAccountId: "0.0.1234567",
         })
 

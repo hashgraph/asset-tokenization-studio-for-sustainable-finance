@@ -3,8 +3,8 @@ import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shar
 import { RemoveProceedRecipientTransactionRequest } from "./model/RemoveProceedRecipientTransactionRequest"
 import { Body, Delete, Param } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
-import { RemoveProceedRecipientTransactionAppService } from "@app/bond/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppService"
-import { RemoveProceedRecipientTransactionAppServiceRequest } from "@app/bond/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppServiceRequest"
+import { RemoveProceedRecipientTransactionAppService } from "@app/proceedrecipient/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppService"
+import { RemoveProceedRecipientTransactionAppServiceRequest } from "@app/proceedrecipient/removeproceedrecipient/transaction/RemoveProceedRecipientTransactionAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

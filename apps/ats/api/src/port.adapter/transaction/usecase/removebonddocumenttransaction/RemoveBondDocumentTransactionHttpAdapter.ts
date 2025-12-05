@@ -4,8 +4,8 @@ import { RemoveBondDocumentTransactionRequest } from "./model/RemoveBondDocument
 import { Body, Delete, Param } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { RemoveBondDocumentTransactionPort } from "./RemoveBondDocumentTransactionPort"
-import { RemoveBondDocumentTransactionAppService } from "@app/bond/transaction/removebonddocumenttransaction/service/RemoveBondDocumentTransactionAppService"
-import { RemoveBondDocumentTransactionAppServiceRequest } from "@app/bond/transaction/removebonddocumenttransaction/service/model/RemoveBondDocumentTransactionAppServiceRequest"
+import { RemoveBondDocumentTransactionAppService } from "@app/transaction/document/removebonddocumenttransaction/service/RemoveBondDocumentTransactionAppService"
+import { RemoveBondDocumentTransactionAppServiceRequest } from "@app/transaction/document/removebonddocumenttransaction/service/model/RemoveBondDocumentTransactionAppServiceRequest"
 import { Bytes32ParamPipe } from "@utils/Bytes32ParamPipe"
 
 @ApiTags("ATS")

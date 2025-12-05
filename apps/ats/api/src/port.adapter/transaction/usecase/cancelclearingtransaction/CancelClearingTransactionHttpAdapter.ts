@@ -4,8 +4,8 @@ import { CancelClearingTransactionRequest } from "./model/CancelClearingTransact
 import { Body, Param, Delete } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { CancelClearingTransactionPort } from "./CancelClearingTransactionPort"
-import { CancelClearingTransactionAppServiceRequest } from "@app/bond/transaction/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
-import { CancelClearingTransactionAppService } from "@app/bond/transaction/cancelclearingtransaction/service/CancelClearingTransactionAppService"
+import { CancelClearingTransactionAppServiceRequest } from "@app/transaction/clearing/cancelclearingtransaction/service/model/CancelClearingTransactionAppServiceRequest"
+import { CancelClearingTransactionAppService } from "@app/transaction/clearing/cancelclearingtransaction/service/CancelClearingTransactionAppService"
 
 @ApiTags("ATS")
 @RestController("bonds")

@@ -2,17 +2,17 @@
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
-import { CONTROLLERS, PROVIDERS } from "../../../../../src/Components"
+import { CONTROLLERS, PROVIDERS } from "@components"
 import { EventBus, SharedModule } from "@hashgraph/green-bonds-shared-core"
-import { PostgreSqlContainer } from "../../../../shared/containers/PostgresqlContainer"
+import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 import { PostgresModule } from "@config/PostgresModule"
 import { Repository } from "typeorm"
-import { BondProceedRecipientPersistence } from "@port/bond/persistence/model/BondProceedRecipientPersistence"
+import { BondProceedRecipientPersistence } from "@port/proceedrecipient/persistence/model/BondProceedRecipientPersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
-import { ProceedRecipientAddedDLTEvent } from "@port/bond/usecase/addproceedrecipient/model/ProceedRecipientAddedDLTEvent"
+import { ProceedRecipientAddedDLTEvent } from "@port/proceedrecipient/usecase/addproceedrecipient/model/ProceedRecipientAddedDLTEvent"
 import { BondNotFoundError } from "@domain/bond/errors/BondNotFoundError"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
-import { BondProceedRecipientFoundError } from "@domain/bond/proceedrecipient/errors/BondProceedRecipientFoundError"
+import { BondProceedRecipientFoundError } from "@domain/proceedrecipient/errors/BondProceedRecipientFoundError"
 
 describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"

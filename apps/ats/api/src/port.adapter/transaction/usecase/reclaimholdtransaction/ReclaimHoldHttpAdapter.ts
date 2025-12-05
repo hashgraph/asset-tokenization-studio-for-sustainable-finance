@@ -4,8 +4,8 @@ import { ReclaimHoldRequest } from "./model/ReclaimHoldRequest"
 import { Body, Delete, Param, ParseIntPipe } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ReclaimHoldPort } from "./ReclaimHoldPort"
-import { ReclaimHoldAppService } from "@app/bond/transaction/reclaimholdtransaction/service/ReclaimHoldAppService"
-import { ReclaimHoldAppServiceRequest } from "@app/bond/transaction/reclaimholdtransaction/service/model/ReclaimHoldAppServiceRequest"
+import { ReclaimHoldAppService } from "@app/transaction/hold/reclaimholdtransaction/service/ReclaimHoldAppService"
+import { ReclaimHoldAppServiceRequest } from "@app/transaction/hold/reclaimholdtransaction/service/model/ReclaimHoldAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")

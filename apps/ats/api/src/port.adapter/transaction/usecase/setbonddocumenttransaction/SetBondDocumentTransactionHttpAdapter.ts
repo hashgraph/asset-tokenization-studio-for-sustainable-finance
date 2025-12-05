@@ -4,8 +4,8 @@ import { SetBondDocumentTransactionRequest } from "./model/SetBondDocumentTransa
 import { Body, Param, Post } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { SetBondDocumentTransactionPort } from "./SetBondDocumentTransactionPort"
-import { SetBondDocumentTransactionAppService } from "@app/bond/transaction/setbonddocumenttransaction/service/SetBondDocumentTransactionAppService"
-import { SetBondDocumentTransactionAppServiceRequest } from "@app/bond/transaction/setbonddocumenttransaction/service/model/SetBondDocumentTransactionAppServiceRequest"
+import { SetBondDocumentTransactionAppService } from "@app/transaction/document/setbonddocumenttransaction/service/SetBondDocumentTransactionAppService"
+import { SetBondDocumentTransactionAppServiceRequest } from "@app/transaction/document/setbonddocumenttransaction/service/model/SetBondDocumentTransactionAppServiceRequest"
 import { Bytes32ParamPipe } from "@utils/Bytes32ParamPipe"
 
 @ApiTags("ATS")

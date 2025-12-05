@@ -4,8 +4,8 @@ import { ReleaseHoldRequest } from "./model/ReleaseHoldRequest"
 import { Body, Delete, Param, ParseIntPipe } from "@nestjs/common"
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
 import { ReleaseHoldPort } from "./ReleaseHoldPort"
-import { ReleaseHoldAppService } from "@app/bond/transaction/releaseholdtransaction/service/ReleaseHoldAppService"
-import { ReleaseHoldAppServiceRequest } from "@app/bond/transaction/releaseholdtransaction/service/model/ReleaseHoldAppServiceRequest"
+import { ReleaseHoldAppService } from "@app/transaction/hold/releaseholdtransaction/service/ReleaseHoldAppService"
+import { ReleaseHoldAppServiceRequest } from "@app/transaction/hold/releaseholdtransaction/service/model/ReleaseHoldAppServiceRequest"
 
 @ApiTags("ATS")
 @RestController("bonds")
