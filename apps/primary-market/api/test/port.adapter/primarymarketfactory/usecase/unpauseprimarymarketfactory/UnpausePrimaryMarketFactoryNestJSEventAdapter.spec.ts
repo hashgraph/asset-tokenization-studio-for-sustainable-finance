@@ -14,17 +14,12 @@ describe("UnpausePrimaryMarketFactoryNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.7247643"
 
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let factoryRepository: Repository<PrimaryMarketFactoryPersistence>
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -38,10 +33,6 @@ describe("UnpausePrimaryMarketFactoryNestJSEventAdapter Integration", () => {
       contractId: CONTRACT_ID,
       isPaused: true,
     })
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

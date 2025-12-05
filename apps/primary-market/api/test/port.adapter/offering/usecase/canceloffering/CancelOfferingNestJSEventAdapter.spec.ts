@@ -17,19 +17,14 @@ import { OfferingProcessStatus } from "@domain/shared/model/OfferingProcessStatu
 
 describe("CancelOfferingNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let offeringRepository: Repository<OfferingPersistence>
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let subscriptionRepository: Repository<SubscriptionPersistence>
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -40,10 +35,6 @@ describe("CancelOfferingNestJSEventAdapter Integration", () => {
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     subscriptionRepository = app.get(getRepositoryToken(SubscriptionPersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

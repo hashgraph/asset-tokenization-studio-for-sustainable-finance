@@ -16,7 +16,6 @@ import type { BlockchainAdapterPort } from "@port/blockchain/BlockchainAdapterPo
 
 describe("GetOffering API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let offeringRepository: Repository<OfferingPersistence>
 
@@ -24,13 +23,9 @@ describe("GetOffering API Integration", () => {
     getOfferingStatus: jest.fn().mockResolvedValue(OfferingStatus.OPEN),
   }
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [
         ...PROVIDERS.filter((provider) => {
@@ -51,10 +46,6 @@ describe("GetOffering API Integration", () => {
 
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

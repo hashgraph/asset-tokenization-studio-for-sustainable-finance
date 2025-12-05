@@ -13,16 +13,11 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 
 describe("GetPrimaryMarkets API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -33,10 +28,6 @@ describe("GetPrimaryMarkets API Integration", () => {
     await app.init()
 
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

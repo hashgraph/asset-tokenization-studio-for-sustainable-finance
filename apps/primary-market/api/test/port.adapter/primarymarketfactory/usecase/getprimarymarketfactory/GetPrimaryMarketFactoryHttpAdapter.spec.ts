@@ -13,16 +13,11 @@ import { PrimaryMarketFactoryPersistence } from "@port/persistence/primarymarket
 
 describe("GetPrimaryMarketFactoryHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalFactoryRepository: Repository<PrimaryMarketFactoryPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -32,10 +27,6 @@ describe("GetPrimaryMarketFactoryHttpAdapter API Integration", () => {
     app.useLogger(false)
     await app.init()
     internalFactoryRepository = app.get(getRepositoryToken(PrimaryMarketFactoryPersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {
