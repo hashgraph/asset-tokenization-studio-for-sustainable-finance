@@ -106,8 +106,10 @@ const CONFIG = {
     env: {
       PORT: "3000",
       LOG_LEVEL: "log",
-      PATHS: "/api/v1/ats,/api/v1/primary-markets,/api/v1/treasuries,/api/v1/environmental-assets,/api/v1/payment-tokens",
-      ROUTES: "http://localhost:3001,http://localhost:3002,http://localhost:3003,http://localhost:3003,http://localhost:3003",
+      PATHS:
+        "/api/v1/ats,/api/v1/primary-markets,/api/v1/treasuries,/api/v1/environmental-assets,/api/v1/payment-tokens",
+      ROUTES:
+        "http://localhost:3001,http://localhost:3002,http://localhost:3003,http://localhost:3003,http://localhost:3003",
       API_KEY_HEADER_NAME: "x-api-key",
       API_KEYS: "demo-key-1,demo-key-2,your-secret-api-key",
       TIMEOUT: "30000",

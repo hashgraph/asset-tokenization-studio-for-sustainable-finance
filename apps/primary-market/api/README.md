@@ -89,6 +89,7 @@ domain/                                         # Domain layer (Business Logic)
 ## Features
 
 ### Primary Market Factory Operations
+
 - Get factory details and role members
 - Grant/revoke factory roles
 - Pause/unpause factory
@@ -96,6 +97,7 @@ domain/                                         # Domain layer (Business Logic)
 - Manage factory user roles
 
 ### Primary Market Operations
+
 - Get primary market details
 - List all primary markets
 - Get bonds associated with a primary market
@@ -104,6 +106,7 @@ domain/                                         # Domain layer (Business Logic)
 - Manage market user roles
 
 ### Offering Management
+
 - Create bond offerings
 - Execute offerings (allocate bonds to investors)
 - Cancel offerings
@@ -112,6 +115,7 @@ domain/                                         # Domain layer (Business Logic)
 - Execute/cancel offerings by subscription ID
 
 ### Subscription Management
+
 - Submit investor subscriptions
 - Cancel subscriptions
 - Get subscription details
@@ -119,6 +123,7 @@ domain/                                         # Domain layer (Business Logic)
 - List subscriptions by investor
 
 ### Role Management
+
 - Grant roles to users
 - Revoke roles from users
 - Renounce own roles
@@ -226,6 +231,7 @@ npm run docker:down
 ```
 
 This will start:
+
 - **PostgreSQL**: Available at `localhost:5433`
 - **pgAdmin**: Available at `http://localhost:5050` (admin@admin.com / admin)
 
@@ -265,9 +271,11 @@ Once the application is running, access the interactive Swagger API documentatio
 ### Main API Endpoints
 
 #### Health Check
+
 - `GET /api/v1/health` - Health check endpoint
 
 #### Primary Market Factory
+
 - `GET /api/v1/factories/:factoryContractId` - Get factory details
 - `GET /api/v1/factories/:factoryContractId/roles/:roleId/members` - Get role members
 - `GET /api/v1/factories/:factoryContractId/users/:userAccountId/roles` - Get user roles
@@ -278,6 +286,7 @@ Once the application is running, access the interactive Swagger API documentatio
 - `POST /api/v1/factories/:factoryContractId/markets` - Deploy primary market
 
 #### Primary Market
+
 - `GET /api/v1/:marketContractId` - Get primary market details
 - `GET /api/v1/markets` - List all primary markets
 - `GET /api/v1/:marketContractId/bonds` - Get market bonds
@@ -287,6 +296,7 @@ Once the application is running, access the interactive Swagger API documentatio
 - `POST /api/v1/:marketContractId/unpause` - Unpause market
 
 #### Offerings
+
 - `GET /api/v1/:marketContractId/offerings` - List all offerings
 - `GET /api/v1/:marketContractId/offerings/:offeringId` - Get offering details
 - `POST /api/v1/:marketContractId/bonds/:bondContractId/offerings` - Create offering
@@ -296,6 +306,7 @@ Once the application is running, access the interactive Swagger API documentatio
 - `DELETE /api/v1/:marketContractId/offerings/:offeringId/subscription-cancellations` - Cancel by subscription
 
 #### Subscriptions
+
 - `GET /api/v1/:marketContractId/offerings/:offeringId/subscriptions` - List subscriptions
 - `GET /api/v1/:marketContractId/offerings/:offeringId/subscriptions/:subscriptionId` - Get subscription
 - `GET /api/v1/investors/:investorAccountId/subscriptions` - Get investor subscriptions
@@ -303,6 +314,7 @@ Once the application is running, access the interactive Swagger API documentatio
 - `DELETE /api/v1/:marketContractId/offerings/:offeringId/subscriptions/:subscriptionId` - Cancel subscription
 
 #### Role Management
+
 - `GET /api/v1/:marketContractId/roles/:roleId/members` - Get role members
 - `POST /api/v1/:marketContractId/roles/:roleId/users/:userAccountId` - Grant role
 - `DELETE /api/v1/:marketContractId/roles/:roleId` - Renounce role
@@ -331,12 +343,14 @@ npm run migration:generate
 ```
 
 The migration command uses TypeORM CLI with the following configuration:
+
 - Migrations are stored in `src/migrations/`
 - The datasource configuration is in `src/config/Datasource.ts`
 
 ### Database Access
 
 Use pgAdmin to explore the database:
+
 1. Navigate to `http://localhost:5050`
 2. Login with credentials: `admin@admin.com` / `admin`
 3. Server configuration is auto-loaded from `pgadmin-servers.json`
@@ -366,6 +380,7 @@ npm run test:debug
 ### Test Structure
 
 Tests are organized by layer:
+
 - `test/port.adapter/` - Integration tests for HTTP adapters
 - Unit tests are co-located with source files (when applicable)
 
@@ -659,6 +674,7 @@ npm run format:check
 ### Key Dependencies
 
 #### Core Dependencies
+
 - `@nestjs/common`: NestJS core functionality
 - `@nestjs/typeorm`: TypeORM integration for NestJS
 - `@nestjs/swagger`: OpenAPI/Swagger documentation
@@ -666,11 +682,13 @@ npm run format:check
 - `pg`: PostgreSQL driver
 
 #### Internal Dependencies
+
 - `@hashgraph/green-bonds-blockchain-listener`: Blockchain event listener
 - `@hashgraph/green-bonds-platform-primarymarket-contracts`: Smart contract integration
 - `@hashgraph/green-bonds-shared-core`: Shared utilities and components
 
 #### Development Dependencies
+
 - `@nestjs/cli`: NestJS CLI tools
 - `@nestjs/testing`: Testing utilities
 - `jest`: Testing framework
@@ -738,12 +756,14 @@ When adding new functionality, follow the hexagonal architecture pattern:
 The application separates read and write operations:
 
 **Commands** (Write Operations):
+
 - Create offering
 - Submit subscription
 - Grant role
 - Deploy primary market
 
 **Queries** (Read Operations):
+
 - Get offering details
 - List subscriptions
 - Get primary market
@@ -752,6 +772,7 @@ The application separates read and write operations:
 ### Transaction Flow
 
 For blockchain transactions:
+
 1. HTTP Request to Transaction Controller
 2. Transaction Application Service validates request
 3. Transaction Builder creates transaction payload
