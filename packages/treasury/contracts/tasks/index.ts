@@ -7,3 +7,4 @@
  */
 
 import "./generateRegistry";
+import "./compile";

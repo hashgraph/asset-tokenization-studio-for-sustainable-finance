@@ -3,7 +3,6 @@ import "tsconfig-paths/register";
 import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
 import "@primitivefi/hardhat-dodoc";
-import "hardhat-dependency-compiler";
 import "@tasks";
 
 const config: HardhatUserConfig = {
@@ -48,7 +47,7 @@ const config: HardhatUserConfig = {
   contractSizer: {
     alphaSort: true,
     disambiguatePaths: false,
-    runOnCompile: false,
+    runOnCompile: true,
   },
   gasReporter: {
     enabled: false,
@@ -61,12 +60,6 @@ const config: HardhatUserConfig = {
   },
   dodoc: {
     runOnCompile: false,
-  },
-  dependencyCompiler: {
-    paths: [
-      "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol",
-      "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
-    ],
   },
 };
 

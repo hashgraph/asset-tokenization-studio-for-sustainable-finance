@@ -70,6 +70,7 @@ jobs:
           path: |
             node_modules
             */*/node_modules
+            */*/*/node_modules
             ~/.npm
           key: ${{ runner.os }}-deps-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
@@ -83,7 +84,8 @@ jobs:
             ${{ env.MODULE_PATH }}/artifacts
             ${{ env.MODULE_PATH }}/cache
             ${{ env.MODULE_PATH }}/typechain-types
-          key: ${{ runner.os }}-hardhat-${{ inputs.module }}-${{ hashFiles(format('{0}/**/*.sol', env.MODULE_PATH)) }}
+          # Include package-lock.json in key to invalidate cache when dependencies change
+          key: ${{ runner.os }}-hardhat-${{ inputs.module }}-${{ hashFiles('**/package-lock.json', format('{0}/**/*.sol', env.MODULE_PATH)) }}
           restore-keys: |
             ${{ runner.os }}-hardhat-${{ inputs.module }}-
             ${{ runner.os }}-hardhat-
