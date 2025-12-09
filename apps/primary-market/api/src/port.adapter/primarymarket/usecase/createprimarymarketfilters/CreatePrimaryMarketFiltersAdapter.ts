@@ -16,7 +16,7 @@ export class CreatePrimaryMarketFiltersAdapter
   async handle(event: PrimaryMarketDeployedEvent): Promise<void> {
     await this.commandBus.execute(
       new AddEventFiltersCommand(await ConverterUtils.getEvmAddressFromHederaAddress(event.contractId), [
-        "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint8 targetQuantityRule,uint256 startDate,uint256 endDate,uint8 deadlineRule,uint256 price,uint8 priceDecimals) offering)",
+        "OfferingCreated(uint256 indexed offeringId,address indexed operator,(address asset,uint8 targetQuantityRule,uint8 deadlineRule,uint8 priceDecimals,address treasury,address paymentToken,uint256 lotSize,uint256 minLots,uint256 maxLots,uint256 targetLots,uint256 startDate,uint256 endDate,uint256 price) offering)",
         "RoleGranted(address indexed operator,address indexed account,bytes32 indexed role)",
         "RoleRenounced(address indexed account, bytes32 indexed role)",
         "RolesApplied(bytes32[] roles, bool[] actives, address account)",

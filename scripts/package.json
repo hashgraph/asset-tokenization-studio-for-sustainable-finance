@@ -6,6 +6,7 @@
   "scripts": {
     "sign": "node utils/transaction-signer.js",
     "sign-and-send": "node utils/transaction-sign-and-send.js",
+    "shared:create-hts-token": "node shared/create-hts-token.js",
     "ats:bond": "node ats/bond/bond-simulator.js",
     "ats:mint-bond": "node ats/bond/mint-bond.js",
     "ats:check-roles": "node ats/bond/check-roles.js",
