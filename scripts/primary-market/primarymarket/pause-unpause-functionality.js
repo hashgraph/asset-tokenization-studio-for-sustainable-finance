@@ -9,6 +9,7 @@ const {
   waitForPauseStatusUpdate,
   waitForUserRoleUpdate,
 } = require("./get-latest-primary-market");
+const { RESOLVER_CONTRACT_ID } = require("../shared/test-config");
 
 // PAUSER_ROLE constant
 const PAUSER_ROLE = "0x6f65556918c1422809d0d567462eafeb371be30159d74b38ac958dc58864faeb";
@@ -140,7 +141,7 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Configuration parameters
-    const resolverContractId = process.env.RESOLVER_CONTRACT_ID || "0.0.7297268";
+    const resolverContractId = await RESOLVER_CONTRACT_ID;
     const configVersion = parseInt(process.env.CONFIG_VERSION || "0");
     const userAccountId = process.env.ACCOUNT_ID;
 

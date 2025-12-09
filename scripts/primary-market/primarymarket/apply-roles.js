@@ -3,6 +3,7 @@ const { logSuccess, logError, logInfo, log, colors, logHeader } = require("../..
 const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
 const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
 const { config } = require("../../shared/lib/config");
+const { RESOLVER_CONTRACT_ID } = require("../shared/test-config");
 const { deployPrimaryMarket } = require("./deploy-primary-market");
 const { waitForPrimaryMarketDeployment, waitForUserRoleUpdate } = require("./get-latest-primary-market");
 
@@ -71,7 +72,7 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Configuration parameters
-    const resolverContractId = process.env.RESOLVER_CONTRACT_ID || "0.0.7352465";
+    const resolverContractId = (await RESOLVER_CONTRACT_ID) || "0.0.7352465";
     const configVersion = parseInt(process.env.CONFIG_VERSION || "0");
     const userAccountId = process.env.ACCOUNT_ID;
     const rolesToGrant = process.env.ROLES_TO_GRANT

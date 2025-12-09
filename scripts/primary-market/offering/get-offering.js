@@ -99,7 +99,7 @@ async function main() {
     logInfo(`Using ${format.toUpperCase()} blockchain format`);
 
     // Configuration parameters
-    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const resolverContractId = await RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
     const bondContractId = BOND_CONTRACT_ID;
     const userAccountId = process.env.ACCOUNT_ID;

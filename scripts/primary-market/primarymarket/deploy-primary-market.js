@@ -67,7 +67,7 @@ async function main() {
 
     // Configuration parameters
     // TODO: Replace these with actual values or command line arguments
-    const resolverContractId = RESOLVER_CONTRACT_ID;
+    const resolverContractId = await RESOLVER_CONTRACT_ID;
     const configVersion = CONFIG_VERSION;
 
     logInfo(`Resolver Contract ID: ${resolverContractId}`);
