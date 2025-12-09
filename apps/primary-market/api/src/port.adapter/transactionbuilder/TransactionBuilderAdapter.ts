@@ -186,18 +186,18 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private async buildOfferingParams(request: BuildCreateOfferingTransactionRequest) {
     return {
       asset: await ConverterUtils.getEvmAddressFromHederaAddress(request.bondContractId),
+      targetQuantityRule: request.targetQuantityRule,
+      deadlineRule: request.deadlineRule,
+      priceDecimals: request.priceDecimals,
       treasury: await ConverterUtils.getEvmAddressFromHederaAddress(request.treasuryContractId),
       paymentToken: await ConverterUtils.getEvmAddressFromHederaAddress(request.paymentTokenContractId),
       lotSize: request.lotSize,
       minLots: request.minLots,
       maxLots: request.maxLots,
       targetLots: request.targetLots,
-      targetQuantityRule: request.targetQuantityRule,
       startDate: request.startDate,
       endDate: request.endDate,
-      deadlineRule: request.deadlineRule,
       price: request.price,
-      priceDecimals: request.priceDecimals,
     }
   }
 }
