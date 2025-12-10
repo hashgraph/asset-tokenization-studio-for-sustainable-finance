@@ -13,16 +13,10 @@ import { TreasuryPersistence } from "@port/persistence/treasury/model/TreasuryPe
 
 describe("GetTreasuries API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -35,11 +29,6 @@ describe("GetTreasuries API Integration", () => {
       getRepositoryToken(TreasuryPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalTreasuryRepository.deleteAll()
     if (app) {

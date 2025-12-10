@@ -14,7 +14,6 @@ import { BondFoundError } from "@domain/bond/errors/BondFoundError"
 
 describe("CreateBondNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondRepository: Repository<BondPersistence>
 
@@ -84,14 +83,9 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     admin: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
     rbacs: [],
   })
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -117,11 +111,6 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       return Promise.resolve(addressMap[address.toLowerCase()] || addressMap[address] || "0.0.9999999")
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondRepository.clear()
     jest.restoreAllMocks()

@@ -17,18 +17,12 @@ import { BondControlListMemberFoundError } from "@domain/controllist/errors/Bond
 describe("AddControlListMemberNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondControlListMemberRepository: Repository<BondControlListMemberPersistence>
   let bondRepository: Repository<BondPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -39,11 +33,6 @@ describe("AddControlListMemberNestJSEventAdapter Integration", () => {
     bondControlListMemberRepository = app.get(getRepositoryToken(BondControlListMemberPersistence))
     bondRepository = app.get(getRepositoryToken(BondPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondControlListMemberRepository.clear()
     await bondRepository.clear()

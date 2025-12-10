@@ -19,19 +19,13 @@ import { AddPaymentTokenTransferNestJSEventAdapter } from "@port/treasury/usecas
 
 describe("AddEnvironmentalAssetTransfer Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalEnvironmentalAssetRepository: Repository<EnvironmentalAssetPersistence>
   let internalEnvironmentalAssetTransferRepository: Repository<EnvironmentalAssetTransferPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -50,11 +44,6 @@ describe("AddEnvironmentalAssetTransfer Integration", () => {
     const paymentTokenTransferHandler = app.get(AddPaymentTokenTransferNestJSEventAdapter)
     jest.spyOn(paymentTokenTransferHandler, "handle").mockResolvedValue(undefined)
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalEnvironmentalAssetTransferRepository.deleteAll()
     await internalEnvironmentalAssetRepository.deleteAll()

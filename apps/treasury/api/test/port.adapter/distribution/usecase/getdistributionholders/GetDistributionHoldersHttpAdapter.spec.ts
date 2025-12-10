@@ -16,19 +16,13 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 
 describe("GetDistributionHolders API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalDistributionRepository: Repository<DistributionPersistence>
   let internalDistributionHolderRepository: Repository<DistributionHolderPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -50,11 +44,6 @@ describe("GetDistributionHolders API Integration", () => {
       getRepositoryToken(PaymentTokenPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalDistributionHolderRepository.deleteAll()
     await internalDistributionRepository.deleteAll()

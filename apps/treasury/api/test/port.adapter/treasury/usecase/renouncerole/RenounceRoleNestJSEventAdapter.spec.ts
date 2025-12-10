@@ -19,17 +19,11 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 
 describe("RenounceRole Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalUserRoleRepository: Repository<UserRolePersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, CqrsModule.forRoot(), PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -39,11 +33,6 @@ describe("RenounceRole Integration", () => {
     eventBus = app.get("EventBus")
     internalUserRoleRepository = app.get(getRepositoryToken(UserRolePersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalUserRoleRepository.clear()
   })

@@ -17,19 +17,13 @@ import { EnvironmentalAssetDissociationErrorUpdatedEvent } from "@domain/environ
 
 describe("SyncTokenDissociationError Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalEnvironmentalAssetRepository: Repository<EnvironmentalAssetPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -41,11 +35,6 @@ describe("SyncTokenDissociationError Integration", () => {
     internalPaymentTokenRepository = app.get(getRepositoryToken(PaymentTokenPersistence))
     internalEnvironmentalAssetRepository = app.get(getRepositoryToken(EnvironmentalAssetPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalEnvironmentalAssetRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

@@ -13,16 +13,10 @@ import { FactoryPersistence } from "@port/factory/persistence/model/FactoryPersi
 
 describe("GetFactoryHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalFactoryRepository: Repository<FactoryPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -33,11 +27,6 @@ describe("GetFactoryHttpAdapter API Integration", () => {
     await app.init()
     internalFactoryRepository = app.get(getRepositoryToken(FactoryPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

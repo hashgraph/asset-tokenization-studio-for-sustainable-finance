@@ -16,18 +16,12 @@ import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondControlListMemberRepository: Repository<BondControlListMemberPersistence>
   let bondRepository: Repository<BondPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -38,11 +32,6 @@ describe("RemoveControlListMemberNestJSEventAdapter Integration", () => {
     bondControlListMemberRepository = app.get(getRepositoryToken(BondControlListMemberPersistence))
     bondRepository = app.get(getRepositoryToken(BondPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondControlListMemberRepository.clear()
     await bondRepository.clear()

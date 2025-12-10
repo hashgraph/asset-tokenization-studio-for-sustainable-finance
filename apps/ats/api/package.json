@@ -37,6 +37,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
     "@eslint/js": "9.37.0",
+    "@hashgraph/green-bonds-shared-testing": "*",
     "@nestjs/cli": "11.0.10",
     "@nestjs/schematics": "11.0.9",
     "@nestjs/testing": "11.1.6",
@@ -53,20 +54,5 @@
     "tsconfig-paths": "4.2.0",
     "typescript": "5.9.3",
     "typescript-eslint": "8.46.0"
-  },
-  "jest": {
-    "preset": "../../../jest.base.config.js",
-    "setupFiles": [
-      "<rootDir>/jest.setup.js"
-    ],
-    "moduleNameMapper": {
-      "^@app/(.*)$": "<rootDir>/src/app/$1",
-      "^@domain/(.*)$": "<rootDir>/src/domain/$1",
-      "^@port/(.*)$": "<rootDir>/src/port.adapter/$1",
-      "^@config/(.*)$": "<rootDir>/src/config/$1",
-      "^@test/(.*)$": "<rootDir>/test/$1",
-      "^@components$": "<rootDir>/src/Components",
-      "^@utils/(.*)$": "<rootDir>/src/utils/$1"
-    }
   }
 }

@@ -14,17 +14,11 @@ import { BondControlListMemberPersistence } from "@port/controllist/persistence/
 
 describe("GetControlListMembersHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalBondRepository: Repository<BondPersistence>
   let internalControlListMemberRepository: Repository<BondControlListMemberPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -36,11 +30,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
     internalControlListMemberRepository = app.get(getRepositoryToken(BondControlListMemberPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

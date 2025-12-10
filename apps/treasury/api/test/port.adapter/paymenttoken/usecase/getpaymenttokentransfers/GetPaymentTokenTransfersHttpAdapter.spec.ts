@@ -16,18 +16,12 @@ import { TransferType } from "@domain/shared/model/TransferType"
 
 describe("GetPaymentTokenTransfers API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalPaymentTokenTransferRepository: Repository<PaymentTokenTransferPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -46,11 +40,6 @@ describe("GetPaymentTokenTransfers API Integration", () => {
       getRepositoryToken(PaymentTokenTransferPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalPaymentTokenTransferRepository.deleteAll()
     await internalPaymentTokenRepository.deleteAll()

@@ -20,17 +20,11 @@ describe("RevokeRoleNestJSEventAdapter Integration", () => {
   const OPERATOR = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let commandBus: CommandBus
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -42,11 +36,6 @@ describe("RevokeRoleNestJSEventAdapter Integration", () => {
 
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue("0.0.12345")
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await app.close()
   })

@@ -16,7 +16,6 @@ import { InsufficientBondHolderBalanceError } from "@domain/holderbalance/errors
 
 describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondRepository: Repository<BondPersistence>
   let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
@@ -39,14 +38,9 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
     }
     return await bondRepository.save(bond)
   }
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -67,11 +61,6 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       return Promise.resolve(addressMap[address] || "0.0.9999999")
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondHolderBalanceRepository.clear()
     await bondRepository.clear()

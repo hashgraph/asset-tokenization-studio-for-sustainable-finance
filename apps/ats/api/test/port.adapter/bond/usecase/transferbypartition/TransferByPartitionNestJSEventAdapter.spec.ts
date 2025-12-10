@@ -15,7 +15,6 @@ import { BondHolderBalanceNotFoundError } from "@domain/holderbalance/errors/Bon
 
 describe("TransferByPartitionNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
   let bondRepository: Repository<BondPersistence>
@@ -38,14 +37,9 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
     }
     return await bondRepository.save(bond)
   }
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -67,11 +61,6 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       return Promise.resolve(addressMap[address] || "0.0.9999999")
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondHolderBalanceRepository.clear()
     await bondRepository.clear()
