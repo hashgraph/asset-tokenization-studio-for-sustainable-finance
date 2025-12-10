@@ -38,7 +38,7 @@ function parseArgs() {
     name: "Test Token",
     symbol: "TEST",
     decimals: 6,
-    supply: 1_000_000_000,
+    supply: 100000000000,
     infinite: true,
     memo: "",
     setKeys: true,
