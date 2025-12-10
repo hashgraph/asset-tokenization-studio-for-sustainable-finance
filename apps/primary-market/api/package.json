@@ -57,6 +57,7 @@
   },
   "jest": {
     "preset": "../../../jest.base.config.js",
+    "maxWorkers": 8,
     "setupFiles": [
       "<rootDir>/jest.setup.js"
     ],
