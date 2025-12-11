@@ -62,8 +62,8 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -74,7 +74,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       // Create sender with balance
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "5000",
@@ -83,7 +83,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       // Create receiver with existing balance
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.9876543",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "1000",
@@ -106,14 +106,14 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       // Check sender balance was reduced
       const senderBalance = await bondHolderBalanceRepository.findOne({
-        where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+        where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
       })
       expect(senderBalance).toBeDefined()
       expect(senderBalance!.availableBalance).toBe("3000")
 
       // Check receiver balance was increased
       const receiverBalance = await bondHolderBalanceRepository.findOne({
-        where: { contractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
+        where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
       })
       expect(receiverBalance).toBeDefined()
       expect(receiverBalance!.availableBalance).toBe("3000")
@@ -124,7 +124,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       // Create only sender with balance
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "5000",
@@ -147,14 +147,14 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       // Check sender balance was reduced
       const senderBalance = await bondHolderBalanceRepository.findOne({
-        where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+        where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
       })
       expect(senderBalance).toBeDefined()
       expect(senderBalance!.availableBalance).toBe("3000")
 
       // Check new receiver account was created with transferred amount
       const receiverBalance = await bondHolderBalanceRepository.findOne({
-        where: { contractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
+        where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
       })
       expect(receiverBalance).toBeDefined()
       expect(receiverBalance!.availableBalance).toBe("2000")
@@ -195,7 +195,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         await bondHolderBalanceRepository.save({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition,
           availableBalance: "10000",
@@ -219,12 +219,12 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, TransferByPartitionDLTEvent.name)
 
         const senderBalance = await bondHolderBalanceRepository.findOne({
-          where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition },
+          where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition },
         })
         expect(senderBalance!.availableBalance).toBe("9000")
 
         const receiverBalance = await bondHolderBalanceRepository.findOne({
-          where: { contractId: "0.0.6974684", holderAccountId: "0.0.9876543", partition },
+          where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.9876543", partition },
         })
         expect(receiverBalance!.availableBalance).toBe("1000")
       }
@@ -234,7 +234,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "5000",
@@ -257,7 +257,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
       const allBalances = await bondHolderBalanceRepository.find()
       allBalances.forEach((balance) => {
-        expect(balance.contractId).toMatch(/^0\.0\.\d+$/)
+        expect(balance.bondContractId).toMatch(/^0\.0\.\d+$/)
         expect(balance.holderAccountId).toMatch(/^0\.0\.\d+$/)
       })
     })
@@ -269,7 +269,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "5000",
@@ -307,7 +307,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x0000000000000000000000000000000000000000000000000000000000000001",
         availableBalance: "10000",
@@ -336,12 +336,12 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, TransferByPartitionDLTEvent.name)
 
         const senderBalance = await bondHolderBalanceRepository.findOne({
-          where: { contractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
+          where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.7654321" },
         })
         expect(senderBalance!.availableBalance).toBe(transfer.expectedSender)
 
         const receiverBalance = await bondHolderBalanceRepository.findOne({
-          where: { contractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
+          where: { bondContractId: "0.0.6974684", holderAccountId: "0.0.9876543" },
         })
         expect(receiverBalance!.availableBalance).toBe(transfer.expectedReceiver)
       }

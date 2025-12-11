@@ -49,8 +49,8 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondRepository.clear()
-    await bondDocumentRepository.clear()
+    await bondRepository.query('DELETE FROM "Bonds"')
+    await bondDocumentRepository.query('DELETE FROM "Bonds"')
     await app.close()
   })
 
@@ -59,7 +59,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       const documentName = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
       const bondDocument = Object.assign(new BondDocumentPersistence(), {
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         name: documentName,
         uri: "document-uri",
         hash: "0xhash",
@@ -79,7 +79,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, DocumentRemovedDLTEvent.name)
 
       const removedBondDocument = await bondDocumentRepository.findOne({
-        where: { contractId: CONTRACT_ID, name: documentName },
+        where: { bondContractId: CONTRACT_ID, name: documentName },
       })
 
       expect(removedBondDocument).toBeNull()
@@ -89,7 +89,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       const documentName = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
       const bondDocument = Object.assign(new BondDocumentPersistence(), {
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         name: documentName,
         uri: "document-uri",
         hash: "0xhash",
@@ -109,7 +109,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, DocumentRemovedDLTEvent.name)
 
       const regularQuery = await bondDocumentRepository.findOne({
-        where: { contractId: CONTRACT_ID, name: documentName },
+        where: { bondContractId: CONTRACT_ID, name: documentName },
       })
 
       expect(regularQuery).toBeNull()
@@ -151,7 +151,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       const documentName = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 
       const bondDocument = Object.assign(new BondDocumentPersistence(), {
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         name: documentName,
         uri: "document-uri",
         hash: "0xhash",
@@ -176,7 +176,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           name: documentName,
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
         }),
       )
     })
@@ -190,7 +190,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
 
       for (const name of documentNames) {
         const bondDocument = Object.assign(new BondDocumentPersistence(), {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           name: name,
           uri: "document-uri",
           hash: "0xhash",
@@ -211,7 +211,7 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, DocumentRemovedDLTEvent.name)
 
       const allDocuments = await bondDocumentRepository.find({
-        where: { contractId: CONTRACT_ID },
+        where: { bondContractId: CONTRACT_ID },
       })
 
       expect(allDocuments).toHaveLength(2)

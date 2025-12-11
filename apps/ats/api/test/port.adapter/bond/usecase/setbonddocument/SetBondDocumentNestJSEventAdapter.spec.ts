@@ -49,8 +49,8 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondRepository.clear()
-    await bondDocumentRepository.clear()
+    await bondRepository.query('DELETE FROM "Bonds"')
+    await bondDocumentRepository.query('DELETE FROM "Bonds"')
     await app.close()
   })
 
@@ -68,12 +68,12 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
       const savedBondDocument = await bondDocumentRepository.findOne({
-        where: { contractId: CONTRACT_ID, name: documentName },
+        where: { bondContractId: CONTRACT_ID, name: documentName },
       })
 
       expect(savedBondDocument).toBeDefined()
       expect(savedBondDocument).not.toBeNull()
-      expect(savedBondDocument!.contractId).toBe("0.0.6974684")
+      expect(savedBondDocument!.bondContractId).toBe("0.0.6974684")
       expect(savedBondDocument!.name).toBe(documentName)
       expect(savedBondDocument!.uri).toBe(event._uri)
       expect(savedBondDocument!.hash).toBe(event._documentHash)
@@ -82,7 +82,7 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
     it("should update the bond document when DocumentUpdatedDLTEvent is published and a document with same name and contractId exists", async () => {
       const documentName = "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
       const bondDocument = Object.assign(new BondDocumentPersistence(), {
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         name: documentName,
         uri: "document-uri",
         hash: "0x",
@@ -108,12 +108,12 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
       const savedBondDocument = await bondDocumentRepository.findOne({
-        where: { contractId: CONTRACT_ID, name: documentName },
+        where: { bondContractId: CONTRACT_ID, name: documentName },
       })
 
       expect(savedBondDocument).toBeDefined()
       expect(savedBondDocument).not.toBeNull()
-      expect(savedBondDocument!.contractId).toBe(CONTRACT_ID)
+      expect(savedBondDocument!.bondContractId).toBe(CONTRACT_ID)
       expect(savedBondDocument!.name).toBe(documentName)
       expect(savedBondDocument!.uri).toBe(newUri)
       expect(savedBondDocument!.hash).toBe(newHash)
@@ -138,12 +138,12 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, DocumentUpdatedDLTEvent.name)
 
         const savedBondDocument = await bondDocumentRepository.findOne({
-          where: { contractId: CONTRACT_ID, name: name },
+          where: { bondContractId: CONTRACT_ID, name: name },
         })
 
         expect(savedBondDocument).toBeDefined()
         expect(savedBondDocument).not.toBeNull()
-        expect(savedBondDocument!.contractId).toBe(CONTRACT_ID)
+        expect(savedBondDocument!.bondContractId).toBe(CONTRACT_ID)
         expect(savedBondDocument!.name).toBe(name)
       }
       const allDocuments = await bondDocumentRepository.find()
@@ -167,7 +167,7 @@ describe("SetBondDocumentNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           name: event._name,
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           uri: event._uri,
           hash: event._documentHash,
         }),

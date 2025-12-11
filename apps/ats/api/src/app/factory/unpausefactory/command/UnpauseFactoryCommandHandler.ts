@@ -24,6 +24,6 @@ export class UnpauseFactoryCommandHandler implements CommandHandler<UnpauseFacto
     factory.unpause()
     await this.factoryRepository.save(factory)
 
-    this.eventBus.publish(new FactoryUnpausedEvent(factory.bondContractId))
+    this.eventBus.publish(new FactoryUnpausedEvent(factory.contractId))
   }
 }

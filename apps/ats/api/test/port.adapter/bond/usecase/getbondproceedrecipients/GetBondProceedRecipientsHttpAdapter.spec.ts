@@ -101,13 +101,13 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
       const recipient2 = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
       await internalBondProceedRecipientRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         proceedRecipientAddress: recipient1,
         data: "0x",
       })
 
       await internalBondProceedRecipientRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         proceedRecipientAddress: recipient2,
         data: "0x1234",
       })
@@ -127,7 +127,7 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
       // Verify full object structure
       response.body.items.forEach((item: any) => {
         expect(item).toHaveProperty("id")
-        expect(item).toHaveProperty("contractId", bond.contractId)
+        expect(item).toHaveProperty("bondContractId", bond.contractId)
         expect(item).toHaveProperty("proceedRecipientAddress")
         expect(item).toHaveProperty("data")
         expect(item).toHaveProperty("createdAt")
@@ -158,7 +158,7 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
 
       for (let i = 1; i <= 5; i++) {
         await internalBondProceedRecipientRepository.save({
-          contractId: bond.contractId,
+          bondContractId: bond.contractId,
           proceedRecipientAddress: `0x${i.toString().padStart(40, "0")}`,
           data: "0x",
         })

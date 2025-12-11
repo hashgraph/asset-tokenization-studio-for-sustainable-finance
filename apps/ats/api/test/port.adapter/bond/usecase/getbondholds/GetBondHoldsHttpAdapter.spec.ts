@@ -32,10 +32,10 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
   })
   afterEach(async () => {
     if (bondHoldRepository) {
-      await bondHoldRepository.clear()
+      await bondHoldRepository.query('DELETE FROM "Bonds"')
     }
     if (bondRepository) {
-      await bondRepository.clear()
+      await bondRepository.query('DELETE FROM "Bonds"')
     }
     if (app) {
       await app.close()
@@ -98,7 +98,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       const expirationTimestamp = new Date("2026-06-01")
       const hold = await bondHoldRepository.save({
         id: 1,
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: holderAccountId,
         partition: "default",
         amount: "1000",
@@ -124,7 +124,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       const holdResponse = response.body.items[0]
       expect(holdResponse).toMatchObject({
         id: hold.id,
-        contractId: hold.contractId,
+        bondContractId: hold.bondContractId,
         holderAccountId: hold.holderAccountId,
         partition: hold.partition,
         amount: hold.amount,
@@ -149,7 +149,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       await bondHoldRepository.save([
         {
           id: 1,
-          contractId: bondContractId1,
+          bondContractId: bondContractId1,
           holderAccountId: holderAccountId1,
           partition: "partition1",
           amount: "1000",
@@ -162,7 +162,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
         },
         {
           id: 2,
-          contractId: bondContractId1,
+          bondContractId: bondContractId1,
           holderAccountId: holderAccountId1,
           partition: "partition2",
           amount: "2000",
@@ -175,7 +175,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
         },
         {
           id: 3,
-          contractId: bondContractId1,
+          bondContractId: bondContractId1,
           holderAccountId: holderAccountId2,
           partition: "default",
           amount: "3000",
@@ -188,7 +188,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
         },
         {
           id: 4,
-          contractId: bondContractId2,
+          bondContractId: bondContractId2,
           holderAccountId: holderAccountId1,
           partition: "default",
           amount: "4000",
@@ -208,7 +208,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
 
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
-      expect(response.body.items.every((item: any) => item.contractId === bondContractId1)).toBe(true)
+      expect(response.body.items.every((item: any) => item.bondContractId === bondContractId1)).toBe(true)
       expect(response.body.items.every((item: any) => item.holderAccountId === holderAccountId1)).toBe(true)
     })
 
@@ -221,7 +221,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       await bondHoldRepository.save([
         {
           id: 1,
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: "partition1",
           amount: "1000",
@@ -234,7 +234,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
         },
         {
           id: 2,
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: "partition2",
           amount: "2000",
@@ -247,7 +247,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
         },
         {
           id: 3,
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: "partition3",
           amount: "3000",
@@ -283,7 +283,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       for (let i = 1; i <= 5; i++) {
         await bondHoldRepository.save({
           id: i,
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: `partition${i}`,
           amount: `${i * 1000}`,
@@ -335,7 +335,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       // Save in specific order to control createdAt
       const hold1 = await bondHoldRepository.save({
         id: 1,
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: holderAccountId,
         partition: "first",
         amount: "1000",
@@ -352,7 +352,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
 
       const hold2 = await bondHoldRepository.save({
         id: 2,
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: holderAccountId,
         partition: "second",
         amount: "2000",
@@ -382,7 +382,7 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
 
       await bondHoldRepository.save({
         id: 1,
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: holderAccountId,
         partition: "default",
         amount: "1000",

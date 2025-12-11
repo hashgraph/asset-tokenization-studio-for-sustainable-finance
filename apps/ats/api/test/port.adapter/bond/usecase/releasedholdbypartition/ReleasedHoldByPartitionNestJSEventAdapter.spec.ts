@@ -11,12 +11,14 @@ import { BondHoldPersistence } from "@port/hold/persistence/model/BondHoldPersis
 import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { HoldByPartitionReleasedDLTEvent } from "@port/hold/usecase/releasedholdbypartition/model/HoldByPartitionReleasedDLTEvent"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
   let app: INestApplication
   let eventBus: EventBus
   let bondHoldRepository: Repository<BondHoldPersistence>
   let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
+  let bondRepository: Repository<BondPersistence>
 
   const HOLDER_ADDRESS = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
   const HOLDER_HEDERA_ID = "0.0.1234567"
@@ -34,6 +36,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
     eventBus = app.get("EventBus")
     bondHoldRepository = app.get(getRepositoryToken(BondHoldPersistence))
     bondHolderBalanceRepository = app.get(getRepositoryToken(BondHolderBalancePersistence))
+    bondRepository = app.get(getRepositoryToken(BondPersistence))
 
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
@@ -44,8 +47,8 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHoldRepository.clear()
-    await bondHolderBalanceRepository.clear()
+    await bondHoldRepository.query('DELETE FROM "Bonds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -54,9 +57,27 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
     it("should release hold by returning held balance to available balance", async () => {
       jest.spyOn(eventBus, "publish").mockImplementation(() => {})
 
+      // Create bond first
+      await bondRepository.save({
+        contractId: CONTRACT_HEDERA_ID,
+        treasuryId: "0.0.1000001",
+        kpiId: "0.0.1000002",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+
       // Create initial holder balance with held tokens
       await bondHolderBalanceRepository.save({
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         availableBalance: "100",
@@ -67,7 +88,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Create hold
       await bondHoldRepository.save({
         id: 1,
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         amount: "30",
@@ -94,7 +115,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       const deletedHold = await bondHoldRepository.findOne({
         where: {
           id: 1,
-          contractId: CONTRACT_HEDERA_ID,
+          bondContractId: CONTRACT_HEDERA_ID,
           holderAccountId: HOLDER_HEDERA_ID,
           partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         },
@@ -104,7 +125,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Verify holder balance was updated: heldBalance reduced, availableBalance increased
       const holderBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_HEDERA_ID,
+          bondContractId: CONTRACT_HEDERA_ID,
           holderAccountId: HOLDER_HEDERA_ID,
           partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         },
@@ -118,9 +139,27 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
     it("should release partial hold amount", async () => {
       jest.spyOn(eventBus, "publish").mockImplementation(() => {})
 
+      // Create bond first
+      await bondRepository.save({
+        contractId: CONTRACT_HEDERA_ID,
+        treasuryId: "0.0.1000001",
+        kpiId: "0.0.1000002",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+
       // Create initial holder balance with held tokens
       await bondHolderBalanceRepository.save({
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         availableBalance: "100",
@@ -131,7 +170,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Create hold
       await bondHoldRepository.save({
         id: 1,
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         amount: "50",
@@ -158,7 +197,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Verify holder balance was updated with partial release
       const holderBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_HEDERA_ID,
+          bondContractId: CONTRACT_HEDERA_ID,
           holderAccountId: HOLDER_HEDERA_ID,
           partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         },
@@ -171,9 +210,27 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
     it("should release full hold amount and delete hold", async () => {
       jest.spyOn(eventBus, "publish").mockImplementation(() => {})
 
+      // Create bond first
+      await bondRepository.save({
+        contractId: CONTRACT_HEDERA_ID,
+        treasuryId: "0.0.1000001",
+        kpiId: "0.0.1000002",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+
       // Create initial holder balance
       await bondHolderBalanceRepository.save({
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         availableBalance: "100",
@@ -184,7 +241,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Create hold
       await bondHoldRepository.save({
         id: 1,
-        contractId: CONTRACT_HEDERA_ID,
+        bondContractId: CONTRACT_HEDERA_ID,
         holderAccountId: HOLDER_HEDERA_ID,
         partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         amount: "50",
@@ -211,7 +268,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       const deletedHold = await bondHoldRepository.findOne({
         where: {
           id: 1,
-          contractId: CONTRACT_HEDERA_ID,
+          bondContractId: CONTRACT_HEDERA_ID,
           holderAccountId: HOLDER_HEDERA_ID,
           partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         },
@@ -221,7 +278,7 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       // Verify all held balance was released
       const holderBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_HEDERA_ID,
+          bondContractId: CONTRACT_HEDERA_ID,
           holderAccountId: HOLDER_HEDERA_ID,
           partition: "0x0000000000000000000000000000000000000000000000000000000000000000",
         },

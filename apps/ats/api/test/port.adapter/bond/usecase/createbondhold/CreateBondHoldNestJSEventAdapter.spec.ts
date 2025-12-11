@@ -47,7 +47,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
     availableBalance: string,
   ): Promise<BondHolderBalancePersistence> => {
     const balance = {
-      contractId,
+      bondContractId: contractId,
       holderAccountId,
       partition,
       availableBalance,
@@ -83,9 +83,10 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHoldRepository.clear()
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await bondHoldRepository.query('DELETE FROM "BondHolds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "BondHolderBalances"')
+    await bondRepository.query('DELETE FROM "Bonds"')
+
     jest.restoreAllMocks()
     await app.close()
   })
@@ -122,7 +123,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       const savedBondHold = await bondHoldRepository.findOne({
         where: {
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -131,7 +132,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       expect(savedBondHold).toBeDefined()
       expect(savedBondHold).not.toBeNull()
       expect(savedBondHold!.id).toBe(1)
-      expect(savedBondHold!.contractId).toBe("0.0.6974684")
+      expect(savedBondHold!.bondContractId).toBe("0.0.6974684")
       expect(savedBondHold!.holderAccountId).toBe("0.0.7654321")
       expect(savedBondHold!.partition).toBe("0x7265736572766564000000000000000000000000000000000000000000000000")
       expect(savedBondHold!.amount).toBe("1000")
@@ -143,7 +144,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -185,7 +186,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       const savedBondHold = await bondHoldRepository.findOne({
         where: {
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -200,7 +201,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
 
       const existingBondHold = {
         id: 1,
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "500",
@@ -232,7 +233,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       )
 
       await expect(eventBus.publishSync(event, HeldByPartitionDLTEvent.name)).rejects.toThrow(
-        BondHoldFoundError.holdIdError(existingBondHold.contractId, existingBondHold.id),
+        BondHoldFoundError.holdIdError(existingBondHold.bondContractId, existingBondHold.id),
       )
     })
 
@@ -270,7 +271,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         const savedBondHold = await bondHoldRepository.findOne({
           where: {
             id: holdId,
-            contractId: "0.0.6974684",
+            bondContractId: "0.0.6974684",
             holderAccountId: "0.0.7654321",
             partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           },
@@ -317,14 +318,14 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       const savedBondHold = await bondHoldRepository.findOne({
         where: {
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
       })
 
       expect(savedBondHold).toBeDefined()
-      expect(savedBondHold!.contractId).toMatch(/^0\.0\.\d+$/)
+      expect(savedBondHold!.bondContractId).toMatch(/^0\.0\.\d+$/)
       expect(savedBondHold!.holderAccountId).toMatch(/^0\.0\.\d+$/)
       expect(savedBondHold!.escrowAccountId).toMatch(/^0\.0\.\d+$/)
       expect(savedBondHold!.toAccountId).toMatch(/^0\.0\.\d+$/)
@@ -365,7 +366,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
@@ -413,7 +414,7 @@ describe("CreateBondHoldNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, HeldByPartitionDLTEvent.name)
 
         const savedBondHold = await bondHoldRepository.findOne({
-          where: { id: 1, contractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: partitions[i] },
+          where: { id: 1, bondContractId: "0.0.6974684", holderAccountId: "0.0.7654321", partition: partitions[i] },
         })
 
         expect(savedBondHold).toBeDefined()

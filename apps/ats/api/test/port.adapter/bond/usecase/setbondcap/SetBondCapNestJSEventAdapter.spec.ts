@@ -47,7 +47,7 @@ describe("SetBondCapNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondRepository.clear()
+    await bondRepository.query('DELETE FROM "Bonds"')
     await app.close()
   })
 

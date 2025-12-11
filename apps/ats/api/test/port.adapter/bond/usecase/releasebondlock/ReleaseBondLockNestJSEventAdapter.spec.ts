@@ -64,9 +64,9 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondLockRepository.clear()
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await bondLockRepository.query('DELETE FROM "Bonds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -76,7 +76,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -85,7 +85,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       const existingBondLock = {
         id: 1,
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
@@ -107,14 +107,14 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
 
       const deletedBondLock = await bondLockRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(deletedBondLock).toBeNull()
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -129,7 +129,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -154,7 +154,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "4000",
@@ -166,7 +166,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       for (const lockId of lockIds) {
         await bondLockRepository.save({
           id: lockId,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "2000",
@@ -188,7 +188,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
 
         const deletedBondLock = await bondLockRepository.findOne({
-          where: { id: lockId, contractId: "0.0.6974684" },
+          where: { id: lockId, bondContractId: "0.0.6974684" },
         })
 
         expect(deletedBondLock).toBeNull()
@@ -199,7 +199,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -213,7 +213,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -222,7 +222,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       await bondLockRepository.save({
         id: 1,
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
@@ -254,7 +254,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -263,7 +263,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       await bondLockRepository.save({
         id: 1,
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "1000",
@@ -285,7 +285,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
@@ -305,7 +305,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         await bondHolderBalanceRepository.save({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition,
           availableBalance: "9000",
@@ -316,7 +316,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
       for (let i = 0; i < partitions.length; i++) {
         await bondLockRepository.save({
           id: i + 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: partitions[i],
           amount: "1000",
@@ -336,7 +336,7 @@ describe("ReleaseBondLockNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, LockByPartitionReleasedDLTEvent.name)
 
         const deletedBondLock = await bondLockRepository.findOne({
-          where: { id: i + 1, contractId: "0.0.6974684" },
+          where: { id: i + 1, bondContractId: "0.0.6974684" },
         })
 
         expect(deletedBondLock).toBeNull()

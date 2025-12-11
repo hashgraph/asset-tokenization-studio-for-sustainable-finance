@@ -10,11 +10,14 @@ import { BondProceedRecipientPersistence } from "@port/proceedrecipient/persiste
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { ProceedRecipientRemovedDLTEvent } from "@port/proceedrecipient/usecase/removeproceedrecipient/model/ProceedRecipientRemovedDLTEvent"
 import { RemoveProceedRecipientNestJSEventAdapter } from "@port/proceedrecipient/usecase/removeproceedrecipient/RemoveProceedRecipientNestJSEventAdapter"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 describe("RemoveProceedRecipientNestJSEventAdapter", () => {
   let app: INestApplication
   let removeProceedRecipientAdapter: RemoveProceedRecipientNestJSEventAdapter
   let bondProceedRecipientRepository: Repository<BondProceedRecipientPersistence>
+  let bondRepository: Repository<BondPersistence>
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
@@ -32,6 +35,7 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
     bondProceedRecipientRepository = app.get<Repository<BondProceedRecipientPersistence>>(
       getRepositoryToken(BondProceedRecipientPersistence),
     )
+    bondRepository = app.get<Repository<BondPersistence>>(getRepositoryToken(BondPersistence))
   })
   afterEach(async () => {
     if (app) {
@@ -44,16 +48,34 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
       const contractId = "0.0.12345"
       const proceedRecipient = "0x1234567890123456789012345678901234567890"
 
+      // Create bond first
+      await bondRepository.save({
+        contractId: contractId,
+        treasuryId: "0.0.1000001",
+        kpiId: "0.0.1000002",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+
       // First, add a proceed recipient
       await bondProceedRecipientRepository.save({
-        contractId: contractId,
+        bondContractId: contractId,
         proceedRecipientAddress: proceedRecipient,
         data: "0x",
       })
 
       // Verify it exists
       let recipient = await bondProceedRecipientRepository.findOne({
-        where: { contractId, proceedRecipientAddress: proceedRecipient },
+        where: { bondContractId: contractId, proceedRecipientAddress: proceedRecipient },
       })
       expect(recipient).toBeDefined()
 
@@ -64,7 +86,7 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
 
       // Verify it was removed
       recipient = await bondProceedRecipientRepository.findOne({
-        where: { contractId, proceedRecipientAddress: proceedRecipient },
+        where: { bondContractId: contractId, proceedRecipientAddress: proceedRecipient },
       })
       expect(recipient).toBeNull()
     })
@@ -79,18 +101,36 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
     })
 
     it("should handle multiple remove events for different recipients", async () => {
-      const contractId = "0.0.12345"
+      const contractId = "0.0.54321"
       const recipient1 = "0x1111111111111111111111111111111111111111"
       const recipient2 = "0x2222222222222222222222222222222222222222"
 
+      // Create bond first
+      await bondRepository.save({
+        contractId: contractId,
+        treasuryId: "0.0.2000001",
+        kpiId: "0.0.2000002",
+        name: "Test Bond 2",
+        symbol: "TBOND2",
+        isin: "US0987654321",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+
       // Add two recipients
       await bondProceedRecipientRepository.save({
-        contractId: contractId,
+        bondContractId: contractId,
         proceedRecipientAddress: recipient1,
         data: "0x",
       })
       await bondProceedRecipientRepository.save({
-        contractId: contractId,
+        bondContractId: contractId,
         proceedRecipientAddress: recipient2,
         data: "0x",
       })
@@ -101,10 +141,10 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
 
       // Verify first is removed, second still exists
       const result1 = await bondProceedRecipientRepository.findOne({
-        where: { contractId, proceedRecipientAddress: recipient1 },
+        where: { bondContractId: contractId, proceedRecipientAddress: recipient1 },
       })
       const result2 = await bondProceedRecipientRepository.findOne({
-        where: { contractId, proceedRecipientAddress: recipient2 },
+        where: { bondContractId: contractId, proceedRecipientAddress: recipient2 },
       })
 
       expect(result1).toBeNull()
