@@ -1,45 +1,41 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { GenericContainer, StartedTestContainer } from "testcontainers"
-import process from "process"
+import { PostgreSqlTestContainer } from "@hashgraph/green-bonds-shared-testing"
 import { TypeOrmModuleOptions } from "@nestjs/typeorm"
 
+/**
+ * PostgreSQL container wrapper for Primary Market API tests.
+ * Uses shared testing infrastructure for optimal performance.
+ */
 export class PostgreSqlContainer {
-  private static INTERNAL_PORT = 5432
-  private static DATABASE = process.env.POSTGRESQL_DB || "test"
-  private static USER = process.env.POSTGRESQL_USER || "test"
-  private static PASSWORD = process.env.POSTGRESQL_PASSWORD || "test"
-  private container: StartedTestContainer
-
-  static async create(): Promise<PostgreSqlContainer> {
-    const postgresqlContainer = new PostgreSqlContainer()
-
-    postgresqlContainer.container = await new GenericContainer("postgres")
-      .withExposedPorts(this.INTERNAL_PORT)
-      .withEnvironment({
-        POSTGRES_DB: this.DATABASE,
-        POSTGRES_USER: this.USER,
-        POSTGRES_PASSWORD: this.PASSWORD,
-      })
-      .start()
-
-    return postgresqlContainer
+  /**
+   * Get TypeORM configuration for worker-specific database.
+   * Uses global container from jest.globalSetup.ts.
+   */
+  static getWorkerConfig(): TypeOrmModuleOptions {
+    return PostgreSqlTestContainer.getWorkerConfig()
   }
 
+  /**
+   * @deprecated Use getWorkerConfig() with Jest global setup instead.
+   * Kept for backwards compatibility only.
+   */
+  static async create(): Promise<PostgreSqlContainer> {
+    console.warn(
+      "⚠️  PostgreSqlContainer.create() is deprecated. Use getWorkerConfig() with Jest global setup for better performance.",
+    )
+    return new PostgreSqlContainer()
+  }
+
+  /**
+   * Get TypeORM configuration.
+   * @deprecated Use static getWorkerConfig() instead.
+   */
   public getConfig(): TypeOrmModuleOptions {
-    return {
-      host: this.container.getHost(),
-      port: this.container.getMappedPort(PostgreSqlContainer.INTERNAL_PORT),
-      username: PostgreSqlContainer.USER,
-      password: PostgreSqlContainer.PASSWORD,
-      database: PostgreSqlContainer.DATABASE,
-      synchronize: true,
-      migrationsRun: false,
-      logging: false,
-    }
+    return PostgreSqlContainer.getWorkerConfig()
   }
 
   async stop(): Promise<void> {
-    await this.container.stop()
+    // Container is managed by global teardown - nothing to do here
   }
 }

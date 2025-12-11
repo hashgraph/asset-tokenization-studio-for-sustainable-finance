@@ -14,17 +14,11 @@ import { ProceedsRecipientPersistence } from "@port/persistence/proceedsrecipien
 
 describe("GetProceedsRecipients API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalProceedsRecipientRepository: Repository<ProceedsRecipientPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -40,11 +34,6 @@ describe("GetProceedsRecipients API Integration", () => {
       getRepositoryToken(ProceedsRecipientPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalProceedsRecipientRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

@@ -14,17 +14,11 @@ import { EnvironmentalAssetPersistence } from "@port/persistence/environmentalas
 
 describe("GetEnvironmentalAssets API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let environmentalAssetRepository: Repository<EnvironmentalAssetPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -40,11 +34,6 @@ describe("GetEnvironmentalAssets API Integration", () => {
       getRepositoryToken(EnvironmentalAssetPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await environmentalAssetRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

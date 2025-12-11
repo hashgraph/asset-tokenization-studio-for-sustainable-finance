@@ -14,16 +14,10 @@ import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
 
 describe("GetClearingRedeemHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalClearingRedeemRepository: Repository<BondClearingRedeemPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -34,11 +28,6 @@ describe("GetClearingRedeemHttpAdapter API Integration", () => {
     await app.init()
     internalClearingRedeemRepository = app.get(getRepositoryToken(BondClearingRedeemPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

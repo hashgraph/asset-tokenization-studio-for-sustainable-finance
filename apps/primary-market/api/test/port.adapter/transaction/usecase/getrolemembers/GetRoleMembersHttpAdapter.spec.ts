@@ -13,17 +13,12 @@ import { getRepositoryToken } from "@nestjs/typeorm"
 
 describe("GetRoleMembers API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let userRoleRepository: Repository<UserRolePersistence>
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -35,10 +30,6 @@ describe("GetRoleMembers API Integration", () => {
 
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     userRoleRepository = app.get(getRepositoryToken(UserRolePersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

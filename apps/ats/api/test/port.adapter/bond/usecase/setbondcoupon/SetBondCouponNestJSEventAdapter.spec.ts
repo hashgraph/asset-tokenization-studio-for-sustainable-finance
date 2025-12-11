@@ -19,18 +19,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
   const OPERATOR = "0x48ca774f6942166bf37e178ccc1e861947ead8c7"
 
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondRepository: Repository<BondPersistence>
   let bondCouponRepository: Repository<BondCouponPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -57,11 +51,6 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       isin: "US1234567890",
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondCouponRepository.clear()
     await bondRepository.clear()

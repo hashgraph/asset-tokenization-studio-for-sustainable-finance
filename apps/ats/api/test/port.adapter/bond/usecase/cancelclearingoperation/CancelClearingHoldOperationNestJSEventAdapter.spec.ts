@@ -17,7 +17,6 @@ import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/mo
 
 describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let clearingHoldRepository: Repository<BondClearingHoldPersistence>
   let bondRepository: Repository<BondPersistence>
@@ -62,14 +61,9 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
     }
     return await clearingHoldRepository.save(clearing)
   }
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -91,11 +85,6 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       return Promise.resolve(addressMap[address] || "0.0.9999999")
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await clearingHoldRepository.clear()
     await bondHolderBalanceRepository.clear()

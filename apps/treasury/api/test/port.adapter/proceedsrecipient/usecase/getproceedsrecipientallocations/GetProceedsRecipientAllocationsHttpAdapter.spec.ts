@@ -16,19 +16,13 @@ import { ProceedsRecipientAllocationPersistence } from "@port/persistence/procee
 
 describe("GetProceedsRecipientAllocations API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalProceedsRecipientRepository: Repository<ProceedsRecipientPersistence>
   let internalProceedsRecipientAllocationRepository: Repository<ProceedsRecipientAllocationPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -50,11 +44,6 @@ describe("GetProceedsRecipientAllocations API Integration", () => {
       Repository<ProceedsRecipientAllocationPersistence>
     >(getRepositoryToken(ProceedsRecipientAllocationPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalProceedsRecipientAllocationRepository.deleteAll()
     await internalProceedsRecipientRepository.deleteAll()

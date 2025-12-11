@@ -14,17 +14,11 @@ describe("UnpauseBondNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
 
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondRepository: Repository<BondPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -51,11 +45,6 @@ describe("UnpauseBondNestJSEventAdapter Integration", () => {
       isPaused: true,
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondRepository.clear()
     await app.close()

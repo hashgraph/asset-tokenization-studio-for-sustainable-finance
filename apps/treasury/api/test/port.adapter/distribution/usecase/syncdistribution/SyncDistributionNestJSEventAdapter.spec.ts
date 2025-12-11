@@ -22,20 +22,14 @@ import { DistributionHolderToSucessSetEvent } from "@domain/distribution/event/D
 
 describe("SyncDistribution Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalDistributionRepository: Repository<DistributionPersistence>
   let internalDistributionHolderRepository: Repository<DistributionHolderPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -48,11 +42,6 @@ describe("SyncDistribution Integration", () => {
     internalDistributionRepository = app.get(getRepositoryToken(DistributionPersistence))
     internalDistributionHolderRepository = app.get(getRepositoryToken(DistributionHolderPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalDistributionHolderRepository.deleteAll()
     await internalDistributionRepository.deleteAll()

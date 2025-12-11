@@ -10,15 +10,10 @@ import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer
 
 describe("DeployPrimaryMarketTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -31,10 +26,6 @@ describe("DeployPrimaryMarketTransaction API Integration", () => {
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue("0.0.1234567")
     app.useLogger(false)
     await app.init()
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

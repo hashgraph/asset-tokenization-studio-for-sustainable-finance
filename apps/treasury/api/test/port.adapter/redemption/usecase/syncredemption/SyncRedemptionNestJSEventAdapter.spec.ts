@@ -23,19 +23,13 @@ import { RedemptionHolderToSuccessSetEvent } from "@domain/redemption/event/Rede
 
 describe("SyncRedemption Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalRedemptionHolderRepository: Repository<RedemptionHolderPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -47,11 +41,6 @@ describe("SyncRedemption Integration", () => {
     internalPaymentTokenRepository = app.get(getRepositoryToken(PaymentTokenPersistence))
     internalRedemptionHolderRepository = app.get(getRepositoryToken(RedemptionHolderPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalRedemptionHolderRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

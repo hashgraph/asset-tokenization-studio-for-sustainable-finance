@@ -10,15 +10,9 @@ import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer
 
 describe("CreateClearingRedeemTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -28,11 +22,6 @@ describe("CreateClearingRedeemTransaction API Integration", () => {
     app.useLogger(["error", "warn"])
     await app.init()
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

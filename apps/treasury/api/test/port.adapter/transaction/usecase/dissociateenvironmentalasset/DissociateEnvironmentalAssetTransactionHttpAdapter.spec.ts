@@ -10,15 +10,9 @@ import { PostgresModule } from "@config/PostgresModule"
 
 describe("DissociateEnvironmentalAssetTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -30,11 +24,6 @@ describe("DissociateEnvironmentalAssetTransaction API Integration", () => {
       .spyOn(ConverterUtils, "getEvmAddressFromHederaAddress")
       .mockResolvedValue("0x1dC69e700e3fF1Cd7ca407DcCC6f8061D260F1E7")
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   describe("POST /treasuries/:treasuryContractId/environmental-assets/:assetContractId/dissociate", () => {
     it("should dissociate environmental asset with valid treasuryContractId and assetContractId", async () => {
       const treasuryContractId = "0.0.123456"

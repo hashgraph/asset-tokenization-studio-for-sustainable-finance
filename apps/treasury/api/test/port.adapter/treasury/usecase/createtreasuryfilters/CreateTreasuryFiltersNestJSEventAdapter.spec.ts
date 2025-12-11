@@ -14,17 +14,15 @@ import { TreasuryCreatedEvent } from "@domain/treasury/event/TreasuryCreatedEven
 
 describe("CreateTreasuryFilters Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalEventFilterRepository: Repository<EventFilterPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, BlockchainEventListenerModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [
+        SharedModule,
+        BlockchainEventListenerModule,
+        PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig()),
+      ],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -37,11 +35,6 @@ describe("CreateTreasuryFilters Integration", () => {
     const hederaPort = app.get("HederaPort")
     jest.spyOn(hederaPort, "getBlock").mockRejectedValue(undefined)
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalEventFilterRepository.deleteAll()
   })

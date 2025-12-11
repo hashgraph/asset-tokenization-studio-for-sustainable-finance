@@ -13,16 +13,10 @@ import { UserRolePersistence } from "@hashgraph/green-bonds-shared-core"
 
 describe("GetUserRoles API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalUserRoleRepository: Repository<UserRolePersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -35,11 +29,6 @@ describe("GetUserRoles API Integration", () => {
       getRepositoryToken(UserRolePersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalUserRoleRepository.deleteAll()
     if (app) {

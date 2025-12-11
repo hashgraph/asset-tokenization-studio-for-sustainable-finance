@@ -15,15 +15,9 @@ import { PaymentTokenUpdatedEvent } from "@domain/treasury/event/PaymentTokenUpd
 
 describe("UpdatePaymentToken Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const mockHederaPort = {
       getTokenBalance: jest.fn().mockResolvedValue("0"),
@@ -31,7 +25,7 @@ describe("UpdatePaymentToken Integration", () => {
     }
 
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [
         ...PROVIDERS.filter((provider) => !(typeof provider === "object" && provider.provide === "HederaPort")),
@@ -48,11 +42,6 @@ describe("UpdatePaymentToken Integration", () => {
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
     internalPaymentTokenRepository = app.get(getRepositoryToken(PaymentTokenPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalTreasuryRepository.deleteAll()
     await internalPaymentTokenRepository.deleteAll()

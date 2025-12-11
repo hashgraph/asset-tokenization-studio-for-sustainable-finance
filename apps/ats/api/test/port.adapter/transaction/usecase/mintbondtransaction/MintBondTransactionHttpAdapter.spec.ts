@@ -10,19 +10,13 @@ import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer
 
 describe("MintBondTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
 
   const BOND_CONTRACT_ID = "0.0.6974684"
   const HOLDER_ACCOUNT_ID = "0.0.6823801"
   const PARTITION = "0x7265736572766564000000000000000000000000000000000000000000000000"
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -32,11 +26,6 @@ describe("MintBondTransaction API Integration", () => {
     app.useLogger(false)
     await app.init()
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()
