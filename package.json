@@ -14,6 +14,7 @@
     "packages/shared/blockchain-listener",
     "packages/shared/contracts",
     "packages/shared/core",
+    "packages/shared/testing",
     "packages/treasury/contracts",
     "scripts"
   ],
@@ -121,7 +122,8 @@
     "primary-market:api:test:coverage:ci": "npm run test:coverage --workspace=@hashgraph/green-bonds-primary-market-api -- --ci --maxWorkers=2 --forceExit",
     "primary-market:api:docker:up": "npm run docker:up --workspace=@hashgraph/green-bonds-primary-market-api",
     "primary-market:api:docker:down": "npm run docker:down --workspace=@hashgraph/green-bonds-primary-market-api",
-    "shared:build": "npm run shared:core:build && npm run shared:listener:build",
+    "shared:build": "npm run shared:testing:build && npm run shared:core:build && npm run shared:listener:build",
+    "shared:testing:build": "npm run build --workspace=@hashgraph/green-bonds-shared-testing",
     "shared:core:build": "npm run build --workspace=@hashgraph/green-bonds-shared-core",
     "shared:core:format": "npm run format --workspace=@hashgraph/green-bonds-shared-core",
     "shared:core:format:check": "npm run format:check --workspace=@hashgraph/green-bonds-shared-core",

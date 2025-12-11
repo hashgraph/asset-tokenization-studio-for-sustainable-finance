@@ -14,17 +14,11 @@ import { DistributionPersistence } from "@port/persistence/distribution/model/Di
 
 describe("GetDistributions API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalDistributionRepository: Repository<DistributionPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -40,11 +34,6 @@ describe("GetDistributions API Integration", () => {
       getRepositoryToken(DistributionPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalDistributionRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

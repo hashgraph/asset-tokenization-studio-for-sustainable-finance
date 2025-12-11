@@ -16,17 +16,11 @@ describe("SetBondCapNestJSEventAdapter Integration", () => {
   const INITIAL_MAX_SUPPLY = "1000000"
 
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondRepository: Repository<BondPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -52,11 +46,6 @@ describe("SetBondCapNestJSEventAdapter Integration", () => {
       isin: "US1234567890",
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondRepository.clear()
     await app.close()

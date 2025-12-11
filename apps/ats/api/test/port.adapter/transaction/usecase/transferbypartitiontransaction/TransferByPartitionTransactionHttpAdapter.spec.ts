@@ -11,15 +11,9 @@ import { TransferByPartitionTransactionRequest } from "@port/transaction/usecase
 
 describe("TransferByPartitionTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -29,11 +23,6 @@ describe("TransferByPartitionTransaction API Integration", () => {
     app.useLogger(false)
     await app.init()
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

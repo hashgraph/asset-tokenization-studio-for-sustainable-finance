@@ -14,7 +14,6 @@ import { HoldByPartitionReleasedDLTEvent } from "@port/hold/usecase/releasedhold
 
 describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let bondHoldRepository: Repository<BondHoldPersistence>
   let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
@@ -23,14 +22,9 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
   const HOLDER_HEDERA_ID = "0.0.1234567"
   const CONTRACT_ADDRESS = "0xb3533f32594b689f19a94c608490451478f7197b"
   const CONTRACT_HEDERA_ID = "0.0.6974684"
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -49,11 +43,6 @@ describe("ReleasedHoldByPartitionNestJSEventAdapter Integration", () => {
       return Promise.resolve(addressMap[address.toLowerCase()] || "0.0.9999999")
     })
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await bondHoldRepository.clear()
     await bondHolderBalanceRepository.clear()

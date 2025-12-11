@@ -19,19 +19,13 @@ import { SyncEnvironmentalAssetTokenNestJSEventAdapter } from "@port/environment
 
 describe("AddPaymentTokenTransfer Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
   let internalPaymentTokenTransferRepository: Repository<PaymentTokenTransferPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -50,11 +44,6 @@ describe("AddPaymentTokenTransfer Integration", () => {
     const syncEnvironmentalAssetTokenHandler = app.get(SyncEnvironmentalAssetTokenNestJSEventAdapter)
     jest.spyOn(syncEnvironmentalAssetTokenHandler, "handle").mockResolvedValue(undefined)
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalTreasuryRepository.deleteAll()
     await internalPaymentTokenTransferRepository.deleteAll()

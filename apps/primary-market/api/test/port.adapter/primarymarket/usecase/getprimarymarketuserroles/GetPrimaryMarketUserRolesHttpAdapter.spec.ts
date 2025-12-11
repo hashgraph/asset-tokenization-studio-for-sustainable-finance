@@ -11,16 +11,11 @@ import { GetPrimaryMarketUserRoleResponse } from "@port/primarymarket/usecase/ge
 
 describe("GetPrimaryMarketUserRoles API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let queryBus: QueryBus
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -31,10 +26,6 @@ describe("GetPrimaryMarketUserRoles API Integration", () => {
     await app.init()
 
     queryBus = app.get("QueryBus")
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

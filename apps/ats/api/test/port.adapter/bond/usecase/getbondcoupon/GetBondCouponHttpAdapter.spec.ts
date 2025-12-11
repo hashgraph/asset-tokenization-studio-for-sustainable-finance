@@ -14,17 +14,11 @@ import { BondCouponPersistence } from "@port/coupon/persistence/model/BondCoupon
 
 describe("GetBondCouponHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalBondRepository: Repository<BondPersistence>
   let internalBondCouponRepository: Repository<BondCouponPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -36,11 +30,6 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
     internalBondCouponRepository = app.get(getRepositoryToken(BondCouponPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

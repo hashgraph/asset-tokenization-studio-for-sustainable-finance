@@ -14,17 +14,11 @@ import { BondProceedRecipientPersistence } from "@port/proceedrecipient/persiste
 
 describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalBondRepository: Repository<BondPersistence>
   let internalBondProceedRecipientRepository: Repository<BondProceedRecipientPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -36,11 +30,6 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
     internalBondProceedRecipientRepository = app.get(getRepositoryToken(BondProceedRecipientPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (app) {
       await app.close()

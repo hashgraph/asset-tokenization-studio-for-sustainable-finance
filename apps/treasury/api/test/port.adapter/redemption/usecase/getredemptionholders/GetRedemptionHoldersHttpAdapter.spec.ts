@@ -16,18 +16,12 @@ import { RedemptionHolderStatus } from "@domain/redemption/model/RedemptionHolde
 
 describe("GetRedemptionHolders API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let internalRedemptionHolderRepository: Repository<RedemptionHolderPersistence>
   let internalPaymentTokenRepository: Repository<PaymentTokenPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -46,11 +40,6 @@ describe("GetRedemptionHolders API Integration", () => {
       getRepositoryToken(PaymentTokenPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalRedemptionHolderRepository.deleteAll()
     await internalPaymentTokenRepository.deleteAll()

@@ -14,17 +14,11 @@ import { PaymentTokenPersistence } from "@port/persistence/paymenttoken/model/Pa
 
 describe("GetPaymentTokens API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let paymentTokenRepository: Repository<PaymentTokenPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -40,11 +34,6 @@ describe("GetPaymentTokens API Integration", () => {
       getRepositoryToken(PaymentTokenPersistence),
     )
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await paymentTokenRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

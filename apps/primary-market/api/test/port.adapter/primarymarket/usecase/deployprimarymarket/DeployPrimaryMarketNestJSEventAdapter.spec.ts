@@ -14,17 +14,12 @@ import { PrimaryMarketFoundError } from "@domain/primarymarket/errors/PrimaryMar
 
 describe("DeployPrimaryMarketNestJSEventAdapter Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -46,10 +41,6 @@ describe("DeployPrimaryMarketNestJSEventAdapter Integration", () => {
       }
       return Promise.resolve(addressMap[address.toLowerCase()] || addressMap[address] || "0.0.9999999")
     })
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

@@ -14,17 +14,11 @@ import { BondHoldPersistence } from "@port/hold/persistence/model/BondHoldPersis
 
 describe("GetBondHoldsHttpAdapter API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let bondRepository: Repository<BondPersistence>
   let bondHoldRepository: Repository<BondHoldPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -36,11 +30,6 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
     bondRepository = app.get(getRepositoryToken(BondPersistence))
     bondHoldRepository = app.get(getRepositoryToken(BondHoldPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     if (bondHoldRepository) {
       await bondHoldRepository.clear()

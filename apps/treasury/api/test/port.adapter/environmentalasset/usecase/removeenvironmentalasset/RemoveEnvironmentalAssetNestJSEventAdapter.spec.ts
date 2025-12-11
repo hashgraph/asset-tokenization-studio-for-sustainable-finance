@@ -14,18 +14,12 @@ import { EnvironmentalAssetNotFoundError } from "@domain/environmentalasset/erro
 
 describe("RemoveEnvironmentalAsset API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let eventBus: EventBus
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let environmentalAssetRepository: Repository<EnvironmentalAssetPersistence>
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -36,11 +30,6 @@ describe("RemoveEnvironmentalAsset API Integration", () => {
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
     environmentalAssetRepository = app.get(getRepositoryToken(EnvironmentalAssetPersistence))
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await environmentalAssetRepository.deleteAll()
     await internalTreasuryRepository.deleteAll()

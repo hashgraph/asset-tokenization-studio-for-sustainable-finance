@@ -16,17 +16,11 @@ import { TreasuryNotFoundError } from "@domain/treasury/errors/TreasuryNotFoundE
 
 describe("GetTreasury API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let internalTreasuryRepository: Repository<TreasuryPersistence>
   let hederaPort: HederaPort
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: PROVIDERS,
     }).compile()
@@ -37,11 +31,6 @@ describe("GetTreasury API Integration", () => {
     internalTreasuryRepository = app.get(getRepositoryToken(TreasuryPersistence))
     hederaPort = app.get("HederaPort")
   })
-
-  afterAll(async () => {
-    await container.stop()
-  })
-
   afterEach(async () => {
     await internalTreasuryRepository.deleteAll()
   })

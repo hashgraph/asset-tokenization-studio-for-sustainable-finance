@@ -14,19 +14,14 @@ import { SubscriptionStatus } from "@domain/shared/model/SubscriptionStatus"
 
 describe("GetSubscriptionsByInvestor API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
   let primaryMarketRepository: Repository<PrimaryMarketPersistence>
   let offeringRepository: Repository<OfferingPersistence>
 
   let subscriptionRepository: Repository<SubscriptionPersistence>
 
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
-
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -39,10 +34,6 @@ describe("GetSubscriptionsByInvestor API Integration", () => {
     primaryMarketRepository = app.get(getRepositoryToken(PrimaryMarketPersistence))
     offeringRepository = app.get(getRepositoryToken(OfferingPersistence))
     subscriptionRepository = app.get(getRepositoryToken(SubscriptionPersistence))
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {

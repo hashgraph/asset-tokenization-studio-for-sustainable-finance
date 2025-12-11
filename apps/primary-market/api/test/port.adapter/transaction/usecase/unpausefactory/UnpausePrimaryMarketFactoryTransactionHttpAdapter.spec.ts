@@ -11,15 +11,10 @@ import { UnpausePrimaryMarketFactoryTransactionRequest } from "@port/transaction
 
 describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
   let app: INestApplication
-  let container: PostgreSqlContainer
-
-  beforeAll(async () => {
-    container = await PostgreSqlContainer.create()
-  })
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [SharedModule, PostgresModule.forRoot(container.getConfig())],
+      imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,
       providers: [...PROVIDERS],
     }).compile()
@@ -28,10 +23,6 @@ describe("UnpausePrimaryMarketFactoryTransaction API Integration", () => {
     app.setGlobalPrefix("api/v1/")
     app.useLogger(false)
     await app.init()
-  })
-
-  afterAll(async () => {
-    await container.stop()
   })
 
   afterEach(async () => {
