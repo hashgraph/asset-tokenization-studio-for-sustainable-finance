@@ -66,7 +66,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "ats_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
     },
   },
   primaryMarketApi: {
@@ -80,7 +80,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "primary_market_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
     },
   },
   treasuryApi: {
@@ -94,7 +94,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "treasury_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28401014",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
     },
   },
   gateway: {
@@ -149,6 +149,17 @@ const CONFIG = {
     env: {
       PORT: "3005",
       RABBITMQ_URI: "amqp://localhost:5672",
+      RABBITMQ_EXCHANGE_NAME: "tx",
+      RABBITMQ_EXCHANGE_TYPE: "topic",
+      RABBITMQ_HEDERA_QUEUE_NAME: "hederaFormat.incoming",
+      RABBITMQ_HEDERA_ROUTING_KEY: "hederaFormat.incoming",
+      RABBITMQ_HEDERA_OUTGOING_QUEUE_NAME: "hederaFormat.outgoing",
+      RABBITMQ_HEDERA_OUTGOING_ROUTING_KEY: "hederaFormat.outgoing",
+      RABBITMQ_ETHEREUM_QUEUE_NAME: "ethereumFormat.incoming",
+      RABBITMQ_ETHEREUM_ROUTING_KEY: "ethereumFormat.incoming",
+      RABBITMQ_ETHEREUM_OUTGOING_QUEUE_NAME: "ethereumFormat.outgoing",
+      RABBITMQ_ETHEREUM_OUTGOING_ROUTING_KEY: "ethereumFormat.outgoing",
+      RABBITMQ_CONNECTION_WAIT: "false",
     },
   },
 };
