@@ -6,7 +6,7 @@ import { Type } from "class-transformer"
 export class SetBondCouponCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  readonly contractId: string
+  readonly bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -43,7 +43,7 @@ export class SetBondCouponCommand extends Command<void> {
   readonly period: string
 
   constructor(
-    contractId: string,
+    bondContractId: string,
     corporateActionId: string,
     couponId: string,
     operator: string,
@@ -54,7 +54,7 @@ export class SetBondCouponCommand extends Command<void> {
     period: string,
   ) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.corporateActionId = corporateActionId
     this.couponId = couponId
     this.operator = operator

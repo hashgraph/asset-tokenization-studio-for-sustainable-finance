@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Entity, Column, Index } from "typeorm"
+import { Entity, Column, Index, ManyToOne, JoinColumn } from "typeorm"
 import { BaseEntityPersistence } from "@hashgraph/green-bonds-shared-core"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 @Entity("BondHolderBalances")
-@Index(["contractId", "holderAccountId", "partition"], { unique: true })
+@Index(["bondContractId", "holderAccountId", "partition"], { unique: true })
 export class BondHolderBalancePersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255 })
-  contractId: string
+  bondContractId: string
+
+  @ManyToOne(() => BondPersistence, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "bondContractId", referencedColumnName: "contractId" })
+  bond: BondPersistence
 
   @Column({ type: "varchar", length: 255 })
   holderAccountId: string

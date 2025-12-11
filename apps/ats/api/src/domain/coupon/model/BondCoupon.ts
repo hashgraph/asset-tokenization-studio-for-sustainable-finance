@@ -1,19 +1,18 @@
 // SPDX-License-Identifier: Apache-2.0
-import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsString, IsDate, IsNumberString } from "class-validator"
 
-export class BondCoupon extends BaseEntity {
+export class BondCoupon {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  id: string
+
+  @IsNotEmpty()
+  @IsString()
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
   corporateActionId: string
-
-  @IsNotEmpty()
-  @IsString()
-  couponId: string
 
   @IsNotEmpty()
   @IsString()
@@ -38,4 +37,10 @@ export class BondCoupon extends BaseEntity {
   @IsNotEmpty()
   @IsNumberString()
   period: string
+
+  @IsDate()
+  createdAt: Date
+
+  @IsDate()
+  updatedAt: Date
 }

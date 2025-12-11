@@ -26,14 +26,14 @@ export class SetBondCouponTransactionAppServiceRequest extends BaseTransactionAp
   constructor(
     format: string,
     accountId: string,
-    contractId: string,
+    bondContractId: string,
     recordDate: string,
     executionDate: string,
     rate: string,
     rateDecimals: string,
     period: string,
   ) {
-    super(format, accountId, contractId)
+    super(format, accountId, bondContractId)
     this.recordDate = recordDate
     this.executionDate = executionDate
     this.rate = rate

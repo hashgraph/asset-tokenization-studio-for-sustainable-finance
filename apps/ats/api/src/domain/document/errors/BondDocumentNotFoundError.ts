@@ -7,7 +7,7 @@ export class BondDocumentNotFoundError extends EntityNotFoundError {
     super(message)
   }
 
-  static contractIdNameError(contractId: string, name: string): BondDocumentNotFoundError {
-    return new BondDocumentNotFoundError(`Bond document with name ${name} not found for contract ${contractId}`)
+  static contractIdNameError(bondContractId: string, name: string): BondDocumentNotFoundError {
+    return new BondDocumentNotFoundError(`Bond document with name ${name} not found for contract ${bondContractId}`)
   }
 }

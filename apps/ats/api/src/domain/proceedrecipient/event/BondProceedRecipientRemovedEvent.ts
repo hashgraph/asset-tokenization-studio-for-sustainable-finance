@@ -2,12 +2,12 @@
 import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class BondProceedRecipientRemovedEvent extends Event {
-  readonly contractId: string
+  readonly bondContractId: string
   readonly proceedRecipientAddress: string
 
-  constructor(contractId: string, proceedRecipientAddress: string) {
+  constructor(bondContractId: string, proceedRecipientAddress: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.proceedRecipientAddress = proceedRecipientAddress
   }
 }

@@ -10,13 +10,13 @@ export class RemoveBondProceedRecipientDomainService {
 
   async execute(req: RemoveProceedRecipientCommand): Promise<void> {
     const recipient = await this.bondProceedRecipientRepository.findByContractIdAndProceedRecipientAddress(
-      req.contractId,
+      req.bondContractId,
       req.proceedRecipientAddress,
     )
 
     if (!recipient) {
       throw BondProceedRecipientNotFoundError.contractIdAndProceedRecipientAddressError(
-        req.contractId,
+        req.bondContractId,
         req.proceedRecipientAddress,
       )
     }

@@ -2,7 +2,7 @@
 
 export class BondProceedRecipientsQueryResponse {
   id: string
-  contractId: string
+  bondContractId: string
   proceedRecipientAddress: string
   data?: string
   createdAt: Date

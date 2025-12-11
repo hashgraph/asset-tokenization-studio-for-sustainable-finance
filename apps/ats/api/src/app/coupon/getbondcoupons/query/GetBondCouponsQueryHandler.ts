@@ -24,7 +24,7 @@ export class GetBondCouponsQueryHandler implements QueryHandler<GetBondCouponsQu
     )
 
     return {
-      couponIds: page.items.map((coupon) => coupon.couponId),
+      couponIds: page.items.map((coupon) => coupon.id),
     }
   }
 }

@@ -4,17 +4,14 @@ import { ApiProperty, ApiSchema } from "@nestjs/swagger"
 
 @ApiSchema({ name: "BondCoupon" })
 export class BondCouponResponse {
-  @ApiProperty({ description: "Unique identifier of the bond coupon", example: "1" })
+  @ApiProperty({ description: "Coupon identifier", example: "1" })
   id: string
 
   @ApiProperty({ description: "Contract ID of the bond", example: "0.0.6823801" })
-  contractId: string
+  bondContractId: string
 
   @ApiProperty({ description: "Corporate action ID associated with the coupon", example: "CA001" })
   corporateActionId: string
-
-  @ApiProperty({ description: "Coupon identifier", example: "2" })
-  couponId: string
 
   @ApiProperty({ description: "Operator account EVM address", example: "0x000000000000000000000000000000000052BAC3" })
   operator: string

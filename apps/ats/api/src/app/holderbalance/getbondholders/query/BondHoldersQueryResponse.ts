@@ -2,7 +2,7 @@
 
 export class BondHoldersQueryResponse {
   id: string
-  contractId: string
+  bondContractId: string
   holderAccountId: string
   partition: string
   availableBalance: string

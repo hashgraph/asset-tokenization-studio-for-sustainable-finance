@@ -18,14 +18,14 @@ export class BondCouponTypeOrmRepository implements BondCouponRepository {
     return (await this.repository.save(coupon as BondCouponPersistence)) as BondCoupon
   }
 
-  async findByContractIdAndCouponId(contractId: string, couponId: string): Promise<BondCoupon | null> {
-    return (await this.repository.findOne({ where: { contractId, couponId } })) as BondCoupon | null
+  async findByContractIdAndId(bondContractId: string, id: string): Promise<BondCoupon | null> {
+    return (await this.repository.findOne({ where: { bondContractId, id } })) as BondCoupon | null
   }
 
-  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondCoupon>> {
+  async findAllByContractIdPaginated(bondContractId: string, options: PageOptions): Promise<Page<BondCoupon>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
-      where: { contractId },
+      where: { bondContractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,

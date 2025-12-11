@@ -17,14 +17,14 @@ export class RemoveBondDocumentTransactionHttpAdapter implements RemoveBondDocum
   @ApiResponse({ status: 200, type: TransactionResponse })
   @Delete(":bondContractId/documents/:documentId")
   async removeBondDocumentTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Param("documentId", Bytes32ParamPipe) name: string,
     @Body() request: RemoveBondDocumentTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new RemoveBondDocumentTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       name,
     )
 

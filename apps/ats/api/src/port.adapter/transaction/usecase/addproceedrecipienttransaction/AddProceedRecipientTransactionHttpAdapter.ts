@@ -15,13 +15,13 @@ export class AddProceedRecipientTransactionHttpAdapter {
   @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/proceeds-recipients")
   async addProceedRecipientTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Body() request: AddProceedRecipientTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new AddProceedRecipientTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       request.proceedRecipientAddress,
       request.data,
     )

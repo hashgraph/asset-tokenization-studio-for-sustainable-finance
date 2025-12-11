@@ -16,6 +16,6 @@ export class RemoveProceedRecipientCommandHandler implements CommandHandler<Remo
   @Validate()
   async execute(command: RemoveProceedRecipientCommand): Promise<void> {
     await this.removeBondProceedRecipientDomainService.execute(command)
-    this.eventBus.publish(new BondProceedRecipientRemovedEvent(command.contractId, command.proceedRecipientAddress))
+    this.eventBus.publish(new BondProceedRecipientRemovedEvent(command.bondContractId, command.proceedRecipientAddress))
   }
 }

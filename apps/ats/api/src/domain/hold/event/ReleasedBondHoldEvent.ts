@@ -3,15 +3,15 @@ import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class ReleasedBondHoldEvent extends Event {
   readonly holdId: number
-  readonly contractId: string
+  readonly bondContractId: string
   readonly holderAccountId: string
   readonly partition: string
   readonly amount: string
 
-  constructor(holdId: number, contractId: string, holderAccountId: string, partition: string, amount: string) {
+  constructor(holdId: number, bondContractId: string, holderAccountId: string, partition: string, amount: string) {
     super()
     this.holdId = holdId
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.holderAccountId = holderAccountId
     this.partition = partition
     this.amount = amount

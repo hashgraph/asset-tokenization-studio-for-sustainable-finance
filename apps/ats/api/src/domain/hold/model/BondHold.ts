@@ -9,7 +9,7 @@ export class BondHold {
 
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()

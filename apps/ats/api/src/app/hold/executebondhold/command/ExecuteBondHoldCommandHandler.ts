@@ -21,7 +21,7 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
   async execute(command: ExecuteBondHoldCommand): Promise<void> {
     await this.transactionManager.execute(async (transactionId) => {
       await this.executeHoldBondHolderBalanceDomainService.execute(
-        command.contractId,
+        command.bondContractId,
         command.holderAccountId,
         command.toAccountId,
         command.partition,
@@ -31,7 +31,7 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
 
       await this.deleteBondHoldDomainService.execute(
         new DeleteBondHoldDomainServiceRequest(
-          command.contractId,
+          command.bondContractId,
           command.holderAccountId,
           command.holdId,
           command.partition,
@@ -41,7 +41,7 @@ export class ExecuteBondHoldCommandHandler implements CommandHandler<ExecuteBond
       this.eventBus.publish(
         new ExecutedBondHoldEvent(
           command.holdId,
-          command.contractId,
+          command.bondContractId,
           command.holderAccountId,
           command.toAccountId,
           command.partition,

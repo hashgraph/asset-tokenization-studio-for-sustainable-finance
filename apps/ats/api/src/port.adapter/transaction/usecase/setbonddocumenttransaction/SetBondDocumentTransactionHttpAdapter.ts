@@ -17,14 +17,14 @@ export class SetBondDocumentTransactionHttpAdapter implements SetBondDocumentTra
   @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/documents/:documentId")
   async setBondDocumentTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Param("documentId", Bytes32ParamPipe) name: string,
     @Body() request: SetBondDocumentTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new SetBondDocumentTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       name,
       request.uri,
       request.hash,

@@ -21,7 +21,7 @@ export class ReclaimBondHoldCommandHandler implements CommandHandler<ReclaimBond
   async execute(command: ReclaimBondHoldCommand): Promise<void> {
     await this.transactionManager.execute(async (transactionId) => {
       await this.releaseHoldBondHolderBalanceDomainService.execute(
-        command.contractId,
+        command.bondContractId,
         command.holderAccountId,
         command.partition,
         command.amount,
@@ -30,7 +30,7 @@ export class ReclaimBondHoldCommandHandler implements CommandHandler<ReclaimBond
 
       await this.deleteBondHoldDomainService.execute(
         new DeleteBondHoldDomainServiceRequest(
-          command.contractId,
+          command.bondContractId,
           command.holderAccountId,
           command.holdId,
           command.partition,
@@ -40,7 +40,7 @@ export class ReclaimBondHoldCommandHandler implements CommandHandler<ReclaimBond
       this.eventBus.publish(
         new ReclaimedBondHoldEvent(
           command.holdId,
-          command.contractId,
+          command.bondContractId,
           command.holderAccountId,
           command.partition,
           command.amount,

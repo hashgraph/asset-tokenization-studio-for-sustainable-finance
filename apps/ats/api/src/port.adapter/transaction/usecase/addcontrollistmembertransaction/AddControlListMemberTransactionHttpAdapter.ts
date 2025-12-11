@@ -16,14 +16,14 @@ export class AddControlListMemberTransactionHttpAdapter implements AddControlLis
   @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/control-list/:holderAccountId")
   async addControlListMemberTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
     @Body() request: AddControlListMemberTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new AddControlListMemberTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       holderAccountId,
     )
 

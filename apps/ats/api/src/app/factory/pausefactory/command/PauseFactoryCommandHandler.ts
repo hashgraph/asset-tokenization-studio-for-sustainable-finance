@@ -24,6 +24,6 @@ export class PauseFactoryCommandHandler implements CommandHandler<PauseFactoryCo
     factory.pause()
     await this.factoryRepository.save(factory)
 
-    this.eventBus.publish(new FactoryPausedEvent(factory.contractId))
+    this.eventBus.publish(new FactoryPausedEvent(factory.bondContractId))
   }
 }

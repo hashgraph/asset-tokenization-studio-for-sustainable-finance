@@ -12,7 +12,7 @@ export class CouponSetDLTEvent extends DLTEvent {
   readonly period: string
 
   constructor(
-    contractId: string,
+    bondContractId: string,
     transactionHash: string,
     corporateActionId: string,
     couponId: string,
@@ -23,7 +23,7 @@ export class CouponSetDLTEvent extends DLTEvent {
     rateDecimals: string,
     period: string,
   ) {
-    super(contractId, transactionHash)
+    super(bondContractId, transactionHash)
     this.corporateActionId = corporateActionId
     this.couponId = couponId
     this.operator = operator

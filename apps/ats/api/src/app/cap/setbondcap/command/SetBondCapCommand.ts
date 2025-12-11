@@ -5,15 +5,15 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class SetBondCapCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsNumberString()
   newMaxSupply: string
 
-  constructor(contractId: string, newMaxSupply: string) {
+  constructor(bondContractId: string, newMaxSupply: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.newMaxSupply = newMaxSupply
   }
 }

@@ -19,16 +19,18 @@ export class BondControlListMemberTypeOrmRepository implements BondControlListMe
   }
 
   async findByContractIdAndHolderAccountId(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
   ): Promise<BondControlListMember | null> {
-    return (await this.repository.findOne({ where: { contractId, holderAccountId } })) as BondControlListMember | null
+    return (await this.repository.findOne({
+      where: { bondContractId, holderAccountId },
+    })) as BondControlListMember | null
   }
 
-  async findAllByContractId(contractId: string, options: PageOptions): Promise<Page<BondControlListMember>> {
+  async findAllByContractId(bondContractId: string, options: PageOptions): Promise<Page<BondControlListMember>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
-      where: { contractId },
+      where: { bondContractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,
@@ -46,6 +48,6 @@ export class BondControlListMemberTypeOrmRepository implements BondControlListMe
   }
 
   async delete(member: BondControlListMember): Promise<void> {
-    await this.repository.delete({ contractId: member.contractId, holderAccountId: member.holderAccountId })
+    await this.repository.delete({ bondContractId: member.bondContractId, holderAccountId: member.holderAccountId })
   }
 }

@@ -24,7 +24,7 @@ export class CreateBondHoldCommandHandler implements CommandHandler<CreateBondHo
 
       //Check if the bond holder balance exists and update it if it does
       await this.decreaseBondHolderAvailableBalanceDomainService.execute(
-        bondHold.contractId,
+        bondHold.bondContractId,
         bondHold.holderAccountId,
         bondHold.partition,
         bondHold.amount,
@@ -35,7 +35,7 @@ export class CreateBondHoldCommandHandler implements CommandHandler<CreateBondHo
       this.eventBus.publish(
         new CreatedBondHoldEvent(
           bondHold.id,
-          bondHold.contractId,
+          bondHold.bondContractId,
           bondHold.holderAccountId,
           bondHold.partition,
           bondHold.amount,

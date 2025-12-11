@@ -18,14 +18,14 @@ export class BondDocumentTypeOrmRepository implements BondDocumentRepository {
     return (await this.repository.save(bondDocument as BondDocumentPersistence)) as BondDocument
   }
 
-  async findByContractIdAndName(contractId: string, name: string): Promise<BondDocument | null> {
-    return (await this.repository.findOne({ where: { contractId, name } })) as BondDocument | null
+  async findByContractIdAndName(bondContractId: string, name: string): Promise<BondDocument | null> {
+    return (await this.repository.findOne({ where: { bondContractId, name } })) as BondDocument | null
   }
 
-  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondDocument>> {
+  async findAllByContractIdPaginated(bondContractId: string, options: PageOptions): Promise<Page<BondDocument>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
-      where: { contractId },
+      where: { bondContractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,
@@ -43,6 +43,6 @@ export class BondDocumentTypeOrmRepository implements BondDocumentRepository {
   }
 
   async delete(bondDocument: BondDocument): Promise<void> {
-    await this.repository.delete({ contractId: bondDocument.contractId, name: bondDocument.name })
+    await this.repository.delete({ bondContractId: bondDocument.bondContractId, name: bondDocument.name })
   }
 }

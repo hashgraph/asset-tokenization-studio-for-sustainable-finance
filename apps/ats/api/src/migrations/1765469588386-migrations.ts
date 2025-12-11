@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm"
 
-export class Migrations1764757089168 implements MigrationInterface {
-  name = "Migrations1764757089168"
+export class Migrations1765469588386 implements MigrationInterface {
+  name = "Migrations1765469588386"
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -49,14 +49,14 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "deletedAt" TIMESTAMP,
                 "name" character varying(255) NOT NULL,
-                "contractId" character varying(255) NOT NULL,
+                "bondContractId" character varying(255) NOT NULL,
                 "uri" character varying(255) NOT NULL,
                 "hash" character varying(255) NOT NULL,
                 CONSTRAINT "PK_9ec1fa9f74b16b31b6b594911d4" PRIMARY KEY ("id")
             )
         `)
     await queryRunner.query(`
-            CREATE UNIQUE INDEX "IDX_7b997a110c6aea57ee54241a1b" ON "BondDocuments" ("name", "contractId")
+            CREATE UNIQUE INDEX "IDX_33f120ceec1710f065ee819c5a" ON "BondDocuments" ("name", "bondContractId")
         `)
     await queryRunner.query(`
             CREATE TABLE "BondControlListMembers" (
@@ -64,36 +64,34 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "deletedAt" TIMESTAMP,
-                "contractId" character varying(255) NOT NULL,
+                "bondContractId" character varying(255) NOT NULL,
                 "holderAccountId" character varying(255) NOT NULL,
-                CONSTRAINT "PK_4e6188664ccae8e211c00d96aaf" PRIMARY KEY ("id")
+                CONSTRAINT "PK_765d1e32a7c5f05b128072c231f" PRIMARY KEY ("id", "bondContractId")
             )
         `)
     await queryRunner.query(`
-            CREATE UNIQUE INDEX "IDX_264ff799a0c0c9c4d628ac0017" ON "BondControlListMembers" ("contractId", "holderAccountId")
+            CREATE UNIQUE INDEX "IDX_69be11bd67d0c7cac7743a459b" ON "BondControlListMembers" ("bondContractId", "holderAccountId")
         `)
     await queryRunner.query(`
             CREATE TABLE "BondCoupons" (
-                "id" uuid NOT NULL DEFAULT uuid_generate_v4(),
-                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                "deletedAt" TIMESTAMP,
-                "contractId" character varying(255) NOT NULL,
+                "id" character varying NOT NULL,
+                "bondContractId" character varying(255) NOT NULL,
                 "corporateActionId" character varying(255) NOT NULL,
-                "couponId" character varying NOT NULL,
                 "operator" character varying(255) NOT NULL,
                 "recordDate" TIMESTAMP NOT NULL,
                 "executionDate" TIMESTAMP NOT NULL,
                 "rate" character varying NOT NULL,
                 "rateDecimals" character varying NOT NULL,
                 "period" character varying NOT NULL,
-                CONSTRAINT "PK_a948a25a2b40b956c1ef948936a" PRIMARY KEY ("id")
+                "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
+                "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
+                CONSTRAINT "PK_ef727bb8985680fe363513f5005" PRIMARY KEY ("id", "bondContractId")
             )
         `)
     await queryRunner.query(`
             CREATE TABLE "BondLocks" (
                 "id" integer NOT NULL,
-                "contractId" character varying NOT NULL,
+                "bondContractId" character varying NOT NULL,
                 "holderAccountId" character varying(255) NOT NULL,
                 "partition" character varying(255) NOT NULL,
                 "amount" character varying NOT NULL,
@@ -101,7 +99,7 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "operatorAccountId" character varying(255) NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                CONSTRAINT "PK_d45f0389a709663768fbc5e0670" PRIMARY KEY ("id", "contractId")
+                CONSTRAINT "PK_cde54300f8fde233bf2496adf67" PRIMARY KEY ("id", "bondContractId")
             )
         `)
     await queryRunner.query(`
@@ -110,7 +108,7 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "deletedAt" TIMESTAMP,
-                "contractId" character varying(255) NOT NULL,
+                "bondContractId" character varying(255) NOT NULL,
                 "holderAccountId" character varying(255) NOT NULL,
                 "partition" character varying(255) NOT NULL,
                 "availableBalance" character varying NOT NULL,
@@ -121,7 +119,7 @@ export class Migrations1764757089168 implements MigrationInterface {
             )
         `)
     await queryRunner.query(`
-            CREATE UNIQUE INDEX "IDX_b37198a5c62df89ed4ddd72224" ON "BondHolderBalances" ("contractId", "holderAccountId", "partition")
+            CREATE UNIQUE INDEX "IDX_bc456e98420d4f5e87e3925c00" ON "BondHolderBalances" ("bondContractId", "holderAccountId", "partition")
         `)
     await queryRunner.query(`
             CREATE TABLE "Factory" (
@@ -141,19 +139,19 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "deletedAt" TIMESTAMP,
-                "contractId" character varying(255) NOT NULL,
+                "bondContractId" character varying(255) NOT NULL,
                 "proceedRecipientAddress" character varying(255) NOT NULL,
                 "data" text,
                 CONSTRAINT "PK_711b94a0ccecbdbb0227624ddd1" PRIMARY KEY ("id")
             )
         `)
     await queryRunner.query(`
-            CREATE UNIQUE INDEX "IDX_eb3056831e889f7fd37bfe6bdb" ON "BondProceedRecipients" ("contractId", "proceedRecipientAddress")
+            CREATE UNIQUE INDEX "IDX_9380e10a9fd155834657f1dfdd" ON "BondProceedRecipients" ("bondContractId", "proceedRecipientAddress")
         `)
     await queryRunner.query(`
             CREATE TABLE "BondHolds" (
                 "id" integer NOT NULL,
-                "contractId" character varying NOT NULL,
+                "bondContractId" character varying NOT NULL,
                 "holderAccountId" character varying(255) NOT NULL,
                 "partition" character varying(255) NOT NULL,
                 "amount" character varying NOT NULL,
@@ -165,9 +163,9 @@ export class Migrations1764757089168 implements MigrationInterface {
                 "operatorAccountId" character varying(255) NOT NULL,
                 "createdAt" TIMESTAMP NOT NULL DEFAULT now(),
                 "updatedAt" TIMESTAMP NOT NULL DEFAULT now(),
-                CONSTRAINT "PK_8113e24660b4a4d70370c0437cd" PRIMARY KEY (
+                CONSTRAINT "PK_718f964b98b409d2196622e6a0e" PRIMARY KEY (
                     "id",
-                    "contractId",
+                    "bondContractId",
                     "holderAccountId",
                     "partition"
                 )
@@ -255,9 +253,79 @@ export class Migrations1764757089168 implements MigrationInterface {
     await queryRunner.query(`
             CREATE UNIQUE INDEX "IDX_571a0596e33e1c21deb5a44c94" ON "BondClearingTransfers" ("bondContractId", "holderAccountId", "id")
         `)
+    await queryRunner.query(`
+            ALTER TABLE "BondDocuments"
+            ADD CONSTRAINT "FK_803fdbc95480b5f955d9914242f" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondControlListMembers"
+            ADD CONSTRAINT "FK_d6f9c3fd8cbd33a1cc4d19ab1d4" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondCoupons"
+            ADD CONSTRAINT "FK_db54d967c3243501a95fde77105" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondLocks"
+            ADD CONSTRAINT "FK_14729ecb78808b251059b7ed110" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondHolderBalances"
+            ADD CONSTRAINT "FK_3e291b1dcc077057799a60f505e" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondProceedRecipients"
+            ADD CONSTRAINT "FK_ffe2e30364e6ddda12a22172666" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondHolds"
+            ADD CONSTRAINT "FK_0460ab7feea07ceb0fe542bcc11" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingHolds"
+            ADD CONSTRAINT "FK_6a310d54f468096270d8973b9cf" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingRedeems"
+            ADD CONSTRAINT "FK_277e5f8b66b69210d7044e0f1ff" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingTransfers"
+            ADD CONSTRAINT "FK_0d26deab44dd52936496d2bcbcb" FOREIGN KEY ("bondContractId") REFERENCES "Bonds"("contractId") ON DELETE CASCADE ON UPDATE NO ACTION
+        `)
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingTransfers" DROP CONSTRAINT "FK_0d26deab44dd52936496d2bcbcb"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingRedeems" DROP CONSTRAINT "FK_277e5f8b66b69210d7044e0f1ff"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondClearingHolds" DROP CONSTRAINT "FK_6a310d54f468096270d8973b9cf"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondHolds" DROP CONSTRAINT "FK_0460ab7feea07ceb0fe542bcc11"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondProceedRecipients" DROP CONSTRAINT "FK_ffe2e30364e6ddda12a22172666"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondHolderBalances" DROP CONSTRAINT "FK_3e291b1dcc077057799a60f505e"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondLocks" DROP CONSTRAINT "FK_14729ecb78808b251059b7ed110"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondCoupons" DROP CONSTRAINT "FK_db54d967c3243501a95fde77105"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondControlListMembers" DROP CONSTRAINT "FK_d6f9c3fd8cbd33a1cc4d19ab1d4"
+        `)
+    await queryRunner.query(`
+            ALTER TABLE "BondDocuments" DROP CONSTRAINT "FK_803fdbc95480b5f955d9914242f"
+        `)
     await queryRunner.query(`
             DROP INDEX "public"."IDX_571a0596e33e1c21deb5a44c94"
         `)
@@ -298,7 +366,7 @@ export class Migrations1764757089168 implements MigrationInterface {
             DROP TABLE "BondHolds"
         `)
     await queryRunner.query(`
-            DROP INDEX "public"."IDX_eb3056831e889f7fd37bfe6bdb"
+            DROP INDEX "public"."IDX_9380e10a9fd155834657f1dfdd"
         `)
     await queryRunner.query(`
             DROP TABLE "BondProceedRecipients"
@@ -307,7 +375,7 @@ export class Migrations1764757089168 implements MigrationInterface {
             DROP TABLE "Factory"
         `)
     await queryRunner.query(`
-            DROP INDEX "public"."IDX_b37198a5c62df89ed4ddd72224"
+            DROP INDEX "public"."IDX_bc456e98420d4f5e87e3925c00"
         `)
     await queryRunner.query(`
             DROP TABLE "BondHolderBalances"
@@ -319,13 +387,13 @@ export class Migrations1764757089168 implements MigrationInterface {
             DROP TABLE "BondCoupons"
         `)
     await queryRunner.query(`
-            DROP INDEX "public"."IDX_264ff799a0c0c9c4d628ac0017"
+            DROP INDEX "public"."IDX_69be11bd67d0c7cac7743a459b"
         `)
     await queryRunner.query(`
             DROP TABLE "BondControlListMembers"
         `)
     await queryRunner.query(`
-            DROP INDEX "public"."IDX_7b997a110c6aea57ee54241a1b"
+            DROP INDEX "public"."IDX_33f120ceec1710f065ee819c5a"
         `)
     await queryRunner.query(`
             DROP TABLE "BondDocuments"

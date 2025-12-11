@@ -7,8 +7,8 @@ export class SetBondCapTransactionAppServiceRequest extends BaseTransactionAppSe
   @IsNotEmpty()
   newMaxSupply: string
 
-  constructor(format: string, accountId: string, contractId: string, newMaxSupply: string) {
-    super(format, accountId, contractId)
+  constructor(format: string, accountId: string, bondContractId: string, newMaxSupply: string) {
+    super(format, accountId, bondContractId)
     this.newMaxSupply = newMaxSupply
   }
 }

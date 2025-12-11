@@ -8,7 +8,7 @@ export class ControlListMembersResponse {
   id: string
 
   @ApiProperty({ description: "Contract ID of the bond", example: "0.0.5421744" })
-  contractId: string
+  bondContractId: string
 
   @ApiProperty({ description: "Account ID of the holder in the control list", example: "0.0.5421745" })
   holderAccountId: string

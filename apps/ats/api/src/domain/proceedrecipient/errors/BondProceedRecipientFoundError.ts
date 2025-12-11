@@ -3,11 +3,11 @@ import { DomainError } from "@hashgraph/green-bonds-shared-core"
 
 export class BondProceedRecipientFoundError extends DomainError {
   static contractIdAndProceedRecipientAddressError(
-    contractId: string,
+    bondContractId: string,
     proceedRecipientAddress: string,
   ): BondProceedRecipientFoundError {
     return new BondProceedRecipientFoundError(
-      `Bond proceed recipient with contractId ${contractId} and proceedRecipientAddress ${proceedRecipientAddress} already exists`,
+      `Bond proceed recipient with bondContractId ${bondContractId} and proceedRecipientAddress ${proceedRecipientAddress} already exists`,
     )
   }
 }

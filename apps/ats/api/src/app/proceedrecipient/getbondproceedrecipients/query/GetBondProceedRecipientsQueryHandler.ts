@@ -35,7 +35,7 @@ export class GetBondProceedRecipientsQueryHandler
 
     return QueryPageResponse.fromPage(page, (recipient: BondProceedRecipient) => ({
       id: recipient.id,
-      contractId: recipient.contractId,
+      bondContractId: recipient.bondContractId,
       proceedRecipientAddress: recipient.proceedRecipientAddress,
       data: recipient.data,
       createdAt: recipient.createdAt,

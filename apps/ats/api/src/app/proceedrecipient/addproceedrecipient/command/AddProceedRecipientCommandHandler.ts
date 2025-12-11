@@ -17,7 +17,7 @@ export class AddProceedRecipientCommandHandler implements CommandHandler<AddProc
   async execute(command: AddProceedRecipientCommand): Promise<void> {
     const recipient = await this.addBondProceedRecipientDomainService.execute(command)
     this.eventBus.publish(
-      new BondProceedRecipientAddedEvent(recipient.contractId, recipient.proceedRecipientAddress, recipient.data),
+      new BondProceedRecipientAddedEvent(recipient.bondContractId, recipient.proceedRecipientAddress, recipient.data),
     )
   }
 }

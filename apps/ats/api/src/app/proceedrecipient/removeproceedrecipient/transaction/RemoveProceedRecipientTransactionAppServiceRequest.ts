@@ -7,8 +7,8 @@ export class RemoveProceedRecipientTransactionAppServiceRequest extends BaseTran
   @IsNotEmpty()
   proceedRecipientAddress: string
 
-  constructor(format: string, accountId: string, contractId: string, proceedRecipientAddress: string) {
-    super(format, accountId, contractId)
+  constructor(format: string, accountId: string, bondContractId: string, proceedRecipientAddress: string) {
+    super(format, accountId, bondContractId)
     this.proceedRecipientAddress = proceedRecipientAddress
   }
 }

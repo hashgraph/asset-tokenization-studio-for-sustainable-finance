@@ -9,8 +9,8 @@ export class RemoveBondDocumentTransactionAppServiceRequest extends BaseTransact
   @IsBytes32()
   name: string
 
-  constructor(format: string, accountId: string, contractId: string, name: string) {
-    super(format, accountId, contractId)
+  constructor(format: string, accountId: string, bondContractId: string, name: string) {
+    super(format, accountId, bondContractId)
     this.name = name
   }
 }

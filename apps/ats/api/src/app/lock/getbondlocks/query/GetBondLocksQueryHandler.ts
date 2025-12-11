@@ -36,7 +36,7 @@ export class GetBondLocksQueryHandler
 
     return QueryPageResponse.fromPage(page, (lock: BondLock) => ({
       id: lock.id,
-      contractId: lock.contractId,
+      bondContractId: lock.bondContractId,
       holderAccountId: lock.holderAccountId,
       partition: lock.partition,
       amount: lock.amount,

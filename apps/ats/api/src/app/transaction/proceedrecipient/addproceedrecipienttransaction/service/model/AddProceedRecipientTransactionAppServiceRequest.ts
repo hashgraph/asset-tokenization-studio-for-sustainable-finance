@@ -11,8 +11,14 @@ export class AddProceedRecipientTransactionAppServiceRequest extends BaseTransac
   @IsOptional()
   data?: string
 
-  constructor(format: string, accountId: string, contractId: string, proceedRecipientAddress: string, data?: string) {
-    super(format, accountId, contractId)
+  constructor(
+    format: string,
+    accountId: string,
+    bondContractId: string,
+    proceedRecipientAddress: string,
+    data?: string,
+  ) {
+    super(format, accountId, bondContractId)
     this.proceedRecipientAddress = proceedRecipientAddress
     this.data = data
   }

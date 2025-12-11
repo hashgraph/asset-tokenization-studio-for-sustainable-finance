@@ -34,14 +34,14 @@ export class CreateBondTransactionAppServiceRequest extends BaseTransactionAppSe
   constructor(
     format: string,
     accountId: string,
-    contractId: string,
+    bondContractId: string,
     securityTokenToCreate: SecurityTokenCreationAppServiceRequest,
     factoryRegulationData: FactoryRegulationAppServiceRequest,
     treasuryData: TreasuryAppServiceRequest,
     kpiData: KpiAppServiceRequest,
     factoryAddress: string,
   ) {
-    super(format, accountId, contractId)
+    super(format, accountId, bondContractId)
     this.securityTokenToCreate = securityTokenToCreate
     this.factoryRegulationData = factoryRegulationData
     this.treasuryData = treasuryData

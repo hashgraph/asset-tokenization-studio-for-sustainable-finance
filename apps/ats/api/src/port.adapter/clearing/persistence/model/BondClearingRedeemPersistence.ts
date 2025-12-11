@@ -1,6 +1,16 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Entity, Column, Index, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import {
+  Entity,
+  Column,
+  Index,
+  PrimaryColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from "typeorm"
 import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 @Entity("BondClearingRedeems")
 @Index(["bondContractId", "holderAccountId", "id"], { unique: true })
@@ -11,6 +21,10 @@ export class BondClearingRedeemPersistence {
 
   @PrimaryColumn({ type: "varchar", length: 255 })
   bondContractId: string
+
+  @ManyToOne(() => BondPersistence, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "bondContractId", referencedColumnName: "contractId" })
+  bond: BondPersistence
 
   @PrimaryColumn({ type: "varchar", length: 255 })
   holderAccountId: string

@@ -9,7 +9,7 @@ export class GetBondResponse {
   readonly id: string
 
   @ApiProperty({ description: "Contract ID of the bond", example: "0.0.6823801" })
-  readonly contractId: string
+  readonly bondContractId: string
 
   @ApiProperty({ description: "Treasury ID associated with the bond", example: "0.0.6823521" })
   readonly treasuryId: string
@@ -54,7 +54,7 @@ export class GetBondResponse {
     const response = new GetBondResponse()
     Object.assign(response, {
       id: queryResponse.id,
-      contractId: queryResponse.contractId,
+      bondContractId: queryResponse.contractId,
       treasuryId: queryResponse.treasuryId,
       kpiId: queryResponse.kpiId,
       name: queryResponse.name,
