@@ -28,24 +28,6 @@ import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
       connectionInitOptions: {
         wait: process.env.RABBITMQ_CONNECTION_WAIT === "true" || false,
       },
-      channels: {
-        default: {
-          prefetchCount: 1,
-          default: true,
-        },
-      },
-      queues: [
-        {
-          name: process.env.RABBITMQ_HEDERA_OUTGOING_QUEUE_NAME || "hederaFormat.outgoing",
-          exchange: process.env.RABBITMQ_EXCHANGE_NAME || "tx",
-          routingKey: process.env.RABBITMQ_HEDERA_OUTGOING_ROUTING_KEY || "hederaFormat.outgoing",
-        },
-        {
-          name: process.env.RABBITMQ_ETHEREUM_OUTGOING_QUEUE_NAME || "ethereumFormat.outgoing",
-          exchange: process.env.RABBITMQ_EXCHANGE_NAME || "tx",
-          routingKey: process.env.RABBITMQ_ETHEREUM_OUTGOING_ROUTING_KEY || "ethereumFormat.outgoing",
-        },
-      ],
       defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK,
     }),
   ],
@@ -68,7 +50,6 @@ import { HealthHttpAdapter } from "@port/health/HealthHttpAdapter"
       useClass: TransactionResultPublisherRabbitAdapter,
     },
     RabbitMQHealthIndicator,
-    // OutgoingQueueInitializer,
   ],
 })
 export class AppModule {}

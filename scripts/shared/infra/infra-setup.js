@@ -223,6 +223,55 @@ async function isDockerServiceRunning(serviceName) {
   }
 }
 
+async function initializeRabbitMQQueues() {
+  try {
+    // Try to require amqplib, if not available skip queue initialization
+    let amqp;
+    try {
+      amqp = require("amqplib");
+    } catch (requireError) {
+      log("  ℹ️  amqplib not installed, skipping queue initialization", colors.blue);
+      log("  Queues will be created automatically when transaction sender starts", colors.blue);
+      return;
+    }
+
+    const connection = await amqp.connect("amqp://localhost:5672");
+    const channel = await connection.createChannel();
+
+    const exchangeName = "tx";
+    const exchangeType = "topic";
+
+    // Ensure exchange exists
+    await channel.assertExchange(exchangeName, exchangeType, { durable: true });
+
+    // Define outgoing queues
+    const queues = [
+      {
+        name: "hederaFormat.outgoing",
+        routingKey: "hederaFormat.outgoing",
+      },
+      {
+        name: "ethereumFormat.outgoing",
+        routingKey: "ethereumFormat.outgoing",
+      },
+    ];
+
+    // Create and bind queues
+    for (const queue of queues) {
+      await channel.assertQueue(queue.name, { durable: true });
+      await channel.bindQueue(queue.name, exchangeName, queue.routingKey);
+      log(`  ✓ Created queue: ${queue.name}`, colors.green);
+    }
+
+    await channel.close();
+    await connection.close();
+    log("✅ RabbitMQ queues initialized", colors.green);
+  } catch (error) {
+    log(`⚠️  Failed to initialize RabbitMQ queues: ${error.message}`, colors.yellow);
+    log("  Queues will be created automatically when transaction sender starts", colors.yellow);
+  }
+}
+
 async function startDockerServices() {
   log("🐳 Starting Docker infrastructure services...", colors.cyan);
 
@@ -247,6 +296,11 @@ async function startDockerServices() {
 
       if (postgresHealthy && rabbitmqHealthy) {
         log("✅ All Docker services are healthy", colors.green);
+
+        // Initialize RabbitMQ queues
+        log("🐰 Initializing RabbitMQ queues...", colors.cyan);
+        await initializeRabbitMQQueues();
+
         log("🌐 Service URLs:", colors.blue);
         log("• PostgreSQL: localhost:5432 (postgres/postgres)", colors.blue);
         log("  - ATS Database: ats_db", colors.blue);
