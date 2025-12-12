@@ -10,19 +10,19 @@ export class DeleteBondHoldDomainService {
 
   async execute(request: DeleteBondHoldDomainServiceRequest): Promise<void> {
     const existingHold = await this.bondHoldRepository.findByContractIdAndHolderAndHoldId(
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
       request.holdId,
       request.partition,
     )
 
     if (!existingHold) {
-      throw BondHoldNotFoundError.withId(request.contractId, request.holderAccountId, request.holdId)
+      throw BondHoldNotFoundError.withId(request.bondContractId, request.holderAccountId, request.holdId)
     }
 
     await this.bondHoldRepository.deleteByIdAndContractIdAndHolderAccountId(
       request.holdId,
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
       request.partition,
     )

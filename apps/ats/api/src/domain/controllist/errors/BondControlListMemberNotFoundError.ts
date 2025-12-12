@@ -3,11 +3,11 @@ import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class BondControlListMemberNotFoundError extends EntityNotFoundError {
   static contractIdAndHolderAccountIdError(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
   ): BondControlListMemberNotFoundError {
     return new BondControlListMemberNotFoundError(
-      `Holder ${holderAccountId} is not in the control list for contract ${contractId}.`,
+      `Holder ${holderAccountId} is not in the control list for contract ${bondContractId}.`,
     )
   }
 

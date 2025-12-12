@@ -3,7 +3,7 @@ import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class BondCouponSetEvent extends Event {
   constructor(
-    public readonly contractId: string,
+    public readonly bondContractId: string,
     public readonly corporateActionId: string,
     public readonly couponId: string,
     public readonly operator: string,

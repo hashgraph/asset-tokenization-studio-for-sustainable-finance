@@ -19,7 +19,7 @@ export class CreateBondLockDomainService {
 
     const bondLock = Object.assign(new BondLock(), {
       id: request.lockId,
-      contractId: request.bondContractId,
+      bondContractId: request.bondContractId,
       holderAccountId: request.holderAccountId,
       partition: request.partition,
       amount: request.amount,

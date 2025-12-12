@@ -2,7 +2,7 @@
 
 export class ControlListMembersQueryResponse {
   id: string
-  contractId: string
+  bondContractId: string
   holderAccountId: string
   createdAt: Date
   updatedAt: Date

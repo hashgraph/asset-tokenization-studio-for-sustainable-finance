@@ -3,7 +3,7 @@ import { Event } from "@hashgraph/green-bonds-shared-core"
 
 export class BondControlListMemberAddedEvent extends Event {
   constructor(
-    public readonly contractId: string,
+    public readonly bondContractId: string,
     public readonly holderAccountId: string,
   ) {
     super()

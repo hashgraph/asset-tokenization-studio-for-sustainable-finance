@@ -22,13 +22,13 @@ export class TransferByPartitionTransactionAppServiceRequest extends BaseTransac
   constructor(
     format: string,
     accountId: string,
-    contractId: string,
+    bondContractId: string,
     toAccountId: string,
     partition: string | undefined,
     amount: string,
     data?: string,
   ) {
-    super(format, accountId, contractId)
+    super(format, accountId, bondContractId)
     this.toAccountId = toAccountId
     this.partition = partition
     this.amount = amount

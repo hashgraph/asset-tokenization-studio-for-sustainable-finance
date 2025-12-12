@@ -26,7 +26,7 @@ export class CreateBondHoldDomainService {
 
     const bondHold = Object.assign(new BondHold(), {
       id: request.holdId,
-      contractId: request.bondContractId,
+      bondContractId: request.bondContractId,
       holderAccountId: request.holderAccountId,
       partition: request.partition,
       amount: request.amount,

@@ -107,7 +107,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       await internalBondLockRepository.save({
         id: 1,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holderAccountId,
         partition: partition,
         amount: "1000",
@@ -117,7 +117,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       await internalBondLockRepository.save({
         id: 2,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holderAccountId,
         partition: partition,
         amount: "2000",
@@ -132,7 +132,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       expect(response.body.items).toHaveLength(2)
       expect(response.body.items[0].id).toBeDefined()
-      expect(response.body.items[0].contractId).toBe(bond.contractId)
+      expect(response.body.items[0].bondContractId).toBe(bond.contractId)
       expect(response.body.items[0].holderAccountId).toBe(holderAccountId)
       expect(response.body.items[0].amount).toBeDefined()
     })
@@ -165,7 +165,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       await internalBondLockRepository.save({
         id: 1,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holder1,
         partition: partition,
         amount: "1000",
@@ -175,7 +175,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       await internalBondLockRepository.save({
         id: 2,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holder2,
         partition: partition,
         amount: "2000",
@@ -221,7 +221,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
       for (let i = 1; i <= 5; i++) {
         await internalBondLockRepository.save({
           id: i,
-          contractId: bond.contractId,
+          bondContractId: bond.contractId,
           holderAccountId: holderAccountId,
           partition: partition,
           amount: (i * 1000).toString(),
@@ -323,7 +323,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       const lock = await internalBondLockRepository.save({
         id: 1,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holderAccountId,
         partition: partition,
         amount: amount,
@@ -337,7 +337,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
         .expect(HttpStatus.OK)
 
       expect(response.body.id).toBe(lock.id)
-      expect(response.body.contractId).toBe(bond.contractId)
+      expect(response.body.bondContractId).toBe(bond.contractId)
       expect(response.body.holderAccountId).toBe(holderAccountId)
       expect(response.body.partition).toBe(partition)
       expect(response.body.amount).toBe(amount)
@@ -372,7 +372,7 @@ describe("GetBondLocksHttpAdapter API Integration", () => {
 
       const lock = await internalBondLockRepository.save({
         id: 1,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: holder1,
         partition: partition,
         amount: "1000",

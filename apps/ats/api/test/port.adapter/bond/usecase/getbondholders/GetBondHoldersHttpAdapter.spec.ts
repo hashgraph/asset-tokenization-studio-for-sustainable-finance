@@ -32,10 +32,10 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
   })
   afterEach(async () => {
     if (bondHolderBalanceRepository) {
-      await bondHolderBalanceRepository.clear()
+      await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
     }
     if (bondRepository) {
-      await bondRepository.clear()
+      await bondRepository.query('DELETE FROM "Bonds"')
     }
     if (app) {
       await app.close()
@@ -84,7 +84,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
       await createBond(bondContractId)
 
       const holder = await bondHolderBalanceRepository.save({
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: "0.0.1001",
         partition: "default",
         availableBalance: "1000",
@@ -105,7 +105,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
       const holderResponse = response.body.items[0]
       expect(holderResponse).toMatchObject({
         id: holder.id,
-        contractId: holder.contractId,
+        bondContractId: holder.bondContractId,
         holderAccountId: holder.holderAccountId,
         partition: holder.partition,
         availableBalance: holder.availableBalance,
@@ -121,21 +121,21 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
 
       await bondHolderBalanceRepository.save([
         {
-          contractId: bondContractId1,
+          bondContractId: bondContractId1,
           holderAccountId: "0.0.1001",
           partition: "default",
           availableBalance: "1000",
           lockedBalance: "0",
         },
         {
-          contractId: bondContractId1,
+          bondContractId: bondContractId1,
           holderAccountId: "0.0.1002",
           partition: "default",
           availableBalance: "2000",
           lockedBalance: "0",
         },
         {
-          contractId: bondContractId2,
+          bondContractId: bondContractId2,
           holderAccountId: "0.0.1003",
           partition: "default",
           availableBalance: "3000",
@@ -150,7 +150,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
 
       expect(response.body.items).toHaveLength(2)
       expect(response.body.total).toBe(2)
-      expect(response.body.items.every((item: any) => item.contractId === bondContractId1)).toBe(true)
+      expect(response.body.items.every((item: any) => item.bondContractId === bondContractId1)).toBe(true)
     })
 
     it("should handle pagination correctly", async () => {
@@ -159,7 +159,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
 
       for (let i = 1; i <= 3; i++) {
         await bondHolderBalanceRepository.save({
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: `0.0.${1000 + i}`,
           partition: "default",
           availableBalance: `${i * 1000}`,
@@ -184,7 +184,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
       await createBond(bondContractId)
 
       await bondHolderBalanceRepository.save({
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: "0.0.9999",
         partition: "default",
         availableBalance: "1000",
@@ -192,7 +192,7 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
       })
 
       await bondHolderBalanceRepository.save({
-        contractId: bondContractId,
+        bondContractId: bondContractId,
         holderAccountId: "0.0.1001",
         partition: "default",
         availableBalance: "2000",
@@ -235,14 +235,14 @@ describe("GetBondHoldersHttpAdapter API Integration", () => {
 
       await bondHolderBalanceRepository.save([
         {
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: "partition1",
           availableBalance: "1000",
           lockedBalance: "100",
         },
         {
-          contractId: bondContractId,
+          bondContractId: bondContractId,
           holderAccountId: holderAccountId,
           partition: "partition2",
           availableBalance: "2000",

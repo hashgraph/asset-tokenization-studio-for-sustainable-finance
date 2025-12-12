@@ -4,7 +4,7 @@ import { RemoveControlListMemberTransactionRequest } from "./model/RemoveControl
 
 export interface RemoveControlListMemberTransactionPort {
   deleteControlListMemberTransaction(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     request: RemoveControlListMemberTransactionRequest,
   ): Promise<TransactionResponse>

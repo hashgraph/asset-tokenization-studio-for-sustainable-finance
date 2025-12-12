@@ -18,14 +18,14 @@ export class RemoveControlListMemberTransactionHttpAdapter implements RemoveCont
   @ApiResponse({ status: 200, type: TransactionResponse })
   @Delete(":bondContractId/control-list/:holderAccountId")
   async deleteControlListMemberTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Param("holderAccountId") holderAccountId: string,
     @Body() request: RemoveControlListMemberTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new RemoveControlListMemberTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       holderAccountId,
     )
 

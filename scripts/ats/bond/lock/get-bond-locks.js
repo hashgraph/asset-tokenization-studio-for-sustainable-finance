@@ -33,7 +33,7 @@ async function getBondLocks(bondContractId, holderAccountId, limit = 10, page = 
         locks.forEach((lock, index) => {
           log(`\n  Lock ${index + 1}:`, colors.bright);
           logInfo(`    • Lock ID: ${lock.id}`);
-          logInfo(`    • Contract ID: ${lock.contractId}`);
+          logInfo(`    • Contract ID: ${lock.bondContractId}`);
           logInfo(`    • Holder Account ID: ${lock.holderAccountId}`);
           logInfo(`    • Partition: ${lock.partition || "Default"}`);
           logInfo(`    • Amount: ${lock.amount}`);

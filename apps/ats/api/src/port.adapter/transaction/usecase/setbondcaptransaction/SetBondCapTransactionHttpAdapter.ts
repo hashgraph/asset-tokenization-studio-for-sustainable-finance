@@ -16,13 +16,13 @@ export class SetBondCapTransactionHttpAdapter implements SetBondCapTransactionPo
   @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/cap")
   async setBondCapTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Body() request: SetBondCapTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new SetBondCapTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       request.newMaxSupply,
     )
 

@@ -5,7 +5,7 @@ import { IsNotEmpty, IsOptional, IsString } from "class-validator"
 export class BondProceedRecipient extends BaseEntity {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()

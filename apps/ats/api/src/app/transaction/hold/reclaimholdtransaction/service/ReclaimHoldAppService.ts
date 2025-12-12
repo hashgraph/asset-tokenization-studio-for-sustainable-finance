@@ -12,7 +12,7 @@ export class ReclaimHoldAppService {
     const buildRequest = new BuildReclaimHoldTransactionRequest(
       request.format,
       request.accountId,
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
       request.partition,
       request.holdId,

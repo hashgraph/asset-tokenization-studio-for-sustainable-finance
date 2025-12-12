@@ -26,11 +26,11 @@ describe("GetBondsHttpAdapter API Integration", () => {
     app.useLogger(false)
     await app.init()
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
-    await internalBondRepository.clear()
+    await internalBondRepository.query('DELETE FROM "Bonds"')
   })
   afterEach(async () => {
     if (internalBondRepository) {
-      await internalBondRepository.clear()
+      await internalBondRepository.query('DELETE FROM "Bonds"')
     }
     if (app) {
       await app.close()

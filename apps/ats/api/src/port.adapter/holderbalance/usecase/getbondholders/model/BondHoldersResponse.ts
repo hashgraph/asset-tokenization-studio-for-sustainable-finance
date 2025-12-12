@@ -8,7 +8,7 @@ export class BondHoldersResponse {
   id: string
 
   @ApiProperty({ description: "Contract ID of the bond", example: "0.0.5421763" })
-  contractId: string
+  bondContractId: string
 
   @ApiProperty({ description: "Account ID of the bond holder", example: "0.0.5421763" })
   holderAccountId: string

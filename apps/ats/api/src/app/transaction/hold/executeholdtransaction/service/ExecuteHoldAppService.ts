@@ -12,7 +12,7 @@ export class ExecuteHoldAppService {
     const buildRequest = new BuildExecuteHoldTransactionRequest(
       request.format,
       request.accountId,
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
       request.partition,
       request.holdId,

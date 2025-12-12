@@ -2,8 +2,8 @@
 import { EntityNotFoundError } from "@hashgraph/green-bonds-shared-core"
 
 export class BondCouponNotFoundError extends EntityNotFoundError {
-  static couponIdError(contractId: string, couponId: string): BondCouponNotFoundError {
-    return new BondCouponNotFoundError(`Coupon with id ${couponId} not found for bond ${contractId}.`)
+  static couponIdError(bondContractId: string, couponId: string): BondCouponNotFoundError {
+    return new BondCouponNotFoundError(`Coupon with id ${couponId} not found for bond ${bondContractId}.`)
   }
 
   private constructor(message: string) {

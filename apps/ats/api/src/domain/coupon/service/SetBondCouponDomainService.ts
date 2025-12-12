@@ -13,10 +13,10 @@ export class SetBondCouponDomainService {
   ) {}
 
   async execute(request: SetBondCouponDomainServiceRequest): Promise<BondCoupon> {
-    await this.checkBondExistsDomainService.execute(request.contractId)
+    await this.checkBondExistsDomainService.execute(request.bondContractId)
 
-    const existingCoupon = await this.bondCouponRepository.findByContractIdAndCouponId(
-      request.contractId,
+    const existingCoupon = await this.bondCouponRepository.findByContractIdAndId(
+      request.bondContractId,
       request.couponId,
     )
 
@@ -25,9 +25,9 @@ export class SetBondCouponDomainService {
     }
 
     const coupon = Object.assign(new BondCoupon(), {
-      contractId: request.contractId,
+      id: request.couponId,
+      bondContractId: request.bondContractId,
       corporateActionId: request.corporateActionId,
-      couponId: request.couponId,
       operator: request.operator,
       recordDate: request.recordDate,
       executionDate: request.executionDate,

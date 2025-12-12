@@ -3,7 +3,7 @@ export class ReleaseHoldAppServiceRequest {
   constructor(
     public readonly format: string,
     public readonly accountId: string,
-    public readonly contractId: string,
+    public readonly bondContractId: string,
     public readonly holderAccountId: string,
     public readonly partition: string,
     public readonly holdId: number,

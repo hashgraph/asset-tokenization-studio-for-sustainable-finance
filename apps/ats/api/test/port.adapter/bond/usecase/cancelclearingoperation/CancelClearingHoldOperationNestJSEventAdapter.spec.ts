@@ -86,9 +86,9 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await clearingHoldRepository.clear()
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await clearingHoldRepository.query('DELETE FROM "Bonds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -99,7 +99,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestClearing(1, ClearingStatus.PENDING)
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -156,7 +156,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestClearing(1, ClearingStatus.PENDING)
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -185,7 +185,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "7000",
@@ -229,7 +229,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestClearing(1, ClearingStatus.PENDING)
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "9000",
@@ -268,7 +268,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         await bondHolderBalanceRepository.save({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition,
           availableBalance: "9000",
@@ -322,7 +322,7 @@ describe("CancelClearingHoldOperationNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "8000",

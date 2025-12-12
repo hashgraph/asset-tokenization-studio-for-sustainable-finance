@@ -12,7 +12,7 @@ export class ReleaseHoldAppService {
     const buildRequest = new BuildReleaseHoldTransactionRequest(
       request.format,
       request.accountId,
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
       request.partition,
       request.holdId,

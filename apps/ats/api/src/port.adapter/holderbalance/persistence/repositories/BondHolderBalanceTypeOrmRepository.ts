@@ -27,14 +27,14 @@ export class BondHolderBalanceTypeOrmRepository
     partition: string,
   ): Promise<BondHolderBalance | null> {
     return (await this.getRepository().findOne({
-      where: { contractId: bondContractId, holderAccountId, partition },
+      where: { bondContractId, holderAccountId, partition },
     })) as BondHolderBalance | null
   }
 
-  async findAllByContractIdPaginated(contractId: string, options: PageOptions): Promise<Page<BondHolderBalance>> {
+  async findAllByContractIdPaginated(bondContractId: string, options: PageOptions): Promise<Page<BondHolderBalance>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.getRepository().findAndCount({
-      where: { contractId },
+      where: { bondContractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,
@@ -52,13 +52,13 @@ export class BondHolderBalanceTypeOrmRepository
   }
 
   async findAllByContractIdAndHolderAccountIdPaginated(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     options: PageOptions,
   ): Promise<Page<BondHolderBalance>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.getRepository().findAndCount({
-      where: { contractId, holderAccountId },
+      where: { bondContractId, holderAccountId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,

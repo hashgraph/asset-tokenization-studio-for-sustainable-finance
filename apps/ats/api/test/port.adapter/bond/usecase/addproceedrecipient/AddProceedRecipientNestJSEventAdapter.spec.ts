@@ -34,8 +34,8 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
     bondRepository = app.get(getRepositoryToken(BondPersistence))
   })
   afterEach(async () => {
-    await bondProceedRecipientRepository.clear()
-    await bondRepository.clear()
+    await bondProceedRecipientRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     await app.close()
   })
 
@@ -68,12 +68,12 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, ProceedRecipientAddedDLTEvent.name)
 
       const savedRecipient = await bondProceedRecipientRepository.findOne({
-        where: { contractId: CONTRACT_ID, proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
+        where: { bondContractId: CONTRACT_ID, proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
       })
 
       expect(savedRecipient).toBeDefined()
       expect(savedRecipient).not.toBeNull()
-      expect(savedRecipient!.contractId).toBe(CONTRACT_ID)
+      expect(savedRecipient!.bondContractId).toBe(CONTRACT_ID)
       expect(savedRecipient!.proceedRecipientAddress).toBe("0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7")
       expect(savedRecipient!.data).toBe("0x")
     })
@@ -107,7 +107,7 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, ProceedRecipientAddedDLTEvent.name)
 
       const savedRecipient = await bondProceedRecipientRepository.findOne({
-        where: { contractId: CONTRACT_ID, proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
+        where: { bondContractId: CONTRACT_ID, proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7" },
       })
 
       expect(savedRecipient).toBeDefined()
@@ -133,7 +133,7 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       })
 
       const existingRecipient = {
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
         data: "0x",
       }
@@ -187,12 +187,12 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ProceedRecipientAddedDLTEvent.name)
 
         const savedRecipient = await bondProceedRecipientRepository.findOne({
-          where: { contractId: CONTRACT_ID, proceedRecipientAddress: recipient },
+          where: { bondContractId: CONTRACT_ID, proceedRecipientAddress: recipient },
         })
 
         expect(savedRecipient).toBeDefined()
         expect(savedRecipient).not.toBeNull()
-        expect(savedRecipient!.contractId).toBe(CONTRACT_ID)
+        expect(savedRecipient!.bondContractId).toBe(CONTRACT_ID)
         expect(savedRecipient!.proceedRecipientAddress).toBe(recipient)
       }
 
@@ -234,12 +234,12 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, ProceedRecipientAddedDLTEvent.name)
 
         const savedRecipient = await bondProceedRecipientRepository.findOne({
-          where: { contractId, proceedRecipientAddress },
+          where: { bondContractId: contractId, proceedRecipientAddress },
         })
 
         expect(savedRecipient).toBeDefined()
         expect(savedRecipient).not.toBeNull()
-        expect(savedRecipient!.contractId).toBe(contractId)
+        expect(savedRecipient!.bondContractId).toBe(contractId)
         expect(savedRecipient!.proceedRecipientAddress).toBe(proceedRecipientAddress)
       }
 
@@ -279,7 +279,7 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           proceedRecipientAddress: "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
           data: "0x",
           timestamp: expect.any(Number),

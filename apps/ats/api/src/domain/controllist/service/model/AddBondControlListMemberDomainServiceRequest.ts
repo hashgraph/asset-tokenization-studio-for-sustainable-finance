@@ -4,7 +4,7 @@ import { IsNotEmpty, IsString } from "class-validator"
 export class AddBondControlListMemberDomainServiceRequest {
   @IsString()
   @IsNotEmpty()
-  contractId: string
+  bondContractId: string
 
   @IsString()
   @IsNotEmpty()

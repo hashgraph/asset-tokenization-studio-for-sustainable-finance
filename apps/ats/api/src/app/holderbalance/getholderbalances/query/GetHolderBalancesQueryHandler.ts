@@ -36,7 +36,7 @@ export class GetHolderBalancesQueryHandler
 
     return QueryPageResponse.fromPage(page, (balance: BondHolderBalance) => ({
       id: balance.id,
-      contractId: balance.contractId,
+      bondContractId: balance.bondContractId,
       holderAccountId: balance.holderAccountId,
       partition: balance.partition,
       availableBalance: balance.availableBalance,

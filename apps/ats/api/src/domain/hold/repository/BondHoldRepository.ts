@@ -5,28 +5,28 @@ import type { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
 
 export interface BondHoldRepository {
   save(bondHold: BondHold, transactionId?: string): Promise<BondHold>
-  findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null>
+  findById(id: number, bondContractId: string, holderAccountId: string, partition: string): Promise<BondHold | null>
   findByContractIdAndHolderAndHoldId(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     holdId: number,
     partition: string,
   ): Promise<BondHold | null>
   findByContractIdAndHolder(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     page: number,
     pageSize: number,
   ): Promise<BondHold[]>
-  countByContractIdAndHolder(contractId: string, holderAccountId: string): Promise<number>
+  countByContractIdAndHolder(bondContractId: string, holderAccountId: string): Promise<number>
   findByContractIdAndHolderPaginated(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<BondHold>>
   deleteByIdAndContractIdAndHolderAccountId(
     id: number,
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     partition: string,
   ): Promise<void>

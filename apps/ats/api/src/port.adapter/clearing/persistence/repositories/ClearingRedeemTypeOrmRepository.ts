@@ -16,9 +16,8 @@ export class ClearingRedeemTypeOrmRepository
   }
 
   async save(clearing: ClearingRedeem, transactionId?: string): Promise<ClearingRedeem> {
-    return (await this.getRepository(transactionId).save(
-      clearing as unknown as BondClearingRedeemPersistence,
-    )) as ClearingRedeem
+    const saved = await this.getRepository(transactionId).save(clearing as unknown as BondClearingRedeemPersistence)
+    return Object.assign(new ClearingRedeem(), saved)
   }
 
   async findByContractIdHolderAccountIdAndId(
@@ -58,9 +57,8 @@ export class ClearingRedeemTypeOrmRepository
   }
 
   async update(clearing: ClearingRedeem, transactionId?: string): Promise<ClearingRedeem> {
-    return (await this.getRepository(transactionId).save(
-      clearing as unknown as BondClearingRedeemPersistence,
-    )) as ClearingRedeem
+    const saved = await this.getRepository(transactionId).save(clearing as unknown as BondClearingRedeemPersistence)
+    return Object.assign(new ClearingRedeem(), saved)
   }
 
   async deleteByCompositeKey(bondContractId: string, holderAccountId: string, clearingId: number): Promise<void> {

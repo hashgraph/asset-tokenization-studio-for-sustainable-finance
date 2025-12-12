@@ -7,8 +7,8 @@ export class RemoveControlListMemberTransactionAppServiceRequest extends BaseTra
   @IsNotEmpty()
   holderAccountId: string
 
-  constructor(format: string, accountId: string, contractId: string, holderAccountId: string) {
-    super(format, accountId, contractId)
+  constructor(format: string, accountId: string, bondContractId: string, holderAccountId: string) {
+    super(format, accountId, bondContractId)
     this.holderAccountId = holderAccountId
   }
 }

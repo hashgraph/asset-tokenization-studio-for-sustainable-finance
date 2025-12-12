@@ -5,15 +5,15 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class RemoveBondDocumentCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
   name: string
 
-  constructor(contractId: string, name: string) {
+  constructor(bondContractId: string, name: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.name = name
   }
 }

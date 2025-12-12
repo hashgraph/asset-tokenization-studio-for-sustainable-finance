@@ -12,7 +12,7 @@ export class SetBondCapDomainService {
   ) {}
 
   async execute(request: SetBondCapDomainServiceRequest): Promise<void> {
-    const bond = await this.checkBondExistsDomainService.execute(request.contractId)
+    const bond = await this.checkBondExistsDomainService.execute(request.bondContractId)
 
     bond.maxSupply = request.newMaxSupply
 

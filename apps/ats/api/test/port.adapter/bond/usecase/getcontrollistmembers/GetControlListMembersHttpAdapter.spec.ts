@@ -99,12 +99,12 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: "0.0.5555555",
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: "0.0.6666666",
       })
 
@@ -115,7 +115,7 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
 
       expect(response.body.items).toHaveLength(2)
       expect(response.body.items[0].id).toBeDefined()
-      expect(response.body.items[0].contractId).toBe(bond.contractId)
+      expect(response.body.items[0].bondContractId).toBe(bond.contractId)
       expect(response.body.items[0].holderAccountId).toBeDefined()
       expect(response.body.items[0].createdAt).toBeDefined()
       expect(response.body.items[0].updatedAt).toBeDefined()
@@ -161,12 +161,12 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond1.contractId,
+        bondContractId: bond1.contractId,
         holderAccountId: "0.0.5555555",
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond2.contractId,
+        bondContractId: bond2.contractId,
         holderAccountId: "0.0.6666666",
       })
 
@@ -176,7 +176,7 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
         .expect(HttpStatus.OK)
 
       expect(response.body.items).toHaveLength(1)
-      expect(response.body.items[0].contractId).toBe(bond1.contractId)
+      expect(response.body.items[0].bondContractId).toBe(bond1.contractId)
       expect(response.body.items[0].holderAccountId).toBe("0.0.5555555")
     })
 
@@ -204,7 +204,7 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       // Create 5 members
       for (let i = 1; i <= 5; i++) {
         await internalControlListMemberRepository.save({
-          contractId: bond.contractId,
+          bondContractId: bond.contractId,
           holderAccountId: `0.0.${5555550 + i}`,
         })
       }
@@ -257,17 +257,17 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: "0.0.9999999",
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: "0.0.1111111",
       })
 
       await internalControlListMemberRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         holderAccountId: "0.0.5555555",
       })
 

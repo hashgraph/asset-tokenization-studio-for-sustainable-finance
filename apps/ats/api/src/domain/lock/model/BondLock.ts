@@ -7,7 +7,7 @@ export class BondLock {
 
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()

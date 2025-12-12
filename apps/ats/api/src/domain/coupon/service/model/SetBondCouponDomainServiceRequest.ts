@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 export class SetBondCouponDomainServiceRequest {
-  readonly contractId: string
+  readonly bondContractId: string
   readonly corporateActionId: string
   readonly couponId: string
   readonly operator: string
@@ -11,7 +11,7 @@ export class SetBondCouponDomainServiceRequest {
   readonly period: string
 
   constructor(
-    contractId: string,
+    bondContractId: string,
     corporateActionId: string,
     couponId: string,
     operator: string,
@@ -21,7 +21,7 @@ export class SetBondCouponDomainServiceRequest {
     rateDecimals: string,
     period: string,
   ) {
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.corporateActionId = corporateActionId
     this.couponId = couponId
     this.operator = operator

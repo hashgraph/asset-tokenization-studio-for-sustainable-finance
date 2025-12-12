@@ -4,5 +4,5 @@ import { TransactionResponse } from "@hashgraph/green-bonds-shared-core"
 import { SetBondCapTransactionRequest } from "./model/SetBondCapTransactionRequest"
 
 export interface SetBondCapTransactionPort {
-  setBondCapTransaction(contractId: string, request: SetBondCapTransactionRequest): Promise<TransactionResponse>
+  setBondCapTransaction(bondContractId: string, request: SetBondCapTransactionRequest): Promise<TransactionResponse>
 }

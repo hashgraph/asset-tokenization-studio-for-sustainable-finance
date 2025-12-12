@@ -5,15 +5,15 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class AddControlListMemberCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
   holderAccountId: string
 
-  constructor(contractId: string, holderAccountId: string) {
+  constructor(bondContractId: string, holderAccountId: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.holderAccountId = holderAccountId
   }
 }

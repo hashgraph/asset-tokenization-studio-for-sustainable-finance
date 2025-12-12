@@ -17,7 +17,7 @@ export class BondLockTypeOrmRepository extends BaseRepository<BondLockPersistenc
 
   async findByBondContractIdAndId(bondContractId: string, id: number): Promise<BondLock | null> {
     return (await this.getRepository().findOne({
-      where: { contractId: bondContractId, id },
+      where: { bondContractId, id },
     })) as BondLock | null
   }
 
@@ -28,7 +28,7 @@ export class BondLockTypeOrmRepository extends BaseRepository<BondLockPersistenc
   ): Promise<Page<BondLock>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.getRepository().findAndCount({
-      where: { contractId: bondContractId, holderAccountId },
+      where: { bondContractId, holderAccountId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,
@@ -51,11 +51,11 @@ export class BondLockTypeOrmRepository extends BaseRepository<BondLockPersistenc
     id: number,
   ): Promise<BondLock | null> {
     return (await this.getRepository().findOne({
-      where: { contractId: bondContractId, holderAccountId, id },
+      where: { bondContractId, holderAccountId, id },
     })) as BondLock | null
   }
 
   async delete(bondContractId: string, id: number): Promise<void> {
-    await this.getRepository().delete({ contractId: bondContractId, id })
+    await this.getRepository().delete({ bondContractId, id })
   }
 }

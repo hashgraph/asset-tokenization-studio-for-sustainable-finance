@@ -17,7 +17,7 @@ export class SetBondDocumentCommandHandler implements CommandHandler<SetBondDocu
   async execute(command: SetBondDocumentCommand): Promise<void> {
     const bondDocument = await this.setBondDocumentDomainService.execute(command)
     this.eventBus.publish(
-      new BondDocumentSetEvent(bondDocument.name, bondDocument.contractId, bondDocument.uri, bondDocument.hash),
+      new BondDocumentSetEvent(bondDocument.name, bondDocument.bondContractId, bondDocument.uri, bondDocument.hash),
     )
   }
 }

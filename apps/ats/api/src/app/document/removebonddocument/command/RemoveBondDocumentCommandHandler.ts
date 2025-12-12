@@ -16,6 +16,6 @@ export class RemoveBondDocumentCommandHandler implements CommandHandler<RemoveBo
   @Validate()
   async execute(command: RemoveBondDocumentCommand): Promise<void> {
     await this.removeBondDocumentDomainService.execute(command)
-    this.eventBus.publish(new BondDocumentRemovedEvent(command.name, command.contractId))
+    this.eventBus.publish(new BondDocumentRemovedEvent(command.name, command.bondContractId))
   }
 }
