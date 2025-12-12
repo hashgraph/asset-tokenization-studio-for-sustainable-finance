@@ -52,8 +52,8 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondCouponRepository.clear()
-    await bondRepository.clear()
+    await bondCouponRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     await app.close()
   })
 
@@ -75,14 +75,14 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
       const savedCoupon = await bondCouponRepository.findOne({
-        where: { contractId: CONTRACT_ID, couponId: "1" },
+        where: { bondContractId: CONTRACT_ID, id: "1" },
       })
 
       expect(savedCoupon).toBeDefined()
       expect(savedCoupon).not.toBeNull()
-      expect(savedCoupon!.contractId).toBe(CONTRACT_ID)
+      expect(savedCoupon!.bondContractId).toBe(CONTRACT_ID)
       expect(savedCoupon!.corporateActionId).toBe(CORPORATE_ACTION_ID)
-      expect(savedCoupon!.couponId).toBe("1")
+      expect(savedCoupon!.id).toBe("1")
       expect(savedCoupon!.operator).toBe(OPERATOR)
       expect(savedCoupon!.recordDate).toEqual(new Date(1704067200 * 1000))
       expect(savedCoupon!.executionDate).toEqual(new Date(1704153600 * 1000))
@@ -109,12 +109,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
       const allCoupons = await bondCouponRepository.find({
-        where: { contractId: CONTRACT_ID, couponId: "1" },
+        where: { bondContractId: CONTRACT_ID, id: "1" },
       })
 
       expect(allCoupons).toHaveLength(1)
-      expect(allCoupons[0].contractId).toBe(CONTRACT_ID)
-      expect(allCoupons[0].couponId).toBe("1")
+      expect(allCoupons[0].bondContractId).toBe(CONTRACT_ID)
+      expect(allCoupons[0].id).toBe("1")
     })
 
     it("should create multiple coupons for the same bond with different couponIds", async () => {
@@ -137,17 +137,17 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
         const savedCoupon = await bondCouponRepository.findOne({
-          where: { contractId: CONTRACT_ID, couponId },
+          where: { bondContractId: CONTRACT_ID, id: couponId },
         })
 
         expect(savedCoupon).toBeDefined()
         expect(savedCoupon).not.toBeNull()
-        expect(savedCoupon!.contractId).toBe(CONTRACT_ID)
-        expect(savedCoupon!.couponId).toBe(couponId)
+        expect(savedCoupon!.bondContractId).toBe(CONTRACT_ID)
+        expect(savedCoupon!.id).toBe(couponId)
       }
 
       const allCoupons = await bondCouponRepository.find({
-        where: { contractId: CONTRACT_ID },
+        where: { bondContractId: CONTRACT_ID },
       })
       expect(allCoupons).toHaveLength(couponIds.length)
     })
@@ -189,13 +189,13 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
         const savedCoupon = await bondCouponRepository.findOne({
-          where: { contractId, couponId: "1" },
+          where: { bondContractId: contractId, id: "1" },
         })
 
         expect(savedCoupon).toBeDefined()
         expect(savedCoupon).not.toBeNull()
-        expect(savedCoupon!.contractId).toBe(contractId)
-        expect(savedCoupon!.couponId).toBe("1")
+        expect(savedCoupon!.bondContractId).toBe(contractId)
+        expect(savedCoupon!.id).toBe("1")
       }
 
       const allCoupons = await bondCouponRepository.find()
@@ -223,7 +223,7 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           corporateActionId: CORPORATE_ACTION_ID,
           couponId: "1",
           operator: OPERATOR,
@@ -278,7 +278,7 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
         const savedCoupon = await bondCouponRepository.findOne({
-          where: { contractId: CONTRACT_ID, couponId: String(i + 1) },
+          where: { bondContractId: CONTRACT_ID, id: String(i + 1) },
         })
 
         expect(savedCoupon).toBeDefined()
@@ -309,8 +309,8 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       }
 
       const allCoupons = await bondCouponRepository.find({
-        where: { contractId: CONTRACT_ID },
-        order: { couponId: "ASC" },
+        where: { bondContractId: CONTRACT_ID },
+        order: { id: "ASC" },
       })
 
       expect(allCoupons).toHaveLength(3)

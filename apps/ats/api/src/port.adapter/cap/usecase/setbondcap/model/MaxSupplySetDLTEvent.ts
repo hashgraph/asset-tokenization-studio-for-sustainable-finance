@@ -7,13 +7,13 @@ export class MaxSupplySetDLTEvent extends DLTEvent {
   readonly previousMaxSupply: string
 
   constructor(
-    contractId: string,
+    bondContractId: string,
     transactionHash: string,
     operator: string,
     newMaxSupply: string,
     previousMaxSupply: string,
   ) {
-    super(contractId, transactionHash)
+    super(bondContractId, transactionHash)
     this.operator = operator
     this.newMaxSupply = newMaxSupply
     this.previousMaxSupply = previousMaxSupply

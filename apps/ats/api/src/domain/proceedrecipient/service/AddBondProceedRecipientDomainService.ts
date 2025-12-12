@@ -14,22 +14,22 @@ export class AddBondProceedRecipientDomainService {
   ) {}
 
   async execute(request: AddBondProceedRecipientDomainServiceRequest): Promise<BondProceedRecipient> {
-    await this.checkBondExistsDomainService.execute(request.contractId)
+    await this.checkBondExistsDomainService.execute(request.bondContractId)
 
     const existingRecipient = await this.bondProceedRecipientRepository.findByContractIdAndProceedRecipientAddress(
-      request.contractId,
+      request.bondContractId,
       request.proceedRecipientAddress,
     )
 
     if (existingRecipient) {
       throw BondProceedRecipientFoundError.contractIdAndProceedRecipientAddressError(
-        request.contractId,
+        request.bondContractId,
         request.proceedRecipientAddress,
       )
     }
 
     const recipient = Object.assign(new BondProceedRecipient(), {
-      contractId: request.contractId,
+      bondContractId: request.bondContractId,
       proceedRecipientAddress: request.proceedRecipientAddress,
       data: request.data,
     })

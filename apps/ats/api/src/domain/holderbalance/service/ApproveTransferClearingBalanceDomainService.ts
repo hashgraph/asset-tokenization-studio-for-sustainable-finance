@@ -56,7 +56,7 @@ export class ApproveTransferClearingBalanceDomainService {
       await this.bondHolderBalanceRepository.save(receiverBalance, transactionId)
     } else {
       const newReceiverBalance = new BondHolderBalance()
-      newReceiverBalance.contractId = bondContractId
+      newReceiverBalance.bondContractId = bondContractId
       newReceiverBalance.holderAccountId = toAccountId
       newReceiverBalance.partition = partition
       newReceiverBalance.availableBalance = amount

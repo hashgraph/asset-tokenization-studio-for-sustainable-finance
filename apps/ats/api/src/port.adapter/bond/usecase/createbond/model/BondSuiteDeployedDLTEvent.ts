@@ -11,7 +11,7 @@ export class BondSuiteDeployedDLTEvent extends DLTEvent {
   readonly kpiData: KpiData
 
   constructor(
-    contractId: string,
+    bondContractId: string,
     transactionHash: string,
     operator: string,
     bondAddress: string,
@@ -22,7 +22,7 @@ export class BondSuiteDeployedDLTEvent extends DLTEvent {
     treasuryData: TreasuryData,
     kpiData: KpiData,
   ) {
-    super(contractId, transactionHash)
+    super(bondContractId, transactionHash)
     this.operator = operator
     this.bondAddress = bondAddress
     this.treasuryAddress = treasuryAddress

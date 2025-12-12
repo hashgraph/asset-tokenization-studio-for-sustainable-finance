@@ -19,7 +19,7 @@ export class GetBondCouponQueryHandler implements QueryHandler<GetBondCouponQuer
   async execute(query: GetBondCouponQuery): Promise<BondCouponQueryResponse> {
     await this.checkBondExistsDomainService.execute(query.bondContractId)
 
-    const coupon = await this.bondCouponRepository.findByContractIdAndCouponId(query.bondContractId, query.couponId)
+    const coupon = await this.bondCouponRepository.findByContractIdAndId(query.bondContractId, query.couponId)
 
     if (!coupon) {
       throw BondCouponNotFoundError.couponIdError(query.bondContractId, query.couponId)
@@ -27,9 +27,8 @@ export class GetBondCouponQueryHandler implements QueryHandler<GetBondCouponQuer
 
     return {
       id: coupon.id,
-      contractId: coupon.contractId,
+      bondContractId: coupon.bondContractId,
       corporateActionId: coupon.corporateActionId,
-      couponId: coupon.couponId,
       operator: coupon.operator,
       recordDate: coupon.recordDate,
       executionDate: coupon.executionDate,

@@ -14,22 +14,22 @@ export class AddBondControlListMemberDomainService {
   ) {}
 
   async execute(request: AddBondControlListMemberDomainServiceRequest): Promise<BondControlListMember> {
-    await this.checkBondExistsDomainService.execute(request.contractId)
+    await this.checkBondExistsDomainService.execute(request.bondContractId)
 
     const existingMember = await this.bondControlListMemberRepository.findByContractIdAndHolderAccountId(
-      request.contractId,
+      request.bondContractId,
       request.holderAccountId,
     )
 
     if (existingMember) {
       throw BondControlListMemberFoundError.contractIdAndHolderAccountIdError(
-        request.contractId,
+        request.bondContractId,
         request.holderAccountId,
       )
     }
 
     const member = Object.assign(new BondControlListMember(), {
-      contractId: request.contractId,
+      bondContractId: request.bondContractId,
       holderAccountId: request.holderAccountId,
     })
     return await this.bondControlListMemberRepository.save(member)

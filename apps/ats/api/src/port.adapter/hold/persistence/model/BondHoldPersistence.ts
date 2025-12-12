@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from "typeorm"
+import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 @Entity("BondHolds")
 export class BondHoldPersistence {
@@ -7,7 +8,11 @@ export class BondHoldPersistence {
   id: number
 
   @PrimaryColumn({ type: "varchar" })
-  contractId: string
+  bondContractId: string
+
+  @ManyToOne(() => BondPersistence, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "bondContractId", referencedColumnName: "contractId" })
+  bond: BondPersistence
 
   @PrimaryColumn({ type: "varchar", length: 255 })
   holderAccountId: string

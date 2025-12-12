@@ -5,7 +5,7 @@ import { RemoveBondDocumentTransactionRequest } from "./model/RemoveBondDocument
 
 export interface RemoveBondDocumentTransactionPort {
   removeBondDocumentTransaction(
-    contractId: string,
+    bondContractId: string,
     name: string,
     request: RemoveBondDocumentTransactionRequest,
   ): Promise<TransactionResponse>

@@ -13,14 +13,14 @@ export class RemoveBondDocumentDomainService {
   ) {}
 
   async execute(request: RemoveBondDocumentDomainServiceRequest): Promise<void> {
-    await this.checkBondExistsDomainService.execute(request.contractId)
+    await this.checkBondExistsDomainService.execute(request.bondContractId)
     const existingBondDocument = await this.bondDocumentRepository.findByContractIdAndName(
-      request.contractId,
+      request.bondContractId,
       request.name,
     )
 
     if (!existingBondDocument) {
-      throw BondDocumentNotFoundError.contractIdNameError(request.contractId, request.name)
+      throw BondDocumentNotFoundError.contractIdNameError(request.bondContractId, request.name)
     }
 
     await this.bondDocumentRepository.delete(existingBondDocument)

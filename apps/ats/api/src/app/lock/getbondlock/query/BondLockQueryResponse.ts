@@ -2,7 +2,7 @@
 
 export class BondLockQueryResponse {
   id: number
-  contractId: string
+  bondContractId: string
   holderAccountId: string
   partition: string
   amount: string

@@ -62,8 +62,8 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -73,7 +73,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -95,7 +95,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -133,7 +133,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "500",
@@ -166,7 +166,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -192,7 +192,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         },
@@ -206,7 +206,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -239,7 +239,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -261,7 +261,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       expect(publishedEvent).toEqual(
         expect.objectContaining({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
@@ -280,7 +280,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         await bondHolderBalanceRepository.save({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition,
           availableBalance: "10000",
@@ -306,7 +306,7 @@ describe("RedeemBondHolderBalanceNestJSEventAdapter Integration", () => {
       for (const partition of partitions) {
         const updatedBalance = await bondHolderBalanceRepository.findOne({
           where: {
-            contractId: "0.0.6974684",
+            bondContractId: "0.0.6974684",
             holderAccountId: "0.0.7654321",
             partition,
           },

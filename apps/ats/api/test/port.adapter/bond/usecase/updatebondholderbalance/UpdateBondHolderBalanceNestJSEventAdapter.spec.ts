@@ -10,6 +10,7 @@ import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
 import { IssuedByPartitionDLTEvent } from "@port/holderbalance/usecase/updatebondholderbalance/model/IssuedByPartitionDLTEvent"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
   const CONTRACT_ID = "0.0.6974684"
@@ -22,6 +23,8 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
   let app: INestApplication
   let eventBus: EventBus
   let bondHolderBalanceRepository: Repository<BondHolderBalancePersistence>
+  let bondRepository: Repository<BondPersistence>
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
@@ -33,6 +36,24 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
     await app.init()
     eventBus = app.get("EventBus")
     bondHolderBalanceRepository = app.get(getRepositoryToken(BondHolderBalancePersistence))
+    bondRepository = app.get(getRepositoryToken(BondPersistence))
+
+    await bondRepository.save({
+      contractId: CONTRACT_ID,
+      treasuryId: "0.0.1000001",
+      kpiId: "0.0.1000002",
+      name: "Test Bond",
+      symbol: "TBOND",
+      isin: "US1234567890",
+      decimals: 18,
+      currency: "USD",
+      nominalValue: "1000000000000000000",
+      nominalValueDecimals: 18,
+      startingDate: new Date("2025-01-01"),
+      maturityDate: new Date("2030-01-01"),
+      maxSupply: "1000000000000000000000",
+      isPaused: false,
+    })
 
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
       const addressMap: Record<string, string> = {
@@ -44,7 +65,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHolderBalanceRepository.clear()
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -65,7 +86,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const savedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -73,7 +94,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       expect(savedBalance).toBeDefined()
       expect(savedBalance).not.toBeNull()
-      expect(savedBalance!.contractId).toBe(CONTRACT_ID)
+      expect(savedBalance!.bondContractId).toBe(CONTRACT_ID)
       expect(savedBalance!.holderAccountId).toBe(HOLDER_ACCOUNT_ID)
       expect(savedBalance!.partition).toBe(PARTITION)
       expect(savedBalance!.availableBalance).toBe("1000")
@@ -82,7 +103,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
     it("should update existing bond holder balance when IssuedByPartitionDLTEvent is published", async () => {
       await bondHolderBalanceRepository.save({
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         holderAccountId: HOLDER_ACCOUNT_ID,
         partition: PARTITION,
         availableBalance: "500",
@@ -103,7 +124,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -135,7 +156,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
         const balance = await bondHolderBalanceRepository.findOne({
           where: {
-            contractId: CONTRACT_ID,
+            bondContractId: CONTRACT_ID,
             holderAccountId: HOLDER_ACCOUNT_ID,
             partition: PARTITION,
           },
@@ -175,7 +196,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance1 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: partition1,
         },
@@ -183,7 +204,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance2 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: partition2,
         },
@@ -197,7 +218,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const allBalances = await bondHolderBalanceRepository.find({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
         },
       })
@@ -235,7 +256,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance1 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: holder1AccountId,
           partition: PARTITION,
         },
@@ -243,7 +264,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance2 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: holder2AccountId,
           partition: PARTITION,
         },
@@ -259,7 +280,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const allBalances = await bondHolderBalanceRepository.find({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           partition: PARTITION,
         },
       })
@@ -283,7 +304,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const savedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -295,7 +316,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
     it("should preserve locked balance when updating available balance", async () => {
       await bondHolderBalanceRepository.save({
-        contractId: CONTRACT_ID,
+        bondContractId: CONTRACT_ID,
         holderAccountId: HOLDER_ACCOUNT_ID,
         partition: PARTITION,
         availableBalance: "500",
@@ -316,7 +337,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const updatedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -328,10 +349,41 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
     })
 
     it("should create balances for different contracts independently", async () => {
-      const _contract1EvmAddress = "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7"
-      const _contract2EvmAddress = "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b"
-      const contract1Id = "0.0.6974684"
-      const contract2Id = "0.0.6974345"
+      const contract1Id = "0.0.6974694"
+      const contract2Id = "0.0.6974377"
+
+      await bondRepository.save({
+        contractId: contract1Id,
+        treasuryId: "0.0.1000002",
+        kpiId: "0.0.1000003",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
+      await bondRepository.save({
+        contractId: contract2Id,
+        treasuryId: "0.0.1000003",
+        kpiId: "0.0.1000004",
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
 
       const event1 = new IssuedByPartitionDLTEvent(
         contract1Id,
@@ -358,7 +410,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance1 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: contract1Id,
+          bondContractId: contract1Id,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -366,18 +418,18 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const balance2 = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: contract2Id,
+          bondContractId: contract2Id,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
       })
 
       expect(balance1).toBeDefined()
-      expect(balance1!.contractId).toBe(contract1Id)
+      expect(balance1!.bondContractId).toBe(contract1Id)
       expect(balance1!.availableBalance).toBe("1000")
 
       expect(balance2).toBeDefined()
-      expect(balance2!.contractId).toBe(contract2Id)
+      expect(balance2!.bondContractId).toBe(contract2Id)
       expect(balance2!.availableBalance).toBe("2000")
 
       const allBalances = await bondHolderBalanceRepository.find()
@@ -399,7 +451,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
 
       const savedBalance = await bondHolderBalanceRepository.findOne({
         where: {
-          contractId: CONTRACT_ID,
+          bondContractId: CONTRACT_ID,
           holderAccountId: HOLDER_ACCOUNT_ID,
           partition: PARTITION,
         },
@@ -433,7 +485,7 @@ describe("UpdateBondHolderBalanceNestJSEventAdapter Integration", () => {
       })
 
       expect(savedBalance).toBeDefined()
-      expect(savedBalance!.contractId).toMatch(/^0\.0\.\d+$/)
+      expect(savedBalance!.bondContractId).toMatch(/^0\.0\.\d+$/)
       expect(savedBalance!.holderAccountId).toMatch(/^0\.0\.\d+$/)
     })
   })

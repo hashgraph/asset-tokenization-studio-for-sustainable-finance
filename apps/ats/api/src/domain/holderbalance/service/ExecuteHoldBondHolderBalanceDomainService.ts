@@ -56,7 +56,7 @@ export class ExecuteHoldBondHolderBalanceDomainService {
       await this.bondHolderBalanceRepository.save(recipientBalance, transactionId)
     } else {
       const newRecipientBalance = new BondHolderBalance()
-      newRecipientBalance.contractId = bondContractId
+      newRecipientBalance.bondContractId = bondContractId
       newRecipientBalance.holderAccountId = toAccountId
       newRecipientBalance.partition = partition
       newRecipientBalance.availableBalance = amount

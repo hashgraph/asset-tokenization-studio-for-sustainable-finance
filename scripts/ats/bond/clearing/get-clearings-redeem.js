@@ -33,12 +33,14 @@ async function getClearingsRedeem(bondContractId, holderAccountId, limit = 10, p
         clearings.forEach((clearing, index) => {
           log(`\n  Clearing ${index + 1}:`, colors.bright);
           logInfo(`    • Clearing ID: ${clearing.id}`);
-          logInfo(`    • Contract ID: ${clearing.contractId}`);
+          logInfo(`    • Contract ID: ${clearing.bondContractId}`);
           logInfo(`    • Holder Account ID: ${clearing.holderAccountId}`);
           logInfo(`    • Partition: ${clearing.partition || "Default"}`);
           logInfo(`    • Amount: ${clearing.amount}`);
           logInfo(`    • Status: ${clearing.status}`);
-          logInfo(`    • Expiration: ${clearing.expirationTimestamp ? new Date(clearing.expirationTimestamp).toISOString() : "N/A"}`);
+          logInfo(
+            `    • Expiration: ${clearing.expirationTimestamp ? new Date(clearing.expirationTimestamp).toISOString() : "N/A"}`,
+          );
           logInfo(`    • Data: ${clearing.data || "0x"}`);
           logInfo(`    • Created At: ${clearing.createdAt ? new Date(clearing.createdAt).toISOString() : "N/A"}`);
           if (clearing.updatedAt) {

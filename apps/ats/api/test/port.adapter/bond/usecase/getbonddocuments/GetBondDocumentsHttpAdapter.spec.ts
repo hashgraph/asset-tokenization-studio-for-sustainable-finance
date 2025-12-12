@@ -103,14 +103,14 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
       })
 
       await internalBondDocumentRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         name: "prospectus",
         uri: "ipfs://QmProspectusHash123",
         hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
       })
 
       await internalBondDocumentRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         name: "verification_report",
         uri: "ipfs://QmVerificationHash456",
         hash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",
@@ -166,7 +166,7 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
 
       for (let i = 1; i <= 5; i++) {
         await internalBondDocumentRepository.save({
-          contractId: bond.contractId,
+          bondContractId: bond.contractId,
           name: `document_${i}`,
           uri: `ipfs://QmDocument${i}Hash`,
           hash: `0x${i.toString().padStart(64, "0")}`,
@@ -235,7 +235,7 @@ describe("GetBondDocumentsHttpAdapter API Integration", () => {
 
       const expectedHash = "0xdeadbeefcafebabe1234567890abcdef1234567890abcdef1234567890abcdef"
       await internalBondDocumentRepository.save({
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         name: "audit_report",
         uri: "ipfs://QmAuditReportHash",
         hash: expectedHash,

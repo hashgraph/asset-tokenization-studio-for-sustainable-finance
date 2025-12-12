@@ -18,8 +18,8 @@ export class SetBondDocumentTransactionAppServiceRequest extends BaseTransaction
   @IsBytes32()
   hash: string
 
-  constructor(format: string, accountId: string, contractId: string, name: string, uri: string, hash: string) {
-    super(format, accountId, contractId)
+  constructor(format: string, accountId: string, bondContractId: string, name: string, uri: string, hash: string) {
+    super(format, accountId, bondContractId)
     this.name = name
     this.uri = uri
     this.hash = hash

@@ -6,9 +6,9 @@ export class BondProceedRecipientNotFoundError extends DomainError {
     super(message)
   }
 
-  static contractIdAndProceedRecipientAddressError(contractId: string, proceedRecipientAddress: string) {
+  static contractIdAndProceedRecipientAddressError(bondContractId: string, proceedRecipientAddress: string) {
     return new BondProceedRecipientNotFoundError(
-      `Bond Proceed Recipient not found with contractId: ${contractId} and proceedRecipientAddress: ${proceedRecipientAddress}`,
+      `Bond Proceed Recipient not found with bondContractId: ${bondContractId} and proceedRecipientAddress: ${proceedRecipientAddress}`,
     )
   }
 }

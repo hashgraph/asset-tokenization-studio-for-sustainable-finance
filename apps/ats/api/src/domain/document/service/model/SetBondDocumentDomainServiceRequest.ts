@@ -3,7 +3,7 @@ import { IsNotEmpty, IsString } from "class-validator"
 
 export class SetBondDocumentDomainServiceRequest {
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsString()
   name: string

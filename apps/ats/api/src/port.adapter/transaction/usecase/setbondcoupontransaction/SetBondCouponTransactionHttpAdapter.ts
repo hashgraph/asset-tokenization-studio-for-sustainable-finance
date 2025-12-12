@@ -16,13 +16,13 @@ export class SetBondCouponTransactionHttpAdapter implements SetBondCouponTransac
   @ApiResponse({ status: 201, type: TransactionResponse })
   @Post(":bondContractId/coupons")
   async setBondCouponTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Body() request: SetBondCouponTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new SetBondCouponTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       Math.floor(request.recordDate.getTime() / 1000).toString(),
       Math.floor(request.executionDate.getTime() / 1000).toString(),
       request.rate,

@@ -9,7 +9,7 @@ export class BondDocument extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()

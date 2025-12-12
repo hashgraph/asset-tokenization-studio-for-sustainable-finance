@@ -112,7 +112,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondRepository.clear()
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })

@@ -100,9 +100,9 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
       })
 
       const coupon = await internalBondCouponRepository.save({
-        contractId: bond.contractId,
+        id: "1",
+        bondContractId: bond.contractId,
         corporateActionId: `0x${Date.now().toString(16).padStart(64, "0")}`,
-        couponId: "1",
         operator: "0.0.123456",
         recordDate: recordDate,
         executionDate: executionDate,
@@ -112,15 +112,14 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
       })
 
       const response = await request(app.getHttpServer())
-        .get(`/api/v1/ats/bonds/${bond.contractId}/coupons/${coupon.couponId}`)
+        .get(`/api/v1/ats/bonds/${bond.contractId}/coupons/${coupon.id}`)
         .send()
         .expect(HttpStatus.OK)
 
       expect(response.body).toEqual({
         id: coupon.id,
-        contractId: coupon.contractId,
+        bondContractId: coupon.bondContractId,
         corporateActionId: coupon.corporateActionId,
-        couponId: coupon.couponId,
         operator: coupon.operator,
         recordDate: recordDate.toISOString(),
         executionDate: executionDate.toISOString(),

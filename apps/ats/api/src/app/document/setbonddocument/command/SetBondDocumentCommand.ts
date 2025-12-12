@@ -5,7 +5,7 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 export class SetBondDocumentCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
@@ -19,9 +19,9 @@ export class SetBondDocumentCommand extends Command<void> {
   @IsString()
   hash: string
 
-  constructor(contractId: string, name: string, uri: string, hash: string) {
+  constructor(bondContractId: string, name: string, uri: string, hash: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.name = name
     this.uri = uri
     this.hash = hash

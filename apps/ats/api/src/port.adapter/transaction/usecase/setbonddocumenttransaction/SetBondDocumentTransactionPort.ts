@@ -5,7 +5,7 @@ import { SetBondDocumentTransactionRequest } from "@port/transaction/usecase/set
 
 export interface SetBondDocumentTransactionPort {
   setBondDocumentTransaction(
-    contractId: string,
+    bondContractId: string,
     name: string,
     request: SetBondDocumentTransactionRequest,
   ): Promise<TransactionResponse>

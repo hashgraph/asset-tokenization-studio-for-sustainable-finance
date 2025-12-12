@@ -26,8 +26,12 @@ describe("GetBondHttpAdapter API Integration", () => {
     app.useLogger(false)
     await app.init()
     internalBondRepository = app.get(getRepositoryToken(BondPersistence))
+    await internalBondRepository.query('DELETE FROM "Bonds"')
   })
   afterEach(async () => {
+    if (internalBondRepository) {
+      await internalBondRepository.query('DELETE FROM "Bonds"')
+    }
     if (app) {
       await app.close()
     }
@@ -67,7 +71,7 @@ describe("GetBondHttpAdapter API Integration", () => {
 
       expect(response.body).toEqual({
         id: bond.id,
-        contractId: bond.contractId,
+        bondContractId: bond.contractId,
         treasuryId: bond.treasuryId,
         kpiId: bond.kpiId,
         name: bond.name,

@@ -17,31 +17,36 @@ export class BondHoldTypeOrmRepository extends BaseRepository<BondHoldPersistenc
     return (await this.getRepository(transactionId).save(bondHold as unknown as BondHoldPersistence)) as BondHold
   }
 
-  async findById(id: number, contractId: string, holderAccountId: string, partition: string): Promise<BondHold | null> {
+  async findById(
+    id: number,
+    bondContractId: string,
+    holderAccountId: string,
+    partition: string,
+  ): Promise<BondHold | null> {
     return (await this.getRepository().findOne({
-      where: { id, contractId, holderAccountId, partition },
+      where: { id, bondContractId, holderAccountId, partition },
     })) as BondHold | null
   }
 
   async findByContractIdAndHolderAndHoldId(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     holdId: number,
     partition: string,
   ): Promise<BondHold | null> {
     return (await this.getRepository().findOne({
-      where: { contractId, holderAccountId, id: holdId, partition },
+      where: { bondContractId, holderAccountId, id: holdId, partition },
     })) as BondHold | null
   }
 
   async findByContractIdAndHolder(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     page: number,
     pageSize: number,
   ): Promise<BondHold[]> {
     const persistences = await this.getRepository().find({
-      where: { contractId, holderAccountId },
+      where: { bondContractId, holderAccountId },
       order: { createdAt: "DESC" },
       take: pageSize,
       skip: (page - 1) * pageSize,
@@ -50,19 +55,19 @@ export class BondHoldTypeOrmRepository extends BaseRepository<BondHoldPersistenc
     return persistences.map((p) => p as BondHold)
   }
 
-  async countByContractIdAndHolder(contractId: string, holderAccountId: string): Promise<number> {
+  async countByContractIdAndHolder(bondContractId: string, holderAccountId: string): Promise<number> {
     return await this.getRepository().count({
-      where: { contractId, holderAccountId },
+      where: { bondContractId, holderAccountId },
     })
   }
 
   async findByContractIdAndHolderPaginated(
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     pageOptions: PageOptions,
   ): Promise<Page<BondHold>> {
     const [persistences, total] = await this.getRepository().findAndCount({
-      where: { contractId, holderAccountId },
+      where: { bondContractId, holderAccountId },
       order: { createdAt: "DESC" },
       take: pageOptions.limit,
       skip: (pageOptions.page - 1) * pageOptions.limit,
@@ -79,10 +84,10 @@ export class BondHoldTypeOrmRepository extends BaseRepository<BondHoldPersistenc
 
   async deleteByIdAndContractIdAndHolderAccountId(
     id: number,
-    contractId: string,
+    bondContractId: string,
     holderAccountId: string,
     partition: string,
   ): Promise<void> {
-    await this.getRepository().delete({ id, contractId, holderAccountId, partition })
+    await this.getRepository().delete({ id, bondContractId, holderAccountId, partition })
   }
 }

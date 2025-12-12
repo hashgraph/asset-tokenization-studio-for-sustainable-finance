@@ -13,9 +13,9 @@ export class SetBondDocumentDomainService {
   ) {}
 
   async execute(request: SetBondDocumentDomainServiceRequest): Promise<BondDocument> {
-    await this.checkBondExistsDomainService.execute(request.contractId)
+    await this.checkBondExistsDomainService.execute(request.bondContractId)
     const existingBondDocument = await this.bondDocumentRepository.findByContractIdAndName(
-      request.contractId,
+      request.bondContractId,
       request.name,
     )
 
@@ -26,7 +26,7 @@ export class SetBondDocumentDomainService {
     }
 
     const bondDocument = Object.assign(new BondDocument(), {
-      contractId: request.contractId,
+      bondContractId: request.bondContractId,
       name: request.name,
       uri: request.uri,
       hash: request.hash,

@@ -16,6 +16,6 @@ export class SetBondCapCommandHandler implements CommandHandler<SetBondCapComman
   @Validate()
   async execute(command: SetBondCapCommand): Promise<void> {
     await this.setBondCapDomainService.execute(command)
-    this.eventBus.publish(new BondCapSetEvent(command.contractId, command.newMaxSupply))
+    this.eventBus.publish(new BondCapSetEvent(command.bondContractId, command.newMaxSupply))
   }
 }

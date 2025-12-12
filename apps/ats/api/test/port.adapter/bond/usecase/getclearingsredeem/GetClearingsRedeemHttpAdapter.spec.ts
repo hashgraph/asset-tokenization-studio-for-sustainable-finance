@@ -11,10 +11,13 @@ import { Repository } from "typeorm"
 import { getRepositoryToken } from "@nestjs/typeorm"
 import { BondClearingRedeemPersistence } from "@port/clearing/persistence/model/BondClearingRedeemPersistence"
 import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
+import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 
 describe("GetClearingsRedeemHttpAdapter API Integration", () => {
   let app: INestApplication
   let internalClearingRedeemRepository: Repository<BondClearingRedeemPersistence>
+  let bondRepository: Repository<BondPersistence>
+
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
@@ -27,6 +30,7 @@ describe("GetClearingsRedeemHttpAdapter API Integration", () => {
     app.useLogger(false)
     await app.init()
     internalClearingRedeemRepository = app.get(getRepositoryToken(BondClearingRedeemPersistence))
+    bondRepository = app.get(getRepositoryToken(BondPersistence))
   })
   afterEach(async () => {
     if (app) {
@@ -61,6 +65,23 @@ describe("GetClearingsRedeemHttpAdapter API Integration", () => {
       const timestamp = Date.now() + Math.floor(Math.random() * 100000)
       const bondContractId = `0.0.${timestamp}`
       const holderAccountId = `0.0.${timestamp + 1}`
+
+      await bondRepository.save({
+        contractId: bondContractId,
+        treasuryId: `0.0.${timestamp + 2}`,
+        kpiId: `0.0.${timestamp + 3}`,
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
 
       await internalClearingRedeemRepository.save({
         id: 1,
@@ -117,6 +138,23 @@ describe("GetClearingsRedeemHttpAdapter API Integration", () => {
       const timestamp = Date.now() + Math.floor(Math.random() * 100000)
       const bondContractId = `0.0.${timestamp}`
       const holderAccountId = `0.0.${timestamp + 1}`
+
+      await bondRepository.save({
+        contractId: bondContractId,
+        treasuryId: `0.0.${timestamp + 2}`,
+        kpiId: `0.0.${timestamp + 3}`,
+        name: "Test Bond",
+        symbol: "TBOND",
+        isin: "US1234567890",
+        decimals: 18,
+        currency: "USD",
+        nominalValue: "1000000000000000000",
+        nominalValueDecimals: 18,
+        startingDate: new Date("2025-01-01"),
+        maturityDate: new Date("2030-01-01"),
+        maxSupply: "1000000000000000000000",
+        isPaused: false,
+      })
 
       for (let i = 1; i <= 5; i++) {
         await internalClearingRedeemRepository.save({

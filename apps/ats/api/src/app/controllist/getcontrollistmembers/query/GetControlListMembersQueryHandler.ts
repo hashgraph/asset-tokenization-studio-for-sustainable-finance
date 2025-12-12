@@ -35,7 +35,7 @@ export class GetControlListMembersQueryHandler
 
     return QueryPageResponse.fromPage(page, (member: BondControlListMember) => ({
       id: member.id,
-      contractId: member.contractId,
+      bondContractId: member.bondContractId,
       holderAccountId: member.holderAccountId,
       createdAt: member.createdAt,
       updatedAt: member.updatedAt,

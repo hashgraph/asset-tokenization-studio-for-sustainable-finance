@@ -32,7 +32,7 @@ export class GetBondHoldQueryHandler implements QueryHandler<GetBondHoldQuery, B
 
     return {
       id: hold.id,
-      contractId: hold.contractId,
+      bondContractId: hold.bondContractId,
       holderAccountId: hold.holderAccountId,
       partition: hold.partition,
       amount: hold.amount,

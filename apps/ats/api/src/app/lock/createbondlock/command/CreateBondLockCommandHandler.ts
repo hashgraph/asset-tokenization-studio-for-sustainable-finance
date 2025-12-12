@@ -23,7 +23,7 @@ export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLo
       const bondLock = await this.createBondLockDomainService.execute(command, transactionId)
 
       await this.decreaseBondHolderAvailableBalanceDomainService.execute(
-        bondLock.contractId,
+        bondLock.bondContractId,
         bondLock.holderAccountId,
         bondLock.partition,
         bondLock.amount,
@@ -34,7 +34,7 @@ export class CreateBondLockCommandHandler implements CommandHandler<CreateBondLo
       this.eventBus.publish(
         new CreatedBondLockEvent(
           bondLock.id,
-          bondLock.contractId,
+          bondLock.bondContractId,
           bondLock.holderAccountId,
           bondLock.partition,
           bondLock.amount,

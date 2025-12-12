@@ -15,6 +15,6 @@ export class DeleteBondLockDomainService {
       throw BondLockNotFoundError.lockIdError(request.bondContractId, request.lockId)
     }
 
-    await this.bondLockRepository.delete(existingLock.contractId, existingLock.id)
+    await this.bondLockRepository.delete(existingLock.bondContractId, existingLock.id)
   }
 }

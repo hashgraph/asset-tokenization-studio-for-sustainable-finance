@@ -64,9 +64,9 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondLockRepository.clear()
-    await bondHolderBalanceRepository.clear()
-    await bondRepository.clear()
+    await bondLockRepository.query('DELETE FROM "Bonds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -76,7 +76,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -97,13 +97,13 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, LockedByPartitionDLTEvent.name)
 
       const savedBondLock = await bondLockRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(savedBondLock).toBeDefined()
       expect(savedBondLock).not.toBeNull()
       expect(savedBondLock!.id).toBe(1)
-      expect(savedBondLock!.contractId).toBe("0.0.6974684")
+      expect(savedBondLock!.bondContractId).toBe("0.0.6974684")
       expect(savedBondLock!.holderAccountId).toBe("0.0.7654321")
       expect(savedBondLock!.partition).toBe("0x7265736572766564000000000000000000000000000000000000000000000000")
       expect(savedBondLock!.amount).toBe("1000")
@@ -115,7 +115,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -124,7 +124,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
 
       const existingBondLock = {
         id: 1,
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         amount: "500",
@@ -146,7 +146,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       )
 
       await expect(eventBus.publishSync(event, LockedByPartitionDLTEvent.name)).rejects.toThrow(
-        BondLockFoundError.lockIdError(existingBondLock.contractId, existingBondLock.id),
+        BondLockFoundError.lockIdError(existingBondLock.bondContractId, existingBondLock.id),
       )
     })
 
@@ -154,7 +154,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "100000",
@@ -178,7 +178,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, LockedByPartitionDLTEvent.name)
 
         const savedBondLock = await bondLockRepository.findOne({
-          where: { id: lockId, contractId: "0.0.6974684" },
+          where: { id: lockId, bondContractId: "0.0.6974684" },
         })
 
         expect(savedBondLock).toBeDefined()
@@ -195,7 +195,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -216,11 +216,11 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await eventBus.publishSync(event, LockedByPartitionDLTEvent.name)
 
       const savedBondLock = await bondLockRepository.findOne({
-        where: { id: 1, contractId: "0.0.6974684" },
+        where: { id: 1, bondContractId: "0.0.6974684" },
       })
 
       expect(savedBondLock).toBeDefined()
-      expect(savedBondLock!.contractId).toMatch(/^0\.0\.\d+$/)
+      expect(savedBondLock!.bondContractId).toMatch(/^0\.0\.\d+$/)
       expect(savedBondLock!.holderAccountId).toMatch(/^0\.0\.\d+$/)
       expect(savedBondLock!.operatorAccountId).toMatch(/^0\.0\.\d+$/)
     })
@@ -232,7 +232,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       await createTestBond("0.0.6974684")
 
       await bondHolderBalanceRepository.save({
-        contractId: "0.0.6974684",
+        bondContractId: "0.0.6974684",
         holderAccountId: "0.0.7654321",
         partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
         availableBalance: "10000",
@@ -255,7 +255,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
       expect(publishedEvent).toEqual(
         expect.objectContaining({
           id: 1,
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
           amount: "1000",
@@ -276,7 +276,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
 
       for (const partition of partitions) {
         await bondHolderBalanceRepository.save({
-          contractId: "0.0.6974684",
+          bondContractId: "0.0.6974684",
           holderAccountId: "0.0.7654321",
           partition,
           availableBalance: "10000",
@@ -299,7 +299,7 @@ describe("CreateBondLockNestJSEventAdapter Integration", () => {
         await eventBus.publishSync(event, LockedByPartitionDLTEvent.name)
 
         const savedBondLock = await bondLockRepository.findOne({
-          where: { id: i + 1, contractId: "0.0.6974684" },
+          where: { id: i + 1, bondContractId: "0.0.6974684" },
         })
 
         expect(savedBondLock).toBeDefined()

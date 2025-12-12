@@ -19,18 +19,18 @@ export class BondProceedRecipientTypeOrmRepository implements BondProceedRecipie
   }
 
   async findByContractIdAndProceedRecipientAddress(
-    contractId: string,
+    bondContractId: string,
     proceedRecipientAddress: string,
   ): Promise<BondProceedRecipient | null> {
     return (await this.repository.findOne({
-      where: { contractId, proceedRecipientAddress },
+      where: { bondContractId, proceedRecipientAddress },
     })) as BondProceedRecipient | null
   }
 
-  async findByContractId(contractId: string, options: PageOptions): Promise<Page<BondProceedRecipient>> {
+  async findByContractId(bondContractId: string, options: PageOptions): Promise<Page<BondProceedRecipient>> {
     const orderDirection = options.order.order.toUpperCase() as "ASC" | "DESC"
     const [persistences, total] = await this.repository.findAndCount({
-      where: { contractId },
+      where: { bondContractId },
       order: { [options.order.orderBy]: orderDirection },
       take: options.limit,
       skip: (options.page - 1) * options.limit,
@@ -49,7 +49,7 @@ export class BondProceedRecipientTypeOrmRepository implements BondProceedRecipie
 
   async delete(recipient: BondProceedRecipient): Promise<void> {
     await this.repository.delete({
-      contractId: recipient.contractId,
+      bondContractId: recipient.bondContractId,
       proceedRecipientAddress: recipient.proceedRecipientAddress,
     })
   }

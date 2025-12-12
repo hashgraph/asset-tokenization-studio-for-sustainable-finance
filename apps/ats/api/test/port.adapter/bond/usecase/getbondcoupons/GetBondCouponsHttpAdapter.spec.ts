@@ -104,9 +104,9 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
       const corporateActionId2 = `0x${(Date.now() + 1).toString(16).padStart(64, "0")}`
 
       await internalBondCouponRepository.save({
-        contractId: bond.contractId,
+        id: "1",
+        bondContractId: bond.contractId,
         corporateActionId: corporateActionId1,
-        couponId: "1",
         operator: "0.0.123456",
         recordDate: recordDate,
         executionDate: executionDate,
@@ -118,9 +118,9 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
       const recordDate2 = new Date("2025-12-01")
       const executionDate2 = new Date("2025-12-15")
       await internalBondCouponRepository.save({
-        contractId: bond.contractId,
+        id: "2",
+        bondContractId: bond.contractId,
         corporateActionId: corporateActionId2,
-        couponId: "2",
         operator: "0.0.123456",
         recordDate: recordDate2,
         executionDate: executionDate2,
@@ -162,9 +162,9 @@ describe("GetBondCouponsHttpAdapter API Integration", () => {
 
       for (let i = 1; i <= 5; i++) {
         await internalBondCouponRepository.save({
-          contractId: bond.contractId,
+          id: i.toString(),
+          bondContractId: bond.contractId,
           corporateActionId: `0x${(Date.now() + i).toString(16).padStart(64, "0")}`,
-          couponId: i.toString(),
           operator: "0.0.123456",
           recordDate: new Date("2025-06-01"),
           executionDate: new Date("2025-06-15"),

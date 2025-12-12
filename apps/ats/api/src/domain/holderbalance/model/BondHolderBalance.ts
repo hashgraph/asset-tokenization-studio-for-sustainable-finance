@@ -5,7 +5,7 @@ import { IsNotEmpty, IsString, IsNumberString } from "class-validator"
 export class BondHolderBalance extends BaseEntity {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()

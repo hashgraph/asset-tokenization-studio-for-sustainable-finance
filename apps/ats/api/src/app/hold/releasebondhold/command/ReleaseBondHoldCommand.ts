@@ -8,7 +8,7 @@ export class ReleaseBondHoldCommand extends Command<void> {
 
   @IsString()
   @IsNotEmpty()
-  contractId: string
+  bondContractId: string
 
   @IsString()
   @IsNotEmpty()
@@ -22,9 +22,9 @@ export class ReleaseBondHoldCommand extends Command<void> {
   @IsNotEmpty()
   amount: string
 
-  constructor(contractId: string, holderAccountId: string, holdId: number, partition: string, amount: string) {
+  constructor(bondContractId: string, holderAccountId: string, holdId: number, partition: string, amount: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.holderAccountId = holderAccountId
     this.holdId = holdId
     this.partition = partition

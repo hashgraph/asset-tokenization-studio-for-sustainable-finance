@@ -5,15 +5,15 @@ import { IsNotEmpty, IsString } from "class-validator"
 export class RemoveProceedRecipientCommand extends Command<void> {
   @IsNotEmpty()
   @IsString()
-  contractId: string
+  bondContractId: string
 
   @IsNotEmpty()
   @IsString()
   proceedRecipientAddress: string
 
-  constructor(contractId: string, proceedRecipientAddress: string) {
+  constructor(bondContractId: string, proceedRecipientAddress: string) {
     super()
-    this.contractId = contractId
+    this.bondContractId = bondContractId
     this.proceedRecipientAddress = proceedRecipientAddress
   }
 }

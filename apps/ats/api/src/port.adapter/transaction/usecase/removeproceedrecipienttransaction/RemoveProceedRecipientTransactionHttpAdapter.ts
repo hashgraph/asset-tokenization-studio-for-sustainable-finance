@@ -17,13 +17,13 @@ export class RemoveProceedRecipientTransactionHttpAdapter {
   @ApiResponse({ status: 200, type: TransactionResponse })
   @Delete(":bondContractId/proceeds-recipients")
   async removeProceedRecipientTransaction(
-    @Param("bondContractId") contractId: string,
+    @Param("bondContractId") bondContractId: string,
     @Body() request: RemoveProceedRecipientTransactionRequest,
   ): Promise<TransactionResponse> {
     const appServiceRequest = new RemoveProceedRecipientTransactionAppServiceRequest(
       request.format,
       request.accountId ?? "",
-      contractId,
+      bondContractId,
       request.proceedRecipientAddress,
     )
 

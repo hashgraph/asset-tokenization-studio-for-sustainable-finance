@@ -18,9 +18,9 @@ export class SetBondCouponCommandHandler implements CommandHandler<SetBondCoupon
     const bondCoupon = await this.setBondCouponDomainService.execute(command)
     this.eventBus.publish(
       new BondCouponSetEvent(
-        bondCoupon.contractId,
+        bondCoupon.bondContractId,
         bondCoupon.corporateActionId,
-        bondCoupon.couponId,
+        bondCoupon.id,
         bondCoupon.operator,
         bondCoupon.recordDate,
         bondCoupon.executionDate,
