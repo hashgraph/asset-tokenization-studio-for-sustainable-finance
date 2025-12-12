@@ -16,7 +16,7 @@ async function getBondLock(bondContractId, holderAccountId, lockId) {
       logSuccess("Lock details retrieved successfully!");
       log(`\n📋 Lock Information:`, colors.cyan);
       logInfo(`  • Lock ID: ${lock.id}`);
-      logInfo(`  • Contract ID: ${lock.contractId}`);
+      logInfo(`  • Contract ID: ${lock.bondContractId}`);
       logInfo(`  • Holder Account ID: ${lock.holderAccountId}`);
       logInfo(`  • Partition: ${lock.partition || "Default"}`);
       logInfo(`  • Amount: ${lock.amount}`);
