@@ -66,8 +66,8 @@ async function getBondCoupon(bondContractId, couponId) {
     if (response.data) {
       logSuccess("Coupon details retrieved successfully!");
       logInfo(`\nCoupon Information:`);
-      logInfo(`  • Coupon ID: ${response.data.couponId}`);
-      logInfo(`  • Contract ID: ${response.data.contractId}`);
+      logInfo(`  • Coupon ID: ${response.data.id}`);
+      logInfo(`  • Contract ID: ${response.data.bondContractId}`);
       logInfo(`  • Corporate Action ID: ${response.data.corporateActionId}`);
       logInfo(`  • Record Date: ${new Date(response.data.recordDate).toISOString()}`);
       logInfo(`  • Execution Date: ${new Date(response.data.executionDate).toISOString()}`);
@@ -205,7 +205,7 @@ async function runAutomaticTest() {
     log("\n📊 Coupon Summary:", colors.bright);
     retrievedCoupons.forEach((coupon, index) => {
       log(`\n  Coupon ${index + 1}:`, colors.cyan);
-      logInfo(`    • ID: ${coupon.couponId}`);
+      logInfo(`    • ID: ${coupon.id}`);
       logInfo(`    • Rate: ${coupon.rate / 100}%`);
       logInfo(`    • Record Date: ${new Date(coupon.recordDate).toISOString()}`);
       logInfo(`    • Execution Date: ${new Date(coupon.executionDate).toISOString()}`);
