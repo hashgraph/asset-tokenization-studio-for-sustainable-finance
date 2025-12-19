@@ -293,7 +293,6 @@ export async function deployFactorySuiteWithExistingInfra(
     const fsConfig = await createFactorySuiteConfiguration(
       blrContract,
       facetNamesForConfig,
-      useTimeTravel,
       DEFAULT_BATCH_SIZE,
       confirmations,
     );

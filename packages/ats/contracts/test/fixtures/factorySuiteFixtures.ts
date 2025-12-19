@@ -25,7 +25,14 @@ import {
   atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { deployFactorySuiteSystem, factorySuiteRegistry, TREASURY_CONFIG_ID, ROLES } from "@scripts";
+import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import {
+  deployFactorySuiteSystem,
+  factorySuiteRegistry,
+  getFacetDefinitionFromRegistry,
+  TREASURY_CONFIG_ID,
+  ROLES,
+} from "@scripts";
 import {
   createTreasuryConfiguration,
   MOCK_ERC20_CONTRACT_NAME,
@@ -34,7 +41,13 @@ import {
   TREASURY_CONFIG_VERSION,
 } from "@test";
 import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin } from "@contract-types";
-import { MockAtsFactory__factory, MockERC20__factory, MockERC721__factory } from "@contract-types";
+import {
+  MockAtsFactory__factory,
+  MockERC20__factory,
+  MockERC721__factory,
+  IFactorySuite__factory,
+  ProxyAdmin__factory,
+} from "@contract-types";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
@@ -58,26 +71,16 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
     confirmations: 0, // Force 0 confirmations for tests (hardhat instant network)
   });
 
-  // Get typed contract instances
-  // Use ethers.getContractAt for interfaces
-  const factorySuite = (await ethers.getContractAt(
-    "IFactorySuite",
-    deployment.infrastructure.factorySuite.proxy,
-  )) as IFactorySuite;
+  // Get typed contract instances using TypeChain factories
+  const factorySuite = IFactorySuite__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
-  const blr = (await ethers.getContractAt(
-    "IBusinessLogicResolver",
-    deployment.infrastructure.blr.proxy,
-  )) as IBusinessLogicResolver;
+  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
-  const proxyAdmin = (await ethers.getContractAt(
-    "ProxyAdmin",
-    deployment.infrastructure.proxyAdmin.address,
-  )) as ProxyAdmin;
+  const proxyAdmin = ProxyAdmin__factory.connect(deployment.infrastructure.proxyAdmin.address, deployer);
 
   // Get TimeTravelFacet if TimeTravel is enabled
   const timeTravel = useTimeTravel
-    ? ((await ethers.getContractAt("ITimeTravel", deployment.infrastructure.factorySuite.proxy)) as ITimeTravel)
+    ? ITimeTravel__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer)
     : undefined;
 
   return {
@@ -138,15 +141,9 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   });
 
   // Get typed contract instances for Diamond proxy
-  const factorySuite = (await ethers.getContractAt(
-    "IFactorySuite",
-    deployment.infrastructure.factorySuite.proxy,
-  )) as IFactorySuite;
+  const factorySuite = IFactorySuite__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
-  const blr = (await ethers.getContractAt(
-    "IBusinessLogicResolver",
-    deployment.infrastructure.blr.proxy,
-  )) as IBusinessLogicResolver;
+  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   // Get AccessControl and Pause facets for test setup
   const accessControl = await ethers.getContractAt(
@@ -193,17 +190,8 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   });
 
   const mockFacetsWithKeys = Object.entries(mockFacetAddresses).map(([name, address]) => {
-    const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);
-    if (factorySuiteFacet?.resolverKey?.value) {
-      return { name, address, resolverKey: factorySuiteFacet.resolverKey.value };
-    }
-
-    const atsFacet = atsRegistry.getFacetDefinition(name);
-    if (atsFacet?.resolverKey?.value) {
-      return { name, address, resolverKey: atsFacet.resolverKey.value };
-    }
-
-    throw new Error(`Facet ${name} not found in FactorySuite or ATS registries`);
+    const { resolverKey } = getFacetDefinitionFromRegistry(name);
+    return { name, address, resolverKey };
   });
 
   // Register MockTreasuryFacet in BLR using registerAdditionalFacets

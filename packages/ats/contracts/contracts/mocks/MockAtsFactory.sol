@@ -51,11 +51,7 @@ contract MockAtsFactory {
             return address(0);
         }
 
-        MockBond bond = new MockBond(
-            "Mock Bond",
-            "MBOND",
-            bondData.security.rbacs
-        );
+        MockBond bond = new MockBond("Mock Bond", "MBOND", bondData.security.rbacs);
 
         bondAddress = address(bond);
         emit MockBondDeployed(bondAddress, bondData, regulationData);
