@@ -27,11 +27,12 @@ describe("FactorySuite - Integration Tests", () => {
       expect(configVersion).to.equal(deployment.configuration.version);
     });
 
-    it("GIVEN deployed factory suite WHEN checking facet registration THEN success with all three facets registered", async () => {
+    it("GIVEN deployed factory suite WHEN checking facet registration THEN success with all four facets registered", async () => {
       const { deployment } = await loadFixture(setupFixture);
 
-      expect(deployment.facets.length).to.equal(3);
+      expect(deployment.facets.length).to.equal(4);
       expect(deployment.facets.map((f) => f.name)).to.include.members([
+        "DiamondFacet",
         "AccessControlFacet",
         "PauseFacet",
         "FactorySuiteFacet",

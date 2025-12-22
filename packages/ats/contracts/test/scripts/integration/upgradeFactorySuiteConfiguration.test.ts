@@ -16,6 +16,7 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import type { Signer } from "ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
+import { promises as fs } from "fs";
 import { upgradeFactorySuiteConfiguration } from "@scripts";
 import { deployFactorySuiteInfrastructureFixture } from "@test";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
@@ -481,6 +482,122 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
 
       // But configuration should have 3 facets total
       expect(result.configuration.facetCount).to.equal(4);
+    });
+  });
+
+  describe("Output File Saving", () => {
+    afterEach(async () => {
+      // Clean up deployment files after each test
+      try {
+        const files = await fs.readdir("deployments/hardhat").catch(() => []);
+        for (const file of files) {
+          if (file.includes("factorysuite-upgrade")) {
+            await fs.unlink(`deployments/hardhat/${file}`);
+          }
+        }
+      } catch (_error) {
+        // Ignore cleanup errors - file operations may fail if directories do not exist
+      }
+    });
+
+    it("should not save output by default (saveOutput=false)", async () => {
+      const setup = await loadFixture(setupInitialDeploymentStandard);
+
+      // Default behavior: saveOutput=false
+      const result = await upgradeFactorySuiteConfiguration(setup.deployer, "hardhat", {
+        blrAddress: setup.blrAddress,
+        // saveOutput not provided - defaults to false
+      });
+
+      expect(result.summary.success).to.be.true;
+
+      // Check no file created
+      const files = await fs.readdir("deployments/hardhat").catch(() => []);
+      const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
+      expect(upgradeFiles).to.have.lengthOf(0);
+    });
+
+    it("should save output to default path when saveOutput=true", async () => {
+      const setup = await loadFixture(setupInitialDeploymentStandard);
+
+      // Enable output saving
+      const result = await upgradeFactorySuiteConfiguration(setup.deployer, "hardhat", {
+        blrAddress: setup.blrAddress,
+        saveOutput: true,
+      });
+
+      expect(result.summary.success).to.be.true;
+
+      // Check file exists (need to find it by timestamp match)
+      const files = await fs.readdir("deployments/hardhat");
+      const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
+      expect(upgradeFiles).to.have.lengthOf(1);
+
+      // Verify JSON structure
+      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+      const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
+      expect(savedData.network).to.equal("hardhat");
+      expect(savedData.summary.success).to.be.true;
+    });
+
+    it("should save to custom path when outputPath provided", async () => {
+      const setup = await loadFixture(setupInitialDeploymentStandard);
+      const customPath = "test-output/custom-upgrade.json";
+
+      const result = await upgradeFactorySuiteConfiguration(setup.deployer, "hardhat", {
+        blrAddress: setup.blrAddress,
+        saveOutput: true,
+        outputPath: customPath,
+      });
+
+      expect(result.summary.success).to.be.true;
+
+      // Check custom path exists
+      const fileExists = await fs
+        .access(customPath)
+        .then(() => true)
+        .catch(() => false);
+      expect(fileExists).to.be.true;
+
+      // Cleanup
+      await fs.unlink(customPath);
+      await fs.rmdir("test-output");
+    });
+
+    it("should save complete upgrade output with all required fields", async () => {
+      const setup = await loadFixture(setupInitialDeploymentStandard);
+
+      const result = await upgradeFactorySuiteConfiguration(setup.deployer, "hardhat", {
+        blrAddress: setup.blrAddress,
+        saveOutput: true,
+      });
+
+      // Validate upgrade result
+      expect(result.summary.success).to.be.true;
+      expect(result.summary.totalFacetsDeployed).to.be.greaterThan(0);
+      expect(result.summary.configurationsCreated).to.be.greaterThan(0);
+
+      // Find saved file
+      const files = await fs.readdir("deployments/hardhat");
+      const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
+      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+
+      const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
+
+      // Validate structure
+      expect(savedData).to.have.property("network");
+      expect(savedData).to.have.property("timestamp");
+      expect(savedData).to.have.property("deployer");
+      expect(savedData).to.have.property("blr");
+      expect(savedData).to.have.property("facets");
+      expect(savedData).to.have.property("configuration");
+      expect(savedData).to.have.property("summary");
+
+      // Validate summary
+      expect(savedData.summary).to.have.property("totalFacetsDeployed");
+      expect(savedData.summary).to.have.property("configurationsCreated");
+      expect(savedData.summary).to.have.property("success");
+      expect(savedData.summary.success).to.be.true;
     });
   });
 });

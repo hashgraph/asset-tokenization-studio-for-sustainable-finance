@@ -17,6 +17,9 @@
  */
 
 import type { Signer, ContractFactory } from "ethers";
+import { constants } from "ethers";
+import { dirname } from "path";
+import { promises as fs } from "fs";
 import {
   deployFacets,
   registerAdditionalFacets,
@@ -24,6 +27,7 @@ import {
   atsRegistry,
   info,
   success,
+  warn,
   section,
   error as logError,
   getDeploymentConfig,
@@ -31,6 +35,7 @@ import {
   configureLogger,
   LogLevel,
   DEFAULT_BATCH_SIZE,
+  generateTimestamp,
   fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
@@ -187,8 +192,8 @@ export async function upgradeFactorySuiteConfiguration(
     confirmations: _confirmations,
     enableRetry: _enableRetry,
     verifyDeployment: _verifyDeployment,
-    saveOutput: _saveOutput = false,
-    outputPath: _outputPath,
+    saveOutput = false,
+    outputPath,
     verbose = false,
   } = options;
 
@@ -227,9 +232,7 @@ export async function upgradeFactorySuiteConfiguration(
   info("═".repeat(60));
 
   try {
-    // ========================================
     // PHASE 0: Validation
-    // ========================================
     info("\n🔍 Phase 0/4: Validating inputs...");
 
     if (!blrAddress || blrAddress === "0x0000000000000000000000000000000000000000") {
@@ -240,9 +243,7 @@ export async function upgradeFactorySuiteConfiguration(
 
     // Validate BLR is accessible
     try {
-      await blrContract.resolveLatestBusinessLogic(
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
-      );
+      await blrContract.resolveLatestBusinessLogic(constants.HashZero);
     } catch (error) {
       // Expected to fail for zero key, but should connect successfully
       if (error instanceof Error && error.message.includes("provider")) {
@@ -252,9 +253,7 @@ export async function upgradeFactorySuiteConfiguration(
 
     info(`✅ BLR validated: ${blrAddress}`);
 
-    // ========================================
     // PHASE 1: Deploy Facets
-    // ========================================
     info("\n📦 Phase 1/4: Deploying FactorySuite facets...");
 
     // Use base facet name for registry lookup (registry entry uses dynamic factory)
@@ -301,9 +300,7 @@ export async function upgradeFactorySuiteConfiguration(
       }
     });
 
-    // ========================================
     // PHASE 2: Register Facets
-    // ========================================
     info("\n📝 Phase 2/4: Registering new facets in BLR...");
 
     const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
@@ -323,9 +320,7 @@ export async function upgradeFactorySuiteConfiguration(
 
     info(`✅ Registered ${Object.keys(newFacetAddresses).length} new facet(s)`);
 
-    // ========================================
     // PHASE 3: Create Configuration
-    // ========================================
     info("\n💼 Phase 3/4: Creating FactorySuite configuration...");
 
     // Query shared facet addresses from BLR (use base names for registry lookup)
@@ -380,9 +375,7 @@ export async function upgradeFactorySuiteConfiguration(
     info(`✅ Config Version: ${fsConfig.data.version}`);
     info(`✅ Total Facets: ${fsConfig.data.facetKeys.length}`);
 
-    // ========================================
     // PHASE 4: Update Proxies (Optional)
-    // ========================================
     const proxyUpdates: ProxyUpdateResult[] = [];
 
     if (proxyAddresses && proxyAddresses.length > 0) {
@@ -430,9 +423,7 @@ export async function upgradeFactorySuiteConfiguration(
       info("\n⏭️  Phase 4/4: Skipped (no proxies to update)");
     }
 
-    // ========================================
     // Build Output
-    // ========================================
     const endTime = Date.now();
 
     const output: UpgradeFactorySuiteConfigurationOutput = {
@@ -478,9 +469,7 @@ export async function upgradeFactorySuiteConfiguration(
       },
     };
 
-    // ========================================
     // Print Summary
-    // ========================================
     info("\n" + "═".repeat(60));
     info("✨ UPGRADE COMPLETE");
     info("═".repeat(60));
@@ -492,6 +481,16 @@ export async function upgradeFactorySuiteConfiguration(
     }
     info("═".repeat(60));
 
+    // Save output to file if requested
+    if (saveOutput) {
+      const timestamp = generateTimestamp();
+      const finalOutputPath = outputPath || `deployments/${network}/${network}-factorysuite-upgrade-${timestamp}.json`;
+
+      await saveUpgradeOutput(output, finalOutputPath);
+
+      info(`\n💾 Upgrade output saved: ${finalOutputPath}`);
+    }
+
     success("FactorySuite configuration upgraded successfully");
 
     return output;
@@ -501,5 +500,27 @@ export async function upgradeFactorySuiteConfiguration(
     logError("\n❌ Upgrade failed:", errorMessage);
 
     throw error;
+  }
+}
+
+/**
+ * Save upgrade output to JSON file.
+ * Mirrors @hashgraph/asset-tokenization-contracts pattern for consistency.
+ *
+ * @param output - Upgrade output to save
+ * @param filePath - Path to save the JSON file
+ */
+async function saveUpgradeOutput(output: UpgradeFactorySuiteConfigurationOutput, filePath: string): Promise<void> {
+  try {
+    // Ensure directory exists
+    const dir = dirname(filePath);
+    await fs.mkdir(dir, { recursive: true });
+
+    // Write JSON with pretty formatting
+    await fs.writeFile(filePath, JSON.stringify(output, null, 2), "utf-8");
+
+    success("Upgrade output saved successfully", { path: filePath });
+  } catch (error) {
+    warn(`Warning: Could not save upgrade output: ${error}`);
   }
 }
