@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { deployGbpInfrastructure } from "../workflows/deployGbpInfrastructure";
+import { deployGbpInfrastructure, type DeploymentResult } from "../workflows/deployGbpInfrastructure";
 import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "../infrastructure/config";
 import {
   info,
@@ -7,9 +7,9 @@ import {
   error as logError,
   section,
   isHederaNetwork,
+  saveDeploymentOutput,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import type { GbpInfrastructureOutput } from "@scripts/types/workflows";
 
 /**
  * Parse command line arguments.
@@ -28,19 +28,9 @@ function parseArgs(): { network: string } {
   return { network };
 }
 
-/**
- * Save deployment result to JSON file.
- */
-function saveDeploymentResult(result: any, network: string): void {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const deploymentsDir = join(process.cwd(), "deployments");
-  const filename = `${network}_${timestamp}.json`;
-  const filepath = join(deploymentsDir, filename);
-
-  // Ensure deployments directory exists
-  mkdirSync(deploymentsDir, { recursive: true });
-
-  const output = {
+/** Save deployment result using ATS utilities. */
+async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
+  const output: GbpInfrastructureOutput = {
     timestamp: new Date().toISOString(),
     network,
 
@@ -114,8 +104,17 @@ function saveDeploymentResult(result: any, network: string): void {
     }
   }
 
-  writeFileSync(filepath, JSON.stringify(output, null, 2));
-  info(`✓ Deployment result saved to: deployments/${filename}`);
+  const saveResult = await saveDeploymentOutput({
+    network,
+    workflow: "gbpInfrastructure",
+    data: output,
+  });
+
+  if (saveResult.success) {
+    info(`✓ Deployment result saved to: ${saveResult.filepath}`);
+  } else {
+    logError(`⚠️  Failed to save deployment: ${saveResult.error}`);
+  }
 }
 
 /**
@@ -150,7 +149,7 @@ async function main(): Promise<void> {
     });
 
     // Save result
-    saveDeploymentResult(result, network);
+    await saveDeploymentResult(result, network);
 
     success("✅ Deployment completed successfully!");
     process.exit(0);

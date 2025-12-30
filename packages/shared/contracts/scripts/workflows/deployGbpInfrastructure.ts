@@ -11,6 +11,8 @@ import {
   section,
   configureLogger,
   LogLevel,
+  saveDeploymentOutput,
+  isHederaNetwork,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { DeploymentWithExistingBlrOutput } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
@@ -25,6 +27,7 @@ import {
   deployFactoryPrimaryMarketWithExistingInfra,
   type DeployFactoryPrimaryMarketOutput,
 } from "@hashgraph/green-bonds-platform-primarymarket-contracts/scripts";
+import type { GbpInfrastructureOutput } from "@scripts/types/workflows";
 
 /** Deployment options for GBP infrastructure orchestration */
 export interface DeploymentOptions {
@@ -45,6 +48,8 @@ export interface DeploymentOptions {
    * @example '/tmp/gbp-deployments/.checkpoints'
    */
   checkpointDir?: string;
+  /** Save deployment output to file */
+  saveOutput?: boolean;
 }
 
 /** Complete deployment result from GBP infrastructure orchestration */
@@ -63,6 +68,90 @@ export interface DeploymentResult {
   factorySuiteDeployment: DeployFactorySuiteOutput;
   /** Primary Market deployment result */
   primaryMarketDeployment: DeployFactoryPrimaryMarketOutput;
+}
+
+/** Save deployment result with structured output format. */
+async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
+  const output: GbpInfrastructureOutput = {
+    timestamp: new Date().toISOString(),
+    network,
+    callableContracts: {
+      proxyAdmin: {
+        description: "ProxyAdmin - Manages upgrades for TransparentUpgradeableProxy contracts",
+        address: result.proxyAdmin,
+        contractId: result.bondDeployment?.infrastructure?.proxyAdmin?.contractId,
+      },
+      businessLogicResolver: {
+        description: "Business Logic Resolver (BLR) - Shared diamond pattern resolver",
+        address: result.blr,
+        contractId: result.bondDeployment?.infrastructure?.blr?.proxyContractId,
+        proxyType: "TransparentUpgradeableProxy",
+        implementation: {
+          address: result.blrImplementationAddress,
+          contractId: result.bondDeployment?.infrastructure?.blr?.implementationContractId,
+        },
+      },
+      atsFactory: {
+        description: "ATS Factory - Creates Bond and Equity tokens",
+        address: result.bondDeployment?.infrastructure?.factory?.proxy || "",
+        contractId: result.bondDeployment?.infrastructure?.factory?.proxyContractId,
+        proxyType: "TransparentUpgradeableProxy",
+        implementation: {
+          address: result.bondDeployment?.infrastructure?.factory?.implementation || "",
+          contractId: result.bondDeployment?.infrastructure?.factory?.implementationContractId,
+        },
+      },
+      factorySuite: result.factorySuiteDeployment?.infrastructure?.factorySuite
+        ? {
+            description: "FactorySuite - Atomic deployment of Bond + Treasury + KPI",
+            address: result.factorySuiteDeployment.infrastructure.factorySuite.proxy,
+            contractId: result.factorySuiteDeployment.infrastructure.factorySuite.proxyContractId,
+            proxyType: "ResolverProxy (Diamond)",
+            resolver: {
+              address: result.factorySuiteDeployment.infrastructure.blr.proxy,
+              contractId: result.factorySuiteDeployment.infrastructure.blr.proxyContractId,
+            },
+          }
+        : undefined,
+      primaryMarketFactory: result.primaryMarketDeployment?.infrastructure?.factoryPrimaryMarket
+        ? {
+            description: "Primary Market Factory - Deploys Primary Market instances",
+            address: result.primaryMarketDeployment.infrastructure.factoryPrimaryMarket.proxy,
+            contractId: result.primaryMarketDeployment.infrastructure.factoryPrimaryMarket.proxyContractId,
+            proxyType: "ResolverProxy (Diamond)",
+            resolver: {
+              address: result.primaryMarketDeployment.infrastructure.blr.proxy,
+              contractId: result.primaryMarketDeployment.infrastructure.blr.proxyContractId,
+            },
+          }
+        : undefined,
+    },
+    result,
+  };
+
+  if (isHederaNetwork(network)) {
+    const missingContractIds: string[] = [];
+    Object.entries(output.callableContracts).forEach(([name, contract]) => {
+      if (contract && !contract.contractId) {
+        missingContractIds.push(name);
+      }
+    });
+    if (missingContractIds.length > 0) {
+      logError(`⚠️  Warning: Missing contractIds for: ${missingContractIds.join(", ")}`);
+    }
+  }
+
+  const saveResult = await saveDeploymentOutput({
+    network,
+    workflow: "gbpInfrastructure",
+    data: output,
+  });
+
+  if (saveResult.success) {
+    success(`💾 Deployment saved: ${saveResult.filepath}`);
+  } else {
+    logError(`⚠️  Failed to save: ${saveResult.error}`);
+  }
 }
 
 /**
@@ -143,6 +232,7 @@ export async function deployGbpInfrastructure(
     network = "testnet",
     verbose = false,
     checkpointDir = join(__dirname, "../../deployments/.checkpoints"),
+    saveOutput = false,
   } = options;
 
   // Configure global logger for entire orchestration
@@ -267,8 +357,9 @@ export async function deployGbpInfrastructure(
     // ========================================
     const accessControlFacet = bondResult.facets.find((f) => f.name === "AccessControlFacet");
     const pauseFacet = bondResult.facets.find((f) => f.name === "PauseFacet");
+    const diamondFacet = bondResult.facets.find((f) => f.name === "DiamondFacet");
 
-    if (!accessControlFacet || !pauseFacet) {
+    if (!accessControlFacet || !pauseFacet || !diamondFacet) {
       throw new Error("Required shared facets not found in BOND deployment");
     }
 
@@ -281,7 +372,7 @@ export async function deployGbpInfrastructure(
     info("  - Deploy 3 Treasury facets (LifeCycleCashFlow, Portfolio, ProceedsManagement)");
     info("  - Register facets in BLR");
     info("  - Create TREASURY configuration (config ID: 20000)");
-    info("  - Reuse AccessControl and Pause facets from BOND deployment");
+    info("  - Reuse AccessControl, Pause, and Diamond facets from BOND deployment");
 
     const treasuryResult = await deployTreasuryWithExistingInfra(
       signer,
@@ -293,6 +384,7 @@ export async function deployGbpInfrastructure(
         facets: {
           accessControl: accessControlFacet.address,
           pause: pauseFacet.address,
+          diamond: diamondFacet.address,
         },
       },
       {
@@ -319,7 +411,7 @@ export async function deployGbpInfrastructure(
     info("  - Deploy FactorySuite facet");
     info("  - Register facet in BLR");
     info("  - Create FactorySuite configuration (config ID: 30000)");
-    info("  - Reuse AccessControl and Pause facets from BOND deployment");
+    info("  - Reuse AccessControl, Pause, and Diamond facets from BOND deployment");
     info("  - Deploy FactorySuite ResolverProxy");
 
     const factorySuiteResult = await deployFactorySuiteWithExistingInfra(
@@ -332,6 +424,7 @@ export async function deployGbpInfrastructure(
         facets: {
           accessControl: accessControlFacet.address,
           pause: pauseFacet.address,
+          diamond: diamondFacet.address,
         },
       },
       {
@@ -360,7 +453,7 @@ export async function deployGbpInfrastructure(
     info("  - Create FactoryPrimaryMarket configuration (config ID: 10000)");
     info("  - Create PrimaryMarket configuration (config ID: 10001)");
     info("  - Deploy FactoryPrimaryMarket ResolverProxy");
-    info("  - Reuse AccessControl and Pause facets from BOND deployment");
+    info("  - Reuse AccessControl, Pause, and Diamond facets from BOND deployment");
 
     const primaryMarketResult = await deployFactoryPrimaryMarketWithExistingInfra(
       signer,
@@ -372,6 +465,7 @@ export async function deployGbpInfrastructure(
         facets: {
           accessControl: accessControlFacet.address,
           pause: pauseFacet.address,
+          diamond: diamondFacet.address,
         },
       },
       {
@@ -416,9 +510,7 @@ export async function deployGbpInfrastructure(
     info(`  PrimaryMarket facets: ${primaryMarketResult.summary.totalFacets} (new) + 2 shared`);
     info(`  Shared facets reused: AccessControlFacet, PauseFacet`);
 
-    success("✓ GBP Infrastructure deployment completed successfully!");
-
-    return {
+    const deploymentResult = {
       proxyAdmin: proxyAdminAddress,
       blr: blrAddress,
       blrImplementationAddress,
@@ -427,6 +519,14 @@ export async function deployGbpInfrastructure(
       factorySuiteDeployment: factorySuiteResult,
       primaryMarketDeployment: primaryMarketResult,
     };
+
+    if (saveOutput) {
+      await saveDeploymentResult(deploymentResult, network);
+    }
+
+    success("✅ GBP infrastructure deployment completed!");
+
+    return deploymentResult;
   } catch (err) {
     logError("Deployment failed with error:");
     logError(err instanceof Error ? err.message : String(err));

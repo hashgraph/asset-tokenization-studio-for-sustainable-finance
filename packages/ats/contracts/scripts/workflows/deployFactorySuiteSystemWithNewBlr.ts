@@ -25,7 +25,6 @@ import {
   deployFacets,
   registerFacets,
   deployResolverProxy,
-  LATEST_VERSION,
   atsRegistry,
   info,
   success,
@@ -266,7 +265,7 @@ export async function deployFactorySuiteSystem(
     const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: fsConfig.data.configurationId,
-      version: LATEST_VERSION,
+      version: fsConfig.data.version,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,

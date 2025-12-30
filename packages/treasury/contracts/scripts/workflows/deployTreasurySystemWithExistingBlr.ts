@@ -40,6 +40,9 @@ export interface ExistingInfrastructure {
 
     /** PauseFacet address (must be registered in BLR) */
     pause: string;
+
+    /** DiamondFacet address (must be registered in BLR) */
+    diamond: string;
   };
 }
 
@@ -119,11 +122,15 @@ export async function deployTreasuryWithExistingInfra(
     if (!facets.pause || facets.pause === "0x0000000000000000000000000000000000000000") {
       throw new Error("Invalid PauseFacet address");
     }
+    if (!facets.diamond || facets.diamond === "0x0000000000000000000000000000000000000000") {
+      throw new Error("Invalid DiamondFacet address");
+    }
 
     info(`✅ BLR Proxy: ${blrAddress}`);
     info(`✅ ProxyAdmin: ${proxyAdminAddress}`);
     info(`✅ AccessControlFacet: ${facets.accessControl}`);
     info(`✅ PauseFacet: ${facets.pause}`);
+    info(`✅ DiamondFacet: ${facets.diamond}`);
 
     // ========================================
     // STEP 2: Deploy Treasury-specific facets
@@ -229,6 +236,7 @@ export async function deployTreasuryWithExistingInfra(
       ...newFacetAddresses,
       AccessControlFacet: facets.accessControl,
       PauseFacet: facets.pause,
+      DiamondFacet: facets.diamond,
     };
 
     const treasuryConfig = await createTreasuryConfiguration(
@@ -247,7 +255,7 @@ export async function deployTreasuryWithExistingInfra(
     info(`✅ Treasury Config ID: ${treasuryConfig.data.configurationId}`);
     info(`✅ Config Version: ${treasuryConfig.data.version}`);
     info(
-      `✅ Total Facets: ${treasuryConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
+      `✅ Total Facets: ${treasuryConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + 3 existing)`,
     );
 
     // ========================================
