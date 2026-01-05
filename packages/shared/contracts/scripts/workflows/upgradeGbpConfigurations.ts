@@ -13,25 +13,26 @@ import {
   configureLogger,
   LogLevel,
   saveDeploymentOutput,
+  generateTimestamp,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import {
-  upgradeFactorySuiteConfiguration,
-  type UpgradeFactorySuiteConfigurationOutput,
-} from "@hashgraph/green-bonds-platform-ats-contracts/scripts";
-import {
-  upgradeTreasuryConfiguration,
-  type UpgradeTreasuryConfigurationOutput,
-} from "@hashgraph/green-bonds-platform-treasury-contracts/scripts";
+import { upgradeFactorySuiteConfiguration } from "@hashgraph/green-bonds-platform-ats-contracts/scripts";
+import { upgradeTreasuryConfiguration } from "@hashgraph/green-bonds-platform-treasury-contracts/scripts";
 import {
   upgradeFactoryPrimaryMarketConfiguration,
   upgradePrimaryMarketConfiguration,
-  type UpgradeFactoryPrimaryMarketConfigurationOutput,
-  type UpgradePrimaryMarketConfigurationOutput,
 } from "@hashgraph/green-bonds-platform-primarymarket-contracts/scripts";
 
 /** Domain identifier for selective upgrades */
 export type DomainIdentifier = "factorySuite" | "treasury" | "factoryPrimaryMarket" | "primaryMarket";
+
+/** Maps each DomainIdentifier to its upgrade handler function. */
+const DOMAIN_UPGRADE_HANDLERS = {
+  factorySuite: upgradeFactorySuiteConfiguration,
+  treasury: upgradeTreasuryConfiguration,
+  factoryPrimaryMarket: upgradeFactoryPrimaryMarketConfiguration,
+  primaryMarket: upgradePrimaryMarketConfiguration,
+} as const;
 
 /** Upgrade options for GBP configuration orchestration */
 export interface UpgradeOptions {
@@ -385,52 +386,13 @@ export async function upgradeGbpConfigurations(
     try {
       section(`Upgrading ${domain}...`);
 
-      let result:
-        | UpgradeFactorySuiteConfigurationOutput
-        | UpgradeTreasuryConfigurationOutput
-        | UpgradeFactoryPrimaryMarketConfigurationOutput
-        | UpgradePrimaryMarketConfigurationOutput;
-
-      switch (domain) {
-        case "factorySuite":
-          result = await upgradeFactorySuiteConfiguration(signer, network, {
-            blrAddress,
-            useTimeTravel,
-            proxyAddresses: proxyUpdates?.factorySuite,
-            verbose,
-          });
-          break;
-
-        case "treasury":
-          result = await upgradeTreasuryConfiguration(signer, network, {
-            blrAddress,
-            useTimeTravel,
-            proxyAddresses: proxyUpdates?.treasury,
-            verbose,
-          });
-          break;
-
-        case "factoryPrimaryMarket":
-          result = await upgradeFactoryPrimaryMarketConfiguration(signer, network, {
-            blrAddress,
-            useTimeTravel,
-            proxyAddresses: proxyUpdates?.factoryPrimaryMarket,
-            verbose,
-          });
-          break;
-
-        case "primaryMarket":
-          result = await upgradePrimaryMarketConfiguration(signer, network, {
-            blrAddress,
-            useTimeTravel,
-            proxyAddresses: proxyUpdates?.primaryMarket,
-            verbose,
-          });
-          break;
-
-        default:
-          throw new Error(`Unknown domain: ${domain}`);
-      }
+      const handler = DOMAIN_UPGRADE_HANDLERS[domain];
+      const result = await handler(signer, network, {
+        blrAddress,
+        useTimeTravel,
+        proxyAddresses: proxyUpdates?.[domain],
+        verbose,
+      });
 
       // Extract result summary
       domainResults.push({
@@ -470,7 +432,7 @@ export async function upgradeGbpConfigurations(
   // Save output
   if (saveOutput) {
     // Generate custom filepath
-    const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+    const formattedTimestamp = generateTimestamp();
     const filename = `gbpUpgrade-${formattedTimestamp}.json`;
     const customPath = `./deployments/${network}/${filename}`;
 

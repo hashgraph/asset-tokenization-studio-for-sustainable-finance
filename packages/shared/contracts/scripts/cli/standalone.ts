@@ -8,6 +8,7 @@ import {
   section,
   isHederaNetwork,
   saveDeploymentOutput,
+  generateTimestamp,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { GbpInfrastructureOutput } from "@scripts/types/workflows";
 
@@ -102,7 +103,7 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
   }
 
   // Generate custom filepath in our deployments directory
-  const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+  const formattedTimestamp = generateTimestamp();
   const filename = `gbpInfrastructure-${formattedTimestamp}.json`;
   const customPath = `./deployments/${network}/${filename}`;
 

@@ -13,6 +13,7 @@ import {
   LogLevel,
   saveDeploymentOutput,
   isHederaNetwork,
+  generateTimestamp,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { DeploymentWithExistingBlrOutput } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
@@ -131,19 +132,17 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
   };
 
   if (isHederaNetwork(network)) {
-    const missingContractIds: string[] = [];
-    Object.entries(output.callableContracts).forEach(([name, contract]) => {
-      if (contract && !contract.contractId) {
-        missingContractIds.push(name);
-      }
-    });
+    const missingContractIds = Object.entries(output.callableContracts)
+      .filter(([, contract]) => contract !== undefined)
+      .filter(([, contract]) => !contract.contractId)
+      .map(([name]) => name);
     if (missingContractIds.length > 0) {
       logError(`⚠️  Warning: Missing contractIds for: ${missingContractIds.join(", ")}`);
     }
   }
 
   // Generate custom filepath in our deployments directory
-  const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+  const formattedTimestamp = generateTimestamp();
   const filename = `gbpInfrastructure-${formattedTimestamp}.json`;
   const customPath = `./deployments/${network}/${filename}`;
 
