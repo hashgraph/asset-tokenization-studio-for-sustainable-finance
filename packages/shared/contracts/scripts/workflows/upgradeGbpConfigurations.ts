@@ -186,6 +186,7 @@ function aggregateResults(
   blrAddress: string,
   domainResults: DomainUpgradeResult[],
   totalUpgradeTime: number,
+  timestamp?: string,
 ): UpgradeGbpConfigurationsOutput {
   // Calculate summary metrics
   const successfulUpgrades = domainResults.filter((r) => r.success).length;
@@ -197,7 +198,7 @@ function aggregateResults(
 
   return {
     network,
-    timestamp: new Date().toISOString(),
+    timestamp: timestamp || new Date().toISOString(),
     deployer,
     blr: {
       address: blrAddress,
@@ -338,6 +339,7 @@ export async function upgradeGbpConfigurations(
   options: UpgradeOptions,
 ): Promise<UpgradeGbpConfigurationsOutput> {
   const startTime = Date.now();
+  const timestamp = new Date().toISOString();
   const {
     blrAddress,
     useTimeTravel = false,
@@ -460,17 +462,23 @@ export async function upgradeGbpConfigurations(
   }
 
   // Phase 6: Aggregate Results
-  const output = aggregateResults(network, deployer, blrAddress, domainResults, Date.now() - startTime);
+  const output = aggregateResults(network, deployer, blrAddress, domainResults, Date.now() - startTime, timestamp);
 
   // Print Summary
   printUpgradeSummary(output);
 
   // Save output
   if (saveOutput) {
+    // Generate custom filepath
+    const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+    const filename = `gbpUpgrade-${formattedTimestamp}.json`;
+    const customPath = `./deployments/${network}/${filename}`;
+
     const saveResult = await saveDeploymentOutput({
       network,
       workflow: "gbpUpgrade",
       data: output,
+      customPath,
     });
 
     if (saveResult.success) {

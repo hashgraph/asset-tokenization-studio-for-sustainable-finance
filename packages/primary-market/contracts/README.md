@@ -93,6 +93,7 @@ Primary Market uses **two separate Diamond configurations**:
 ```
 
 **Responsibilities:**
+
 - Deploy new Primary Market diamond proxies
 - Configure RBAC for new instances
 - Set up resolver proxy integration
@@ -120,6 +121,7 @@ Primary Market uses **two separate Diamond configurations**:
 ```
 
 **Responsibilities:**
+
 - Create and manage offerings
 - Accept and process subscriptions
 - Execute offerings with DvP guarantees
@@ -127,11 +129,11 @@ Primary Market uses **two separate Diamond configurations**:
 
 ### Roles & Permissions
 
-| Role | Description | Permissions |
-|------|-------------|-------------|
-| `DEFAULT_ADMIN_ROLE` | Primary Market administrator | Grant/revoke roles, configure settings |
-| `OFFERING_CREATOR` | Offering manager | Create new offerings for tokenized assets |
-| `PAUSER_ROLE` | Emergency control | Pause/unpause contract operations |
+| Role                 | Description                  | Permissions                               |
+| -------------------- | ---------------------------- | ----------------------------------------- |
+| `DEFAULT_ADMIN_ROLE` | Primary Market administrator | Grant/revoke roles, configure settings    |
+| `OFFERING_CREATOR`   | Offering manager             | Create new offerings for tokenized assets |
+| `PAUSER_ROLE`        | Emergency control            | Pause/unpause contract operations         |
 
 ## Deployment
 
@@ -144,12 +146,14 @@ Primary Market uses **two separate Diamond configurations**:
 ### Deployment Commands
 
 **From package directory:**
+
 ```bash
 cd packages/primary-market/contracts
 npm run deploy -- --blr-address=0x123...
 ```
 
 **Environment Variables:**
+
 ```bash
 # .env
 BLR_ADDRESS=0x1234567890abcdef...
@@ -157,6 +161,7 @@ NETWORK=hedera-testnet
 ```
 
 Then run:
+
 ```bash
 npm run deploy
 ```
@@ -164,11 +169,13 @@ npm run deploy
 ### Environment Configuration
 
 Create a `.env` file from `.env.sample`:
+
 ```bash
 cp .env.sample .env
 ```
 
 Required variables:
+
 - `NETWORK` - Target network (local, hedera-testnet, hedera-mainnet)
 - `HEDERA_TESTNET_PRIVATE_KEY_0` - Deployer private key
 - `BLR_ADDRESS` - BusinessLogicResolver proxy address
@@ -180,30 +187,36 @@ Required variables:
 Primary Market uses a **dual configuration pattern**: one configuration for the factory, one for instances.
 
 **Infrastructure (shared from platform deployment):**
+
 - ✅ BusinessLogicResolver (BLR) proxy - Already deployed
 - ✅ ProxyAdmin - Already deployed
 - ✅ Shared facets - AccessControl, Pause, Diamond (already deployed)
 
 **Configurations in BLR (metadata only, not deployed proxies):**
+
 - ✅ **FactoryPrimaryMarket configuration (Config ID 10000)** - Template for factory proxy
 - ✅ **PrimaryMarket configuration (Config ID 10001)** - Template for PM instances
 
 **Factory Proxy (deployed and immediately usable):**
+
 - ✅ **FactoryPrimaryMarket ResolverProxy** - Uses Config 10000, can deploy PM instances
 
 ### What Fresh Deployment Does NOT Create
 
 **Instance Proxies (created later on-demand):**
+
 - ❌ **PrimaryMarket instance proxies** - Created by calling `FactoryPrimaryMarket.deployPrimaryMarket()`
 
 ### Why This Design?
 
 **One factory creates many instances:**
+
 - Primary Market instances are created per offering (many instances possible)
 - Each offering gets its own dedicated PrimaryMarket proxy
 - All instances share the same configuration (Config 10001) but have separate storage
 
 **Dual configuration pattern:**
+
 ```
 Config 10000 (FactoryPrimaryMarket)
     ├─ Defines factory behavior
@@ -221,6 +234,7 @@ Config 10001 (PrimaryMarket)
 ```
 
 **Factory vs Instance relationship:**
+
 ```
 FactoryPrimaryMarket Proxy (Config 10000)
         ↓ deploys
@@ -234,6 +248,7 @@ PrimaryMarket instances (Config 10001)
 ### Deployment Output Explained
 
 **What you'll see in deployment JSON:**
+
 ```json
 {
   "infrastructure": {
@@ -265,11 +280,13 @@ PrimaryMarket instances (Config 10001)
 ```
 
 **What you WON'T see (and why):**
+
 - ❌ No `primaryMarket.infrastructure.proxy` field
 - ❌ No instance proxy addresses in deployment output
 - **Reason:** PrimaryMarket instances don't exist yet - they're created later by calling the factory
 
 **This is correct behavior, not an error!** The deployment creates:
+
 1. Template configurations (10000 and 10001)
 2. Factory proxy (uses Config 10000)
 3. Facet implementations (used by both configs)
@@ -286,26 +303,27 @@ import { FactoryPrimaryMarketFacet__factory } from "@hashgraph/primary-market-co
 // Connect to deployed factory
 const factory = FactoryPrimaryMarketFacet__factory.connect(
   deploymentResult.infrastructure.factoryPrimaryMarket.proxy,
-  signer
+  signer,
 );
 
 // Deploy new PrimaryMarket instance for an offering
 const tx = await factory.deployPrimaryMarket(
-  assetAddress,      // Bond asset to create offering for
-  10001,             // Config ID for PrimaryMarket instances
-  1                  // Version (from deployment)
+  assetAddress, // Bond asset to create offering for
+  10001, // Config ID for PrimaryMarket instances
+  1, // Version (from deployment)
 );
 
 await tx.wait();
 
 // Extract new proxy address from events
-const event = tx.events?.find(e => e.event === "PrimaryMarketDeployed");
+const event = tx.events?.find((e) => e.event === "PrimaryMarketDeployed");
 const primaryMarketProxy = event?.args?.proxyAddress;
 
 console.log("New PrimaryMarket instance:", primaryMarketProxy);
 ```
 
 **Each instance is independent:**
+
 ```typescript
 // Instance #1 for Bond A's primary offering
 const pm1 = await factory.deployPrimaryMarket(bondA, 10001, 1);
@@ -377,12 +395,14 @@ const pm3 = await factory.deployPrimaryMarket(bondA, 10001, 1);
 Configuration upgrades allow you to deploy new facet implementations and create new configuration versions without redeploying shared infrastructure (BLR, ProxyAdmin).
 
 **What Upgrades Do:**
+
 - Deploy ALL domain-specific facets (full redeploy, no change detection)
 - Register facets in existing BLR (overwrite mode)
 - Create new configuration versions (v1→v2, v2→v3, etc.)
 - Optionally batch-update proxies to new versions
 
 **What Upgrades DON'T Do:**
+
 - Replace shared infrastructure
 - Modify existing configuration versions
 - Automatically update all proxies
@@ -392,6 +412,7 @@ Configuration upgrades allow you to deploy new facet implementations and create 
 **Important**: Upgrades deploy ALL domain-specific facets unconditionally, regardless of whether code changed.
 
 **What happens during upgrade:**
+
 1. Deploys complete set of domain facets (no change detection)
 2. Registers all facets in BLR with overwrite enabled
 3. Creates new configuration version
@@ -400,6 +421,7 @@ Configuration upgrades allow you to deploy new facet implementations and create 
 **Gas Cost**: Full facet deployment every upgrade (no change detection optimization)
 
 **Why this approach?**
+
 - Simplicity: No complex bytecode comparison logic
 - Safety: Each version is self-contained
 - Consistency: Predictable behavior across all upgrades
@@ -408,15 +430,18 @@ Configuration upgrades allow you to deploy new facet implementations and create 
 **Facets deployed every upgrade:**
 
 **Factory Configuration (10000):**
+
 - FactoryPrimaryMarketFacet (complete redeploy)
 - TimeTravelFactoryPrimaryMarketFacet (if --time-travel flag set)
 
 **Instance Configuration (10001):**
+
 - OfferingFacet (complete redeploy)
 - SubscriptionFacet (complete redeploy)
 - TimeTravelOfferingFacet (if --time-travel flag set)
 
 **Shared facets (NOT redeployed):**
+
 - AccessControlFacet (registered once, reused)
 - PauseFacet (registered once, reused)
 - DiamondFacet (registered once, reused)
@@ -424,6 +449,7 @@ Configuration upgrades allow you to deploy new facet implementations and create 
 ### Prerequisites
 
 Before upgrading, you must have:
+
 1. **Deployed infrastructure** - BLR proxy address from initial deployment
 2. **Private key** - With permissions to register facets and create configurations
 3. **Network access** - RPC endpoint for target network
@@ -433,12 +459,14 @@ Before upgrading, you must have:
 #### Domain-Specific Upgrade
 
 **From package directory:**
+
 ```bash
 cd packages/primary-market/contracts
 npm run upgrade -- --blr-address=0x123...
 ```
 
 **Environment Variables:**
+
 ```bash
 # .env
 BLR_ADDRESS=0x1234567890abcdef...
@@ -446,22 +474,24 @@ NETWORK=hedera-testnet
 ```
 
 Then run:
+
 ```bash
 npm run upgrade
 ```
 
 #### Options
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--blr-address` | BLR proxy address (required) | - |
-| `--time-travel` | Use TimeTravel facet variants | false |
-| `--verbose` | Enable debug logging | false |
-| `--proxy-addresses` | Comma-separated proxy addresses to update | - |
+| Flag                | Description                               | Default |
+| ------------------- | ----------------------------------------- | ------- |
+| `--blr-address`     | BLR proxy address (required)              | -       |
+| `--time-travel`     | Use TimeTravel facet variants             | false   |
+| `--verbose`         | Enable debug logging                      | false   |
+| `--proxy-addresses` | Comma-separated proxy addresses to update | -       |
 
 #### Examples
 
 **Basic upgrade:**
+
 ```bash
 npm run upgrade -- --blr-address=0x123...
 ```
@@ -469,16 +499,19 @@ npm run upgrade -- --blr-address=0x123...
 **Note:** This deploys all domain facets and creates a new configuration version, even if no code changed.
 
 **Upgrade with proxy updates:**
+
 ```bash
 npm run upgrade -- --blr-address=0x123... --proxy-addresses=0xabc,0xdef
 ```
 
 **Verbose logging:**
+
 ```bash
 npm run upgrade -- --blr-address=0x123... --verbose
 ```
 
 **TimeTravel mode (testing):**
+
 ```bash
 npm run upgrade:local -- --blr-address=0x123... --time-travel
 ```
@@ -488,16 +521,19 @@ npm run upgrade:local -- --blr-address=0x123... --time-travel
 Primary Market has **two configurations** that can be upgraded:
 
 **Upgrade Factory only:**
+
 ```bash
 npm run upgrade:factory -- --blr-address=0x123...
 ```
 
 **Upgrade Instance only:**
+
 ```bash
 npm run upgrade:instance -- --blr-address=0x123...
 ```
 
 **Upgrade both (recommended):**
+
 ```bash
 npm run upgrade -- --blr-address=0x123...
 ```
@@ -505,10 +541,12 @@ npm run upgrade -- --blr-address=0x123...
 ### Upgrade Output
 
 Upgrades save results to:
+
 - Factory: `deployments/{network}/{network}-factoryprimarymarket-upgrade-{timestamp}.json`
 - Instance: `deployments/{network}/{network}-primarymarket-upgrade-{timestamp}.json`
 
 **Factory Upgrade Output:**
+
 ```json
 {
   "network": "hedera-testnet",
@@ -533,6 +571,7 @@ Upgrades save results to:
 ```
 
 **Instance Upgrade Output:**
+
 ```json
 {
   "network": "hedera-testnet",
@@ -559,17 +598,20 @@ Upgrades save results to:
 ### Understanding Facet Deployment
 
 **Domain-Specific Facets:**
+
 - Always deployed during upgrades
 - Hardcoded list in upgrade script
 - No change detection mechanism
 
 **Shared Facets:**
+
 - Deployed once during initial infrastructure setup
 - Reused across all domain configurations
 - NOT redeployed during domain-specific upgrades
 - Referenced by address in BLR
 
 **Configuration Versioning:**
+
 - Each upgrade creates a new version (v1→v2→v3...)
 - Old versions remain in BLR (unchanged)
 - Proxies must explicitly switch to new versions
@@ -578,19 +620,23 @@ Upgrades save results to:
 ### Troubleshooting Upgrades
 
 **"BLR validation failed":**
+
 - Verify BLR address is correct
 - Ensure BLR is deployed and accessible
 - Check network is correct
 
 **"Insufficient permissions":**
+
 - Deployer must have permission to register facets in BLR
 - For production, ensure proper role assignments
 
 **"Gas limit exceeded":**
+
 - Large facets may need custom gas limits
 - Consider splitting into multiple smaller facets
 
 **"Proxy update failed":**
+
 - Verify proxy addresses are correct
 - Ensure proxies use the ResolverProxy pattern
 - Check proxy admin permissions

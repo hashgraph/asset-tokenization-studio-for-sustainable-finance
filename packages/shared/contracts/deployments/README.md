@@ -23,22 +23,27 @@ deployments/
 All deployment files follow the pattern: `{workflow}-{timestamp}.json`
 
 **Workflow Types:**
+
 - `gbpInfrastructure` - Complete GBP infrastructure deployment
 - `gbpUpgrade` - GBP configuration upgrades
 
 **Timestamp Format:** ISO 8601 with `:` and `.` replaced by `-`
+
 - Example: `2025-12-29T18-42-15-123Z`
 
 **Full Example:**
+
 - `hedera-testnet/gbpInfrastructure-2025-12-29T18-42-15-123Z.json`
 
 ## Git Tracking
 
 **Tracked (Production & Staging):**
+
 - `hedera-mainnet/` - Production deployments
 - `hedera-testnet/` - Staging deployments
 
 **Gitignored (Local Development):**
+
 - `hedera-local/` - Local Hedera node deployments
 - `local/` - Hardhat local node deployments
 - `.checkpoints/` - Deployment state snapshots
@@ -119,6 +124,7 @@ All utilities are imported directly from `@hashgraph/asset-tokenization-contract
 ### What are Checkpoints?
 
 Checkpoints are deployment state snapshots that enable:
+
 - **Resuming failed deployments** without redeploying already-deployed contracts
 - **Gas cost savings** by skipping completed steps
 - **Deployment auditing** with complete deployment history
@@ -134,6 +140,7 @@ Checkpoints are deployment state snapshots that enable:
 ### Checkpoint Files
 
 Checkpoint files are stored as JSON in `.checkpoints/`:
+
 - Format: `{network}-{timestamp}.json`
 - Example: `hedera-testnet-1762965051697.json`
 - Status: `in-progress`, `completed`, or `failed`
@@ -143,23 +150,26 @@ Checkpoint files are stored as JSON in `.checkpoints/`:
 ### Using Checkpoints
 
 **Default Behavior (Auto-Resume Enabled)**:
+
 ```typescript
 const result = await deployGbpInfrastructure(signer, {
-  network: 'hedera-testnet',
+  network: "hedera-testnet",
   // Checkpoint directory defaults to ./deployments/.checkpoints
   // Auto-resumes incomplete deployments automatically
 });
 ```
 
 **Custom Checkpoint Directory**:
+
 ```typescript
 const result = await deployGbpInfrastructure(signer, {
-  network: 'hedera-testnet',
-  checkpointDir: '/tmp/my-checkpoints', // Custom location
+  network: "hedera-testnet",
+  checkpointDir: "/tmp/my-checkpoints", // Custom location
 });
 ```
 
 **Force Fresh Deployment (Ignore Checkpoints)**:
+
 ```typescript
 // For fresh deployments, delete checkpoint files or use a different directory
 // The checkpoint system will detect no incomplete deployments and start fresh
@@ -170,11 +180,13 @@ const result = await deployGbpInfrastructure(signer, {
 When a deployment fails:
 
 1. **Checkpoint is saved** with failure information:
+
    ```
    💾 Checkpoint saved with failure information: hedera-testnet-1762965051697
    ```
 
 2. **Simply re-run** the same deployment command:
+
    ```bash
    npm run deploy:gbp:infrastructure
    ```
@@ -199,16 +211,19 @@ When a deployment fails:
 ### Managing Checkpoints
 
 **List checkpoints**:
+
 ```bash
 ls -la packages/shared/contracts/deployments/.checkpoints/
 ```
 
 **Delete specific checkpoint** (to force fresh deployment):
+
 ```bash
 rm packages/shared/contracts/deployments/.checkpoints/hedera-testnet-1762965051697.json
 ```
 
 **Delete all checkpoints**:
+
 ```bash
 rm packages/shared/contracts/deployments/.checkpoints/*.json
 ```
@@ -219,11 +234,13 @@ The checkpoint system includes automatic cleanup for old completed deployments (
 ### Checkpoint vs node_modules
 
 **Previously (Before checkpointDir Option)**:
+
 - Checkpoints saved in `node_modules/@hashgraph/.../deployments/.checkpoints/`
 - Lost on `npm install` or `npm ci`
 - Separate checkpoints per package instance
 
 **Now (With checkpointDir Option)**:
+
 - Checkpoints saved in `packages/shared/contracts/deployments/.checkpoints/`
 - Persist across `npm install` and `npm ci`
 - Shared across deployment runs
@@ -239,17 +256,20 @@ The checkpoint system includes automatic cleanup for old completed deployments (
 ## Troubleshooting
 
 **"No checkpoints found" but I see checkpoint files**:
+
 - Verify checkpoint directory path is correct
 - Check checkpoint files are in the configured directory
 - Ensure checkpoint network matches deployment network
 
 **"Checkpoint resume failed"**:
+
 - Check deployed contract addresses are still valid
 - Verify network connectivity
 - Review checkpoint JSON for corruption
 - Delete checkpoint and restart if necessary
 
 **"Gas limit exceeded" during resume**:
+
 - This is a Hedera throttling limit, not a checkpoint issue
 - Checkpoint will save progress before failure
 - Resume will retry the failed step with same gas settings

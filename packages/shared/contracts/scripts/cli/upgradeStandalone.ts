@@ -25,8 +25,8 @@
  * @module cli/upgradeStandalone
  */
 
-import { upgradeGbpConfigurations, type DomainIdentifier } from "../workflows/upgradeGbpConfigurations";
-import { createSignerForNetwork } from "../infrastructure/config";
+import { upgradeGbpConfigurations, type DomainIdentifier } from "@scripts/workflows";
+import { createSignerForNetwork } from "@scripts/infrastructure";
 import { info, success, error as logError, section } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 /**

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { deployGbpInfrastructure, type DeploymentResult } from "../workflows/deployGbpInfrastructure";
-import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "../infrastructure/config";
+import { deployGbpInfrastructure, type DeploymentResult } from "@scripts/workflows";
+import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "@scripts/infrastructure";
 import {
   info,
   success,
@@ -11,9 +11,6 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { GbpInfrastructureOutput } from "@scripts/types/workflows";
 
-/**
- * Parse command line arguments.
- */
 function parseArgs(): { network: string } {
   const args = process.argv.slice(2);
 
@@ -28,10 +25,10 @@ function parseArgs(): { network: string } {
   return { network };
 }
 
-/** Save deployment result using ATS utilities. */
 async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
+  const timestamp = new Date().toISOString();
   const output: GbpInfrastructureOutput = {
-    timestamp: new Date().toISOString(),
+    timestamp,
     network,
 
     callableContracts: {
@@ -104,10 +101,16 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
     }
   }
 
+  // Generate custom filepath in our deployments directory
+  const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+  const filename = `gbpInfrastructure-${formattedTimestamp}.json`;
+  const customPath = `./deployments/${network}/${filename}`;
+
   const saveResult = await saveDeploymentOutput({
     network,
     workflow: "gbpInfrastructure",
     data: output,
+    customPath,
   });
 
   if (saveResult.success) {
@@ -117,9 +120,6 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
   }
 }
 
-/**
- * Main deployment function.
- */
 async function main(): Promise<void> {
   section("🚀 Green Bonds Platform - Infrastructure Deployment");
 
@@ -165,5 +165,4 @@ async function main(): Promise<void> {
   }
 }
 
-// Run main function
 main();

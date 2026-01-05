@@ -7,9 +7,8 @@
 // Export infrastructure configuration (workflow registration)
 export * from "./infrastructure";
 
-// Export main orchestration workflows and their types
-export * from "./workflows/deployGbpInfrastructure";
-export * from "./workflows/upgradeGbpConfigurations";
+// Export main orchestration workflows
+export * from "./workflows";
 
 // Export GBP-specific types
 export type { GbpWorkflowType, GbpInfrastructureOutput, GbpUpgradeOutput } from "@scripts/types/workflows";

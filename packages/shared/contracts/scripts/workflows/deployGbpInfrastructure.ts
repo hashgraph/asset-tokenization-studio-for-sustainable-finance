@@ -72,8 +72,9 @@ export interface DeploymentResult {
 
 /** Save deployment result with structured output format. */
 async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
+  const timestamp = new Date().toISOString();
   const output: GbpInfrastructureOutput = {
-    timestamp: new Date().toISOString(),
+    timestamp,
     network,
     callableContracts: {
       proxyAdmin: {
@@ -141,10 +142,16 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
     }
   }
 
+  // Generate custom filepath in our deployments directory
+  const formattedTimestamp = timestamp.replace(/[:.]/g, "-").slice(0, -5);
+  const filename = `gbpInfrastructure-${formattedTimestamp}.json`;
+  const customPath = `./deployments/${network}/${filename}`;
+
   const saveResult = await saveDeploymentOutput({
     network,
     workflow: "gbpInfrastructure",
     data: output,
+    customPath,
   });
 
   if (saveResult.success) {
