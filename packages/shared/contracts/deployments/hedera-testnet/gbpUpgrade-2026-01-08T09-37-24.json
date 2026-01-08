@@ -1,0 +1,61 @@
+{
+  "network": "hedera-testnet",
+  "timestamp": "2026-01-08T09:33:50.094Z",
+  "deployer": "0x3094Df365bA01f842577ADe9fBaC15c35081F255",
+  "blr": {
+    "address": "0xfAA65f8E23BA07f2cfb8Db403d71E63076AfBD55",
+    "isExternal": true
+  },
+  "domainResults": [
+    {
+      "domain": "factorySuite",
+      "success": true,
+      "version": 2,
+      "configId": "0x0000000000000000000000000000000000000000000000000000000000007530",
+      "facetsDeployed": 1,
+      "proxiesUpdated": 1,
+      "proxiesFailed": 0,
+      "upgradeTime": 43992
+    },
+    {
+      "domain": "treasury",
+      "success": true,
+      "version": 2,
+      "configId": "0x0000000000000000000000000000000000000000000000000000000000004e20",
+      "facetsDeployed": 3,
+      "proxiesUpdated": 0,
+      "proxiesFailed": 0,
+      "upgradeTime": 51525
+    },
+    {
+      "domain": "factoryPrimaryMarket",
+      "success": true,
+      "version": 2,
+      "configId": "0x0000000000000000000000000000000000000000000000000000000000002710",
+      "facetsDeployed": 1,
+      "proxiesUpdated": 1,
+      "proxiesFailed": 0,
+      "upgradeTime": 82553
+    },
+    {
+      "domain": "primaryMarket",
+      "success": true,
+      "version": 2,
+      "configId": "0x0000000000000000000000000000000000000000000000000000000000002711",
+      "facetsDeployed": 1,
+      "proxiesUpdated": 0,
+      "proxiesFailed": 0,
+      "upgradeTime": 36077
+    }
+  ],
+  "summary": {
+    "totalDomains": 4,
+    "successfulUpgrades": 4,
+    "failedUpgrades": 0,
+    "totalFacetsDeployed": 6,
+    "totalProxiesUpdated": 2,
+    "totalProxiesFailed": 0,
+    "totalUpgradeTime": 214680,
+    "allSuccess": true
+  }
+}

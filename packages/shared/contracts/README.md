@@ -105,7 +105,7 @@ jq '[.result.bondDeployment.summary.totalFacets,
      .result.factorySuiteDeployment.summary.totalFacets,
      .result.primaryMarketDeployment.summary.totalFacets] | add' \
   $(ls -t deployments/local/gbpInfrastructure-*.json | head -1)
-# Should show: 60 (48 + 5 + 3 + 4)
+# Should show: 54 (48 + 3 + 1 + 2)
 ```
 
 **✓ Output File Size:**
@@ -274,9 +274,9 @@ Understanding typical execution times helps set expectations and identify stuck 
 | 1     | ProxyAdmin         | ~45s  | Single contract deployment                       |
 | 2     | BLR Infrastructure | ~90s  | Implementation + Proxy + initialization          |
 | 3     | BOND Domain        | ~120s | 48 facets + configuration registration           |
-| 4     | Treasury Domain    | ~60s  | 5 facets + configuration registration            |
-| 5     | FactorySuite       | ~60s  | 3 facets + configuration registration            |
-| 6     | PrimaryMarket      | ~90s  | 4 facets + 2 configurations (factory + instance) |
+| 4     | Treasury Domain    | ~60s  | 3 facets + configuration registration            |
+| 5     | FactorySuite       | ~60s  | 1 facet + configuration registration             |
+| 6     | PrimaryMarket      | ~90s  | 2 facets + 2 configurations (factory + instance) |
 
 **Why Hedera Takes Longer:**
 
@@ -454,9 +454,9 @@ npm run deploy:local
    - **Step 1:** Deploy ProxyAdmin
    - **Step 2:** Deploy Business Logic Resolver (BLR) + TransparentUpgradeableProxy
    - **Step 3:** Deploy BOND domain (48 facets, config ID 2)
-   - **Step 4:** Deploy Treasury domain (5 facets, config ID 20000)
-   - **Step 5:** Deploy FactorySuite (3 facets, config ID 30000)
-   - **Step 6:** Deploy PrimaryMarket (4 facets, config IDs 10000 & 10001)
+   - **Step 4:** Deploy Treasury domain (3 facets, config ID 20000)
+   - **Step 5:** Deploy FactorySuite (1 facet, config ID 30000)
+   - **Step 6:** Deploy PrimaryMarket (2 facets, config IDs 10000 & 10001)
 3. Saves deployment output to JSON file
 
 **Expected Duration:** ~30 seconds for Hardhat local
@@ -619,9 +619,9 @@ npm run shared:contracts:deploy:hedera:local
    - **Step 1:** Deploy ProxyAdmin → Contract ID assigned
    - **Step 2:** Deploy BLR + TransparentUpgradeableProxy → Contract IDs assigned
    - **Step 3:** Deploy BOND domain (48 facets, config ID 2)
-   - **Step 4:** Deploy Treasury domain (5 facets, config ID 20000)
-   - **Step 5:** Deploy FactorySuite (3 facets, config ID 30000)
-   - **Step 6:** Deploy PrimaryMarket (4 facets, config IDs 10000 & 10001)
+   - **Step 4:** Deploy Treasury domain (3 facets, config ID 20000)
+   - **Step 5:** Deploy FactorySuite (1 facet, config ID 30000)
+   - **Step 6:** Deploy PrimaryMarket (2 facets, config IDs 10000 & 10001)
 3. Saves deployment output to `deployments/hedera-local/gbpInfrastructure-{timestamp}.json`
 
 **Expected Duration:** ~7 minutes for Hedera local (vs 1-2 seconds for Hardhat)
@@ -1004,9 +1004,9 @@ Use this checklist to verify your deployment succeeded:
 ### Domain Deployments
 
 - [ ] BOND domain: 48 facets deployed, `summary.success = true`
-- [ ] Treasury domain: 5 facets deployed, `summary.success = true`
-- [ ] FactorySuite domain: 3 facets deployed, `summary.success = true`
-- [ ] PrimaryMarket domain: 4 facets deployed, `summary.success = true`
+- [ ] Treasury domain: 3 facets deployed, `summary.success = true`
+- [ ] FactorySuite domain: 1 facet deployed, `summary.success = true`
+- [ ] PrimaryMarket domain: 2 facets deployed, `summary.success = true`
 
 **If all checkboxes are checked:** ✅ **CONGRATULATIONS!** Your deployment succeeded.
 
@@ -1342,9 +1342,9 @@ This package implements **Phase 1** of the Multi-Module Infrastructure Orchestra
 - Creates BOND configuration (config ID: 2)
 - Deploys ATS Factory
 
-✅ **Step 4**: Deploy Treasury domain (5 facets, config ID 20000)
-✅ **Step 5**: Deploy FactorySuite (3 facets, config ID 30000)
-✅ **Step 6**: Deploy PrimaryMarket (4 facets, config IDs 10000 & 10001)
+✅ **Step 4**: Deploy Treasury domain (3 facets, config ID 20000)
+✅ **Step 5**: Deploy FactorySuite (1 facet, config ID 30000)
+✅ **Step 6**: Deploy PrimaryMarket (2 facets, config IDs 10000 & 10001)
 
 ### Workflow-Based Orchestration Strategy
 
@@ -1664,13 +1664,13 @@ The deployment creates a JSON file (~44KB, ~1000 lines) with this structure:
       /* 48 facets */
     },
     "treasuryDeployment": {
-      /* 5 facets */
-    },
-    "factorySuiteDeployment": {
       /* 3 facets */
     },
+    "factorySuiteDeployment": {
+      /* 1 facet */
+    },
     "primaryMarketDeployment": {
-      /* 4 facets */
+      /* 2 facets */
     }
   }
 }

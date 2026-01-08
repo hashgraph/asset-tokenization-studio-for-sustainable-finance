@@ -78,9 +78,9 @@ npm run deploy:local
    - Step 1: Deploy ProxyAdmin
    - Step 2: Deploy Business Logic Resolver (BLR) with TransparentUpgradeableProxy
    - Step 3: Deploy BOND domain (48 facets, config ID 2)
-   - Step 4: Deploy Treasury domain (5 facets, config ID 20000)
-   - Step 5: Deploy FactorySuite (3 facets, config ID 30000)
-   - Step 6: Deploy PrimaryMarket (4 facets, config IDs 10000 & 10001)
+   - Step 4: Deploy Treasury domain (3 facets, config ID 20000)
+   - Step 5: Deploy FactorySuite (1 facet, config ID 30000)
+   - Step 6: Deploy PrimaryMarket (2 facets, config IDs 10000 & 10001)
 4. Saves output JSON file
 
 **Deployment Duration:** Approximately 30 seconds
@@ -97,9 +97,9 @@ npm run deploy:local
 [SUCCESS] ✅ ProxyAdmin deployed
 [SUCCESS] ✅ BLR deployed with TransparentUpgradeableProxy
 [SUCCESS] ✅ BOND deployment completed (48 facets)
-[SUCCESS] ✅ Treasury deployment completed (5 facets: 3 new + 2 shared)
-[SUCCESS] ✅ FactorySuite deployment completed (3 facets: 1 new + 2 shared)
-[SUCCESS] ✅ PrimaryMarket deployment completed (4 facets: 2 new + 2 shared)
+[SUCCESS] ✅ Treasury deployment completed (3 facets)
+[SUCCESS] ✅ FactorySuite deployment completed (1 facet)
+[SUCCESS] ✅ PrimaryMarket deployment completed (2 facets)
 
 [INFO] Infrastructure:
   ProxyAdmin: 0x5FbDB2315678afecb367f032d93F642f64180aa3
@@ -149,9 +149,9 @@ npm run deploy:local
     "blr": "0x...",
     "blrImplementationAddress": "0x...",
     "bondDeployment": { /* 48 facets */ },
-    "treasuryDeployment": { /* 5 facets */ },
-    "factorySuiteDeployment": { /* 3 facets */ },
-    "primaryMarketDeployment": { /* 4 facets */ }
+    "treasuryDeployment": { /* 3 facets */ },
+    "factorySuiteDeployment": { /* 1 facet */ },
+    "primaryMarketDeployment": { /* 2 facets */ }
   }
 }
 ```
@@ -338,7 +338,7 @@ Use this checklist to verify deployment success:
 - [x] **All callable contracts deployed:** 5 contracts (proxyAdmin, businessLogicResolver, atsFactory, factorySuite, primaryMarketFactory)
 - [x] **All addresses valid:** Valid Ethereum addresses (0x + 40 hex chars)
 - [x] **Configuration IDs correct:** BOND=2, Treasury=20000, FactorySuite=30000, FactoryPM=10000, PM=10001
-- [x] **Facet counts correct:** BOND=48, Treasury=5, FactorySuite=3, PrimaryMarket=4
+- [x] **Facet counts correct:** BOND=48, Treasury=3, FactorySuite=1, PrimaryMarket=2
 - [x] **All domains successful:** `summary.success = true` for all 4 domains
 - [ ] **Output in persistent location:** ⚠️ ISSUE - Currently in node_modules/ (see Known Issues)
 

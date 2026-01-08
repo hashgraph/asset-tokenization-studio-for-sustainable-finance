@@ -97,7 +97,7 @@ Use this checklist to verify deployment output completeness and correctness.
 ### Deployment Health
 
 - [ ] All domain `summary.success` fields are `true`
-- [ ] Facet counts match expected values (BOND=48, Treasury=5, FactorySuite=3, PrimaryMarket=4)
+- [ ] Facet counts match expected values (BOND=48, Treasury=3, FactorySuite=1, PrimaryMarket=2)
 - [ ] No error messages in deployment logs
 - [ ] Total deployment time is reasonable (< 5 min local, < 10 min testnet)
 
@@ -428,12 +428,12 @@ jq '{
 
 ### Facet Counts
 
-| Domain        | Total Facets | New Facets | Shared Facets            |
-| ------------- | ------------ | ---------- | ------------------------ |
-| BOND          | 48           | 46         | 2 (AccessControl, Pause) |
-| Treasury      | 5            | 3          | 2 (AccessControl, Pause) |
-| FactorySuite  | 3            | 1          | 2 (AccessControl, Pause) |
-| PrimaryMarket | 4            | 2          | 2 (AccessControl, Pause) |
+| Domain        | Domain Facets | Shared Facets Reused          |
+| ------------- | ------------- | ----------------------------- |
+| BOND          | 48            | N/A (provides shared facets)  |
+| Treasury      | 3             | AccessControl, Pause, Diamond |
+| FactorySuite  | 1             | AccessControl, Pause, Diamond |
+| PrimaryMarket | 2             | AccessControl, Pause          |
 
 ### Proxy Types
 
