@@ -181,7 +181,7 @@
     "scripts:docker:stop": "npm run docker:stop --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
-    "scripts:test:bond": "npm run bond --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:test:bond": "npm run ats:bond --workspace=@hashgraph/green-bonds-scripts",
     "prepare": "husky"
   },
   "lint-staged": {
