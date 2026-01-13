@@ -13,6 +13,7 @@ It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to e
 - **[Prerequisites](#prerequisites)**
 - **[Installation](#installation)**
 - **[Configuration](#configuration)**
+- **[Build shared packages](#build-shared-packages)**
 - **[Green Bond Platform demo](#green-bond-platform-demo)**
 - **[Adding app to monorepo](#adding-app-to-monorepo)**
 - **[Testing](#testing)**
@@ -127,13 +128,21 @@ The project adheres to Hexagonal Architecture and DDD:
 
 # Build shared packages
 
+1. First compile the smart contracts
+
+```bash
+npm run contracts:build
+```
+
+2. Then build the solution
+
 ```bash
 npm run shared:build
 ```
 
 # Green Bond Platform demo
 
-Previously finish [Installation](#installation) and [Configuration](#configuration) steps.
+Previously finish [Installation](#installation), [Configuration](#configuration) and [Build shared packages](#build-shared-packages) steps.
 
 In scripts folder there are some tools for helping demos and testing end-to-end.
 
