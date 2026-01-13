@@ -142,7 +142,7 @@ npm run shared:build
 
 # Green Bond Platform demo
 
-Previously finish [Installation](#installation) and [Configuration](#configuration) steps.
+Previously finish [Installation](#installation), [Configuration](#configuration) and [Build shared packages](#build-shared-packages) steps.
 
 In scripts folder there are some tools for helping demos and testing end-to-end.
 
