@@ -53,7 +53,7 @@ describe("UpdateClearingRedeemOperationNestJSEventAdapter Integration", () => {
       holderAccountId: "0.0.7654321",
       partition: "0x7265736572766564000000000000000000000000000000000000000000000000",
       amount: "1000",
-      expirationDate: new Date("2025-12-31"),
+      expirationDate: new Date("2030-12-31"),
       status,
       operatorAccountId: "0.0.1234567",
       data: "0x1234",
