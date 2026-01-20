@@ -27,7 +27,7 @@ async function grantCapRole(bondContractId, accountAddress, format) {
     logInfo(`Role: ${CAP_ROLE}`);
     logInfo(`Account: ${accountAddress}`);
 
-    const { ContractExecuteTransaction, AccountId, TransactionId, Timestamp } = require("@hashgraph/sdk");
+    const { ContractExecuteTransaction, AccountId, TransactionId, Timestamp } = require("@hiero-ledger/sdk");
     const { getHederaClient } = require("@hashgraph/green-bonds-shared-core/dist/transaction/Environment");
 
     const encoded = new Uint8Array(Buffer.from(functionData.slice(2), "hex"));

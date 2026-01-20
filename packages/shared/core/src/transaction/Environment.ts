@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Client } from "@hashgraph/sdk"
+import { Client } from "@hiero-ledger/sdk"
 import { ethers } from "ethers"
 
 export type Environment = "testnet" | "previewnet" | "mainnet" | "local"
