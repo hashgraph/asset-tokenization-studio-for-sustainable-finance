@@ -8,7 +8,7 @@ const {
   Hbar,
   TokenMintTransaction,
   AccountAllowanceApproveTransaction,
-} = require("@hashgraph/sdk");
+} = require("@hiero-ledger/sdk");
 const { logSuccess, logError, logInfo, logHeader } = require("../../shared/lib/logger");
 const { config } = require("../../shared/lib/config");
 
@@ -167,7 +167,7 @@ async function approveTokenAllowance(tokenId, spenderAccountId) {
     const operatorAccountId = AccountId.fromString(accountId);
     client.setOperator(operatorAccountId, operatorKey);
 
-    const token = require("@hashgraph/sdk").TokenId.fromString(tokenId);
+    const token = require("@hiero-ledger/sdk").TokenId.fromString(tokenId);
     const spender = AccountId.fromString(spenderAccountId);
     const approveAmount = Number.MAX_SAFE_INTEGER; // Use max safe integer instead of int64 max
 

@@ -1,4 +1,4 @@
-const { Client, PrivateKey, TransferTransaction } = require("@hashgraph/sdk");
+const { Client, PrivateKey, TransferTransaction } = require("@hiero-ledger/sdk");
 const { log, logSuccess, logError, logHeader, colors } = require("./lib/logger");
 const { config } = require("./lib/config");
 const readline = require("readline");

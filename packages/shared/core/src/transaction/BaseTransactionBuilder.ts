@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Timestamp } from "@hashgraph/sdk"
+import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Timestamp } from "@hiero-ledger/sdk"
 import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment"
 import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"

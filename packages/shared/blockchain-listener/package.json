@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
-    "@hashgraph/sdk": "2.76.0",
+    "@hiero-ledger/sdk": "2.79.0",
     "@golevelup/nestjs-rabbitmq": "6.0.2",
     "amqplib": "0.10.9",
     "ethereum-bloom-filters": "1.2.0",

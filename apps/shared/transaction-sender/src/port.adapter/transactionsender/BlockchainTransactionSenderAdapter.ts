@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Client, Transaction, Status } from "@hashgraph/sdk"
+import { Client, Transaction, Status } from "@hiero-ledger/sdk"
 import { ethers } from "ethers"
 import { BlockchainTransactionSenderPort } from "./BlockchainTransactionSenderPort"
 import { BlockchainTransactionResponse } from "@domain/model/BlockchainTransactionResponse"

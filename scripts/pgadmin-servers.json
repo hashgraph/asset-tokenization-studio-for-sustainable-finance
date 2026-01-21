@@ -1,0 +1,40 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Green Bonds - ATS",
+      "Group": "Green Bonds Platform",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "ats_db",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "Green Bonds - Primary Market",
+      "Group": "Green Bonds Platform",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "primary_market_db",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    },
+    "3": {
+      "Name": "Green Bonds - Treasury",
+      "Group": "Green Bonds Platform",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "treasury_db",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    },
+    "4": {
+      "Name": "Green Bonds - Main (postgres)",
+      "Group": "Green Bonds Platform",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    }
+  }
+}

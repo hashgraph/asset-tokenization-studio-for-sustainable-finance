@@ -5,7 +5,7 @@ import { SignedTransactionRequest } from "../../src/domain/model/SignedTransacti
 import { TransactionMetadata } from "../../src/domain/model/TransactionMetadata"
 import { BlockchainError } from "../../src/domain/errors/BlockchainError"
 
-jest.mock("@hashgraph/sdk", () => ({
+jest.mock("@hiero-ledger/sdk", () => ({
   Client: {
     forTestnet: jest.fn().mockReturnValue({
       close: jest.fn(),

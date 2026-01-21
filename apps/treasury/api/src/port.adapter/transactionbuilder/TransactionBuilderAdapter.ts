@@ -26,7 +26,7 @@ import {
 } from "@hashgraph/green-bonds-platform-treasury-contracts"
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
-import { TransferTransaction } from "@hashgraph/sdk"
+import { TransferTransaction } from "@hiero-ledger/sdk"
 import { utils } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionTransactionRequest"

@@ -1,6 +1,6 @@
 const { config } = require("../../shared/lib/config");
 const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../shared/lib/logger");
-const { ContractCallQuery, ContractId } = require("@hashgraph/sdk");
+const { ContractCallQuery, ContractId } = require("@hiero-ledger/sdk");
 const { Interface } = require("ethers/lib/utils");
 const { IAccessControl__factory } = require("@hashgraph/green-bonds-platform-treasury-contracts");
 const { getHederaClient } = require("@hashgraph/green-bonds-shared-core");
@@ -19,7 +19,7 @@ const ROLES = {
 
 async function checkRole(bondContractId, accountAddress, roleName, roleBytes) {
   try {
-    const { AccountId, PrivateKey } = require("@hashgraph/sdk");
+    const { AccountId, PrivateKey } = require("@hiero-ledger/sdk");
     const client = getHederaClient(config.HEDERA_NETWORK || "testnet");
 
     // Set operator for the client

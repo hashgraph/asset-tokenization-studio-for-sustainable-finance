@@ -25,7 +25,7 @@ const {
   TokenSupplyType,
   Hbar,
   TokenMintTransaction,
-} = require("@hashgraph/sdk");
+} = require("@hiero-ledger/sdk");
 const { logSuccess, logError, logInfo, logHeader, logWarning } = require("./lib/logger");
 const { config } = require("./lib/config");
 
