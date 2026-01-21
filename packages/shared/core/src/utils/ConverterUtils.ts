@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { AccountId, EvmAddress, AccountInfo } from "@hashgraph/sdk"
+import { AccountId, EvmAddress, AccountInfo } from "@hiero-ledger/sdk"
 import axios, { HttpStatusCode } from "axios"
 import { Retryable } from "../decorators/Retryable"
 

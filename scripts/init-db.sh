@@ -1,4 +1,19 @@
 #!/bin/bash
+# =============================================================================
+# PostgreSQL Database Initialization Script
+# =============================================================================
+# This script is automatically executed by PostgreSQL on first container start
+# (when the data volume is empty). It creates the required databases for each
+# service in the Green Bonds Platform.
+#
+# Databases created:
+#   - ats_db: ATS (Asset Tokenization Service)
+#   - primary_market_db: Primary Market offerings and subscriptions
+#   - treasury_db: Treasury and portfolio management
+#
+# Note: This script only runs once during initial setup. To recreate databases:
+#   docker compose down -v && docker compose up -d
+# =============================================================================
 set -e
 
 # Create databases for each API

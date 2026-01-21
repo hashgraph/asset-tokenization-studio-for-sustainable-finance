@@ -5,7 +5,7 @@ import { SignedTransactionRequest } from "../../../src/domain/model/SignedTransa
 import { TransactionMetadata } from "../../../src/domain/model/TransactionMetadata"
 import { BlockchainError } from "../../../src/domain/errors/BlockchainError"
 
-jest.mock("@hashgraph/sdk", () => ({
+jest.mock("@hiero-ledger/sdk", () => ({
   Client: {
     forTestnet: jest.fn().mockReturnValue({
       close: jest.fn(),
@@ -115,7 +115,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
 
     // NEW BEHAVIOR: Now throws BlockchainError instead of returning failed status
     it("should throw BlockchainError for Hedera receipt errors", async () => {
-      const { Transaction } = jest.requireMock("@hashgraph/sdk")
+      const { Transaction } = jest.requireMock("@hiero-ledger/sdk")
       const mockError = {
         status: "INSUFFICIENT_ACCOUNT_BALANCE",
       }
@@ -145,7 +145,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
     })
 
     it("should throw BlockchainError for Hedera execution errors", async () => {
-      const { Transaction } = jest.requireMock("@hashgraph/sdk")
+      const { Transaction } = jest.requireMock("@hiero-ledger/sdk")
       const mockError = {
         status: "INVALID_TRANSACTION",
       }

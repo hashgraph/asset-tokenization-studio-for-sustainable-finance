@@ -66,7 +66,7 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "ats_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
+      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "30471556",
     },
   },
   primaryMarketApi: {

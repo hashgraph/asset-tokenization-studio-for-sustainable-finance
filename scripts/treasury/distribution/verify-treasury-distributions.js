@@ -1,14 +1,14 @@
-const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
-const { mintBond } = require('../../ats/bond/mint-bond');
-const { setBondCoupon, getCouponsForBond } = require('../../ats/bond/coupon/set-bond-coupon');
-const { deployHTSToken } = require('../../primary-market/offering/hts-token-service');
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { log, logSuccess, logError, logHeader, logInfo, colors } = require('../../shared/lib/logger');
-const { config } = require('../../shared/lib/config');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
-const { ConverterUtils } = require('@hashgraph/green-bonds-shared-core');
-const { Client, PrivateKey, TransferTransaction } = require('@hashgraph/sdk');
+const { deployBondWaitTreasuryAndApplyRoles } = require("../verify-treasury-persistence");
+const { mintBond } = require("../../ats/bond/mint-bond");
+const { setBondCoupon, getCouponsForBond } = require("../../ats/bond/coupon/set-bond-coupon");
+const { deployHTSToken } = require("../../primary-market/offering/hts-token-service");
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { log, logSuccess, logError, logHeader, logInfo, colors } = require("../../shared/lib/logger");
+const { config } = require("../../shared/lib/config");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
+const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
+const { Client, PrivateKey, TransferTransaction } = require("@hiero-ledger/sdk");
 
 /**
  * Execute a distribution paginated by transactions
@@ -23,8 +23,8 @@ async function executeDistributionPaginated(treasuryId, distributionId, page = 1
     maxBatchSize: maxBatchSize,
     pageOptions: {
       page: page,
-      limit: limit
-    }
+      limit: limit,
+    },
   };
 
   log(`   Request body: ${JSON.stringify(requestBody, null, 2)}`, colors.cyan);
@@ -32,16 +32,18 @@ async function executeDistributionPaginated(treasuryId, distributionId, page = 1
   // Get unsigned transaction
   const response = await gatewayClient.post(
     `/api/v1/treasuries/${treasuryId}/distributions/${distributionId}`,
-    requestBody
+    requestBody,
   );
-  
+
   // Check if response contains items array
   if (!response.data || !response.data.items || !Array.isArray(response.data.items)) {
     logError(`Response does not contain items array`);
     logError(`Full response: ${JSON.stringify(response.data, null, 2)}`);
-    throw new Error('API did not return transactions. The distribution might not be ready or parameters are incorrect.');
+    throw new Error(
+      "API did not return transactions. The distribution might not be ready or parameters are incorrect.",
+    );
   }
-  
+
   const unsignedTxs = response.data.items;
   logSuccess(`Received ${unsignedTxs.length} transaction(s) to sign and publish`);
 
@@ -49,7 +51,7 @@ async function executeDistributionPaginated(treasuryId, distributionId, page = 1
   for (let i = 0; i < unsignedTxs.length; i++) {
     const unsignedTx = unsignedTxs[i];
     log(`   Processing transaction ${i + 1}/${unsignedTxs.length}...`, colors.cyan);
-    
+
     // Sign
     const signedTx = await signTransaction(unsignedTx);
     log(`   ✓ Signed transaction ${i + 1}`, colors.green);
@@ -58,7 +60,7 @@ async function executeDistributionPaginated(treasuryId, distributionId, page = 1
     await publishSignedTransaction(signedTx);
     log(`   ✓ Published transaction ${i + 1}`, colors.green);
   }
-  
+
   logSuccess(`All ${unsignedTxs.length} distribution transaction(s) processed!`);
   return response.data;
 }
@@ -75,7 +77,7 @@ async function executeDistributionByHolders(treasuryId, distributionId, holderAc
     accountId: process.env.ACCOUNT_ID,
     distributionId: parseInt(distributionId),
     maxBatchSize: maxBatchSize,
-    holdersAccountIds: holderAccountIds
+    holdersAccountIds: holderAccountIds,
   };
 
   log(`   Request body: ${JSON.stringify(requestBody, null, 2)}`, colors.cyan);
@@ -83,16 +85,18 @@ async function executeDistributionByHolders(treasuryId, distributionId, holderAc
   // Get unsigned transaction
   const response = await gatewayClient.post(
     `/api/v1/treasuries/${treasuryId}/distributions/${distributionId}/holders`,
-    requestBody
+    requestBody,
   );
-  
+
   // Check if response contains items array
   if (!response.data || !response.data.items || !Array.isArray(response.data.items)) {
     logError(`Response does not contain items array`);
     logError(`Full response: ${JSON.stringify(response.data, null, 2)}`);
-    throw new Error('API did not return transactions. The distribution might not be ready or parameters are incorrect.');
+    throw new Error(
+      "API did not return transactions. The distribution might not be ready or parameters are incorrect.",
+    );
   }
-  
+
   const unsignedTxs = response.data.items;
   logSuccess(`Received ${unsignedTxs.length} transaction(s) to sign and publish`);
 
@@ -100,7 +104,7 @@ async function executeDistributionByHolders(treasuryId, distributionId, holderAc
   for (let i = 0; i < unsignedTxs.length; i++) {
     const unsignedTx = unsignedTxs[i];
     log(`   Processing transaction ${i + 1}/${unsignedTxs.length}...`, colors.cyan);
-    
+
     // Sign
     const signedTx = await signTransaction(unsignedTx);
     log(`   ✓ Signed transaction ${i + 1}`, colors.green);
@@ -109,7 +113,7 @@ async function executeDistributionByHolders(treasuryId, distributionId, holderAc
     await publishSignedTransaction(signedTx);
     log(`   ✓ Published transaction ${i + 1}`, colors.green);
   }
-  
+
   logSuccess(`All ${unsignedTxs.length} distribution transaction(s) processed!`);
   return response.data;
 }
@@ -125,7 +129,7 @@ async function waitForCoupon(bondContractId, expectedCount, maxRetries = 12, ret
 
     try {
       const coupons = await getCouponsForBond(bondContractId);
-      
+
       if (coupons && coupons.length >= expectedCount) {
         logSuccess(`Found ${coupons.length} coupon(s)!`);
         coupons.forEach((id, index) => {
@@ -139,17 +143,17 @@ async function waitForCoupon(bondContractId, expectedCount, maxRetries = 12, ret
       logError(`   Error fetching coupons: ${err.message}`);
     }
 
-    await new Promise(resolve => setTimeout(resolve, retryInterval));
+    await new Promise((resolve) => setTimeout(resolve, retryInterval));
   }
 
   throw new Error(`Timeout: Expected ${expectedCount} coupons, but not all were found after ${maxRetries} attempts`);
 }
 
 async function verifyTreasuryDistributions() {
-  logHeader('🧪 Running Treasury Distributions Verification...');
+  logHeader("🧪 Running Treasury Distributions Verification...");
 
   if (!validateSigningConfig()) {
-    logError('Signing configuration validation failed');
+    logError("Signing configuration validation failed");
     process.exit(1);
   }
 
@@ -158,42 +162,42 @@ async function verifyTreasuryDistributions() {
   const holderAccount2 = process.env.HOLDER_ACCOUNT_2 || process.env.ACCOUNT_ID;
   const mintAmount = process.env.MINT_AMOUNT || "500000";
   const COUPON_CONFIGS = [
-  {
-    name: "First Coupon (Paginated)",
-    recordDate: new Date(Date.now() + 60000), // 1 minute from now
-    executionDate: new Date(Date.now() + 90000), // 1.5 minutes from now
-    rate: "250", // 2.50%
-    rateDecimals: "2",
-    period: "31536000" // 1 year
-  },
-  {
-    name: "Second Coupon (By Holders)",
-    recordDate: new Date(Date.now() + 120000), // 2 minutes from now
-    executionDate: new Date(Date.now() + 150000), // 2.5 minutes from now
-    rate: "375", // 3.75%
-    rateDecimals: "2",
-    period: "31536000" // 1 year
-  }
-];
+    {
+      name: "First Coupon (Paginated)",
+      recordDate: new Date(Date.now() + 60000), // 1 minute from now
+      executionDate: new Date(Date.now() + 90000), // 1.5 minutes from now
+      rate: "250", // 2.50%
+      rateDecimals: "2",
+      period: "31536000", // 1 year
+    },
+    {
+      name: "Second Coupon (By Holders)",
+      recordDate: new Date(Date.now() + 120000), // 2 minutes from now
+      executionDate: new Date(Date.now() + 150000), // 2.5 minutes from now
+      rate: "375", // 3.75%
+      rateDecimals: "2",
+      period: "31536000", // 1 year
+    },
+  ];
 
   try {
     // 1. Deploy Custom Payment Token
-    log('\n1️⃣  Deploying custom payment token...');
+    log("\n1️⃣  Deploying custom payment token...");
     const { tokenId: paymentTokenId, evmAddress: paymentTokenEvmAddress } = await deployHTSToken(
-      'Test Payment Token',
-      'TPT',
+      "Test Payment Token",
+      "TPT",
       6,
-      10_000_000_000 // 10,000 tokens with 6 decimals
+      10_000_000_000, // 10,000 tokens with 6 decimals
     );
     logSuccess(`Payment token deployed: ${paymentTokenId}`);
     logSuccess(`Payment token EVM address: ${paymentTokenEvmAddress}`);
 
     // 2. Deploy Bond and Treasury with Custom Payment Token
-    log('\n2️⃣  Deploying bond with custom payment token...');
+    log("\n2️⃣  Deploying bond with custom payment token...");
     const overrides = {
       treasuryData: {
-        paymentTokenAddress: paymentTokenEvmAddress
-      }
+        paymentTokenAddress: paymentTokenEvmAddress,
+      },
     };
     const treasury = await deployBondWaitTreasuryAndApplyRoles(paymentTokenId, overrides);
     const bondContractId = treasury.bondContractId;
@@ -203,12 +207,12 @@ async function verifyTreasuryDistributions() {
     logSuccess(`Treasury deployed: ${treasuryId}`);
 
     // 3. Fund Treasury with Custom Payment Token
-    log('\n3️⃣  Funding treasury with payment tokens...');
+    log("\n3️⃣  Funding treasury with payment tokens...");
     await fundTreasuryWithToken(treasuryId, paymentTokenId, 4_000_000); // 4 tokens with 6 decimals
-    logSuccess('Treasury funded with payment tokens');
+    logSuccess("Treasury funded with payment tokens");
 
     // 4. Mint tokens to holders
-    log('\n4️⃣  Minting tokens to holders...');
+    log("\n4️⃣  Minting tokens to holders...");
     log(`   Minting ${mintAmount} tokens to ${holderAccount1}...`, colors.cyan);
     const mint1 = await mintBond(bondContractId, holderAccount1, "", mintAmount, format);
     await publishSignedTransaction(await signTransaction(mint1.unsignedTx));
@@ -221,11 +225,11 @@ async function verifyTreasuryDistributions() {
       logSuccess(`Minted to holder 2`);
     }
 
-    log('⏳ Waiting for minting to be processed (10 seconds)...', colors.yellow);
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    log("⏳ Waiting for minting to be processed (10 seconds)...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     // 5. Set first coupon
-    log('\n5️⃣  Setting first coupon on bond...');
+    log("\n5️⃣  Setting first coupon on bond...");
     log(`   ${COUPON_CONFIGS[0].name}`, colors.cyan);
     const couponTx1 = await setBondCoupon(
       bondContractId,
@@ -234,16 +238,16 @@ async function verifyTreasuryDistributions() {
       COUPON_CONFIGS[0].rate,
       COUPON_CONFIGS[0].rateDecimals,
       COUPON_CONFIGS[0].period,
-      format
+      format,
     );
     await publishSignedTransaction(await signTransaction(couponTx1.unsignedTx));
-    logSuccess('First coupon transaction published');
+    logSuccess("First coupon transaction published");
 
-    log('⏳ Waiting 5 seconds before creating second coupon...', colors.yellow);
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    log("⏳ Waiting 5 seconds before creating second coupon...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     // 6. Set second coupon
-    log('\n6️⃣  Setting second coupon on bond...');
+    log("\n6️⃣  Setting second coupon on bond...");
     log(`   ${COUPON_CONFIGS[1].name}`, colors.cyan);
     const couponTx2 = await setBondCoupon(
       bondContractId,
@@ -252,13 +256,13 @@ async function verifyTreasuryDistributions() {
       COUPON_CONFIGS[1].rate,
       COUPON_CONFIGS[1].rateDecimals,
       COUPON_CONFIGS[1].period,
-      format
+      format,
     );
     await publishSignedTransaction(await signTransaction(couponTx2.unsignedTx));
-    logSuccess('Second coupon transaction published');
+    logSuccess("Second coupon transaction published");
 
     // 7. Wait for both coupons to be persisted in ATS
-    log('\n7️⃣  Waiting for both coupons to be persisted in ATS database...');
+    log("\n7️⃣  Waiting for both coupons to be persisted in ATS database...");
     const coupons = await waitForCoupon(bondContractId, 2);
     const distributionId1 = coupons[0];
     const distributionId2 = coupons[1];
@@ -267,39 +271,39 @@ async function verifyTreasuryDistributions() {
     // 6. Wait for execution dates to pass
     const waitTime = Math.max(
       COUPON_CONFIGS[0].executionDate.getTime() - Date.now(),
-      COUPON_CONFIGS[1].executionDate.getTime() - Date.now()
+      COUPON_CONFIGS[1].executionDate.getTime() - Date.now(),
     );
     if (waitTime > 0) {
       log(`\n⏳ Waiting ${Math.ceil(waitTime / 1000)} seconds for execution dates to pass...`, colors.yellow);
-      await new Promise(resolve => setTimeout(resolve, waitTime + 5000)); // Add 5s buffer
+      await new Promise((resolve) => setTimeout(resolve, waitTime + 5000)); // Add 5s buffer
     }
 
     // 8. Execute first distribution (paginated)
-    log('\n8️⃣  Executing first distribution (paginated by transactions)...');
+    log("\n8️⃣  Executing first distribution (paginated by transactions)...");
     await executeDistributionPaginated(treasuryId, distributionId1);
-    
-    log('⏳ Waiting for distribution to be processed (10 seconds)...', colors.yellow);
-    await new Promise(resolve => setTimeout(resolve, 10000));
+
+    log("⏳ Waiting for distribution to be processed (10 seconds)...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     // 7.1 Verify first distribution status
     await verifyDistributionStatus(treasuryId, distributionId1);
 
     // 9. Execute second distribution (by specific holders)
-    log('\n9️⃣  Executing second distribution (by holder addresses)...');
+    log("\n9️⃣  Executing second distribution (by holder addresses)...");
     const holderAddresses = [holderAccount1];
     if (holderAccount1 !== holderAccount2) {
       holderAddresses.push(holderAccount2);
     }
     await executeDistributionByHolders(treasuryId, distributionId2, holderAddresses);
 
-    log('⏳ Waiting for distribution to be processed (10 seconds)...', colors.yellow);
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    log("⏳ Waiting for distribution to be processed (10 seconds)...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     // 8.1 Verify second distribution status
     await verifyDistributionStatus(treasuryId, distributionId2);
 
-    logHeader('✅ Treasury Distributions Verification PASSED!');
-    logInfo('\nSummary:');
+    logHeader("✅ Treasury Distributions Verification PASSED!");
+    logInfo("\nSummary:");
     logInfo(`  • Bond: ${bondContractId}`);
     logInfo(`  • Treasury: ${treasuryId}`);
     logInfo(`  • Distribution 1 (Paginated): ${distributionId1} - Rate: ${COUPON_CONFIGS[0].rate / 100}%`);
@@ -309,7 +313,6 @@ async function verifyTreasuryDistributions() {
       logInfo(`  • Holder 2: ${holderAccount2}`);
     }
     logInfo(`  • Amount minted per holder: ${mintAmount}`);
-    
   } catch (error) {
     logError(`Verification failed: ${error.message}`);
     if (error.stack) {
@@ -326,7 +329,7 @@ if (require.main === module) {
 module.exports = {
   verifyTreasuryDistributions,
   executeDistributionPaginated,
-  executeDistributionByHolders
+  executeDistributionByHolders,
 };
 
 /**
@@ -337,11 +340,11 @@ async function fundTreasuryWithToken(treasuryId, tokenId, amount) {
 
   const client = Client.forTestnet();
   const format = config.BLOCKCHAIN_FORMAT.toLowerCase();
-  const privateKeyStr = format === 'hedera' ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
-  
+  const privateKeyStr = format === "hedera" ? config.HEDERA_PRIVATE_KEY : config.ETHEREUM_PRIVATE_KEY;
+
   let operatorKey;
-  if (format === 'ethereum') {
-    const cleanKey = privateKeyStr.startsWith('0x') ? privateKeyStr.slice(2) : privateKeyStr;
+  if (format === "ethereum") {
+    const cleanKey = privateKeyStr.startsWith("0x") ? privateKeyStr.slice(2) : privateKeyStr;
     operatorKey = PrivateKey.fromStringECDSA(cleanKey);
   } else {
     try {
@@ -350,7 +353,7 @@ async function fundTreasuryWithToken(treasuryId, tokenId, amount) {
       operatorKey = PrivateKey.fromStringDer(privateKeyStr);
     }
   }
-  
+
   client.setOperator(process.env.ACCOUNT_ID, operatorKey);
 
   const transferTx = await new TransferTransaction()
@@ -370,11 +373,9 @@ async function verifyDistributionStatus(treasuryId, distributionId) {
   log(`\n🔍 Verifying distribution ${distributionId} status...`, colors.yellow);
 
   // Wait a bit for the backend to process the events
-  await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise((resolve) => setTimeout(resolve, 5000));
 
-  const response = await gatewayClient.get(
-    `/api/v1/treasuries/${treasuryId}/distributions/${distributionId}`
-  );
+  const response = await gatewayClient.get(`/api/v1/treasuries/${treasuryId}/distributions/${distributionId}`);
 
   const holders = response.data.items || [];
   let allSuccess = true;
@@ -385,8 +386,8 @@ async function verifyDistributionStatus(treasuryId, distributionId) {
   }
 
   for (const holder of holders) {
-    log(`   Holder ${holder.accountId}: ${holder.status}`, holder.status === 'SUCCESS' ? colors.green : colors.red);
-    if (holder.status !== 'SUCCESS') {
+    log(`   Holder ${holder.accountId}: ${holder.status}`, holder.status === "SUCCESS" ? colors.green : colors.red);
+    if (holder.status !== "SUCCESS") {
       allSuccess = false;
     }
   }
@@ -394,6 +395,6 @@ async function verifyDistributionStatus(treasuryId, distributionId) {
   if (!allSuccess) {
     throw new Error(`Some holders have non-SUCCESS status in distribution ${distributionId}`);
   }
-  
+
   logSuccess(`All holders have SUCCESS status for distribution ${distributionId}`);
 }
