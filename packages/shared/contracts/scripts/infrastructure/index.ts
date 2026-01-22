@@ -1,9 +1,6 @@
-/**
- * Infrastructure utilities for Green Bonds Platform deployment.
- *
- * This module provides GBP-specific configuration helpers.
- * ATS infrastructure utilities are imported directly where needed.
- */
+// SPDX-License-Identifier: Apache-2.0
 
-// Export GBP-specific configuration
+/** Infrastructure configuration and utilities. */
+
 export * from "./config";
+export * from "./workflows";

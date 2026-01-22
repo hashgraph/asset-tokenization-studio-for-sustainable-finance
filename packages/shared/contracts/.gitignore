@@ -32,10 +32,9 @@ yarn-error.log*
 coverage/
 .nyc_output/
 
-# Deployment files - ignore local/test networks
-deployments/hardhat_*.json
-deployments/local_*.json
-deployments/*local_*.json
+# Deployment outputs - track mainnet/testnet, ignore local/test
+deployments/local/
+deployments/hedera-local/
 
-# Deployment checkpoints - local deployment state
-deployments/.checkpoints/*.json
+# Checkpoint files (auto-managed state)
+deployments/.checkpoints/

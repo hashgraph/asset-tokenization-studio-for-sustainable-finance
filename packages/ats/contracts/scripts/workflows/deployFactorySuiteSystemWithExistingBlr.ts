@@ -26,7 +26,6 @@ import {
   deployFacets,
   registerAdditionalFacets,
   deployResolverProxy,
-  LATEST_VERSION,
   atsRegistry,
   info,
   success,
@@ -63,6 +62,9 @@ export interface ExistingInfrastructure {
 
     /** PauseFacet address (must be registered in BLR) */
     pause: string;
+
+    /** DiamondFacet address (must be registered in BLR) */
+    diamond: string;
   };
 }
 
@@ -192,11 +194,15 @@ export async function deployFactorySuiteWithExistingInfra(
     if (!facets.pause || facets.pause === "0x0000000000000000000000000000000000000000") {
       throw new Error("Invalid PauseFacet address");
     }
+    if (!facets.diamond || facets.diamond === "0x0000000000000000000000000000000000000000") {
+      throw new Error("Invalid DiamondFacet address");
+    }
 
     info(`✅ BLR Proxy: ${blrAddress}`);
     info(`✅ ProxyAdmin: ${proxyAdminAddress}`);
     info(`✅ AccessControlFacet: ${facets.accessControl}`);
     info(`✅ PauseFacet: ${facets.pause}`);
+    info(`✅ DiamondFacet: ${facets.diamond}`);
 
     // ========================================
     // STEP 2: Deploy only FactorySuiteFacet
@@ -279,12 +285,14 @@ export async function deployFactorySuiteWithExistingInfra(
     // Combine existing + new facets for configuration
     const facetNamesForConfig: Record<string, string> = useTimeTravel
       ? {
+          DiamondFacet: facets.diamond,
           AccessControlFacetTimeTravel: facets.accessControl,
           PauseFacetTimeTravel: facets.pause,
           FactorySuiteFacetTimeTravel: newFacetAddresses.FactorySuiteFacetTimeTravel,
           TimeTravelFacet: newFacetAddresses.TimeTravelFacet,
         }
       : {
+          DiamondFacet: facets.diamond,
           AccessControlFacet: facets.accessControl,
           PauseFacet: facets.pause,
           FactorySuiteFacet: newFacetAddresses.FactorySuiteFacet,
@@ -293,7 +301,6 @@ export async function deployFactorySuiteWithExistingInfra(
     const fsConfig = await createFactorySuiteConfiguration(
       blrContract,
       facetNamesForConfig,
-      useTimeTravel,
       DEFAULT_BATCH_SIZE,
       confirmations,
     );
@@ -305,7 +312,7 @@ export async function deployFactorySuiteWithExistingInfra(
     info(`✅ FactorySuite Config ID: ${fsConfig.data.configurationId}`);
     info(`✅ Config Version: ${fsConfig.data.version}`);
     info(
-      `✅ Total Facets: ${fsConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
+      `✅ Total Facets: ${fsConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + 3 existing)`,
     );
 
     // ========================================
@@ -318,7 +325,7 @@ export async function deployFactorySuiteWithExistingInfra(
     const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress,
       configurationId: fsConfig.data.configurationId,
-      version: LATEST_VERSION,
+      version: fsConfig.data.version,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,

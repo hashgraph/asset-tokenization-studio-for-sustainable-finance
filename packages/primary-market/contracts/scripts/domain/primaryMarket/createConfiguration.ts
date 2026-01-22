@@ -18,15 +18,16 @@ import {
   ConfigurationData,
   ConfigurationError,
   OperationResult,
-  atsRegistry,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { PRIMARY_MARKET_CONFIG_ID, primaryMarketRegistry } from "@scripts/domain";
+import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
+import { getFacetDefinitionFromRegistry } from "@scripts/domain/utils";
 
 /**
- * PrimaryMarket facets: 2 ATS facets + 1 custom PrimaryMarket facet.
+ * PrimaryMarket facets: 3 ATS facets + 1 custom PrimaryMarket facet.
+ * DiamondFacet provides ResolverProxy management (getConfigInfo, diamondCut).
  */
-const PRIMARY_MARKET_FACETS = ["AccessControlFacet", "PauseFacet", "PrimaryMarketFacet"] as const;
+const PRIMARY_MARKET_FACETS = ["DiamondFacet", "AccessControlFacet", "PauseFacet", "PrimaryMarketFacet"] as const;
 
 /**
  * Create PrimaryMarket configuration in BusinessLogicResolver.
@@ -77,25 +78,12 @@ export async function createPrimaryMarketConfiguration(
       throw new Error(`Address not found for facet: ${facetName}`);
     }
 
-    const primaryMarketFacet = primaryMarketRegistry.getFacetDefinition(facetName);
-    if (primaryMarketFacet?.resolverKey?.value) {
-      return {
-        facetName,
-        resolverKey: primaryMarketFacet.resolverKey.value,
-        address,
-      };
-    }
-
-    const atsFacet = atsRegistry.getFacetDefinition(facetName);
-    if (atsFacet?.resolverKey?.value) {
-      return {
-        facetName,
-        resolverKey: atsFacet.resolverKey.value,
-        address,
-      };
-    }
-
-    throw new Error(`Facet ${facetName} not found in PrimaryMarket or ATS registries`);
+    const { resolverKey } = getFacetDefinitionFromRegistry(facetName);
+    return {
+      facetName,
+      resolverKey,
+      address,
+    };
   });
 
   return createBatchConfiguration(blrContract, {

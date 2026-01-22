@@ -141,9 +141,7 @@ export async function deployFactoryPrimaryMarketSystem(
   info("═".repeat(60));
 
   try {
-    // ========================================
     // STEP 1: Deploy ProxyAdmin
-    // ========================================
     info("\n📋 Step 1/7: Deploying ProxyAdmin...");
     const proxyAdmin = await deployProxyAdmin(signer);
 
@@ -153,9 +151,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
 
-    // ========================================
     // STEP 2: Deploy BusinessLogicResolver (implementation + proxy)
-    // ========================================
     info("\n🔷 Step 2/7: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(signer, {
       existingProxyAdmin: proxyAdmin,
@@ -168,17 +164,24 @@ export async function deployFactoryPrimaryMarketSystem(
     info(`✅ BLR Implementation: ${blrResult.implementationAddress}`);
     info(`✅ BLR Proxy: ${blrResult.blrAddress}`);
 
-    // ========================================
     // STEP 3: Deploy ALL facets (shared + domain-specific)
     // Shared facets: AccessControl, Pause
     // Domain facets: FactoryPrimaryMarket, PrimaryMarket
-    // ========================================
     info("\n📦 Step 3/7: Deploying all facets...");
 
-    // Use base facet names - the factory functions will return TimeTravel variants when useTimeTravel=true
-    const facetNames = useTimeTravel
-      ? ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet", "PrimaryMarketFacet", "TimeTravelFacet"]
-      : ["AccessControlFacet", "PauseFacet", "FactoryPrimaryMarketFacet", "PrimaryMarketFacet"];
+    // Use base facet names for registry lookup (registry entries use dynamic factories)
+    const facetNames = [
+      "DiamondFacet",
+      "AccessControlFacet",
+      "PauseFacet",
+      "FactoryPrimaryMarketFacet",
+      "PrimaryMarketFacet",
+    ];
+
+    // Add TimeTravelFacet separately (only needed in TimeTravel mode)
+    if (useTimeTravel) {
+      facetNames.push("TimeTravelFacet");
+    }
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
@@ -206,9 +209,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ Deployed ${facetsResult.deployed.size} facets successfully`);
 
-    // ========================================
     // STEP 4: Register ALL facets in BLR
-    // ========================================
     info("\n📝 Step 4/7: Registering facets in BLR...");
 
     // Extract facet addresses from deployment results
@@ -246,10 +247,8 @@ export async function deployFactoryPrimaryMarketSystem(
 
     info(`✅ Registered ${registerResult.registered.length} facets in BLR`);
 
-    // ========================================
     // STEP 5: Create FactoryPrimaryMarket configuration (Config ID 10000)
     // Combines all deployed facets into a BLR configuration
-    // ========================================
     info("\n💼 Step 5/7: Creating FactoryPrimaryMarket configuration...");
 
     const factoryPrimaryMarketConfig = await createFactoryPrimaryMarketConfiguration(
@@ -267,9 +266,7 @@ export async function deployFactoryPrimaryMarketSystem(
     info(`✅ Config Version: ${factoryPrimaryMarketConfig.data.version}`);
     info(`✅ Total Facets: ${factoryPrimaryMarketConfig.data.facetKeys.length}`);
 
-    // ========================================
     // STEP 6: Create PrimaryMarket configuration (Config ID 10001)
-    // ========================================
     info("\n💼 Step 6/7: Creating PrimaryMarket configuration...");
 
     const primaryMarketConfig = await createPrimaryMarketConfiguration(
@@ -287,9 +284,7 @@ export async function deployFactoryPrimaryMarketSystem(
     info(`✅ Config Version: ${primaryMarketConfig.data.version}`);
     info(`✅ Total Facets: ${primaryMarketConfig.data.facetKeys.length}`);
 
-    // ========================================
     // STEP 7: Deploy FactoryPrimaryMarket ResolverProxy
-    // ========================================
     info("\n🏭 Step 7/7: Deploying FactoryPrimaryMarket ResolverProxy...");
 
     const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
@@ -319,9 +314,7 @@ export async function deployFactoryPrimaryMarketSystem(
       info(`   Contract ID: ${factoryPrimaryMarketProxyResult.contractId}`);
     }
 
-    // ========================================
     // Build comprehensive deployment output
-    // ========================================
     const endTime = Date.now();
 
     const output: DeployFactoryPrimaryMarketOutput = {
@@ -375,9 +368,7 @@ export async function deployFactoryPrimaryMarketSystem(
       },
     };
 
-    // ========================================
     // Print deployment summary
-    // ========================================
     info("\n" + "═".repeat(60));
     info("✨ DEPLOYMENT COMPLETE");
     info("═".repeat(60));

@@ -34,7 +34,7 @@ export class ProxyMiddleware implements NestMiddleware {
           }
         }
       },
-      error: (err, req, res: http.ServerResponse) => {
+      error: (err, _req, res: http.ServerResponse) => {
         const statusCode = "code" in err ? getStatusCode((err as any).code) : +HttpStatus.INTERNAL_SERVER_ERROR
         let httpException
         switch (statusCode) {

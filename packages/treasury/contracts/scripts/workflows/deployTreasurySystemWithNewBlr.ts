@@ -149,16 +149,20 @@ export async function deployTreasury(
 
     info("\n📦 Step 3/6: Deploying facets...");
 
-    const facetNames = useTimeTravel
-      ? [
-          "AccessControlFacetTimeTravel",
-          "PauseFacetTimeTravel",
-          "LifeCycleCashFlowFacetTimeTravel",
-          "PortfolioFacetTimeTravel",
-          "ProceedsManagementFacetTimeTravel",
-          "TimeTravelFacet",
-        ]
-      : ["AccessControlFacet", "PauseFacet", "LifeCycleCashFlowFacet", "PortfolioFacet", "ProceedsManagementFacet"];
+    // Use base facet names for registry lookup (registry entries use dynamic factories)
+    const facetNames = [
+      "DiamondFacet",
+      "AccessControlFacet",
+      "PauseFacet",
+      "LifeCycleCashFlowFacet",
+      "PortfolioFacet",
+      "ProceedsManagementFacet",
+    ];
+
+    // Add TimeTravelFacet separately (only needed in TimeTravel mode)
+    if (useTimeTravel) {
+      facetNames.push("TimeTravelFacet");
+    }
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 

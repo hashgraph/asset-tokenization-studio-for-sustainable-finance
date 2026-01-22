@@ -18,17 +18,17 @@ import {
   ConfigurationData,
   ConfigurationError,
   OperationResult,
-  type FacetConfigurationData,
-  atsRegistry,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { TREASURY_CONFIG_ID, FACET_REGISTRY } from "@scripts/domain";
+import { TREASURY_CONFIG_ID } from "@scripts/domain";
+import { getFacetDefinitionFromRegistry } from "@scripts/domain/utils";
 
 /**
- * Treasury facets: 2 ATS facets + 3 custom Treasury facets.
- * Note: ATS infrastructure warns about custom facets but configures them correctly.
+ * Treasury facets: 3 ATS facets + 3 custom Treasury facets.
+ * DiamondFacet provides ResolverProxy management (getConfigInfo, diamondCut).
  */
 const TREASURY_FACETS = [
+  "DiamondFacet",
   "AccessControlFacet",
   "PauseFacet",
   "LifeCycleCashFlowFacet",
@@ -41,11 +41,16 @@ const TREASURY_FACETS = [
  *
  * Uses separate registry lookups for domain clarity:
  * - AccessControlFacet and PauseFacet from atsRegistry
- * - Treasury custom facets from FACET_REGISTRY
+ * - Treasury custom facets from treasuryRegistry
  *
  * @param blrContract - BusinessLogicResolver contract instance
  * @param facetAddresses - Map of facet names to their deployed addresses
- * @param useTimeTravel - Whether to use TimeTravel variants (default: false)
+ * @param _useTimeTravel - Reserved for future use. Currently unused - TimeTravel facet
+ *   detection is automatic based on facetAddresses content. If "TimeTravelFacet" key
+ *   exists in facetAddresses map, the TimeTravel variant is used; otherwise standard
+ *   facet is used. This parameter is kept for API compatibility and future enhancement.
+ * @param batchSize - Size of batches for configuration operations (default: 50)
+ * @param confirmations - Number of block confirmations to wait (default: 0)
  * @returns Operation result with configuration data or error
  *
  * @example
@@ -74,41 +79,29 @@ const TREASURY_FACETS = [
 export async function createTreasuryConfiguration(
   blrContract: Contract,
   facetAddresses: Record<string, string>,
-  useTimeTravel: boolean = false,
+  _useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,
   confirmations: number = 0,
 ): Promise<OperationResult<ConfigurationData, ConfigurationError>> {
-  // Transform facet names and addresses into FacetConfigurationData array
-  // Uses multi-registry pattern: checks Treasury registry first, then falls back to ATS registry
-  const facets: FacetConfigurationData[] = TREASURY_FACETS.map((name) => {
-    const facetName = useTimeTravel ? `${name}TimeTravel` : name;
+  // Build facet list - include TimeTravelFacet if present in facetAddresses
+  const facetNames: string[] = [...TREASURY_FACETS];
+  if (facetAddresses["TimeTravelFacet"]) {
+    facetNames.push("TimeTravelFacet");
+  }
+
+  const facets = facetNames.map((name) => {
     const address = facetAddresses[name];
 
     if (!address) {
       throw new Error(`Address not found for facet: ${name}`);
     }
 
-    // Try Treasury registry first (custom Treasury facets)
-    const treasuryFacet = FACET_REGISTRY[facetName];
-    if (treasuryFacet?.resolverKey?.value) {
-      return {
-        facetName,
-        address,
-        resolverKey: treasuryFacet.resolverKey.value,
-      };
-    }
-
-    // Fall back to ATS registry (standard facets: AccessControl, Pause)
-    const atsFacet = atsRegistry.getFacetDefinition(facetName);
-    if (atsFacet?.resolverKey?.value) {
-      return {
-        facetName,
-        address,
-        resolverKey: atsFacet.resolverKey.value,
-      };
-    }
-
-    throw new Error(`Facet ${facetName} not found in Treasury or ATS registries`);
+    const { resolverKey } = getFacetDefinitionFromRegistry(name);
+    return {
+      facetName: name,
+      address,
+      resolverKey,
+    };
   });
 
   return createBatchConfiguration(blrContract, {

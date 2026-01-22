@@ -44,6 +44,9 @@ export interface ExistingInfrastructure {
 
     /** PauseFacet address (must be registered in BLR) */
     pause: string;
+
+    /** DiamondFacet address (must be registered in BLR) */
+    diamond: string;
   };
 }
 
@@ -121,11 +124,15 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     if (!facets.pause || facets.pause === "0x0000000000000000000000000000000000000000") {
       throw new Error("Invalid PauseFacet address");
     }
+    if (!facets.diamond || facets.diamond === "0x0000000000000000000000000000000000000000") {
+      throw new Error("Invalid DiamondFacet address");
+    }
 
     info(`✅ BLR Proxy: ${blrAddress}`);
     info(`✅ ProxyAdmin: ${proxyAdminAddress}`);
     info(`✅ AccessControlFacet: ${facets.accessControl}`);
     info(`✅ PauseFacet: ${facets.pause}`);
+    info(`✅ DiamondFacet: ${facets.diamond}`);
 
     // =====================================================================================
     // STEP 2: Deploy only FactoryPrimaryMarketFacet, PrimaryMarketFacet
@@ -209,6 +216,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     // Combine existing + new facets for configuration
     const facetNamesForConfig: Record<string, string> = useTimeTravel
       ? {
+          DiamondFacet: facets.diamond,
           AccessControlFacetTimeTravel: facets.accessControl,
           PauseFacetTimeTravel: facets.pause,
           FactoryPrimaryMarketFacetTimeTravel: newFacetAddresses.FactoryPrimaryMarketFacetTimeTravel,
@@ -216,6 +224,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
           TimeTravelFacet: newFacetAddresses.TimeTravelFacet,
         }
       : {
+          DiamondFacet: facets.diamond,
           AccessControlFacet: facets.accessControl,
           PauseFacet: facets.pause,
           FactoryPrimaryMarketFacet: newFacetAddresses.FactoryPrimaryMarketFacet,
@@ -236,7 +245,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     info(`✅ FactoryPrimaryMarket Config ID: ${factoryPrimaryMarketConfig.data.configurationId}`);
     info(`✅ Config Version: ${factoryPrimaryMarketConfig.data.version}`);
     info(
-      `✅ Total Facets: ${factoryPrimaryMarketConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
+      `✅ Total Facets: ${factoryPrimaryMarketConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + 3 existing)`,
     );
 
     // ========================================
@@ -258,7 +267,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
     info(`✅ PrimaryMarket Config ID: ${primaryMarketConfig.data.configurationId}`);
     info(`✅ Config Version: ${primaryMarketConfig.data.version}`);
     info(
-      `✅ Total Facets: ${primaryMarketConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + ${Object.keys(facets).length} existing)`,
+      `✅ Total Facets: ${primaryMarketConfig.data.facetKeys.length} (${Object.keys(newFacetAddresses).length} new + 3 existing)`,
     );
 
     // ========================================

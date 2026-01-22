@@ -1,19 +1,17 @@
 #!/usr/bin/env node
-import { deployGbpInfrastructure } from "../workflows/deployGbpInfrastructure";
-import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "../infrastructure/config";
+import { deployGbpInfrastructure, type DeploymentResult } from "@scripts/workflows";
+import { createSignerForNetwork, getNetworkConfig, getDeploymentOptionsFromEnv } from "@scripts/infrastructure";
 import {
   info,
   success,
   error as logError,
   section,
   isHederaNetwork,
+  saveDeploymentOutput,
+  generateTimestamp,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import type { GbpInfrastructureOutput } from "@scripts/types/workflows";
 
-/**
- * Parse command line arguments.
- */
 function parseArgs(): { network: string } {
   const args = process.argv.slice(2);
 
@@ -28,20 +26,10 @@ function parseArgs(): { network: string } {
   return { network };
 }
 
-/**
- * Save deployment result to JSON file.
- */
-function saveDeploymentResult(result: any, network: string): void {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const deploymentsDir = join(process.cwd(), "deployments");
-  const filename = `${network}_${timestamp}.json`;
-  const filepath = join(deploymentsDir, filename);
-
-  // Ensure deployments directory exists
-  mkdirSync(deploymentsDir, { recursive: true });
-
-  const output = {
-    timestamp: new Date().toISOString(),
+async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
+  const timestamp = new Date().toISOString();
+  const output: GbpInfrastructureOutput = {
+    timestamp,
     network,
 
     callableContracts: {
@@ -114,13 +102,25 @@ function saveDeploymentResult(result: any, network: string): void {
     }
   }
 
-  writeFileSync(filepath, JSON.stringify(output, null, 2));
-  info(`✓ Deployment result saved to: deployments/${filename}`);
+  // Generate custom filepath in our deployments directory
+  const formattedTimestamp = generateTimestamp();
+  const filename = `gbpInfrastructure-${formattedTimestamp}.json`;
+  const customPath = `./deployments/${network}/${filename}`;
+
+  const saveResult = await saveDeploymentOutput({
+    network,
+    workflow: "gbpInfrastructure",
+    data: output,
+    customPath,
+  });
+
+  if (saveResult.success) {
+    info(`✓ Deployment result saved to: ${saveResult.filepath}`);
+  } else {
+    logError(`⚠️  Failed to save deployment: ${saveResult.error}`);
+  }
 }
 
-/**
- * Main deployment function.
- */
 async function main(): Promise<void> {
   section("🚀 Green Bonds Platform - Infrastructure Deployment");
 
@@ -150,7 +150,7 @@ async function main(): Promise<void> {
     });
 
     // Save result
-    saveDeploymentResult(result, network);
+    await saveDeploymentResult(result, network);
 
     success("✅ Deployment completed successfully!");
     process.exit(0);
@@ -166,5 +166,4 @@ async function main(): Promise<void> {
   }
 }
 
-// Run main function
 main();
