@@ -14,7 +14,6 @@ const config: Config = {
   projectName: "green-bond-platform",
 
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
 
   i18n: {
     defaultLocale: "en",
@@ -73,9 +72,28 @@ const config: Config = {
 
   markdown: {
     mermaid: true,
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
   },
 
-  themes: ["@docusaurus/theme-mermaid"],
+  themes: [
+    "@docusaurus/theme-mermaid",
+    [
+      "@easyops-cn/docusaurus-search-local",
+      {
+        hashed: true,
+        language: ["en"],
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: true,
+        docsRouteBasePath: "/docs",
+        highlightSearchTermsOnTargetPage: true,
+        searchResultLimits: 8,
+        searchResultContextMaxLength: 50,
+      },
+    ],
+  ],
 
   themeConfig: {
     image: "img/docusaurus-social-card.jpg",
@@ -193,7 +211,6 @@ const config: Config = {
       darkTheme: prismThemes.dracula,
       additionalLanguages: ["solidity", "bash", "json", "typescript", "javascript", "docker"],
     },
-    algolia: undefined,
   } satisfies Preset.ThemeConfig,
 };
 

@@ -155,6 +155,8 @@ npm run docs
 
 The documentation will be available at `http://localhost:3000`.
 
+> **Note**: The search functionality is not available in development mode. To test the search bar, build and serve the production version.
+
 ## Building Documentation
 
 To build the documentation for production:
@@ -172,6 +174,8 @@ To preview the production build locally:
 ```bash
 npm run docs:serve
 ```
+
+The production build includes the fully functional search bar for navigating documentation.
 
 ## Clearing Documentation Cache
 
