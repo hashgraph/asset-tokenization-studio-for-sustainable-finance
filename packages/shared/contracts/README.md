@@ -4,14 +4,14 @@ Multi-Module Infrastructure Orchestration for the Green Bonds Platform. Deploy c
 
 ## Quick Reference
 
-| I want to...                          | Command                                  | Documentation                                            |
-| ------------------------------------- | ---------------------------------------- | -------------------------------------------------------- |
-| **Deploy locally** (fastest - 30 sec) | `npm run deploy:local`                   | [Quick Start](#quick-start-5-minutes)                    |
-| **Deploy to Hedera testnet**          | `npm run deploy:hedera:testnet`          | [Testnet Deployment](#hedera-testnetmainnet-deployment)  |
-| **Upgrade configurations**            | `npm run upgrade -- --blr-address=0x...` | [Upgrades](#upgrades)                                    |
-| **Validate deployment**               | See validation commands                  | [docs/output-validation.md](./docs/output-validation.md) |
-| **Test deployment**                   | Step-by-step procedures                  | [docs/testing.md](./docs/testing.md)                     |
-| **Understand architecture**           | Read architecture section                | [Architecture](#architecture)                            |
+| I want to...                          | Command                             | Documentation                                            |
+| ------------------------------------- | ----------------------------------- | -------------------------------------------------------- |
+| **Deploy locally** (fastest - 30 sec) | `npm run deploy:local`              | [Quick Start](#quick-start-5-minutes)                    |
+| **Deploy to Hedera testnet**          | `npm run deploy:hedera:testnet`     | [Testnet Deployment](#hedera-testnetmainnet-deployment)  |
+| **Upgrade configurations**            | `BLR_ADDRESS=0x... npm run upgrade` | [Upgrades](#upgrades)                                    |
+| **Validate deployment**               | See validation commands             | [docs/output-validation.md](./docs/output-validation.md) |
+| **Test deployment**                   | Step-by-step procedures             | [docs/testing.md](./docs/testing.md)                     |
+| **Understand architecture**           | Read architecture section           | [Architecture](#architecture)                            |
 
 ## Table of Contents
 
@@ -59,6 +59,7 @@ npm run local:hardhat
 
 # 4. Deploy infrastructure (Terminal 2)
 npm run deploy:local
+# Or from monorepo root: npm run shared:contracts:deploy:local
 
 # 5. Verify success
 # Look for: "[SUCCESS] ✅ GBP infrastructure deployment completed!"
@@ -203,6 +204,57 @@ npm ci
 # Navigate to shared contracts
 cd packages/shared/contracts
 ```
+
+### Configuration Setup
+
+**Environment File Setup:**
+
+All configuration is managed through environment variables that can be set in a `.env` file or exported inline.
+
+```bash
+# 1. Copy the template to create your .env file
+cp .env.sample .env
+
+# 2. Edit .env with your actual configuration
+nano .env  # or use your preferred editor (vim, code, etc.)
+```
+
+**Required Environment Variables by Network:**
+
+See `.env.sample` for the complete list of all 30+ environment variables. Key variables for each network:
+
+**For Hardhat Local Development:**
+
+```bash
+NETWORK=local  # Optional, defaults to local if not set
+LOCAL_PRIVATE_KEY_0=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+# ↑ Hardhat test account #0 (pre-funded with 10000 ETH)
+```
+
+**For Hedera Testnet:**
+
+```bash
+NETWORK=hedera-testnet
+HEDERA_TESTNET_PRIVATE_KEY_0=0x...  # Your testnet private key (64 hex chars)
+```
+
+**For Hedera Mainnet:**
+
+```bash
+NETWORK=hedera-mainnet
+HEDERA_MAINNET_PRIVATE_KEY_0=0x...  # Your mainnet private key (64 hex chars)
+```
+
+**Upgrade-Specific Variables (required for upgrade operations only):**
+
+```bash
+BLR_ADDRESS=0x...  # Business Logic Resolver proxy address from deployment output
+# Optional proxy addresses (only needed for ResolverProxy contracts):
+FACTORYSUITE_PROXIES=0x...
+FACTORYPRIMARYMARKET_PROXIES=0x...
+```
+
+**Note:** All environment variables can be set in the `.env` file OR exported inline in your terminal. The `.env` file method is recommended for persistent configuration.
 
 ---
 
@@ -445,6 +497,7 @@ curl -X POST http://127.0.0.1:8545 \
 ```bash
 cd packages/shared/contracts
 npm run deploy:local
+# Or from monorepo root: npm run shared:contracts:deploy:local
 ```
 
 **What Happens:**
@@ -836,13 +889,19 @@ Deploy to Hedera public networks for staging or production.
 **To Hedera Testnet:**
 
 ```bash
+# From packages/shared/contracts:
 npm run deploy:hedera:testnet
+# Or from monorepo root:
+npm run shared:contracts:deploy:hedera:testnet
 ```
 
 **To Hedera Mainnet:**
 
 ```bash
+# From packages/shared/contracts:
 npm run deploy:hedera:mainnet
+# Or from monorepo root:
+npm run shared:contracts:deploy:hedera:mainnet
 ```
 
 ### Configuration
@@ -1136,12 +1195,12 @@ npm run build
 
 **Symptom:** Upgrade fails with "BLR validation failed" or "Invalid BLR address".
 
-**Cause:** Using `--blr-address` CLI flag instead of environment variable.
+**Cause:** BLR_ADDRESS environment variable not set.
 
 **Solution:**
 
 ```bash
-# Use environment variable instead of CLI flag
+# Use environment variable
 BLR_ADDRESS=0x6D10B5AAEFAB41849df40C7AEc9823545f646c28 npm run upgrade:hedera:testnet
 
 # Or set in .env file
@@ -1931,10 +1990,6 @@ The GBP infrastructure orchestrator provides a unified upgrade workflow that upg
 
 ### Upgrade Commands
 
-#### ⚠️ IMPORTANT: Passing BLR Address
-
-Due to npm nested script limitations, the `--blr-address` flag does NOT work reliably. **Use the `BLR_ADDRESS` environment variable instead:**
-
 #### All Domains (Package Directory)
 
 ```bash
@@ -1963,20 +2018,57 @@ BLR_ADDRESS=$BLR_ADDRESS npm run upgrade:hedera:testnet
 
 ### Configuration
 
-**Environment Variables:**
+**Required Environment Variables:**
 
 ```bash
 # .env
+
+# 1. BLR_ADDRESS - Required for all upgrades
+#    Source: Extract from deployment output file (see "Extracting BLR Address" above)
 BLR_ADDRESS=0x1234567890abcdef...
+
+# 2. Network configuration
 NETWORK=hedera-testnet
+
+# 3. Optional flags
 USE_TIME_TRAVEL=false
 VERBOSE=false
+```
 
-# Optional: Proxy addresses for batch updates
-FACTORYSUITE_PROXIES=0xabc,0xdef
-TREASURY_PROXIES=0x111,0x222
-FACTORYPRIMARYMARKET_PROXIES=0x333
-PRIMARYMARKET_PROXIES=0x444,0x555
+**Optional Proxy Addresses (Only for ResolverProxy contracts):**
+
+Some contracts use the **ResolverProxy** pattern and require explicit proxy addresses:
+
+- **FactorySuite** - Uses ResolverProxy → requires `FACTORYSUITE_PROXIES`
+- **FactoryPrimaryMarket** - Uses ResolverProxy → requires `FACTORYPRIMARYMARKET_PROXIES`
+
+Other contracts use **TransparentUpgradeableProxy** and do NOT need proxy addresses:
+
+- **Treasury** - Uses TransparentUpgradeableProxy (proxy addresses optional for batch updates)
+- **PrimaryMarket** - Uses TransparentUpgradeableProxy (proxy addresses optional for batch updates)
+
+**Extract proxy addresses from deployment output:**
+
+```bash
+# For FactorySuite
+jq -r '.callableContracts.factorySuite.address' \
+  deployments/hedera-testnet/gbpInfrastructure-*.json
+
+# For FactoryPrimaryMarket
+jq -r '.callableContracts.factoryPrimaryMarket.address' \
+  deployments/hedera-testnet/gbpInfrastructure-*.json
+```
+
+**Add to .env (if needed):**
+
+```bash
+# Only required for ResolverProxy contracts (FactorySuite, FactoryPrimaryMarket)
+FACTORYSUITE_PROXIES=0xabc...,0xdef...
+FACTORYPRIMARYMARKET_PROXIES=0x333...
+
+# Optional for batch updates (Treasury, PrimaryMarket)
+TREASURY_PROXIES=0x111...,0x222...
+PRIMARYMARKET_PROXIES=0x444...,0x555...
 ```
 
 ### Upgrade Result
@@ -2023,7 +2115,7 @@ If a domain upgrade fails:
 2. **Fix the issue** (permissions, gas, etc.)
 3. **Retry only the failed domain:**
    ```bash
-   npm run upgrade -- --blr-address=0x123... --domains=treasury
+   BLR_ADDRESS=0x123... npm run upgrade -- --domains=treasury
    ```
 
 ### Troubleshooting

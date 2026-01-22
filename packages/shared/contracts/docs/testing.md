@@ -65,9 +65,16 @@ curl -X POST http://127.0.0.1:8545 \
 
 #### Terminal 2: Deploy Infrastructure
 
+**From `packages/shared/contracts` directory:**
+
 ```bash
-cd packages/shared/contracts
 npm run deploy:local
+```
+
+**Or from monorepo root:**
+
+```bash
+npm run shared:contracts:deploy:local
 ```
 
 **What Happens:**
@@ -375,9 +382,16 @@ echo "BLR Address: $BLR_ADDRESS"
 
 #### Step 2: Run Upgrade Workflow
 
+**From `packages/shared/contracts` directory:**
+
 ```bash
-cd packages/shared/contracts
-npm run upgrade:local -- --blr-address=$BLR_ADDRESS
+BLR_ADDRESS=$BLR_ADDRESS npm run upgrade:local
+```
+
+**Or from monorepo root:**
+
+```bash
+BLR_ADDRESS=$BLR_ADDRESS npm run shared:contracts:upgrade:local
 ```
 
 **What Happens:**
@@ -680,3 +694,211 @@ Documentation for testing on Hedera local network (using Docker-based `hedera` C
 - Contract ID validation (Hedera vs EVM addresses)
 - Mirror node query examples
 - Consensus finality considerations
+
+---
+
+## Hedera Testnet Testing
+
+Test the complete GBP infrastructure deployment on Hedera Testnet network.
+
+### Prerequisites
+
+- **Hedera Testnet Account**: Must have test HBAR for deployment gas fees
+- **Environment Configuration**: `HEDERA_TESTNET_PRIVATE_KEY_0` set in `.env` file
+- **Pre-built Contracts**: `npm run contracts:build` from monorepo root
+- **jq Installed**: For JSON validation commands
+
+### Step-by-Step Testing Procedure
+
+#### Step 1: Configure Environment
+
+**From `packages/shared/contracts` directory:**
+
+```bash
+# 1. Ensure .env file exists
+ls -la .env
+# If missing, copy from template: cp .env.sample .env
+
+# 2. Verify required environment variables
+grep HEDERA_TESTNET_PRIVATE_KEY_0 .env
+# Should show: HEDERA_TESTNET_PRIVATE_KEY_0=0x...
+
+# 3. Verify network configuration (optional, defaults to testnet)
+grep NETWORK .env
+# Should show: NETWORK=hedera-testnet (or be unset, which defaults to testnet)
+
+# 4. Verify you have test HBAR
+# Check balance at: https://hashscan.io/testnet/address/<your-address>
+```
+
+#### Step 2: Deploy Infrastructure
+
+**From `packages/shared/contracts` directory:**
+
+```bash
+npm run deploy:hedera:testnet
+```
+
+**Or from monorepo root:**
+
+```bash
+npm run shared:contracts:deploy:hedera:testnet
+```
+
+**What Happens:**
+
+1. Builds TypeScript source (`npm run build`)
+2. Executes deployment workflow with 6 orchestration steps:
+   - **Step 1:** Deploy ProxyAdmin → Contract ID assigned
+   - **Step 2:** Deploy BLR + TransparentUpgradeableProxy → Contract IDs assigned
+   - **Step 3:** Deploy BOND domain (48 facets, config ID 2)
+   - **Step 4:** Deploy Treasury domain (3 facets, config ID 20000)
+   - **Step 5:** Deploy FactorySuite (1 facet, config ID 30000)
+   - **Step 6:** Deploy PrimaryMarket (2 facets, config IDs 10000 & 10001)
+3. Saves deployment output to `deployments/hedera-testnet/gbpInfrastructure-{timestamp}.json`
+
+**Expected Duration:** 8-12 minutes for Hedera Testnet (network consensus time)
+
+#### Step 3: Verify Deployment Success
+
+**Console Output:**
+
+Look for this final message:
+
+```
+[SUCCESS] ✅ GBP infrastructure deployment completed!
+```
+
+**Validate Output File:**
+
+```bash
+# 1. Find the latest deployment output file
+ls -lth deployments/hedera-testnet/gbpInfrastructure-*.json | head -1
+
+# 2. Verify file size (should be ~44 KB)
+ls -lh $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1)
+
+# 3. Verify 5 callable contracts deployed
+jq '.callableContracts | keys | length' \
+  $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1)
+# Expected: 5
+
+# 4. Verify all deployments succeeded
+jq '.result.bondDeployment.summary.success,
+    .result.treasuryDeployment.summary.success,
+    .result.factorySuiteDeployment.summary.success,
+    .result.primaryMarketDeployment.summary.success' \
+  $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1)
+# Expected: true, true, true, true
+
+# 5. Verify total facets deployed (should be 54)
+jq '[.result.bondDeployment.summary.totalFacets,
+     .result.treasuryDeployment.summary.totalFacets,
+     .result.factorySuiteDeployment.summary.totalFacets,
+     .result.primaryMarketDeployment.summary.totalFacets] | add' \
+  $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1)
+# Expected: 54 (48 + 3 + 1 + 2)
+
+# 6. Verify Hedera contract IDs are populated
+jq '.callableContracts.businessLogicResolver.contractId' \
+  $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1)
+# Expected: "0.0.XXXXX" (Hedera contract ID format)
+```
+
+**Verify on HashScan Explorer:**
+
+```bash
+# Extract BLR contract ID
+export BLR_CONTRACT_ID=$(jq -r '.callableContracts.businessLogicResolver.contractId' \
+  $(ls -t deployments/hedera-testnet/gbpInfrastructure-*.json | head -1))
+
+# View on HashScan
+echo "View BLR on HashScan: https://hashscan.io/testnet/contract/$BLR_CONTRACT_ID"
+```
+
+### Expected Results
+
+#### Deployment Metrics
+
+| Metric                 | Expected Value                                                       |
+| ---------------------- | -------------------------------------------------------------------- |
+| **Duration**           | 8-12 minutes                                                         |
+| **Total Facets**       | 54 (48 BOND + 3 Treasury + 1 FactorySuite + 2 PrimaryMarket)         |
+| **Callable Contracts** | 5 (ProxyAdmin, BLR, ATS Factory, FactorySuite, FactoryPrimaryMarket) |
+| **Output File Size**   | ~44 KB                                                               |
+| **Contract IDs**       | All populated in format "0.0.XXXXX"                                  |
+
+#### Console Output Summary
+
+```
+[INFO] Starting GBP infrastructure deployment...
+[INFO] Network: hedera-testnet (chainId: 296)
+[INFO] Deployer: 0x...
+
+[SUCCESS] ✅ ProxyAdmin deployed (Contract ID: 0.0.XXXXX)
+[SUCCESS] ✅ BLR deployed with TransparentUpgradeableProxy (Contract ID: 0.0.XXXXX)
+[SUCCESS] ✅ BOND deployment completed (48 facets)
+[SUCCESS] ✅ Treasury deployment completed (3 facets)
+[SUCCESS] ✅ FactorySuite deployment completed (1 facet)
+[SUCCESS] ✅ PrimaryMarket deployment completed (2 facets)
+
+[SUCCESS] ✅ GBP infrastructure deployment completed!
+Deployment output saved to: deployments/hedera-testnet/gbpInfrastructure-YYYYMMDD-HHMMSS.json
+```
+
+### Validation Checklist
+
+After deployment completes:
+
+- [ ] Console shows final success message
+- [ ] Output file exists in `deployments/hedera-testnet/`
+- [ ] Output file size is approximately 44 KB
+- [ ] 5 callable contracts present in output
+- [ ] All 4 domain deployments report `success: true`
+- [ ] Total facets deployed equals 54
+- [ ] All contract IDs in format `"0.0.XXXXX"`
+- [ ] Contracts visible on HashScan Testnet Explorer
+- [ ] Deployment completed in 8-12 minutes
+
+**If all checks pass:** ✅ **DEPLOYMENT SUCCESSFUL**
+
+**If any check fails:** See main README [Troubleshooting](../README.md#troubleshooting) section for common issues.
+
+### Advanced Validation
+
+For comprehensive validation of deployment output structure and values, refer to:
+
+- **[output-validation.md](./output-validation.md)** - 20+ jq validation commands
+- **Expected configuration IDs**: BOND=2, Treasury=20000, FactorySuite=30000, FactoryPrimaryMarket=10000, PrimaryMarket=10001
+- **Expected facet counts**: See validation checklist above
+
+### Next Steps
+
+After successful testnet deployment:
+
+1. **Save the deployment output file** - Backup to secure location
+2. **Document contract addresses** - Record for team reference
+3. **Test contract interactions** - Use SDK to interact with deployed contracts
+4. **Prepare for upgrades** - Extract BLR_ADDRESS for future upgrade operations
+
+### Common Issues
+
+**Issue: Deployment takes longer than 12 minutes**
+
+- **Cause**: Network congestion on Hedera Testnet
+- **Solution**: Wait for deployment to complete (can take up to 15 minutes in rare cases)
+
+**Issue: "Insufficient HBAR balance" error**
+
+- **Cause**: Test account doesn't have enough HBAR for gas fees
+- **Solution**: Get test HBAR from Hedera Testnet faucet at https://portal.hedera.com
+
+**Issue: "Invalid private key" error**
+
+- **Cause**: Incorrect private key format in .env
+- **Solution**: Ensure private key is 64 hex characters (0x prefix optional)
+
+**Issue: Output file location**
+
+- **Expected**: `packages/shared/contracts/deployments/hedera-testnet/`
+- **Verification**: File should persist after `npm install` (not in node_modules)

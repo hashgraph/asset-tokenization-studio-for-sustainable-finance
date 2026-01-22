@@ -265,7 +265,7 @@ function printUpgradeSummary(output: UpgradeGbpConfigurationsOutput): void {
     warn("⚠️  Warning: Some domain(s) failed to upgrade");
     const failedDomains = output.domainResults.filter((r) => !r.success).map((r) => r.domain);
     warn(`To retry only failed domains, run:`);
-    warn(`  npm run upgrade -- --blr-address=${output.blr.address} --domains=${failedDomains.join(",")}`);
+    warn(`  BLR_ADDRESS=${output.blr.address} npm run upgrade -- --domains=${failedDomains.join(",")}`);
     info("");
   } else {
     success("✅ All upgrades completed successfully!");

@@ -8,12 +8,12 @@
  * PrimaryMarket) without redeploying shared infrastructure.
  *
  * Usage:
- *   npm run upgrade -- --blr-address=0x123...
- *   npm run upgrade -- --blr-address=0x123... --domains=treasury,primaryMarket
- *   npm run upgrade -- --blr-address=0x123... --time-travel --verbose
+ *   BLR_ADDRESS=0x123... npm run upgrade
+ *   BLR_ADDRESS=0x123... npm run upgrade -- --domains=treasury,primaryMarket
+ *   BLR_ADDRESS=0x123... npm run upgrade -- --time-travel --verbose
  *
  * Environment Variables:
- *   BLR_ADDRESS - BLR proxy address (required if not passed as arg)
+ *   BLR_ADDRESS - BLR proxy address (required)
  *   NETWORK - Network identifier (default: hedera-testnet)
  *   USE_TIME_TRAVEL - Enable TimeTravel facets (default: false)
  *   VERBOSE - Enable verbose logging (default: false)
@@ -47,18 +47,8 @@ function parseUpgradeArgs(): {
 } {
   const args = process.argv.slice(2);
 
-  // Parse --blr-address
-  const blrAddressIndex = args.findIndex((arg) => arg.startsWith("--blr-address"));
-  let blrAddress = process.env.BLR_ADDRESS;
-
-  if (blrAddressIndex !== -1) {
-    const arg = args[blrAddressIndex];
-    if (arg.includes("=")) {
-      blrAddress = arg.split("=")[1];
-    } else if (args[blrAddressIndex + 1]) {
-      blrAddress = args[blrAddressIndex + 1];
-    }
-  }
+  // Get BLR address from environment
+  const blrAddress = process.env.BLR_ADDRESS;
 
   // Parse --network
   const networkIndex = args.findIndex((arg) => arg.startsWith("--network"));
@@ -150,15 +140,19 @@ async function main(): Promise<void> {
 
     // Validate required arguments
     if (!blrAddress) {
-      logError("❌ Error: --blr-address is required");
+      logError("❌ Error: BLR_ADDRESS environment variable is required");
       logError("");
       logError("Usage:");
-      logError("  npm run upgrade -- --blr-address=0x123...");
-      logError("  npm run upgrade -- --blr-address=0x123... --domains=treasury,primaryMarket");
-      logError("  npm run upgrade -- --blr-address=0x123... --time-travel --verbose");
+      logError("  BLR_ADDRESS=0x123... npm run upgrade");
+      logError("  BLR_ADDRESS=0x123... npm run upgrade -- --domains=treasury,primaryMarket");
+      logError("  BLR_ADDRESS=0x123... npm run upgrade -- --time-travel --verbose");
+      logError("");
+      logError("Or set in .env file:");
+      logError("  echo 'BLR_ADDRESS=0x123...' >> .env");
+      logError("  npm run upgrade");
       logError("");
       logError("Environment Variables:");
-      logError("  BLR_ADDRESS - BLR proxy address");
+      logError("  BLR_ADDRESS - BLR proxy address (required)");
       logError("  NETWORK - Network identifier (default: hedera-testnet)");
       logError("  USE_TIME_TRAVEL - Enable TimeTravel facets");
       logError("  VERBOSE - Enable verbose logging");
