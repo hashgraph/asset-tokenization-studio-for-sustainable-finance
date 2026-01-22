@@ -17,11 +17,9 @@
 
 import { ethers } from "hardhat";
 import { configureLogger, LogLevel, deployResolverProxy } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
 import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { deployFactoryPrimaryMarketSystem, type DeployFactoryPrimaryMarketOutput } from "@scripts";
+import { deployFactoryPrimaryMarketSystem } from "@scripts";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
-import type { IBusinessLogicResolver } from "@contract-types";
 
 /**
  * Fixture: Deploy complete FactoryPrimaryMarket infrastructure

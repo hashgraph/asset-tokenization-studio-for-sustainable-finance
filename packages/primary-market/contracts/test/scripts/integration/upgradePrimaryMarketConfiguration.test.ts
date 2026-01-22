@@ -504,7 +504,7 @@ describe("upgradePrimaryMarketConfiguration Integration Tests", () => {
     it("should not save output by default (saveOutput=false)", async () => {
       const setup = await loadFixture(setupInitialDeploymentStandard);
 
-      const _result = await upgradePrimaryMarketConfiguration(setup.deployer, "hardhat", {
+      const result = await upgradePrimaryMarketConfiguration(setup.deployer, "hardhat", {
         blrAddress: setup.blrAddress,
       });
 

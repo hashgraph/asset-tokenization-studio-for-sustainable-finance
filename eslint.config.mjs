@@ -60,14 +60,38 @@ const rootConfig = [
   ...tseslint.configs.recommended,
   eslintPluginPrettierRecommended,
 
-  // Language options and globals
+  // ESLint cache configuration for performance
   {
+    linterOptions: {
+      reportUnusedDisableDirectives: "error",
+    },
+  },
+
+  // Type-aware linting for TypeScript files only (performance optimization)
+  {
+    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
     languageOptions: {
       ecmaVersion: 2020,
       sourceType: "module",
       parserOptions: {
-        projectService: true, // Modern TypeScript-ESLint v8 - zero config for monorepos
+        projectService: true, // Type-aware linting for TS files
         tsconfigRootDir: import.meta.dirname,
+      },
+      globals: {
+        ...globals.node,
+        ...globals.es2020,
+      },
+    },
+  },
+
+  // Non-type-aware linting for JavaScript files (faster)
+  {
+    files: ["**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    languageOptions: {
+      ecmaVersion: 2020,
+      sourceType: "module",
+      parserOptions: {
+        projectService: false, // No type checking for JS files
       },
       globals: {
         ...globals.node,
