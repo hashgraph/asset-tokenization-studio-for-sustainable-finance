@@ -23,7 +23,8 @@
       "@scripts/infrastructure": ["./scripts/infrastructure/index.ts"],
       "@scripts/domain": ["./scripts/domain/index.ts"],
       "@tasks": ["./tasks/index.ts"],
-      "@test": ["./test/index.ts"]
+      "@test": ["./test/index.ts"],
+      "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"]
     }
   },
   "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],

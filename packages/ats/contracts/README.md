@@ -18,6 +18,12 @@ Asset Tokenization Studio (ATS) smart contracts for the Evercity green bonds pla
   - [Prerequisites](#prerequisites)
   - [Deployment Options](#deployment-options)
   - [Usage Examples](#usage-examples)
+- [Upgrades](#upgrades)
+  - [Overview](#overview-1)
+  - [Prerequisites](#prerequisites-1)
+  - [Upgrade Commands](#upgrade-commands)
+  - [Upgrade Output](#upgrade-output)
+  - [Troubleshooting Upgrades](#troubleshooting-upgrades)
 - [Testing](#testing)
   - [Running Tests](#running-tests)
   - [Test Architecture](#test-architecture)
@@ -351,6 +357,450 @@ const receipt = await tx.wait();
 const event = receipt.events.find((e) => e.event === "BondSuiteDeployed");
 const { bondAddress, treasuryAddress, kpiAddress } = event.args;
 ```
+
+## Understanding Deployment vs Instance Creation
+
+### What Fresh Deployment Creates
+
+ATS has **two configurations**: BOND (for bond instances) and FactorySuite (atomic suite deployment factory).
+
+**Infrastructure (shared across platform):**
+
+- ✅ BusinessLogicResolver (BLR) proxy - Configuration registry
+- ✅ ProxyAdmin - Upgrade management
+- ✅ Shared facets - AccessControl, Pause, Diamond (reused by all domains)
+
+**Configurations in BLR (metadata only for instances, factory proxy for FactorySuite):**
+
+- ✅ **BOND configuration (Config ID 2)** - Template for Bond instances
+- ✅ **FactorySuite configuration (Config ID 30000)** - Template for FactorySuite factory proxy
+
+**Factory Proxies (deployed and immediately usable):**
+
+- ✅ **Bond Factory proxy** - Can deploy individual Bond instances (uses Config 2)
+- ✅ **FactorySuite ResolverProxy** - Can deploy Bond+Treasury+KPI suites atomically (uses Config 30000)
+
+### What Fresh Deployment Does NOT Create
+
+**Instance Proxies (created later on-demand):**
+
+- ❌ **Bond instance proxies** - Created by calling `BondFactory.deployBond()` or `FactorySuite.deployBondSuite()`
+- ❌ **Treasury instance proxies** - Created by calling `FactorySuite.deployBondSuite()`
+- ❌ **KPI instance proxies** - Created by calling `FactorySuite.deployBondSuite()`
+
+### Why This Design?
+
+**Two deployment patterns:**
+
+**Pattern 1 - Individual Bond (via Bond Factory):**
+
+- Deploy single Bond instance
+- Manual Treasury and KPI setup required
+- More flexibility, more steps
+
+**Pattern 2 - Complete Suite (via FactorySuite - recommended):**
+
+- Deploy Bond + Treasury + KPI atomically
+- Ensures proper inter-contract relationships
+- Less flexibility, fewer steps, safer
+
+**Configurations are templates:**
+
+- Config 2 (BOND) defines which facets a Bond instance will use
+- Config 30000 (FactorySuite) defines factory behavior for atomic deployment
+- BLR stores these templates, factories reference them when deploying instances
+
+**Factory creates instances on-demand:**
+
+```
+Bond Factory (uses Config 2)
+    ↓ deploys
+Bond instances (Config 2)
+   Bond #1, Bond #2, Bond #3, ...
+
+FactorySuite (Config 30000)
+    ↓ deploys atomically
+Bond + Treasury + KPI suites
+   Suite #1 → Bond A + Treasury A + KPI A
+   Suite #2 → Bond B + Treasury B + KPI B
+   Suite #3 → Bond C + Treasury C + KPI C
+   ...
+```
+
+### Deployment Output Explained
+
+**What you'll see in deployment JSON:**
+
+```json
+{
+  "infrastructure": {
+    "blr": {
+      "proxy": "0x..."              // BLR (shared infrastructure)
+    },
+    "factory": {
+      "proxy": "0x..."              // Bond Factory (deployed) ✅
+    },
+    "factorySuite": {
+      "proxy": "0x..."              // FactorySuite Factory (deployed) ✅
+    }
+  },
+  "configurations": {
+    "bond": {                       // Config 2 (metadata in BLR)
+      "configId": 2,
+      "version": 1,
+      "facetKeys": [...]
+    },
+    "factorySuite": {               // Config 30000 (metadata in BLR)
+      "configId": 30000,
+      "version": 1,
+      "facetKeys": [...]
+    }
+  },
+  "facets": [
+    { "name": "BondFacet", "address": "0x..." },
+    { "name": "FactorySuiteFacet", "address": "0x..." }
+  ]
+}
+```
+
+**What you WON'T see (and why):**
+
+- ❌ No `bond.infrastructure.proxy` field
+- ❌ No individual Bond instance proxy addresses
+- ❌ No Treasury instance proxy addresses
+- ❌ No KPI instance proxy addresses
+- **Reason:** Instance proxies don't exist yet - they're created later by calling factories
+
+**This is correct behavior, not an error!** The deployment creates:
+
+1. Template configurations (Config 2 for Bonds, Config 30000 for FactorySuite)
+2. Factory proxies (Bond Factory, FactorySuite)
+3. Facet implementations (used by configurations)
+
+Instance proxies are created on-demand after deployment.
+
+### How to Create Instances After Deployment
+
+**Method 1: FactorySuite (recommended - atomic deployment):**
+
+```typescript
+import { FactorySuiteFacet__factory } from "@hashgraph/ats-contracts";
+
+// Connect to deployed FactorySuite
+const factorySuite = FactorySuiteFacet__factory.connect(deploymentResult.infrastructure.factorySuite.proxy, signer);
+
+// Deploy complete suite atomically (Bond + Treasury + KPI)
+const tx = await factorySuite.deployBondSuite(
+  bondData, // Bond configuration
+  regulationData, // Bond regulation settings
+  treasuryData, // Treasury configuration
+  kpiData, // KPI oracle configuration
+);
+
+await tx.wait();
+
+// Extract addresses from events
+const event = tx.events?.find((e) => e.event === "BondSuiteDeployed");
+const bondProxy = event?.args?.bondAddress;
+const treasuryProxy = event?.args?.treasuryAddress;
+const kpiProxy = event?.args?.kpiAddress;
+
+console.log("Complete suite deployed:");
+console.log("  Bond:", bondProxy);
+console.log("  Treasury:", treasuryProxy);
+console.log("  KPI:", kpiProxy);
+```
+
+**Method 2: Bond Factory (individual Bond only):**
+
+```typescript
+import { BondFactory__factory } from "@hashgraph/ats-contracts";
+
+// Connect to deployed Bond Factory
+const bondFactory = BondFactory__factory.connect(deploymentResult.infrastructure.factory.proxy, signer);
+
+// Deploy individual Bond instance
+const tx = await bondFactory.deployBond(
+  bondData, // Bond configuration
+  regulationData, // Regulation settings
+  2, // Config ID for Bond instances
+  1, // Version
+);
+
+await tx.wait();
+
+// Extract Bond address from events
+const event = tx.events?.find((e) => e.event === "BondDeployed");
+const bondProxy = event?.args?.bondAddress;
+
+console.log("Bond deployed:", bondProxy);
+// Note: Treasury and KPI must be deployed separately
+```
+
+**Each instance is independent:**
+
+```typescript
+// Suite #1 - Green Bond A with full setup
+const suite1 = await factorySuite.deployBondSuite(bondDataA, regA, treasuryA, kpiA);
+
+// Suite #2 - Green Bond B with full setup
+const suite2 = await factorySuite.deployBondSuite(bondDataB, regB, treasuryB, kpiB);
+
+// All Bond instances use Config 2
+// All Treasury instances use Config 20000
+// All KPI instances use their respective configuration
+```
+
+### Architecture After Fresh Deployment
+
+```
+┌──────────────────────────────────┐
+│  Shared Infrastructure           │
+│  ├─ ProxyAdmin ✅                │
+│  ├─ BLR Proxy ✅                 │
+│  └─ Shared Facets ✅             │
+└──────────────┬───────────────────┘
+               │
+               ├─► Bond Factory Proxy ✅ (uses Config 2)
+               │   └─ Can deploy: Individual Bond instances
+               │
+               ├─► FactorySuite Proxy ✅ (Config 30000)
+               │   └─ Can deploy: Bond + Treasury + KPI suites
+               │
+               └─► BLR contains templates:
+                   ├─ BOND Config (2) ✅
+                   └─ FactorySuite Config (30000) ✅
+
+❌ NO Bond instances yet
+❌ NO Treasury instances yet
+❌ NO KPI instances yet
+```
+
+### Architecture After Creating Instances
+
+```
+┌──────────────────────────────────┐
+│  Shared Infrastructure           │
+│  (same as above)                 │
+└──────────────┬───────────────────┘
+               │
+               ├─► Bond Factory Proxy ✅
+               │   ├─ Bond #1 ✅ (standalone)
+               │   └─ Bond #2 ✅ (standalone)
+               │
+               └─► FactorySuite Proxy ✅ (Config 30000)
+                   │
+                   ├─► Suite #1 ✅
+                   │   ├─ Bond A ✅ (Config 2)
+                   │   ├─ Treasury A ✅ (Config 20000)
+                   │   └─ KPI A ✅
+                   │
+                   └─► Suite #2 ✅
+                       ├─ Bond B ✅ (Config 2)
+                       ├─ Treasury B ✅ (Config 20000)
+                       └─ KPI B ✅
+```
+
+### Key Takeaways
+
+1. **Two deployment methods** - Bond Factory for individual Bonds, FactorySuite for complete suites
+2. **FactorySuite is recommended** - Atomic deployment ensures proper inter-contract relationships
+3. **Factories are deployed, instances are not** - Fresh deployment creates factory tools, not bond instances
+4. **Missing instance proxies in deployment = correct** - This is by design, not an error
+5. **All Bond instances use Config 2** - Configuration defines behavior, but each instance has separate storage
+6. **Suites deploy multiple contracts** - One FactorySuite call creates 3 proxies (Bond + Treasury + KPI)
+
+## Upgrades
+
+### Overview
+
+Configuration upgrades allow you to deploy new facet implementations and create new configuration versions without redeploying shared infrastructure (BLR, ProxyAdmin).
+
+**What Upgrades Do:**
+
+- Deploy ALL domain-specific facets (full redeploy, no change detection)
+- Register facets in existing BLR (overwrite mode)
+- Create new configuration versions (v1→v2, v2→v3, etc.)
+- Optionally batch-update proxies to new versions
+
+**What Upgrades DON'T Do:**
+
+- Replace shared infrastructure
+- Modify existing configuration versions
+- Automatically update all proxies
+
+### Upgrade Mechanics
+
+**Important**: Upgrades deploy ALL domain-specific facets unconditionally, regardless of whether code changed.
+
+**What happens during upgrade:**
+
+1. Deploys complete set of domain facets (no change detection)
+2. Registers all facets in BLR with overwrite enabled
+3. Creates new configuration version
+4. Does NOT optimize or skip unchanged facets
+
+**Gas Cost**: Full facet deployment every upgrade (no change detection optimization)
+
+**Why this approach?**
+
+- Simplicity: No complex bytecode comparison logic
+- Safety: Each version is self-contained
+- Consistency: Predictable behavior across all upgrades
+- Trade-off: Higher gas cost for simplicity and reliability
+
+**Facets deployed every upgrade:**
+
+- FactorySuiteFacet (complete redeploy)
+- TimeTravelFacet (if --time-travel flag set)
+
+**Shared facets (NOT redeployed):**
+
+- AccessControlFacet (registered once, reused)
+- PauseFacet (registered once, reused)
+
+### Prerequisites
+
+Before upgrading, you must have:
+
+1. **Deployed infrastructure** - BLR proxy address from initial deployment
+2. **Private key** - With permissions to register facets and create configurations
+3. **Network access** - RPC endpoint for target network
+
+### Upgrade Commands
+
+#### Domain-Specific Upgrade
+
+**From package directory:**
+
+```bash
+cd packages/ats/contracts
+npm run upgrade -- --blr-address=0x123...
+```
+
+**Environment Variables:**
+
+```bash
+# .env
+BLR_ADDRESS=0x1234567890abcdef...
+NETWORK=hedera-testnet
+```
+
+Then run:
+
+```bash
+npm run upgrade
+```
+
+#### Options
+
+| Flag                | Description                               | Default |
+| ------------------- | ----------------------------------------- | ------- |
+| `--blr-address`     | BLR proxy address (required)              | -       |
+| `--time-travel`     | Use TimeTravel facet variants             | false   |
+| `--verbose`         | Enable debug logging                      | false   |
+| `--proxy-addresses` | Comma-separated proxy addresses to update | -       |
+
+#### Examples
+
+**Basic upgrade:**
+
+```bash
+npm run upgrade -- --blr-address=0x123...
+```
+
+**Note:** This deploys all domain facets and creates a new configuration version, even if no code changed.
+
+**Upgrade with proxy updates:**
+
+```bash
+npm run upgrade -- --blr-address=0x123... --proxy-addresses=0xabc,0xdef
+```
+
+**Verbose logging:**
+
+```bash
+npm run upgrade -- --blr-address=0x123... --verbose
+```
+
+**TimeTravel mode (testing):**
+
+```bash
+npm run upgrade:local -- --blr-address=0x123... --time-travel
+```
+
+### Upgrade Output
+
+Upgrades save results to `deployments/{network}/{network}-factorysuite-upgrade-{timestamp}.json`:
+
+```json
+{
+  "network": "hedera-testnet",
+  "timestamp": "2025-12-23T14:30:45.123Z",
+  "deployer": "0x...",
+  "blr": {
+    "address": "0x...",
+    "isExternal": true
+  },
+  "configuration": {
+    "configId": "30000",
+    "version": 2,
+    "facetCount": 1
+  },
+  "summary": {
+    "totalFacetsDeployed": 1,
+    "proxiesUpdated": 2,
+    "proxiesFailed": 0,
+    "success": true
+  }
+}
+```
+
+### Understanding Facet Deployment
+
+**Domain-Specific Facets:**
+
+- Always deployed during upgrades
+- Hardcoded list in upgrade script
+- No change detection mechanism
+
+**Shared Facets:**
+
+- Deployed once during initial infrastructure setup
+- Reused across all domain configurations
+- NOT redeployed during domain-specific upgrades
+- Referenced by address in BLR
+
+**Configuration Versioning:**
+
+- Each upgrade creates a new version (v1→v2→v3...)
+- Old versions remain in BLR (unchanged)
+- Proxies must explicitly switch to new versions
+- No automatic migration of existing proxies
+
+### Troubleshooting Upgrades
+
+**"BLR validation failed":**
+
+- Verify BLR address is correct
+- Ensure BLR is deployed and accessible
+- Check network is correct
+
+**"Insufficient permissions":**
+
+- Deployer must have permission to register facets in BLR
+- For production, ensure proper role assignments
+
+**"Gas limit exceeded":**
+
+- Large facets may need custom gas limits
+- Consider splitting into multiple smaller facets
+
+**"Proxy update failed":**
+
+- Verify proxy addresses are correct
+- Ensure proxies use the ResolverProxy pattern
+- Check proxy admin permissions
 
 ## Testing
 

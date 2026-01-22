@@ -78,7 +78,7 @@ function filterESLintFiles(files) {
 }
 
 /**
- * Run ESLint on files
+ * Run ESLint on files - single process with caching for optimal performance
  */
 function runESLint(files, fix = false) {
   if (files.length === 0) {
@@ -91,11 +91,10 @@ function runESLint(files, fix = false) {
 
   console.log(`${fix ? "Linting and fixing" : "Linting"} ${files.length} changed file(s)...`);
   console.log(`Base branch: ${getBaseBranch()}`);
-  console.log(`Files: ${fileList}`);
   console.log("");
 
   try {
-    execSync(`npx eslint ${fixFlag} ${fileList}`, {
+    execSync(`npx eslint --cache ${fixFlag} ${fileList}`, {
       stdio: "inherit",
     });
 

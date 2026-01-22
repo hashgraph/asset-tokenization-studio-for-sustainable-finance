@@ -39,3 +39,6 @@ export * from "./factorySuite/createConfiguration";
 // KPI deployment and management
 export * from "./kpi/kpiDeploy";
 export * from "./kpi/upgradeKpi";
+
+// Utility functions
+export * from "./utils";

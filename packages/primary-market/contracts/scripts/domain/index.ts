@@ -33,6 +33,9 @@ export * from "./constants";
 // Domain registry helpers (uses factory pattern)
 export * from "./primaryMarketRegistry";
 
+// Utility helpers
+export * from "./utils";
+
 // FactoryPrimaryMarket configuration
 export * from "./factoryPrimaryMarket/createConfiguration";
 

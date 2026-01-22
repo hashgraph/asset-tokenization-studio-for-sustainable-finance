@@ -24,5 +24,8 @@ export * from "./constants";
 export * from "./treasuryRegistry.data";
 export * from "./treasuryRegistry";
 
+// Utility helpers
+export * from "./utils";
+
 // Treasury configuration
 export * from "./treasury/createConfiguration";

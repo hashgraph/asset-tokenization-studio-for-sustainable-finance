@@ -11,3 +11,17 @@ export type {
   ExistingInfrastructure,
   DeployWithExistingInfraOptions,
 } from "./deployPrimaryMarketSystemWithExistingBlr";
+
+export { upgradeFactoryPrimaryMarketConfiguration } from "./upgradeFactoryPrimaryMarketConfiguration";
+export type {
+  UpgradeFactoryPrimaryMarketConfigurationOptions,
+  UpgradeFactoryPrimaryMarketConfigurationOutput,
+  ProxyUpdateResult as FactoryPMProxyUpdateResult,
+} from "./upgradeFactoryPrimaryMarketConfiguration";
+
+export { upgradePrimaryMarketConfiguration } from "./upgradePrimaryMarketConfiguration";
+export type {
+  UpgradePrimaryMarketConfigurationOptions,
+  UpgradePrimaryMarketConfigurationOutput,
+  ProxyUpdateResult as PMProxyUpdateResult,
+} from "./upgradePrimaryMarketConfiguration";

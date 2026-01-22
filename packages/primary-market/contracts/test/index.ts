@@ -3,11 +3,10 @@
 /**
  * Test module index.
  *
- * Exports test utilities and fixtures for the Green Bonds Platform.
+ * Exports test utilities and fixtures for the Primary Market contracts.
  *
  * @module test
  */
 
 export * from "./constants";
-//export * from "./fixtures";
-//export * from "./helpers";
+export * from "./fixtures";

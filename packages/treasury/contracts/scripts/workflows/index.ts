@@ -5,3 +5,10 @@ export type { DeployTreasuryOutput, DeployTreasuryOptions } from "./deployTreasu
 
 export { deployTreasuryWithExistingInfra } from "./deployTreasurySystemWithExistingBlr";
 export type { ExistingInfrastructure, DeployWithExistingInfraOptions } from "./deployTreasurySystemWithExistingBlr";
+
+export { upgradeTreasuryConfiguration } from "./upgradeTreasuryConfiguration";
+export type {
+  UpgradeTreasuryConfigurationOptions,
+  UpgradeTreasuryConfigurationOutput,
+  ProxyUpdateResult,
+} from "./upgradeTreasuryConfiguration";

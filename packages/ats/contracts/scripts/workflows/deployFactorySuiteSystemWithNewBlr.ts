@@ -6,7 +6,7 @@
  * Orchestrates deployment of the entire FactorySuite infrastructure with multi-registry support:
  * - ProxyAdmin for upgrade management
  * - BusinessLogicResolver (BLR) with proxy
- * - Required facets (AccessControl, Pause, FactorySuite) from multiple registries
+ * - Required facets (Diamond, AccessControl, Pause, FactorySuite) from multiple registries
  * - Facet registration in BLR using combined ATS and FactorySuite registries
  * - FactorySuite configuration (config ID 30'000)
  * - FactorySuite proxy
@@ -25,7 +25,6 @@ import {
   deployFacets,
   registerFacets,
   deployResolverProxy,
-  LATEST_VERSION,
   atsRegistry,
   info,
   success,
@@ -115,47 +114,20 @@ export interface DeployFactorySuiteSystemOptions {
 }
 
 /**
- * Deploy complete FactorySuite system.
- *
- * Executes the full deployment workflow:
- * 1. Deploy ProxyAdmin
- * 2. Deploy BusinessLogicResolver with proxy
- * 3. Deploy facets (AccessControl, Pause, FactorySuite)
- * 4. Register facets in BLR
- * 5. Create FactorySuite configuration (config ID 30'000)
- * 6. Deploy FactorySuite proxy
- *
- * Returns comprehensive deployment output with all addresses, keys, versions, and IDs.
- *
- * @param signer - Ethers.js signer
- * @param network - Network name (testnet, mainnet, hardhat, etc.)
- * @param options - Deployment options
- * @returns Promise resolving to complete deployment output
- *
- * @example
- * ```typescript
- * import { ethers } from 'hardhat'
- *
- * // Get signer
- * const [deployer] = await ethers.getSigners()
- *
- * // Deploy complete system to hardhat network
- * const output = await deployFactorySuiteSystem(deployer, 'hardhat', {
- *     useTimeTravel: false,
- *     saveOutput: true
- * })
- *
- * info(`BLR Proxy: ${output.infrastructure.blr.proxy}`)
- * info(`FactorySuite Proxy: ${output.infrastructure.factorySuite.proxy}`)
- * info(`Config Version: ${output.configuration.version}`)
- * ```
+ * Deploy complete FactorySuite system: ProxyAdmin, BLR, facets, configuration, and proxy.
+ * Six-phase workflow with comprehensive deployment output.
  */
 export async function deployFactorySuiteSystem(
   signer: Signer,
   network: string,
   options: DeployFactorySuiteSystemOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, confirmations: optionsConfirmations } = options;
+  const {
+    useTimeTravel = false,
+    saveOutput: _saveOutput = false,
+    outputPath: _outputPath,
+    confirmations: optionsConfirmations,
+  } = options;
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
@@ -198,9 +170,13 @@ export async function deployFactorySuiteSystem(
 
     info("\n📦 Step 3/6: Deploying facets...");
 
-    const facetNames = useTimeTravel
-      ? ["AccessControlFacetTimeTravel", "PauseFacetTimeTravel", "FactorySuiteFacetTimeTravel", "TimeTravelFacet"]
-      : ["AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
+    // Use base facet names for registry lookup (registry entries use dynamic factories)
+    const facetNames = ["DiamondFacet", "AccessControlFacet", "PauseFacet", "FactorySuiteFacet"];
+
+    // Add TimeTravelFacet separately (only needed in TimeTravel mode)
+    if (useTimeTravel) {
+      facetNames.push("TimeTravelFacet");
+    }
 
     info(`   Facets to deploy: ${facetNames.join(", ")}`);
 
@@ -213,6 +189,7 @@ export async function deployFactorySuiteSystem(
         throw new Error(`No factory found for facet: ${facetName}`);
       }
 
+      // Registry factory returns TimeTravel variant when useTimeTravel: true
       facetFactories[facetName] = facetDef.factory(signer, useTimeTravel);
     }
 
@@ -269,7 +246,6 @@ export async function deployFactorySuiteSystem(
     const fsConfig = await createFactorySuiteConfiguration(
       blrContract,
       facetAddresses,
-      useTimeTravel,
       DEFAULT_BATCH_SIZE,
       confirmations,
     );
@@ -289,7 +265,7 @@ export async function deployFactorySuiteSystem(
     const factorySuiteProxyResult = await deployResolverProxy(signer, {
       blrAddress: blrResult.blrAddress,
       configurationId: fsConfig.data.configurationId,
-      version: LATEST_VERSION,
+      version: fsConfig.data.version,
       rbac: [
         {
           role: DEFAULT_ADMIN_ROLE,
