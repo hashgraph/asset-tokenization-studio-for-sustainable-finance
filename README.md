@@ -96,7 +96,7 @@ The project adheres to Hexagonal Architecture and DDD:
 
 1. Copy the example environment file:
    ```bash
-   cp apps/shared/gateway/.env.sample apps/shared/gateway/.env
+   cp apps/shared/gateway/.env.example apps/shared/gateway/.env
    ```
 
 ## Transaction Sender

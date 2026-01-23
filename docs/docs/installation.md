@@ -77,7 +77,7 @@ You will see output similar to:
 Start the necessary infrastructure services:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This will start:
@@ -299,7 +299,7 @@ docker exec -it postgres psql -U postgres
 **If container is not running**:
 
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
 **If database doesn't exist**:
@@ -317,8 +317,8 @@ CREATE DATABASE treasury_db;
 **Reset database completely**:
 
 ```bash
-docker-compose down -v  # Remove volumes
-docker-compose up -d
+docker compose down -v  # Remove volumes
+docker compose up -d
 ```
 
 #### 4. npm Install/ci Failures
@@ -432,7 +432,7 @@ curl https://testnet.mirrornode.hedera.com/api/v1/accounts/0.0.2
 docker ps | grep rabbitmq
 
 # Restart RabbitMQ
-docker-compose restart rabbitmq
+docker compose restart rabbitmq
 
 # Check logs
 docker logs rabbitmq
@@ -549,7 +549,7 @@ jest.setTimeout(60000);
 
 ```bash
 # Ensure test database is running
-docker-compose up -d
+docker compose up -d
 
 # Run tests with proper environment
 NODE_ENV=test npm run api:test
@@ -631,7 +631,7 @@ sudo npm ci
 
 ### Docker is not running
 
-If `docker-compose up` fails:
+If `docker compose up` fails:
 
 ```bash
 # Start Docker daemon

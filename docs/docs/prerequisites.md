@@ -35,6 +35,26 @@ nvm install 22
 nvm use 22
 ```
 
+### Docker and Docker Compose
+
+Required to run containerized services (PostgreSQL, RabbitMQ, pgAdmin).
+
+Verify installed versions:
+
+```bash
+docker --version
+docker compose --version
+```
+
+Installation:
+
+- **Ubuntu/Debian**:
+  ```bash
+  sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  ```
+- **macOS**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- **Windows**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
+
 ### PostgreSQL
 
 - **PostgreSQL**: 14 or higher
@@ -57,26 +77,6 @@ docker run --name postgres-gbp \
 - **Ubuntu/Debian**: `sudo apt-get install postgresql-14`
 - **macOS**: `brew install postgresql@14`
 - **Windows**: Download from [postgresql.org](https://www.postgresql.org/download/windows/)
-
-### Docker and Docker Compose
-
-Required to run containerized services (PostgreSQL, RabbitMQ, pgAdmin).
-
-Verify installed versions:
-
-```bash
-docker --version
-docker-compose --version
-```
-
-Installation:
-
-- **Ubuntu/Debian**:
-  ```bash
-  sudo apt-get install docker.io docker-compose
-  ```
-- **macOS**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
-- **Windows**: Download [Docker Desktop](https://www.docker.com/products/docker-desktop)
 
 ## Development Tools
 
@@ -187,11 +187,11 @@ npm --version
 
 # Verify Docker
 docker --version
-# Expected: Docker version 20.x.x or higher
+# Expected: Docker version 26.x.x or higher
 
 # Verify Docker Compose
-docker-compose --version
-# Expected: docker-compose version 1.29.x or higher
+docker compose --version
+# Expected: docker-compose version 4.x.x or higher
 
 # Verify Git
 git --version

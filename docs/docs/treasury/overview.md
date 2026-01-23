@@ -48,7 +48,7 @@ Payment Schedule → Payment Execution → Blockchain Transaction → Reconcilia
 ```bash
 cd apps/treasury/api
 npm install
-cp .env.sample .env
+cp .env.example .env
 npm run start:dev
 ```
 

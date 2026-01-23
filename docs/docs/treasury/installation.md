@@ -35,7 +35,7 @@ npm install
 ### 3. Configure Environment
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit `.env`:
@@ -58,7 +58,7 @@ PAYMENT_TOKEN_ID=0.0.xxxxx
 ### 4. Start Services
 
 ```bash
-docker-compose up -d postgres redis
+docker compose up -d postgres redis
 ```
 
 ### 5. Run Migrations

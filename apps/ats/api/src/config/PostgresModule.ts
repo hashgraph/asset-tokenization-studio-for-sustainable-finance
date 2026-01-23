@@ -38,7 +38,7 @@ export class PostgresModule {
       database: configService.get(ConfigKeys.POSTGRESQL_DB),
       synchronize: false,
       migrationsRun: true,
-      migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/migrations/*{.ts,.js}"],
+      migrations: [...EVENT_LISTENER_MIGRATIONS, "dist/src/migrations/*{.ts,.js}"],
       autoLoadEntities: true,
       extra: {
         options: `-c lock_timeout=${configService.get(ConfigKeys.POSTGRESQL_LOCK_TIMEOUT, "10")}s`,

@@ -19,7 +19,9 @@ async function bootstrap() {
   app.enableCors()
 
   // Set global prefix
-  app.setGlobalPrefix("api/v1/ats")
+  app.setGlobalPrefix("api/v1/ats", {
+    exclude: ["health"],
+  })
 
   // Swagger configuration
   const config = new DocumentBuilder()

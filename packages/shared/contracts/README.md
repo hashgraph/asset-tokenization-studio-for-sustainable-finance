@@ -213,7 +213,7 @@ All configuration is managed through environment variables that can be set in a 
 
 ```bash
 # 1. Copy the template to create your .env file
-cp .env.sample .env
+cp .env.example .env
 
 # 2. Edit .env with your actual configuration
 nano .env  # or use your preferred editor (vim, code, etc.)
@@ -221,7 +221,7 @@ nano .env  # or use your preferred editor (vim, code, etc.)
 
 **Required Environment Variables by Network:**
 
-See `.env.sample` for the complete list of all 30+ environment variables. Key variables for each network:
+See `.env.example` for the complete list of all 30+ environment variables. Key variables for each network:
 
 **For Hardhat Local Development:**
 
@@ -868,7 +868,7 @@ Deploy to Hedera public networks for staging or production.
 1. **Copy environment template**:
 
    ```bash
-   cp .env.sample .env
+   cp .env.example .env
    ```
 
 2. **Configure environment variables**:

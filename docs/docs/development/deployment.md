@@ -24,24 +24,24 @@ Guide to deploy Green Bond Platform in different environments.
 
 ```bash
 # Build all images
-docker-compose build
+docker compose build
 
 # Build a specific service
-docker-compose build gateway
-docker-compose build ats-api
+docker compose build gateway
+docker compose build ats-api
 ```
 
 ### Run Services
 
 ```bash
 # Start all services
-docker-compose up -d
+docker compose up -d
 
 # View logs
-docker-compose logs -f
+docker compose logs -f
 
 # Stop services
-docker-compose down
+docker compose down
 ```
 
 ## Deployment on AWS

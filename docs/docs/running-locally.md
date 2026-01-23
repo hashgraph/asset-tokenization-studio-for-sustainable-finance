@@ -569,8 +569,8 @@ Visit [HashScan Testnet](https://hashscan.io/testnet) and search for your accoun
 **Reset databases:**
 
 ```bash
-docker-compose down -v
-docker-compose up -d
+docker compose down -v
+docker compose up -d
 ```
 
 **Reset and restart services:**
@@ -639,7 +639,7 @@ lsof -ti:3004 | xargs kill -9
 ### Stop Docker Containers
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## Next Steps

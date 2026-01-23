@@ -50,7 +50,7 @@ Client → Gateway → [ATS API | Primary Market API | Treasury API]
 ```bash
 cd apps/shared/gateway
 npm install
-cp .env.sample .env
+cp .env.example .env
 npm run start:dev
 ```
 

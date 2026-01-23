@@ -335,41 +335,6 @@ International organizations can:
 - **Build System**: Custom npm scripts
 - **Version Control**: Git with conventional commits
 
-## Quick Start
-
-Ready to dive in? Here's the fastest path to get started:
-
-### 5-Minute Quick Start
-
-1. **Prerequisites Check**
-
-   ```bash
-   node --version  # Should be v22+
-   docker --version
-   ```
-
-2. **Clone & Install**
-
-   ```bash
-   git clone https://github.com/hashgraph/green-bond-platform.git
-   cd green-bond-platform
-   npm ci
-   ```
-
-3. **Start Services**
-
-   ```bash
-   docker-compose up -d
-   npm run contracts:build
-   ```
-
-4. **Configure & Run**
-   - Copy `.env.sample` files to `.env` in each app
-   - Add your Hedera testnet credentials
-   - Start services: `npm run ats:api:start:dev`
-
-For detailed instructions, see [Getting Started](getting-started.md).
-
 ## Next Steps
 
 Choose your learning path based on your role:

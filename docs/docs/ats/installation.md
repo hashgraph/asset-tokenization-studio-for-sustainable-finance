@@ -36,7 +36,7 @@ npm install
 Create `.env` file from sample:
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit `.env` with your configuration:
@@ -159,7 +159,7 @@ Using Docker Compose:
 
 ```bash
 cd apps/ats/api
-docker-compose up -d
+docker compose up -d
 ```
 
 This will start:

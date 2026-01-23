@@ -34,7 +34,7 @@ npm install
 ### 3. Configure Environment
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit `.env`:
@@ -58,13 +58,13 @@ CONCURRENCY=5
 ### 4. Start Redis
 
 ```bash
-docker-compose up -d redis
+docker compose up -d redis
 ```
 
 ### 5. Start Database
 
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
 ### 6. Run Migrations

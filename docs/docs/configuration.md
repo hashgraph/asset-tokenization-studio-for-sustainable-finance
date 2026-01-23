@@ -62,7 +62,7 @@ Each component has its own `.env` file with specific configurations.
 
 ```bash
 cd apps/shared/gateway
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit the `.env` file:
@@ -95,7 +95,7 @@ RATE_LIMIT_MAX=100
 
 ```bash
 cd apps/shared/transaction-sender
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Specific configuration:
@@ -125,7 +125,7 @@ RETRY_DELAY=5000  # milliseconds
 
 ```bash
 cd apps/ats/api
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Configuration:
@@ -158,7 +158,7 @@ TOKEN_MANAGER_ADDRESS=0x...
 
 ```bash
 cd apps/primary-market/api
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Configuration:
@@ -191,7 +191,7 @@ SUBSCRIPTION_MANAGER_ADDRESS=0x...
 
 ```bash
 cd apps/treasury/api
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Configuration:

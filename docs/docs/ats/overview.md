@@ -77,7 +77,7 @@ cd apps/ats/api
 npm install
 
 # Configure environment
-cp .env.sample .env
+cp .env.example .env
 
 # Run database migrations
 npm run migration:run

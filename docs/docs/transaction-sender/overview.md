@@ -47,7 +47,7 @@ API Request → Queue → Transaction Processing → Hedera Network → Confirma
 ```bash
 cd apps/shared/transaction-sender
 npm install
-cp .env.sample .env
+cp .env.example .env
 npm run start:dev
 ```
 

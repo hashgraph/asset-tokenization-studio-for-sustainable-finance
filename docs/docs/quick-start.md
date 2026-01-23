@@ -53,7 +53,7 @@ npm ci
 Start PostgreSQL, RabbitMQ, and pgAdmin:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 Verify containers are running:
@@ -69,27 +69,27 @@ Quick setup for all services:
 ```bash
 # Gateway
 cd apps/shared/gateway
-cp .env.sample .env
+cp .env.example .env
 # Edit .env: Add your HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY
 
 # Transaction Sender
 cd ../transaction-sender
-cp .env.sample .env
+cp .env.example .env
 # Edit .env: Add your HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY
 
 # ATS API
 cd ../../ats/api
-cp .env.sample .env
+cp .env.example .env
 # Edit .env: Add your HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY
 
 # Primary Market API
 cd ../../primary-market/api
-cp .env.sample .env
+cp .env.example .env
 # Edit .env: Add your HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY
 
 # Treasury API
 cd ../../treasury/api
-cp .env.sample .env
+cp .env.example .env
 # Edit .env: Add your HEDERA_ACCOUNT_ID and HEDERA_PRIVATE_KEY
 
 # Return to root

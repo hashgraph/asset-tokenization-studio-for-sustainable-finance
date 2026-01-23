@@ -35,7 +35,7 @@ npm install
 ### 3. Configure Environment
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit `.env`:
@@ -57,7 +57,7 @@ OFFERING_CONTRACT_ID=0.0.xxxxx
 ### 4. Start Database
 
 ```bash
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
 ### 5. Run Migrations

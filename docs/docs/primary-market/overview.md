@@ -48,7 +48,7 @@ Offering Creation → Subscription Period → Allocation → Payment → Distrib
 ```bash
 cd apps/primary-market/api
 npm install
-cp .env.sample .env
+cp .env.example .env
 npm run start:dev
 ```
 

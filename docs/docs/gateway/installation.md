@@ -32,7 +32,7 @@ npm install
 ### 3. Configure Environment
 
 ```bash
-cp .env.sample .env
+cp .env.example .env
 ```
 
 Edit `.env`:
