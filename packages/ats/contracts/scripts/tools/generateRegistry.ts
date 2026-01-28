@@ -63,6 +63,7 @@ async function main(): Promise<void> {
   const result = await generateRegistryPipeline(
     {
       contractsPath: path.join(__dirname, "../../contracts"),
+      artifactPath: path.join(__dirname, "../../artifacts/contracts"),
       outputPath: options.output,
       logLevel: logLevel as any,
 
@@ -74,6 +75,9 @@ async function main(): Promise<void> {
       // The types (FacetDefinition, ContractDefinition, etc.) are defined in ATS,
       // not in our package, so we must import from ATS scripts
       moduleName: "@hashgraph/asset-tokenization-contracts/scripts",
+
+      // TypeChain path for factory validation (default is ./build/typechain-types)
+      typechainPath: "./typechain-types",
 
       // Include storage wrappers if we have any
       includeStorageWrappers: true,
