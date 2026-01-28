@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import { IPortfolio } from "../../interfaces/IPortfolio.sol";
 import { PORTFOLIO_STORAGE_POSITION } from "../../constants/storagePositions.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {
     HederaTokenService,

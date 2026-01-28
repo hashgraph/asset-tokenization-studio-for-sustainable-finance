@@ -10,7 +10,7 @@ import {
     _DEFAULT_ADMIN_ROLE,
     _MATURITY_REDEEMER_ROLE
 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
