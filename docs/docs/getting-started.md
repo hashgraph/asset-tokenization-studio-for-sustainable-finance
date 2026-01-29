@@ -291,34 +291,34 @@ Then press `Ctrl+C` to stop.
 
 Now start all services in development mode. Open separate terminals for each:
 
-**Terminal 1 - Gateway:**
-
-```bash
-npm run gateway:start:dev
-```
-
-**Terminal 2 - Transaction Sender:**
-
-```bash
-npm run transaction-sender:start:dev
-```
-
-**Terminal 3 - ATS API:**
+**Terminal 1 - ATS API:**
 
 ```bash
 npm run ats:api:start:dev
 ```
 
-**Terminal 4 - Primary Market API:**
+**Terminal 2 - Primary Market API:**
 
 ```bash
 npm run primary-market:api:start:dev
 ```
 
-**Terminal 5 - Treasury API:**
+**Terminal 3 - Treasury API:**
 
 ```bash
 npm run treasury:api:start:dev
+```
+
+**Terminal 4 - Gateway:**
+
+```bash
+npm run gateway:start:dev
+```
+
+**Terminal 5 - Transaction Sender:**
+
+```bash
+npm run transaction-sender:start:dev
 ```
 
 ## Step 12: Run Tests
