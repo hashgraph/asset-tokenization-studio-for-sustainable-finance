@@ -45,12 +45,21 @@ contract MockBond is IBondRead {
         nominalValueDecimals = nominalValueDecimals_;
     }
 
-    function issue(address _tokenHolder, uint256 _value, bytes calldata /*_data*/) external {
+    function issue(
+        address _tokenHolder,
+        uint256 _value,
+        bytes calldata /*_data*/
+    ) external {
         _balance[_tokenHolder] += _value;
         _totalSupply += _value;
     }
 
-    function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
+    function getBondDetails()
+        external
+        view
+        override
+        returns (BondDetailsData memory bondDetailsData_)
+    {
         bondDetailsData_ = BondDetailsData({
             currency: bytes3("USD"),
             nominalValue: nominalValue,
@@ -68,19 +77,29 @@ contract MockBond is IBondRead {
         return _balance[account];
     }
 
-    function getCoupon(uint256) external pure override returns (RegisteredCoupon memory) {
+    function getCoupon(
+        uint256
+    ) external pure override returns (RegisteredCoupon memory) {
         revert NotImplemented();
     }
 
-    function getCouponFor(uint256, address) external pure override returns (CouponFor memory) {
+    function getCouponFor(
+        uint256,
+        address
+    ) external pure override returns (CouponFor memory) {
         revert NotImplemented();
     }
 
-    function getCouponAmountFor(uint256, address) external pure override returns (CouponAmountFor memory) {
+    function getCouponAmountFor(
+        uint256,
+        address
+    ) external pure override returns (CouponAmountFor memory) {
         revert NotImplemented();
     }
 
-    function getPrincipalFor(address) external pure returns (PrincipalFor memory) {
+    function getPrincipalFor(
+        address
+    ) external pure returns (PrincipalFor memory) {
         revert NotImplemented();
     }
 
@@ -88,15 +107,37 @@ contract MockBond is IBondRead {
         return 0;
     }
 
-    function getCouponHolders(uint256, uint256, uint256) external pure override returns (address[] memory) {
+    function getCouponHolders(
+        uint256,
+        uint256,
+        uint256
+    ) external pure override returns (address[] memory) {
         return new address[](0);
     }
 
-    function getTotalCouponHolders(uint256) external pure override returns (uint256) {
+    function getTotalCouponHolders(
+        uint256
+    ) external pure override returns (uint256) {
         return 0;
     }
 
     function decimals() public view returns (uint8) {
         return _decimals;
     }
+
+    function getCouponFromOrderedListAt(
+        uint256 _pos
+    ) external view override returns (uint256 couponID_) {}
+
+    function getCouponsOrderedList(
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) external view override returns (uint256[] memory couponIDs_) {}
+
+    function getCouponsOrderedListTotal()
+        external
+        view
+        override
+        returns (uint256 total_)
+    {}
 }

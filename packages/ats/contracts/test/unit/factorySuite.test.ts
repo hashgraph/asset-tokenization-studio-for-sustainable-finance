@@ -9,8 +9,6 @@ import {
   hashRole,
   TEST_ROLE_1,
   TEST_ROLE_2,
-  TEST_KPI_ROLE_1,
-  TEST_KPI_ROLE_2,
   deployFactorySuiteWithMocksForBusinessLogic,
   deployBondSuiteAndExtractContracts,
 } from "@test";
@@ -37,17 +35,11 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("deployBondSuite - Happy Path", () => {
     it("GIVEN valid bond, treasury, and KPI parameters WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(
-          mockAtsFactory.address,
-          validBondData,
-          validFactoryRegulationData,
-          validTreasuryData,
-          validKpiData,
-        );
+        .deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.equal(1);
@@ -55,65 +47,39 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN success with BondSuiteDeployed event", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
       )
         .to.emit(factorySuite, "BondSuiteDeployed")
         .withArgs(
           admin.address,
           anyValue, // Bond address (dynamic)
           anyValue, // Treasury address (dynamic)
-          anyValue, // KPI address (dynamic)
-          anyValue, // BondData struct (complex struct, just verify it's emitted)
-          anyValue, // FactoryRegulationData struct
+          anyValue, // BondKpiLinkedRateData struct (complex struct, just verify it's emitted)
           anyValue, // TreasuryData struct
-          anyValue, // KpiData struct
         );
     });
 
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN success with valid contract addresses", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(
-          mockAtsFactory.address,
-          validBondData,
-          validFactoryRegulationData,
-          validTreasuryData,
-          validKpiData,
-        );
+        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
 
       expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.kpiAddress).to.not.equal(ethers.constants.AddressZero);
     });
 
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN success with MockBondDeployed event from ATS factory", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
       ).to.emit(mockAtsFactory, "MockBondDeployed");
     });
   });
@@ -121,25 +87,17 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("deployBondSuite - Access Control", () => {
     it("GIVEN caller without DEPLOYER role WHEN deploying bond suite THEN fail with AccountHasNoRole", async () => {
       const { factorySuite, mockAtsFactory, unauthorized, accessControl, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite
-          .connect(unauthorized)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(unauthorized).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(accessControl, "AccountHasNoRole");
     });
 
     it("GIVEN contract is paused WHEN deploying bond suite THEN fail with TokenIsPaused", async () => {
       const { factorySuite, mockAtsFactory, admin, deployer, pause, accessControl, testData } =
         await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       // Grant PAUSER_ROLE to deployer to be able to pause
       await accessControl.connect(deployer).grantRole(PAUSER_ROLE, deployer.address);
@@ -148,15 +106,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       await pause.connect(deployer).pause();
 
       await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
     });
   });
@@ -164,75 +114,38 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("deployBondSuite - Input Validation", () => {
     it("GIVEN zero bond factory address WHEN deploying bond suite THEN fail with InvalidContractAddress", async () => {
       const { factorySuite, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            ethers.constants.AddressZero,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(admin).deployBondSuite(ethers.constants.AddressZero, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidContractAddress");
     });
 
     it("GIVEN treasury data with zero resolver WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData, invalidTreasuryData } = testData;
+      const { validBondKpiData, invalidTreasuryData } = testData;
 
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            invalidTreasuryData.zeroResolver,
-            validKpiData,
-          ),
+          .deployBondSuite(mockAtsFactory.address, validBondKpiData, invalidTreasuryData.zeroResolver),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
 
     it("GIVEN treasury data with zero payment token WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData, invalidTreasuryData } = testData;
+      const { validBondKpiData, invalidTreasuryData } = testData;
 
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            invalidTreasuryData.zeroPaymentToken,
-            validKpiData,
-          ),
+          .deployBondSuite(mockAtsFactory.address, validBondKpiData, invalidTreasuryData.zeroPaymentToken),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
-    });
-
-    it("GIVEN KPI data with zero admin address WHEN deploying bond suite THEN fail with InvalidKpiData", async () => {
-      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, invalidKpiData } = testData;
-
-      await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            invalidKpiData,
-          ),
-      ).to.be.revertedWithCustomError(factorySuite, "InvalidKpiData");
     });
 
     it("GIVEN treasury data with empty environmental assets array WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+      const { validBondKpiData } = testData;
 
       const treasuryDataWithEmptyArray = {
         resolver: blr.address,
@@ -248,20 +161,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            treasuryDataWithEmptyArray,
-            validKpiData,
-          ),
+          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithEmptyArray),
       ).to.not.be.reverted;
     });
 
     it("GIVEN treasury data with zero address in environmental assets array WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, environmentalAssetToken1, testData } =
         await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+      const { validBondKpiData } = testData;
 
       const treasuryDataWithZeroEnvironmentalAsset = {
         resolver: blr.address,
@@ -277,13 +184,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            treasuryDataWithZeroEnvironmentalAsset,
-            validKpiData,
-          ),
+          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithZeroEnvironmentalAsset),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
   });
@@ -291,21 +192,13 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("deployBondSuite - Error Handling", () => {
     it("GIVEN bond factory configured to revert WHEN deploying bond suite THEN fail with BondDeploymentFailed", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       // Configure mock to revert
       await mockAtsFactory.setShouldRevert(true);
 
       await expect(
-        factorySuite
-          .connect(admin)
-          .deployBondSuite(
-            mockAtsFactory.address,
-            validBondData,
-            validFactoryRegulationData,
-            validTreasuryData,
-            validKpiData,
-          ),
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
   });
@@ -313,20 +206,14 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("Gas Optimization", () => {
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN success with reasonable gas cost", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(
-          mockAtsFactory.address,
-          validBondData,
-          validFactoryRegulationData,
-          validTreasuryData,
-          validKpiData,
-        );
+        .deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
 
       const receipt = await tx.wait();
-      // Treasury and KPI deployment are expensive, so we allow up to 10M gas
+      // Treasury deployment is expensive, so we allow up to 10M gas
       expect(receipt.gasUsed.lt(ethers.BigNumber.from(MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT))).to.be.true;
     });
   });
@@ -334,7 +221,7 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("Edge Cases", () => {
     it("GIVEN treasury data with maximum length environmental assets arrays WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+      const { validBondKpiData } = testData;
 
       // Create array with multiple environmental asset tokens using TypeChain factory
       const environmentalAssetAddresses = [];
@@ -356,23 +243,16 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(
-          mockAtsFactory.address,
-          validBondData,
-          validFactoryRegulationData,
-          treasuryDataWithManyTokens,
-          validKpiData,
-        );
+        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithManyTokens);
 
       expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.kpiAddress).to.not.equal(ethers.constants.AddressZero);
     });
 
-    it("GIVEN treasury and KPI data with multiple RBAC entries WHEN deploying bond suite THEN success", async () => {
+    it("GIVEN treasury data with multiple RBAC entries WHEN deploying bond suite THEN success", async () => {
       const { factorySuite, mockAtsFactory, admin, user, blr, paymentToken, environmentalAssetToken1, testData } =
         await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData } = testData;
+      const { validBondKpiData } = testData;
 
       const treasuryDataWithMultipleRbacs = {
         resolver: blr.address,
@@ -394,49 +274,26 @@ describe("FactorySuite - Business Logic Tests", () => {
         environmentalAssets: [environmentalAssetToken1.address],
       };
 
-      const kpiDataWithMultipleRbacs = {
-        admin: admin.address,
-        rbacs: [
-          {
-            role: hashRole(TEST_KPI_ROLE_1),
-            members: [admin.address],
-          },
-          {
-            role: hashRole(TEST_KPI_ROLE_2),
-            members: [user.address],
-          },
-        ],
-      };
-
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(
-          mockAtsFactory.address,
-          validBondData,
-          validFactoryRegulationData,
-          treasuryDataWithMultipleRbacs,
-          kpiDataWithMultipleRbacs,
-        );
+        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithMultipleRbacs);
 
       expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
       expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.kpiAddress).to.not.equal(ethers.constants.AddressZero);
     });
   });
 
   describe("deployBondSuite - Treasury Initialization", () => {
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN Treasury lifecycle is initialized with bond address", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         validTreasuryData,
-        validKpiData,
       );
 
       // Verify lifecycle was initialized
@@ -446,16 +303,14 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN Treasury portfolio is initialized with payment token", async () => {
       const { factorySuite, mockAtsFactory, admin, paymentToken, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         validTreasuryData,
-        validKpiData,
       );
 
       // Verify portfolio was initialized
@@ -465,16 +320,14 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN valid bond suite parameters with environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with assets", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         validTreasuryData,
-        validKpiData,
       );
 
       // Verify environmental assets were set
@@ -483,7 +336,7 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN valid bond suite parameters with empty environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with no assets", async () => {
       const { factorySuite, mockAtsFactory, admin, blr, paymentToken, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+      const { validBondKpiData } = testData;
 
       const treasuryDataWithEmptyArray = {
         resolver: blr.address,
@@ -500,10 +353,8 @@ describe("FactorySuite - Business Logic Tests", () => {
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         treasuryDataWithEmptyArray,
-        validKpiData,
       );
 
       // Verify portfolio was initialized with no environmental assets
@@ -522,7 +373,7 @@ describe("FactorySuite - Business Logic Tests", () => {
         environmentalAssetToken2,
         testData,
       } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validKpiData } = testData;
+      const { validBondKpiData } = testData;
 
       const treasuryDataWithMultipleAssets = {
         resolver: blr.address,
@@ -539,10 +390,8 @@ describe("FactorySuite - Business Logic Tests", () => {
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         treasuryDataWithMultipleAssets,
-        validKpiData,
       );
 
       // Verify portfolio was initialized with all environmental assets
@@ -554,16 +403,14 @@ describe("FactorySuite - Business Logic Tests", () => {
   describe("deployBondSuite - RBAC Configuration", () => {
     it("GIVEN valid bond suite WHEN deployed THEN Treasury has MATURITY_REDEEMER_ROLE on Bond", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         validTreasuryData,
-        validKpiData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
@@ -573,16 +420,14 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN valid bond suite WHEN deployed THEN FactorySuite has renounced DEFAULT_ADMIN_ROLE", async () => {
       const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
         mockAtsFactory.address,
-        validBondData,
-        validFactoryRegulationData,
+        validBondKpiData,
         validTreasuryData,
-        validKpiData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
@@ -592,19 +437,22 @@ describe("FactorySuite - Business Logic Tests", () => {
 
     it("GIVEN bondData with admin WHEN deployed THEN original admin retains DEFAULT_ADMIN_ROLE", async () => {
       const { factorySuite, mockAtsFactory, admin, user, testData } = await loadFixture(setupFixture);
-      const { validBondData, validFactoryRegulationData, validTreasuryData, validKpiData } = testData;
+      const { validBondKpiData, validTreasuryData } = testData;
 
-      // Create bondData WITH an explicit admin in RBAC
-      const bondDataWithAdmin = {
-        ...validBondData,
-        security: {
-          ...validBondData.security,
-          rbacs: [
-            {
-              role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-              members: [user.address], // user is the original admin
-            },
-          ],
+      // Create bondKpiData WITH an explicit admin in RBAC
+      const bondKpiDataWithAdmin = {
+        ...validBondKpiData,
+        bondData: {
+          ...validBondKpiData.bondData,
+          security: {
+            ...validBondKpiData.bondData.security,
+            rbacs: [
+              {
+                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+                members: [user.address], // user is the original admin
+              },
+            ],
+          },
         },
       };
 
@@ -612,10 +460,8 @@ describe("FactorySuite - Business Logic Tests", () => {
         factorySuite,
         admin,
         mockAtsFactory.address,
-        bondDataWithAdmin,
-        validFactoryRegulationData,
+        bondKpiDataWithAdmin,
         validTreasuryData,
-        validKpiData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);

@@ -63,11 +63,9 @@
     "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
     "test": "bash -c 'npx hardhat test test/unit/*.test.ts test/integration/*.test.ts'",
     "test:factory-suite": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*factorySuite*.test.ts test/integration/*factorySuite*.test.ts'",
-    "test:kpi": "bash -c 'shopt -s nullglob; npx hardhat test test/unit/*kpi*.test.ts test/integration/*kpi*.test.ts'",
     "test:integration": "bash -c 'npx hardhat test test/integration/*.test.ts'",
     "coverage": "npx hardhat coverage --testfiles 'test/{unit,integration}/*.test.ts'",
     "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/{unit,integration}/*factorySuite*.test.ts'",
-    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
     "prepack": "npm run build"
   },
   "dependencies": {

@@ -9,14 +9,13 @@ import { TREASURY_CONFIG_VERSION } from "@test";
 export interface TestDataSets {
   validBondData: any;
   validFactoryRegulationData: any;
+  validBondKpiData: any;
   validTreasuryData: any;
-  validKpiData: any;
   invalidTreasuryData: {
     zeroResolver: any;
     zeroPaymentToken: any;
     zeroEnvironmentalAssetInArray: any;
   };
-  invalidKpiData: any;
 }
 
 export function createTestDataSets(fixture: {
@@ -94,9 +93,27 @@ export function createTestDataSets(fixture: {
     environmentalAssets: [environmentalAssetToken1.address],
   };
 
-  const validKpiData = {
-    admin: admin.address,
-    rbacs: [],
+  // Create combined BondKpiLinkedRateData structure
+  const validBondKpiData = {
+    bondData: validBondData,
+    factoryRegulationData: validFactoryRegulationData,
+    interestRate: {
+      maxRate: 1000, // 10%
+      baseRate: 500, // 5%
+      minRate: 100, // 1%
+      startPeriod: Math.floor(Date.now() / 1000) + 86400,
+      startRate: 500,
+      missedPenalty: 50,
+      reportPeriod: 86400 * 30, // 30 days
+      rateDecimals: 2,
+    },
+    impactData: {
+      maxDeviationCap: 150,
+      baseLine: 100,
+      maxDeviationFloor: 50,
+      impactDataDecimals: 2,
+      adjustmentPrecision: 100,
+    },
   };
 
   const invalidTreasuryDataZeroResolver = {
@@ -114,22 +131,16 @@ export function createTestDataSets(fixture: {
     environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero],
   };
 
-  const invalidKpiData = {
-    ...validKpiData,
-    admin: ethers.constants.AddressZero,
-  };
-
   return {
     validBondData,
     validFactoryRegulationData,
+    validBondKpiData,
     validTreasuryData,
-    validKpiData,
     invalidTreasuryData: {
       zeroResolver: invalidTreasuryDataZeroResolver,
       zeroPaymentToken: invalidTreasuryDataZeroPaymentToken,
       zeroEnvironmentalAssetInArray: invalidTreasuryDataZeroEnvironmentalAsset,
     },
-    invalidKpiData,
   };
 }
 
@@ -147,15 +158,5 @@ export function createTreasuryDataWithEmptyEnvironmentalAssets(validTreasuryData
   return {
     ...validTreasuryData,
     environmentalAssets: [],
-  };
-}
-
-export function createKpiDataWithRoles(validKpiData: any, roles: Array<{ role: string; members: string[] }>) {
-  return {
-    ...validKpiData,
-    rbacs: roles.map((r) => ({
-      role: r.role,
-      members: r.members,
-    })),
   };
 }

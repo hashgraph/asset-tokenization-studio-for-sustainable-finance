@@ -56,4 +56,21 @@ contract MockAtsFactory {
         bondAddress = address(bond);
         emit MockBondDeployed(bondAddress, bondData, regulationData);
     }
+
+    function deployBondKpiLinkedRate(
+        IAtsFactory.BondKpiLinkedRateData calldata bondKpiData
+    ) external returns (address bondAddress) {
+        if (shouldRevert) {
+            revert DeployBondFailed();
+        }
+
+        if (shouldReturnZeroAddress) {
+            return address(0);
+        }
+
+        MockBond bond = new MockBond("Mock Bond KPI", "MBKPI", bondKpiData.bondData.security.rbacs);
+
+        bondAddress = address(bond);
+        emit MockBondDeployed(bondAddress, bondKpiData.bondData, bondKpiData.factoryRegulationData);
+    }
 }

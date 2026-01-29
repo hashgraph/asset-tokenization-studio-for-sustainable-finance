@@ -19,10 +19,8 @@ import type { IFactory } from "@contract-types";
  * @param factorySuite FactorySuite proxy contract instance
  * @param signer Signer to execute the deployment transaction
  * @param factoryAddress ATS Bond Factory contract address
- * @param bondData Bond configuration data
- * @param regulationData Factory regulation data for compliance
+ * @param bondKpiData Bond KPI Linked Rate configuration data (includes bondData and regulationData)
  * @param treasuryData Treasury configuration data
- * @param kpiData KPI configuration data
  * @returns Object containing deployed contract addresses, Treasury instance, and transaction receipt
  * @throws Error if BondSuiteDeployed event is not found in transaction receipt
  *
@@ -32,10 +30,8 @@ import type { IFactory } from "@contract-types";
  *   factorySuite,
  *   admin,
  *   mockAtsFactory.address,
- *   validBondData,
- *   validFactoryRegulationData,
- *   validTreasuryData,
- *   validKpiData
+ *   validBondKpiData,
+ *   validTreasuryData
  * );
  *
  * expect(await treasury.bondAddress()).to.equal(bondAddress);
@@ -45,20 +41,15 @@ export async function deployBondSuiteAndExtractContracts(
   factorySuite: IFactorySuite,
   signer: SignerWithAddress,
   factoryAddress: string,
-  bondData: IFactory.BondDataStruct,
-  regulationData: any,
+  bondKpiData: IFactory.BondKpiLinkedRateDataStruct,
   treasuryData: any,
-  kpiData: any,
 ): Promise<{
   bondAddress: string;
   treasuryAddress: string;
-  kpiAddress: string;
   treasury: MockTreasuryFacet;
   receipt: ContractReceipt;
 }> {
-  const tx = await factorySuite
-    .connect(signer)
-    .deployBondSuite(factoryAddress, bondData, regulationData, treasuryData, kpiData);
+  const tx = await factorySuite.connect(signer).deployBondSuite(factoryAddress, bondKpiData, treasuryData);
 
   const receipt = await tx.wait();
 
@@ -69,14 +60,12 @@ export async function deployBondSuiteAndExtractContracts(
 
   const bondAddress = event.args[1];
   const treasuryAddress = event.args[2];
-  const kpiAddress = event.args[3];
 
   const treasury = MockTreasuryFacet__factory.connect(treasuryAddress, signer);
 
   return {
     bondAddress,
     treasuryAddress,
-    kpiAddress,
     treasury,
     receipt,
   };
