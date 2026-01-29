@@ -107,10 +107,17 @@ added XXX packages in XXXs
 
 ## Step 6: Start Infrastructure Services
 
-Start PostgreSQL, RabbitMQ, and pgAdmin using Docker:
+Start PostgreSQL, RabbitMQ, and pgAdmin using Docker (docker-compose.yml is in scripts folder):
 
 ```bash
+cd scripts
 docker compose up -d
+```
+
+Navigate back to the root:
+
+```bash
+cd ..
 ```
 
 Verify containers are running:
@@ -212,6 +219,12 @@ node primary-market/primarymarket/deploy-primary-market.js
 
 # Deploy ATS contracts
 node ats/factory/deploy-factory.js
+```
+
+Navigate back to the root:
+
+```bash
+cd ..
 ```
 
 :::tip
@@ -362,6 +375,7 @@ kill -9 <PID>
 ### Docker Connection Issues
 
 ```bash
+cd scripts
 # Restart Docker containers
 docker compose down
 docker compose up -d
