@@ -10,7 +10,7 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-01-28T15:59:07.143Z
+ * Generated: 2026-01-30T08:47:28.130Z
  * Facets: 3
  * Infrastructure: 0
  * Mocks: 4
@@ -460,7 +460,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       {
         name: "getCoupon",
         signature:
-          "function getCoupon(uint256) view returns (tuple(tuple(uint256 recordDate, uint256 executionDate, uint256 rate, uint8 rateDecimals, uint256 period) coupon, uint256 snapshotId) registeredCoupon)",
+          "function getCoupon(uint256) view returns (tuple(tuple(uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId) registeredCoupon)",
         selector: "0x936e3169",
       },
       {

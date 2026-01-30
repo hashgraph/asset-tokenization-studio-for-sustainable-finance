@@ -23,7 +23,11 @@ import {
   registerAdditionalFacets,
   atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { ITimeTravel__factory, IBusinessLogicResolver__factory, IPause__factory } from "@hashgraph/asset-tokenization-contracts";
+import {
+  ITimeTravel__factory,
+  IBusinessLogicResolver__factory,
+  IPause__factory,
+} from "@hashgraph/asset-tokenization-contracts";
 import {
   deployFactorySuiteSystem,
   factorySuiteRegistry,
@@ -31,10 +35,7 @@ import {
   TREASURY_CONFIG_ID,
   ROLES,
 } from "@scripts";
-import {
-  createTreasuryConfiguration,
-  TREASURY_CONFIG_VERSION,
-} from "@test";
+import { createTreasuryConfiguration, TREASURY_CONFIG_VERSION } from "@test";
 import {
   MockAtsFactory__factory,
   MockERC20__factory,
@@ -140,7 +141,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
     "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/accessControl/IAccessControl.sol:IAccessControl",
     deployment.infrastructure.factorySuite.proxy,
   );
-  
+
   // Get pause functionality through ITimeTravel interface (which includes pause methods)
   const pause = IPause__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
