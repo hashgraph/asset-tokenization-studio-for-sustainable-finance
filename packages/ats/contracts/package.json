@@ -69,7 +69,7 @@
     "prepack": "npm run build"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "file:/home/jjbermudez19/Desktop/hashgraph-asset-tokenization-contracts-4.0.1.tgz"
+    "@hashgraph/asset-tokenization-contracts": "file:../../../hashgraph-asset-tokenization-contracts-4.0.1.tgz"
   },
   "devDependencies": {
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
