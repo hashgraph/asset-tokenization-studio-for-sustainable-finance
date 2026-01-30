@@ -39,24 +39,6 @@ contract MockAtsFactory {
         nextBondAddress = _bondAddress;
     }
 
-    function deployBond(
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata regulationData
-    ) external returns (address bondAddress) {
-        if (shouldRevert) {
-            revert DeployBondFailed();
-        }
-
-        if (shouldReturnZeroAddress) {
-            return address(0);
-        }
-
-        MockBond bond = new MockBond("Mock Bond", "MBOND", bondData.security.rbacs);
-
-        bondAddress = address(bond);
-        emit MockBondDeployed(bondAddress, bondData, regulationData);
-    }
-
     function deployBondKpiLinkedRate(
         IAtsFactory.BondKpiLinkedRateData calldata bondKpiData
     ) external returns (address bondAddress) {
