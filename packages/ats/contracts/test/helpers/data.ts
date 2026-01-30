@@ -28,7 +28,7 @@ export function createTestDataSets(fixture: {
   treasuryConfigId?: string;
   treasuryVersion?: number;
 }): TestDataSets {
-  const { mockResolver, paymentToken, environmentalAssetToken1, admin, treasuryConfigId, treasuryVersion } = fixture;
+  const { mockResolver, paymentToken, environmentalAssetToken1, treasuryConfigId, treasuryVersion } = fixture;
 
   const treasuryKey = treasuryConfigId || TREASURY_CONFIG_ID;
   const treasuryVer = treasuryVersion || TREASURY_CONFIG_VERSION;
