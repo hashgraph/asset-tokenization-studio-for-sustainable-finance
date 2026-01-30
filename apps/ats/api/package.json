@@ -27,8 +27,7 @@
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "file:../../../hashgraph-asset-tokenization-contracts-4.0.1.tgz",
-    "@nestjs/swagger": "11.2.0",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-4.0.1.tgz",
     "@nestjs/typeorm": "11.0.0",
     "pg": "8.16.3",
     "typeorm": "0.3.27"

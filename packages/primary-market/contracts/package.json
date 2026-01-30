@@ -71,9 +71,7 @@
     "coverage:primaryMarket": "npx hardhat coverage --solcoverjs .solcover.primaryMarket.js --testfiles 'test/unit/primaryMarket*.test.ts'"
   },
   "devDependencies": {
-    "@hashgraph/asset-tokenization-contracts": "file:../../../hashgraph-asset-tokenization-contracts-4.0.1.tgz",
-    "@eslint/js": "^9.36.0",
-    "@nomicfoundation/hardhat-chai-matchers": "^1.0.6",
+    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-4.0.1.tgz",
     "@nomicfoundation/hardhat-toolbox": "^2.0.2",
     "@openzeppelin/contracts": "^4.9.6",
     "@openzeppelin/contracts-upgradeable": "^4.9.6",
