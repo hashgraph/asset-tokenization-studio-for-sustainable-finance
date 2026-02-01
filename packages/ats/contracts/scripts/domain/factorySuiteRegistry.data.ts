@@ -10,10 +10,10 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-01-29T11:31:50.134Z
+ * Generated: 2026-02-01T18:51:51.629Z
  * Facets: 1
  * Infrastructure: 0
- * Mocks: 6
+ * Mocks: 7
  *
  * @module domain/atsRegistry.data
  */
@@ -31,6 +31,7 @@ import {
   MockBusinessLogicResolver__factory,
   MockERC20__factory,
   MockERC721__factory,
+  MockReentrantFactory__factory,
   MockTreasuryFacet__factory,
 } from "@contract-types";
 
@@ -120,12 +121,6 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "MockAtsFactory",
     description: "Mock implementation of ATS Factory for testing purposes",
     methods: [
-      {
-        name: "deployBond",
-        signature:
-          "function deployBond(tuple(tuple(bool arePartitionsProtected, bool isMultiPartition, address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, tuple(string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, tuple(uint8 regulationType, uint8 regulationSubType, tuple(bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) regulationData) returns (address bondAddress)",
-        selector: "0x5133f0e0",
-      },
       {
         name: "deployBondKpiLinkedRate",
         signature:
@@ -341,6 +336,50 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     factory: (signer) => new MockERC721__factory(signer),
   },
 
+  MockReentrantFactory: {
+    name: "MockReentrantFactory",
+    description: "Mock factory that attempts to perform a reentrancy attack on FactorySuite.deployBondSuite",
+    methods: [
+      {
+        name: "deployBondKpiLinkedRate",
+        signature:
+          "function deployBondKpiLinkedRate(tuple(tuple(tuple(bool arePartitionsProtected, bool isMultiPartition, address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, tuple(string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, tuple(uint8 regulationType, uint8 regulationSubType, tuple(bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, tuple(uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, tuple(uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)) returns (address bondAddress)",
+        selector: "0x06e6effc",
+      },
+      {
+        name: "enableReentrancy",
+        signature:
+          "function enableReentrancy(tuple(tuple(tuple(bool arePartitionsProtected, bool isMultiPartition, address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, tuple(string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, tuple(uint8 regulationType, uint8 regulationSubType, tuple(bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, tuple(uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, tuple(uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) _bondKpiData, tuple(address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) _treasuryData)",
+        selector: "0xad16079d",
+      },
+      { name: "factorySuite", signature: "function factorySuite() view returns (address)", selector: "0x525fb99d" },
+      {
+        name: "reentrancyAttempted",
+        signature: "function reentrancyAttempted() view returns (bool)",
+        selector: "0xfb160c2d",
+      },
+      { name: "setFactorySuite", signature: "function setFactorySuite(address _factorySuite)", selector: "0xa55eef0e" },
+      {
+        name: "shouldAttemptReentrancy",
+        signature: "function shouldAttemptReentrancy() view returns (bool)",
+        selector: "0xe4679dd2",
+      },
+      {
+        name: "storedBondKpiData",
+        signature:
+          "function storedBondKpiData() view returns (tuple(tuple(bool arePartitionsProtected, bool isMultiPartition, address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, tuple(string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, tuple(uint8 regulationType, uint8 regulationSubType, tuple(bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, tuple(uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, tuple(uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)",
+        selector: "0x9eeeacc4",
+      },
+      {
+        name: "storedTreasuryData",
+        signature:
+          "function storedTreasuryData() view returns (address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, address paymentToken)",
+        selector: "0xc1fc1a28",
+      },
+    ],
+    factory: (signer) => new MockReentrantFactory__factory(signer),
+  },
+
   MockTreasuryFacet: {
     name: "MockTreasuryFacet",
     description: "Mock implementation of Treasury facet for testing FactorySuite deployment",
@@ -390,7 +429,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 6 as const;
+export const TOTAL_MOCKS = 7 as const;
 
 /**
  * All role identifiers extracted from contracts.

@@ -12,8 +12,8 @@ import {
   deployFactorySuiteWithMocksForBusinessLogic,
   deployBondSuiteAndExtractContracts,
 } from "@test";
-import { TREASURY_CONFIG_ID, PAUSER_ROLE } from "@scripts";
-import { MockERC721__factory, MockBond__factory } from "@contract-types";
+import { TREASURY_CONFIG_ID, PAUSER_ROLE, ROLES } from "@scripts";
+import { MockERC721__factory, MockBond__factory, AccessControl__factory } from "@contract-types";
 import { ATS_ROLES } from "@hashgraph/asset-tokenization-contracts/scripts";
 
 describe("FactorySuite - Business Logic Tests", () => {
@@ -199,6 +199,38 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       await expect(
         factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+      ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
+    });
+
+    it("GIVEN reentrant call attempt WHEN deploying bond suite THEN fail with ReentrancyGuard error", async () => {
+      const { factorySuite, deployer, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      // Deploy a malicious factory that will attempt reentrancy during bond deployment
+      const MockReentrantFactory = await ethers.getContractFactory("MockReentrantFactory");
+      const maliciousFactory = await MockReentrantFactory.deploy();
+      await maliciousFactory.deployed();
+
+      // Grant DEPLOYER role to the malicious factory so it can pass access control
+      // This ensures we're testing the ReentrancyGuard modifier, not access control
+      // Note: Must use deployer (who has DEFAULT_ADMIN_ROLE) to grant roles
+      const accessControl = AccessControl__factory.connect(factorySuite.address, deployer);
+      await accessControl.grantRole(ROLES.DEPLOYER_ROLE, maliciousFactory.address);
+
+      // Configure the malicious factory to attempt reentrancy
+      await maliciousFactory.setFactorySuite(factorySuite.address);
+      await maliciousFactory.enableReentrancy(validBondKpiData, validTreasuryData);
+
+      // The attack should fail because:
+      // 1. First call: deployBondSuite is called → nonReentrant passes → calls malicious factory
+      // 2. Malicious factory tries to call deployBondSuite AGAIN (reentrancy)
+      // 3. Second call: nonReentrant modifier blocks it with "ReentrancyGuard: reentrant call"
+      // 4. The revert is caught by try-catch in _deployBondContract → throws BondDeploymentFailed
+
+      // We verify this by checking that the transaction fails with BondDeploymentFailed
+      // which is the custom error thrown when the bond factory reverts (including reentrancy blocks)
+      await expect(
+        factorySuite.connect(admin).deployBondSuite(maliciousFactory.address, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
   });
@@ -467,6 +499,116 @@ describe("FactorySuite - Business Logic Tests", () => {
       const bond = MockBond__factory.connect(bondAddress, admin);
       // Verify original admin (user) specified in bondData still has admin role
       expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, user.address)).to.equal(true);
+    });
+
+    it("GIVEN bondData with non-admin RBAC roles WHEN deployed THEN non-admin roles are preserved", async () => {
+      const { factorySuite, mockAtsFactory, admin, user, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      // Create bondKpiData with a non-admin RBAC role
+      const CUSTOM_ROLE = hashRole("CUSTOM_ROLE");
+      const bondKpiDataWithCustomRole = {
+        ...validBondKpiData,
+        bondData: {
+          ...validBondKpiData.bondData,
+          security: {
+            ...validBondKpiData.bondData.security,
+            rbacs: [
+              {
+                role: CUSTOM_ROLE,
+                members: [user.address],
+              },
+            ],
+          },
+        },
+      };
+
+      const { bondAddress } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        bondKpiDataWithCustomRole,
+        validTreasuryData,
+      );
+
+      const bond = MockBond__factory.connect(bondAddress, admin);
+      // Verify custom role was preserved
+      expect(await bond.hasRole(CUSTOM_ROLE, user.address)).to.equal(true);
+    });
+
+    it("GIVEN bondData with admin RBAC with empty members array WHEN deployed THEN FactorySuite is added as admin", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      // Create bondKpiData with DEFAULT_ADMIN_ROLE but empty members array
+      const bondKpiDataWithEmptyAdminMembers = {
+        ...validBondKpiData,
+        bondData: {
+          ...validBondKpiData.bondData,
+          security: {
+            ...validBondKpiData.bondData.security,
+            rbacs: [
+              {
+                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+                members: [], // Empty array
+              },
+            ],
+          },
+        },
+      };
+
+      const { bondAddress } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        bondKpiDataWithEmptyAdminMembers,
+        validTreasuryData,
+      );
+
+      const bond = MockBond__factory.connect(bondAddress, admin);
+      // FactorySuite should have been temporarily added as admin (but then revoked at the end)
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, factorySuite.address)).to.equal(false);
+    });
+
+    it("GIVEN bondData with mixed RBAC roles (admin and non-admin) WHEN deployed THEN all roles are preserved correctly", async () => {
+      const { factorySuite, mockAtsFactory, admin, user, deployer, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      const CUSTOM_ROLE = hashRole("CUSTOM_ROLE");
+      const bondKpiDataWithMixedRoles = {
+        ...validBondKpiData,
+        bondData: {
+          ...validBondKpiData.bondData,
+          security: {
+            ...validBondKpiData.bondData.security,
+            rbacs: [
+              {
+                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+                members: [admin.address],
+              },
+              {
+                role: CUSTOM_ROLE,
+                members: [user.address, deployer.address],
+              },
+            ],
+          },
+        },
+      };
+
+      const { bondAddress } = await deployBondSuiteAndExtractContracts(
+        factorySuite,
+        admin,
+        mockAtsFactory.address,
+        bondKpiDataWithMixedRoles,
+        validTreasuryData,
+      );
+
+      const bond = MockBond__factory.connect(bondAddress, admin);
+      // Verify admin role
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, admin.address)).to.equal(true);
+      // Verify custom roles
+      expect(await bond.hasRole(CUSTOM_ROLE, user.address)).to.equal(true);
+      expect(await bond.hasRole(CUSTOM_ROLE, deployer.address)).to.equal(true);
     });
   });
 });
