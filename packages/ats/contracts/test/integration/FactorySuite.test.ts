@@ -38,10 +38,5 @@ describe("FactorySuite - Integration Tests", () => {
         "FactorySuiteFacet",
       ]);
     });
-
-    it("GIVEN valid infrastructure configuration WHEN deploying factory suite THEN success with ProxyAdmin deployed", async () => {
-      const { proxyAdmin } = await loadFixture(setupFixture);
-      expect(proxyAdmin.address).to.not.equal(ethers.constants.AddressZero);
-    });
   });
 });

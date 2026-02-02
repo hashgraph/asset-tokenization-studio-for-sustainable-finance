@@ -40,21 +40,10 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
         _;
     }
 
-    /**
-     * @notice Validates Kpi data parameters
-     * @param kpiData Kpi configuration to validate
-     */
-    modifier validKpiData(KpiData calldata kpiData) {
-        if (kpiData.admin == address(0)) revert InvalidKpiData();
-        _;
-    }
-
     function deployBondSuite(
         address bondFactoryAddress,
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata factoryRegulationData,
-        TreasuryData calldata treasuryData,
-        KpiData calldata kpiData
+        IAtsFactory.BondKpiLinkedRateData calldata bondKpiData,
+        TreasuryData calldata treasuryData
     )
         external
         nonReentrant
@@ -62,24 +51,12 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
         onlyRole(DEPLOYER_ROLE)
         validContractAddress(bondFactoryAddress)
         validTreasuryData(treasuryData)
-        validKpiData(kpiData)
-        returns (address bondAddress, address treasuryAddress, address kpiAddress)
+        returns (address bondAddress, address treasuryAddress)
     {
-        kpiAddress = _deployKpiContract(kpiData);
-
-        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData, kpiAddress);
+        bondAddress = _deployBondContract(bondFactoryAddress, bondKpiData);
 
         treasuryAddress = _deployTreasuryContract(treasuryData, bondAddress);
 
-        emit BondSuiteDeployed(
-            _msgSender(),
-            bondAddress,
-            treasuryAddress,
-            kpiAddress,
-            bondData,
-            factoryRegulationData,
-            treasuryData,
-            kpiData
-        );
+        emit BondSuiteDeployed(_msgSender(), bondAddress, treasuryAddress, bondKpiData, treasuryData);
     }
 }

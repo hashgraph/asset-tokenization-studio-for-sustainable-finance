@@ -3,12 +3,20 @@
 pragma solidity ^0.8.0;
 
 contract AssetMock {
+    enum RateCalculationStatus {
+        PENDING,
+        SET
+    }
+
     struct Coupon {
         uint256 recordDate;
         uint256 executionDate;
+        uint256 startDate;
+        uint256 endDate;
+        uint256 fixingDate;
         uint256 rate;
         uint8 rateDecimals;
-        uint256 period;
+        RateCalculationStatus rateStatus;
     }
 
     struct RegisteredCoupon {
@@ -82,9 +90,12 @@ contract AssetMock {
             : dateType == DateType.TODAY
                 ? block.timestamp
                 : 1919590386;
+        registeredCoupon.coupon.startDate = 1750000000;
+        registeredCoupon.coupon.endDate = 1760000000;
+        registeredCoupon.coupon.fixingDate = 1751000000;
         registeredCoupon.coupon.rate = 1;
         registeredCoupon.coupon.rateDecimals = 6;
-        registeredCoupon.coupon.period = 2592000;
+        registeredCoupon.coupon.rateStatus = RateCalculationStatus.SET;
         registeredCoupon.snapshotId = 1;
     }
 

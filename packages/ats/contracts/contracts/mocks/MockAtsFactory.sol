@@ -39,9 +39,8 @@ contract MockAtsFactory {
         nextBondAddress = _bondAddress;
     }
 
-    function deployBond(
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata regulationData
+    function deployBondKpiLinkedRate(
+        IAtsFactory.BondKpiLinkedRateData calldata bondKpiData
     ) external returns (address bondAddress) {
         if (shouldRevert) {
             revert DeployBondFailed();
@@ -51,9 +50,9 @@ contract MockAtsFactory {
             return address(0);
         }
 
-        MockBond bond = new MockBond("Mock Bond", "MBOND", bondData.security.rbacs);
+        MockBond bond = new MockBond("Mock Bond KPI", "MBKPI", bondKpiData.bondData.security.rbacs);
 
         bondAddress = address(bond);
-        emit MockBondDeployed(bondAddress, bondData, regulationData);
+        emit MockBondDeployed(bondAddress, bondKpiData.bondData, bondKpiData.factoryRegulationData);
     }
 }

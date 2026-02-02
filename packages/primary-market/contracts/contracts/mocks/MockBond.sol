@@ -99,4 +99,13 @@ contract MockBond is IBondRead {
     function decimals() public view returns (uint8) {
         return _decimals;
     }
+
+    function getCouponFromOrderedListAt(uint256 _pos) external view override returns (uint256 couponID_) {}
+
+    function getCouponsOrderedList(
+        uint256 _pageIndex,
+        uint256 _pageLength
+    ) external view override returns (uint256[] memory couponIDs_) {}
+
+    function getCouponsOrderedListTotal() external view override returns (uint256 total_) {}
 }

@@ -4,7 +4,6 @@
  * Core FactorySuite infrastructure fixtures.
  *
  * Provides base deployment fixtures for:
- * - ProxyAdmin (upgrade management)
  * - BusinessLogicResolver (BLR) with facet registry
  * - FactorySuite proxy with all facets
  * - Registered facets (FactorySuite configuration)
@@ -24,8 +23,11 @@ import {
   registerAdditionalFacets,
   atsRegistry,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import {
+  ITimeTravel__factory,
+  IBusinessLogicResolver__factory,
+  IPause__factory,
+} from "@hashgraph/asset-tokenization-contracts";
 import {
   deployFactorySuiteSystem,
   factorySuiteRegistry,
@@ -33,26 +35,18 @@ import {
   TREASURY_CONFIG_ID,
   ROLES,
 } from "@scripts";
-import {
-  createTreasuryConfiguration,
-  MOCK_ERC20_CONTRACT_NAME,
-  MOCK_ERC721_CONTRACT_NAME,
-  MOCK_ATS_FACTORY_CONTRACT_NAME,
-  TREASURY_CONFIG_VERSION,
-} from "@test";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin } from "@contract-types";
+import { createTreasuryConfiguration, TREASURY_CONFIG_VERSION } from "@test";
 import {
   MockAtsFactory__factory,
   MockERC20__factory,
   MockERC721__factory,
   IFactorySuite__factory,
-  ProxyAdmin__factory,
 } from "@contract-types";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
  *
- * Deploys: ProxyAdmin, BLR, FactorySuite facets, FactorySuite configuration & proxy
+ * Deploys: BLR, FactorySuite facets, FactorySuite configuration & proxy
  *
  * @param useTimeTravel - Use TimeTravel facet variants (default: true for tests)
  * @returns Complete deployment output + test utilities
@@ -76,8 +70,6 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
 
   const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
-  const proxyAdmin = ProxyAdmin__factory.connect(deployment.infrastructure.proxyAdmin.address, deployer);
-
   // Get TimeTravelFacet if TimeTravel is enabled
   const timeTravel = useTimeTravel
     ? ITimeTravel__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer)
@@ -94,7 +86,6 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
     // Core contracts
     factorySuite,
     blr,
-    proxyAdmin,
 
     // TimeTravel control (only available when useTimeTravel: true)
     timeTravel,
@@ -145,12 +136,14 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
 
   const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
-  // Get AccessControl and Pause facets for test setup
+  // Get AccessControl facet for test setup
   const accessControl = await ethers.getContractAt(
     "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/accessControl/IAccessControl.sol:IAccessControl",
     deployment.infrastructure.factorySuite.proxy,
   );
-  const pause = await ethers.getContractAt("IPause", deployment.infrastructure.factorySuite.proxy);
+
+  // Get pause functionality through ITimeTravel interface (which includes pause methods)
+  const pause = IPause__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
   // ========================================
   // STEP 1: Deploy and register mock Treasury configuration
