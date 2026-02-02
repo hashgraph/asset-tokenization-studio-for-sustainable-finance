@@ -58,7 +58,7 @@ jobs:
       - name: Lint TypeScript (Full)
         if: github.event_name == 'push'
         env:
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=8192
         run: npm run lint:js
         continue-on-error: false
 
@@ -76,7 +76,7 @@ jobs:
       - name: Lint TypeScript (Changed Files)
         if: github.event_name == 'pull_request'
         env:
-          NODE_OPTIONS: --max-old-space-size=4096
+          NODE_OPTIONS: --max-old-space-size=8192
         run: npm run lint:js:changed
         continue-on-error: false
 
