@@ -9,7 +9,7 @@ import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 
 //TODO activate this after implementing api changes
-describe.skip("CreateBondTransaction API Integration", () => {
+describe("CreateBondTransaction API Integration", () => {
   let app: INestApplication
   beforeEach(async () => {
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue("0.0.67890")
