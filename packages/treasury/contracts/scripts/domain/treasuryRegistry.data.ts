@@ -10,7 +10,7 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-01-30T08:47:28.130Z
+ * Generated: 2026-02-10T14:52:27.971Z
  * Facets: 3
  * Infrastructure: 0
  * Mocks: 4
@@ -25,11 +25,8 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   LifeCycleCashFlowFacet__factory,
-  LifeCycleCashFlowFacetTimeTravel__factory,
   PortfolioFacet__factory,
-  PortfolioFacetTimeTravel__factory,
   ProceedsManagementFacet__factory,
-  ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
   EnvironmentalAssetMock__factory,
   PaymentTokenMock__factory,
@@ -138,10 +135,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
         selector: "0xba5b0d48",
       },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new LifeCycleCashFlowFacetTimeTravel__factory(signer)
-        : new LifeCycleCashFlowFacet__factory(signer),
+    factory: (signer) => new LifeCycleCashFlowFacet__factory(signer),
   },
 
   PortfolioFacet: {
@@ -241,8 +235,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel ? new PortfolioFacetTimeTravel__factory(signer) : new PortfolioFacet__factory(signer),
+    factory: (signer) => new PortfolioFacet__factory(signer),
   },
 
   ProceedsManagementFacet: {
@@ -322,10 +315,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
       { name: "WrongProceedsRecipient", signature: "WrongProceedsRecipient(address)", selector: "0x41d435ea" },
     ],
-    factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new ProceedsManagementFacetTimeTravel__factory(signer)
-        : new ProceedsManagementFacet__factory(signer),
+    factory: (signer) => new ProceedsManagementFacet__factory(signer),
   },
 };
 
