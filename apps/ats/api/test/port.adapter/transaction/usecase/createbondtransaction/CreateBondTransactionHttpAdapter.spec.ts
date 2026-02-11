@@ -8,7 +8,6 @@ import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
 
-//TODO activate this after implementing api changes
 describe("CreateBondTransaction API Integration", () => {
   let app: INestApplication
   beforeEach(async () => {
@@ -81,8 +80,23 @@ describe("CreateBondTransaction API Integration", () => {
           environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
         },
         kpiData: {
-          adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+          interestRate: {
+            maxRate: "500",
+            baseRate: "300",
+            minRate: "100",
+            startPeriod: "1735689600",
+            startRate: "300",
+            missedPenalty: "50",
+            reportPeriod: "2592000",
+            rateDecimals: 2,
+          },
+          impactData: {
+            maxDeviationCap: "1000",
+            baseLine: "50000",
+            maxDeviationFloor: "500",
+            impactDataDecimals: 2,
+            adjustmentPrecision: "10000",
+          },
         },
       }
 
@@ -144,8 +158,23 @@ describe("CreateBondTransaction API Integration", () => {
             environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
           },
           kpiData: {
-            adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+            interestRate: {
+              maxRate: "500",
+              baseRate: "300",
+              minRate: "100",
+              startPeriod: "1735689600",
+              startRate: "300",
+              missedPenalty: "50",
+              reportPeriod: "2592000",
+              rateDecimals: 2,
+            },
+            impactData: {
+              maxDeviationCap: "1000",
+              baseLine: "50000",
+              maxDeviationFloor: "500",
+              impactDataDecimals: 2,
+              adjustmentPrecision: "10000",
+            },
           },
         }
 
@@ -210,8 +239,23 @@ describe("CreateBondTransaction API Integration", () => {
             environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
           },
           kpiData: {
-            adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-            ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+            interestRate: {
+              maxRate: "500",
+              baseRate: "300",
+              minRate: "100",
+              startPeriod: "1735689600",
+              startRate: "300",
+              missedPenalty: "50",
+              reportPeriod: "2592000",
+              rateDecimals: 2,
+            },
+            impactData: {
+              maxDeviationCap: "1000",
+              baseLine: "50000",
+              maxDeviationFloor: "500",
+              impactDataDecimals: 2,
+              adjustmentPrecision: "10000",
+            },
           },
         }
 
@@ -276,8 +320,23 @@ describe("CreateBondTransaction API Integration", () => {
           environmentalAssetsAddresses: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
         },
         kpiData: {
-          adminAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-          ownerAccountAddress: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+          interestRate: {
+            maxRate: "500",
+            baseRate: "300",
+            minRate: "100",
+            startPeriod: "1735689600",
+            startRate: "300",
+            missedPenalty: "50",
+            reportPeriod: "2592000",
+            rateDecimals: 2,
+          },
+          impactData: {
+            maxDeviationCap: "1000",
+            baseLine: "50000",
+            maxDeviationFloor: "500",
+            impactDataDecimals: 2,
+            adjustmentPrecision: "10000",
+          },
         },
       }
 

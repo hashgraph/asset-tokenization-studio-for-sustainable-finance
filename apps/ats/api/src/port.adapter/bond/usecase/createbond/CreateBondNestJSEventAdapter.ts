@@ -10,21 +10,25 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
 
   @Handler(BondSuiteDeployedDLTEvent)
   async handle(event: BondSuiteDeployedDLTEvent): Promise<void> {
+    // Note: KPI is now integrated into the bond contract (interestRate + impactData),
+    // so we use bondAddress for both contractId and kpiId
+    const bondHederaAddress = await ConverterUtils.getHederaAddressFromEvm(event.bondAddress)
+
     await this.commandBus.execute(
       new CreateBondCommand(
-        await ConverterUtils.getHederaAddressFromEvm(event.bondAddress),
-        await ConverterUtils.getHederaAddressFromEvm(event.treasuryAddress),
-        await ConverterUtils.getHederaAddressFromEvm(event.kpiAddress),
-        event.bondData.security.erc20MetadataInfo.name,
-        event.bondData.security.erc20MetadataInfo.symbol,
-        event.bondData.security.erc20MetadataInfo.decimals,
-        this.decodeCurrency(event.bondData.bondDetails.currency),
-        event.bondData.bondDetails.nominalValue,
-        event.bondData.bondDetails.nominalValueDecimals,
-        new Date(Number(event.bondData.bondDetails.startingDate) * 1000),
-        new Date(Number(event.bondData.bondDetails.maturityDate) * 1000),
-        event.bondData.security.maxSupply,
-        event.bondData.security.erc20MetadataInfo.isin,
+        bondHederaAddress, // contractId
+        await ConverterUtils.getHederaAddressFromEvm(event.treasuryAddress), // treasuryId
+        bondHederaAddress, // kpiId (now points to bond since KPI is integrated)
+        event.bondKpiData.bondData.security.erc20MetadataInfo.name,
+        event.bondKpiData.bondData.security.erc20MetadataInfo.symbol,
+        event.bondKpiData.bondData.security.erc20MetadataInfo.decimals,
+        this.decodeCurrency(event.bondKpiData.bondData.bondDetails.currency),
+        event.bondKpiData.bondData.bondDetails.nominalValue,
+        event.bondKpiData.bondData.bondDetails.nominalValueDecimals,
+        new Date(Number(event.bondKpiData.bondData.bondDetails.startingDate) * 1000),
+        new Date(Number(event.bondKpiData.bondData.bondDetails.maturityDate) * 1000),
+        event.bondKpiData.bondData.security.maxSupply,
+        event.bondKpiData.bondData.security.erc20MetadataInfo.isin,
       ),
     )
   }

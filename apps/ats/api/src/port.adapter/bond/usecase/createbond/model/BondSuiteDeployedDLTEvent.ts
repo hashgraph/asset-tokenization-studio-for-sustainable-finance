@@ -4,11 +4,8 @@ export class BondSuiteDeployedDLTEvent extends DLTEvent {
   readonly operator: string
   readonly bondAddress: string
   readonly treasuryAddress: string
-  readonly kpiAddress: string
-  readonly bondData: BondData
-  readonly regulationData: FactoryRegulationData
+  readonly bondKpiData: BondKpiLinkedRateData
   readonly treasuryData: TreasuryData
-  readonly kpiData: KpiData
 
   constructor(
     bondContractId: string,
@@ -16,21 +13,15 @@ export class BondSuiteDeployedDLTEvent extends DLTEvent {
     operator: string,
     bondAddress: string,
     treasuryAddress: string,
-    kpiAddress: string,
-    bondData: BondData,
-    regulationData: FactoryRegulationData,
+    bondKpiData: BondKpiLinkedRateData,
     treasuryData: TreasuryData,
-    kpiData: KpiData,
   ) {
     super(bondContractId, transactionHash)
     this.operator = operator
     this.bondAddress = bondAddress
     this.treasuryAddress = treasuryAddress
-    this.kpiAddress = kpiAddress
-    this.bondData = bondData
-    this.regulationData = regulationData
+    this.bondKpiData = bondKpiData
     this.treasuryData = treasuryData
-    this.kpiData = kpiData
   }
 }
 
@@ -42,9 +33,30 @@ interface TreasuryData {
   environmentalAssets: string[]
 }
 
-interface KpiData {
-  admin: string
-  rbacs: Rbac[]
+interface BondKpiLinkedRateData {
+  bondData: BondData
+  factoryRegulationData: FactoryRegulationData
+  interestRate: InterestRate
+  impactData: ImpactData
+}
+
+interface InterestRate {
+  maxRate: string
+  baseRate: string
+  minRate: string
+  startPeriod: string
+  startRate: string
+  missedPenalty: string
+  reportPeriod: string
+  rateDecimals: number
+}
+
+interface ImpactData {
+  maxDeviationCap: string
+  baseLine: string
+  maxDeviationFloor: string
+  impactDataDecimals: number
+  adjustmentPrecision: string
 }
 
 interface BondData {

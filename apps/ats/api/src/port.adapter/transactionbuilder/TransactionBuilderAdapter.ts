@@ -74,7 +74,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   async createBondTransaction(req: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse> {
     const contractInterface = IFactorySuite__factory.createInterface()
 
-    const securityTokenToCreate = {
+    // 1. BondData (previously securityTokenToCreate)
+    const bondData = {
       security: {
         arePartitionsProtected: req.securityTokenToCreate.arePartitionsProtected,
         isMultiPartition: req.securityTokenToCreate.isMultiPartition,
@@ -163,6 +164,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
         req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
     }
 
+    // 2. FactoryRegulationData
     const factoryRegulationData = {
       regulationType: req.factoryRegulationData.regulationType,
       regulationSubType: req.factoryRegulationData.regulationSubType,
@@ -173,6 +175,36 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       },
     }
 
+    // 3. InterestRate (NEW)
+    const interestRate = {
+      maxRate: req.kpiData.interestRate.maxRate,
+      baseRate: req.kpiData.interestRate.baseRate,
+      minRate: req.kpiData.interestRate.minRate,
+      startPeriod: req.kpiData.interestRate.startPeriod,
+      startRate: req.kpiData.interestRate.startRate,
+      missedPenalty: req.kpiData.interestRate.missedPenalty,
+      reportPeriod: req.kpiData.interestRate.reportPeriod,
+      rateDecimals: req.kpiData.interestRate.rateDecimals,
+    }
+
+    // 4. ImpactData (NEW)
+    const impactData = {
+      maxDeviationCap: req.kpiData.impactData.maxDeviationCap,
+      baseLine: req.kpiData.impactData.baseLine,
+      maxDeviationFloor: req.kpiData.impactData.maxDeviationFloor,
+      impactDataDecimals: req.kpiData.impactData.impactDataDecimals,
+      adjustmentPrecision: req.kpiData.impactData.adjustmentPrecision,
+    }
+
+    // 5. BondKpiLinkedRateData (consolidates bondData, factoryRegulationData, interestRate, impactData)
+    const bondKpiData = {
+      bondData,
+      factoryRegulationData,
+      interestRate,
+      impactData,
+    }
+
+    // 6. TreasuryData
     const treasuryData = {
       resolver: req.treasuryData.resolverAddress,
       resolverProxyConfiguration: {
@@ -191,15 +223,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       environmentalAssets: req.treasuryData.environmentalAssetsAddresses,
     }
 
-    const kpiData = {
-      admin: req.kpiData.adminAddress,
-      rbacs: [
-        {
-          role: this.DEFAULT_ADMIN_ROLE,
-          members: req.kpiData.ownerAccountAddress ? [req.kpiData.ownerAccountAddress] : [this.EVM_ZERO_ADDRESS],
-        },
-      ],
-    }
+    // 7. Call with new signature (3 parameters instead of 5)
     return await this.buildAndReturnTransactionResponse(
       contractInterface,
       "deployBondSuite",
@@ -207,7 +231,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       this.TRANSACTIONS_HIGH_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
-      [req.factoryAddress, securityTokenToCreate, factoryRegulationData, treasuryData, kpiData],
+      [req.factoryAddress, bondKpiData, treasuryData],
     )
   }
 
