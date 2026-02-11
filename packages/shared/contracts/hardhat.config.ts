@@ -24,6 +24,11 @@ const config: HardhatUserConfig = {
       // Hardhat network runs in-process by default
       // Use 'npx hardhat node' to run standalone node
     },
+    hederaTestnet: {
+      url: "https://testnet.hashio.io/api",
+      chainId: 296,
+      accounts: [], // Using custom signer in script
+    },
   },
   paths: {
     artifacts: "./artifacts",

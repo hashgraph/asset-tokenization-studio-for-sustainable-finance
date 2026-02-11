@@ -4,6 +4,7 @@ const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
 
 async function createBond(format, overrides = {}) {
   log(`\n📋 Creating ${format.toUpperCase()} bond...`, colors.bright);
+  log(`Using account ID: ${process.env.ACCOUNT_ID}`);
 
   // Convert ACCOUNT_ID to EVM address
   const accountEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(process.env.ACCOUNT_ID);
@@ -51,8 +52,23 @@ async function createBond(format, overrides = {}) {
       environmentalAssetsAddresses: [],
     },
     kpiData: {
-      adminAddress: accountEvmAddress,
-      ownerAccountAddress: accountEvmAddress,
+      interestRate: {
+        maxRate: "500",
+        baseRate: "300",
+        minRate: "100",
+        startPeriod: "1735689600",
+        startRate: "300",
+        missedPenalty: "50",
+        reportPeriod: "2592000",
+        rateDecimals: 2,
+      },
+      impactData: {
+        maxDeviationCap: "1000",
+        baseLine: "50000",
+        maxDeviationFloor: "500",
+        impactDataDecimals: 2,
+        adjustmentPrecision: "10000",
+      },
     },
     format: format,
     accountId: process.env.ACCOUNT_ID,

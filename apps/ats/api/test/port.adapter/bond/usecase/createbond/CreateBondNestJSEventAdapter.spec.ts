@@ -79,9 +79,23 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     environmentalAssets: ["0x48ca774f6942166bf37e178ccc1e861947ead8c7"],
   })
 
-  const createValidKpiData = (): any => ({
-    admin: "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
-    rbacs: [],
+  const createValidInterestRate = (): any => ({
+    maxRate: "500",
+    baseRate: "300",
+    minRate: "100",
+    startPeriod: "1735689600",
+    startRate: "300",
+    missedPenalty: "50",
+    reportPeriod: "2592000",
+    rateDecimals: 2,
+  })
+
+  const createValidImpactData = (): any => ({
+    maxDeviationCap: "1000",
+    baseLine: "50000",
+    maxDeviationFloor: "500",
+    impactDataDecimals: 2,
+    adjustmentPrecision: "10000",
   })
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -124,7 +138,13 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
       const treasuryData = createValidTreasuryData()
-      const kpiData = createValidKpiData()
+
+      const bondKpiData = {
+        bondData,
+        factoryRegulationData: regulationData,
+        interestRate: createValidInterestRate(),
+        impactData: createValidImpactData(),
+      }
 
       const event = new BondSuiteDeployedDLTEvent(
         "0.0.67890",
@@ -132,11 +152,8 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
-        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
-        bondData,
-        regulationData,
+        bondKpiData,
         treasuryData,
-        kpiData,
       )
 
       await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
@@ -184,7 +201,13 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
       const treasuryData = createValidTreasuryData()
-      const kpiData = createValidKpiData()
+
+      const bondKpiData = {
+        bondData,
+        factoryRegulationData: regulationData,
+        interestRate: createValidInterestRate(),
+        impactData: createValidImpactData(),
+      }
 
       const event = new BondSuiteDeployedDLTEvent(
         "0.0.67890",
@@ -192,11 +215,8 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
-        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
-        bondData,
-        regulationData,
+        bondKpiData,
         treasuryData,
-        kpiData,
       )
 
       await expect(eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)).rejects.toThrow(
@@ -210,20 +230,24 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
       const treasuryData = createValidTreasuryData()
-      const kpiData = createValidKpiData()
+
+      const bondKpiData = {
+        bondData,
+        factoryRegulationData: regulationData,
+        interestRate: createValidInterestRate(),
+        impactData: createValidImpactData(),
+      }
 
       const bondAddresses = [
         {
           bond: "0x7cbc6ccef6e569e961341f68afd7547f4c1b2c1b",
           hederaId: "0.0.6974345",
           treasury: "0x1fc2fdc1eae44f055f73469f4fe05915395c7aa1",
-          kpi: "0x2fd3fdc1eae44f055f73469f4fe05915395c7aa2",
         },
         {
           bond: "0x057e65d260bda4d653bf7726b4f92ad08db0f78f",
           hederaId: "0.0.6974384",
           treasury: "0x1fc2fdc1eae44f055f73469f4fe05915395c7bb1",
-          kpi: "0x2fd3fdc1eae44f055f73469f4fe05915395c7bb2",
         },
       ]
 
@@ -234,11 +258,8 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           addresses.bond,
           addresses.treasury,
-          addresses.kpi,
-          bondData,
-          regulationData,
+          bondKpiData,
           treasuryData,
-          kpiData,
         )
 
         await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
@@ -259,7 +280,13 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       const bondData = createValidBondData()
       const regulationData = createValidRegulationData()
       const treasuryData = createValidTreasuryData()
-      const kpiData = createValidKpiData()
+
+      const bondKpiData = {
+        bondData,
+        factoryRegulationData: regulationData,
+        interestRate: createValidInterestRate(),
+        impactData: createValidImpactData(),
+      }
 
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
@@ -270,11 +297,8 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
         "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
-        "0x3fd3fdc1eae44f055f73469f4fe05915395c7ff8",
-        bondData,
-        regulationData,
+        bondKpiData,
         treasuryData,
-        kpiData,
       )
 
       await eventBus.publishSync(event, BondSuiteDeployedDLTEvent.name)
