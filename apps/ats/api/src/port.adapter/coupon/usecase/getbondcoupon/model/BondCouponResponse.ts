@@ -22,12 +22,21 @@ export class BondCouponResponse {
   @ApiProperty({ description: "Execution date for the coupon payment", example: "2024-06-15T00:00:00.000Z" })
   executionDate: Date
 
+  @ApiProperty({ description: "Start date of the coupon period", example: "2024-01-01T00:00:00.000Z" })
+  startDate: Date
+
+  @ApiProperty({ description: "End date of the coupon period", example: "2024-12-31T00:00:00.000Z" })
+  endDate: Date
+
+  @ApiProperty({ description: "Fixing date for rate calculation", example: "2024-12-15T00:00:00.000Z" })
+  fixingDate: Date
+
   @ApiProperty({ description: "Coupon rate", example: "50000000000000000" })
   rate: string
 
   @ApiProperty({ description: "Number of decimals for the rate", example: "18" })
   rateDecimals: string
 
-  @ApiProperty({ description: "Coupon period", example: "6" })
-  period: string
+  @ApiProperty({ description: "Rate calculation status (0=PENDING, 1=SET)", example: "1" })
+  rateStatus: string
 }

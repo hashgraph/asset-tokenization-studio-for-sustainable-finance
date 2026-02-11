@@ -6,9 +6,12 @@ export class SetBondCouponDomainServiceRequest {
   readonly operator: string
   readonly recordDate: Date
   readonly executionDate: Date
+  readonly startDate: Date
+  readonly endDate: Date
+  readonly fixingDate: Date
   readonly rate: string
   readonly rateDecimals: string
-  readonly period: string
+  readonly rateStatus: string
 
   constructor(
     bondContractId: string,
@@ -17,9 +20,12 @@ export class SetBondCouponDomainServiceRequest {
     operator: string,
     recordDate: Date,
     executionDate: Date,
+    startDate: Date,
+    endDate: Date,
+    fixingDate: Date,
     rate: string,
     rateDecimals: string,
-    period: string,
+    rateStatus: string,
   ) {
     this.bondContractId = bondContractId
     this.corporateActionId = corporateActionId
@@ -27,8 +33,11 @@ export class SetBondCouponDomainServiceRequest {
     this.operator = operator
     this.recordDate = recordDate
     this.executionDate = executionDate
+    this.startDate = startDate
+    this.endDate = endDate
+    this.fixingDate = fixingDate
     this.rate = rate
     this.rateDecimals = rateDecimals
-    this.period = period
+    this.rateStatus = rateStatus
   }
 }

@@ -305,9 +305,12 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     const coupon = {
       recordDate: req.recordDate,
       executionDate: req.executionDate,
+      startDate: req.startDate,
+      endDate: req.endDate,
+      fixingDate: req.fixingDate,
       rate: req.rate,
       rateDecimals: req.rateDecimals,
-      period: req.period,
+      rateStatus: req.rateStatus,
     }
 
     return await this.buildAndReturnTransactionResponse(

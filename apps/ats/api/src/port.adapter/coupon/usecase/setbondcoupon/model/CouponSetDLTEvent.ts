@@ -7,9 +7,12 @@ export class CouponSetDLTEvent extends DLTEvent {
   readonly operator: string
   readonly recordDate: string
   readonly executionDate: string
+  readonly startDate: string
+  readonly endDate: string
+  readonly fixingDate: string
   readonly rate: string
   readonly rateDecimals: string
-  readonly period: string
+  readonly rateStatus: string
 
   constructor(
     bondContractId: string,
@@ -19,9 +22,12 @@ export class CouponSetDLTEvent extends DLTEvent {
     operator: string,
     recordDate: string,
     executionDate: string,
+    startDate: string,
+    endDate: string,
+    fixingDate: string,
     rate: string,
     rateDecimals: string,
-    period: string,
+    rateStatus: string,
   ) {
     super(bondContractId, transactionHash)
     this.corporateActionId = corporateActionId
@@ -29,8 +35,11 @@ export class CouponSetDLTEvent extends DLTEvent {
     this.operator = operator
     this.recordDate = recordDate
     this.executionDate = executionDate
+    this.startDate = startDate
+    this.endDate = endDate
+    this.fixingDate = fixingDate
     this.rate = rate
     this.rateDecimals = rateDecimals
-    this.period = period
+    this.rateStatus = rateStatus
   }
 }

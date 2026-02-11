@@ -6,7 +6,10 @@ export interface BondCouponQueryResponse {
   operator: string
   recordDate: Date
   executionDate: Date
+  startDate: Date
+  endDate: Date
+  fixingDate: Date
   rate: string
   rateDecimals: string
-  period: string
+  rateStatus: string
 }

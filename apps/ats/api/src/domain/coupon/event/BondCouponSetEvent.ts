@@ -9,9 +9,12 @@ export class BondCouponSetEvent extends Event {
     public readonly operator: string,
     public readonly recordDate: Date,
     public readonly executionDate: Date,
+    public readonly startDate: Date,
+    public readonly endDate: Date,
+    public readonly fixingDate: Date,
     public readonly rate: string,
     public readonly rateDecimals: string,
-    public readonly period: string,
+    public readonly rateStatus: string,
   ) {
     super()
   }

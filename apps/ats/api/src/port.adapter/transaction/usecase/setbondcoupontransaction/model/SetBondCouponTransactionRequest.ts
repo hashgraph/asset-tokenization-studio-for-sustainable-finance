@@ -24,6 +24,33 @@ export class SetBondCouponTransactionRequest extends BaseTransactionRequest {
   executionDate: Date
 
   @ApiProperty({
+    description: "Start date of the coupon period",
+    example: "2024-01-01T00:00:00.000Z",
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  startDate: Date
+
+  @ApiProperty({
+    description: "End date of the coupon period",
+    example: "2024-12-31T00:00:00.000Z",
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  endDate: Date
+
+  @ApiProperty({
+    description: "Fixing date for rate calculation",
+    example: "2024-12-15T00:00:00.000Z",
+  })
+  @IsDate()
+  @IsNotEmpty()
+  @Type(() => Date)
+  fixingDate: Date
+
+  @ApiProperty({
     description: "Coupon rate",
     example: "500",
   })
@@ -40,10 +67,11 @@ export class SetBondCouponTransactionRequest extends BaseTransactionRequest {
   rateDecimals: string
 
   @ApiProperty({
-    description: "Coupon period in seconds",
-    example: "31536000",
+    description: "Rate calculation status (0=PENDING, 1=SET)",
+    example: "1",
+    enum: [0, 1],
   })
   @IsNumberString()
   @IsNotEmpty()
-  period: string
+  rateStatus: string
 }

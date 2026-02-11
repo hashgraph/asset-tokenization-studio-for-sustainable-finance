@@ -32,9 +32,12 @@ export class GetBondCouponQueryHandler implements QueryHandler<GetBondCouponQuer
       operator: coupon.operator,
       recordDate: coupon.recordDate,
       executionDate: coupon.executionDate,
+      startDate: coupon.startDate,
+      endDate: coupon.endDate,
+      fixingDate: coupon.fixingDate,
       rate: coupon.rate,
       rateDecimals: coupon.rateDecimals,
-      period: coupon.period,
+      rateStatus: coupon.rateStatus,
     }
   }
 }

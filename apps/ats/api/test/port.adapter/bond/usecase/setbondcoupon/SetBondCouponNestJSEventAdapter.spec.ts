@@ -69,7 +69,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         "1704153600",
         "500",
         "2",
-        "2592000",
+        "1672531200",
+        "1704067200",
+        "1703894400",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -86,9 +89,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       expect(savedCoupon!.operator).toBe(OPERATOR)
       expect(savedCoupon!.recordDate).toEqual(new Date(1704067200 * 1000))
       expect(savedCoupon!.executionDate).toEqual(new Date(1704153600 * 1000))
+      expect(savedCoupon!.startDate).toEqual(new Date(1672531200 * 1000))
+      expect(savedCoupon!.endDate).toEqual(new Date(1704067200 * 1000))
+      expect(savedCoupon!.fixingDate).toEqual(new Date(1703894400 * 1000))
       expect(savedCoupon!.rate).toBe("500")
       expect(savedCoupon!.rateDecimals).toBe("2")
-      expect(savedCoupon!.period).toBe("2592000")
+      expect(savedCoupon!.rateStatus).toBe("1")
     })
 
     it("should not duplicate coupon when CouponSetDLTEvent is published twice with same couponId", async () => {
@@ -102,7 +108,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         "1704153600",
         "500",
         "2",
-        "2592000",
+        "1672531200",
+        "1704067200",
+        "1703894400",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -131,7 +140,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           `170415360${couponId}`,
           "500",
           "2",
-          "2592000",
+          "1672531200",
+          "1704067200",
+          "1703894400",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -183,7 +195,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           "1704153600",
           "500",
           "2",
-          "2592000",
+          "1672531200",
+          "1704067200",
+          "1703894400",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -216,7 +231,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         "1704153600",
         "500",
         "2",
-        "2592000",
+        "1672531200",
+        "1704067200",
+        "1703894400",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -250,7 +268,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         "1704153600",
         "500",
         "2",
-        "2592000",
+        "1672531200",
+        "1704067200",
+        "1703894400",
+        "1",
       )
 
       await expect(eventBus.publishSync(event, CouponSetDLTEvent.name)).rejects.toThrow(
@@ -272,7 +293,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           "1704153600",
           rates[i],
           "2",
-          "2592000",
+          "1672531200",
+          "1704067200",
+          "1703894400",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -302,7 +326,10 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           String(baseExecutionDate + i * monthInSeconds),
           "500",
           "2",
-          "2592000",
+          "1672531200",
+          "1704067200",
+          "1703894400",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)

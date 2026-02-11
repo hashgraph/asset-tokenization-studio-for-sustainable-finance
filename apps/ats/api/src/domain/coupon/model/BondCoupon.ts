@@ -27,6 +27,18 @@ export class BondCoupon {
   executionDate: Date
 
   @IsNotEmpty()
+  @IsDate()
+  startDate: Date
+
+  @IsNotEmpty()
+  @IsDate()
+  endDate: Date
+
+  @IsNotEmpty()
+  @IsDate()
+  fixingDate: Date
+
+  @IsNotEmpty()
   @IsNumberString()
   rate: string
 
@@ -36,7 +48,7 @@ export class BondCoupon {
 
   @IsNotEmpty()
   @IsNumberString()
-  period: string
+  rateStatus: string
 
   @IsDate()
   createdAt: Date

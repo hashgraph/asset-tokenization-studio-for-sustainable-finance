@@ -26,6 +26,15 @@ export class BondCouponPersistence {
   @Column({ type: "timestamp" })
   executionDate: Date
 
+  @Column({ type: "timestamp" })
+  startDate: Date
+
+  @Column({ type: "timestamp" })
+  endDate: Date
+
+  @Column({ type: "timestamp" })
+  fixingDate: Date
+
   @Column({ type: "varchar" })
   rate: string
 
@@ -33,7 +42,7 @@ export class BondCouponPersistence {
   rateDecimals: string
 
   @Column({ type: "varchar" })
-  period: string
+  rateStatus: string
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date
