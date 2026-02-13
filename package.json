@@ -190,6 +190,7 @@
     "shared:contracts:upgrade:hedera:mainnet": "npm run upgrade:hedera:mainnet --workspace=@hashgraph/green-bonds-platform-shared-contracts",
     "scripts:docker:start": "npm run docker:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:docker:stop": "npm run docker:stop --workspace=@hashgraph/green-bonds-scripts",
+    "scripts:gbp:build": "npm run ats:api:build && npm run primary-market:api:build && npm run treasury:api:build",
     "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
     "scripts:test:bond": "npm run ats:bond --workspace=@hashgraph/green-bonds-scripts",
