@@ -194,6 +194,7 @@
     "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
     "scripts:test:bond": "npm run ats:bond --workspace=@hashgraph/green-bonds-scripts",
+    "env:blockNumber:update": "node ./.utils/update_hedera_latest_block.js",
     "prepare": "husky"
   },
   "lint-staged": {
