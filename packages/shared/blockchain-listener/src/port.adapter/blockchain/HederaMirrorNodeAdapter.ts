@@ -59,13 +59,9 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     }
 
     const eventSignatures = this.getEventSignaturesIncludedInBlock(request)
-    if (!eventSignatures || eventSignatures.length === 0) {
+    if (!eventSignatures) {
       return events
     }
-
-    this.logger.debug(
-      `Block ${request.blockNumber}: bloom filter matched ${eventSignatures.length} event(s): ${eventSignatures.map((e) => e.eventSignature).join(", ")}`,
-    )
 
     const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents(
       request.blockNumber,
@@ -77,25 +73,19 @@ export class HederaMirrorNodeAdapter implements HederaPort {
         blockHash,
       })
 
-      const decoded = contractResults.logs
-        .map((log) =>
-          this.decodeLog({
-            ...log,
-            transactionHash: blockHash,
-            timestamp: contractResults.timestamp,
-            eventSignatures,
-            contractId: log.contract_id,
-          }),
-        )
-        .filter((d): d is BlockchainEvent => d != null)
-
-      for (const event of decoded) {
-        this.logger.log(
-          `Event detected: ${event.name} in block ${request.blockNumber}, tx=${blockHash}, contract=${event.contractId}`,
-        )
-      }
-
-      events.push(...decoded)
+      events.push(
+        ...contractResults.logs
+          .map((log) =>
+            this.decodeLog({
+              ...log,
+              transactionHash: blockHash,
+              timestamp: contractResults.timestamp,
+              eventSignatures,
+              contractId: log.contract_id,
+            }),
+          )
+          .filter((decoded): decoded is BlockchainEvent => decoded != null),
+      )
     }
     return events
   }
@@ -257,10 +247,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
       return { ...eventObj, ...eventParamsObj }
     } catch (error) {
-      this.logger.warn(
-        `Skipping log that could not be decoded: ${error?.message}. tx=${request.transactionHash} contract=${request.contractId}`,
-      )
-      return null
+      throw new Error(`Error decoding log ${error?.message}.\n${JSON.stringify(request, null, 2)}`)
     }
   }
 
