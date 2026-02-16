@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { HederaPort } from "@port/blockchain/HederaPort"
-import { Retryable, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import { Logger, Retryable, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
 import { BlockchainEvent } from "@port/blockchain/model/BlockchainEvent"
 import axios, { HttpStatusCode } from "axios"
 import { FetchEventsRequest } from "@port/blockchain/model/FetchEventsRequest"
@@ -20,6 +20,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   private readonly EVENT_NAME_PATTERN = /^([^(]+)\((.*)\)$/
 
   private readonly mirrorNodeURL: string
+  private readonly logger = new Logger("HederaMirrorNodeAdapter")
 
   constructor() {
     this.mirrorNodeURL = this.getMirrorNodeURL(process.env.HEDERA_NETWORK ?? "testnet")
@@ -58,9 +59,13 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     }
 
     const eventSignatures = this.getEventSignaturesIncludedInBlock(request)
-    if (!eventSignatures) {
+    if (!eventSignatures || eventSignatures.length === 0) {
       return events
     }
+
+    this.logger.debug(
+      `Block ${request.blockNumber}: bloom filter matched ${eventSignatures.length} event(s): ${eventSignatures.map((e) => e.eventSignature).join(", ")}`,
+    )
 
     const contractsResultsHashes = await this.getContractsResultsHashesContainingTrackedEvents(
       request.blockNumber,
@@ -72,19 +77,25 @@ export class HederaMirrorNodeAdapter implements HederaPort {
         blockHash,
       })
 
-      events.push(
-        ...contractResults.logs
-          .map((log) =>
-            this.decodeLog({
-              ...log,
-              transactionHash: blockHash,
-              timestamp: contractResults.timestamp,
-              eventSignatures,
-              contractId: log.contract_id,
-            }),
-          )
-          .filter((decoded): decoded is BlockchainEvent => decoded != null),
-      )
+      const decoded = contractResults.logs
+        .map((log) =>
+          this.decodeLog({
+            ...log,
+            transactionHash: blockHash,
+            timestamp: contractResults.timestamp,
+            eventSignatures,
+            contractId: log.contract_id,
+          }),
+        )
+        .filter((d): d is BlockchainEvent => d != null)
+
+      for (const event of decoded) {
+        this.logger.log(
+          `Event detected: ${event.name} in block ${request.blockNumber}, tx=${blockHash}, contract=${event.contractId}`,
+        )
+      }
+
+      events.push(...decoded)
     }
     return events
   }
@@ -246,7 +257,10 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
       return { ...eventObj, ...eventParamsObj }
     } catch (error) {
-      throw new Error(`Error decoding log ${error?.message}.\n${JSON.stringify(request, null, 2)}`)
+      this.logger.warn(
+        `Skipping log that could not be decoded: ${error?.message}. tx=${request.transactionHash} contract=${request.contractId}`,
+      )
+      return null
     }
   }
 
