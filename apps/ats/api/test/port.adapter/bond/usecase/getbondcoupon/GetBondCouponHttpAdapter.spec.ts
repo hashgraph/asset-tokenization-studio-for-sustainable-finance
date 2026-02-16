@@ -99,6 +99,10 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
         isin: "US1234567890",
       })
 
+      const startDate = new Date("2025-01-01")
+      const endDate = new Date("2025-06-30")
+      const fixingDate = new Date("2025-06-15")
+
       const coupon = await internalBondCouponRepository.save({
         id: "1",
         bondContractId: bond.contractId,
@@ -106,9 +110,12 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
         operator: "0.0.123456",
         recordDate: recordDate,
         executionDate: executionDate,
+        startDate: startDate,
+        endDate: endDate,
+        fixingDate: fixingDate,
         rate: "5.5",
         rateDecimals: "2",
-        period: "2592000",
+        rateStatus: "1",
       })
 
       const response = await request(app.getHttpServer())
@@ -123,9 +130,12 @@ describe("GetBondCouponHttpAdapter API Integration", () => {
         operator: coupon.operator,
         recordDate: recordDate.toISOString(),
         executionDate: executionDate.toISOString(),
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+        fixingDate: fixingDate.toISOString(),
         rate: coupon.rate,
         rateDecimals: coupon.rateDecimals,
-        period: coupon.period,
+        rateStatus: coupon.rateStatus,
       })
     })
   })

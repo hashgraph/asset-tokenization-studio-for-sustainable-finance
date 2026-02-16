@@ -67,11 +67,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
-        "500",
-        "2",
         "1672531200",
         "1704067200",
         "1703894400",
+        "500",
+        "2",
         "1",
       )
 
@@ -106,11 +106,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
-        "500",
-        "2",
         "1672531200",
         "1704067200",
         "1703894400",
+        "500",
+        "2",
         "1",
       )
 
@@ -138,11 +138,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           `170406720${couponId}`,
           `170415360${couponId}`,
-          "500",
-          "2",
           "1672531200",
           "1704067200",
           "1703894400",
+          "500",
+          "2",
           "1",
         )
 
@@ -193,11 +193,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           "1704067200",
           "1704153600",
-          "500",
-          "2",
           "1672531200",
           "1704067200",
           "1703894400",
+          "500",
+          "2",
           "1",
         )
 
@@ -229,11 +229,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
-        "500",
-        "2",
         "1672531200",
         "1704067200",
         "1703894400",
+        "500",
+        "2",
         "1",
       )
 
@@ -247,9 +247,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           operator: OPERATOR,
           recordDate: new Date(1704067200 * 1000),
           executionDate: new Date(1704153600 * 1000),
+          startDate: new Date(1672531200 * 1000),
+          endDate: new Date(1704067200 * 1000),
+          fixingDate: new Date(1703894400 * 1000),
           rate: "500",
           rateDecimals: "2",
-          period: "2592000",
+          rateStatus: "1",
           timestamp: expect.any(Number),
         }),
       )
@@ -266,11 +269,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
-        "500",
-        "2",
         "1672531200",
         "1704067200",
         "1703894400",
+        "500",
+        "2",
         "1",
       )
 
@@ -291,11 +294,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           "1704067200",
           "1704153600",
-          rates[i],
-          "2",
           "1672531200",
           "1704067200",
           "1703894400",
+          rates[i],
+          "2",
           "1",
         )
 
@@ -324,11 +327,11 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           String(baseRecordDate + i * monthInSeconds),
           String(baseExecutionDate + i * monthInSeconds),
-          "500",
-          "2",
           "1672531200",
           "1704067200",
           "1703894400",
+          "500",
+          "2",
           "1",
         )
 
