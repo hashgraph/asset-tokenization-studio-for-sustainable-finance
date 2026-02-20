@@ -5,6 +5,7 @@ Orchestrator script that executes all Treasury verification scripts in sequentia
 ## 📋 Description
 
 The `treasury-orchestrator.js` is a comprehensive script that:
+
 1. **Deploys** a new bond and treasury
 2. **Executes** all verification scripts in order
 3. **Reports** results for each step (✅ passed, ❌ failed, ⏭️ skipped)
@@ -53,7 +54,7 @@ const customConfig = {
     updateToken: true,
     transferToTreasury: true,
     transferFromTreasury: true,
-    dissociate: true
+    dissociate: true,
   },
   environmentalAssets: {
     enabled: true,
@@ -61,17 +62,18 @@ const customConfig = {
     transferToTreasury: true,
     transferFromTreasury: true,
     deleteToken: true,
-    dissociate: true
+    dissociate: true,
   },
   proceedsRecipient: true,
   distribution: true,
-  redemption: true
+  redemption: true,
 };
 ```
 
 ### Configuration Examples
 
 #### Payment Token Tests Only
+
 ```javascript
 const config = {
   ...DEFAULT_CONFIG,
@@ -79,11 +81,12 @@ const config = {
   roles: false,
   environmentalAssets: { ...DEFAULT_CONFIG.environmentalAssets, enabled: false },
   distribution: false,
-  redemption: false
+  redemption: false,
 };
 ```
 
 #### Environmental Assets Only
+
 ```javascript
 const config = {
   ...DEFAULT_CONFIG,
@@ -91,22 +94,23 @@ const config = {
   roles: false,
   paymentToken: { ...DEFAULT_CONFIG.paymentToken, enabled: false },
   distribution: false,
-  redemption: false
+  redemption: false,
 };
 ```
 
 #### Without Dissociation Tests
+
 ```javascript
 const config = {
   ...DEFAULT_CONFIG,
   paymentToken: {
     ...DEFAULT_CONFIG.paymentToken,
-    dissociate: false
+    dissociate: false,
   },
   environmentalAssets: {
     ...DEFAULT_CONFIG.environmentalAssets,
-    dissociate: false
-  }
+    dissociate: false,
+  },
 };
 ```
 
@@ -185,13 +189,13 @@ MINT_AMOUNT=500000
 async function runTreasuryOrchestrator(config = DEFAULT_CONFIG, overridesBondCreationRequest = {}) {
   // 1. Deploy Bond and Treasury
   const treasury = await deployBondWaitTreasuryAndApplyRoles(...);
-  
+
   // 2. Execute each test suite based on config
   if (config.pauseUnpause) { ... }
   if (config.roles) { ... }
   if (config.paymentToken?.enabled) { ... }
   // ... etc
-  
+
   // 3. Return results summary
   return results;
 }
@@ -202,29 +206,32 @@ async function runTreasuryOrchestrator(config = DEFAULT_CONFIG, overridesBondCre
 To add new tests to the orchestrator:
 
 1. Import the verification function:
+
 ```javascript
-const { verifyNewFeature } = require('./verify-new-feature');
+const { verifyNewFeature } = require("./verify-new-feature");
 ```
 
 2. Add to default config:
+
 ```javascript
 const DEFAULT_CONFIG = {
   // ... existing config
-  newFeature: true
+  newFeature: true,
 };
 ```
 
 3. Add execution:
+
 ```javascript
 if (config.newFeature) {
-  logHeader('🆕 Step X: Testing New Feature');
+  logHeader("🆕 Step X: Testing New Feature");
   try {
     await verifyNewFeature(treasury.contractId);
-    logSuccess('✅ New Feature tests passed!');
-    results.passed.push('New Feature');
+    logSuccess("✅ New Feature tests passed!");
+    results.passed.push("New Feature");
   } catch (error) {
     logError(`❌ Failed new feature tests: ${error.message}`);
-    results.failed.push({ step: 'New Feature', error: error.message });
+    results.failed.push({ step: "New Feature", error: error.message });
   }
 }
 ```
@@ -256,14 +263,17 @@ node scripts/treasury/redemption/verify-treasury-redemption.js
 ## 🐛 Troubleshooting
 
 ### Error: "Cannot proceed without deploying a treasury"
+
 - **Cause**: `deployBondAndTreasury` is disabled in config
 - **Solution**: Enable `deployBondAndTreasury: true`
 
 ### Error: "Signing configuration validation failed"
+
 - **Cause**: Environment variables not configured
 - **Solution**: Verify `.env` has `ACCOUNT_ID` and `HEDERA_PRIVATE_KEY`
 
 ### Tests fail intermittently
+
 - **Cause**: Timeouts in blockchain or asynchronous processing
 - **Solution**: Scripts have automatic retries, wait for them to complete
 

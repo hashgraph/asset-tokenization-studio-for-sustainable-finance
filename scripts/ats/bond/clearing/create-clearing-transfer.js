@@ -17,7 +17,16 @@ process.argv.slice(2).forEach((arg) => {
   }
 });
 
-async function createClearingTransfer(bondContractId, holderAccountId, partition, amount, toAccountId, expirationTimestamp, data, format) {
+async function createClearingTransfer(
+  bondContractId,
+  holderAccountId,
+  partition,
+  amount,
+  toAccountId,
+  expirationTimestamp,
+  data,
+  format,
+) {
   log(`\n🔄 Creating clearing transfer for holder ${holderAccountId} in bond ${bondContractId}...`, colors.bright);
 
   // Convert Hedera ID to EVM address if needed
@@ -71,7 +80,9 @@ async function verifyClearingInDatabase(bondContractId, holderAccountId, amount,
   logInfo(
     `   BOND_CONTRACT_ID=${bondContractId} HOLDER_ACCOUNT_ID=${holderAccountId} node scripts/ats/bond/clearing/get-clearings-transfer.js`,
   );
-  logInfo(`Expected result: A new clearing transfer with amount ${amount} to ${toAccountId} should appear in the list\n`);
+  logInfo(
+    `Expected result: A new clearing transfer with amount ${amount} to ${toAccountId} should appear in the list\n`,
+  );
 }
 
 async function main() {
@@ -195,7 +206,9 @@ async function main() {
     logSuccess(`Expires: ${expirationTimestamp.toISOString()}`);
     log(`\n⏰ Clearing will expire in ${expirationMinutes} minute(s)`, colors.yellow);
     log(`   After that, you can approve it with:`, colors.cyan);
-    logInfo(`   npm run ats:approve-clearing BOND_CONTRACT_ID=${bondContractId} CLEARING_ID=<CLEARING_ID> OPERATION_TYPE=TRANSFER`);
+    logInfo(
+      `   npm run ats:approve-clearing BOND_CONTRACT_ID=${bondContractId} CLEARING_ID=<CLEARING_ID> OPERATION_TYPE=TRANSFER`,
+    );
   } catch (error) {
     logError(`\nScript failed: ${error.message}`);
     logError("\nTroubleshooting:");
