@@ -15,9 +15,9 @@ export class BlockchainListenerHealthIndicator {
     const indicator = this.healthIndicatorService.check(key)
     const syncState = await this.syncStateRepository.get()
     const { thirtySecondsAgoDate } = (
-      await (this.syncStateRepository as any).syncStateRepository.manager.query(
-        "SELECT now() at time zone 'utc' - INTERVAL '30 seconds' as \"thirtySecondsAgoDate\"",
-      )
+      await (this.syncStateRepository as any)
+        .getRepository()
+        .manager.query("SELECT now() at time zone 'utc' - INTERVAL '30 seconds' as \"thirtySecondsAgoDate\"")
     )[0]
     const details = { lastProcessedBlockNumber: syncState?.lastBlockNumber }
     // Set indicator to down if sync state has not been updated in 30 seconds, that means that blocks are not being processed due to an error
