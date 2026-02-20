@@ -2,7 +2,7 @@
 
 import { NestFactory } from "@nestjs/core"
 import { AppModule } from "./AppModule"
-import { LogLevel, LOG_LEVELS } from "@nestjs/common"
+import { LogLevel, LOG_LEVELS, Logger } from "@nestjs/common"
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger"
 
 function getLogLevels(minLogLevel: LogLevel): LogLevel[] {
@@ -52,6 +52,12 @@ async function bootstrap() {
   process.env.TZ = "utc"
 
   // Start the application
-  await app.listen(process.env.PORT ?? 3000)
+  const port = process.env.PORT ?? 3000
+  await app.listen(port)
+
+  const logger = new Logger("main")
+
+  logger.log(`🏃 GreenBond Treasury API is running on: http://localhost:${port}`)
+  logger.log(`📖 API Documentation: /api/v1/docs`)
 }
 bootstrap()

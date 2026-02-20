@@ -16,7 +16,8 @@
     "packages/shared/core",
     "packages/shared/testing",
     "packages/treasury/contracts",
-    "scripts"
+    "scripts",
+    "docs"
   ],
   "scripts": {
     "clean": "npm run ats:contracts:clean && npm run primary-market:contracts:clean && npm run treasury:contracts:clean && npm run shared:contracts:clean && node -e \"const fs=require('fs'); fs.rmSync('node_modules', {recursive:true, force:true})\"",
@@ -38,6 +39,10 @@
     "lint:changed": "npm run lint:js:changed && npm run lint:sol:changed",
     "lint:changed:fix": "npm run lint:js:changed:fix && npm run lint:sol:changed:fix",
     "quality:changed": "npm run format:changed:check && npm run lint:changed",
+    "docs": "npm run start --workspace=docs",
+    "docs:build": "npm run build --workspace=docs",
+    "docs:serve": "npm run serve --workspace=docs",
+    "docs:clear": "npm run clear --workspace=docs",
     "contracts:format": "npm run ats:contracts:format && npm run primary-market:contracts:format && npm run treasury:contracts:format && npm run shared:contracts:format",
     "contracts:format:check": "npm run ats:contracts:format:check && npm run primary-market:contracts:format:check && npm run treasury:contracts:format:check && npm run shared:contracts:format:check",
     "contracts:lint": "npm run ats:contracts:lint && npm run primary-market:contracts:lint && npm run treasury:contracts:lint && npm run shared:contracts:lint",
@@ -193,7 +198,10 @@
     "scripts:gbp:start": "npm run all:start --workspace=@hashgraph/green-bonds-scripts",
     "scripts:gbp:stop": "npm run all:stop --workspace=@hashgraph/green-bonds-scripts",
     "scripts:test:bond": "npm run ats:bond --workspace=@hashgraph/green-bonds-scripts",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docs": "npm run start --workspace=docs",
+    "docs:build": "npm run build --workspace=docs",
+    "docs:serve": "npm run serve --workspace=docs"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs}": ["eslint --fix", "prettier --write"],

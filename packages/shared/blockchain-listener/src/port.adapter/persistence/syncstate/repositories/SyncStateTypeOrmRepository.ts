@@ -21,14 +21,19 @@ export default class SyncStateTypeOrmRepository
 
   async get(transactionId?: string): Promise<SyncState | undefined> {
     try {
-      return (await this.getRepository(transactionId).findOne({
+      const queryOptions: any = {
         where: {
           id: Not(IsNull()),
         },
-        lock: {
+      }
+
+      if (transactionId) {
+        queryOptions.lock = {
           mode: "pessimistic_write",
-        },
-      })) as SyncState
+        }
+      }
+
+      return (await this.getRepository(transactionId).findOne(queryOptions)) as SyncState
     } catch (error) {
       if (error?.code === DatabaseLockTimeoutError.ERROR_CODE) {
         throw new DatabaseLockTimeoutError(error.message)
