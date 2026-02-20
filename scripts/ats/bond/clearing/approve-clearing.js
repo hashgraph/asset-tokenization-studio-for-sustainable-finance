@@ -22,7 +22,10 @@ const OPERATION_TYPES = {
 };
 
 async function approveClearing(bondContractId, holderAccountId, clearingId, operationType, partition, format) {
-  log(`\n✅ Approving clearing ${clearingId} for holder ${holderAccountId} in bond ${bondContractId}...`, colors.bright);
+  log(
+    `\n✅ Approving clearing ${clearingId} for holder ${holderAccountId} in bond ${bondContractId}...`,
+    colors.bright,
+  );
 
   // Convert Hedera ID to EVM address if needed
   const holderEvmAddress = holderAccountId.startsWith("0x")

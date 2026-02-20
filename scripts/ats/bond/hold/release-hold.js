@@ -52,7 +52,9 @@ async function getHoldPartition(bondContractId, holderAccountId, holdId) {
 
     const hold = response.data.items.find((h) => h.id === holdId);
     if (!hold) {
-      throw new Error(`Hold with ID ${holdId} not found. Available holds: ${response.data.items.map((h) => h.id).join(", ")}`);
+      throw new Error(
+        `Hold with ID ${holdId} not found. Available holds: ${response.data.items.map((h) => h.id).join(", ")}`,
+      );
     }
 
     logSuccess(`Found hold ${holdId} with partition: ${hold.partition}`);

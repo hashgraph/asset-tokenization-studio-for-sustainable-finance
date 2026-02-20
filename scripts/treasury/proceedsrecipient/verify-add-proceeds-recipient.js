@@ -1,9 +1,9 @@
-const { gatewayClient } = require('../../shared/lib/gateway-client');
-const { deployBondWaitTreasuryAndApplyRoles } = require('../verify-treasury-persistence');
-const { log, logSuccess, logError, logInfo, logHeader, colors } = require('../../shared/lib/logger');
-const { config } = require('../../shared/lib/config');
-const { signTransaction, validateSigningConfig } = require('../../shared/lib/transaction-signer');
-const { publishSignedTransaction } = require('../../shared/lib/infrastructure');
+const { gatewayClient } = require("../../shared/lib/gateway-client");
+const { deployBondWaitTreasuryAndApplyRoles } = require("../verify-treasury-persistence");
+const { log, logSuccess, logError, logInfo, logHeader, colors } = require("../../shared/lib/logger");
+const { config } = require("../../shared/lib/config");
+const { signTransaction, validateSigningConfig } = require("../../shared/lib/transaction-signer");
+const { publishSignedTransaction } = require("../../shared/lib/infrastructure");
 
 /**
  * Grant a certain ATS role to a certain account
@@ -22,7 +22,7 @@ async function grantProceedRecipientManagerRole(bondContractId, roleId, userAcco
   // Step 1: Get unsigned transaction from API
   const response = await gatewayClient.post(
     `/api/v1/ats/bonds/${bondContractId}/roles/${roleId}/users/${userAccountId}`,
-    requestBody
+    requestBody,
   );
   const unsignedTx = response.data.unsignedTx;
 
@@ -30,11 +30,11 @@ async function grantProceedRecipientManagerRole(bondContractId, roleId, userAcco
 
   // Step 2: Sign the transaction
   const signedTx = await signTransaction(unsignedTx);
-  logSuccess('Granting role transaction signed successfully!');
+  logSuccess("Granting role transaction signed successfully!");
 
   // Step 3: Publish to transaction sender
   await publishSignedTransaction(signedTx);
-  logSuccess('Granting role transaction published to message queue');
+  logSuccess("Granting role transaction published to message queue");
 
   return response.data;
 }
@@ -50,25 +50,22 @@ async function addProceedsRecipient(bondContractId, proceedsRecipientAddress) {
   const requestBody = {
     format: config.BLOCKCHAIN_FORMAT,
     accountId: process.env.ACCOUNT_ID,
-    proceedRecipientAddress: proceedsRecipientAddress
+    proceedRecipientAddress: proceedsRecipientAddress,
   };
 
   // Step 1: Get unsigned transaction from API
-  const response = await gatewayClient.post(
-    `/api/v1/ats/bonds/${bondContractId}/proceeds-recipients`,
-    requestBody
-  );
+  const response = await gatewayClient.post(`/api/v1/ats/bonds/${bondContractId}/proceeds-recipients`, requestBody);
   const unsignedTx = response.data.unsignedTx;
 
   log(`   Unsigned transaction received`, colors.cyan);
 
   // Step 2: Sign the transaction
   const signedTx = await signTransaction(unsignedTx);
-  logSuccess('Creating a proceeds recipient transaction signed successfully!');
+  logSuccess("Creating a proceeds recipient transaction signed successfully!");
 
   // Step 3: Publish to transaction sender
   await publishSignedTransaction(signedTx);
-  logSuccess('Creating a proceeds recipient transaction published to message queue');
+  logSuccess("Creating a proceeds recipient transaction published to message queue");
 
   return proceedsRecipientAddress;
 }
@@ -107,29 +104,29 @@ async function waitForProceedsRecipientAdded(bondContractId, proceedsRecipient, 
       logError(`   Error fetching the proceeds recipient: ${err.message}`);
     }
 
-    await new Promise(resolve => setTimeout(resolve, retryInterval));
+    await new Promise((resolve) => setTimeout(resolve, retryInterval));
   }
 
   throw new Error(`Timeout: Proceeds recipient was not added after ${maxRetries} attempts`);
 }
 
 async function verifyAddProceedsRecipient(bondContractId) {
-  logHeader('🧪 Running verification of the execution to add a proceeds recipient...');
+  logHeader("🧪 Running verification of the execution to add a proceeds recipient...");
 
   // Validate signing configuration before starting
   if (!validateSigningConfig()) {
-    logError('Signing configuration validation failed');
+    logError("Signing configuration validation failed");
     process.exit(1);
   }
 
- let contractId;
+  let contractId;
 
   try {
-    if (bondContractId)  {
+    if (bondContractId) {
       contractId = bondContractId;
     } else {
       // Step 2: Deploy bond, wait for treasury, and apply all roles
-      log('\n1️⃣  Deploying bond, waiting for treasury, and applying roles...');
+      log("\n1️⃣  Deploying bond, waiting for treasury, and applying roles...");
       const treasury = await deployBondWaitTreasuryAndApplyRoles();
 
       contractId = treasury.bondContractId;
@@ -141,21 +138,20 @@ async function verifyAddProceedsRecipient(bondContractId) {
     await grantProceedRecipientManagerRole(contractId, proceedRecipientManagerRoleId, process.env.ACCOUNT_ID);
 
     // Step 6: Creates a proceeds recipient
-    log('\n3️⃣  Creating the proceeds recipient...');
+    log("\n3️⃣  Creating the proceeds recipient...");
     const proceedsRecipient = process.env.ACCOUNT_ID;
     const proceedRecipientAddress = process.env.ACCOUNT_EVM_ADDRESS;
     const proceedsRecipientAddress = await addProceedsRecipient(contractId, proceedRecipientAddress);
 
     // Step 8: Wait and verify proceed recipient was added
-    log('\n4️⃣  Verifying proceeds recipient added...');
+    log("\n4️⃣  Verifying proceeds recipient added...");
     await waitForProceedsRecipientAdded(contractId, proceedsRecipientAddress);
 
     logSuccess(`Proceeds recipient successfully added!`);
 
-    logHeader('✅ Proceeds Recipient adding Verification PASSED!');
+    logHeader("✅ Proceeds Recipient adding Verification PASSED!");
 
     return proceedsRecipient;
-
   } catch (error) {
     logError(`Verification failed: ${error.message}`);
     process.exit(1);
@@ -169,5 +165,5 @@ if (require.main === module) {
 module.exports = {
   verifyAddProceedsRecipient,
   addProceedsRecipient,
-  waitForProceedsRecipientAdded
+  waitForProceedsRecipientAdded,
 };

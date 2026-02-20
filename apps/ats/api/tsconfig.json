@@ -28,7 +28,7 @@
       "@port/*": ["src/port.adapter/*"],
       "@test/*": ["test/*"],
       "@components": ["src/Components"],
-      "@utils/*": ["src/utils/*"],
+      "@utils/*": ["src/utils/*"]
     }
   }
 }

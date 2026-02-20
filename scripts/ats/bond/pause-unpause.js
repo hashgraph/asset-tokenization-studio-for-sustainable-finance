@@ -136,7 +136,9 @@ async function waitForUserRoleUpdate(
   intervalMs = 3000,
   initialWaitMs = 30000,
 ) {
-  logInfo(`⏳ Waiting ${initialWaitMs / 1000} seconds for transaction to be processed and blockchain listener to catch up...`);
+  logInfo(
+    `⏳ Waiting ${initialWaitMs / 1000} seconds for transaction to be processed and blockchain listener to catch up...`,
+  );
 
   // Initial wait to allow transaction to be processed
   await new Promise((resolve) => setTimeout(resolve, initialWaitMs));
