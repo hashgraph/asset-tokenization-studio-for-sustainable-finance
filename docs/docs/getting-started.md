@@ -14,15 +14,15 @@ This comprehensive guide will walk you through everything you need to know to ge
 
 By the end of this guide, you will have:
 
-- ✅ All prerequisites installed
-- ✅ The platform cloned and configured
-- ✅ All services running locally
-- ✅ Smart contracts deployed to testnet
-- ✅ Verified the platform is working correctly
+- All prerequisites installed
+- The platform cloned and configured
+- All services running locally
+- Smart contracts deployed to testnet
+- Verified the platform is working correctly
 
 ## Time Required
 
-⏱️ **First-time setup**: Approximately 30-45 minutes (depending on download speeds and familiarity with the tools)
+**First-time setup**: Approximately 30-45 minutes (depending on download speeds and familiarity with the tools)
 
 ## Step 1: Verify Prerequisites
 
@@ -415,8 +415,6 @@ Now that you have the platform running:
 
 ## Need Help?
 
-- 📖 Check the [Troubleshooting Guide](installation.md#troubleshooting)
-- 🐛 [Report an Issue](https://github.com/hashgraph/green-bond-platform/issues)
-- 💬 [Join Discussions](https://github.com/hashgraph/green-bond-platform/discussions)
-
-Congratulations! 🎉 You now have the Green Bond Platform running locally!
+- Check the [Troubleshooting Guide](installation.md#troubleshooting)
+- [Report an Issue](https://github.com/hashgraph/green-bond-platform/issues)
+- [Join Discussions](https://github.com/hashgraph/green-bond-platform/discussions)

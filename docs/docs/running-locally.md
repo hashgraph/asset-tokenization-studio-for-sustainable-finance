@@ -32,10 +32,10 @@ Plus infrastructure services:
 
 Before running the platform, ensure:
 
-- ✅ You've completed [Installation](installation.md)
-- ✅ All `.env` files are configured
-- ✅ Docker containers are running
-- ✅ Smart contracts are compiled
+- You've completed [Installation](installation.md)
+- All `.env` files are configured
+- Docker containers are running
+- Smart contracts are compiled
 
 ## Starting All Services
 
@@ -658,5 +658,3 @@ Having issues? Check:
 - [Installation Troubleshooting](installation.md#troubleshooting)
 - [GitHub Issues](https://github.com/hashgraph/green-bond-platform/issues)
 - [GitHub Discussions](https://github.com/hashgraph/green-bond-platform/discussions)
-
-Happy developing! 🚀

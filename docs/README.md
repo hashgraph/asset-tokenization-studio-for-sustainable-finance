@@ -7,14 +7,14 @@ This folder contains the complete documentation for the Green Bond Platform, bui
 ```
 docs/
 ├── docs/                           # Documentation content
-│   ├── intro.md                    # 🏠 Main introduction & overview
+│   ├── intro.md                    # Main introduction & overview
 │   ├── quick-start.md              # ⚡ 10-minute quick setup
-│   ├── getting-started.md          # 📖 Complete step-by-step guide
-│   ├── prerequisites.md            # ✅ Required software & accounts
-│   ├── installation.md             # 🔧 Installation & troubleshooting
-│   ├── configuration.md            # ⚙️ Environment configuration
-│   ├── running-locally.md          # 🚀 Running & testing locally
-│   ├── architecture.md             # 🏗️ System architecture
+│   ├── getting-started.md          # Complete step-by-step guide
+│   ├── prerequisites.md            # Required software & accounts
+│   ├── installation.md             # Installation & troubleshooting
+│   ├── configuration.md            # Environment configuration
+│   ├── running-locally.md          # Running & testing locally
+│   ├── architecture.md             # System architecture
 │   ├── ats/                        # Asset Tokenization Studio docs
 │   ├── primary-market/             # Primary Market docs
 │   ├── treasury/                   # Treasury docs
@@ -28,7 +28,7 @@ docs/
 └── package.json                    # Dependencies
 ```
 
-## 🎯 Documentation Paths
+## Documentation Paths
 
 ### For First-Time Users
 
@@ -66,7 +66,7 @@ docs/
 3. [configuration.md](docs/configuration.md) - Environment variables
 4. [development/deployment.md](docs/development/deployment.md) - Deployment guide
 
-## 🚀 Running Documentation Locally
+## Running Documentation Locally
 
 ### Development Mode
 
@@ -124,7 +124,7 @@ cd docs
 npm run clear
 ```
 
-## ✍️ Contributing to Documentation
+## Contributing to Documentation
 
 ### Adding a New Page
 
@@ -228,7 +228,7 @@ This is a note!
 | Data 4   | Data 5   | Data 6   |
 ```
 
-## 📋 Documentation Standards
+## Documentation Standards
 
 ### File Naming
 
@@ -270,19 +270,19 @@ keywords: [green bonds, blockchain, hedera]
 
 ### Code Examples
 
-✅ **Good**: Specific, runnable commands
+**Good**: Specific, runnable commands
 
 ```bash
 npm run ats:api:start:dev
 ```
 
-❌ **Bad**: Vague instructions
+**Bad**: Vague instructions
 
 ```
 Start the ATS API
 ```
 
-✅ **Good**: Expected output
+**Good**: Expected output
 
 ```bash
 npm run api:test
@@ -291,13 +291,13 @@ npm run api:test
 #  ✓ should create app (5 ms)
 ```
 
-❌ **Bad**: No context
+**Bad**: No context
 
 ```bash
 npm run api:test
 ```
 
-## 🔍 Documentation Review Checklist
+## Documentation Review Checklist
 
 Before submitting documentation changes:
 
@@ -312,7 +312,7 @@ Before submitting documentation changes:
 - [ ] Renders correctly in dev mode
 - [ ] Mobile-friendly (test responsive design)
 
-## 📊 Documentation Statistics
+## Documentation Statistics
 
 Current documentation includes:
 
@@ -323,7 +323,7 @@ Current documentation includes:
 - **Code examples**: 100+
 - **Troubleshooting solutions**: 50+
 
-## 🐛 Reporting Documentation Issues
+## Reporting Documentation Issues
 
 Found a problem in the docs?
 
@@ -334,7 +334,7 @@ Found a problem in the docs?
    - Description of the issue
    - Suggested fix (if you have one)
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### Docusaurus Documentation
 
@@ -352,7 +352,7 @@ Found a problem in the docs?
 - [Markdown Guide](https://www.markdownguide.org/)
 - [CommonMark Spec](https://commonmark.org/)
 
-## 🎨 Customization
+## Customization
 
 ### Theme Colors
 
@@ -384,16 +384,12 @@ footer: {
 }
 ```
 
-## 📝 License
+## License
 
 Documentation is licensed under Apache 2.0, same as the project.
 
-## 🤝 Get Help
+## Get Help
 
 - **Docusaurus Issues**: [Docusaurus GitHub](https://github.com/facebook/docusaurus/issues)
 - **Platform Issues**: [Green Bond Platform Issues](https://github.com/hashgraph/green-bond-platform/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/hashgraph/green-bond-platform/discussions)
-
----
-
-**Happy documenting! 📚✨**

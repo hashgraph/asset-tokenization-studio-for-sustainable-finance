@@ -1,4 +1,4 @@
-# Mermaid Diagram Support - Setup Complete ✅
+# Mermaid Diagram Support - Setup Complete
 
 ## Problem
 
@@ -35,14 +35,14 @@ themes: ['@docusaurus/theme-mermaid'],
 
 ## Verification
 
-✅ **Build Status**: Successfully builds with Mermaid support
+**Build Status**: Successfully builds with Mermaid support
 
 ```bash
 npm run build
 [SUCCESS] Generated static files in "build".
 ```
 
-✅ **Dev Server**: Running at http://localhost:3010/green-bond-platform/
+**Dev Server**: Running at http://localhost:3010/green-bond-platform/
 
 ## Mermaid Diagrams in Documentation
 

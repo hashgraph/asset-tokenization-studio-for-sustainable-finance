@@ -14,9 +14,9 @@ Get the Green Bond Platform running in **under 10 minutes**. This guide assumes 
 
 Before starting, ensure you have:
 
-- ✅ Node.js v22+ and npm v10+
-- ✅ Docker and Docker Compose
-- ✅ Git
+- Node.js v22+ and npm v10+
+- Docker and Docker Compose
+- Git
 
 :::tip First Time Here?
 If you don't have these installed or need more detailed instructions, see the [Getting Started](getting-started.md) guide instead.
@@ -155,14 +155,14 @@ Consider using `tmux` or `screen` to manage multiple terminals, or use VS Code's
 
 Open your browser and check these health endpoints:
 
-- ✅ Gateway: [http://localhost:3000/health](http://localhost:3000/health)
-- ✅ ATS API: [http://localhost:3001/health](http://localhost:3001/health)
-- ✅ Primary Market: [http://localhost:3002/health](http://localhost:3002/health)
-- ✅ Treasury: [http://localhost:3003/health](http://localhost:3003/health)
+- Gateway: [http://localhost:3000/health](http://localhost:3000/health)
+- ATS API: [http://localhost:3001/health](http://localhost:3001/health)
+- Primary Market: [http://localhost:3002/health](http://localhost:3002/health)
+- Treasury: [http://localhost:3003/health](http://localhost:3003/health)
 
 Each should return `{"status":"ok"}` or similar.
 
-## 🎉 Success!
+## Success!
 
 You now have the Green Bond Platform running locally! Here's what you can do next:
 
@@ -229,16 +229,14 @@ npm run contracts:build
 
 Now that you're up and running:
 
-1. **📚 Learn the Architecture**: Read [Architecture Guide](architecture.md)
-2. **🔧 Deploy Smart Contracts**: See [Getting Started](getting-started.md#step-10-deploy-smart-contracts-to-testnet)
-3. **🧪 Run Integration Tests**: Check [Testing Guide](development/testing.md)
-4. **👨‍💻 Start Developing**: Review [Contributing Guide](development/contributing.md)
+1. **Learn the Architecture**: Read [Architecture Guide](architecture.md)
+2. **Deploy Smart Contracts**: See [Getting Started](getting-started.md#step-10-deploy-smart-contracts-to-testnet)
+3. **Run Integration Tests**: Check [Testing Guide](development/testing.md)
+4. **Start Developing**: Review [Contributing Guide](development/contributing.md)
 
 ## Need More Help?
 
-- 📖 **Detailed Setup**: [Getting Started Guide](getting-started.md)
-- 🛠️ **Configuration Details**: [Configuration Guide](configuration.md)
-- 🐛 **Troubleshooting**: [Installation Guide](installation.md#troubleshooting)
-- 💬 **Ask Questions**: [GitHub Discussions](https://github.com/hashgraph/green-bond-platform/discussions)
-
-**Happy coding! 🚀**
+- **Detailed Setup**: [Getting Started Guide](getting-started.md)
+- **Configuration Details**: [Configuration Guide](configuration.md)
+- **Troubleshooting**: [Installation Guide](installation.md#troubleshooting)
+- **Ask Questions**: [GitHub Discussions](https://github.com/hashgraph/green-bond-platform/discussions)
