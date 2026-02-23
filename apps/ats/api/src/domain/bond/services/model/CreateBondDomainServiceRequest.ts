@@ -10,9 +10,6 @@ export class CreateBondDomainServiceRequest {
   treasuryId: string
 
   @IsString()
-  kpiId: string
-
-  @IsString()
   @IsNotEmpty()
   name: string
 

@@ -4,7 +4,6 @@ export class BondQueryResponse {
   id: string
   contractId: string
   treasuryId: string
-  kpiId: string
   name: string
   symbol: string
   isin: string

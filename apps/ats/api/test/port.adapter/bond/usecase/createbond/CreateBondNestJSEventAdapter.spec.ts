@@ -95,7 +95,7 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
     baseLine: "50000",
     maxDeviationFloor: "500",
     impactDataDecimals: 2,
-    adjustmentPrecision: "10000",
+    adjustmentPrecision: "100",
   })
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -164,7 +164,6 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       expect(savedBond).not.toBeNull()
       expect(savedBond!.contractId).toBe("0.0.6974684")
       expect(savedBond!.treasuryId).toBe("0.0.6974684")
-      expect(savedBond!.kpiId).toBe("0.0.6974684")
       expect(savedBond!.name).toBe(bondData.security.erc20MetadataInfo.name)
       expect(savedBond!.symbol).toBe(bondData.security.erc20MetadataInfo.symbol)
       expect(savedBond!.isin).toBe(bondData.security.erc20MetadataInfo.isin)
@@ -183,7 +182,6 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
       const existingBond = {
         contractId: "0.0.6974684",
         treasuryId: "0.0.6974684",
-        kpiId: "0.0.6974684",
         name: "Existing Bond",
         symbol: "EB",
         isin: "US9876543210",
@@ -307,7 +305,6 @@ describe("CreateBondNestJSEventAdapter Integration", () => {
         expect.objectContaining({
           contractId: "0.0.6974684",
           treasuryId: "0.0.6974684",
-          kpiId: "0.0.6974684",
           name: bondData.security.erc20MetadataInfo.name,
           symbol: bondData.security.erc20MetadataInfo.symbol,
           isin: bondData.security.erc20MetadataInfo.isin,

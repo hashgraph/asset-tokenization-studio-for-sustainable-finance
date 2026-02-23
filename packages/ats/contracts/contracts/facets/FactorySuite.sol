@@ -32,11 +32,28 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
     modifier validTreasuryData(TreasuryData calldata treasuryData) {
         if (address(treasuryData.resolver) == address(0)) revert InvalidTreasuryData();
         if (treasuryData.paymentToken == address(0)) revert InvalidTreasuryData();
+        if (treasuryData.rbacs.length == 0) revert InvalidTreasuryData();
 
         // Validate all environmental asset addresses are non-zero (empty array is allowed)
         for (uint256 i = 0; i < treasuryData.environmentalAssets.length; ++i) {
             if (treasuryData.environmentalAssets[i] == address(0)) revert InvalidTreasuryData();
         }
+        _;
+    }
+
+    /**
+     * @notice Validates Bond KPI-linked rate data parameters
+     * @param bondKpiData Bond configuration with KPI parameters to validate
+     */
+    modifier validBondKpiData(IAtsFactory.BondKpiLinkedRateData calldata bondKpiData) {
+        // Validate interest rate: minRate <= baseRate <= maxRate
+        if (bondKpiData.interestRate.minRate > bondKpiData.interestRate.baseRate) revert InvalidInterestRateValues();
+        if (bondKpiData.interestRate.baseRate > bondKpiData.interestRate.maxRate) revert InvalidInterestRateValues();
+
+        // Validate impact data: floor <= baseline <= cap
+        if (bondKpiData.impactData.maxDeviationFloor > bondKpiData.impactData.baseLine)
+            revert InvalidImpactDataValues();
+        if (bondKpiData.impactData.baseLine > bondKpiData.impactData.maxDeviationCap) revert InvalidImpactDataValues();
         _;
     }
 
@@ -51,6 +68,7 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
         onlyRole(DEPLOYER_ROLE)
         validContractAddress(bondFactoryAddress)
         validTreasuryData(treasuryData)
+        validBondKpiData(bondKpiData)
         returns (address bondAddress, address treasuryAddress)
     {
         bondAddress = _deployBondContract(bondFactoryAddress, bondKpiData);

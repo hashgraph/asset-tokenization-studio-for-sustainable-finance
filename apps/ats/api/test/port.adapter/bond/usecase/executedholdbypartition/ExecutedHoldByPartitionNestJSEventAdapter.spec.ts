@@ -43,7 +43,6 @@ describe("ExecutedHoldByPartitionNestJSEventAdapter Integration", () => {
     await bondRepository.save({
       contractId: CONTRACT_HEDERA_ID,
       treasuryId: "0.0.888888",
-      kpiId: "0.0.777777",
       name: "Test Bond",
       symbol: "TBOND",
       isin: "ES0000000001",

@@ -67,9 +67,9 @@ export class SetBondCouponTransactionRequest extends BaseTransactionRequest {
   rateDecimals: string
 
   @ApiProperty({
-    description: "Rate calculation status (0=PENDING, 1=SET)",
+    description: "Rate calculation status (0=PENDING, 1=FIXED)",
     example: "1",
-    enum: [0, 1],
+    enum: ["0", "1"],
   })
   @IsNumberString()
   @IsNotEmpty()

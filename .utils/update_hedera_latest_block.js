@@ -5,7 +5,7 @@ const MIRROR_NODE_URL = "https://testnet.mirrornode.hedera.com/api/v1/blocks?lim
 
 const ENV_KEY = "BLOCKCHAIN_LISTENER_BLOCK_NUMBER";
 
-// carpetas a ignorar (añade las que quieras)
+// folders to ignore (add more as needed)
 const IGNORED_DIRS = new Set(["node_modules", ".git", "target", "dist", "build", ".idea", ".vscode"]);
 
 const IGNORED_ENVS = [".example", ".sample"];
@@ -33,12 +33,12 @@ function updateEnvFile(filePath, key, value) {
   if (regex.test(content)) {
     content = content.replace(regex, `${key}=${value}`);
   } else {
-    // si NO quieres añadir la key automáticamente, comenta este bloque
+    // if you DON'T want to auto-add the key, comment this block
     content += `\n${key}=${value}\n`;
   }
 
   fs.writeFileSync(filePath, content);
-  console.log(`✅ actualizado → ${filePath}`);
+  console.log(`✅ updated → ${filePath}`);
 }
 
 function walk(dir, files = []) {
@@ -60,13 +60,13 @@ async function main() {
   const latestBlock = await getLatestBlock();
   const blockNumber = latestBlock.number;
 
-  console.log(`🔎 Último bloque: ${blockNumber}`);
-  console.log("Buscando archivos .env...");
+  console.log(`🔎 Latest block: ${blockNumber}`);
+  console.log("Searching for .env files...");
 
   const envFiles = walk(process.cwd());
 
   if (envFiles.length === 0) {
-    console.warn("⚠️  No se encontraron archivos .env");
+    console.warn("⚠️  No .env files found");
     return;
   }
 
@@ -78,7 +78,7 @@ async function main() {
     updateEnvFile(file, ENV_KEY, blockNumber);
   }
 
-  console.log(`🎉 ${envFiles.length} archivos .env actualizados`);
+  console.log(`🎉 ${envFiles.length} .env files updated`);
 }
 
 main().catch((err) => {

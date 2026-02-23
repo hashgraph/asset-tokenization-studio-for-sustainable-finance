@@ -69,7 +69,6 @@ describe("GetClearingsTransferHttpAdapter API Integration", () => {
       await bondRepository.save({
         contractId: bondContractId,
         treasuryId: `0.0.${timestamp + 2}`,
-        kpiId: `0.0.${timestamp + 3}`,
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -145,7 +144,6 @@ describe("GetClearingsTransferHttpAdapter API Integration", () => {
       await bondRepository.save({
         contractId: bondContractId,
         treasuryId: `0.0.${timestamp + 2}`,
-        kpiId: `0.0.${timestamp + 3}`,
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",

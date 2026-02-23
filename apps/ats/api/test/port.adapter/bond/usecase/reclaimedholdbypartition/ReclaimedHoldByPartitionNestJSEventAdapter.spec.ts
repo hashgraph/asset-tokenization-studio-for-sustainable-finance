@@ -63,7 +63,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -146,7 +145,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -228,7 +226,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",

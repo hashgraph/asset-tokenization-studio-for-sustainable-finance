@@ -18,7 +18,6 @@ export class CreateBondDomainService {
     const bond = Object.assign(new Bond(), {
       contractId: createBondDomainServiceRequest.contractId,
       treasuryId: createBondDomainServiceRequest.treasuryId,
-      kpiId: createBondDomainServiceRequest.kpiId,
       name: createBondDomainServiceRequest.name,
       symbol: createBondDomainServiceRequest.symbol,
       isin: createBondDomainServiceRequest.isin,

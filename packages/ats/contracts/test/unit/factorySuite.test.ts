@@ -187,6 +187,102 @@ describe("FactorySuite - Business Logic Tests", () => {
           .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithZeroEnvironmentalAsset),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
+
+    it("GIVEN treasury data with empty rbacs array WHEN deploying bond suite THEN fail with InvalidTreasuryData", async () => {
+      const { factorySuite, mockAtsFactory, admin, blr, paymentToken, environmentalAssetToken1, testData } =
+        await loadFixture(setupFixture);
+      const { validBondKpiData } = testData;
+
+      const treasuryDataWithEmptyRbacs: IFactorySuite.TreasuryDataStruct = {
+        resolver: blr.address,
+        resolverProxyConfiguration: { key: ethers.utils.formatBytes32String("treasury"), version: 1 },
+        rbacs: [], // Empty RBAC array
+        paymentToken: paymentToken.address,
+        environmentalAssets: [environmentalAssetToken1.address],
+      };
+
+      await expect(
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithEmptyRbacs),
+      ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
+    });
+
+    it("GIVEN bond KPI data with minRate > baseRate WHEN deploying bond suite THEN fail with InvalidInterestRateValues", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      const invalidBondKpiData = {
+        ...validBondKpiData,
+        interestRate: {
+          ...validBondKpiData.interestRate,
+          minRate: 500, // Higher than baseRate (300)
+          baseRate: 300,
+          maxRate: 600,
+        },
+      };
+
+      await expect(
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+      ).to.be.revertedWithCustomError(factorySuite, "InvalidInterestRateValues");
+    });
+
+    it("GIVEN bond KPI data with baseRate > maxRate WHEN deploying bond suite THEN fail with InvalidInterestRateValues", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      const invalidBondKpiData = {
+        ...validBondKpiData,
+        interestRate: {
+          ...validBondKpiData.interestRate,
+          minRate: 100,
+          baseRate: 700, // Higher than maxRate (600)
+          maxRate: 600,
+        },
+      };
+
+      await expect(
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+      ).to.be.revertedWithCustomError(factorySuite, "InvalidInterestRateValues");
+    });
+
+    it("GIVEN bond KPI data with maxDeviationFloor > baseLine WHEN deploying bond suite THEN fail with InvalidImpactDataValues", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      const invalidBondKpiData = {
+        ...validBondKpiData,
+        impactData: {
+          ...validBondKpiData.impactData,
+          maxDeviationFloor: 150, // Higher than baseLine (100)
+          baseLine: 100,
+          maxDeviationCap: 200,
+        },
+      };
+
+      await expect(
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+      ).to.be.revertedWithCustomError(factorySuite, "InvalidImpactDataValues");
+    });
+
+    it("GIVEN bond KPI data with baseLine > maxDeviationCap WHEN deploying bond suite THEN fail with InvalidImpactDataValues", async () => {
+      const { factorySuite, mockAtsFactory, admin, testData } = await loadFixture(setupFixture);
+      const { validBondKpiData, validTreasuryData } = testData;
+
+      const invalidBondKpiData = {
+        ...validBondKpiData,
+        impactData: {
+          ...validBondKpiData.impactData,
+          maxDeviationFloor: 50,
+          baseLine: 250, // Higher than maxDeviationCap (200)
+          maxDeviationCap: 200,
+        },
+      };
+
+      await expect(
+        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+      ).to.be.revertedWithCustomError(factorySuite, "InvalidImpactDataValues");
+    });
   });
 
   describe("deployBondSuite - Error Handling", () => {
@@ -227,11 +323,17 @@ describe("FactorySuite - Business Logic Tests", () => {
       // 3. Second call: nonReentrant modifier blocks it with "ReentrancyGuard: reentrant call"
       // 4. The revert is caught by try-catch in _deployBondContract → throws BondDeploymentFailed
 
-      // We verify this by checking that the transaction fails with BondDeploymentFailed
-      // which is the custom error thrown when the bond factory reverts (including reentrancy blocks)
-      await expect(
-        factorySuite.connect(admin).deployBondSuite(maliciousFactory.address, validBondKpiData, validTreasuryData),
-      ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
+      // We verify this by checking that:
+      // 1. The malicious factory actually attempted reentrancy (ReentrancyAttempted event)
+      // 2. The transaction fails with BondDeploymentFailed (reentrancy was blocked)
+      const tx = factorySuite
+        .connect(admin)
+        .deployBondSuite(maliciousFactory.address, validBondKpiData, validTreasuryData);
+
+      await expect(tx)
+        .to.emit(maliciousFactory, "ReentrancyAttempted")
+        .withArgs(maliciousFactory.address, anyValue)
+        .and.to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
   });
 

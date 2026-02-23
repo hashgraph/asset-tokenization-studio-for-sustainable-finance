@@ -25,7 +25,6 @@ export class GetBondsQueryHandler implements QueryHandler<GetBondsQuery, QueryPa
       id: bond.id,
       contractId: bond.contractId,
       treasuryId: bond.treasuryId,
-      kpiId: bond.kpiId,
       name: bond.name,
       symbol: bond.symbol,
       isin: bond.isin,

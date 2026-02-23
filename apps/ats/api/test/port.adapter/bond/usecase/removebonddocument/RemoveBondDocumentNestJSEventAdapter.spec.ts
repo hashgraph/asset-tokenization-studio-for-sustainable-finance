@@ -35,7 +35,6 @@ describe("RemoveBondDocumentNestJSEventAdapter Integration", () => {
     await bondRepository.save({
       contractId: CONTRACT_ID,
       treasuryId: "0.0.6823801",
-      kpiId: "0.0.6823801",
       name: "Green Bond",
       symbol: "GBND",
       decimals: 18,

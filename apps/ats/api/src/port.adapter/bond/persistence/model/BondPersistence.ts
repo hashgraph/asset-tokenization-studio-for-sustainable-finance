@@ -9,13 +9,6 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255, unique: true })
   treasuryId: string
 
-  /**
-   * KPI contract ID (now points to bond address since KPI is integrated into bond)
-   * Contains interestRate and impactData as part of BondKpiLinkedRateData
-   */
-  @Column({ type: "varchar", length: 255, unique: true })
-  kpiId: string
-
   @Column({ type: "varchar", length: 255 })
   name: string
 

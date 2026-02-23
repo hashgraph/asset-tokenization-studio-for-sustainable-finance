@@ -10,15 +10,12 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
 
   @Handler(BondSuiteDeployedDLTEvent)
   async handle(event: BondSuiteDeployedDLTEvent): Promise<void> {
-    // Note: KPI is now integrated into the bond contract (interestRate + impactData),
-    // so we use bondAddress for both contractId and kpiId
     const bondHederaAddress = await ConverterUtils.getHederaAddressFromEvm(event.bondAddress)
 
     await this.commandBus.execute(
       new CreateBondCommand(
         bondHederaAddress, // contractId
         await ConverterUtils.getHederaAddressFromEvm(event.treasuryAddress), // treasuryId
-        bondHederaAddress, // kpiId (now points to bond since KPI is integrated)
         event.bondKpiData.bondData.security.erc20MetadataInfo.name,
         event.bondKpiData.bondData.security.erc20MetadataInfo.symbol,
         event.bondKpiData.bondData.security.erc20MetadataInfo.decimals,

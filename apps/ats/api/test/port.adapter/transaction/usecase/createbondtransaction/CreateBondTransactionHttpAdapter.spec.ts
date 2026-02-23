@@ -21,7 +21,7 @@ describe("CreateBondTransaction API Integration", () => {
 
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1/ats")
-    app.useLogger(false)
+    // app.useLogger(false) // TEMPORARILY ENABLED FOR DEBUGGING
     await app.init()
   })
   afterEach(async () => {
@@ -95,13 +95,19 @@ describe("CreateBondTransaction API Integration", () => {
             baseLine: "50000",
             maxDeviationFloor: "500",
             impactDataDecimals: 2,
-            adjustmentPrecision: "10000",
+            adjustmentPrecision: "100",
           },
         },
       }
 
-      const response = await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest).expect(201)
+      const response = await request(app.getHttpServer()).post(`/api/v1/ats/bonds`).send(createBondRequest)
 
+      if (response.status !== 201) {
+        console.error("ERROR RESPONSE:", JSON.stringify(response.body, null, 2))
+        console.error("STATUS:", response.status)
+      }
+
+      expect(response.status).toBe(201)
       expect(response.body).toHaveProperty("unsignedTx")
       expect(typeof (response.body as BuildTransactionResponse).unsignedTx).toBe("string")
     })
@@ -173,7 +179,7 @@ describe("CreateBondTransaction API Integration", () => {
               baseLine: "50000",
               maxDeviationFloor: "500",
               impactDataDecimals: 2,
-              adjustmentPrecision: "10000",
+              adjustmentPrecision: "100",
             },
           },
         }
@@ -254,7 +260,7 @@ describe("CreateBondTransaction API Integration", () => {
               baseLine: "50000",
               maxDeviationFloor: "500",
               impactDataDecimals: 2,
-              adjustmentPrecision: "10000",
+              adjustmentPrecision: "100",
             },
           },
         }
@@ -335,7 +341,7 @@ describe("CreateBondTransaction API Integration", () => {
             baseLine: "50000",
             maxDeviationFloor: "500",
             impactDataDecimals: 2,
-            adjustmentPrecision: "10000",
+            adjustmentPrecision: "100",
           },
         },
       }

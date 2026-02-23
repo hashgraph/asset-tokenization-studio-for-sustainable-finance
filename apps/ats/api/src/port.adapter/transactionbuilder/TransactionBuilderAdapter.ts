@@ -64,7 +64,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
 
   private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
   private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
-    "0x0000000000000000000000000000000000000000000000000000000000000004" // TODO ruben.martinez check it
+    "0x0000000000000000000000000000000000000000000000000000000000000004"
   private readonly DEFAULT_TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20"
 
   constructor(private readonly configService: ConfigService) {
@@ -302,6 +302,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   }
 
   async setBondCouponTransaction(req: BuildSetCouponTransactionRequest): Promise<BuildTransactionResponse> {
+    // Map to Solidity Coupon struct format (IBondRead.Coupon)
+    // In ATS 4.0.1, the Coupon struct includes all fields: startDate, endDate, fixingDate, rateStatus
     const coupon = {
       recordDate: req.recordDate,
       executionDate: req.executionDate,

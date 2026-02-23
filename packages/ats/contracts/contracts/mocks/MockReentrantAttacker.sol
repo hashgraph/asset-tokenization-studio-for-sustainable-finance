@@ -17,6 +17,13 @@ contract MockReentrantFactory {
     bool public shouldAttemptReentrancy;
     bool public reentrancyAttempted;
 
+    /**
+     * @notice Emitted when a reentrancy attack is attempted
+     * @param attacker Address of the malicious contract attempting reentrancy
+     * @param timestamp Block timestamp when reentrancy was attempted
+     */
+    event ReentrancyAttempted(address indexed attacker, uint256 timestamp);
+
     constructor() {}
 
     /**
@@ -54,6 +61,7 @@ contract MockReentrantFactory {
         // Attempt reentrancy if enabled
         if (shouldAttemptReentrancy && !reentrancyAttempted) {
             reentrancyAttempted = true;
+            emit ReentrancyAttempted(address(this), block.timestamp);
             // This should fail due to ReentrancyGuard
             factorySuite.deployBondSuite(address(this), storedBondKpiData, storedTreasuryData);
         }

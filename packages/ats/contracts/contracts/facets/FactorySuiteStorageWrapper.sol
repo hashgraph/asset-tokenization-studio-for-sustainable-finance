@@ -4,10 +4,8 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
-import {
-    _DEFAULT_ADMIN_ROLE,
-    _MATURITY_REDEEMER_ROLE
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
+import { _DEFAULT_ADMIN_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/roles.sol";
+import { _MATURITY_REDEEMER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
 import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
@@ -60,7 +58,7 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
 
         if (adminFound) {
             assembly {
-                mstore(rbacs, finalLength) // Resize array if ADMIN was found (we allocated one extra slot)
+                mstore(rbacs, finalLength)
             }
         }
 
@@ -70,6 +68,7 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
         try bondFactory.deployBondKpiLinkedRate(modifiedBondKpiData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
+            if (bondAddress == address(0)) revert IFactorySuite.BondDeploymentFailed();
         } catch {
             revert IFactorySuite.BondDeploymentFailed();
         }

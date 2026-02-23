@@ -38,7 +38,6 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
     await bondRepository.save({
       contractId: CONTRACT_ID,
       treasuryId: "0.0.6823801",
-      kpiId: "0.0.6974684",
       name: "Green Bond",
       symbol: "GBND",
       decimals: 18,
@@ -169,7 +168,6 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: contractId2,
         treasuryId: "0.0.6823802",
-        kpiId: "0.0.6974685",
         name: "Green Bond 2",
         symbol: "GBND2",
         decimals: 18,

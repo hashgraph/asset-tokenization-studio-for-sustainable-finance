@@ -13,9 +13,6 @@ export class BondResponse {
   @ApiProperty({ description: "Treasury ID associated with the bond", example: "0.0.7364918" })
   treasuryId: string
 
-  @ApiProperty({ description: "KPI ID associated with the bond", example: "0.0.7364918" })
-  kpiId: string
-
   @ApiProperty({ description: "Name of the bond", example: "Green Bond 2024" })
   name: string
 

@@ -68,6 +68,16 @@ interface IFactorySuite {
     error InvalidContractAddress(address provided);
 
     /**
+     * @dev Thrown when interest rate values violate constraints (minRate <= baseRate <= maxRate)
+     */
+    error InvalidInterestRateValues();
+
+    /**
+     * @dev Thrown when impact data values violate constraints (floor <= baseline <= cap)
+     */
+    error InvalidImpactDataValues();
+
+    /**
      * @dev Deploys a complete bond suite (Bond with integrated KPI + Treasury) atomically
      * @param bondFactoryAddress Address of the ATS Bond Factory contract
      * @param bondKpiData Bond KPI Linked Rate configuration data (includes bondData and factoryRegulationData)

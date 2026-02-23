@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-import { IsNotEmpty, IsString, IsDate, IsNumberString } from "class-validator"
+import { IsNotEmpty, IsString, IsDate, IsNumberString, IsEnum } from "class-validator"
+import { CouponRateStatus } from "./CouponRateStatus"
 
 export class BondCoupon {
   @IsNotEmpty()
@@ -47,8 +48,8 @@ export class BondCoupon {
   rateDecimals: string
 
   @IsNotEmpty()
-  @IsNumberString()
-  rateStatus: string
+  @IsEnum(CouponRateStatus)
+  rateStatus: CouponRateStatus
 
   @IsDate()
   createdAt: Date

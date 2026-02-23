@@ -54,7 +54,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -85,7 +84,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -130,7 +128,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond1 = await internalBondRepository.save({
         contractId: `0.0.${timestamp1}`,
         treasuryId: `0.0.${timestamp1 + 1}`,
-        kpiId: `0.0.${timestamp1 + 2}`,
         name: "Green Bond 1",
         symbol: "GBND1",
         decimals: 18,
@@ -147,7 +144,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond2 = await internalBondRepository.save({
         contractId: `0.0.${timestamp2}`,
         treasuryId: `0.0.${timestamp2 + 1}`,
-        kpiId: `0.0.${timestamp2 + 2}`,
         name: "Green Bond 2",
         symbol: "GBND2",
         decimals: 18,
@@ -188,7 +184,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -243,7 +238,6 @@ describe("GetControlListMembersHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,

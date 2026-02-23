@@ -14,10 +14,6 @@ export class Bond extends BaseEntity {
 
   @IsNotEmpty()
   @IsString()
-  kpiId: string
-
-  @IsNotEmpty()
-  @IsString()
   name: string
 
   @IsNotEmpty()
