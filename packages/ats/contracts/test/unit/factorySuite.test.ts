@@ -576,12 +576,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           ...validBondKpiData.bondData,
           security: {
             ...validBondKpiData.bondData.security,
-            rbacs: [
-              {
-                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-                members: [user.address], // user is the original admin
-              },
-            ],
+            rbacs: createDefaultAdminRbac(user.address), // user is the original admin
           },
         },
       };
