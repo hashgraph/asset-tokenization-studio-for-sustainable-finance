@@ -49,8 +49,9 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHoldRepository.query('DELETE FROM "Bonds"')
-    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondHoldRepository.query('DELETE FROM "BondHolds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "BondHolderBalances"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
