@@ -1,11 +1,11 @@
-const readline = require('readline');
+const readline = require("readline");
 
 function getUserInput(question) {
   const rl = readline.createInterface({
     input: process.stdin,
-    output: process.stdout
+    output: process.stdout,
   });
-  
+
   return new Promise((resolve) => {
     rl.question(question, (answer) => {
       rl.close();
@@ -15,5 +15,5 @@ function getUserInput(question) {
 }
 
 module.exports = {
-  getUserInput
+  getUserInput,
 };

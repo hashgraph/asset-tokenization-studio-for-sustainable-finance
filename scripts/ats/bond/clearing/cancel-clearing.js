@@ -22,7 +22,10 @@ const OPERATION_TYPES = {
 };
 
 async function cancelClearing(bondContractId, holderAccountId, clearingId, operationType, partition, format) {
-  log(`\n❌ Canceling clearing ${clearingId} for holder ${holderAccountId} in bond ${bondContractId}...`, colors.bright);
+  log(
+    `\n❌ Canceling clearing ${clearingId} for holder ${holderAccountId} in bond ${bondContractId}...`,
+    colors.bright,
+  );
 
   // Convert Hedera ID to EVM address if needed
   const holderEvmAddress = holderAccountId.startsWith("0x")

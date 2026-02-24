@@ -8,9 +8,9 @@ This package listens to smart contract events from Hedera Mirror Node and sends 
 
 The properties the library export for the applications are the following:
 
-- `HEDERA_NETWORK`: Hedera network to connect to. Can be testnet, previewnet or mainnet  (default value: `tesnet`).
+- `HEDERA_NETWORK`: Hedera network to connect to. Can be testnet, previewnet or mainnet (default value: `tesnet`).
 - `BLOCKCHAIN_LISTENER_BLOCK_NUMBER`: Block number the library will start listening events from. This can be used in case you want to start listening events from a specific block number. Usually should be empty (default: `empty`).
-- `BLOCKCHAIN_LISTENER_POLL_INTERVAL`: Time interval in milliseconds the listener will wait for a new block to be included in the network (default: `3000` (3 seconds)) 
+- `BLOCKCHAIN_LISTENER_POLL_INTERVAL`: Time interval in milliseconds the listener will wait for a new block to be included in the network (default: `3000` (3 seconds))
 - `BLOCKCHAIN_LISTENER_CONTRACTS`: List of semicolon separated contract addresses in EVM format the library will listen events from.
   This property is for the contract addresses that are fixed for each environment, e.g. for factories. Each value should have a corresponding value in the same position in the `BLOCKCHAIN_LISTENER_EVENTS` property (default: `empty`).
 - `BLOCKCHAIN_LISTENER_EVENTS`: List of semicolon separated event signatures related to the corresponding smart contract address. The signature is the signature of the event in Solidity including indexed keywords and parameter names (default: `empty`).
@@ -23,6 +23,7 @@ The properties the library export for the applications are the following:
 ## Message Format
 
 Published message:
+
 ```
 {
   "eventName": "<name>",
@@ -30,6 +31,7 @@ Published message:
   "timestamp": "<ISO8601>"
 }
 ```
+
 Routing key is composed as: `<RABBITMQ_BLOCKCHAIN_ROUTING_KEY>.<eventName>`; for example: `blockchain.events.RoleGranted`.
 
 ### Usage

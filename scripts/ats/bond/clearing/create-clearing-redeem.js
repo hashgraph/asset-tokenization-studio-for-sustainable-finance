@@ -17,7 +17,15 @@ process.argv.slice(2).forEach((arg) => {
   }
 });
 
-async function createClearingRedeem(bondContractId, holderAccountId, partition, amount, expirationTimestamp, data, format) {
+async function createClearingRedeem(
+  bondContractId,
+  holderAccountId,
+  partition,
+  amount,
+  expirationTimestamp,
+  data,
+  format,
+) {
   log(`\n🔄 Creating clearing redeem for holder ${holderAccountId} in bond ${bondContractId}...`, colors.bright);
 
   // Convert Hedera ID to EVM address if needed
@@ -182,7 +190,9 @@ async function main() {
     logSuccess(`Expires: ${expirationTimestamp.toISOString()}`);
     log(`\n⏰ Clearing will expire in ${expirationMinutes} minute(s)`, colors.yellow);
     log(`   After that, you can approve it with:`, colors.cyan);
-    logInfo(`   npm run ats:approve-clearing BOND_CONTRACT_ID=${bondContractId} CLEARING_ID=<CLEARING_ID> OPERATION_TYPE=REDEEM`);
+    logInfo(
+      `   npm run ats:approve-clearing BOND_CONTRACT_ID=${bondContractId} CLEARING_ID=<CLEARING_ID> OPERATION_TYPE=REDEEM`,
+    );
   } catch (error) {
     logError(`\nScript failed: ${error.message}`);
     logError("\nTroubleshooting:");

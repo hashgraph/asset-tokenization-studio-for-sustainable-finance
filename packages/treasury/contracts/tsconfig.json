@@ -27,6 +27,6 @@
       "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
+  "include": ["Configuration.ts", "scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
   "exclude": ["node_modules"]
 }

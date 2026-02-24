@@ -1,6 +1,6 @@
-const { colors } = require('./config');
+const { colors } = require("./config");
 
-function log(message, color = '') {
+function log(message, color = "") {
   console.log(`${color}${message}${colors.reset}`);
 }
 
@@ -31,5 +31,5 @@ module.exports = {
   logWarning,
   logInfo,
   logHeader,
-  colors
+  colors,
 };

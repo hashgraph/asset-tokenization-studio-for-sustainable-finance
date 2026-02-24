@@ -24,8 +24,8 @@ port.adapter/
 
 app/
 ├──<aggregated#1>                                   # Group commands, queries & services by aggregated
-|   |   ├── <functionallity#1>/                         
-|   |   |   ├── <query>/                         
+|   |   ├── <functionallity#1>/
+|   |   |   ├── <query>/
 │   |   |   |   ├── <functionallity#1>Query.ts
 |   |   |   ├── command/
 │   |   |   |   └── <functionallity#2>Command.ts
@@ -40,7 +40,9 @@ domain/
 |   ├── service/                         # For example validations for repositories
 |   └── repository/
 ```
+
 ## Configure .env
+
 You can copy .env.example to .env to have every property that the application is going to need.
 
 - `RABBITMQ_URI`: RabbitMQ connection string (default: `amqp://localhost:5672`)
@@ -57,6 +59,7 @@ You can copy .env.example to .env to have every property that the application is
 ## Message Format
 
 ### Incoming Message
+
 ```json
 {
   "payload": "0x0abc123...",
@@ -70,6 +73,7 @@ You can copy .env.example to .env to have every property that the application is
 ```
 
 ### Outgoing Message with transaction result
+
 ```json
 {
   "payload": "0x0abc123...",
@@ -128,9 +132,11 @@ $ mau deploy
 With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
 
 ## Health Check Endpoint
+
 A health check endpoint is available under `api/v1/health`.
 
 ## API Doc Endpoint
+
 An API documentation endpoint is available under `api/v1/docs`.
 
 ## Resources
@@ -141,7 +147,6 @@ Check out a few resources that may come in handy when working with NestJS:
 - To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
 - Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
 - Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-
 
 ## License
 

@@ -40,9 +40,9 @@ The project adheres to Hexagonal Architecture and DDD:
 - **Infrastructure Layer**: Ports and adapters for external integrations (e.g., blockchain, database).
 - **Configuration**: Centralized config for environments and dependencies.
 
-![Platform Architecture Diagram](docs/gbp_architecture.png)
+![Platform Architecture Diagram](docs/static/img/gbp_architecture.png)
 
-![Smart Contracts Architecture Diagram](docs/gbp_sc_architecture.png)
+![Smart Contracts Architecture Diagram](docs/static/img/gbp_sc_architecture.png)
 
 ## Workspaces:
 
@@ -58,6 +58,7 @@ The project adheres to Hexagonal Architecture and DDD:
   - `treasury-contracts`: Contracts for treasury management, tracking funds, payments, and financial reporting related to bonds.
   - `blockchain-listener`: Library for real-time event listening on Hedera or EVM blockchains, with configurable polling and contract monitoring.
   - `core`: Shared core utilities, including common models, services, and helpers for the platform.
+- `docs/`: Platform documentation built with Docusaurus, providing comprehensive guides, API references, and architecture documentation.
 - `scripts/`: Utility scripts for deployment and automation.
 
 # Prerequisites
@@ -95,7 +96,7 @@ The project adheres to Hexagonal Architecture and DDD:
 
 1. Copy the example environment file:
    ```bash
-   cp apps/shared/gateway/.env.sample apps/shared/gateway/.env
+   cp apps/shared/gateway/.env.example apps/shared/gateway/.env
    ```
 
 ## Transaction Sender
@@ -139,6 +140,59 @@ npm run contracts:build
 ```bash
 npm run shared:build
 ```
+
+# Documentation
+
+The project includes comprehensive documentation built with [Docusaurus](https://docusaurus.io/), covering architecture, installation, configuration, and usage guides for all platform components.
+
+## Running Documentation in Development Mode
+
+To run the documentation site locally with hot-reload:
+
+```bash
+npm run docs
+```
+
+The documentation will be available at `http://localhost:3000`.
+
+> **Note**: The search functionality is not available in development mode. To test the search bar, build and serve the production version.
+
+## Building Documentation
+
+To build the documentation for production:
+
+```bash
+npm run docs:build
+```
+
+This generates static HTML files in the `docs/build/` directory.
+
+## Serving Built Documentation
+
+To preview the production build locally:
+
+```bash
+npm run docs:serve
+```
+
+The production build includes the fully functional search bar for navigating documentation.
+
+## Clearing Documentation Cache
+
+To clean the generated build files and cache:
+
+```bash
+npm run docs:clear
+```
+
+## Documentation Structure
+
+The documentation is organized in the following sections:
+
+- **Getting Started**: Installation, prerequisites, and quick start guides
+- **Architecture**: System design, components, and design patterns
+- **Components**: Detailed guides for each platform component (ATS, Primary Market, Treasury, Gateway, Transaction Sender)
+- **Development**: Development guidelines, testing, and contribution guide
 
 # Green Bond Platform demo
 
@@ -272,7 +326,7 @@ You will see these logs in the console where you started the Green Bond Platform
 ```
 
 You can check the PostgreSQL database to verify that the bond has been created in the Bonds table:
-![new bond in the database](docs/db_create_bond.png)
+![new bond in the database](docs/static/img/db_create_bond.png)
 
 ## Stop GBP demo
 

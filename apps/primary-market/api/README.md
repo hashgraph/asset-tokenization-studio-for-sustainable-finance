@@ -163,7 +163,7 @@ LOG_LEVEL=log
 
 # PostgreSQL Configuration
 POSTGRESQL_HOST=localhost
-POSTGRESQL_PORT=5433
+POSTGRESQL_PORT=5432
 POSTGRESQL_USER=postgres
 POSTGRESQL_PASSWORD=postgres
 POSTGRESQL_DB=postgres
@@ -192,7 +192,7 @@ RABBITMQ_CONNECTION_WAIT=false
 - **LOG_LEVEL**: Log level of the application. Options: `verbose`, `debug`, `log`, `warn`, `error`, `fatal`
 - **HEDERA_NETWORK**: Hedera network to connect to (`testnet`, `previewnet`, or `mainnet`)
 - **POSTGRESQL_HOST**: Database host (default: `localhost`)
-- **POSTGRESQL_PORT**: Database port (default: `5433`)
+- **POSTGRESQL_PORT**: Database port (default: `5432`)
 - **POSTGRESQL_USER**: Database user (default: `postgres`)
 - **POSTGRESQL_PASSWORD**: Database password (default: `postgres`)
 - **POSTGRESQL_DB**: Database name (default: `postgres`)
@@ -232,7 +232,7 @@ npm run docker:down
 
 This will start:
 
-- **PostgreSQL**: Available at `localhost:5433`
+- **PostgreSQL**: Available at `localhost:5432`
 - **pgAdmin**: Available at `http://localhost:5050` (admin@admin.com / admin)
 
 ### Development Mode

@@ -107,7 +107,6 @@ describe("LifeCycleCashFlow operations", () => {
       await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
 
       const randomWallet = ethers.Wallet.createRandom();
-      const privateKey = randomWallet.privateKey;
 
       await expect(treasury.executeDistribution(randomWallet.address, 1, 1, 1)).to.be.revertedWithCustomError(
         treasury,
@@ -412,7 +411,6 @@ describe("LifeCycleCashFlow operations", () => {
       await treasury.grantRole(PAYOUT_ROLE, signer_A.address);
 
       const randomWallet = ethers.Wallet.createRandom();
-      const privateKey = randomWallet.privateKey;
 
       await expect(treasury.executeDistributionByAddresses(randomWallet.address, 1, [])).to.be.revertedWithCustomError(
         treasury,
@@ -665,7 +663,6 @@ describe("LifeCycleCashFlow operations", () => {
       treasury = treasury.connect(signer_A);
       await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
-      const a = await treasury.getAsset();
       expect(await treasury.getAsset()).to.equal(asset.address);
     });
   });
