@@ -88,7 +88,12 @@ export function createTestDataSets(fixture: {
       key: treasuryKey,
       version: treasuryVer,
     },
-    rbacs: [],
+    rbacs: [
+      {
+        role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+        members: [fixture.admin.address],
+      },
+    ],
     paymentToken: paymentToken.address,
     environmentalAssets: [environmentalAssetToken1.address],
   };

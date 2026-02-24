@@ -10,7 +10,7 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-02-23T08:38:26.372Z
+ * Generated: 2026-02-23T13:21:40.901Z
  * Facets: 1
  * Infrastructure: 0
  * Mocks: 7
@@ -377,13 +377,6 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         signature:
           "function storedTreasuryData() view returns (address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, address paymentToken)",
         selector: "0xc1fc1a28",
-      },
-    ],
-    events: [
-      {
-        name: "ReentrancyAttempted",
-        signature: "ReentrancyAttempted(address,uint256)",
-        topic0: "0xe9e951d361527dae3a3803a5c4e1413edb6d5ce2a5afee5065ec77d2cf5b8e0a",
       },
     ],
     factory: (signer) => new MockReentrantFactory__factory(signer),

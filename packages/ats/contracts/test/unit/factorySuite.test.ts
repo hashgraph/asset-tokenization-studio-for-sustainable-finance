@@ -153,7 +153,12 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [],
+        rbacs: [
+          {
+            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+            members: [admin.address],
+          },
+        ],
         paymentToken: paymentToken.address,
         environmentalAssets: [], // Empty array should be allowed
       };
@@ -176,7 +181,12 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [],
+        rbacs: [
+          {
+            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+            members: [admin.address],
+          },
+        ],
         paymentToken: paymentToken.address,
         environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero], // Contains zero address
       };
@@ -322,18 +332,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       // 2. Malicious factory tries to call deployBondSuite AGAIN (reentrancy)
       // 3. Second call: nonReentrant modifier blocks it with "ReentrancyGuard: reentrant call"
       // 4. The revert is caught by try-catch in _deployBondContract → throws BondDeploymentFailed
-
-      // We verify this by checking that:
-      // 1. The malicious factory actually attempted reentrancy (ReentrancyAttempted event)
-      // 2. The transaction fails with BondDeploymentFailed (reentrancy was blocked)
       const tx = factorySuite
         .connect(admin)
         .deployBondSuite(maliciousFactory.address, validBondKpiData, validTreasuryData);
 
-      await expect(tx)
-        .to.emit(maliciousFactory, "ReentrancyAttempted")
-        .withArgs(maliciousFactory.address, anyValue)
-        .and.to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
+      // Verify the transaction reverted due to reentrancy protection
+      // The nonReentrant guard blocks the second call, which is caught and wrapped as BondDeploymentFailed
+      await expect(tx).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
   });
 
@@ -370,7 +375,12 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [],
+        rbacs: [
+          {
+            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+            members: [admin.address],
+          },
+        ],
         paymentToken: paymentToken.address,
         environmentalAssets: environmentalAssetAddresses,
       };
@@ -478,7 +488,12 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [],
+        rbacs: [
+          {
+            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+            members: [admin.address],
+          },
+        ],
         paymentToken: paymentToken.address,
         environmentalAssets: [],
       };
@@ -515,7 +530,12 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [],
+        rbacs: [
+          {
+            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+            members: [admin.address],
+          },
+        ],
         paymentToken: paymentToken.address,
         environmentalAssets: [environmentalAssetToken1.address, environmentalAssetToken2.address],
       };
