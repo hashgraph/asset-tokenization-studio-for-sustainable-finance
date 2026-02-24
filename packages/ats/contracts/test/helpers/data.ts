@@ -6,6 +6,20 @@ import { LATEST_VERSION } from "@hashgraph/asset-tokenization-contracts/scripts"
 import { TREASURY_CONFIG_ID } from "@scripts";
 import { TREASURY_CONFIG_VERSION } from "@test";
 
+/**
+ * Creates a default admin RBAC configuration
+ * @param adminAddress Address to grant DEFAULT_ADMIN_ROLE
+ * @returns RBAC array with single admin role entry
+ */
+export function createDefaultAdminRbac(adminAddress: string) {
+  return [
+    {
+      role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+      members: [adminAddress],
+    },
+  ];
+}
+
 export interface TestDataSets {
   validBondData: any;
   validFactoryRegulationData: any;
@@ -88,12 +102,7 @@ export function createTestDataSets(fixture: {
       key: treasuryKey,
       version: treasuryVer,
     },
-    rbacs: [
-      {
-        role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-        members: [fixture.admin.address],
-      },
-    ],
+    rbacs: createDefaultAdminRbac(fixture.admin.address),
     paymentToken: paymentToken.address,
     environmentalAssets: [environmentalAssetToken1.address],
   };

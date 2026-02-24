@@ -4,6 +4,7 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import {
   createTestDataSets,
+  createDefaultAdminRbac,
   TREASURY_CONFIG_VERSION,
   MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT,
   hashRole,
@@ -153,12 +154,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [
-          {
-            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-            members: [admin.address],
-          },
-        ],
+        rbacs: createDefaultAdminRbac(admin.address),
         paymentToken: paymentToken.address,
         environmentalAssets: [], // Empty array should be allowed
       };
@@ -181,12 +177,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [
-          {
-            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-            members: [admin.address],
-          },
-        ],
+        rbacs: createDefaultAdminRbac(admin.address),
         paymentToken: paymentToken.address,
         environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero], // Contains zero address
       };
@@ -375,12 +366,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [
-          {
-            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-            members: [admin.address],
-          },
-        ],
+        rbacs: createDefaultAdminRbac(admin.address),
         paymentToken: paymentToken.address,
         environmentalAssets: environmentalAssetAddresses,
       };
@@ -488,12 +474,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [
-          {
-            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-            members: [admin.address],
-          },
-        ],
+        rbacs: createDefaultAdminRbac(admin.address),
         paymentToken: paymentToken.address,
         environmentalAssets: [],
       };
@@ -530,12 +511,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: [
-          {
-            role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-            members: [admin.address],
-          },
-        ],
+        rbacs: createDefaultAdminRbac(admin.address),
         paymentToken: paymentToken.address,
         environmentalAssets: [environmentalAssetToken1.address, environmentalAssetToken2.address],
       };
