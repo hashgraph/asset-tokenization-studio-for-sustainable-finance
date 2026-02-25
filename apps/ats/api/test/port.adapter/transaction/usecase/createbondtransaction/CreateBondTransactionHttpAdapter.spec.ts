@@ -21,7 +21,7 @@ describe("CreateBondTransaction API Integration", () => {
 
     app = moduleFixture.createNestApplication()
     app.setGlobalPrefix("api/v1/ats")
-    // app.useLogger(false) // TEMPORARILY ENABLED FOR DEBUGGING
+    app.useLogger(false)
     await app.init()
   })
   afterEach(async () => {
