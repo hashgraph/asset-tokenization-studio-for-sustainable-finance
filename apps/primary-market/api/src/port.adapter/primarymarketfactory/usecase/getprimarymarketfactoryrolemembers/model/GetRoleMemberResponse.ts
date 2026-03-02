@@ -2,7 +2,7 @@
 
 import { ApiProperty, ApiSchema } from "@nestjs/swagger"
 
-@ApiSchema({ name: "RoleMember" })
+@ApiSchema({ name: "PrimaryMarketFactoryRoleMember" })
 export class GetRoleMemberResponse {
   @ApiProperty({ description: "Hedera account Id of the user", example: "0.0.2378" })
   userAccountId: string
