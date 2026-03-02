@@ -353,11 +353,12 @@ Each should return `{"status":"ok"}` or similar.
 Now that everything is running, you can:
 
 1. **View API Documentation**: Most APIs have Swagger documentation at `/api` endpoint
+   - Gateway API (every platform endpoints together): [http://localhost:3000/api](http://localhost:3000/api)
    - ATS API: [http://localhost:3001/api](http://localhost:3001/api)
    - Primary Market API: [http://localhost:3002/api](http://localhost:3002/api)
    - Treasury API: [http://localhost:3003/api](http://localhost:3003/api)
 
-2. **Make API Calls**: Use tools like Postman, curl, or the Swagger UI to interact with the APIs
+2. **Make API Calls**: Use tools like Postman, Bruno, curl, or the Swagger UI to interact with the APIs
 
 ## Common Issues & Solutions
 
