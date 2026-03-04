@@ -9,7 +9,7 @@ interface IPortfolio {
      * @param operator The operator who call the function to add the environmental asset token
      * @param environmentalAsset The added environmental asset token
      */
-    event EnvironmentalAssetAdded(address indexed operator, address environmentalAsset);
+    event EnvironmentalAssetAdded(address indexed operator, address indexed environmentalAsset);
 
     /**
      * @dev Emitted when an existing environmental asset token is removed from the treasury
@@ -18,7 +18,11 @@ interface IPortfolio {
      * @param environmentalAsset The removed environmental asset token
      * @return dissociationError The possible error code happened when trying to dissociate the token
      */
-    event EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError);
+    event EnvironmentalAssetRemoved(
+        address indexed operator,
+        address indexed environmentalAsset,
+        int256 indexed dissociationError
+    );
 
     /**
      * @dev Emitted when the payment token is updated
@@ -30,8 +34,8 @@ interface IPortfolio {
      */
     event PaymentTokenUpdated(
         address indexed operator,
-        address newPaymentToken,
-        address oldPaymentToken,
+        address indexed newPaymentToken,
+        address indexed oldPaymentToken,
         int256 dissociationError
     );
 
@@ -40,14 +44,14 @@ interface IPortfolio {
      *
      * @param token The dissociated token
      */
-    event TokenDissociated(address token);
+    event TokenDissociated(address indexed token);
 
     /**
      * @dev Emitted when an environmental asset token or a payment token is associated to the treasury the treasury
      *
      * @param token The token that was associated to the treasury
      */
-    event TokenAssociated(address token);
+    event TokenAssociated(address indexed token);
 
     /**
      * @dev Error thrown when the association of an environmental asset token or a payment token to the treasury failed
@@ -57,9 +61,9 @@ interface IPortfolio {
     error AssociateTokenFailed(address token);
 
     /**
-     * @dev Error thrown when the dissociation of an environmental asset token or a payment token from the treasury failed
+     * @dev Error thrown when dissociating a token from the treasury fails
      *
-     * @param token The environmental asset token or the payment token that was tried to dissociate from the treasury
+     * @param token The token that was tried to dissociate from the treasury
      * @param dissociationError The error code
      */
     error DissociateTokenFailed(address token, int256 dissociationError);
@@ -76,7 +80,7 @@ interface IPortfolio {
      * @param environmentalAsset The list of environmental asset tokens contracts to associate to the treasury
      */
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_Portfolio(address paymentToken, address[] memory environmentalAsset) external;
+    function initialize_Portfolio(address paymentToken, address[] calldata environmentalAsset) external;
 
     /**
      * @dev Add a new environmental asset token contract to the treasury

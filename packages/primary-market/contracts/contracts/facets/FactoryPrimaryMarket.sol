@@ -4,7 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 // solhint-disable max-line-length
 import { IFactoryPrimaryMarket } from "../interfaces/IFactoryPrimaryMarket.sol";
 import { FactoryPrimaryMarketStorageWrapper } from "./FactoryPrimaryMarketStorageWrapper.sol";
-import { _DEFAULT_ADMIN_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
+import { _DEFAULT_ADMIN_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/roles.sol";
 import { IBusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/IBusinessLogicResolver.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";

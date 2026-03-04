@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import { IPortfolio } from "../../interfaces/IPortfolio.sol";
 import { PORTFOLIO_STORAGE_POSITION } from "../../constants/storagePositions.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {
     HederaTokenService,
@@ -186,6 +186,7 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     ) internal view returns (address[] memory environmentalAssetTokensPage) {
         uint256 total = _portfolioStorage().environmentalAssets.length();
         uint256 start = pageIndex * pageLength;
+        // solhint-disable-next-line gas-strict-inequalities
         if (start >= total) return new address[](0);
 
         uint256 remaining = total - start;

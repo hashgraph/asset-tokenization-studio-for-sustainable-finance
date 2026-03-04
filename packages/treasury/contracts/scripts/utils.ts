@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
-/// <reference types="@nomiclabs/hardhat-ethers" />
+/// <reference types="@nomicfoundation/hardhat-ethers" />
 
 import { ethers } from "hardhat";
+import { getAddress } from "ethers";
 
 /**
  * Get ProxyAdmin owner signer from environment or default signer.
@@ -21,8 +22,8 @@ export async function getProxyAdminOwnerEnv() {
  */
 export async function getImplementationAddress(proxyAddress: string) {
   const IMPLEMENTATION_SLOT = "0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc";
-  const raw = await ethers.provider.getStorageAt(proxyAddress, IMPLEMENTATION_SLOT);
-  return ethers.utils.getAddress("0x" + raw.slice(26));
+  const raw = await ethers.provider.getStorage(proxyAddress, IMPLEMENTATION_SLOT);
+  return getAddress("0x" + raw.slice(26));
 }
 
 /**

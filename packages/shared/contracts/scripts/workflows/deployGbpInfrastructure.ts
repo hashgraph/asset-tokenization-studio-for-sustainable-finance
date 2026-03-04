@@ -9,11 +9,13 @@ import {
   success,
   error as logError,
   section,
-  configureLogger,
-  LogLevel,
   saveDeploymentOutput,
   isHederaNetwork,
   generateTimestamp,
+  formatCheckpointStatus,
+  formatDuration,
+  formatTimestamp,
+  KNOWN_NETWORKS,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { DeploymentWithExistingBlrOutput } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
@@ -73,7 +75,7 @@ export interface DeploymentResult {
 
 /** Save deployment result with structured output format. */
 async function saveDeploymentResult(result: DeploymentResult, network: string): Promise<void> {
-  const timestamp = new Date().toISOString();
+  const timestamp = formatTimestamp(new Date().toISOString());
   const output: GbpInfrastructureOutput = {
     timestamp,
     network,
@@ -192,10 +194,11 @@ async function saveDeploymentResult(result: DeploymentResult, network: string): 
  *
  * @example Basic deployment
  * ```typescript
- * import { ethers } from 'ethers'
+ * import { JsonRpcProvider, Wallet } from 'ethers'
  * import { deployGbpInfrastructure } from '@hashgraph/green-bonds-platform-shared-contracts/scripts'
  *
- * const signer = new ethers.Wallet(privateKey, provider)
+ * const provider = new JsonRpcProvider('https://testnet.hashio.io/api')
+ * const signer = new Wallet(privateKey, provider)
  * const result = await deployGbpInfrastructure(signer, {
  *   useTimeTravel: false,
  *   network: 'hedera-testnet',
@@ -235,16 +238,13 @@ export async function deployGbpInfrastructure(
 ): Promise<DeploymentResult> {
   const {
     useTimeTravel = false,
-    network = "testnet",
+    network = KNOWN_NETWORKS.HEDERA_TESTNET,
     verbose = false,
     checkpointDir = join(__dirname, "../../deployments/.checkpoints"),
     saveOutput = false,
   } = options;
 
-  // Configure global logger for entire orchestration
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
+  const deploymentStartTime = Date.now();
 
   section("GBP Infrastructure Deployment - Phase 1");
   info("Orchestrating complete infrastructure deployment");
@@ -262,7 +262,7 @@ export async function deployGbpInfrastructure(
   // ========================================
   // Check for existing checkpoint
   // ========================================
-  const checkpointManager = new CheckpointManager(checkpointDir);
+  const checkpointManager = new CheckpointManager(network, checkpointDir);
   const incompleteCheckpoints = await checkpointManager.findCheckpoints(network, "in-progress");
 
   let proxyAdminAddress: string;
@@ -271,10 +271,8 @@ export async function deployGbpInfrastructure(
 
   if (incompleteCheckpoints.length > 0) {
     const checkpoint = incompleteCheckpoints[0];
-    info(`\n🔍 Found incomplete deployment: ${checkpoint.checkpointId}`);
-    info(`   Started: ${checkpoint.startTime}`);
-    info(`   Last update: ${checkpoint.lastUpdate}`);
-    info(`   Current step: ${checkpoint.currentStep}`);
+    info("\n🔍 Found incomplete deployment:");
+    info(formatCheckpointStatus(checkpoint));
     info(`\n⏯️  Resuming deployment from checkpoint...`);
 
     // Use addresses from checkpoint
@@ -300,7 +298,7 @@ export async function deployGbpInfrastructure(
       // ========================================
       section("Step 1: Deploy ProxyAdmin");
       const proxyAdmin = await deployProxyAdmin(signer);
-      proxyAdminAddress = proxyAdmin.address;
+      proxyAdminAddress = await proxyAdmin.getAddress();
       success(`✓ ProxyAdmin deployed at: ${proxyAdminAddress}`);
 
       // ========================================
@@ -361,9 +359,13 @@ export async function deployGbpInfrastructure(
     // ========================================
     // Extract shared facets for reuse
     // ========================================
-    const accessControlFacet = bondResult.facets.find((f) => f.name === "AccessControlFacet");
-    const pauseFacet = bondResult.facets.find((f) => f.name === "PauseFacet");
-    const diamondFacet = bondResult.facets.find((f) => f.name === "DiamondFacet");
+    const accessControlFacet = bondResult.facets.find(
+      (f) => f.name === "AccessControlFacet" || f.name === "AccessControlFacetTimeTravel",
+    );
+    const pauseFacet = bondResult.facets.find((f) => f.name === "PauseFacet" || f.name === "PauseFacetTimeTravel");
+    const diamondFacet = bondResult.facets.find(
+      (f) => f.name === "DiamondFacet" || f.name === "DiamondFacetTimeTravel",
+    );
 
     if (!accessControlFacet || !pauseFacet || !diamondFacet) {
       throw new Error("Required shared facets not found in BOND deployment");
@@ -530,11 +532,23 @@ export async function deployGbpInfrastructure(
       await saveDeploymentResult(deploymentResult, network);
     }
 
-    success("✅ GBP infrastructure deployment completed!");
+    const elapsed = formatDuration(Date.now() - deploymentStartTime);
+    success(`✅ GBP infrastructure deployment completed in ${elapsed}!`);
+
+    // Clean up old completed checkpoints (non-critical)
+    try {
+      const cleaned = await checkpointManager.cleanupOldCheckpoints(network, 30);
+      if (cleaned > 0) {
+        info(`🧹 Cleaned up ${cleaned} old checkpoint(s) (>30 days)`);
+      }
+    } catch {
+      // Non-critical - don't fail deployment for cleanup errors
+    }
 
     return deploymentResult;
   } catch (err) {
-    logError("Deployment failed with error:");
+    const elapsed = formatDuration(Date.now() - deploymentStartTime);
+    logError(`Deployment failed after ${elapsed}:`);
     logError(err instanceof Error ? err.message : String(err));
     throw err;
   }

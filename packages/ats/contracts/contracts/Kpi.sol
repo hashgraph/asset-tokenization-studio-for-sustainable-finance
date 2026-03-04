@@ -4,17 +4,35 @@ pragma solidity ^0.8.0;
 // solhint-disable max-line-length
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import { ArraysUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/ArraysUpgradeable.sol";
-import { AccessControl } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/accessControl/AccessControl.sol";
-import { Pause } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/pause/Pause.sol";
+import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
+import { Pausable } from "@openzeppelin/contracts/security/Pausable.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
 import { KPI_DATA_MANAGER_ROLE } from "./constants/roles.sol";
+import { _PAUSER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
 // solhint-disable-next-line no-unused-import
 import { KPI_STORAGE_LOCATION } from "./constants/storageLocation.sol";
 import { IKpi } from "./interfaces/IKpi.sol";
 // solhint-enable max-line-length
 
-contract Kpi is IKpi, AccessControl, Pause, Initializable {
+contract Kpi is IKpi, AccessControl, Pausable, Initializable {
     using ArraysUpgradeable for uint256[];
+
+    event TokenPaused(address indexed account);
+    event TokenUnpaused(address indexed account);
+
+    error AccountHasNoRole(bytes32 role, address account);
+    error TokenIsPaused();
+    error AlreadyInitialized();
+
+    modifier onlyKpiRole(bytes32 role) {
+        if (!hasRole(role, msg.sender)) revert AccountHasNoRole(role, msg.sender);
+        _;
+    }
+
+    modifier whenKpiNotPaused() {
+        if (paused()) revert TokenIsPaused();
+        _;
+    }
 
     modifier validDate(uint256 _date) {
         if (_date == 0) revert InvalidDate(_date);
@@ -25,11 +43,21 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         _disableInitializers();
     }
 
+    function pause() external onlyKpiRole(_PAUSER_ROLE) whenKpiNotPaused {
+        _pause();
+        emit TokenPaused(msg.sender);
+    }
+
+    function unpause() external onlyKpiRole(_PAUSER_ROLE) {
+        _unpause();
+        emit TokenUnpaused(msg.sender);
+    }
+
     function addKpiData(
         uint256 date,
         uint256 kpiValue
-    ) external virtual override validDate(date) onlyUnpaused onlyRole(KPI_DATA_MANAGER_ROLE) {
-        if (date >= _blockTimestamp()) revert InvalidDate(date);
+    ) external virtual override validDate(date) whenKpiNotPaused onlyKpiRole(KPI_DATA_MANAGER_ROLE) {
+        if (date >= block.timestamp) revert InvalidDate(date);
         KpiStorage storage kpiStorage = _getKpiStorage();
 
         kpiStorage.kpiData[date].value += kpiValue;
@@ -61,8 +89,9 @@ contract Kpi is IKpi, AccessControl, Pause, Initializable {
         return (kpiAggregatedValue, exists);
     }
 
-    function initialize(IResolverProxy.Rbac[] memory rbacs) public onlyUninitialized(_getKpiStorage().initialized) {
+    function initialize(IResolverProxy.Rbac[] memory rbacs) public {
         KpiStorage storage kpiStorage = _getKpiStorage();
+        if (kpiStorage.initialized) revert AlreadyInitialized();
         kpiStorage.initialized = true;
         for (uint256 rbacIndex; rbacIndex < rbacs.length; ++rbacIndex) {
             for (uint256 memberIndex; memberIndex < rbacs[rbacIndex].members.length; ++memberIndex) {

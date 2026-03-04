@@ -12,7 +12,7 @@
  * @module domain/primaryMarket/createConfiguration
  */
 
-import { Contract } from "ethers";
+import { BusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts";
 import {
   createBatchConfiguration,
   ConfigurationData,
@@ -61,7 +61,7 @@ const PRIMARY_MARKET_FACETS = ["DiamondFacet", "AccessControlFacet", "PauseFacet
  * ```
  */
 export async function createPrimaryMarketConfiguration(
-  blrContract: Contract,
+  blrContract: BusinessLogicResolver,
   facetAddresses: Record<string, string>,
   batchSize: number = DEFAULT_BATCH_SIZE,
   confirmations: number = 0,

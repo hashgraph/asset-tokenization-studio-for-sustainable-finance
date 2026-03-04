@@ -45,7 +45,7 @@ export async function deployKpi(
 export async function deployKpiLogic(signer: Signer): Promise<Kpi> {
   const kpiFactory = new Kpi__factory(signer);
   const kpiLogic = await kpiFactory.deploy();
-  await kpiLogic.deployed();
+  await kpiLogic.deploymentTransaction()?.wait();
 
   return kpiLogic;
 }

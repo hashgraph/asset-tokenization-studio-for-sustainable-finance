@@ -7,7 +7,7 @@ import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contract
 import { IFactory as IAtsFactory } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/factory/IFactory.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
 import { IFactoryPrimaryMarket } from "../interfaces/IFactoryPrimaryMarket.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 // solhint-enable max-line-length
 
 contract FactoryPrimaryMarketStorageWrapper is AtsCommon {

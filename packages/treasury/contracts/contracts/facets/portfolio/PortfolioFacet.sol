@@ -17,6 +17,7 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
     function getStaticFunctionSelectors() external pure override returns (bytes4[] memory staticFunctionSelectors) {
         uint256 selectorIndex;
         staticFunctionSelectors = new bytes4[](8);
+        // solhint-disable gas-increment-by-one
         staticFunctionSelectors[selectorIndex++] = this.initialize_Portfolio.selector;
         staticFunctionSelectors[selectorIndex++] = this.addEnvironmentalAssetToken.selector;
         staticFunctionSelectors[selectorIndex++] = this.removeEnvironmentalAssetToken.selector;
@@ -25,11 +26,13 @@ contract PortfolioFacet is Portfolio, IStaticFunctionSelectors {
         staticFunctionSelectors[selectorIndex++] = this.getTotalEnvironmentalAssetTokens.selector;
         staticFunctionSelectors[selectorIndex++] = this.getEnvironmentalAssetTokens.selector;
         staticFunctionSelectors[selectorIndex++] = this.getPaymentToken.selector;
+        // solhint-enable gas-increment-by-one
     }
 
     function getStaticInterfaceIds() external pure override returns (bytes4[] memory staticInterfaceIds) {
         staticInterfaceIds = new bytes4[](1);
         uint256 selectorsIndex;
+        // solhint-disable-next-line gas-increment-by-one
         staticInterfaceIds[selectorsIndex++] = type(IPortfolio).interfaceId;
     }
 }

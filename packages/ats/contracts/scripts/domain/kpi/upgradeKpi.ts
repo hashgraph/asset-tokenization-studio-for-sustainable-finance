@@ -22,7 +22,7 @@ export async function upgradeKpiProxy(
   const logic = await deployKpiLogic(signer);
   await upgradeProxy(proxyAdmin, {
     proxyAddress: proxyAddress,
-    newImplementationAddress: logic.address,
+    newImplementationAddress: await logic.getAddress(),
   });
 
   const kpi = Kpi__factory.connect(proxyAddress, signer);
