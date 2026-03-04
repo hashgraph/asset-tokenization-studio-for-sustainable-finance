@@ -3,16 +3,16 @@
 pragma solidity ^0.8.0;
 
 interface ILifeCycleCashFlow {
-    struct PaymentResult {
-        address holder;
-        PaymentStatus status;
-        int64 amount;
-    }
-
     enum PaymentStatus {
         SUCCEEDED,
         FAILED,
         ALREADY_PAID
+    }
+
+    struct PaymentResult {
+        address holder;
+        int64 amount;
+        PaymentStatus status;
     }
 
     /*

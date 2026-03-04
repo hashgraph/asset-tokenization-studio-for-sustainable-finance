@@ -6,11 +6,9 @@ import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin
 import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
-import {
-    _DEFAULT_ADMIN_ROLE,
-    _MATURITY_REDEEMER_ROLE
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { _DEFAULT_ADMIN_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/roles.sol";
+import { _MATURITY_REDEEMER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
 import { Kpi } from "../Kpi.sol";
@@ -44,29 +42,30 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
         uint256 finalLength = 0;
         bool adminFound = false;
 
-        for (uint256 i = 0; i < originalLength; i++) {
+        for (uint256 i = 0; i < originalLength; ++i) {
             IResolverProxy.Rbac memory currentRbac = bondData.security.rbacs[i];
 
             if (currentRbac.role == _DEFAULT_ADMIN_ROLE) {
                 adminFound = true;
                 address[] memory newMembers = new address[](currentRbac.members.length + 1);
-                for (uint256 j = 0; j < currentRbac.members.length; j++) {
+                for (uint256 j = 0; j < currentRbac.members.length; ++j) {
                     newMembers[j] = currentRbac.members[j];
                 }
                 newMembers[currentRbac.members.length] = address(this);
-                rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
+                rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
             } else {
-                rbacs[finalLength++] = currentRbac;
+                rbacs[++finalLength - 1] = currentRbac;
             }
         }
 
         if (!adminFound) {
             address[] memory adminMembers = new address[](1);
             adminMembers[0] = address(this);
-            rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
+            rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
         }
 
         if (adminFound) {
+            // solhint-disable-next-line no-inline-assembly
             assembly {
                 mstore(rbacs, finalLength) // Resize array if ADMIN was found (we allocated one extra slot)
             }

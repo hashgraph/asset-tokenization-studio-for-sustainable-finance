@@ -63,6 +63,7 @@ async function main(): Promise<void> {
   const result = await generateRegistryPipeline(
     {
       contractsPath: path.join(__dirname, "../../contracts"),
+      artifactPath: path.join(__dirname, "../../artifacts/contracts"),
       outputPath: options.output,
       logLevel: logLevel as any,
 
@@ -83,6 +84,9 @@ async function main(): Promise<void> {
     },
     !options.dryRun, // Write file unless dry run
   );
+
+  const durationSec = (result.stats.durationMs / 1000).toFixed(2);
+  console.log(`\n✅ Registry generation completed successfully (${durationSec}s)`);
 
   // Show preview for dry runs
   if (options.dryRun && options.verbose) {

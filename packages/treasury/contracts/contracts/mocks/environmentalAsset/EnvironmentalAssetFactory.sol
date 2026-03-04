@@ -7,13 +7,14 @@ import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-disable-next-line max-line-length
 import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+// solhint-disable-next-line max-line-length
 import { ExpiryHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol";
 import { KeyHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol";
 
 contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, KeyHelper, HederaTokenService {
-    bytes private constant DEFAULT_METADATA = hex"01";
+    bytes private constant _DEFAULT_METADATA = hex"01";
 
     /**
      * @dev Create an environmental asset
@@ -24,8 +25,8 @@ contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, 
      * @return tokenAddress The address of the environmental asset
      */
     function createEnvironmentalAsset(
-        string memory name,
-        string memory symbol
+        string calldata name,
+        string calldata symbol
     ) external payable returns (address tokenAddress) {
         int256 responseCode;
         IHederaTokenService.HederaToken memory tokenData;
@@ -58,7 +59,7 @@ contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, 
             revert EnvironmentalAssetCreateError(name, symbol, responseCode);
         }
 
-        mintNFT(tokenAddress, DEFAULT_METADATA);
+        _mintNFT(tokenAddress, _DEFAULT_METADATA);
 
         emit EnvironmentalAssetCreated(tokenAddress);
     }
@@ -71,7 +72,7 @@ contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, 
      * @param serialNumber The serial number of the environmental asset token to be transferred
      */
     function transferEnvironmentalAssetToken(address token, address to, int64 serialNumber) external {
-        int responseCode = transferNFT(token, address(this), to, serialNumber);
+        int256 responseCode = transferNFT(token, address(this), to, serialNumber);
         if (responseCode != HederaResponseCodes.SUCCESS) {
             revert EnvironmentalAssetTokenTransferError(token, to, serialNumber);
         }
@@ -83,10 +84,10 @@ contract EnvironmentalAssetFactory is IEnvironmentalAssetFactory, ExpiryHelper, 
      * @param token The address of the environmental asset
      * @param metadata The meta data of the environmental asset token
      */
-    function mintNFT(address token, bytes memory metadata) private {
+    function _mintNFT(address token, bytes memory metadata) private {
         bytes[] memory arr = new bytes[](1);
         arr[0] = metadata;
-        (int responseCode, , int64[] memory serialNumbers) = mintToken(token, 0, arr);
+        (int256 responseCode, , int64[] memory serialNumbers) = mintToken(token, 0, arr);
         if (responseCode == HederaResponseCodes.SUCCESS) {
             emit NFTMinted(serialNumbers[0]);
         }

@@ -15,19 +15,22 @@ contract LifeCycleCashFlowFacet is LifeCycleCashFlow, IStaticFunctionSelectors {
     }
 
     function getStaticFunctionSelectors() external pure override returns (bytes4[] memory staticFunctionSelectors) {
-        uint256 selectorIndex;
+        uint256 selectorIndex = 0;
         staticFunctionSelectors = new bytes4[](6);
+        // solhint-disable gas-increment-by-one
         staticFunctionSelectors[selectorIndex++] = this.initialize_LifeCycleCashFlow.selector;
         staticFunctionSelectors[selectorIndex++] = this.executeDistribution.selector;
         staticFunctionSelectors[selectorIndex++] = this.executeDistributionByAddresses.selector;
         staticFunctionSelectors[selectorIndex++] = this.executeBondRedemption.selector;
         staticFunctionSelectors[selectorIndex++] = this.executeBondRedemptionByAddresses.selector;
         staticFunctionSelectors[selectorIndex++] = this.getAsset.selector;
+        // solhint-enable gas-increment-by-one
     }
 
     function getStaticInterfaceIds() external pure override returns (bytes4[] memory staticInterfaceIds) {
         staticInterfaceIds = new bytes4[](1);
         uint256 selectorsIndex;
+        // solhint-disable-next-line gas-increment-by-one
         staticInterfaceIds[selectorsIndex++] = type(ILifeCycleCashFlow).interfaceId;
     }
 }

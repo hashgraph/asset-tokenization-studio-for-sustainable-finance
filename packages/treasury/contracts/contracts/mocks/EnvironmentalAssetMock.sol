@@ -11,7 +11,7 @@ contract EnvironmentalAssetMock is ERC721 {
 
     function mint(address to) external returns (uint256) {
         uint256 tokenId = _tokenIdCounter;
-        _tokenIdCounter += 1;
+        ++_tokenIdCounter;
         _mint(to, tokenId);
         return tokenId;
     }

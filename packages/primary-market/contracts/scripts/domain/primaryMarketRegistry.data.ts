@@ -8,12 +8,12 @@
  *
  * To regenerate: npm run generate:registry
  *
- * Import from '../../domain/index.js' instead of this file directly.
+ * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-12-03T15:35:00.872Z
+ * Generated: 2026-03-03T08:44:36.810Z
  * Facets: 2
  * Infrastructure: 0
- * Mocks: 3
+ * Mocks: 5
  *
  * @module domain/atsRegistry.data
  */
@@ -48,8 +48,8 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "deployPrimaryMarket",
         signature:
-          "deployPrimaryMarket(IBusinessLogicResolver,IAtsFactory.ResolverProxyConfiguration,IResolverProxy.Rbac[])",
-        selector: "0xb5364154",
+          "function deployPrimaryMarket(address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs) returns (address primaryMarketAddress)",
+        selector: "0x6fbc90c3",
       },
     ],
     events: [
@@ -79,26 +79,91 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     },
     inheritance: ["IStaticFunctionSelectors", "PrimaryMarket"],
     methods: [
-      { name: "cancelOffering", signature: "cancelOffering(uint256,uint256,uint256)", selector: "0x0c11728f" },
+      {
+        name: "cancelOffering",
+        signature:
+          "function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns ((uint256 subscriptionId, uint8 status)[] cancelResult)",
+        selector: "0x0c11728f",
+      },
       {
         name: "cancelOfferingBySubscriptionId",
-        signature: "cancelOfferingBySubscriptionId(uint256,uint256[])",
+        signature:
+          "function cancelOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns ((uint256 subscriptionId, uint8 status)[] cancelResult)",
         selector: "0xde772615",
       },
-      { name: "cancelSubscription", signature: "cancelSubscription(uint256,uint256)", selector: "0xdb72496f" },
-      { name: "createOffering", signature: "createOffering(Offering)", selector: "0x2bc8810d" },
-      { name: "executeOffering", signature: "executeOffering(uint256,uint256,uint256)", selector: "0xdf60499a" },
+      {
+        name: "cancelSubscription",
+        signature: "function cancelSubscription(uint256 _offeringId, uint256 _subscriptionId)",
+        selector: "0xdb72496f",
+      },
+      {
+        name: "createOffering",
+        signature:
+          "function createOffering((address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) _offeringInfo)",
+        selector: "0x13106a91",
+      },
+      {
+        name: "executeOffering",
+        signature:
+          "function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns ((uint256 subscriptionId, uint8 status)[] executionResult)",
+        selector: "0xdf60499a",
+      },
       {
         name: "executeOfferingBySubscriptionId",
-        signature: "executeOfferingBySubscriptionId(uint256,uint256[])",
+        signature:
+          "function executeOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns ((uint256 subscriptionId, uint8 status)[] executionResult)",
         selector: "0xd8be073a",
       },
-      { name: "getOffering", signature: "getOffering(uint256)", selector: "0x2b132030" },
-      { name: "getOfferingStatus", signature: "getOfferingStatus(uint256)", selector: "0x28622785" },
-      { name: "getSubscription", signature: "getSubscription(uint256,uint256)", selector: "0xa461efb9" },
-      { name: "getTotalOfferings", signature: "getTotalOfferings()", selector: "0x43d75052" },
-      { name: "getTotalSubscriptions", signature: "getTotalSubscriptions(uint256)", selector: "0x62ff2573" },
-      { name: "submitSubscription", signature: "submitSubscription(uint256,uint256)", selector: "0x959d2370" },
+      {
+        name: "getOffering",
+        signature:
+          "function getOffering(uint256 _offeringId) view returns ((address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) offeringInfo_, address offeringOperator_, uint256 totalSubscribedLots_, uint256 pendingSubscribedLots_)",
+        selector: "0x2b132030",
+      },
+      {
+        name: "getOfferingStatus",
+        signature: "function getOfferingStatus(uint256 _offeringId) view returns (uint8 status_)",
+        selector: "0x28622785",
+      },
+      {
+        name: "getSubscription",
+        signature:
+          "function getSubscription(uint256 _offeringId, uint256 _subscriptionId) view returns ((address investor, uint256 lotUnits, uint256 amountPaid, uint8 status) subscription)",
+        selector: "0xa461efb9",
+      },
+      {
+        name: "getTotalOfferings",
+        signature: "function getTotalOfferings() view returns (uint256 total_)",
+        selector: "0x43d75052",
+      },
+      {
+        name: "getTotalSubscriptions",
+        signature: "function getTotalSubscriptions(uint256 _offeringId) view returns (uint256 total_)",
+        selector: "0x62ff2573",
+      },
+      {
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
+      },
+      {
+        name: "submitSubscription",
+        signature: "function submitSubscription(uint256 _offeringId, uint256 _lotUnits)",
+        selector: "0x959d2370",
+      },
+      {
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
+      },
+      {
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
+      },
     ],
     events: [
       {
@@ -128,6 +193,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
     ],
     errors: [
+      { name: "and", signature: "and(uint256,address,OfferingProcessResult[])", selector: "0xf0df6397" },
       { name: "AssociationFailed", signature: "AssociationFailed(address)", selector: "0xef7f6b32" },
       {
         name: "InvalidRuleCombination",
@@ -210,14 +276,7 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
   FactoryPrimaryMarketStorageWrapper: {
     name: "FactoryPrimaryMarketStorageWrapper",
     inheritance: ["AtsCommon"],
-    methods: [
-      {
-        name: "_deployPrimaryMarket",
-        signature:
-          "_deployPrimaryMarket(IBusinessLogicResolver,IAtsFactory.ResolverProxyConfiguration,IResolverProxy.Rbac[])",
-        selector: "0xaaa8443d",
-      },
-    ],
+    methods: [],
   },
 
   PrimaryMarketStorageWrapper: {
@@ -226,69 +285,23 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     inheritance: ["AtsCommon", "HederaTokenService"],
     methods: [
       {
-        name: "_addToList",
+        name: "redirectForToken",
         signature:
-          "_addToList(uint256[],uint256,IPrimaryMarket.OfferingProcessResult[],uint256,IPrimaryMarket.OfferingProcessStatus)",
-        selector: "0xb560f63c",
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
       },
-      { name: "_adjustDecimals", signature: "_adjustDecimals(uint256,DecimalsAdjustmentInfo)", selector: "0xe04b6fda" },
       {
-        name: "_calculateDecimalsAdjustmentInfo",
-        signature: "_calculateDecimalsAdjustmentInfo(uint8,address)",
-        selector: "0x308cd12f",
-      },
-      { name: "_cancelOffering", signature: "_cancelOffering(uint256,uint256,uint256)", selector: "0x8e9394c4" },
-      {
-        name: "_cancelOfferingBySubscriptionIds",
-        signature: "_cancelOfferingBySubscriptionIds(uint256,uint256[])",
-        selector: "0xd7c4d194",
-      },
-      { name: "_cancelSubscription", signature: "_cancelSubscription(uint256,uint256)", selector: "0xc4f012a4" },
-      { name: "_checkOfferingExists", signature: "_checkOfferingExists(uint256)", selector: "0x61a6720c" },
-      { name: "_checkOfferingOperator", signature: "_checkOfferingOperator(uint256,address)", selector: "0x0c268fa7" },
-      {
-        name: "_checkSubscriptionExists",
-        signature: "_checkSubscriptionExists(uint256,uint256)",
-        selector: "0xd23675c4",
-      },
-      { name: "_createOffering", signature: "_createOffering(IPrimaryMarket.Offering)", selector: "0x977b6a98" },
-      { name: "_executeOffering", signature: "_executeOffering(uint256,uint256,uint256)", selector: "0xb81e2c13" },
-      {
-        name: "_executeOfferingBySubscriptionIds",
-        signature: "_executeOfferingBySubscriptionIds(uint256,uint256[])",
-        selector: "0xd1a21a70",
-      },
-      { name: "_extractIds", signature: "_extractIds(uint256,uint256)", selector: "0xb741e558" },
-      { name: "_getNextOfferingId", signature: "_getNextOfferingId()", selector: "0xdc1ccffe" },
-      { name: "_getOffering", signature: "_getOffering(uint256)", selector: "0x5e1fbb73" },
-      { name: "_getOfferingState", signature: "_getOfferingState(uint256)", selector: "0x45eb4b5b" },
-      { name: "_getOfferingStatus", signature: "_getOfferingStatus(uint256)", selector: "0xe80286bc" },
-      { name: "_getSubscription", signature: "_getSubscription(uint256,uint256)", selector: "0x2d6b8193" },
-      { name: "_getTotalOfferings", signature: "_getTotalOfferings()", selector: "0x241ae231" },
-      { name: "_getTotalSubscriptions", signature: "_getTotalSubscriptions(uint256)", selector: "0xeaa3df2c" },
-      { name: "_isOfferingOperator", signature: "_isOfferingOperator(uint256,address)", selector: "0x1a762f4e" },
-      {
-        name: "_isOfferingStatus",
-        signature: "_isOfferingStatus(uint256,IPrimaryMarket.OfferingStatus)",
-        selector: "0x59b317bb",
-      },
-      { name: "_isValidAmount", signature: "_isValidAmount(uint256)", selector: "0x9fddac0a" },
-      {
-        name: "_payBatch",
+        name: "transferFrom",
         signature:
-          "_payBatch(OfferingState,ProcessOfferingInfo,address,TransferItem[],int64,uint256[],IPrimaryMarket.OfferingProcessResult[],uint256[],uint256)",
-        selector: "0x2af7c348",
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
       },
-      { name: "_primaryMarketStorage", signature: "_primaryMarketStorage()", selector: "0x35bd2ae6" },
-      { name: "_processOffering", signature: "_processOffering(ProcessOfferingInfo)", selector: "0x5fdfbff2" },
       {
-        name: "_processSubscription",
+        name: "transferFromNFT",
         signature:
-          "_processSubscription(OfferingState,ProcessOfferingInfo,uint256,IPrimaryMarket.OfferingProcessResult[],uint256[],uint256[],int64,TransferItem[],uint256)",
-        selector: "0x6287b8ce",
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
       },
-      { name: "_submitSubscription", signature: "_submitSubscription(uint256,uint256)", selector: "0x3f7c6a4c" },
-      { name: "_valueFitsInInt64", signature: "_valueFitsInInt64(uint256)", selector: "0x0fa2162a" },
     ],
   },
 };
@@ -306,25 +319,130 @@ export const TOTAL_STORAGE_WRAPPERS = 2 as const;
  * Not intended for production deployment.
  */
 export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
+  IPrecompiledMock: {
+    name: "IPrecompiledMock",
+    methods: [
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
+      {
+        name: "getPrecompiledAssociationStatus",
+        signature: "function getPrecompiledAssociationStatus() view returns (bool)",
+        selector: "0x77c625a5",
+      },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
+      {
+        name: "setPrecompiledAssociationStatus",
+        signature: "function setPrecompiledAssociationStatus(bool _success)",
+        selector: "0x60f56185",
+      },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool _success)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
+    ],
+  },
+
   MockBond: {
     name: "MockBond",
     description: "Mock bond contract for testing Primary Market",
     inheritance: ["IBondRead"],
     methods: [
-      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
-      { name: "getBalanceOf", signature: "getBalanceOf(address)", selector: "0x9b96eece" },
-      { name: "getBondDetails", signature: "getBondDetails()", selector: "0x4ce02414" },
-      { name: "getCoupon", signature: "getCoupon(uint256)", selector: "0x936e3169" },
-      { name: "getCouponAmountFor", signature: "getCouponAmountFor(uint256,address)", selector: "0x439efc2e" },
-      { name: "getCouponCount", signature: "getCouponCount()", selector: "0x468bb240" },
-      { name: "getCouponFor", signature: "getCouponFor(uint256,address)", selector: "0xbba7b56d" },
-      { name: "getCouponHolders", signature: "getCouponHolders(uint256,uint256,uint256)", selector: "0xa92e8371" },
-      { name: "getPrincipalFor", signature: "getPrincipalFor(address)", selector: "0x6f131c78" },
-      { name: "getTotalCouponHolders", signature: "getTotalCouponHolders(uint256)", selector: "0xec116ae3" },
-      { name: "getTotalSupply", signature: "getTotalSupply()", selector: "0xc4e41b22" },
-      { name: "issue", signature: "issue(address,uint256,bytes)", selector: "0xbb3acde9" },
-      { name: "setNominalValue", signature: "setNominalValue(uint256)", selector: "0xe1299345" },
-      { name: "setNominalValueDecimals", signature: "setNominalValueDecimals(uint8)", selector: "0x29a092b7" },
+      { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
+      {
+        name: "getBalanceOf",
+        signature: "function getBalanceOf(address account) view returns (uint256)",
+        selector: "0x9b96eece",
+      },
+      {
+        name: "getBondDetails",
+        signature:
+          "function getBondDetails() view returns ((bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
+        selector: "0x4ce02414",
+      },
+      {
+        name: "getCoupon",
+        signature:
+          "function getCoupon(uint256) pure returns (((uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId))",
+        selector: "0x936e3169",
+      },
+      {
+        name: "getCouponAmountFor",
+        signature:
+          "function getCouponAmountFor(uint256, address) pure returns ((uint256 numerator, uint256 denominator, bool recordDateReached))",
+        selector: "0x439efc2e",
+      },
+      { name: "getCouponCount", signature: "function getCouponCount() pure returns (uint256)", selector: "0x468bb240" },
+      {
+        name: "getCouponFor",
+        signature:
+          "function getCouponFor(uint256, address) pure returns ((uint256 tokenBalance, uint8 decimals, bool recordDateReached, (uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon))",
+        selector: "0xbba7b56d",
+      },
+      {
+        name: "getCouponFromOrderedListAt",
+        signature: "function getCouponFromOrderedListAt(uint256) pure returns (uint256)",
+        selector: "0x65a88a2c",
+      },
+      {
+        name: "getCouponHolders",
+        signature: "function getCouponHolders(uint256, uint256, uint256) pure returns (address[])",
+        selector: "0xa92e8371",
+      },
+      {
+        name: "getCouponsOrderedList",
+        signature: "function getCouponsOrderedList(uint256, uint256) pure returns (uint256[])",
+        selector: "0xd7133de1",
+      },
+      {
+        name: "getCouponsOrderedListTotal",
+        signature: "function getCouponsOrderedListTotal() pure returns (uint256)",
+        selector: "0xee1d26eb",
+      },
+      {
+        name: "getPrincipalFor",
+        signature: "function getPrincipalFor(address) pure returns ((uint256 numerator, uint256 denominator))",
+        selector: "0x6f131c78",
+      },
+      {
+        name: "getTotalCouponHolders",
+        signature: "function getTotalCouponHolders(uint256) pure returns (uint256)",
+        selector: "0xec116ae3",
+      },
+      { name: "getTotalSupply", signature: "function getTotalSupply() view returns (uint256)", selector: "0xc4e41b22" },
+      {
+        name: "issue",
+        signature: "function issue(address _tokenHolder, uint256 _value, bytes)",
+        selector: "0xbb3acde9",
+      },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      { name: "nominalValue", signature: "function nominalValue() view returns (uint256)", selector: "0x9bb04895" },
+      {
+        name: "nominalValueDecimals",
+        signature: "function nominalValueDecimals() view returns (uint8)",
+        selector: "0xe50b75df",
+      },
+      { name: "setNominalValue", signature: "function setNominalValue(uint256 nominalValue_)", selector: "0xe1299345" },
+      {
+        name: "setNominalValueDecimals",
+        signature: "function setNominalValueDecimals(uint8 nominalValueDecimals_)",
+        selector: "0x29a092b7",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      { name: "treasury", signature: "function treasury() view returns (address)", selector: "0x61d027b3" },
     ],
     errors: [{ name: "NotImplemented", signature: "NotImplemented()", selector: "0xd6234725" }],
     factory: (signer) => new MockBond__factory(signer),
@@ -335,13 +453,62 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     description: "Mock ERC20 token for testing Primary Market",
     inheritance: ["ERC20"],
     methods: [
-      { name: "approveFor", signature: "approveFor(address,address,uint256)", selector: "0x2b991746" },
-      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
-      { name: "getTransferFromFail", signature: "getTransferFromFail()", selector: "0xcce1bcd3" },
-      { name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" },
-      { name: "setDecimals", signature: "setDecimals(uint8)", selector: "0x7a1395aa" },
-      { name: "setTransferFromFail", signature: "setTransferFromFail(bool)", selector: "0x99fc7099" },
-      { name: "transferFrom", signature: "transferFrom(address,address,uint256)", selector: "0x23b872dd" },
+      {
+        name: "allowance",
+        signature: "function allowance(address owner, address spender) view returns (uint256)",
+        selector: "0xdd62ed3e",
+      },
+      {
+        name: "approve",
+        signature: "function approve(address spender, uint256 amount) returns (bool)",
+        selector: "0x095ea7b3",
+      },
+      {
+        name: "approveFor",
+        signature: "function approveFor(address owner, address spender, uint256 amount) returns (bool)",
+        selector: "0x2b991746",
+      },
+      {
+        name: "balanceOf",
+        signature: "function balanceOf(address account) view returns (uint256)",
+        selector: "0x70a08231",
+      },
+      { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
+      {
+        name: "decreaseAllowance",
+        signature: "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
+        selector: "0xa457c2d7",
+      },
+      {
+        name: "getTransferFromFail",
+        signature: "function getTransferFromFail() view returns (bool)",
+        selector: "0xcce1bcd3",
+      },
+      {
+        name: "increaseAllowance",
+        signature: "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
+        selector: "0x39509351",
+      },
+      { name: "mint", signature: "function mint(address to, uint256 amount)", selector: "0x40c10f19" },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      { name: "setDecimals", signature: "function setDecimals(uint8 decimals_)", selector: "0x7a1395aa" },
+      {
+        name: "setTransferFromFail",
+        signature: "function setTransferFromFail(bool transferFromFail_)",
+        selector: "0x99fc7099",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      { name: "totalSupply", signature: "function totalSupply() view returns (uint256)", selector: "0x18160ddd" },
+      {
+        name: "transfer",
+        signature: "function transfer(address to, uint256 amount) returns (bool)",
+        selector: "0xa9059cbb",
+      },
+      {
+        name: "transferFrom",
+        signature: "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+        selector: "0x23b872dd",
+      },
     ],
     factory: (signer) => new MockERC20__factory(signer),
   },
@@ -350,29 +517,50 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "PrecompiledMock",
     inheritance: ["IPrecompiledMock", "PrecompiledMockStorageWrapper"],
     methods: [
-      { name: "associateToken", signature: "associateToken(address,address)", selector: "0x49146bde" },
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
       {
         name: "getPrecompiledAssociationStatus",
-        signature: "getPrecompiledAssociationStatus()",
+        signature: "function getPrecompiledAssociationStatus() view returns (bool)",
         selector: "0x77c625a5",
       },
-      { name: "getPrecompiledTransferStatus", signature: "getPrecompiledTransferStatus()", selector: "0x684d4b1a" },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
       {
         name: "setPrecompiledAssociationStatus",
-        signature: "setPrecompiledAssociationStatus(bool)",
+        signature: "function setPrecompiledAssociationStatus(bool success_)",
         selector: "0x60f56185",
       },
-      { name: "setPrecompiledTransferStatus", signature: "setPrecompiledTransferStatus(bool)", selector: "0xba02bb5f" },
-      { name: "transferTokens", signature: "transferTokens(address,address[],int64[])", selector: "0x82bba493" },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool success_)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
     ],
     factory: (signer) => new PrecompiledMock__factory(signer),
+  },
+
+  PrecompiledMockStorageWrapper: {
+    name: "PrecompiledMockStorageWrapper",
   },
 };
 
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 3 as const;
+export const TOTAL_MOCKS = 5 as const;
 
 /**
  * All role identifiers extracted from contracts.
