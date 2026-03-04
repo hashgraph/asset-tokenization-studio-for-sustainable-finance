@@ -16,8 +16,8 @@
  */
 
 import { ethers } from "hardhat";
-import { configureLogger, LogLevel, deployResolverProxy } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { deployResolverProxy } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { ITimeTravel__factory, BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 
@@ -30,8 +30,6 @@ import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
  * @returns Complete deployment output + test utilities
  */
 export async function deployFactoryPrimaryMarketInfrastructureFixture(useTimeTravel = true) {
-  configureLogger({ level: LogLevel.SILENT });
-
   const signers = await ethers.getSigners();
   const [deployer, admin] = signers;
 
@@ -42,7 +40,7 @@ export async function deployFactoryPrimaryMarketInfrastructureFixture(useTimeTra
   });
 
   // Get typed contract instances using TypeChain factories
-  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+  const blr = BusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   // Get TimeTravelFacet if TimeTravel is enabled
   const timeTravel = useTimeTravel
@@ -84,8 +82,6 @@ export async function deployFactoryPrimaryMarketInfrastructureFixture(useTimeTra
  * @returns Complete deployment output + test utilities
  */
 export async function deployPrimaryMarketInfrastructureFixture(useTimeTravel = true) {
-  configureLogger({ level: LogLevel.SILENT });
-
   const signers = await ethers.getSigners();
   const [deployer, admin] = signers;
 
@@ -96,7 +92,7 @@ export async function deployPrimaryMarketInfrastructureFixture(useTimeTravel = t
   });
 
   // Get typed contract instances using TypeChain factories
-  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+  const blr = BusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
 

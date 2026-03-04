@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { Contract } from "ethers";
 import {
   createBatchConfiguration,
   ConfigurationData,
@@ -9,6 +8,7 @@ import {
   atsRegistry,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { BusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts";
 import { TREASURY_CONFIG_ID, factorySuiteRegistry } from "@scripts";
 
 const TREASURY_FACETS = ["AccessControlFacet", "MockTreasuryFacet"] as const;
@@ -29,7 +29,7 @@ const TREASURY_FACETS = ["AccessControlFacet", "MockTreasuryFacet"] as const;
  * @returns Operation result with configuration data or error
  */
 export async function createTreasuryConfiguration(
-  blrContract: Contract,
+  blrContract: BusinessLogicResolver,
   facetAddresses: Record<string, string>,
   _useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,

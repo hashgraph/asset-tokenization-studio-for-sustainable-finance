@@ -3,11 +3,24 @@
 /**
  * Test constants module.
  *
- * Centralized test constants to eliminate magic values throughout test files.
- * Provides single source of truth for test configuration values.
+ * Re-exports upstream ATS test constants and defines GBP FactorySuite-specific constants.
  *
  * @module test/constants
  */
+
+// Re-export upstream ATS test constants (tsconfig alias bypasses node10 moduleResolution limitation)
+export {
+  TEST_SIZES,
+  BLR_VERSIONS,
+  TEST_ADDRESSES,
+  TEST_CONFIG_IDS,
+  TEST_BYTES32,
+  TEST_TOKEN_METADATA,
+  TEST_NOMINAL_VALUES,
+  TEST_REGULATION,
+  TEST_GAS_LIMITS,
+  TEST_OPTIONS,
+} from "ats-test-helpers";
 
 /**
  * Mock contract names (legacy - prefer TypeChain factories)
@@ -25,19 +38,13 @@ export const MOCK_ATS_FACTORY_CONTRACT_NAME = "MockAtsFactory";
 export const MOCK_BOND_CONTRACT_NAME = "MockBond";
 export const MOCK_BUSINESS_LOGIC_RESOLVER_CONTRACT_NAME = "MockBusinessLogicResolver";
 
-/**
- * Gas limits for test assertions
- */
+/** Gas limits for test assertions */
 export const MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT = 10_000_000; // 10M gas
 
-/**
- * Treasury configuration defaults for tests
- */
-export const TREASURY_CONFIG_VERSION = 1; // First version of Treasury configuration
+/** Treasury configuration defaults for tests */
+export const TREASURY_CONFIG_VERSION = 1;
 
-/**
- * Test role names (for keccak256 hashing in tests)
- */
+/** Test role names (for keccak256 hashing in tests) */
 export const TEST_ROLE_1 = "ROLE_1";
 export const TEST_ROLE_2 = "ROLE_2";
 export const TEST_KPI_ROLE_1 = "KPI_ROLE_1";

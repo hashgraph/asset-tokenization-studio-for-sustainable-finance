@@ -3,14 +3,11 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PM_RESOLVER_KEYS } from "@scripts/domain";
 import { IStaticFunctionSelectors } from "@contract-types";
 import { deployFactoryPrimaryMarketSystem } from "@scripts";
-import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 
 let primaryMarketFacet: IStaticFunctionSelectors;
 
 describe("PrimaryMarketFacet", () => {
-  configureLogger({ level: LogLevel.SILENT });
-
   async function deployFixture() {
     const [deployer] = await ethers.getSigners();
 
@@ -32,10 +29,6 @@ describe("PrimaryMarketFacet", () => {
       facetAddresses.PrimaryMarketFacet,
     )) as IStaticFunctionSelectors;
   }
-
-  before(async () => {
-    // Signers setup not needed for this test
-  });
 
   beforeEach(async () => {
     await loadFixture(deployFixture);

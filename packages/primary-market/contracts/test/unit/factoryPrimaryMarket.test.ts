@@ -3,10 +3,21 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
 import { IFactoryPrimaryMarket, IBusinessLogicResolver, IAccessControl } from "@contract-types";
 import { IPause, IPause__factory } from "@hashgraph/asset-tokenization-contracts";
-import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
-import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { deployFactoryPrimaryMarketSystem, ATS_ROLES, PM_ROLES } from "@scripts";
 import { ethers } from "hardhat";
-import { Signer } from "ethers";
+import type { Signer } from "ethers";
+
+function findEventInReceipt(receipt: any, eventName: string, iface: any): any {
+  return receipt?.logs
+    .map((log: any) => {
+      try {
+        return iface.parseLog(log);
+      } catch {
+        return null;
+      }
+    })
+    .find((e: any) => e?.name === eventName);
+}
 
 let factoryPrimaryMarket: IFactoryPrimaryMarket;
 let blr: IBusinessLogicResolver;
@@ -19,8 +30,6 @@ let RBACS: { role: string; members: string[] }[];
 let RESOLVER_PROXY_CONFIG: { key: string; version: number };
 
 describe("FactoryPrimaryMarket", () => {
-  configureLogger({ level: LogLevel.SILENT });
-
   async function deployFixture() {
     const [deployer] = await ethers.getSigners();
 
@@ -43,8 +52,6 @@ describe("FactoryPrimaryMarket", () => {
       "IBusinessLogicResolver",
       deployment.infrastructure.blr.proxy,
     )) as IBusinessLogicResolver;
-
-    await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
   }
 
   before(async () => {
@@ -69,18 +76,21 @@ describe("FactoryPrimaryMarket", () => {
 
   beforeEach(async () => {
     await loadFixture(deployFixture);
+    await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
   });
 
   describe("Deploying Primary Market", () => {
     it("GIVEN an unauthorized account WHEN deploying new primary market THEN fail", async () => {
       await expect(
-        factoryPrimaryMarket.connect(unauthorized).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS),
+        factoryPrimaryMarket
+          .connect(unauthorized)
+          .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, RBACS),
       ).to.be.revertedWithCustomError(accessControl, "AccountHasNoRole");
     });
 
     it("GIVEN a resolver as address(0) WHEN deploying new primary market THEN fail", async () => {
       await expect(
-        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(ADDRESS_ZERO, RESOLVER_PROXY_CONFIG, RBACS),
+        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(ethers.ZeroAddress, RESOLVER_PROXY_CONFIG, RBACS),
       ).to.be.revertedWithCustomError(factoryPrimaryMarket, "InvalidResolverAddress");
     });
 
@@ -88,7 +98,7 @@ describe("FactoryPrimaryMarket", () => {
       const wrongRbac: any = [
         {
           role: ATS_ROLES.DEFAULT_ADMIN_ROLE,
-          members: [ADDRESS_ZERO],
+          members: [ethers.ZeroAddress],
         },
         {
           role: ATS_ROLES.PAUSER_ROLE,
@@ -101,7 +111,9 @@ describe("FactoryPrimaryMarket", () => {
       ];
 
       await expect(
-        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, wrongRbac),
+        factoryPrimaryMarket
+          .connect(admin)
+          .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, wrongRbac),
       ).to.be.revertedWithCustomError(factoryPrimaryMarket, "NoInitialAdmins");
     });
 
@@ -114,7 +126,9 @@ describe("FactoryPrimaryMarket", () => {
       ];
 
       await expect(
-        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, wrongRbac),
+        factoryPrimaryMarket
+          .connect(admin)
+          .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, wrongRbac),
       ).to.be.revertedWithCustomError(factoryPrimaryMarket, "NoInitialAdmins");
     });
 
@@ -122,30 +136,32 @@ describe("FactoryPrimaryMarket", () => {
       const wrongRbac: any = [];
 
       await expect(
-        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, wrongRbac),
+        factoryPrimaryMarket
+          .connect(admin)
+          .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, wrongRbac),
       ).to.be.revertedWithCustomError(factoryPrimaryMarket, "NoInitialAdmins");
     });
 
     it("GIVEN an authorized user WHEN deploying new primary market THEN success", async () => {
       const primaryMarketAddress = await factoryPrimaryMarket
         .connect(admin)
-        .callStatic.deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS);
+        .deployPrimaryMarket.staticCall(await blr.getAddress(), RESOLVER_PROXY_CONFIG, RBACS);
 
       const tx = await factoryPrimaryMarket
         .connect(admin)
-        .deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS);
+        .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, RBACS);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "PrimaryMarketDeployed");
+      const event = findEventInReceipt(receipt, "PrimaryMarketDeployed", factoryPrimaryMarket.interface);
 
       expect(event).to.not.be.undefined;
-      expect(event?.args?.operator).to.equal(adminAddress);
-      expect(event?.args?.primaryMarketAddress).to.equal(primaryMarketAddress);
-      expect(event?.args?.resolver).to.equal(blr.address);
-      expect(event?.args?.resolverProxyConfiguration.key).to.equal(RESOLVER_PROXY_CONFIG.key);
-      expect(event?.args?.resolverProxyConfiguration.version).to.equal(RESOLVER_PROXY_CONFIG.version);
+      expect(event?.args[0]).to.equal(adminAddress);
+      expect(event?.args[1]).to.equal(primaryMarketAddress);
+      expect(event?.args[2]).to.equal(await blr.getAddress());
+      expect(event?.args[3].key).to.equal(RESOLVER_PROXY_CONFIG.key);
+      expect(event?.args[3].version).to.equal(RESOLVER_PROXY_CONFIG.version);
       for (let i = 0; i < RBACS.length; i++) {
-        expect(event?.args?.rbacs[i].role).to.equal(RBACS[i].role);
-        expect(event?.args?.rbacs[i].members).to.deep.equal(RBACS[i].members);
+        expect(event?.args[4][i].role).to.equal(RBACS[i].role);
+        expect(event?.args[4][i].members).to.deep.equal(RBACS[i].members);
       }
     });
 
@@ -154,11 +170,11 @@ describe("FactoryPrimaryMarket", () => {
       await accessControl.grantRole(ATS_ROLES.PAUSER_ROLE, adminAddress);
 
       // Pause the factory
-      pause = IPause__factory.connect(factoryPrimaryMarket.address, admin);
+      pause = IPause__factory.connect(await factoryPrimaryMarket.getAddress(), admin);
       await pause.connect(admin).pause();
 
       await expect(
-        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS),
+        factoryPrimaryMarket.connect(admin).deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, RBACS),
       ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
     });
   });
