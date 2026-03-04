@@ -144,11 +144,11 @@ describe("Kpi", () => {
       await kpi.addKpiData(1, 123);
       const before = await kpi.getKpiData(1, 1);
       expect(before.kpiAggregatedValue).to.equal(123);
-      const originalImplementationAddress = await getImplementationAddress(kpi.address);
+      const originalImplementationAddress = await getImplementationAddress(await kpi.getAddress());
 
-      await upgradeKpiProxy(owner, proxyAdmin, kpi.address);
+      await upgradeKpiProxy(owner, proxyAdmin, await kpi.getAddress());
 
-      const newImplementationAddress = await getImplementationAddress(kpi.address);
+      const newImplementationAddress = await getImplementationAddress(await kpi.getAddress());
 
       expect(newImplementationAddress).to.not.equal(originalImplementationAddress);
 

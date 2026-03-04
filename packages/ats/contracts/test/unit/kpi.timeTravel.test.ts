@@ -5,6 +5,7 @@ import { expect } from "chai";
 import { Contract, Signer } from "ethers";
 import { ethers } from "hardhat";
 import { KpiTimeTravel__factory, TransparentUpgradeableProxy__factory } from "@contract-types";
+import type { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 
 /**
  * TimeTravel tests for KPI contract - validates time-dependent logic with deterministic timestamps
@@ -16,7 +17,7 @@ import { KpiTimeTravel__factory, TransparentUpgradeableProxy__factory } from "@c
  */
 describe("Kpi - TimeTravel Tests", () => {
   let kpiTimeTravel: Contract;
-  let owner: Signer;
+  let owner: HardhatEthersSigner;
   let unknownSigner: Signer;
   let rbac: any;
 
@@ -37,16 +38,18 @@ describe("Kpi - TimeTravel Tests", () => {
 
     const proxyAdmin = await deployProxyAdmin(owner);
     const kpiLogic = await new KpiTimeTravel__factory(owner).deploy();
+    await kpiLogic.waitForDeployment();
 
     const initData = kpiLogic.interface.encodeFunctionData("initialize", [rbac]);
 
     const proxy = await new TransparentUpgradeableProxy__factory(owner).deploy(
-      kpiLogic.address,
-      proxyAdmin.address,
+      await kpiLogic.getAddress(),
+      await proxyAdmin.getAddress(),
       initData,
     );
+    await proxy.waitForDeployment();
 
-    const kpiProxy = KpiTimeTravel__factory.connect(proxy.address, owner);
+    const kpiProxy = KpiTimeTravel__factory.connect(await proxy.getAddress(), owner);
     await kpiProxy.changeSystemTimestamp(MOCK_CURRENT_TIME);
 
     return kpiProxy;

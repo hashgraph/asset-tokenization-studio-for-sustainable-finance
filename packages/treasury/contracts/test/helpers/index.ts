@@ -8,4 +8,6 @@
  * @module test/helpers
  */
 
+export * from "./crypto";
 export * from "./deployment";
+export * from "./globalSetup";

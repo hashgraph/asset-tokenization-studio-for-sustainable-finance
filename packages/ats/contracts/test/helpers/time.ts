@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { BigNumber } from "ethers";
 
 export async function setBlockTimestamp(timeTravel: ITimeTravel, timestamp: number): Promise<void> {
   await timeTravel.changeSystemTimestamp(timestamp);
 }
 
 export async function advanceTime(timeTravel: ITimeTravel, seconds: number): Promise<void> {
-  const current: BigNumber = await timeTravel.blockTimestamp();
-  await timeTravel.changeSystemTimestamp(current.add(seconds).toNumber());
+  const current: bigint = await timeTravel.blockTimestamp();
+  await timeTravel.changeSystemTimestamp(Number(current) + seconds);
 }
 
 export async function advanceTimeByDays(timeTravel: ITimeTravel, days: number): Promise<void> {
@@ -29,6 +28,6 @@ export async function resetBlockNumber(timeTravel: ITimeTravel): Promise<void> {
   await timeTravel.resetSystemBlocknumber();
 }
 
-export async function getCurrentTimestamp(timeTravel: ITimeTravel): Promise<BigNumber> {
+export async function getCurrentTimestamp(timeTravel: ITimeTravel): Promise<bigint> {
   return await timeTravel.blockTimestamp();
 }

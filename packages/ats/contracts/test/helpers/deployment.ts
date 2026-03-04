@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ContractReceipt } from "ethers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { ContractTransactionReceipt } from "ethers";
+import type { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import type { IFactorySuite, MockTreasuryFacet } from "@contract-types";
 import { MockTreasuryFacet__factory } from "@contract-types";
 import type { IFactory } from "@contract-types";
@@ -43,7 +43,7 @@ import type { IFactory } from "@contract-types";
  */
 export async function deployBondSuiteAndExtractContracts(
   factorySuite: IFactorySuite,
-  signer: SignerWithAddress,
+  signer: HardhatEthersSigner,
   factoryAddress: string,
   bondData: IFactory.BondDataStruct,
   regulationData: any,
@@ -54,7 +54,7 @@ export async function deployBondSuiteAndExtractContracts(
   treasuryAddress: string;
   kpiAddress: string;
   treasury: MockTreasuryFacet;
-  receipt: ContractReceipt;
+  receipt: ContractTransactionReceipt | null;
 }> {
   const tx = await factorySuite
     .connect(signer)
@@ -62,7 +62,16 @@ export async function deployBondSuiteAndExtractContracts(
 
   const receipt = await tx.wait();
 
-  const event = receipt.events?.find((e) => e.event === "BondSuiteDeployed");
+  const event = receipt?.logs
+    .map((log) => {
+      try {
+        return factorySuite.interface.parseLog(log);
+      } catch {
+        return null;
+      }
+    })
+    .find((e) => e?.name === "BondSuiteDeployed");
+
   if (!event || !event.args) {
     throw new Error("BondSuiteDeployed event not found in transaction receipt");
   }

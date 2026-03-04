@@ -43,8 +43,6 @@ task("generate-registry", "Generate contract registry from Solidity source files
         cwd: hre.config.paths.root,
         env,
       });
-
-      console.log("✅ Registry generation completed successfully");
     } catch (error) {
       // If registry generation fails, log error but don't fail the build
       // This allows compilation to succeed even if registry generation has issues
