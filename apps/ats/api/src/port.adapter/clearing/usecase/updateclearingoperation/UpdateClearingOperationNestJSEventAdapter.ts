@@ -13,7 +13,7 @@ import { ReclaimClearingCommand } from "@app/clearing/reclaimclearing/command/Re
 import { ApproveClearingCommand } from "@app/clearing/approveclearing/command/ApproveClearingCommand"
 import { UpdateClearingOperationPort } from "@port/clearing/usecase/updateclearingoperation/UpdateClearingOperationPort"
 import { ClearingOperationType } from "@domain/clearing/model/ClearingOperationType"
-import { utils } from "ethers"
+import { AbiCoder } from "ethers"
 
 @Singleton()
 export class ClearingOperationApprovedNestJSEventAdapter
@@ -29,7 +29,7 @@ export class ClearingOperationApprovedNestJSEventAdapter
       event.operationData &&
       event.operationData !== "0x"
     ) {
-      const decodedData = utils.defaultAbiCoder.decode(["uint256"], event.operationData)
+      const decodedData = AbiCoder.defaultAbiCoder().decode(["uint256"], event.operationData)
       holdId = Number(decodedData[0])
     }
 

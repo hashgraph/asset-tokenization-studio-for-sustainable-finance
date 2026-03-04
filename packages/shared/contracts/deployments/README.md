@@ -210,26 +210,36 @@ When a deployment fails:
 
 ### Managing Checkpoints
 
-**List checkpoints**:
+**CLI tool** (recommended):
 
 ```bash
-ls -la packages/shared/contracts/deployments/.checkpoints/
+# List all checkpoints for a network
+npm run checkpoint:list -- hardhat
+npm run checkpoint:list -- hedera-testnet
+
+# Show details of a specific checkpoint
+npm run checkpoint -- show <checkpoint-id>
+
+# Reset a failed checkpoint to in-progress (for retry)
+npm run checkpoint -- reset <checkpoint-id>
+
+# Delete a specific checkpoint
+npm run checkpoint -- delete <checkpoint-id>
+
+# Clean up completed checkpoints older than N days (default: 30)
+npm run checkpoint:cleanup -- hedera-testnet
+npm run checkpoint:cleanup -- hedera-testnet 7
 ```
 
-**Delete specific checkpoint** (to force fresh deployment):
+**From the monorepo root** (aggregate scripts):
 
 ```bash
-rm packages/shared/contracts/deployments/.checkpoints/hedera-testnet-1762965051697.json
+npm run shared:contracts:checkpoint:list -- hardhat
+npm run shared:contracts:checkpoint:cleanup -- hedera-testnet
 ```
 
-**Delete all checkpoints**:
-
-```bash
-rm packages/shared/contracts/deployments/.checkpoints/*.json
-```
-
-**Cleanup old completed checkpoints**:
-The checkpoint system includes automatic cleanup for old completed deployments (>30 days).
+**Automatic cleanup**:
+Both `deployGbpInfrastructure` and `upgradeGbpConfigurations` automatically clean up completed checkpoints older than 30 days after a successful run. Failed checkpoints are preserved indefinitely for debugging.
 
 ### Checkpoint vs node_modules
 

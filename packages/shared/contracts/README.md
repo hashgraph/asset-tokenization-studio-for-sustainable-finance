@@ -2195,6 +2195,29 @@ npm run clean         # Remove build artifacts and node_modules
 npm run clean:build   # Remove only build artifacts
 ```
 
+### Testing
+
+```bash
+npm run test          # Run all integration tests (deployment + upgrade + checkpoint)
+npm run test:only     # Run tests without recompiling contracts
+```
+
+Test suites:
+
+- `deployGbpInfrastructure.test.ts` - Full deployment orchestration (67 tests)
+- `upgradeGbpConfigurations.test.ts` - Configuration upgrade workflows (45+ tests)
+- `checkpointResume.test.ts` - Checkpoint CRUD, resume, cleanup (17 tests)
+
+### Checkpoint Management
+
+```bash
+npm run checkpoint:list -- <network>              # List checkpoints
+npm run checkpoint -- show <checkpoint-id>         # Show checkpoint details
+npm run checkpoint -- reset <checkpoint-id>        # Reset failed → in-progress
+npm run checkpoint -- delete <checkpoint-id>       # Delete a checkpoint
+npm run checkpoint:cleanup -- <network> [days]     # Clean completed > N days
+```
+
 ### Code Quality
 
 ```bash

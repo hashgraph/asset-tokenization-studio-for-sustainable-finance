@@ -24,7 +24,8 @@
       "@scripts/domain": ["./scripts/domain/index.ts"],
       "@tasks": ["./tasks/index.ts"],
       "@test": ["./test/index.ts"],
-      "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"]
+      "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"],
+      "ats-test-helpers": ["./node_modules/@hashgraph/asset-tokenization-contracts/build/test/helpers/index"]
     }
   },
   "include": ["Configuration.ts", "scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Client } from "@hiero-ledger/sdk"
-import { ethers } from "ethers"
+import { JsonRpcProvider } from "ethers"
 
 export type Environment = "testnet" | "previewnet" | "mainnet" | "local"
 
@@ -21,11 +21,11 @@ const hederaClientMap: Record<Environment, () => Client> = {
   local: () => Client.forNetwork({}),
 }
 
-const ethereumProviderMap: Record<Environment, () => ethers.providers.JsonRpcProvider> = {
-  testnet: () => new ethers.providers.JsonRpcProvider("https://testnet.hashio.io/api"),
-  previewnet: () => new ethers.providers.JsonRpcProvider("https://previewnet.hashio.io/api"),
-  mainnet: () => new ethers.providers.JsonRpcProvider("https://mainnet.hashio.io/api"),
-  local: () => new ethers.providers.JsonRpcProvider("http://localhost:8545"),
+const ethereumProviderMap: Record<Environment, () => JsonRpcProvider> = {
+  testnet: () => new JsonRpcProvider("https://testnet.hashio.io/api"),
+  previewnet: () => new JsonRpcProvider("https://previewnet.hashio.io/api"),
+  mainnet: () => new JsonRpcProvider("https://mainnet.hashio.io/api"),
+  local: () => new JsonRpcProvider("http://localhost:8545"),
 }
 
 export const getChainIdByNetwork = (environment: Environment): number => {
@@ -44,7 +44,7 @@ export const getHederaClient = (environment: Environment): Client => {
   return factory()
 }
 
-export const getEthereumProvider = (environment: Environment): ethers.providers.JsonRpcProvider => {
+export const getEthereumProvider = (environment: Environment): JsonRpcProvider => {
   const factory = ethereumProviderMap[environment]
   if (!factory) {
     throw new Error(`Unsupported network environment: ${environment}`)

@@ -7,12 +7,10 @@ import axios, { HttpStatusCode } from "axios"
 import { FetchEventsRequest } from "@port/blockchain/model/FetchEventsRequest"
 import { EventSignatureRequest } from "@port/blockchain/model/EventSignatureRequest"
 import { isTopicInBloom } from "ethereum-bloom-filters"
-import { utils } from "ethers"
+import { id, Interface } from "ethers"
 import { GetBlockResponse } from "@port/blockchain/model/GetBlockResponse"
-import { Interface } from "ethers/lib/utils"
 import DecodeLogRequest from "@port/blockchain/model/DecodeLogRequest"
 import { GetBlockRequest } from "@port/blockchain/model/GetBlockRequest"
-import { BigNumber } from "ethers"
 
 @Singleton()
 export class HederaMirrorNodeAdapter implements HederaPort {
@@ -105,7 +103,7 @@ export class HederaMirrorNodeAdapter implements HederaPort {
   private getEventSignaturesIncludedInBlock(request: FetchEventsRequest): EventSignatureRequest[] {
     const eventSignatures: EventSignatureRequest[] = []
     request.contractEvents.forEach((contractEvent) => {
-      const normalizedEventSignatureHash = utils.id(this.normalizeEventSignature(contractEvent.eventSignature))
+      const normalizedEventSignatureHash = id(this.normalizeEventSignature(contractEvent.eventSignature))
       if (isTopicInBloom(request.logsBloom, normalizedEventSignatureHash)) {
         eventSignatures.push({
           contractAddress: contractEvent.contractAddress,
@@ -267,14 +265,9 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       } else {
         return input.map((value) => this.getEventParmsObject(value))
       }
+    } else if (typeof input === "bigint") {
+      return input.toString()
     } else if (typeof input === "object" && input !== null) {
-      if (input.constructor.name == "BigNumber") {
-        return input.toString()
-      }
-      if (input._isBigNumber && input._hex) {
-        return BigNumber.from(input).toString()
-      }
-
       const cleaned: any = {}
       for (const [key, value] of Object.entries(input)) {
         cleaned[key] = this.getEventParmsObject(value)
