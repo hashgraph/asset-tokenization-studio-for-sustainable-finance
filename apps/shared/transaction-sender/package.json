@@ -25,7 +25,7 @@
     "@hashgraph/green-bonds-shared-core": "*",
     "@hiero-ledger/sdk": "2.79.0",
     "amqplib": "0.10.9",
-    "ethers": "5.8.0"
+    "ethers": "6.15.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",

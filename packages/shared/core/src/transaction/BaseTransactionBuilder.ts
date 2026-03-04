@@ -2,7 +2,7 @@
 
 import { ContractExecuteTransaction, Transaction, AccountId, TransactionId, Timestamp } from "@hiero-ledger/sdk"
 import { Environment, getChainIdByNetwork, getHederaClient } from "./Environment"
-import { Interface, parseEther, serializeTransaction } from "ethers/lib/utils"
+import { Interface, parseEther, Transaction as EthersTransaction } from "ethers"
 import { TransactionFormat, TransactionParams } from "./model/TransactionParams"
 import { TransactionResponse } from "./model/TransactionResponse"
 import { ConverterUtils } from "@utils/ConverterUtils"
@@ -196,7 +196,7 @@ export abstract class BaseTransactionBuilder implements BaseTransactionBuilderPo
         gasLimit: tx.gas.toNumber(),
         chainId: getChainIdByNetwork(environment),
       }
-      const unsignedTx = serializeTransaction(evmTxData)
+      const unsignedTx = EthersTransaction.from(evmTxData).unsignedSerialized
       return new TransactionResponse(unsignedTx)
     } catch (error) {
       throw new Error(`Failed to serialize EVM transaction: ${(error as Error).message}`)

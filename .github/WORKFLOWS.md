@@ -445,8 +445,18 @@ test-new-module-contracts:
 3. **Add to root package.json** (if needed):
 
 ```json
-"new-module:contracts:test": "npm run test --workspace=@hashgraph/green-bonds-platform-new-module-contracts"
+"new-module:contracts:test": "npm run test --workspace=@hashgraph/green-bonds-platform-new-module-contracts",
+"new-module:contracts:test:only": "npm run test:only --workspace=@hashgraph/green-bonds-platform-new-module-contracts",
+"new-module:contracts:test:parallel": "npm run test:parallel --workspace=@hashgraph/green-bonds-platform-new-module-contracts",
+"new-module:contracts:test:parallel:only": "npm run test:parallel:only --workspace=@hashgraph/green-bonds-platform-new-module-contracts"
 ```
+
+4. **Add test helpers** to `packages/new-module/contracts/test/helpers/`:
+   - `globalSetup.ts` — re-exports `silenceScriptLogging` and `mochaHooks` from `@hashgraph/asset-tokenization-contracts/test`
+   - `globalSetup.cjs` — CJS version for Mocha parallel workers
+   - `register-tsx.cjs` — registers tsx ESM loader in worker threads
+
+5. **Update aggregate scripts** in root package.json to include new module in `contracts:test:*` and `contracts:test:concurrent:*` variants
 
 ## 🔧 Pre-commit Hooks Troubleshooting
 
