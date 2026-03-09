@@ -259,11 +259,6 @@
     "katex": "0.16.27",
     "flatted": "3.3.3",
     "@mermaid-js/parser": "0.6.3",
-    "mermaid": "11.12.2",
-    "@docusaurus/theme-mermaid": {
-      "mermaid": "11.12.2",
-      "katex": "0.16.27",
-      "@mermaid-js/parser": "0.6.3"
-    }
+    "mermaid": "11.12.2"
   }
 }
