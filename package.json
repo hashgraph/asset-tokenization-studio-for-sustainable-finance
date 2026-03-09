@@ -252,6 +252,7 @@
     "@typechain/ethers-v6": "0.5.1",
     "@nomicfoundation/hardhat-verify": "2.0.12",
     "@nomicfoundation/hardhat-ignition-ethers": "0.15.17",
+    "@nomicfoundation/hardhat-network-helpers": "1.0.12",
     "ws": "8.18.3",
     "@nestjs/common": "11.1.16",
     "@nestjs/core": "11.1.16",
