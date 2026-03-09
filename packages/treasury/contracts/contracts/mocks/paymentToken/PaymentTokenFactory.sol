@@ -7,8 +7,9 @@ import {
     HederaTokenService,
     HederaResponseCodes
 } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
+// solhint-disable-next-line max-line-length
 import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
+// solhint-disable-next-line max-line-length
 import { ExpiryHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/ExpiryHelper.sol";
 import { KeyHelper } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/KeyHelper.sol";
 
@@ -24,12 +25,12 @@ contract PaymentTokenFactory is IPaymentTokenFactory, ExpiryHelper, KeyHelper, H
      * @return tokenAddress The payment token address
      */
     function createPaymentToken(
-        string memory name,
-        string memory symbol,
+        string calldata name,
+        string calldata symbol,
         int64 initialSupply,
         int32 decimals
     ) external payable returns (address tokenAddress) {
-        int responseCode;
+        int256 responseCode;
         IHederaTokenService.HederaToken memory tokenData;
         tokenData.name = name;
         tokenData.symbol = symbol;
@@ -71,7 +72,7 @@ contract PaymentTokenFactory is IPaymentTokenFactory, ExpiryHelper, KeyHelper, H
      * @param amount The amount of payment tokens to be transferred
      */
     function transferPaymentToken(address token, address to, int64 amount) external {
-        int responseCode = transferToken(token, address(this), to, amount);
+        int256 responseCode = transferToken(token, address(this), to, amount);
         if (responseCode != HederaResponseCodes.SUCCESS) {
             revert PaymentTokenTransferError(token, to, amount);
         }

@@ -206,20 +206,14 @@ Compiled X Solidity files successfully
 
 ## Step 9: Deploy Smart Contracts to Testnet (Optional you can use the ones that we have deployed)
 
-Deploy the contracts to Hedera testnet:
+Configure .evn file in packages/shared/contracts folder.
 
 ```bash
-cd scripts
-
-# Deploy Treasury contracts
-node treasury/treasury-orchestrator.js
-
-# Deploy Primary Market contracts
-node primary-market/primarymarket/deploy-primary-market.js
-
-# Deploy ATS contracts
-node ats/factory/deploy-factory.js
+cd packages/shared/contracts
+cp .env.example .env
 ```
+
+Edit .env file and add your HEX Encoded Private Key from your ECDSA account in HEDERA_TESTNET_PRIVATE_KEY_0 constant.
 
 Navigate back to the root:
 
@@ -227,8 +221,15 @@ Navigate back to the root:
 cd ..
 ```
 
+Deploy the contracts to Hedera testnet:
+
+```bash
+npm run shared:contracts:deploy:hedera:testnet
+```
+
 :::tip
 Save the contract addresses that are printed. You'll need them for the `.env` files.
+A copy of the contract addresses will be saved in `packages/shared/contracts/deployments folder
 :::
 
 After deployment, update your `.env` files with the deployed contract addresses.
@@ -352,11 +353,12 @@ Each should return `{"status":"ok"}` or similar.
 Now that everything is running, you can:
 
 1. **View API Documentation**: Most APIs have Swagger documentation at `/api` endpoint
+   - Gateway API (every platform endpoints together): [http://localhost:3000/api](http://localhost:3000/api)
    - ATS API: [http://localhost:3001/api](http://localhost:3001/api)
    - Primary Market API: [http://localhost:3002/api](http://localhost:3002/api)
    - Treasury API: [http://localhost:3003/api](http://localhost:3003/api)
 
-2. **Make API Calls**: Use tools like Postman, curl, or the Swagger UI to interact with the APIs
+2. **Make API Calls**: Use tools like Postman, Bruno, curl, or the Swagger UI to interact with the APIs
 
 ## Common Issues & Solutions
 

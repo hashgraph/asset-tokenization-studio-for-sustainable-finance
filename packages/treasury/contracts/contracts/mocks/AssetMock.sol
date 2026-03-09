@@ -2,71 +2,25 @@
 
 pragma solidity ^0.8.0;
 
-contract AssetMock {
-    enum RateCalculationStatus {
-        PENDING,
-        SET
-    }
+import { IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBondRead.sol";
 
-    struct Coupon {
-        uint256 recordDate;
-        uint256 executionDate;
-        uint256 startDate;
-        uint256 endDate;
-        uint256 fixingDate;
-        uint256 rate;
-        uint8 rateDecimals;
-        RateCalculationStatus rateStatus;
-    }
-
-    struct RegisteredCoupon {
-        Coupon coupon;
-        uint256 snapshotId;
-    }
-
-    struct BondDetailsData {
-        bytes3 currency;
-        uint256 nominalValue;
-        uint8 nominalValueDecimals;
-        uint256 startingDate;
-        uint256 maturityDate;
-    }
-
-    struct CouponFor {
-        uint256 tokenBalance;
-        uint256 rate;
-        uint8 rateDecimals;
-        uint256 recordDate;
-        uint256 executionDate;
-        uint256 period;
-        uint8 decimals;
-        bool recordDateReached;
-    }
-
-    struct CouponAmountFor {
-        uint256 numerator;
-        uint256 denominator;
-        bool recordDateReached;
-    }
-
-    struct PrincipalFor {
-        uint256 numerator;
-        uint256 denominator;
-    }
-
-    string internal name = "Mock Bond";
-    string internal symbol = "MBOND";
-    DateType internal dateType;
-    uint256 internal amount;
-    address[] internal holders;
-    bool internal isProceedRecipientForTheBond;
-    bool internal decimalsObtained;
-
+contract AssetMock is IBondRead {
     enum DateType {
         ZERO,
         TODAY,
         FUTURE
     }
+
+    string internal _name = "Mock Bond";
+    string internal _symbol = "MBOND";
+    DateType internal _dateType;
+    uint256 internal _amount;
+    address[] internal _holders;
+    bool internal _isProceedRecipientForTheBond;
+    bool internal _decimalsObtained;
+
+    error UnableToGetCouponHolders();
+    error DecimalsNotObtained();
 
     // solhint-disable-next-line no-empty-blocks
     constructor(
@@ -76,89 +30,117 @@ contract AssetMock {
         bool addressIsProceedRecipient,
         bool areDecimalsObtained
     ) {
-        dateType = date;
-        amount = amountToPay;
-        holders = couponHolders;
-        isProceedRecipientForTheBond = addressIsProceedRecipient;
-        decimalsObtained = areDecimalsObtained;
+        _dateType = date;
+        _amount = amountToPay;
+        _holders = couponHolders;
+        _isProceedRecipientForTheBond = addressIsProceedRecipient;
+        _decimalsObtained = areDecimalsObtained;
     }
 
-    function getCoupon(uint256) external view returns (RegisteredCoupon memory registeredCoupon) {
+    function getCoupon(uint256) external view override returns (RegisteredCoupon memory registeredCoupon) {
         registeredCoupon.coupon.recordDate = 1753874807;
-        registeredCoupon.coupon.executionDate = dateType == DateType.ZERO
+        registeredCoupon.coupon.executionDate = _dateType == DateType.ZERO
             ? 0
-            : dateType == DateType.TODAY
+            : _dateType == DateType.TODAY
                 ? block.timestamp
                 : 1919590386;
-        registeredCoupon.coupon.startDate = 1750000000;
-        registeredCoupon.coupon.endDate = 1760000000;
-        registeredCoupon.coupon.fixingDate = 1751000000;
+        registeredCoupon.coupon.startDate = 1751282807;
+        registeredCoupon.coupon.endDate = 1919590386;
+        registeredCoupon.coupon.fixingDate = 1919590386;
         registeredCoupon.coupon.rate = 1;
         registeredCoupon.coupon.rateDecimals = 6;
         registeredCoupon.coupon.rateStatus = RateCalculationStatus.SET;
         registeredCoupon.snapshotId = 1;
     }
 
-    function getCouponHolders(uint256, uint256, uint256) external view returns (address[] memory) {
-        if (holders.length > 0 && holders[0] == address(2)) {
-            revert("Wasn't able to get coupon holders");
+    function getCouponHolders(uint256, uint256, uint256) external view override returns (address[] memory) {
+        if (_holders.length > 0 && _holders[0] == address(2)) {
+            revert UnableToGetCouponHolders();
         }
-        return holders;
+        return _holders;
     }
 
     function getSecurityHolders(uint256, uint256) external view returns (address[] memory) {
-        if (holders.length > 0 && holders[0] == address(2)) {
-            revert("Wasn't able to get coupon holders");
+        if (_holders.length > 0 && _holders[0] == address(2)) {
+            revert UnableToGetCouponHolders();
         }
-        return holders;
+        return _holders;
     }
 
-    function getBondDetails() external view returns (BondDetailsData memory bondDetailsData_) {
+    function getBondDetails() external view override returns (BondDetailsData memory bondDetailsData_) {
         bondDetailsData_.currency = 0x555344;
         bondDetailsData_.nominalValue = 20000;
         bondDetailsData_.nominalValueDecimals = 2;
         bondDetailsData_.startingDate = 1751282807;
-        bondDetailsData_.maturityDate = dateType == DateType.ZERO
+        bondDetailsData_.maturityDate = _dateType == DateType.ZERO
             ? 0
-            : dateType == DateType.TODAY
+            : _dateType == DateType.TODAY
                 ? block.timestamp
                 : 1919590386;
     }
 
-    function getCouponFor(uint256, address) external pure returns (CouponFor memory couponFor_) {
-        couponFor_.tokenBalance = uint256(1);
-        couponFor_.rate = 2;
-        couponFor_.rateDecimals = 2;
-        couponFor_.recordDate = 1753874807;
-        couponFor_.executionDate = 1753874807;
-        couponFor_.period = 2592000;
-        couponFor_.decimals = 2;
-        couponFor_.recordDateReached = true;
-    }
-
     function isProceedRecipient(address) external view returns (bool) {
-        return isProceedRecipientForTheBond;
+        return _isProceedRecipientForTheBond;
     }
 
     function decimals() external view returns (uint8) {
-        if (!decimalsObtained) {
-            revert("Decimals not obtained");
+        if (!_decimalsObtained) {
+            revert DecimalsNotObtained();
         }
         return 2;
+    }
+
+    function getCouponAmountFor(
+        uint256,
+        address
+    ) external view override returns (CouponAmountFor memory couponAmountFor_) {
+        couponAmountFor_.numerator = _amount;
+        couponAmountFor_.denominator = 1;
+        couponAmountFor_.recordDateReached = true;
+    }
+
+    function getPrincipalFor(address) external view override returns (PrincipalFor memory principalFor_) {
+        principalFor_.numerator = _amount;
+        principalFor_.denominator = 1;
+    }
+
+    function getTotalCouponHolders(uint256) external view override returns (uint256) {
+        return _holders.length;
+    }
+
+    function getCouponFor(uint256, address) external pure override returns (CouponFor memory couponFor_) {
+        couponFor_.tokenBalance = 1;
+        couponFor_.decimals = 2;
+        couponFor_.recordDateReached = true;
+        couponFor_.coupon.recordDate = 1753874807;
+        couponFor_.coupon.executionDate = 1753874807;
+        couponFor_.coupon.startDate = 1751282807;
+        couponFor_.coupon.endDate = 1919590386;
+        couponFor_.coupon.fixingDate = 1919590386;
+        couponFor_.coupon.rate = 2;
+        couponFor_.coupon.rateDecimals = 2;
+        couponFor_.coupon.rateStatus = RateCalculationStatus.SET;
     }
 
     function fullRedeemAtMaturity(address) external pure {
         return;
     }
 
-    function getCouponAmountFor(uint256, address) external view returns (CouponAmountFor memory couponAmountFor_) {
-        couponAmountFor_.numerator = amount;
-        couponAmountFor_.denominator = 1;
-        couponAmountFor_.recordDateReached = true;
+    function getCouponCount() external pure override returns (uint256) {
+        return 1;
     }
 
-    function getPrincipalFor(address) external view returns (PrincipalFor memory principalFor_) {
-        principalFor_.numerator = amount;
-        principalFor_.denominator = 1;
+    function getCouponFromOrderedListAt(uint256) external pure override returns (uint256) {
+        return 1;
+    }
+
+    function getCouponsOrderedList(uint256, uint256) external pure override returns (uint256[] memory) {
+        uint256[] memory list = new uint256[](1);
+        list[0] = 1;
+        return list;
+    }
+
+    function getCouponsOrderedListTotal() external pure override returns (uint256) {
+        return 1;
     }
 }

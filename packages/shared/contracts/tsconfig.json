@@ -16,11 +16,15 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@configuration": ["./Configuration.ts"],
       "@scripts": ["./scripts/index.ts"],
-      "@scripts/*": ["./scripts/*"]
+      "@scripts/*": ["./scripts/*"],
+      "@test": ["./test/index.ts"],
+      "@test/*": ["./test/*"],
+      "ats-test-helpers": ["./node_modules/@hashgraph/asset-tokenization-contracts/build/test/helpers/index"]
     }
   },
-  "include": ["scripts/**/*"],
+  "include": ["Configuration.ts", "scripts/**/*", "test/**/*"],
   "exclude": ["node_modules", "build", "dist"],
   "ts-node": {
     "require": ["tsconfig-paths/register"],

@@ -11,8 +11,6 @@ import {
   success,
   section,
   error as logError,
-  configureLogger,
-  LogLevel,
   getDeploymentConfig,
   isInstantMiningNetwork,
   DEFAULT_BATCH_SIZE,
@@ -116,7 +114,6 @@ export async function deployFactoryPrimaryMarketSystem(
   network: string,
   options: DeployFactoryPrimaryMarketSystemOptions = {},
 ): Promise<DeployFactoryPrimaryMarketOutput> {
-  configureLogger({ level: LogLevel.SILENT });
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
@@ -144,12 +141,13 @@ export async function deployFactoryPrimaryMarketSystem(
     // STEP 1: Deploy ProxyAdmin
     info("\n📋 Step 1/7: Deploying ProxyAdmin...");
     const proxyAdmin = await deployProxyAdmin(signer);
+    const proxyAdminAddress = await proxyAdmin.getAddress();
 
-    if (!proxyAdmin.address || proxyAdmin.address === "0x0000000000000000000000000000000000000000") {
+    if (!proxyAdminAddress || proxyAdminAddress === "0x0000000000000000000000000000000000000000") {
       throw new Error("ProxyAdmin deployment failed: invalid address");
     }
 
-    info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
+    info(`✅ ProxyAdmin: ${proxyAdminAddress}`);
 
     // STEP 2: Deploy BusinessLogicResolver (implementation + proxy)
     info("\n🔷 Step 2/7: Deploying BusinessLogicResolver...");
@@ -324,7 +322,7 @@ export async function deployFactoryPrimaryMarketSystem(
 
       infrastructure: {
         proxyAdmin: {
-          address: proxyAdmin.address,
+          address: proxyAdminAddress,
         },
         blr: {
           implementation: blrResult.implementationAddress,

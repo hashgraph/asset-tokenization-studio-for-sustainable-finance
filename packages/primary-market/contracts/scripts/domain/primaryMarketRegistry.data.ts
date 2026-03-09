@@ -10,10 +10,10 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-01-29T11:49:34.442Z
+ * Generated: 2026-03-03T08:44:36.810Z
  * Facets: 2
  * Infrastructure: 0
- * Mocks: 3
+ * Mocks: 5
  *
  * @module domain/atsRegistry.data
  */
@@ -48,7 +48,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "deployPrimaryMarket",
         signature:
-          "function deployPrimaryMarket(address resolver, tuple(bytes32 key, uint256 version) resolverProxyConfiguration, tuple(bytes32 role, address[] members)[] rbacs) returns (address primaryMarketAddress)",
+          "function deployPrimaryMarket(address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs) returns (address primaryMarketAddress)",
         selector: "0x6fbc90c3",
       },
     ],
@@ -82,13 +82,13 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "cancelOffering",
         signature:
-          "function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns (tuple(uint256 subscriptionId, uint8 status)[] cancelResult)",
+          "function cancelOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns ((uint256 subscriptionId, uint8 status)[] cancelResult)",
         selector: "0x0c11728f",
       },
       {
         name: "cancelOfferingBySubscriptionId",
         signature:
-          "function cancelOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns (tuple(uint256 subscriptionId, uint8 status)[] cancelResult)",
+          "function cancelOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns ((uint256 subscriptionId, uint8 status)[] cancelResult)",
         selector: "0xde772615",
       },
       {
@@ -99,25 +99,25 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "createOffering",
         signature:
-          "function createOffering(tuple(address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) _offeringInfo)",
+          "function createOffering((address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) _offeringInfo)",
         selector: "0x13106a91",
       },
       {
         name: "executeOffering",
         signature:
-          "function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns (tuple(uint256 subscriptionId, uint8 status)[] executionResult)",
+          "function executeOffering(uint256 _offeringId, uint256 _pageIndex, uint256 _pageLength) returns ((uint256 subscriptionId, uint8 status)[] executionResult)",
         selector: "0xdf60499a",
       },
       {
         name: "executeOfferingBySubscriptionId",
         signature:
-          "function executeOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns (tuple(uint256 subscriptionId, uint8 status)[] executionResult)",
+          "function executeOfferingBySubscriptionId(uint256 _offeringId, uint256[] _subscriptionIds) returns ((uint256 subscriptionId, uint8 status)[] executionResult)",
         selector: "0xd8be073a",
       },
       {
         name: "getOffering",
         signature:
-          "function getOffering(uint256 _offeringId) view returns (tuple(address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) offeringInfo_, address offeringOperator_, uint256 totalSubscribedLots_, uint256 pendingSubscribedLots_)",
+          "function getOffering(uint256 _offeringId) view returns ((address asset, uint8 targetQuantityRule, uint8 deadlineRule, uint8 priceDecimals, address treasury, address paymentToken, uint256 lotSize, uint256 minLots, uint256 maxLots, uint256 targetLots, uint256 startDate, uint256 endDate, uint256 price) offeringInfo_, address offeringOperator_, uint256 totalSubscribedLots_, uint256 pendingSubscribedLots_)",
         selector: "0x2b132030",
       },
       {
@@ -128,7 +128,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "getSubscription",
         signature:
-          "function getSubscription(uint256 _offeringId, uint256 _subscriptionId) view returns (tuple(address investor, uint256 lotUnits, uint256 amountPaid, uint8 status) subscription)",
+          "function getSubscription(uint256 _offeringId, uint256 _subscriptionId) view returns ((address investor, uint256 lotUnits, uint256 amountPaid, uint8 status) subscription)",
         selector: "0xa461efb9",
       },
       {
@@ -319,6 +319,43 @@ export const TOTAL_STORAGE_WRAPPERS = 2 as const;
  * Not intended for production deployment.
  */
 export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
+  IPrecompiledMock: {
+    name: "IPrecompiledMock",
+    methods: [
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
+      {
+        name: "getPrecompiledAssociationStatus",
+        signature: "function getPrecompiledAssociationStatus() view returns (bool)",
+        selector: "0x77c625a5",
+      },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
+      {
+        name: "setPrecompiledAssociationStatus",
+        signature: "function setPrecompiledAssociationStatus(bool _success)",
+        selector: "0x60f56185",
+      },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool _success)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
+    ],
+  },
+
   MockBond: {
     name: "MockBond",
     description: "Mock bond contract for testing Primary Market",
@@ -333,31 +370,31 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       {
         name: "getBondDetails",
         signature:
-          "function getBondDetails() view returns (tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
+          "function getBondDetails() view returns ((bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
         selector: "0x4ce02414",
       },
       {
         name: "getCoupon",
         signature:
-          "function getCoupon(uint256) pure returns (tuple(tuple(uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId))",
+          "function getCoupon(uint256) pure returns (((uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId))",
         selector: "0x936e3169",
       },
       {
         name: "getCouponAmountFor",
         signature:
-          "function getCouponAmountFor(uint256, address) pure returns (tuple(uint256 numerator, uint256 denominator, bool recordDateReached))",
+          "function getCouponAmountFor(uint256, address) pure returns ((uint256 numerator, uint256 denominator, bool recordDateReached))",
         selector: "0x439efc2e",
       },
       { name: "getCouponCount", signature: "function getCouponCount() pure returns (uint256)", selector: "0x468bb240" },
       {
         name: "getCouponFor",
         signature:
-          "function getCouponFor(uint256, address) pure returns (tuple(uint256 tokenBalance, uint8 decimals, bool recordDateReached, tuple(uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon))",
+          "function getCouponFor(uint256, address) pure returns ((uint256 tokenBalance, uint8 decimals, bool recordDateReached, (uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon))",
         selector: "0xbba7b56d",
       },
       {
         name: "getCouponFromOrderedListAt",
-        signature: "function getCouponFromOrderedListAt(uint256 _pos) view returns (uint256 couponID_)",
+        signature: "function getCouponFromOrderedListAt(uint256) pure returns (uint256)",
         selector: "0x65a88a2c",
       },
       {
@@ -367,18 +404,17 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       },
       {
         name: "getCouponsOrderedList",
-        signature:
-          "function getCouponsOrderedList(uint256 _pageIndex, uint256 _pageLength) view returns (uint256[] couponIDs_)",
+        signature: "function getCouponsOrderedList(uint256, uint256) pure returns (uint256[])",
         selector: "0xd7133de1",
       },
       {
         name: "getCouponsOrderedListTotal",
-        signature: "function getCouponsOrderedListTotal() view returns (uint256 total_)",
+        signature: "function getCouponsOrderedListTotal() pure returns (uint256)",
         selector: "0xee1d26eb",
       },
       {
         name: "getPrincipalFor",
-        signature: "function getPrincipalFor(address) pure returns (tuple(uint256 numerator, uint256 denominator))",
+        signature: "function getPrincipalFor(address) pure returns ((uint256 numerator, uint256 denominator))",
         selector: "0x6f131c78",
       },
       {
@@ -515,12 +551,16 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     ],
     factory: (signer) => new PrecompiledMock__factory(signer),
   },
+
+  PrecompiledMockStorageWrapper: {
+    name: "PrecompiledMockStorageWrapper",
+  },
 };
 
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 3 as const;
+export const TOTAL_MOCKS = 5 as const;
 
 /**
  * All role identifiers extracted from contracts.

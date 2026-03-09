@@ -16,6 +16,7 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@configuration": ["./Configuration.ts"],
       "@contract-types": ["./typechain-types/index.ts"],
       "@contract-types/*": ["./typechain-types/*"],
       "@scripts": ["./scripts/index.ts"],
@@ -23,9 +24,10 @@
       "@scripts/domain": ["./scripts/domain/index.ts"],
       "@tasks": ["./tasks/index.ts"],
       "@test": ["./test/index.ts"],
-      "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"]
+      "@scripts/domain/utils": ["./scripts/domain/utils/index.ts"],
+      "ats-test-helpers": ["./node_modules/@hashgraph/asset-tokenization-contracts/build/test/helpers/index"]
     }
   },
-  "include": ["scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
+  "include": ["Configuration.ts", "scripts/**/*", "typechain-types/**/*", "test/**/*", "tasks/**/*"],
   "exclude": ["node_modules"]
 }

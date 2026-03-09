@@ -17,7 +17,7 @@
  */
 
 import type { Signer, ContractFactory } from "ethers";
-import { constants } from "ethers";
+import { ZeroHash } from "ethers";
 import { dirname } from "path";
 import { promises as fs } from "fs";
 import {
@@ -32,13 +32,11 @@ import {
   error as logError,
   getDeploymentConfig,
   isInstantMiningNetwork,
-  configureLogger,
-  LogLevel,
   DEFAULT_BATCH_SIZE,
   generateTimestamp,
   fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry, getFacetDefinitionFromRegistry } from "@scripts/domain";
 
 /**
@@ -194,13 +192,7 @@ export async function upgradeFactorySuiteConfiguration(
     verifyDeployment: _verifyDeployment,
     saveOutput = false,
     outputPath,
-    verbose = false,
   } = options;
-
-  // Configure logger
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
@@ -239,11 +231,11 @@ export async function upgradeFactorySuiteConfiguration(
       throw new Error("Invalid BLR address");
     }
 
-    const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     // Validate BLR is accessible
     try {
-      await blrContract.resolveLatestBusinessLogic(constants.HashZero);
+      await blrContract.resolveLatestBusinessLogic(ZeroHash);
     } catch (error) {
       // Expected to fail for zero key, but should connect successfully
       if (error instanceof Error && error.message.includes("provider")) {

@@ -2,19 +2,16 @@
 
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Contract, BigNumber } from "ethers";
-import { AddressZero } from "@ethersproject/constants";
+import { Contract, ZeroAddress } from "ethers";
 import { PAUSER_ROLE, FUNDS_MANAGER_ROLE, PROCEEDS_FULL_MANAGER_ROLE } from "../../scripts/constants";
 import { deployPrecompiledMock } from "../helpers/deployment";
 import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
-import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITreasury } from "@contract-types";
 
 describe("Proceeds management operations", () => {
-  configureLogger({ level: LogLevel.SILENT });
-
   let signer_A, signer_B;
   let treasury: ITreasury;
+  let treasuryAddress: string;
   let environmentalAssetAddress: string;
   let paymentToken: Contract;
   let environmentalAsset: Contract;
@@ -29,17 +26,16 @@ describe("Proceeds management operations", () => {
       saveOutput: false,
     });
 
-    treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury.proxy)) as ITreasury;
+    treasury = (await ethers.getContractAt("ITreasury", deployment.infrastructure.treasury!.proxy)) as ITreasury;
 
     const paymentTokenMockContract = await ethers.getContractFactory("PaymentTokenMock");
     paymentToken = await paymentTokenMockContract.deploy("Tadios Stablecoin", "TSC", 2);
-    await paymentToken.deployed();
-    const paymentTokenAddress = paymentToken.address;
+    const paymentTokenAddress = await paymentToken.getAddress();
 
     const environmentalAssetMockContract = await ethers.getContractFactory("EnvironmentalAssetMock");
     environmentalAsset = await environmentalAssetMockContract.deploy("Sella River Clean", "SRC");
-    await environmentalAsset.deployed();
-    environmentalAssetAddress = environmentalAsset.address;
+    treasuryAddress = await treasury.getAddress();
+    environmentalAssetAddress = await environmentalAsset.getAddress();
 
     await deployPrecompiledMock();
 
@@ -52,7 +48,7 @@ describe("Proceeds management operations", () => {
       await treasury.grantRole(PAUSER_ROLE, signer_A.address);
       await treasury.pause();
 
-      await expect(treasury.transferPaymentToken(AddressZero, 1)).to.be.revertedWithCustomError(
+      await expect(treasury.transferPaymentToken(ZeroAddress, 1)).to.be.revertedWithCustomError(
         treasury,
         "TokenIsPaused",
       );
@@ -60,7 +56,7 @@ describe("Proceeds management operations", () => {
 
     it("GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN an AccountHasNoRole error occurs", async () => {
       treasury = treasury.connect(signer_B);
-      await expect(treasury.transferPaymentToken(AddressZero, 1))
+      await expect(treasury.transferPaymentToken(ZeroAddress, 1))
         .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
         .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER_ROLE);
     });
@@ -69,22 +65,22 @@ describe("Proceeds management operations", () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
       await treasury.revokeRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferPaymentToken(AddressZero, 1))
+      await expect(treasury.transferPaymentToken(ZeroAddress, 1))
         .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
         .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER_ROLE);
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address, THEN an InvalidAddressZero error occurs", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address, THEN an InvalidZeroAddress error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferPaymentToken(AddressZero, 1)).to.be.revertedWithCustomError(
+      await expect(treasury.transferPaymentToken(ZeroAddress, 1)).to.be.revertedWithCustomError(
         treasury,
         "InvalidAddressZero",
       );
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers more payment tokens than the Treasury owns, THEN a NotEnoughBalance error occurs", async () => {
-      await paymentToken.mint(treasury.address, 100);
+      await paymentToken.mint(treasuryAddress, 100);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(treasury.transferPaymentToken(signer_A.address, 200))
@@ -92,10 +88,10 @@ describe("Proceeds management operations", () => {
         .withArgs(200);
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address account, THEN a InvalidAddressZero error occurs", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens to a zero address account, THEN a InvalidZeroAddress error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferPaymentToken(AddressZero, 100)).to.be.revertedWithCustomError(
+      await expect(treasury.transferPaymentToken(ZeroAddress, 100)).to.be.revertedWithCustomError(
         treasury,
         "InvalidAddressZero",
       );
@@ -104,7 +100,7 @@ describe("Proceeds management operations", () => {
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an amount of payment tokens greater than 9223372036854775807, THEN a NotAllowedAmount error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferPaymentToken(signer_A.address, BigNumber.from("9223372036854775808")))
+      await expect(treasury.transferPaymentToken(signer_A.address, 9223372036854775808n))
         .to.be.revertedWithCustomError(treasury, "NotAllowedAmount")
         .withArgs(9223372036854775808n);
     });
@@ -120,7 +116,7 @@ describe("Proceeds management operations", () => {
     });
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers payment tokens, THEN payment tokens are transferred", async () => {
-      await paymentToken.mint(treasury.address, 100);
+      await paymentToken.mint(treasuryAddress, 100);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
       await expect(
         treasury.transferPaymentToken(signer_A.address, 100, {
@@ -137,7 +133,7 @@ describe("Proceeds management operations", () => {
       await treasury.grantRole(PAUSER_ROLE, signer_A.address);
       await treasury.pause();
 
-      await expect(treasury.transferEnvironmentalAssetToken(AddressZero, AddressZero, 1)).to.be.revertedWithCustomError(
+      await expect(treasury.transferEnvironmentalAssetToken(ZeroAddress, ZeroAddress, 1)).to.be.revertedWithCustomError(
         treasury,
         "TokenIsPaused",
       );
@@ -146,7 +142,7 @@ describe("Proceeds management operations", () => {
     it("GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset token, THEN an AccountHasNoRole error occurs", async () => {
       treasury = treasury.connect(signer_B);
 
-      await expect(treasury.transferEnvironmentalAssetToken(AddressZero, AddressZero, 1))
+      await expect(treasury.transferEnvironmentalAssetToken(ZeroAddress, ZeroAddress, 1))
         .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
         .withArgs(signer_B.address, PROCEEDS_FULL_MANAGER_ROLE);
     });
@@ -155,25 +151,25 @@ describe("Proceeds management operations", () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
       await treasury.revokeRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferEnvironmentalAssetToken(AddressZero, AddressZero, 1))
+      await expect(treasury.transferEnvironmentalAssetToken(ZeroAddress, ZeroAddress, 1))
         .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
         .withArgs(signer_A.address, PROCEEDS_FULL_MANAGER_ROLE);
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers a zero address environmental asset token, THEN an InvalidAddressZero error occurs", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers a zero address environmental asset token, THEN an InvalidZeroAddress error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
-      await expect(treasury.transferEnvironmentalAssetToken(AddressZero, AddressZero, 1)).to.be.revertedWithCustomError(
+      await expect(treasury.transferEnvironmentalAssetToken(ZeroAddress, ZeroAddress, 1)).to.be.revertedWithCustomError(
         treasury,
         "InvalidAddressZero",
       );
     });
 
-    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers an environmental asset token to a zero address, THEN an InvalidAddressZero error occurs", async () => {
+    it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE revoked transfers an environmental asset token to a zero address, THEN an InvalidZeroAddress error occurs", async () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(
-        treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, AddressZero, 1),
+        treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, ZeroAddress, 1),
       ).to.be.revertedWithCustomError(treasury, "InvalidAddressZero");
     });
 
@@ -199,11 +195,7 @@ describe("Proceeds management operations", () => {
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(
-        treasury.transferEnvironmentalAssetToken(
-          environmentalAssetAddress,
-          signer_A.address,
-          BigNumber.from("9223372036854775808"),
-        ),
+        treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, signer_A.address, 9223372036854775808n),
       )
         .to.be.revertedWithCustomError(treasury, "NotAllowedSerialNumber")
         .withArgs(9223372036854775808n);
@@ -211,7 +203,7 @@ describe("Proceeds management operations", () => {
 
     it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE transfers an environmental asset token, THEN the environmental asset token is transferred", async () => {
       const tokenId = 0;
-      await environmentalAsset.mint(treasury.address);
+      await environmentalAsset.mint(treasuryAddress);
       await treasury.grantRole(PROCEEDS_FULL_MANAGER_ROLE, signer_A.address);
 
       await expect(treasury.transferEnvironmentalAssetToken(environmentalAssetAddress, signer_A.address, tokenId))
@@ -226,7 +218,7 @@ describe("Proceeds management operations", () => {
         await treasury.grantRole(PAUSER_ROLE, signer_A.address);
         await treasury.pause();
 
-        await expect(treasury.fundProceedsRecipient(AddressZero, 1)).to.be.revertedWithCustomError(
+        await expect(treasury.fundProceedsRecipient(ZeroAddress, 1)).to.be.revertedWithCustomError(
           treasury,
           "TokenIsPaused",
         );
@@ -235,7 +227,7 @@ describe("Proceeds management operations", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account not granted the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient, THEN an AccountHasNoRole error occurs", async () => {
         treasury = treasury.connect(signer_B);
 
-        await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+        await expect(treasury.fundProceedsRecipient(ZeroAddress, 1))
           .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
           .withArgs(signer_B.address, FUNDS_MANAGER_ROLE);
       });
@@ -244,7 +236,7 @@ describe("Proceeds management operations", () => {
         await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address);
         await treasury.revokeRole(FUNDS_MANAGER_ROLE, signer_A.address);
 
-        await expect(treasury.fundProceedsRecipient(AddressZero, 1))
+        await expect(treasury.fundProceedsRecipient(ZeroAddress, 1))
           .to.be.revertedWithCustomError(treasury, "AccountHasNoRole")
           .withArgs(signer_A.address, FUNDS_MANAGER_ROLE);
       });
@@ -252,7 +244,7 @@ describe("Proceeds management operations", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a zero address proceeds recipient, THEN an AccountHasNoRole error occurs", async () => {
         await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address);
 
-        await expect(treasury.fundProceedsRecipient(AddressZero, 1)).to.be.revertedWithCustomError(
+        await expect(treasury.fundProceedsRecipient(ZeroAddress, 1)).to.be.revertedWithCustomError(
           treasury,
           "InvalidAddressZero",
         );
@@ -263,8 +255,7 @@ describe("Proceeds management operations", () => {
       it("GIVEN a deployed Treasury contract, WHEN an account having the PROCEEDS_FULL_MANAGER_ROLE funds a proceeds recipient that does not belong to the asset, THEN a WrongProceedsRecipient error occurs", async () => {
         const assetMockContract = await ethers.getContractFactory("AssetMock");
         const asset = await assetMockContract.deploy(2, 1, [], false, true);
-        await asset.deployed();
-        const assetAddress = asset.address;
+        const assetAddress = await asset.getAddress();
 
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
 
@@ -280,12 +271,11 @@ describe("Proceeds management operations", () => {
 
     describe("The proceeds recipient belongs to the bond", () => {
       beforeEach(async () => {
-        await paymentToken.mint(treasury.address, 100);
+        await paymentToken.mint(treasuryAddress, 100);
 
         const assetMockContract = await ethers.getContractFactory("AssetMock");
         const asset = await assetMockContract.deploy(2, 1, [], true, true);
-        await asset.deployed();
-        const assetAddress = asset.address;
+        const assetAddress = await asset.getAddress();
 
         await treasury.initialize_LifeCycleCashFlow(assetAddress);
       });
@@ -300,10 +290,10 @@ describe("Proceeds management operations", () => {
           .withArgs(200);
       });
 
-      it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a InvalidAddressZero error occurs", async () => {
+      it("GIVEN a deployed Treasury contract, WHEN an account granting the PROCEEDS_FULL_MANAGER_ROLE funds a with zero address proceeds recipient, THEN a InvalidZeroAddress error occurs", async () => {
         await treasury.grantRole(FUNDS_MANAGER_ROLE, signer_A.address);
 
-        await expect(treasury.fundProceedsRecipient(AddressZero, 100)).to.be.revertedWithCustomError(
+        await expect(treasury.fundProceedsRecipient(ZeroAddress, 100)).to.be.revertedWithCustomError(
           treasury,
           "InvalidAddressZero",
         );
@@ -314,7 +304,7 @@ describe("Proceeds management operations", () => {
 
         const proceedsRecipient = ethers.Wallet.createRandom();
 
-        await expect(treasury.fundProceedsRecipient(proceedsRecipient.address, BigNumber.from("9223372036854775808")))
+        await expect(treasury.fundProceedsRecipient(proceedsRecipient.address, 9223372036854775808n))
           .to.be.revertedWithCustomError(treasury, "NotAllowedAmount")
           .withArgs(9223372036854775808n);
       });

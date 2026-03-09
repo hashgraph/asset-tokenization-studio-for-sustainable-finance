@@ -186,6 +186,7 @@ abstract contract PortfolioStorageWrapper is AtsCommon, HederaTokenService {
     ) internal view returns (address[] memory environmentalAssetTokensPage) {
         uint256 total = _portfolioStorage().environmentalAssets.length();
         uint256 start = pageIndex * pageLength;
+        // solhint-disable-next-line gas-strict-inequalities
         if (start >= total) return new address[](0);
 
         uint256 remaining = total - start;

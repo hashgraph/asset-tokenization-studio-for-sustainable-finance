@@ -1,5 +1,9 @@
-node_modules
-.env
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
 
 # Hardhat files
 /cache
@@ -9,9 +13,25 @@ node_modules
 /typechain
 /typechain-types
 
+# Environment variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
 # solidity-coverage files
 /coverage
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
+# Hardhat Ignition
 ignition/deployments/chain-31337
+
+# Deployment artifacts - track mainnet/testnet, ignore local/test
+deployments/local/
+deployments/hedera-local/
+
+# Checkpoint files (auto-managed state)
+deployments/.checkpoints/
+
+# Gas report
+gas-report.txt

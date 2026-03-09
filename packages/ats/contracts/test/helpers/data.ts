@@ -1,65 +1,88 @@
 // SPDX-License-Identifier: Apache-2.0
 
-import { ethers } from "hardhat";
-import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
+import { ethers, toUtf8Bytes, hexlify, parseEther, ZeroAddress } from "ethers";
+import hre from "hardhat";
+import type { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { LATEST_VERSION } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { TREASURY_CONFIG_ID } from "@scripts";
 import { TREASURY_CONFIG_VERSION } from "@test";
 
-/**
- * Creates a default admin RBAC configuration
- * @param adminAddress Address to grant DEFAULT_ADMIN_ROLE
- * @returns RBAC array with single admin role entry
- */
-export function createDefaultAdminRbac(adminAddress: string) {
-  return [
-    {
-      role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-      members: [adminAddress],
+/** Get the latest block timestamp from the local Hardhat network. */
+export async function getDltTimestamp(): Promise<number> {
+  const block = await hre.ethers.provider.getBlock("latest");
+  if (!block) throw new Error("Failed to get latest block");
+  return block.timestamp;
+}
+
+/** GBP-specific regulation defaults (zeroed-out for permissionless test context). Different from ATS which uses REG_S. */
+export const DEFAULT_REGULATION_PARAMS = {
+  regulationType: 0,
+  regulationSubType: 0,
+  countriesControlListType: false,
+  listOfCountries: "",
+  info: "",
+} as const;
+
+/** Build factory regulation data with GBP-specific zeroed defaults. */
+export function getRegulationData(params?: Partial<typeof DEFAULT_REGULATION_PARAMS>) {
+  return {
+    regulationType: params?.regulationType ?? DEFAULT_REGULATION_PARAMS.regulationType,
+    regulationSubType: params?.regulationSubType ?? DEFAULT_REGULATION_PARAMS.regulationSubType,
+    additionalSecurityData: {
+      countriesControlListType: params?.countriesControlListType ?? DEFAULT_REGULATION_PARAMS.countriesControlListType,
+      listOfCountries: params?.listOfCountries ?? DEFAULT_REGULATION_PARAMS.listOfCountries,
+      info: params?.info ?? DEFAULT_REGULATION_PARAMS.info,
     },
-  ];
+  };
 }
 
 export interface TestDataSets {
   validBondData: any;
   validFactoryRegulationData: any;
-  validBondKpiData: any;
   validTreasuryData: any;
+  validKpiData: any;
   invalidTreasuryData: {
     zeroResolver: any;
     zeroPaymentToken: any;
     zeroEnvironmentalAssetInArray: any;
   };
+  invalidKpiData: any;
 }
 
-export function createTestDataSets(fixture: {
+export async function createTestDataSets(fixture: {
   mockResolver: any;
   paymentToken: any;
   environmentalAssetToken1: any;
   environmentalAssetToken2: any;
-  admin: SignerWithAddress;
-  user: SignerWithAddress;
+  admin: HardhatEthersSigner;
+  user: HardhatEthersSigner;
   treasuryConfigId?: string;
   treasuryVersion?: number;
-}): TestDataSets {
-  const { mockResolver, paymentToken, environmentalAssetToken1, treasuryConfigId, treasuryVersion } = fixture;
+}): Promise<TestDataSets> {
+  const { mockResolver, paymentToken, environmentalAssetToken1, admin, treasuryConfigId, treasuryVersion } = fixture;
 
   const treasuryKey = treasuryConfigId || TREASURY_CONFIG_ID;
   const treasuryVer = treasuryVersion || TREASURY_CONFIG_VERSION;
+
+  const now = await getDltTimestamp();
+
+  const resolverAddress = mockResolver.address;
+  const paymentTokenAddress = await paymentToken.getAddress();
+  const environmentalAssetToken1Address = await environmentalAssetToken1.getAddress();
 
   const validBondData = {
     security: {
       arePartitionsProtected: false,
       isMultiPartition: false,
-      resolver: mockResolver.address,
+      resolver: resolverAddress,
       resolverProxyConfiguration: {
-        key: ethers.utils.formatBytes32String("BOND"),
+        key: ethers.encodeBytes32String("BOND"),
         version: LATEST_VERSION,
       },
       rbacs: [],
       isControllable: true,
       isWhiteList: true,
-      maxSupply: ethers.utils.parseEther("10000000"),
+      maxSupply: parseEther("10000000"),
       erc20MetadataInfo: {
         name: "Green Bond 2025",
         symbol: "GB2025",
@@ -72,89 +95,69 @@ export function createTestDataSets(fixture: {
       externalControlLists: [],
       externalKycLists: [],
       erc20VotesActivated: false,
-      compliance: ethers.constants.AddressZero,
-      identityRegistry: ethers.constants.AddressZero,
+      compliance: ZeroAddress,
+      identityRegistry: ZeroAddress,
     },
     bondDetails: {
-      currency: ethers.utils.hexlify(ethers.utils.toUtf8Bytes("USD")),
-      nominalValue: ethers.utils.parseEther("100"),
+      currency: hexlify(toUtf8Bytes("USD")),
+      nominalValue: parseEther("100"),
       nominalValueDecimals: 18,
-      startingDate: Math.floor(Date.now() / 1000),
-      maturityDate: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60,
+      startingDate: now,
+      maturityDate: now + 365 * 24 * 60 * 60,
     },
     proceedRecipients: [],
     proceedRecipientsData: [],
   };
 
-  const validFactoryRegulationData = {
-    regulationType: 0,
-    regulationSubType: 0,
-    additionalSecurityData: {
-      countriesControlListType: false,
-      listOfCountries: "",
-      info: "",
-    },
-  };
+  const validFactoryRegulationData = getRegulationData();
 
   const validTreasuryData = {
-    resolver: mockResolver.address,
+    resolver: resolverAddress,
     resolverProxyConfiguration: {
       key: treasuryKey,
       version: treasuryVer,
     },
-    rbacs: createDefaultAdminRbac(fixture.admin.address),
-    paymentToken: paymentToken.address,
-    environmentalAssets: [environmentalAssetToken1.address],
+    rbacs: [],
+    paymentToken: paymentTokenAddress,
+    environmentalAssets: [environmentalAssetToken1Address],
   };
 
-  // Create combined BondKpiLinkedRateData structure
-  const validBondKpiData = {
-    bondData: validBondData,
-    factoryRegulationData: validFactoryRegulationData,
-    interestRate: {
-      maxRate: 1000, // 10%
-      baseRate: 500, // 5%
-      minRate: 100, // 1%
-      startPeriod: Math.floor(Date.now() / 1000) + 86400,
-      startRate: 500,
-      missedPenalty: 50,
-      reportPeriod: 86400 * 30, // 30 days
-      rateDecimals: 2,
-    },
-    impactData: {
-      maxDeviationCap: 150,
-      baseLine: 100,
-      maxDeviationFloor: 50,
-      impactDataDecimals: 2,
-      adjustmentPrecision: 100,
-    },
+  const validKpiData = {
+    admin: admin.address,
+    rbacs: [],
   };
 
   const invalidTreasuryDataZeroResolver = {
     ...validTreasuryData,
-    resolver: ethers.constants.AddressZero,
+    resolver: ZeroAddress,
   };
 
   const invalidTreasuryDataZeroPaymentToken = {
     ...validTreasuryData,
-    paymentToken: ethers.constants.AddressZero,
+    paymentToken: ZeroAddress,
   };
 
   const invalidTreasuryDataZeroEnvironmentalAsset = {
     ...validTreasuryData,
-    environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero],
+    environmentalAssets: [environmentalAssetToken1Address, ZeroAddress],
+  };
+
+  const invalidKpiData = {
+    ...validKpiData,
+    admin: ZeroAddress,
   };
 
   return {
     validBondData,
     validFactoryRegulationData,
-    validBondKpiData,
     validTreasuryData,
+    validKpiData,
     invalidTreasuryData: {
       zeroResolver: invalidTreasuryDataZeroResolver,
       zeroPaymentToken: invalidTreasuryDataZeroPaymentToken,
       zeroEnvironmentalAssetInArray: invalidTreasuryDataZeroEnvironmentalAsset,
     },
+    invalidKpiData,
   };
 }
 
@@ -172,5 +175,15 @@ export function createTreasuryDataWithEmptyEnvironmentalAssets(validTreasuryData
   return {
     ...validTreasuryData,
     environmentalAssets: [],
+  };
+}
+
+export function createKpiDataWithRoles(validKpiData: any, roles: Array<{ role: string; members: string[] }>) {
+  return {
+    ...validKpiData,
+    rbacs: roles.map((r) => ({
+      role: r.role,
+      members: r.members,
+    })),
   };
 }

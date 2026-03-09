@@ -18,9 +18,10 @@ import type { Signer } from "ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { upgradeFactoryPrimaryMarketConfiguration } from "@scripts";
 import { deployFactoryPrimaryMarketInfrastructureFixture } from "@test";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { deployResolverProxy, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { deployResolverProxy, getNetworkDeploymentDir } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { FACTORY_PRIMARY_MARKET_CONFIG_ID } from "@scripts/domain";
+import { join } from "path";
 import { promises as fs } from "fs";
 
 describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
@@ -28,7 +29,6 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
    * Deploy initial FactoryPrimaryMarket infrastructure (standard mode).
    */
   async function setupInitialDeploymentStandard() {
-    configureLogger({ level: LogLevel.SILENT });
     const fixture = await deployFactoryPrimaryMarketInfrastructureFixture(false);
 
     return {
@@ -46,7 +46,6 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
    * Deploy initial FactoryPrimaryMarket infrastructure (TimeTravel mode).
    */
   async function setupInitialDeploymentTimeTravel() {
-    configureLogger({ level: LogLevel.SILENT });
     const fixture = await deployFactoryPrimaryMarketInfrastructureFixture(true);
 
     return {
@@ -64,16 +63,16 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
    * Query configuration version from BLR.
    */
   async function getConfigVersion(blrAddress: string, configId: string, signer: Signer): Promise<number> {
-    const blr = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blr = BusinessLogicResolver__factory.connect(blrAddress, signer);
     const version = await blr.getLatestVersionByConfiguration(configId);
-    return version.toNumber();
+    return Number(version);
   }
 
   /**
    * Query facet address from BLR by resolver key.
    */
   async function getFacetAddress(blrAddress: string, resolverKey: string, signer: Signer): Promise<string> {
-    const blr = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blr = BusinessLogicResolver__factory.connect(blrAddress, signer);
     return await blr.resolveLatestBusinessLogic(resolverKey);
   }
 
@@ -487,18 +486,24 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
   });
 
   describe("Output File Saving", () => {
+    const hardhatDeployDir = getNetworkDeploymentDir("hardhat");
+
     afterEach(async () => {
       // Clean up deployment files after each test
       try {
-        const files = await fs.readdir("deployments/hardhat").catch(() => []);
+        const files = await fs.readdir(hardhatDeployDir).catch(() => []);
         for (const file of files) {
           if (file.includes("factoryprimarymarket-upgrade")) {
-            await fs.unlink(`deployments/hardhat/${file}`);
+            await fs.unlink(join(hardhatDeployDir, file));
           }
         }
       } catch (_error) {
         // Ignore cleanup errors
       }
+    });
+
+    after(async () => {
+      await fs.rm(hardhatDeployDir, { recursive: true, force: true });
     });
 
     it("should not save output by default (saveOutput=false)", async () => {
@@ -511,7 +516,7 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
       expect(result.summary.success).to.be.true;
 
       // Check no file created
-      const files = await fs.readdir("deployments/hardhat").catch(() => []);
+      const files = await fs.readdir(hardhatDeployDir).catch(() => []);
       const upgradeFiles = files.filter((f) => f.includes("factoryprimarymarket-upgrade"));
       expect(upgradeFiles).to.have.lengthOf(0);
     });
@@ -527,12 +532,12 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
       expect(result.summary.success).to.be.true;
 
       // Check file exists
-      const files = await fs.readdir("deployments/hardhat");
+      const files = await fs.readdir(hardhatDeployDir);
       const upgradeFiles = files.filter((f) => f.includes("factoryprimarymarket-upgrade"));
       expect(upgradeFiles).to.have.lengthOf(1);
 
       // Verify JSON structure
-      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+      const filePath = join(hardhatDeployDir, upgradeFiles[0]);
       const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
       expect(savedData.network).to.equal("hardhat");
       expect(savedData.summary.success).to.be.true;
@@ -574,9 +579,9 @@ describe("upgradeFactoryPrimaryMarketConfiguration Integration Tests", () => {
       expect(result.summary.totalFacetsDeployed).to.be.greaterThan(0);
       expect(result.summary.configurationsCreated).to.be.greaterThan(0);
 
-      const files = await fs.readdir("deployments/hardhat");
+      const files = await fs.readdir(hardhatDeployDir);
       const upgradeFiles = files.filter((f) => f.includes("factoryprimarymarket-upgrade"));
-      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+      const filePath = join(hardhatDeployDir, upgradeFiles[0]);
 
       const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
 

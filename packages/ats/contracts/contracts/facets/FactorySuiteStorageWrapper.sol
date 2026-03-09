@@ -34,29 +34,30 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
         uint256 finalLength = 0;
         bool adminFound = false;
 
-        for (uint256 i = 0; i < originalLength; i++) {
+        for (uint256 i = 0; i < originalLength; ++i) {
             IResolverProxy.Rbac memory currentRbac = bondKpiData.bondData.security.rbacs[i];
 
             if (currentRbac.role == _DEFAULT_ADMIN_ROLE) {
                 adminFound = true;
                 address[] memory newMembers = new address[](currentRbac.members.length + 1);
-                for (uint256 j = 0; j < currentRbac.members.length; j++) {
+                for (uint256 j = 0; j < currentRbac.members.length; ++j) {
                     newMembers[j] = currentRbac.members[j];
                 }
                 newMembers[currentRbac.members.length] = address(this);
-                rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
+                rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
             } else {
-                rbacs[finalLength++] = currentRbac;
+                rbacs[++finalLength - 1] = currentRbac;
             }
         }
 
         if (!adminFound) {
             address[] memory adminMembers = new address[](1);
             adminMembers[0] = address(this);
-            rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
+            rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
         }
 
         if (adminFound) {
+            // solhint-disable-next-line no-inline-assembly
             assembly {
                 mstore(rbacs, finalLength)
             }

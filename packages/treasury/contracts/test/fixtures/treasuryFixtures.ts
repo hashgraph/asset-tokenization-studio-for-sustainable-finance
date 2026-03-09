@@ -16,9 +16,8 @@
  */
 
 import { ethers } from "hardhat";
-import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { ITimeTravel__factory, BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { deployTreasury, type DeployTreasuryOutput } from "@scripts";
 import type { IBusinessLogicResolver } from "@contract-types";
 
@@ -31,8 +30,6 @@ import type { IBusinessLogicResolver } from "@contract-types";
  * @returns Complete deployment output + test utilities
  */
 export async function deployTreasuryInfrastructureFixture(useTimeTravel = true) {
-  configureLogger({ level: LogLevel.SILENT });
-
   const signers = await ethers.getSigners();
   const [deployer, admin] = signers;
 
@@ -43,7 +40,7 @@ export async function deployTreasuryInfrastructureFixture(useTimeTravel = true) 
   });
 
   // Get typed contract instances using TypeChain factories
-  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+  const blr = BusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   // Get TimeTravelFacet if TimeTravel is enabled
   const timeTravel = useTimeTravel

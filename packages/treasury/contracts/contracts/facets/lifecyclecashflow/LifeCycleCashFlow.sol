@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 
 import { ILifeCycleCashFlow } from "../../interfaces/ILifeCycleCashFlow.sol";
 import { LifeCycleCashFlowStorageWrapper } from "./LifeCycleCashFlowStorageWrapper.sol";
-import { PAYOUT_ROLE, PAUSER_ROLE } from "../../constants/roles.sol";
+import { PAYOUT_ROLE } from "../../constants/roles.sol";
 
 abstract contract LifeCycleCashFlow is ILifeCycleCashFlow, LifeCycleCashFlowStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase

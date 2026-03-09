@@ -153,8 +153,9 @@ export async function deployFactorySuiteSystem(
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
     const proxyAdmin = await deployProxyAdmin(signer);
+    const proxyAdminAddress = await proxyAdmin.getAddress();
 
-    info(`✅ ProxyAdmin: ${proxyAdmin.address}`);
+    info(`✅ ProxyAdmin: ${proxyAdminAddress}`);
 
     info("\n🔷 Step 2/6: Deploying BusinessLogicResolver...");
     const blrResult = await deployBlr(signer, {
@@ -297,7 +298,7 @@ export async function deployFactorySuiteSystem(
 
       infrastructure: {
         proxyAdmin: {
-          address: proxyAdmin.address,
+          address: proxyAdminAddress,
         },
         blr: {
           implementation: blrResult.implementationAddress,

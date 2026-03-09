@@ -10,10 +10,10 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-02-23T08:59:02.520Z
+ * Generated: 2026-03-03T08:44:17.081Z
  * Facets: 3
  * Infrastructure: 0
- * Mocks: 4
+ * Mocks: 6
  *
  * @module domain/atsRegistry.data
  */
@@ -25,8 +25,11 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   LifeCycleCashFlowFacet__factory,
+  LifeCycleCashFlowFacetTimeTravel__factory,
   PortfolioFacet__factory,
+  PortfolioFacetTimeTravel__factory,
   ProceedsManagementFacet__factory,
+  ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
   EnvironmentalAssetMock__factory,
   PaymentTokenMock__factory,
@@ -48,25 +51,25 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "executeBondRedemption",
         signature:
-          "function executeBondRedemption(address bond, uint256 pageIndex, uint256 pageLength) returns (tuple(address holder, uint8 status, int64 amount)[] results, bool executed)",
+          "function executeBondRedemption(address bond, uint256 pageIndex, uint256 pageLength) returns ((address holder, int64 amount, uint8 status)[] results, bool executed)",
         selector: "0xcc56f811",
       },
       {
         name: "executeBondRedemptionByAddresses",
         signature:
-          "function executeBondRedemptionByAddresses(address bond, address[] holders) returns (tuple(address holder, uint8 status, int64 amount)[] results)",
+          "function executeBondRedemptionByAddresses(address bond, address[] holders) returns ((address holder, int64 amount, uint8 status)[] results)",
         selector: "0xcf013091",
       },
       {
         name: "executeDistribution",
         signature:
-          "function executeDistribution(address asset, uint256 distributionId, uint256 pageIndex, uint256 pageLength) returns (tuple(address holder, uint8 status, int64 amount)[] results, bool executed)",
+          "function executeDistribution(address asset, uint256 distributionId, uint256 pageIndex, uint256 pageLength) returns ((address holder, int64 amount, uint8 status)[] results, bool executed)",
         selector: "0x09c57f63",
       },
       {
         name: "executeDistributionByAddresses",
         signature:
-          "function executeDistributionByAddresses(address asset, uint256 distributionId, address[] holders) returns (tuple(address holder, uint8 status, int64 amount)[] results)",
+          "function executeDistributionByAddresses(address asset, uint256 distributionId, address[] holders) returns ((address holder, int64 amount, uint8 status)[] results)",
         selector: "0x417dc389",
       },
       { name: "getAsset", signature: "function getAsset() view returns (address)", selector: "0x5c222bad" },
@@ -135,7 +138,10 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
         selector: "0xba5b0d48",
       },
     ],
-    factory: (signer) => new LifeCycleCashFlowFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel
+        ? new LifeCycleCashFlowFacetTimeTravel__factory(signer)
+        : new LifeCycleCashFlowFacet__factory(signer),
   },
 
   PortfolioFacet: {
@@ -235,7 +241,8 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
-    factory: (signer) => new PortfolioFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel ? new PortfolioFacetTimeTravel__factory(signer) : new PortfolioFacet__factory(signer),
   },
 
   ProceedsManagementFacet: {
@@ -315,7 +322,10 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
       { name: "WrongProceedsRecipient", signature: "WrongProceedsRecipient(address)", selector: "0x41d435ea" },
     ],
-    factory: (signer) => new ProceedsManagementFacet__factory(signer),
+    factory: (signer, useTimeTravel = false) =>
+      useTimeTravel
+        ? new ProceedsManagementFacetTimeTravel__factory(signer)
+        : new ProceedsManagementFacet__factory(signer),
   },
 };
 
@@ -434,6 +444,7 @@ export const TOTAL_STORAGE_WRAPPERS = 3 as const;
 export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
   AssetMock: {
     name: "AssetMock",
+    inheritance: ["IBondRead"],
     methods: [
       { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
       {
@@ -444,26 +455,32 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       {
         name: "getBondDetails",
         signature:
-          "function getBondDetails() view returns (tuple(bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
+          "function getBondDetails() view returns ((bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
         selector: "0x4ce02414",
       },
       {
         name: "getCoupon",
         signature:
-          "function getCoupon(uint256) view returns (tuple(tuple(uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId) registeredCoupon)",
+          "function getCoupon(uint256) view returns (((uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId) registeredCoupon)",
         selector: "0x936e3169",
       },
       {
         name: "getCouponAmountFor",
         signature:
-          "function getCouponAmountFor(uint256, address) view returns (tuple(uint256 numerator, uint256 denominator, bool recordDateReached) couponAmountFor_)",
+          "function getCouponAmountFor(uint256, address) view returns ((uint256 numerator, uint256 denominator, bool recordDateReached) couponAmountFor_)",
         selector: "0x439efc2e",
       },
+      { name: "getCouponCount", signature: "function getCouponCount() pure returns (uint256)", selector: "0x468bb240" },
       {
         name: "getCouponFor",
         signature:
-          "function getCouponFor(uint256, address) pure returns (tuple(uint256 tokenBalance, uint256 rate, uint8 rateDecimals, uint256 recordDate, uint256 executionDate, uint256 period, uint8 decimals, bool recordDateReached) couponFor_)",
+          "function getCouponFor(uint256, address) pure returns ((uint256 tokenBalance, uint8 decimals, bool recordDateReached, (uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon) couponFor_)",
         selector: "0xbba7b56d",
+      },
+      {
+        name: "getCouponFromOrderedListAt",
+        signature: "function getCouponFromOrderedListAt(uint256) pure returns (uint256)",
+        selector: "0x65a88a2c",
       },
       {
         name: "getCouponHolders",
@@ -471,9 +488,19 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         selector: "0xa92e8371",
       },
       {
+        name: "getCouponsOrderedList",
+        signature: "function getCouponsOrderedList(uint256, uint256) pure returns (uint256[])",
+        selector: "0xd7133de1",
+      },
+      {
+        name: "getCouponsOrderedListTotal",
+        signature: "function getCouponsOrderedListTotal() pure returns (uint256)",
+        selector: "0xee1d26eb",
+      },
+      {
         name: "getPrincipalFor",
         signature:
-          "function getPrincipalFor(address) view returns (tuple(uint256 numerator, uint256 denominator) principalFor_)",
+          "function getPrincipalFor(address) view returns ((uint256 numerator, uint256 denominator) principalFor_)",
         selector: "0x6f131c78",
       },
       {
@@ -482,10 +509,19 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         selector: "0x81438d2f",
       },
       {
+        name: "getTotalCouponHolders",
+        signature: "function getTotalCouponHolders(uint256) view returns (uint256)",
+        selector: "0xec116ae3",
+      },
+      {
         name: "isProceedRecipient",
         signature: "function isProceedRecipient(address) view returns (bool)",
         selector: "0xb9b6def1",
       },
+    ],
+    errors: [
+      { name: "DecimalsNotObtained", signature: "DecimalsNotObtained()", selector: "0x1d1cf498" },
+      { name: "UnableToGetCouponHolders", signature: "UnableToGetCouponHolders()", selector: "0x2ee7ef18" },
     ],
     factory: (signer) => new AssetMock__factory(signer),
   },
@@ -555,6 +591,66 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       },
     ],
     factory: (signer) => new EnvironmentalAssetMock__factory(signer),
+  },
+
+  IPrecompiledMock: {
+    name: "IPrecompiledMock",
+    methods: [
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
+      {
+        name: "dissociateToken",
+        signature: "function dissociateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x099794e8",
+      },
+      {
+        name: "getFungibleTokenInfo",
+        signature:
+          "function getFungibleTokenInfo(address token) view returns (int256 responseCode, (((string name, string symbol, address treasury, string memo, bool tokenSupplyType, int64 maxSupply, bool freezeDefault, (uint256 keyType, (bool inheritAccountKey, address contractId, bytes ed25519, bytes ECDSA_secp256k1, address delegatableContractId) key)[] tokenKeys, (int64 second, address autoRenewAccount, int64 autoRenewPeriod) expiry) token, int64 totalSupply, bool deleted, bool defaultKycStatus, bool pauseStatus, (int64 amount, address tokenId, bool useHbarsForPayment, bool useCurrentTokenForPayment, address feeCollector)[] fixedFees, (int64 numerator, int64 denominator, int64 minimumAmount, int64 maximumAmount, bool netOfTransfers, address feeCollector)[] fractionalFees, (int64 numerator, int64 denominator, int64 amount, address tokenId, bool useHbarsForPayment, address feeCollector)[] royaltyFees, string ledgerId) tokenInfo, int32 decimals) tokenInfo)",
+        selector: "0x3f28a19b",
+      },
+      {
+        name: "getPrecompiledNegativeDecimals",
+        signature: "function getPrecompiledNegativeDecimals() view returns (bool)",
+        selector: "0xac7d125a",
+      },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
+      {
+        name: "setPrecompiledNegativeDecimals",
+        signature: "function setPrecompiledNegativeDecimals(bool _negativeDecimals)",
+        selector: "0xa406c73e",
+      },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool _success)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferNFT",
+        signature:
+          "function transferNFT(address token, address sender, address receiver, int64 serialNumber) returns (int32 responseCode)",
+        selector: "0x5cfc9011",
+      },
+      {
+        name: "transferToken",
+        signature:
+          "function transferToken(address token, address sender, address receiver, int64 amount) returns (int32 responseCode)",
+        selector: "0xeca36917",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
+    ],
   },
 
   PaymentTokenMock: {
@@ -638,7 +734,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       {
         name: "getFungibleTokenInfo",
         signature:
-          "function getFungibleTokenInfo(address token) view returns (int256 responseCode, tuple(tuple(tuple(string name, string symbol, address treasury, string memo, bool tokenSupplyType, int64 maxSupply, bool freezeDefault, tuple(uint256 keyType, tuple(bool inheritAccountKey, address contractId, bytes ed25519, bytes ECDSA_secp256k1, address delegatableContractId) key)[] tokenKeys, tuple(int64 second, address autoRenewAccount, int64 autoRenewPeriod) expiry) token, int64 totalSupply, bool deleted, bool defaultKycStatus, bool pauseStatus, tuple(int64 amount, address tokenId, bool useHbarsForPayment, bool useCurrentTokenForPayment, address feeCollector)[] fixedFees, tuple(int64 numerator, int64 denominator, int64 minimumAmount, int64 maximumAmount, bool netOfTransfers, address feeCollector)[] fractionalFees, tuple(int64 numerator, int64 denominator, int64 amount, address tokenId, bool useHbarsForPayment, address feeCollector)[] royaltyFees, string ledgerId) tokenInfo, int32 decimals) tokenInfo)",
+          "function getFungibleTokenInfo(address token) view returns (int256 responseCode, (((string name, string symbol, address treasury, string memo, bool tokenSupplyType, int64 maxSupply, bool freezeDefault, (uint256 keyType, (bool inheritAccountKey, address contractId, bytes ed25519, bytes ECDSA_secp256k1, address delegatableContractId) key)[] tokenKeys, (int64 second, address autoRenewAccount, int64 autoRenewPeriod) expiry) token, int64 totalSupply, bool deleted, bool defaultKycStatus, bool pauseStatus, (int64 amount, address tokenId, bool useHbarsForPayment, bool useCurrentTokenForPayment, address feeCollector)[] fixedFees, (int64 numerator, int64 denominator, int64 minimumAmount, int64 maximumAmount, bool netOfTransfers, address feeCollector)[] fractionalFees, (int64 numerator, int64 denominator, int64 amount, address tokenId, bool useHbarsForPayment, address feeCollector)[] royaltyFees, string ledgerId) tokenInfo, int32 decimals) tokenInfo)",
         selector: "0x3f28a19b",
       },
       {
@@ -682,12 +778,16 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     ],
     factory: (signer) => new PrecompiledMock__factory(signer),
   },
+
+  PrecompiledMockStorageWrapper: {
+    name: "PrecompiledMockStorageWrapper",
+  },
 };
 
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 4 as const;
+export const TOTAL_MOCKS = 6 as const;
 
 /**
  * All role identifiers extracted from contracts.

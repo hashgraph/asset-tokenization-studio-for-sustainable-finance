@@ -50,23 +50,6 @@ function parseArgs(): CliOptions {
 }
 
 /**
- * Remove TimeTravel factory imports and simplify factory functions.
- */
-function removeTimeTravelSupport(code: string): string {
-  // Remove TimeTravel factory imports
-  code = code.replace(/\s+\w+TimeTravel__factory,?\n/g, "\n");
-
-  // Simplify factory functions to remove useTimeTravel parameter
-  // Pattern: factory: (signer, useTimeTravel = false) => useTimeTravel ? new XTimeTravel__factory(signer) : new X__factory(signer)
-  code = code.replace(
-    /factory: \(signer,\s*useTimeTravel\s*=\s*false\)\s*=>\s*useTimeTravel\s*\?\s*new\s+(\w+)TimeTravel__factory\(signer\)\s*:\s*new\s+(\w+)__factory\(signer\)/g,
-    "factory: (signer) => new $2__factory(signer)",
-  );
-
-  return code;
-}
-
-/**
  * Main execution.
  *
  * Uses the ATS generateRegistryPipeline function for consistency and
@@ -93,28 +76,17 @@ async function main(): Promise<void> {
       // not in our package, so we must import from ATS scripts
       moduleName: "@hashgraph/asset-tokenization-contracts/scripts",
 
-      // TypeChain path for factory validation (default is ./build/typechain-types)
-      typechainPath: "./typechain-types",
-
       // Include storage wrappers if we have any
       includeStorageWrappers: true,
 
       // Include mock contracts in registry
       includeMocksInRegistry: true,
     },
-    false, // Don't write yet, we'll post-process first
+    !options.dryRun, // Write file unless dry run
   );
 
-  // Post-process: Remove TimeTravel support
-  result.code = removeTimeTravelSupport(result.code);
-
-  // Write the processed file if not dry run
-  if (!options.dryRun) {
-    const fs = await import("fs/promises");
-    const outputPath = path.join(__dirname, "../..", options.output);
-    await fs.writeFile(outputPath, result.code, "utf-8");
-    console.log(`✅ Registry written to ${options.output}`);
-  }
+  const durationSec = (result.stats.durationMs / 1000).toFixed(2);
+  console.log(`\n✅ Registry generation completed successfully (${durationSec}s)`);
 
   // Show preview for dry runs
   if (options.dryRun && options.verbose) {

@@ -10,8 +10,6 @@ import {
   success,
   section,
   error as logError,
-  configureLogger,
-  LogLevel,
   atsRegistry,
   getDeploymentConfig,
   isInstantMiningNetwork,
@@ -101,7 +99,6 @@ export async function deployTreasury(
   network: string,
   options: DeployTreasuryOptions = {},
 ): Promise<DeployTreasuryOutput> {
-  configureLogger({ level: LogLevel.SILENT });
   const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   // Get network-specific deployment configuration
@@ -128,9 +125,10 @@ export async function deployTreasury(
   try {
     info("\n📋 Step 1/6: Deploying ProxyAdmin...");
     const proxyAdmin = await deployProxyAdmin(signer);
+    const proxyAdminAddress = await proxyAdmin.getAddress();
     const proxyAdminResult = {
       success: true,
-      proxyAdminAddress: proxyAdmin.address,
+      proxyAdminAddress,
     };
 
     info(`✅ ProxyAdmin: ${proxyAdminResult.proxyAdminAddress}`);

@@ -5,15 +5,12 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { PORTFOLIO_RESOLVER_KEY } from "@scripts/domain";
 import { IStaticFunctionSelectors } from "@contracts";
 import { deployTreasury } from "../../scripts/workflows/deployTreasurySystemWithNewBlr";
-import { configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
 
 let portfolioFacet: IStaticFunctionSelectors;
 let signer_A;
 
 describe("PortfolioFacet", () => {
-  configureLogger({ level: LogLevel.SILENT });
-
   async function deployFixture() {
     const deployment = await deployTreasury(signer_A, "hardhat", {
       useTimeTravel: false,

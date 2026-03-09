@@ -15,7 +15,7 @@ import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
 import { ClearingStatus } from "@domain/clearing/model/ClearingStatus"
 import { ClearingNotFoundError } from "@domain/clearing/errors/ClearingNotFoundError"
 import { BondHolderBalancePersistence } from "@port/holderbalance/persistence/model/BondHolderBalancePersistence"
-import { utils } from "ethers"
+import { AbiCoder } from "ethers"
 
 describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
   let app: INestApplication
@@ -121,7 +121,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         "1",
         2, // ClearingOperationType.HOLD,
-        utils.defaultAbiCoder.encode(["uint256"], [1]),
+        AbiCoder.defaultAbiCoder().encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -146,7 +146,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         "999",
         2, // ClearingOperationType.HOLD,
-        utils.defaultAbiCoder.encode(["uint256"], [1]),
+        AbiCoder.defaultAbiCoder().encode(["uint256"], [1]),
       )
 
       await expect(eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)).rejects.toThrow(
@@ -182,7 +182,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         "1",
         2, // ClearingOperationType.HOLD,
-        utils.defaultAbiCoder.encode(["uint256"], [1]),
+        AbiCoder.defaultAbiCoder().encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -219,7 +219,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
           "0x7265736572766564000000000000000000000000000000000000000000000000",
           clearingId.toString(),
           2, // ClearingOperationType.HOLD,
-          utils.defaultAbiCoder.encode(["uint256"], [1]),
+          AbiCoder.defaultAbiCoder().encode(["uint256"], [1]),
         )
 
         await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)
@@ -260,7 +260,7 @@ describe("UpdateClearingHoldOperationNestJSEventAdapter Integration", () => {
         "0x7265736572766564000000000000000000000000000000000000000000000000",
         "1",
         2, // ClearingOperationType.HOLD,
-        utils.defaultAbiCoder.encode(["uint256"], [1]),
+        AbiCoder.defaultAbiCoder().encode(["uint256"], [1]),
       )
 
       await eventBus.publishSync(event, ClearingOperationApprovedDLTEvent.name)

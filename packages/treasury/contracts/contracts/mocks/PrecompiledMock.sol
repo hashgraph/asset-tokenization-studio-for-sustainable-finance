@@ -2,9 +2,11 @@
 // solhint-disable one-contract-per-file
 pragma solidity >=0.8.0 <0.9.0;
 
+// solhint-disable-next-line max-line-length
 import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+// solhint-disable-next-line max-line-length
 import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 import { PaymentTokenMock } from "./PaymentTokenMock.sol";
 import { EnvironmentalAssetMock } from "./EnvironmentalAssetMock.sol";
@@ -29,11 +31,11 @@ interface IPrecompiledMock {
     ) external returns (int32 responseCode);
     function associateToken(address account, address token) external returns (int32 responseCode);
     function dissociateToken(address account, address token) external returns (int32 responseCode);
-    function getFungibleTokenInfo(
-        address token
-    ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo);
     function setPrecompiledNegativeDecimals(bool _negativeDecimals) external;
     function setPrecompiledTransferStatus(bool _success) external;
+    function getFungibleTokenInfo(
+        address token
+    ) external view returns (int256 responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo);
     function getPrecompiledNegativeDecimals() external view returns (bool);
     function getPrecompiledTransferStatus() external view returns (bool);
 }
@@ -68,6 +70,22 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
+    function _transferNFT(
+        address token,
+        address sender,
+        address receiver,
+        int64 serialNumber
+    ) internal virtual returns (int32 responseCode) {
+        if (IERC721(token).ownerOf(uint256(uint64(serialNumber))) != sender) {
+            return HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO;
+        }
+
+        EnvironmentalAssetMock(token).approveFor(address(this), uint256(uint64(serialNumber)));
+
+        IERC721(token).transferFrom(msg.sender, receiver, uint256(uint64(serialNumber)));
+        return HederaResponseCodes.SUCCESS;
+    }
+
     function _transferToken(
         address token,
         address sender,
@@ -88,28 +106,12 @@ contract PrecompiledMockStorageWrapper {
         return HederaResponseCodes.SUCCESS;
     }
 
-    function _transferNFT(
-        address token,
-        address sender,
-        address receiver,
-        int64 serialNumber
-    ) internal virtual returns (int32 responseCode) {
-        if (IERC721(token).ownerOf(uint256(uint64(serialNumber))) != sender) {
-            return HederaResponseCodes.SENDER_DOES_NOT_OWN_NFT_SERIAL_NO;
-        }
-
-        EnvironmentalAssetMock(token).approveFor(address(this), uint256(uint64(serialNumber)));
-
-        IERC721(token).transferFrom(msg.sender, receiver, uint256(uint64(serialNumber)));
-        return HederaResponseCodes.SUCCESS;
+    function _setPrecompiledNegativeDecimals(bool negativeDecimals_) internal {
+        _negativeDecimals = negativeDecimals_;
     }
 
-    function _associateToken(address, address token) internal pure returns (int32 responseCode) {
-        if (token == address(1)) {
-            return HederaResponseCodes.UNKNOWN;
-        }
-
-        return HederaResponseCodes.SUCCESS;
+    function _setPrecompiledTransferStatus(bool success_) internal {
+        _transferSuccess = success_;
     }
 
     function _dissociateToken(address account, address token) internal view returns (int32 responseCode) {
@@ -126,7 +128,7 @@ contract PrecompiledMockStorageWrapper {
 
     function _getFungibleTokenInfo(
         address token
-    ) internal view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory fungibleTokenInfo) {
+    ) internal view returns (int256 responseCode, IHederaTokenService.FungibleTokenInfo memory fungibleTokenInfo) {
         responseCode = HederaResponseCodes.SUCCESS;
         fungibleTokenInfo = IHederaTokenService.FungibleTokenInfo({
             decimals: (_negativeDecimals == true) ? -1 : int32(int8(PaymentTokenMock(token).decimals())),
@@ -154,20 +156,20 @@ contract PrecompiledMockStorageWrapper {
         });
     }
 
-    function _setPrecompiledNegativeDecimals(bool negativeDecimals_) internal {
-        _negativeDecimals = negativeDecimals_;
-    }
-
     function _getPrecompiledNegativeDecimals() internal view returns (bool) {
         return _negativeDecimals;
     }
 
-    function _setPrecompiledTransferStatus(bool success_) internal {
-        _transferSuccess = success_;
-    }
-
     function _getPrecompiledTransferStatus() internal view returns (bool) {
         return _transferSuccess;
+    }
+
+    function _associateToken(address, address token) internal pure returns (int32 responseCode) {
+        if (token == address(1)) {
+            return HederaResponseCodes.UNKNOWN;
+        }
+
+        return HederaResponseCodes.SUCCESS;
     }
 }
 
@@ -198,8 +200,12 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
         return _transferNFT(token, sender, receiver, serialNumber);
     }
 
-    function associateToken(address account, address token) external pure returns (int32 responseCode) {
-        return _associateToken(account, token);
+    function setPrecompiledNegativeDecimals(bool negativeDecimals_) external {
+        _setPrecompiledNegativeDecimals(negativeDecimals_);
+    }
+
+    function setPrecompiledTransferStatus(bool success_) external {
+        _setPrecompiledTransferStatus(success_);
     }
 
     function dissociateToken(address account, address token) external view returns (int32 responseCode) {
@@ -208,23 +214,19 @@ contract PrecompiledMock is IPrecompiledMock, PrecompiledMockStorageWrapper {
 
     function getFungibleTokenInfo(
         address token
-    ) external view returns (int responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo) {
+    ) external view returns (int256 responseCode, IHederaTokenService.FungibleTokenInfo memory tokenInfo) {
         return _getFungibleTokenInfo(token);
-    }
-
-    function setPrecompiledNegativeDecimals(bool negativeDecimals_) external {
-        _setPrecompiledNegativeDecimals(negativeDecimals_);
     }
 
     function getPrecompiledNegativeDecimals() external view returns (bool) {
         return _getPrecompiledNegativeDecimals();
     }
 
-    function setPrecompiledTransferStatus(bool success_) external {
-        _setPrecompiledTransferStatus(success_);
-    }
-
     function getPrecompiledTransferStatus() external view returns (bool) {
         return _getPrecompiledTransferStatus();
+    }
+
+    function associateToken(address account, address token) external pure returns (int32 responseCode) {
+        return _associateToken(account, token);
     }
 }

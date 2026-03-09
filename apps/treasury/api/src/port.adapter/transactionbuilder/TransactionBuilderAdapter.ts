@@ -27,7 +27,7 @@ import {
 import { BuildExternalTransferPaymentTokenTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferPaymentTokenTransactionRequest"
 import { BuildUpdatePaymentTokenTransactionRequest } from "./model/BuildUpdatePaymentTokenTransactionRequest"
 import { TransferTransaction } from "@hiero-ledger/sdk"
-import { utils } from "ethers"
+import { Interface } from "ethers"
 import { BuildExternalTransferEnvironmentalAssetTransactionRequest } from "@port/transactionbuilder/model/BuildExternalTransferEnvironmentalAssetTransactionRequest"
 import { BuildExecuteDistributionTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionTransactionRequest"
 import { BuildExecuteDistributionByAddressesTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteDistributionByAddressesTransactionRequest"
@@ -92,7 +92,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     request: BuildExternalTransferPaymentTokenTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     if (request.format === "ethereum") {
-      const contractInterface = new utils.Interface(["function transfer(address to, uint256 value)"])
+      const contractInterface = new Interface(["function transfer(address to, uint256 value)"])
       return await this.buildAndSerializeTransaction({
         contractInterface,
         functionName: "transfer" as any,
@@ -115,9 +115,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     request: BuildExternalTransferEnvironmentalAssetTransactionRequest,
   ): Promise<BuildTransactionResponse> {
     if (request.format === "ethereum") {
-      const contractInterface = new utils.Interface([
-        "function transferFrom(address from, address to, uint256 tokenId)",
-      ])
+      const contractInterface = new Interface(["function transferFrom(address from, address to, uint256 tokenId)"])
       return await this.buildAndSerializeTransaction({
         contractInterface,
         functionName: "transferFrom" as any,
@@ -344,16 +342,16 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
     distributionId: number,
     environment: Environment,
   ): Promise<number> {
-    return (
+    return Number(
       await IBondRead__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalCouponHolders(
         distributionId,
-      )
-    ).toNumber()
+      ),
+    )
   }
 
   private async getTotalBondHolders(bondAddress: string, environment: Environment): Promise<number> {
-    return (
-      await ISecurity__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalSecurityHolders()
-    ).toNumber()
+    return Number(
+      await ISecurity__factory.connect(bondAddress, getEthereumProvider(environment)).getTotalSecurityHolders(),
+    )
   }
 }

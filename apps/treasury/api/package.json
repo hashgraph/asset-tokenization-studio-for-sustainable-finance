@@ -25,6 +25,7 @@
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",
     "@hashgraph/green-bonds-shared-core": "*",
     "@hiero-ledger/sdk": "2.79.0",
+    "ethers": "6.15.0",
     "@nestjs/swagger": "11.2.0",
     "pg": "8.16.3",
     "typeorm": "0.3.27"

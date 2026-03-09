@@ -11,7 +11,7 @@ abstract contract Portfolio is IPortfolio, PortfolioStorageWrapper {
     // solhint-disable-next-line func-name-mixedcase
     function initialize_Portfolio(
         address paymentToken,
-        address[] memory environmentalAssets
+        address[] calldata environmentalAssets
     )
         external
         override

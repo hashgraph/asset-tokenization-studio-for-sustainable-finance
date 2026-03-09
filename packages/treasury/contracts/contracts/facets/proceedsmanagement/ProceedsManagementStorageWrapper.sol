@@ -89,6 +89,7 @@ abstract contract ProceedsManagementStorageWrapper is LifeCycleCashFlowStorageWr
      * @param value True if the value is not greater than the maximum int64, false otherwise
      */
     function _uint256FitsIntoInt64(uint256 value) private pure returns (bool) {
+        // solhint-disable-next-line gas-strict-inequalities
         return value <= uint256(uint64(type(int64).max));
     }
 }
