@@ -2,14 +2,9 @@
 
 import { HardhatUserConfig } from "hardhat/config";
 import "tsconfig-paths/register";
-// import "@nomicfoundation/hardhat-toolbox"; // Temporarily disabled due to ESM resolution issues
-import "@nomicfoundation/hardhat-ethers";
-import "@nomicfoundation/hardhat-chai-matchers";
-import "@typechain/hardhat";
+import "@nomicfoundation/hardhat-toolbox";
 import "hardhat-contract-sizer";
-import "hardhat-gas-reporter";
 import "@primitivefi/hardhat-dodoc";
-import "solidity-coverage";
 import Configuration from "@configuration";
 import "hardhat-dependency-compiler";
 import "@tasks";
