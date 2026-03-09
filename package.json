@@ -233,6 +233,8 @@
   },
   "devDependencies": {
     "@eslint/js": "9.37.0",
+    "@nestjs/common": "11.1.16",
+    "@nestjs/core": "11.1.16",
     "@typescript-eslint/eslint-plugin": "8.46.0",
     "@typescript-eslint/parser": "8.46.0",
     "class-validator": "0.14.2",
@@ -248,6 +250,19 @@
   },
   "overrides": {
     "@typechain/ethers-v6": "0.5.1",
-    "ws": "8.18.3"
+    "@nomicfoundation/hardhat-verify": "2.0.12",
+    "@nomicfoundation/hardhat-ignition-ethers": "0.15.17",
+    "ws": "8.18.3",
+    "@nestjs/common": "11.1.16",
+    "@nestjs/core": "11.1.16",
+    "katex": "0.16.27",
+    "flatted": "3.3.3",
+    "@mermaid-js/parser": "0.6.3",
+    "mermaid": "11.12.2",
+    "@docusaurus/theme-mermaid": {
+      "mermaid": "11.12.2",
+      "katex": "0.16.27",
+      "@mermaid-js/parser": "0.6.3"
+    }
   }
 }

@@ -27,7 +27,7 @@
   "dependencies": {
     "@hashgraph/green-bonds-shared-core": "*",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
-    "@hashgraph/asset-tokenization-contracts": "https://github.com/hashgraph/asset-tokenization-studio/raw/refs/heads/tgz/hashgraph-asset-tokenization-contracts-4.0.1.tgz",
+    "@hashgraph/asset-tokenization-contracts": "5.0.0",
     "@hashgraph/green-bonds-blockchain-listener": "*",
     "ethers": "6.15.0",
     "@nestjs/swagger": "11.2.0",
@@ -41,7 +41,7 @@
     "@hashgraph/green-bonds-shared-testing": "*",
     "@nestjs/cli": "11.0.10",
     "@nestjs/schematics": "11.0.9",
-    "@nestjs/testing": "11.1.6",
+    "@nestjs/testing": "11.1.16",
     "@types/express": "5.0.3",
     "@types/jest": "30.0.0",
     "@types/node": "22.18.9",

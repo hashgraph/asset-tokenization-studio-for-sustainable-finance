@@ -20,8 +20,8 @@ import { ATS_ROLES } from "@hashgraph/asset-tokenization-contracts/scripts";
 describe("FactorySuite - Business Logic Tests", () => {
   async function setupFixture() {
     const fixture = await deployFactorySuiteWithMocksForBusinessLogic();
-    const testData = createTestDataSets({
-      mockResolver: { address: fixture.blr.address }, // Use real BLR for Treasury/KPI
+    const testData = await createTestDataSets({
+      mockResolver: fixture.blr, // Use real BLR for Treasury/KPI
       paymentToken: fixture.paymentToken,
       environmentalAssetToken1: fixture.environmentalAssetToken1,
       environmentalAssetToken2: fixture.environmentalAssetToken2,
@@ -40,7 +40,7 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
+        .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData);
 
       const receipt = await tx.wait();
       expect(receipt.status).to.equal(1);
@@ -51,11 +51,13 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData),
       )
         .to.emit(factorySuite, "BondSuiteDeployed")
         .withArgs(
-          admin.address,
+          await admin.getAddress(),
           anyValue, // Bond address (dynamic)
           anyValue, // Treasury address (dynamic)
           anyValue, // BondKpiLinkedRateData struct (complex struct, just verify it's emitted)
@@ -69,10 +71,10 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
+        .deployBondSuite.staticCall(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData);
 
-      expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
+      expect(result.bondAddress).to.not.equal(ethers.ZeroAddress);
+      expect(result.treasuryAddress).to.not.equal(ethers.ZeroAddress);
     });
 
     it("GIVEN valid bond suite parameters WHEN deploying bond suite THEN success with MockBondDeployed event from ATS factory", async () => {
@@ -80,7 +82,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData),
       ).to.emit(mockAtsFactory, "MockBondDeployed");
     });
   });
@@ -91,7 +95,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite.connect(unauthorized).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(unauthorized)
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(accessControl, "AccountHasNoRole");
     });
 
@@ -101,13 +107,15 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData, validTreasuryData } = testData;
 
       // Grant PAUSER_ROLE to deployer to be able to pause
-      await accessControl.connect(deployer).grantRole(PAUSER_ROLE, deployer.address);
+      await accessControl.connect(deployer).grantRole(PAUSER_ROLE, await deployer.getAddress());
 
       // Pause the contract via PauseFacet
       await pause.connect(deployer).pause();
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(pause, "TokenIsPaused");
     });
   });
@@ -118,7 +126,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData, validTreasuryData } = testData;
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(ethers.constants.AddressZero, validBondKpiData, validTreasuryData),
+        factorySuite.connect(admin).deployBondSuite(ethers.ZeroAddress, validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidContractAddress");
     });
 
@@ -129,7 +137,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondKpiData, invalidTreasuryData.zeroResolver),
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, invalidTreasuryData.zeroResolver),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
 
@@ -140,7 +148,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondKpiData, invalidTreasuryData.zeroPaymentToken),
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, invalidTreasuryData.zeroPaymentToken),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
 
@@ -149,20 +157,20 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithEmptyArray = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: createDefaultAdminRbac(admin.address),
-        paymentToken: paymentToken.address,
+        rbacs: createDefaultAdminRbac(await admin.getAddress()),
+        paymentToken: await paymentToken.getAddress(),
         environmentalAssets: [], // Empty array should be allowed
       };
 
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithEmptyArray),
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, treasuryDataWithEmptyArray),
       ).to.not.be.reverted;
     });
 
@@ -172,20 +180,20 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithZeroEnvironmentalAsset = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: createDefaultAdminRbac(admin.address),
-        paymentToken: paymentToken.address,
-        environmentalAssets: [environmentalAssetToken1.address, ethers.constants.AddressZero], // Contains zero address
+        rbacs: createDefaultAdminRbac(await admin.getAddress()),
+        paymentToken: await paymentToken.getAddress(),
+        environmentalAssets: [await environmentalAssetToken1.getAddress(), ethers.ZeroAddress], // Contains zero address
       };
 
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithZeroEnvironmentalAsset),
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, treasuryDataWithZeroEnvironmentalAsset),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
 
@@ -195,17 +203,17 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithEmptyRbacs: IFactorySuite.TreasuryDataStruct = {
-        resolver: blr.address,
-        resolverProxyConfiguration: { key: ethers.utils.formatBytes32String("treasury"), version: 1 },
+        resolver: await blr.getAddress(),
+        resolverProxyConfiguration: { key: ethers.encodeBytes32String("treasury"), version: 1 },
         rbacs: [], // Empty RBAC array
-        paymentToken: paymentToken.address,
-        environmentalAssets: [environmentalAssetToken1.address],
+        paymentToken: await paymentToken.getAddress(),
+        environmentalAssets: [await environmentalAssetToken1.getAddress()],
       };
 
       await expect(
         factorySuite
           .connect(admin)
-          .deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithEmptyRbacs),
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, treasuryDataWithEmptyRbacs),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidTreasuryData");
     });
 
@@ -224,7 +232,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       };
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), invalidBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidInterestRateValues");
     });
 
@@ -243,7 +253,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       };
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), invalidBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidInterestRateValues");
     });
 
@@ -262,7 +274,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       };
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), invalidBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidImpactDataValues");
     });
 
@@ -281,7 +295,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       };
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, invalidBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), invalidBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "InvalidImpactDataValues");
     });
   });
@@ -295,7 +311,9 @@ describe("FactorySuite - Business Logic Tests", () => {
       await mockAtsFactory.setShouldRevert(true);
 
       await expect(
-        factorySuite.connect(admin).deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData),
+        factorySuite
+          .connect(admin)
+          .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData),
       ).to.be.revertedWithCustomError(factorySuite, "BondDeploymentFailed");
     });
 
@@ -306,16 +324,16 @@ describe("FactorySuite - Business Logic Tests", () => {
       // Deploy a malicious factory that will attempt reentrancy during bond deployment
       const MockReentrantFactory = await ethers.getContractFactory("MockReentrantFactory");
       const maliciousFactory = await MockReentrantFactory.deploy();
-      await maliciousFactory.deployed();
+      await maliciousFactory.waitForDeployment();
 
       // Grant DEPLOYER role to the malicious factory so it can pass access control
       // This ensures we're testing the ReentrancyGuard modifier, not access control
       // Note: Must use deployer (who has DEFAULT_ADMIN_ROLE) to grant roles
-      const accessControl = AccessControl__factory.connect(factorySuite.address, deployer);
-      await accessControl.grantRole(ROLES.DEPLOYER_ROLE, maliciousFactory.address);
+      const accessControl = AccessControl__factory.connect(await factorySuite.getAddress(), deployer);
+      await accessControl.grantRole(ROLES.DEPLOYER_ROLE, await maliciousFactory.getAddress());
 
       // Configure the malicious factory to attempt reentrancy
-      await maliciousFactory.setFactorySuite(factorySuite.address);
+      await maliciousFactory.setFactorySuite(await factorySuite.getAddress());
       await maliciousFactory.enableReentrancy(validBondKpiData, validTreasuryData);
 
       // The attack should fail because:
@@ -325,7 +343,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       // 4. The revert is caught by try-catch in _deployBondContract → throws BondDeploymentFailed
       const tx = factorySuite
         .connect(admin)
-        .deployBondSuite(maliciousFactory.address, validBondKpiData, validTreasuryData);
+        .deployBondSuite(await maliciousFactory.getAddress(), validBondKpiData, validTreasuryData);
 
       // Verify the transaction reverted due to reentrancy protection
       // The nonReentrant guard blocks the second call, which is caught and wrapped as BondDeploymentFailed
@@ -340,11 +358,11 @@ describe("FactorySuite - Business Logic Tests", () => {
 
       const tx = await factorySuite
         .connect(admin)
-        .deployBondSuite(mockAtsFactory.address, validBondKpiData, validTreasuryData);
+        .deployBondSuite(await mockAtsFactory.getAddress(), validBondKpiData, validTreasuryData);
 
       const receipt = await tx.wait();
       // Treasury deployment is expensive, so we allow up to 10M gas
-      expect(receipt.gasUsed.lt(ethers.BigNumber.from(MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT))).to.be.true;
+      expect(receipt.gasUsed < BigInt(MAX_GAS_FOR_TREASURY_KPI_DEPLOYMENT)).to.be.true;
     });
   });
 
@@ -357,26 +375,26 @@ describe("FactorySuite - Business Logic Tests", () => {
       const environmentalAssetAddresses = [];
       for (let i = 0; i < 5; i++) {
         const token = await new MockERC721__factory(admin).deploy(`Token${i}`, `T${i}`);
-        environmentalAssetAddresses.push(token.address);
+        environmentalAssetAddresses.push(await token.getAddress());
       }
 
       const treasuryDataWithManyTokens = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: createDefaultAdminRbac(admin.address),
-        paymentToken: paymentToken.address,
+        rbacs: createDefaultAdminRbac(await admin.getAddress()),
+        paymentToken: await paymentToken.getAddress(),
         environmentalAssets: environmentalAssetAddresses,
       };
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithManyTokens);
+        .deployBondSuite.staticCall(await mockAtsFactory.getAddress(), validBondKpiData, treasuryDataWithManyTokens);
 
-      expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
+      expect(result.bondAddress).to.not.equal(ethers.ZeroAddress);
+      expect(result.treasuryAddress).to.not.equal(ethers.ZeroAddress);
     });
 
     it("GIVEN treasury data with multiple RBAC entries WHEN deploying bond suite THEN success", async () => {
@@ -385,7 +403,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithMultipleRbacs = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
@@ -393,23 +411,23 @@ describe("FactorySuite - Business Logic Tests", () => {
         rbacs: [
           {
             role: hashRole(TEST_ROLE_1),
-            members: [admin.address],
+            members: [await admin.getAddress()],
           },
           {
             role: hashRole(TEST_ROLE_2),
-            members: [user.address],
+            members: [await user.getAddress()],
           },
         ],
-        paymentToken: paymentToken.address,
-        environmentalAssets: [environmentalAssetToken1.address],
+        paymentToken: await paymentToken.getAddress(),
+        environmentalAssets: [await environmentalAssetToken1.getAddress()],
       };
 
       const result = await factorySuite
         .connect(admin)
-        .callStatic.deployBondSuite(mockAtsFactory.address, validBondKpiData, treasuryDataWithMultipleRbacs);
+        .deployBondSuite.staticCall(await mockAtsFactory.getAddress(), validBondKpiData, treasuryDataWithMultipleRbacs);
 
-      expect(result.bondAddress).to.not.equal(ethers.constants.AddressZero);
-      expect(result.treasuryAddress).to.not.equal(ethers.constants.AddressZero);
+      expect(result.bondAddress).to.not.equal(ethers.ZeroAddress);
+      expect(result.treasuryAddress).to.not.equal(ethers.ZeroAddress);
     });
   });
 
@@ -421,7 +439,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         validTreasuryData,
       );
@@ -438,14 +456,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         validTreasuryData,
       );
 
       // Verify portfolio was initialized
       expect(await treasury.portfolioInitialized()).to.equal(true);
-      expect(await treasury.paymentToken()).to.equal(paymentToken.address);
+      expect(await treasury.paymentToken()).to.equal(await paymentToken.getAddress());
     });
 
     it("GIVEN valid bond suite parameters with environmental assets WHEN deploying bond suite THEN Treasury portfolio is initialized with assets", async () => {
@@ -455,7 +473,7 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         validTreasuryData,
       );
@@ -469,20 +487,20 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithEmptyArray = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: createDefaultAdminRbac(admin.address),
-        paymentToken: paymentToken.address,
+        rbacs: createDefaultAdminRbac(await admin.getAddress()),
+        paymentToken: await paymentToken.getAddress(),
         environmentalAssets: [],
       };
 
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         treasuryDataWithEmptyArray,
       );
@@ -506,20 +524,20 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { validBondKpiData } = testData;
 
       const treasuryDataWithMultipleAssets = {
-        resolver: blr.address,
+        resolver: await blr.getAddress(),
         resolverProxyConfiguration: {
           key: TREASURY_CONFIG_ID,
           version: TREASURY_CONFIG_VERSION,
         },
-        rbacs: createDefaultAdminRbac(admin.address),
-        paymentToken: paymentToken.address,
-        environmentalAssets: [environmentalAssetToken1.address, environmentalAssetToken2.address],
+        rbacs: createDefaultAdminRbac(await admin.getAddress()),
+        paymentToken: await paymentToken.getAddress(),
+        environmentalAssets: [await environmentalAssetToken1.getAddress(), await environmentalAssetToken2.getAddress()],
       };
 
       const { treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         treasuryDataWithMultipleAssets,
       );
@@ -538,14 +556,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress, treasury } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
 
-      expect(await bond.hasRole(ATS_ROLES._MATURITY_REDEEMER_ROLE, treasury.address)).to.equal(true);
+      expect(await bond.hasRole(ATS_ROLES._MATURITY_REDEEMER_ROLE, await treasury.getAddress())).to.equal(true);
     });
 
     it("GIVEN valid bond suite WHEN deployed THEN FactorySuite has renounced DEFAULT_ADMIN_ROLE", async () => {
@@ -555,14 +573,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         validBondKpiData,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
 
-      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, factorySuite.address)).to.equal(false);
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, await factorySuite.getAddress())).to.equal(false);
     });
 
     it("GIVEN bondData with admin WHEN deployed THEN original admin retains DEFAULT_ADMIN_ROLE", async () => {
@@ -576,7 +594,7 @@ describe("FactorySuite - Business Logic Tests", () => {
           ...validBondKpiData.bondData,
           security: {
             ...validBondKpiData.bondData.security,
-            rbacs: createDefaultAdminRbac(user.address), // user is the original admin
+            rbacs: createDefaultAdminRbac(await user.getAddress()), // user is the original admin
           },
         },
       };
@@ -584,14 +602,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         bondKpiDataWithAdmin,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
       // Verify original admin (user) specified in bondData still has admin role
-      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, user.address)).to.equal(true);
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, await user.getAddress())).to.equal(true);
     });
 
     it("GIVEN bondData with non-admin RBAC roles WHEN deployed THEN non-admin roles are preserved", async () => {
@@ -609,7 +627,7 @@ describe("FactorySuite - Business Logic Tests", () => {
             rbacs: [
               {
                 role: CUSTOM_ROLE,
-                members: [user.address],
+                members: [await user.getAddress()],
               },
             ],
           },
@@ -619,14 +637,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         bondKpiDataWithCustomRole,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
       // Verify custom role was preserved
-      expect(await bond.hasRole(CUSTOM_ROLE, user.address)).to.equal(true);
+      expect(await bond.hasRole(CUSTOM_ROLE, await user.getAddress())).to.equal(true);
     });
 
     it("GIVEN bondData with admin RBAC with empty members array WHEN deployed THEN FactorySuite is added as admin", async () => {
@@ -642,7 +660,7 @@ describe("FactorySuite - Business Logic Tests", () => {
             ...validBondKpiData.bondData.security,
             rbacs: [
               {
-                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
+                role: ethers.ZeroHash, // DEFAULT_ADMIN_ROLE
                 members: [], // Empty array
               },
             ],
@@ -653,14 +671,14 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         bondKpiDataWithEmptyAdminMembers,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
       // FactorySuite should have been temporarily added as admin (but then revoked at the end)
-      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, factorySuite.address)).to.equal(false);
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, await factorySuite.getAddress())).to.equal(false);
     });
 
     it("GIVEN bondData with mixed RBAC roles (admin and non-admin) WHEN deployed THEN all roles are preserved correctly", async () => {
@@ -676,12 +694,12 @@ describe("FactorySuite - Business Logic Tests", () => {
             ...validBondKpiData.bondData.security,
             rbacs: [
               {
-                role: ethers.constants.HashZero, // DEFAULT_ADMIN_ROLE
-                members: [admin.address],
+                role: ethers.ZeroHash, // DEFAULT_ADMIN_ROLE
+                members: [await admin.getAddress()],
               },
               {
                 role: CUSTOM_ROLE,
-                members: [user.address, deployer.address],
+                members: [await user.getAddress(), await deployer.getAddress()],
               },
             ],
           },
@@ -691,17 +709,17 @@ describe("FactorySuite - Business Logic Tests", () => {
       const { bondAddress } = await deployBondSuiteAndExtractContracts(
         factorySuite,
         admin,
-        mockAtsFactory.address,
+        await mockAtsFactory.getAddress(),
         bondKpiDataWithMixedRoles,
         validTreasuryData,
       );
 
       const bond = MockBond__factory.connect(bondAddress, admin);
       // Verify admin role
-      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, admin.address)).to.equal(true);
+      expect(await bond.hasRole(ATS_ROLES._DEFAULT_ADMIN_ROLE, await admin.getAddress())).to.equal(true);
       // Verify custom roles
-      expect(await bond.hasRole(CUSTOM_ROLE, user.address)).to.equal(true);
-      expect(await bond.hasRole(CUSTOM_ROLE, deployer.address)).to.equal(true);
+      expect(await bond.hasRole(CUSTOM_ROLE, await user.getAddress())).to.equal(true);
+      expect(await bond.hasRole(CUSTOM_ROLE, await deployer.getAddress())).to.equal(true);
     });
   });
 });

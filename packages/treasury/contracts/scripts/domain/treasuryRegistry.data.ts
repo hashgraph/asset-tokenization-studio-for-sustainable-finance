@@ -10,7 +10,7 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-03-03T08:44:17.081Z
+ * Generated: 2026-03-09T09:47:15.050Z
  * Facets: 3
  * Infrastructure: 0
  * Mocks: 6
@@ -25,11 +25,8 @@ import {
 } from "@hashgraph/asset-tokenization-contracts/scripts";
 import {
   LifeCycleCashFlowFacet__factory,
-  LifeCycleCashFlowFacetTimeTravel__factory,
   PortfolioFacet__factory,
-  PortfolioFacetTimeTravel__factory,
   ProceedsManagementFacet__factory,
-  ProceedsManagementFacetTimeTravel__factory,
   AssetMock__factory,
   EnvironmentalAssetMock__factory,
   PaymentTokenMock__factory,
@@ -139,9 +136,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
     ],
     factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new LifeCycleCashFlowFacetTimeTravel__factory(signer)
-        : new LifeCycleCashFlowFacet__factory(signer),
+      useTimeTravel ? new LifeCycleCashFlowFacet__factory(signer) : new LifeCycleCashFlowFacet__factory(signer),
   },
 
   PortfolioFacet: {
@@ -242,7 +237,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
     factory: (signer, useTimeTravel = false) =>
-      useTimeTravel ? new PortfolioFacetTimeTravel__factory(signer) : new PortfolioFacet__factory(signer),
+      useTimeTravel ? new PortfolioFacet__factory(signer) : new PortfolioFacet__factory(signer),
   },
 
   ProceedsManagementFacet: {
@@ -323,9 +318,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       { name: "WrongProceedsRecipient", signature: "WrongProceedsRecipient(address)", selector: "0x41d435ea" },
     ],
     factory: (signer, useTimeTravel = false) =>
-      useTimeTravel
-        ? new ProceedsManagementFacetTimeTravel__factory(signer)
-        : new ProceedsManagementFacet__factory(signer),
+      useTimeTravel ? new ProceedsManagementFacet__factory(signer) : new ProceedsManagementFacet__factory(signer),
   },
 };
 

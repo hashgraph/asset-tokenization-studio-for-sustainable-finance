@@ -1,6 +1,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "tsconfig-paths/register";
-import "@nomicfoundation/hardhat-toolbox";
+// import "@nomicfoundation/hardhat-toolbox"; // Temporarily disabled due to ESM resolution issues
+import "@nomicfoundation/hardhat-ethers";
+import "@typechain/hardhat";
 import "hardhat-contract-sizer";
 import "@primitivefi/hardhat-dodoc";
 import "@tasks";

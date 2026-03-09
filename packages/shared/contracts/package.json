@@ -60,7 +60,7 @@
     "checkpoint:cleanup": "npm run checkpoint -- cleanup"
   },
   "dependencies": {
-    "@hashgraph/asset-tokenization-contracts": "file:/Users/work/Projects/npm-registry-mock/ats/hashgraph-asset-tokenization-contracts-4.3.0-9.tgz",
+    "@hashgraph/asset-tokenization-contracts": "5.0.0",
     "@hashgraph/green-bonds-platform-ats-contracts": "*",
     "@hashgraph/green-bonds-platform-primarymarket-contracts": "*",
     "@hashgraph/green-bonds-platform-treasury-contracts": "*",

@@ -76,9 +76,6 @@ async function main(): Promise<void> {
       // not in our package, so we must import from ATS scripts
       moduleName: "@hashgraph/asset-tokenization-contracts/scripts",
 
-      // TypeChain path for factory validation (default is ./build/typechain-types)
-      typechainPath: "./typechain-types",
-
       // Include storage wrappers if we have any
       includeStorageWrappers: true,
 

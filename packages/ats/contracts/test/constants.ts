@@ -8,7 +8,7 @@
  * @module test/constants
  */
 
-// Re-export upstream ATS test constants (tsconfig alias bypasses node10 moduleResolution limitation)
+// Re-export upstream ATS test constants
 export {
   TEST_SIZES,
   BLR_VERSIONS,
@@ -20,7 +20,7 @@ export {
   TEST_REGULATION,
   TEST_GAS_LIMITS,
   TEST_OPTIONS,
-} from "ats-test-helpers";
+} from "@hashgraph/asset-tokenization-contracts/test";
 
 /**
  * Mock contract names (legacy - prefer TypeChain factories)

@@ -4,6 +4,7 @@ import { ethers, toUtf8Bytes, hexlify, parseEther, ZeroAddress } from "ethers";
 import hre from "hardhat";
 import type { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
 import { LATEST_VERSION } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { TEST_INTEREST_RATES, TEST_IMPACT_DATA } from "@hashgraph/asset-tokenization-contracts/test";
 import { TREASURY_CONFIG_ID } from "@scripts";
 import { TREASURY_CONFIG_VERSION } from "@test";
 
@@ -41,6 +42,7 @@ export interface TestDataSets {
   validFactoryRegulationData: any;
   validTreasuryData: any;
   validKpiData: any;
+  validBondKpiData: any; // Combined structure for deployBondSuite
   invalidTreasuryData: {
     zeroResolver: any;
     zeroPaymentToken: any;
@@ -66,7 +68,7 @@ export async function createTestDataSets(fixture: {
 
   const now = await getDltTimestamp();
 
-  const resolverAddress = mockResolver.address;
+  const resolverAddress = await mockResolver.getAddress();
   const paymentTokenAddress = await paymentToken.getAddress();
   const environmentalAssetToken1Address = await environmentalAssetToken1.getAddress();
 
@@ -117,7 +119,12 @@ export async function createTestDataSets(fixture: {
       key: treasuryKey,
       version: treasuryVer,
     },
-    rbacs: [],
+    rbacs: [
+      {
+        role: ethers.ZeroHash, // DEFAULT_ADMIN_ROLE
+        members: [admin.address],
+      },
+    ],
     paymentToken: paymentTokenAddress,
     environmentalAssets: [environmentalAssetToken1Address],
   };
@@ -147,11 +154,40 @@ export async function createTestDataSets(fixture: {
     admin: ZeroAddress,
   };
 
+  // Interest rate and impact data for KPI-linked bond
+  const validInterestRate = {
+    maxRate: TEST_INTEREST_RATES.MAX_RATE,
+    baseRate: TEST_INTEREST_RATES.BASE_RATE,
+    minRate: TEST_INTEREST_RATES.MIN_RATE,
+    startPeriod: now, // Use current timestamp for start period
+    startRate: TEST_INTEREST_RATES.START_RATE,
+    missedPenalty: TEST_INTEREST_RATES.MISSED_PENALTY,
+    reportPeriod: TEST_INTEREST_RATES.REPORT_PERIOD,
+    rateDecimals: TEST_INTEREST_RATES.RATE_DECIMALS,
+  };
+
+  const validImpactData = {
+    maxDeviationCap: TEST_IMPACT_DATA.MAX_DEVIATION_CAP,
+    baseLine: TEST_IMPACT_DATA.BASELINE,
+    maxDeviationFloor: TEST_IMPACT_DATA.MAX_DEVIATION_FLOOR,
+    impactDataDecimals: TEST_IMPACT_DATA.DECIMALS,
+    adjustmentPrecision: TEST_IMPACT_DATA.ADJUSTMENT_PRECISION,
+  };
+
+  // Combined BondKpiLinkedRateData structure
+  const validBondKpiData = {
+    bondData: validBondData,
+    factoryRegulationData: validFactoryRegulationData,
+    interestRate: validInterestRate,
+    impactData: validImpactData,
+  };
+
   return {
     validBondData,
     validFactoryRegulationData,
     validTreasuryData,
     validKpiData,
+    validBondKpiData,
     invalidTreasuryData: {
       zeroResolver: invalidTreasuryDataZeroResolver,
       zeroPaymentToken: invalidTreasuryDataZeroPaymentToken,
@@ -186,4 +222,14 @@ export function createKpiDataWithRoles(validKpiData: any, roles: Array<{ role: s
       members: r.members,
     })),
   };
+}
+
+/** Create default admin RBAC configuration for a given address. */
+export function createDefaultAdminRbac(adminAddress: string) {
+  return [
+    {
+      role: ethers.ZeroHash, // DEFAULT_ADMIN_ROLE = 0x00
+      members: [adminAddress],
+    },
+  ];
 }

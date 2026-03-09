@@ -100,28 +100,25 @@ export class BlockchainTransactionSenderAdapter implements BlockchainTransaction
     const provider = this.getEthereumProvider()
 
     try {
-      const txResponse = await provider.sendTransaction(signedTransaction.payload)
+      const txResponse = await provider.broadcastTransaction(signedTransaction.payload)
       const receipt = await txResponse.wait()
+
+      if (!receipt) {
+        throw new BlockchainError("Transaction receipt is null", "NULL_RECEIPT", txResponse.hash, false)
+      }
 
       if (receipt.status === 1) {
         return {
-          transactionId: receipt.transactionHash,
+          transactionId: receipt.hash,
           status: "success",
         }
       } else {
         const errorCode = "CONTRACT_REVERT_EXECUTION"
         const isTransient = false
 
-        this.logger.error(
-          `Ethereum transaction failed: ${receipt.transactionHash} - ${errorCode} (transient: ${isTransient})`,
-        )
+        this.logger.error(`Ethereum transaction failed: ${receipt.hash} - ${errorCode} (transient: ${isTransient})`)
 
-        throw new BlockchainError(
-          `Ethereum transaction reverted: ${errorCode}`,
-          errorCode,
-          receipt.transactionHash,
-          isTransient,
-        )
+        throw new BlockchainError(`Ethereum transaction reverted: ${errorCode}`, errorCode, receipt.hash, isTransient)
       }
     } catch (error: any) {
       if (error instanceof BlockchainError) {

@@ -10,10 +10,10 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-03-02T16:41:09.837Z
+ * Generated: 2026-03-09T07:36:50.632Z
  * Facets: 1
  * Infrastructure: 0
- * Mocks: 6
+ * Mocks: 7
  *
  * @module domain/atsRegistry.data
  */
@@ -31,6 +31,7 @@ import {
   MockBusinessLogicResolver__factory,
   MockERC20__factory,
   MockERC721__factory,
+  MockReentrantFactory__factory,
   MockTreasuryFacet__factory,
 } from "@contract-types";
 
@@ -50,24 +51,23 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       {
         name: "deployBondSuite",
         signature:
-          "function deployBondSuite(address bondFactoryAddress, ((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) treasuryData, (address admin, (bytes32 role, address[] members)[] rbacs) kpiData) returns (address bondAddress, address treasuryAddress, address kpiAddress)",
-        selector: "0xcad82b66",
+          "function deployBondSuite(address bondFactoryAddress, (((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) bondKpiData, (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) treasuryData) returns (address bondAddress, address treasuryAddress)",
+        selector: "0xf817cfcc",
       },
     ],
     events: [
       {
         name: "BondSuiteDeployed",
-        signature:
-          "BondSuiteDeployed(address,address,address,address,IAtsFactory.BondData,AtsFactoryRegulationData,TreasuryData,KpiData)",
-        topic0: "0x9eeb7d43d9ee8ee6b3cd0acfd12b583a09b07eeb1ce05cb802df2d6c234f02e2",
+        signature: "BondSuiteDeployed(address,address,address,IAtsFactory.BondKpiLinkedRateData,TreasuryData)",
+        topic0: "0x9c8cff4064572e26ecf2bbf554bad90f1ad7de98630f8303f398292682494483",
       },
     ],
     errors: [
       { name: "BondDeploymentFailed", signature: "BondDeploymentFailed()", selector: "0xbe94552d" },
       { name: "InvalidContractAddress", signature: "InvalidContractAddress(address)", selector: "0x19bb4029" },
-      { name: "InvalidKpiData", signature: "InvalidKpiData()", selector: "0xa3442b7f" },
+      { name: "InvalidImpactDataValues", signature: "InvalidImpactDataValues()", selector: "0x37c89696" },
+      { name: "InvalidInterestRateValues", signature: "InvalidInterestRateValues()", selector: "0x5bada493" },
       { name: "InvalidTreasuryData", signature: "InvalidTreasuryData()", selector: "0xb153e4d6" },
-      { name: "KpiDeploymentFailed", signature: "KpiDeploymentFailed()", selector: "0x0fb0be11" },
       { name: "TreasuryDeploymentFailed", signature: "TreasuryDeploymentFailed()", selector: "0xc340e5b3" },
     ],
     factory: (signer, useTimeTravel = false) =>
@@ -124,10 +124,10 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     description: "Mock implementation of ATS Factory for testing purposes",
     methods: [
       {
-        name: "deployBond",
+        name: "deployBondKpiLinkedRate",
         signature:
-          "function deployBond(((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) regulationData) returns (address bondAddress)",
-        selector: "0x5133f0e0",
+          "function deployBondKpiLinkedRate((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) bondKpiData) returns (address bondAddress)",
+        selector: "0x06e6effc",
       },
       {
         name: "nextBondAddress",
@@ -338,6 +338,50 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     factory: (signer) => new MockERC721__factory(signer),
   },
 
+  MockReentrantFactory: {
+    name: "MockReentrantFactory",
+    description: "Mock factory that attempts to perform a reentrancy attack on FactorySuite.deployBondSuite",
+    methods: [
+      {
+        name: "deployBondKpiLinkedRate",
+        signature:
+          "function deployBondKpiLinkedRate((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)) returns (address bondAddress)",
+        selector: "0x06e6effc",
+      },
+      {
+        name: "enableReentrancy",
+        signature:
+          "function enableReentrancy((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) _bondKpiData, (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) _treasuryData)",
+        selector: "0xad16079d",
+      },
+      { name: "factorySuite", signature: "function factorySuite() view returns (address)", selector: "0x525fb99d" },
+      {
+        name: "reentrancyAttempted",
+        signature: "function reentrancyAttempted() view returns (bool)",
+        selector: "0xfb160c2d",
+      },
+      { name: "setFactorySuite", signature: "function setFactorySuite(address _factorySuite)", selector: "0xa55eef0e" },
+      {
+        name: "shouldAttemptReentrancy",
+        signature: "function shouldAttemptReentrancy() view returns (bool)",
+        selector: "0xe4679dd2",
+      },
+      {
+        name: "storedBondKpiData",
+        signature:
+          "function storedBondKpiData() view returns (((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)",
+        selector: "0x9eeeacc4",
+      },
+      {
+        name: "storedTreasuryData",
+        signature:
+          "function storedTreasuryData() view returns (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, address paymentToken)",
+        selector: "0xc1fc1a28",
+      },
+    ],
+    factory: (signer) => new MockReentrantFactory__factory(signer),
+  },
+
   MockTreasuryFacet: {
     name: "MockTreasuryFacet",
     description: "Mock implementation of Treasury facet for testing FactorySuite deployment",
@@ -391,17 +435,16 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 6 as const;
+export const TOTAL_MOCKS = 7 as const;
 
 /**
  * All role identifiers extracted from contracts.
  */
 export const ROLES = {
   DEPLOYER_ROLE: "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283",
-  KPI_DATA_MANAGER_ROLE: "0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e",
 } as const;
 
 /**
  * Total number of unique roles in the registry.
  */
-export const TOTAL_ROLES = 2 as const;
+export const TOTAL_ROLES = 1 as const;

@@ -96,18 +96,6 @@ contract MockBond is IBondRead {
         return 0;
     }
 
-    function getCouponFromOrderedListAt(uint256) external pure override returns (uint256) {
-        return 0;
-    }
-
-    function getCouponsOrderedList(uint256, uint256) external pure override returns (uint256[] memory) {
-        return new uint256[](0);
-    }
-
-    function getCouponsOrderedListTotal() external pure override returns (uint256) {
-        return 0;
-    }
-
     function decimals() public view returns (uint8) {
         return _decimals;
     }

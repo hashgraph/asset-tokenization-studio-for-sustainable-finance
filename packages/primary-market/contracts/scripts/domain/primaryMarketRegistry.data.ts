@@ -10,7 +10,7 @@
  *
  * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2026-03-03T08:44:36.810Z
+ * Generated: 2026-03-09T07:50:54.933Z
  * Facets: 2
  * Infrastructure: 0
  * Mocks: 5
@@ -394,7 +394,7 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       },
       {
         name: "getCouponFromOrderedListAt",
-        signature: "function getCouponFromOrderedListAt(uint256) pure returns (uint256)",
+        signature: "function getCouponFromOrderedListAt(uint256 _pos) view returns (uint256 couponID_)",
         selector: "0x65a88a2c",
       },
       {
@@ -404,12 +404,13 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
       },
       {
         name: "getCouponsOrderedList",
-        signature: "function getCouponsOrderedList(uint256, uint256) pure returns (uint256[])",
+        signature:
+          "function getCouponsOrderedList(uint256 _pageIndex, uint256 _pageLength) view returns (uint256[] couponIDs_)",
         selector: "0xd7133de1",
       },
       {
         name: "getCouponsOrderedListTotal",
-        signature: "function getCouponsOrderedListTotal() pure returns (uint256)",
+        signature: "function getCouponsOrderedListTotal() view returns (uint256 total_)",
         selector: "0xee1d26eb",
       },
       {

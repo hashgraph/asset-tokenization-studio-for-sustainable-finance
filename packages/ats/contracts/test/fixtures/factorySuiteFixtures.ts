@@ -34,16 +34,17 @@ import {
   MOCK_ATS_FACTORY_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
 } from "@test";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin, IAccessControl, IPause } from "@contract-types";
+import type { IFactorySuite, IBusinessLogicResolver, IAccessControl, IPause } from "@contract-types";
+import type { ProxyAdmin } from "@hashgraph/asset-tokenization-contracts";
 import {
   MockAtsFactory__factory,
   MockERC20__factory,
   MockERC721__factory,
   IFactorySuite__factory,
-  ProxyAdmin__factory,
   IAccessControl__factory,
   IPause__factory,
 } from "@contract-types";
+import { ProxyAdmin__factory } from "@hashgraph/asset-tokenization-contracts";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
