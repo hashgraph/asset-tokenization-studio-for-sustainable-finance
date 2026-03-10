@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # Full quality checks on push to main/develop branches
       - name: Check code formatting (Full)
