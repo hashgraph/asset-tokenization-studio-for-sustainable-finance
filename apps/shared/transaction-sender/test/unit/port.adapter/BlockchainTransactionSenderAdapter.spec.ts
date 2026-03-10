@@ -43,9 +43,9 @@ jest.mock("ethers", () => {
   class MockContract {}
   return {
     JsonRpcProvider: jest.fn().mockImplementation(() => ({
-      sendTransaction: jest.fn().mockResolvedValue({
+      broadcastTransaction: jest.fn().mockResolvedValue({
         wait: jest.fn().mockResolvedValue({
-          transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+          hash: "0x1234567890abcdef1234567890abcdef12345678",
           status: 1,
         }),
       }),
@@ -165,9 +165,9 @@ describe("BlockchainTransactionSenderAdapter", () => {
     it("should throw BlockchainError for Ethereum reverted transactions", async () => {
       const { JsonRpcProvider } = jest.requireMock("ethers")
       const mockProvider = {
-        sendTransaction: jest.fn().mockResolvedValue({
+        broadcastTransaction: jest.fn().mockResolvedValue({
           wait: jest.fn().mockResolvedValue({
-            transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+            hash: "0x1234567890abcdef1234567890abcdef12345678",
             status: 0, // Failed
           }),
         }),
@@ -196,7 +196,7 @@ describe("BlockchainTransactionSenderAdapter", () => {
       }
 
       const mockProvider = {
-        sendTransaction: jest.fn().mockRejectedValue(mockError),
+        broadcastTransaction: jest.fn().mockRejectedValue(mockError),
       }
 
       JsonRpcProvider.mockImplementationOnce(() => mockProvider)
