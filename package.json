@@ -283,6 +283,8 @@
     "@algolia/recommend": "5.46.3",
     "@algolia/client-personalization": "5.46.3",
     "@types/node": "22.18.9",
-    "libphonenumber-js": "1.12.31"
+    "libphonenumber-js": "1.12.31",
+    "@nomicfoundation/hardhat-toolbox": "3.0.0",
+    "@nomicfoundation/hardhat-ignition": "0.15.5"
   }
 }
