@@ -37,9 +37,12 @@ describe("SetBondCouponTransaction API Integration", () => {
         accountId: "0.0.5466269",
         recordDate: new Date(1704067200000),
         executionDate: new Date(1704153600000),
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        rateStatus: "1",
       }
 
       const response = await request(app.getHttpServer())
@@ -62,9 +65,12 @@ describe("SetBondCouponTransaction API Integration", () => {
           accountId: "0.0.5466269",
           recordDate: new Date(1704067200000),
           executionDate: new Date(1704153600000),
+          startDate: new Date(1672531200000),
+          endDate: new Date(1704067200000),
+          fixingDate: new Date(1703894400000),
           rate: "500",
           rateDecimals: "2",
-          period: "2592000",
+          rateStatus: "1",
         }
 
         const response = await request(app.getHttpServer())
@@ -86,9 +92,12 @@ describe("SetBondCouponTransaction API Integration", () => {
           accountId: "0.0.5466269",
           recordDate: new Date(1704067200000),
           executionDate: new Date(1704153600000),
+          startDate: new Date(1672531200000),
+          endDate: new Date(1704067200000),
+          fixingDate: new Date(1703894400000),
           rate: rate,
           rateDecimals: "2",
-          period: "2592000",
+          rateStatus: "1",
         }
 
         const response = await request(app.getHttpServer())
@@ -105,15 +114,19 @@ describe("SetBondCouponTransaction API Integration", () => {
       const now = Date.now()
       const oneMonthLater = now + 2592000000
       const twoMonthsLater = now + 5184000000
+      const threeMonthsLater = now + 7776000000
 
       const setCouponRequest: SetBondCouponTransactionRequest = {
         format: "hedera",
         accountId: "0.0.5466269",
         recordDate: new Date(oneMonthLater),
         executionDate: new Date(twoMonthsLater),
+        startDate: new Date(now),
+        endDate: new Date(oneMonthLater),
+        fixingDate: new Date(threeMonthsLater),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        rateStatus: "1",
       }
 
       const response = await request(app.getHttpServer())
@@ -136,7 +149,10 @@ describe("SetBondCouponTransaction API Integration", () => {
           executionDate: new Date(1704153600000),
           rate: "500",
           rateDecimals: "2",
-          period: "2592000",
+          startDate: new Date(1672531200000),
+          endDate: new Date(1704067200000),
+          fixingDate: new Date(1703894400000),
+          rateStatus: "1",
         }
 
         await request(app.getHttpServer())
@@ -155,7 +171,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       await request(app.getHttpServer())
@@ -173,7 +192,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: "not-a-timestamp",
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       await request(app.getHttpServer())
@@ -206,7 +228,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       await request(app.getHttpServer())
@@ -223,7 +248,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         recordDate: new Date(1704067200000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       await request(app.getHttpServer())
@@ -255,7 +283,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(1704153600000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       await request(app.getHttpServer())
@@ -289,7 +320,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(1704153600000),
         rate: "0",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       const response = await request(app.getHttpServer())
@@ -309,7 +343,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(1704153600000),
         rate: "10000",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       const response = await request(app.getHttpServer())
@@ -331,7 +368,10 @@ describe("SetBondCouponTransaction API Integration", () => {
           executionDate: new Date(1704153600000),
           rate: "500",
           rateDecimals: "2",
-          period: "2592000",
+          startDate: new Date(1672531200000),
+          endDate: new Date(1704067200000),
+          fixingDate: new Date(1703894400000),
+          rateStatus: "1",
         }
 
         const response = await request(app.getHttpServer())
@@ -352,7 +392,10 @@ describe("SetBondCouponTransaction API Integration", () => {
         executionDate: new Date(9999999999000),
         rate: "500",
         rateDecimals: "2",
-        period: "2592000",
+        startDate: new Date(1672531200000),
+        endDate: new Date(1704067200000),
+        fixingDate: new Date(1703894400000),
+        rateStatus: "1",
       }
 
       const response = await request(app.getHttpServer())

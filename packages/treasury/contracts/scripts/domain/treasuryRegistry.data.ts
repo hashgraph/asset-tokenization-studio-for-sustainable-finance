@@ -8,12 +8,12 @@
  *
  * To regenerate: npm run generate:registry
  *
- * Import from '../../domain/index.js' instead of this file directly.
+ * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-12-04T14:25:13.308Z
+ * Generated: 2026-03-10T07:00:29.808Z
  * Facets: 3
  * Infrastructure: 0
- * Mocks: 4
+ * Mocks: 6
  *
  * @module domain/atsRegistry.data
  */
@@ -50,29 +50,51 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     methods: [
       {
         name: "executeBondRedemption",
-        signature: "executeBondRedemption(address,uint256,uint256)",
+        signature:
+          "function executeBondRedemption(address bond, uint256 pageIndex, uint256 pageLength) returns ((address holder, int64 amount, uint8 status)[] results, bool executed)",
         selector: "0xcc56f811",
       },
       {
         name: "executeBondRedemptionByAddresses",
-        signature: "executeBondRedemptionByAddresses(address,address[])",
+        signature:
+          "function executeBondRedemptionByAddresses(address bond, address[] holders) returns ((address holder, int64 amount, uint8 status)[] results)",
         selector: "0xcf013091",
       },
       {
         name: "executeDistribution",
-        signature: "executeDistribution(address,uint256,uint256,uint256)",
+        signature:
+          "function executeDistribution(address asset, uint256 distributionId, uint256 pageIndex, uint256 pageLength) returns ((address holder, int64 amount, uint8 status)[] results, bool executed)",
         selector: "0x09c57f63",
       },
       {
         name: "executeDistributionByAddresses",
-        signature: "executeDistributionByAddresses(address,uint256,address[])",
+        signature:
+          "function executeDistributionByAddresses(address asset, uint256 distributionId, address[] holders) returns ((address holder, int64 amount, uint8 status)[] results)",
         selector: "0x417dc389",
       },
-      { name: "getAsset", signature: "getAsset()", selector: "0x5c222bad" },
+      { name: "getAsset", signature: "function getAsset() view returns (address)", selector: "0x5c222bad" },
       {
         name: "initialize_LifeCycleCashFlow",
-        signature: "initialize_LifeCycleCashFlow(address)",
+        signature: "function initialize_LifeCycleCashFlow(address asset)",
         selector: "0x211afa54",
+      },
+      {
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
+      },
+      {
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
+      },
+      {
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
       },
     ],
     events: [
@@ -104,6 +126,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
         signature: "BalanceOfByPartitionError(address,address,bytes32)",
         selector: "0xe7cfb56c",
       },
+      { name: "code", signature: "code(address)", selector: "0x5b90b752" },
       { name: "GetAssetDecimalsFailed", signature: "GetAssetDecimalsFailed(address)", selector: "0xe80be37a" },
       { name: "GetTokenDecimalsFailed", signature: "GetTokenDecimalsFailed(address,int256)", selector: "0x1b245d57" },
       { name: "InvalidAsset", signature: "InvalidAsset(address)", selector: "0x6f79c78a" },
@@ -129,26 +152,61 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     },
     inheritance: ["Portfolio", "IStaticFunctionSelectors"],
     methods: [
-      { name: "addEnvironmentalAssetToken", signature: "addEnvironmentalAssetToken(address)", selector: "0x92f35a1f" },
-      { name: "dissociateToken", signature: "dissociateToken(address)", selector: "0xd5d607b6" },
+      {
+        name: "addEnvironmentalAssetToken",
+        signature: "function addEnvironmentalAssetToken(address environmentalAsset)",
+        selector: "0x92f35a1f",
+      },
+      { name: "dissociateToken", signature: "function dissociateToken(address token)", selector: "0xd5d607b6" },
       {
         name: "getEnvironmentalAssetTokens",
-        signature: "getEnvironmentalAssetTokens(uint256,uint256)",
+        signature:
+          "function getEnvironmentalAssetTokens(uint256 pageIndex, uint256 pageLength) view returns (address[] environmentalAssets)",
         selector: "0xb5eba11e",
       },
-      { name: "getPaymentToken", signature: "getPaymentToken()", selector: "0xd41c3a65" },
+      {
+        name: "getPaymentToken",
+        signature: "function getPaymentToken() view returns (address paymentToken)",
+        selector: "0xd41c3a65",
+      },
       {
         name: "getTotalEnvironmentalAssetTokens",
-        signature: "getTotalEnvironmentalAssetTokens()",
+        signature: "function getTotalEnvironmentalAssetTokens() view returns (uint256 total)",
         selector: "0xfadcb2cc",
       },
-      { name: "initialize_Portfolio", signature: "initialize_Portfolio(address,address[])", selector: "0xde73748f" },
+      {
+        name: "initialize_Portfolio",
+        signature: "function initialize_Portfolio(address paymentToken, address[] environmentalAssets)",
+        selector: "0xde73748f",
+      },
+      {
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
+      },
       {
         name: "removeEnvironmentalAssetToken",
-        signature: "removeEnvironmentalAssetToken(address)",
+        signature: "function removeEnvironmentalAssetToken(address environmentalAsset) returns (int256)",
         selector: "0xf96105e0",
       },
-      { name: "updatePaymentToken", signature: "updatePaymentToken(address)", selector: "0x4ccf1b34" },
+      {
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
+      },
+      {
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
+      },
+      {
+        name: "updatePaymentToken",
+        signature: "function updatePaymentToken(address paymentToken) returns (int256 dissociationError)",
+        selector: "0x4ccf1b34",
+      },
     ],
     events: [
       {
@@ -179,6 +237,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     ],
     errors: [
       { name: "AssociateTokenFailed", signature: "AssociateTokenFailed(address)", selector: "0x809ba4e8" },
+      { name: "code", signature: "code(address)", selector: "0x5b90b752" },
       { name: "DissociateTokenFailed", signature: "DissociateTokenFailed(address,int256)", selector: "0xc6e871f4" },
       { name: "InvalidAddressZero", signature: "InvalidAddressZero()", selector: "0x10c748a6" },
     ],
@@ -194,13 +253,39 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     },
     inheritance: ["ProceedsManagement", "IStaticFunctionSelectors"],
     methods: [
-      { name: "fundProceedsRecipient", signature: "fundProceedsRecipient(address,uint256)", selector: "0x418c9aad" },
+      {
+        name: "fundProceedsRecipient",
+        signature: "function fundProceedsRecipient(address proceedsRecipient, uint256 amount)",
+        selector: "0x418c9aad",
+      },
+      {
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
+      },
       {
         name: "transferEnvironmentalAssetToken",
-        signature: "transferEnvironmentalAssetToken(address,address,uint256)",
+        signature: "function transferEnvironmentalAssetToken(address environmentalAsset, address to, uint256 tokenId)",
         selector: "0x2bd5c528",
       },
-      { name: "transferPaymentToken", signature: "transferPaymentToken(address,uint256)", selector: "0x609efbe5" },
+      {
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
+      },
+      {
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
+      },
+      {
+        name: "transferPaymentToken",
+        signature: "function transferPaymentToken(address to, uint256 amount)",
+        selector: "0x609efbe5",
+      },
     ],
     events: [
       {
@@ -220,6 +305,7 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
       },
     ],
     errors: [
+      { name: "code", signature: "code(address)", selector: "0x5b90b752" },
       { name: "NotAllowedAmount", signature: "NotAllowedAmount(uint256)", selector: "0x36337fc1" },
       { name: "NotAllowedSerialNumber", signature: "NotAllowedSerialNumber(uint256)", selector: "0xdd850fcb" },
       { name: "NotEnoughBalance", signature: "NotEnoughBalance(uint256)", selector: "0x74e0caad" },
@@ -270,116 +356,24 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     name: "LifeCycleCashFlowStorageWrapper",
     inheritance: ["AtsCommon", "PortfolioStorageWrapper"],
     methods: [
-      { name: "_checkAsset", signature: "_checkAsset(address)", selector: "0xa4a7d604" },
-      { name: "_checkDistributionDate", signature: "_checkDistributionDate(address,uint256)", selector: "0x529b9723" },
-      { name: "_checkPaymentDate", signature: "_checkPaymentDate(uint256,uint256)", selector: "0xcc6e19f6" },
-      { name: "_checkRedemptionDate", signature: "_checkRedemptionDate(address)", selector: "0xfeac9f97" },
       {
-        name: "_createTransferAccounts",
-        signature: "_createTransferAccounts(address[],address)",
-        selector: "0x5dcc8abc",
-      },
-      { name: "_createTransferAmounts", signature: "_createTransferAmounts(int64[],int64)", selector: "0x89b63daf" },
-      {
-        name: "_executeBondRedemption",
-        signature: "_executeBondRedemption(address,uint256,uint256)",
-        selector: "0x0c361d5d",
-      },
-      {
-        name: "_executeBondRedemptionByAddresses",
-        signature: "_executeBondRedemptionByAddresses(address,address[])",
-        selector: "0x5abd5278",
-      },
-      {
-        name: "_executeDistribution",
-        signature: "_executeDistribution(address,uint256,uint256,uint256)",
-        selector: "0xb9dc167f",
-      },
-      {
-        name: "_executeDistributionByAddresses",
-        signature: "_executeDistributionByAddresses(address,uint256,address[])",
-        selector: "0xd77831e3",
-      },
-      { name: "_getAsset", signature: "_getAsset()", selector: "0xf19ee2a9" },
-      { name: "_getAssetHolders", signature: "_getAssetHolders(address,uint256,uint256)", selector: "0x4c4962b9" },
-      {
-        name: "_getDistributionAmount",
-        signature: "_getDistributionAmount(address,uint256,address,uint8)",
-        selector: "0xbe40da6c",
-      },
-      {
-        name: "_getDistributionExecutionDate",
-        signature: "_getDistributionExecutionDate(address,uint256)",
-        selector: "0xff17bd92",
-      },
-      {
-        name: "_getDistributionHolders",
-        signature: "_getDistributionHolders(address,uint256,uint256,uint256)",
-        selector: "0xdb277d9e",
-      },
-      { name: "_getPaymentTokenDecimals", signature: "_getPaymentTokenDecimals(address)", selector: "0x20caecae" },
-      {
-        name: "_getRedemptionAmount",
-        signature: "_getRedemptionAmount(address,address,uint8)",
-        selector: "0xa2e003bd",
-      },
-      { name: "_getRedemptionDate", signature: "_getRedemptionDate(address)", selector: "0xc6fe7baf" },
-      {
-        name: "_isDistributionHolderPaid",
-        signature: "_isDistributionHolderPaid(uint256,address)",
-        selector: "0x2ef9cd92",
-      },
-      { name: "_isHolderValid", signature: "_isHolderValid(address)", selector: "0x6fcc4d27" },
-      { name: "_isValidAmount", signature: "_isValidAmount(uint256)", selector: "0x9fddac0a" },
-      { name: "_lifeCycleCashFlowStorage", signature: "_lifeCycleCashFlowStorage()", selector: "0x105bec10" },
-      {
-        name: "_payBatchHoldersDistribution",
-        signature: "_payBatchHoldersDistribution(uint256,address[],int64[],int64,address)",
-        selector: "0xd13a5f37",
-      },
-      {
-        name: "_payBatchHoldersRedemption",
-        signature: "_payBatchHoldersRedemption(address[],int64[],int64,address)",
-        selector: "0xcc30a0ca",
-      },
-      {
-        name: "_payHoldersDistribution",
-        signature: "_payHoldersDistribution(address,uint256,address[])",
-        selector: "0x312b66c3",
-      },
-      { name: "_payHoldersRedemption", signature: "_payHoldersRedemption(address,address[])", selector: "0xbd1d84f2" },
-      {
-        name: "_populateSourceArraysFromDataArrays",
+        name: "redirectForToken",
         signature:
-          "_populateSourceArraysFromDataArrays(bool,address[],int64[],ILifeCycleCashFlow.PaymentResult[],uint256)",
-        selector: "0xa34c4fe9",
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
       },
       {
-        name: "_processBatchDistribution",
-        signature: "_processBatchDistribution(uint256,BatchInfo,address,ILifeCycleCashFlow.PaymentResult[],uint256)",
-        selector: "0x1978f933",
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
       },
       {
-        name: "_processBatchRedemption",
-        signature: "_processBatchRedemption(BatchInfo,address,ILifeCycleCashFlow.PaymentResult[],uint256)",
-        selector: "0x31ea19b2",
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
       },
-      { name: "_redeemBondHolders", signature: "_redeemBondHolders(address,address[])", selector: "0xd44744d2" },
-      { name: "_resizeAmountsArray", signature: "_resizeAmountsArray(int64[],uint256)", selector: "0x3764cd4d" },
-      { name: "_resizeHoldersArray", signature: "_resizeHoldersArray(address[],uint256)", selector: "0x443534a9" },
-      { name: "_setAsset", signature: "_setAsset(address)", selector: "0x227a7417" },
-      {
-        name: "_setDistributionHolderPaid",
-        signature: "_setDistributionHolderPaid(uint256,address)",
-        selector: "0xead329fa",
-      },
-      {
-        name: "_setDistributionHoldersPaid",
-        signature: "_setDistributionHoldersPaid(uint256,address[])",
-        selector: "0xa68b4fcf",
-      },
-      { name: "_valueFitsInInt64", signature: "_valueFitsInInt64(uint256)", selector: "0x0fa2162a" },
-      { name: "_valueFitsInUint8", signature: "_valueFitsInUint8(int32)", selector: "0x5dfddfb2" },
     ],
   },
 
@@ -388,54 +382,49 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     inheritance: ["AtsCommon", "HederaTokenService"],
     methods: [
       {
-        name: "_addEnvironmentalAssetToken",
-        signature: "_addEnvironmentalAssetToken(address)",
-        selector: "0x669f86c9",
-      },
-      { name: "_associateToken", signature: "_associateToken(address)", selector: "0xda61c642" },
-      { name: "_checkAddress", signature: "_checkAddress(address)", selector: "0xc4851d02" },
-      { name: "_dissociateToken", signature: "_dissociateToken(address)", selector: "0xb57ba73f" },
-      {
-        name: "_dissociateTokenAllowNotAssociated",
-        signature: "_dissociateTokenAllowNotAssociated(address)",
-        selector: "0x9617c0c5",
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
       },
       {
-        name: "_getEnvironmentalAssetTokens",
-        signature: "_getEnvironmentalAssetTokens(uint256,uint256)",
-        selector: "0xd952fc2e",
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
       },
-      { name: "_getPaymentToken", signature: "_getPaymentToken()", selector: "0x535e678c" },
       {
-        name: "_getTotalEnvironmentalAssetTokens",
-        signature: "_getTotalEnvironmentalAssetTokens()",
-        selector: "0x75f3fd60",
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
       },
-      { name: "_portfolioStorage", signature: "_portfolioStorage()", selector: "0x27d77c72" },
-      {
-        name: "_removeEnvironmentalAssetToken",
-        signature: "_removeEnvironmentalAssetToken(address)",
-        selector: "0x45b3f43f",
-      },
-      { name: "_setEnvironmentalAssets", signature: "_setEnvironmentalAssets(address[])", selector: "0xe71c064a" },
-      { name: "_setPaymentToken", signature: "_setPaymentToken(address)", selector: "0x46e36a79" },
-      { name: "_updatePaymentToken", signature: "_updatePaymentToken(address)", selector: "0xc8b4886a" },
     ],
+    errors: [{ name: "code", signature: "code(address)", selector: "0x5b90b752" }],
   },
 
   ProceedsManagementStorageWrapper: {
     name: "ProceedsManagementStorageWrapper",
     inheritance: ["LifeCycleCashFlowStorageWrapper"],
     methods: [
-      { name: "_checkProceedRecipient", signature: "_checkProceedRecipient(address)", selector: "0x2403cb2d" },
-      { name: "_fundProceedsRecipient", signature: "_fundProceedsRecipient(address,uint256)", selector: "0xdf536407" },
       {
-        name: "_transferEnvironmentalAssetToken",
-        signature: "_transferEnvironmentalAssetToken(address,address,uint256)",
-        selector: "0x2bbd8346",
+        name: "redirectForToken",
+        signature:
+          "function redirectForToken(address token, bytes encodedFunctionSelector) returns (int256 responseCode, bytes response)",
+        selector: "0x618dc65e",
       },
-      { name: "_transferPaymentToken", signature: "_transferPaymentToken(address,uint256)", selector: "0x06a26c4a" },
-      { name: "_uint256FitsIntoInt64", signature: "_uint256FitsIntoInt64(uint256)", selector: "0x2108e7af" },
+      {
+        name: "transferFrom",
+        signature:
+          "function transferFrom(address token, address from, address to, uint256 amount) returns (int64 responseCode)",
+        selector: "0x15dacbea",
+      },
+      {
+        name: "transferFromNFT",
+        signature:
+          "function transferFromNFT(address token, address from, address to, uint256 serialNumber) returns (int64 responseCode)",
+        selector: "0x9b23d3d9",
+      },
     ],
   },
 };
@@ -455,17 +444,84 @@ export const TOTAL_STORAGE_WRAPPERS = 3 as const;
 export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
   AssetMock: {
     name: "AssetMock",
+    inheritance: ["IBondRead"],
     methods: [
-      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
-      { name: "fullRedeemAtMaturity", signature: "fullRedeemAtMaturity(address)", selector: "0xd0db5fb2" },
-      { name: "getBondDetails", signature: "getBondDetails()", selector: "0x4ce02414" },
-      { name: "getCoupon", signature: "getCoupon(uint256)", selector: "0x936e3169" },
-      { name: "getCouponAmountFor", signature: "getCouponAmountFor(uint256,address)", selector: "0x439efc2e" },
-      { name: "getCouponFor", signature: "getCouponFor(uint256,address)", selector: "0xbba7b56d" },
-      { name: "getCouponHolders", signature: "getCouponHolders(uint256,uint256,uint256)", selector: "0xa92e8371" },
-      { name: "getPrincipalFor", signature: "getPrincipalFor(address)", selector: "0x6f131c78" },
-      { name: "getSecurityHolders", signature: "getSecurityHolders(uint256,uint256)", selector: "0x81438d2f" },
-      { name: "isProceedRecipient", signature: "isProceedRecipient(address)", selector: "0xb9b6def1" },
+      { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
+      {
+        name: "fullRedeemAtMaturity",
+        signature: "function fullRedeemAtMaturity(address) pure",
+        selector: "0xd0db5fb2",
+      },
+      {
+        name: "getBondDetails",
+        signature:
+          "function getBondDetails() view returns ((bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetailsData_)",
+        selector: "0x4ce02414",
+      },
+      {
+        name: "getCoupon",
+        signature:
+          "function getCoupon(uint256) view returns (((uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon, uint256 snapshotId) registeredCoupon)",
+        selector: "0x936e3169",
+      },
+      {
+        name: "getCouponAmountFor",
+        signature:
+          "function getCouponAmountFor(uint256, address) view returns ((uint256 numerator, uint256 denominator, bool recordDateReached) couponAmountFor_)",
+        selector: "0x439efc2e",
+      },
+      { name: "getCouponCount", signature: "function getCouponCount() pure returns (uint256)", selector: "0x468bb240" },
+      {
+        name: "getCouponFor",
+        signature:
+          "function getCouponFor(uint256, address) pure returns ((uint256 tokenBalance, uint8 decimals, bool recordDateReached, (uint256 recordDate, uint256 executionDate, uint256 startDate, uint256 endDate, uint256 fixingDate, uint256 rate, uint8 rateDecimals, uint8 rateStatus) coupon) couponFor_)",
+        selector: "0xbba7b56d",
+      },
+      {
+        name: "getCouponFromOrderedListAt",
+        signature: "function getCouponFromOrderedListAt(uint256) pure returns (uint256)",
+        selector: "0x65a88a2c",
+      },
+      {
+        name: "getCouponHolders",
+        signature: "function getCouponHolders(uint256, uint256, uint256) view returns (address[])",
+        selector: "0xa92e8371",
+      },
+      {
+        name: "getCouponsOrderedList",
+        signature: "function getCouponsOrderedList(uint256, uint256) pure returns (uint256[])",
+        selector: "0xd7133de1",
+      },
+      {
+        name: "getCouponsOrderedListTotal",
+        signature: "function getCouponsOrderedListTotal() pure returns (uint256)",
+        selector: "0xee1d26eb",
+      },
+      {
+        name: "getPrincipalFor",
+        signature:
+          "function getPrincipalFor(address) view returns ((uint256 numerator, uint256 denominator) principalFor_)",
+        selector: "0x6f131c78",
+      },
+      {
+        name: "getSecurityHolders",
+        signature: "function getSecurityHolders(uint256, uint256) view returns (address[])",
+        selector: "0x81438d2f",
+      },
+      {
+        name: "getTotalCouponHolders",
+        signature: "function getTotalCouponHolders(uint256) view returns (uint256)",
+        selector: "0xec116ae3",
+      },
+      {
+        name: "isProceedRecipient",
+        signature: "function isProceedRecipient(address) view returns (bool)",
+        selector: "0xb9b6def1",
+      },
+    ],
+    errors: [
+      { name: "DecimalsNotObtained", signature: "DecimalsNotObtained()", selector: "0x1d1cf498" },
+      { name: "UnableToGetCouponHolders", signature: "UnableToGetCouponHolders()", selector: "0x2ee7ef18" },
     ],
     factory: (signer) => new AssetMock__factory(signer),
   },
@@ -474,10 +530,127 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "EnvironmentalAssetMock",
     inheritance: ["ERC721"],
     methods: [
-      { name: "approveFor", signature: "approveFor(address,uint256)", selector: "0x532017a3" },
-      { name: "mint", signature: "mint(address)", selector: "0x6a627842" },
+      { name: "approve", signature: "function approve(address to, uint256 tokenId)", selector: "0x095ea7b3" },
+      {
+        name: "approveFor",
+        signature: "function approveFor(address to, uint256 tokenId) returns (bool)",
+        selector: "0x532017a3",
+      },
+      {
+        name: "balanceOf",
+        signature: "function balanceOf(address owner) view returns (uint256)",
+        selector: "0x70a08231",
+      },
+      {
+        name: "getApproved",
+        signature: "function getApproved(uint256 tokenId) view returns (address)",
+        selector: "0x081812fc",
+      },
+      {
+        name: "isApprovedForAll",
+        signature: "function isApprovedForAll(address owner, address operator) view returns (bool)",
+        selector: "0xe985e9c5",
+      },
+      { name: "mint", signature: "function mint(address to) returns (uint256)", selector: "0x6a627842" },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      {
+        name: "ownerOf",
+        signature: "function ownerOf(uint256 tokenId) view returns (address)",
+        selector: "0x6352211e",
+      },
+      {
+        name: "safeTransferFrom",
+        signature: "function safeTransferFrom(address from, address to, uint256 tokenId)",
+        selector: "0x42842e0e",
+      },
+      {
+        name: "safeTransferFrom",
+        signature: "function safeTransferFrom(address from, address to, uint256 tokenId, bytes data)",
+        selector: "0xb88d4fde",
+      },
+      {
+        name: "setApprovalForAll",
+        signature: "function setApprovalForAll(address operator, bool approved)",
+        selector: "0xa22cb465",
+      },
+      {
+        name: "supportsInterface",
+        signature: "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+        selector: "0x01ffc9a7",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      {
+        name: "tokenURI",
+        signature: "function tokenURI(uint256 tokenId) view returns (string)",
+        selector: "0xc87b56dd",
+      },
+      {
+        name: "transferFrom",
+        signature: "function transferFrom(address from, address to, uint256 tokenId)",
+        selector: "0x23b872dd",
+      },
     ],
     factory: (signer) => new EnvironmentalAssetMock__factory(signer),
+  },
+
+  IPrecompiledMock: {
+    name: "IPrecompiledMock",
+    methods: [
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
+      {
+        name: "dissociateToken",
+        signature: "function dissociateToken(address account, address token) returns (int32 responseCode)",
+        selector: "0x099794e8",
+      },
+      {
+        name: "getFungibleTokenInfo",
+        signature:
+          "function getFungibleTokenInfo(address token) view returns (int256 responseCode, (((string name, string symbol, address treasury, string memo, bool tokenSupplyType, int64 maxSupply, bool freezeDefault, (uint256 keyType, (bool inheritAccountKey, address contractId, bytes ed25519, bytes ECDSA_secp256k1, address delegatableContractId) key)[] tokenKeys, (int64 second, address autoRenewAccount, int64 autoRenewPeriod) expiry) token, int64 totalSupply, bool deleted, bool defaultKycStatus, bool pauseStatus, (int64 amount, address tokenId, bool useHbarsForPayment, bool useCurrentTokenForPayment, address feeCollector)[] fixedFees, (int64 numerator, int64 denominator, int64 minimumAmount, int64 maximumAmount, bool netOfTransfers, address feeCollector)[] fractionalFees, (int64 numerator, int64 denominator, int64 amount, address tokenId, bool useHbarsForPayment, address feeCollector)[] royaltyFees, string ledgerId) tokenInfo, int32 decimals) tokenInfo)",
+        selector: "0x3f28a19b",
+      },
+      {
+        name: "getPrecompiledNegativeDecimals",
+        signature: "function getPrecompiledNegativeDecimals() view returns (bool)",
+        selector: "0xac7d125a",
+      },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
+      {
+        name: "setPrecompiledNegativeDecimals",
+        signature: "function setPrecompiledNegativeDecimals(bool _negativeDecimals)",
+        selector: "0xa406c73e",
+      },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool _success)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferNFT",
+        signature:
+          "function transferNFT(address token, address sender, address receiver, int64 serialNumber) returns (int32 responseCode)",
+        selector: "0x5cfc9011",
+      },
+      {
+        name: "transferToken",
+        signature:
+          "function transferToken(address token, address sender, address receiver, int64 amount) returns (int32 responseCode)",
+        selector: "0xeca36917",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
+    ],
   },
 
   PaymentTokenMock: {
@@ -485,13 +658,61 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     description: "Mock ERC20 token for testing Treasury contracts",
     inheritance: ["ERC20"],
     methods: [
-      { name: "approveFor", signature: "approveFor(address,address,uint256)", selector: "0x2b991746" },
-      { name: "balanceOf", signature: "balanceOf(address)", selector: "0x70a08231" },
-      { name: "decimals", signature: "decimals()", selector: "0x313ce567" },
-      { name: "getTransferFromFail", signature: "getTransferFromFail()", selector: "0xcce1bcd3" },
-      { name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" },
-      { name: "setTransferFromFail", signature: "setTransferFromFail(bool)", selector: "0x99fc7099" },
-      { name: "transferFrom", signature: "transferFrom(address,address,uint256)", selector: "0x23b872dd" },
+      {
+        name: "allowance",
+        signature: "function allowance(address owner, address spender) view returns (uint256)",
+        selector: "0xdd62ed3e",
+      },
+      {
+        name: "approve",
+        signature: "function approve(address spender, uint256 amount) returns (bool)",
+        selector: "0x095ea7b3",
+      },
+      {
+        name: "approveFor",
+        signature: "function approveFor(address owner, address spender, uint256 amount) returns (bool)",
+        selector: "0x2b991746",
+      },
+      {
+        name: "balanceOf",
+        signature: "function balanceOf(address account) view returns (uint256)",
+        selector: "0x70a08231",
+      },
+      { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
+      {
+        name: "decreaseAllowance",
+        signature: "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
+        selector: "0xa457c2d7",
+      },
+      {
+        name: "getTransferFromFail",
+        signature: "function getTransferFromFail() view returns (bool)",
+        selector: "0xcce1bcd3",
+      },
+      {
+        name: "increaseAllowance",
+        signature: "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
+        selector: "0x39509351",
+      },
+      { name: "mint", signature: "function mint(address to, uint256 amount)", selector: "0x40c10f19" },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      {
+        name: "setTransferFromFail",
+        signature: "function setTransferFromFail(bool transferFromFail_)",
+        selector: "0x99fc7099",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      { name: "totalSupply", signature: "function totalSupply() view returns (uint256)", selector: "0x18160ddd" },
+      {
+        name: "transfer",
+        signature: "function transfer(address to, uint256 amount) returns (bool)",
+        selector: "0xa9059cbb",
+      },
+      {
+        name: "transferFrom",
+        signature: "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+        selector: "0x23b872dd",
+      },
     ],
     factory: (signer) => new PaymentTokenMock__factory(signer),
   },
@@ -500,29 +721,73 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "PrecompiledMock",
     inheritance: ["IPrecompiledMock", "PrecompiledMockStorageWrapper"],
     methods: [
-      { name: "associateToken", signature: "associateToken(address,address)", selector: "0x49146bde" },
-      { name: "dissociateToken", signature: "dissociateToken(address,address)", selector: "0x099794e8" },
-      { name: "getFungibleTokenInfo", signature: "getFungibleTokenInfo(address)", selector: "0x3f28a19b" },
-      { name: "getPrecompiledNegativeDecimals", signature: "getPrecompiledNegativeDecimals()", selector: "0xac7d125a" },
-      { name: "getPrecompiledTransferStatus", signature: "getPrecompiledTransferStatus()", selector: "0x684d4b1a" },
+      {
+        name: "associateToken",
+        signature: "function associateToken(address account, address token) pure returns (int32 responseCode)",
+        selector: "0x49146bde",
+      },
+      {
+        name: "dissociateToken",
+        signature: "function dissociateToken(address account, address token) view returns (int32 responseCode)",
+        selector: "0x099794e8",
+      },
+      {
+        name: "getFungibleTokenInfo",
+        signature:
+          "function getFungibleTokenInfo(address token) view returns (int256 responseCode, (((string name, string symbol, address treasury, string memo, bool tokenSupplyType, int64 maxSupply, bool freezeDefault, (uint256 keyType, (bool inheritAccountKey, address contractId, bytes ed25519, bytes ECDSA_secp256k1, address delegatableContractId) key)[] tokenKeys, (int64 second, address autoRenewAccount, int64 autoRenewPeriod) expiry) token, int64 totalSupply, bool deleted, bool defaultKycStatus, bool pauseStatus, (int64 amount, address tokenId, bool useHbarsForPayment, bool useCurrentTokenForPayment, address feeCollector)[] fixedFees, (int64 numerator, int64 denominator, int64 minimumAmount, int64 maximumAmount, bool netOfTransfers, address feeCollector)[] fractionalFees, (int64 numerator, int64 denominator, int64 amount, address tokenId, bool useHbarsForPayment, address feeCollector)[] royaltyFees, string ledgerId) tokenInfo, int32 decimals) tokenInfo)",
+        selector: "0x3f28a19b",
+      },
+      {
+        name: "getPrecompiledNegativeDecimals",
+        signature: "function getPrecompiledNegativeDecimals() view returns (bool)",
+        selector: "0xac7d125a",
+      },
+      {
+        name: "getPrecompiledTransferStatus",
+        signature: "function getPrecompiledTransferStatus() view returns (bool)",
+        selector: "0x684d4b1a",
+      },
       {
         name: "setPrecompiledNegativeDecimals",
-        signature: "setPrecompiledNegativeDecimals(bool)",
+        signature: "function setPrecompiledNegativeDecimals(bool negativeDecimals_)",
         selector: "0xa406c73e",
       },
-      { name: "setPrecompiledTransferStatus", signature: "setPrecompiledTransferStatus(bool)", selector: "0xba02bb5f" },
-      { name: "transferNFT", signature: "transferNFT(address,address,address,int64)", selector: "0x5cfc9011" },
-      { name: "transferToken", signature: "transferToken(address,address,address,int64)", selector: "0xeca36917" },
-      { name: "transferTokens", signature: "transferTokens(address,address[],int64[])", selector: "0x82bba493" },
+      {
+        name: "setPrecompiledTransferStatus",
+        signature: "function setPrecompiledTransferStatus(bool success_)",
+        selector: "0xba02bb5f",
+      },
+      {
+        name: "transferNFT",
+        signature:
+          "function transferNFT(address token, address sender, address receiver, int64 serialNumber) returns (int32 responseCode)",
+        selector: "0x5cfc9011",
+      },
+      {
+        name: "transferToken",
+        signature:
+          "function transferToken(address token, address sender, address receiver, int64 amount) returns (int32 responseCode)",
+        selector: "0xeca36917",
+      },
+      {
+        name: "transferTokens",
+        signature:
+          "function transferTokens(address token, address[] accountIds, int64[] amounts) returns (int32 responseCode)",
+        selector: "0x82bba493",
+      },
     ],
     factory: (signer) => new PrecompiledMock__factory(signer),
+  },
+
+  PrecompiledMockStorageWrapper: {
+    name: "PrecompiledMockStorageWrapper",
   },
 };
 
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 4 as const;
+export const TOTAL_MOCKS = 6 as const;
 
 /**
  * All role identifiers extracted from contracts.

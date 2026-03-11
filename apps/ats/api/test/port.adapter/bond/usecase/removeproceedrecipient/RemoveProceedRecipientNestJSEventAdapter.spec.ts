@@ -52,7 +52,6 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
       await bondRepository.save({
         contractId: contractId,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -109,7 +108,6 @@ describe("RemoveProceedRecipientNestJSEventAdapter", () => {
       await bondRepository.save({
         contractId: contractId,
         treasuryId: "0.0.2000001",
-        kpiId: "0.0.2000002",
         name: "Test Bond 2",
         symbol: "TBOND2",
         isin: "US0987654321",

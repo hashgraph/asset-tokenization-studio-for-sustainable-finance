@@ -4,6 +4,7 @@ const { signTransaction, validateSigningConfig } = require("../../../shared/lib/
 const { publishSignedTransaction } = require("../../../shared/lib/infrastructure");
 const { createBond } = require("../bond-service");
 const { gatewayClient } = require("../../../shared/lib/gateway-client");
+const https = require("https");
 
 // Hardcoded document parameters for automated testing
 const DOCUMENT_CONFIG = {
@@ -11,6 +12,87 @@ const DOCUMENT_CONFIG = {
   uri: "https://example.com/documents/bond-prospectus-2024.pdf",
   hash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
 };
+
+const NETWORK = process.env.HEDERA_NETWORK || "testnet";
+const MIRROR_BASE = `https://${NETWORK}.mirrornode.hedera.com/api/v1`;
+
+function getMirrorNodeData(url) {
+  return new Promise((resolve, reject) => {
+    https
+      .get(url, (res) => {
+        let data = "";
+        res.on("data", (chunk) => (data += chunk));
+        res.on("end", () => {
+          if (res.statusCode === 404) {
+            reject(new Error(`404 Not Found: ${url}`));
+            return;
+          }
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            reject(new Error(`Failed to parse JSON from ${url}: ${data.slice(0, 200)}`));
+          }
+        });
+      })
+      .on("error", reject);
+  });
+}
+
+async function validateTransaction(transactionId) {
+  log(`\n🔍 Validating transaction ${transactionId}...`, colors.bright);
+
+  try {
+    const response = await getMirrorNodeData(`${MIRROR_BASE}/transactions/${transactionId}`);
+    const tx = response.transactions?.[0] ?? response;
+
+    const status = tx.result ?? tx.status ?? "unknown";
+    const consensus = tx.consensus_timestamp ?? "";
+
+    logInfo(`Transaction status: ${status}`);
+    logInfo(`Consensus time: ${consensus}`);
+
+    if (status === "SUCCESS") {
+      logSuccess("Transaction validated successfully!");
+      return true;
+    } else {
+      logError(`Transaction failed with status: ${status}`);
+      return false;
+    }
+  } catch (error) {
+    logError(`Failed to validate transaction: ${error.message}`);
+    return false;
+  }
+}
+
+function extractTransactionId(signedTx, format) {
+  try {
+    if (format.toLowerCase() === "hedera") {
+      // Para Hedera, necesitamos decodificar la transacción firmada para obtener el ID
+      const { Client, Transaction } = require("@hiero-ledger/sdk");
+      const client = Client.forTestnet();
+      const hexString = signedTx.startsWith("0x") ? signedTx.slice(2) : signedTx;
+      const transactionBytes = new Uint8Array(Buffer.from(hexString, "hex"));
+      const transactionFromBytes = Transaction.fromBytes(transactionBytes);
+      let transactionId = transactionFromBytes.transactionId.toString();
+      client.close();
+
+      // Convertir de formato "0.0.7625517@1771257490.023000000" a "0.0.7625517-1771257490-023000000"
+      // Reemplazar el @ con - y el . después del timestamp con -
+      transactionId = transactionId.replace("@", "-").replace(/(\d+)\.(\d+)$/, "$1-$2");
+
+      return transactionId;
+    } else if (format.toLowerCase() === "ethereum") {
+      // Para Ethereum, el ID es el hash de la transacción
+      const { ethers } = require("ethers");
+      const txHash = ethers.utils.parseTransaction(signedTx).hash;
+      return txHash;
+    }
+    return null;
+  } catch (error) {
+    logError(`Failed to extract transaction ID: ${error.message}`);
+    return null;
+  }
+}
 
 async function getLatestBond() {
   log(`\n🔍 Fetching latest bond...`, colors.bright);
@@ -96,12 +178,34 @@ async function runSetBondDocumentSimulator() {
     const signedBondTx = await signTransaction(bond.unsignedTx);
     logSuccess(`${format.toUpperCase()} bond transaction signed successfully!`);
 
+    // Extract transaction ID before publishing
+    const transactionId = extractTransactionId(signedBondTx, format);
+    if (!transactionId) {
+      logError("Failed to extract transaction ID from signed transaction");
+      return;
+    }
+
+    logInfo(`Transaction ID: ${transactionId}`);
+
     await publishSignedTransaction(signedBondTx);
+
+    // Wait a bit for transaction to be processed
+    log("\n⏳ Waiting for transaction to be processed in mirror node (10 seconds)...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+
+    // Validate transaction in mirror node
+    const isValid = await validateTransaction(transactionId);
+
+    if (!isValid) {
+      logError("Bond creation transaction validation failed. Aborting process.");
+      return;
+    }
+
     logSuccess("Bond creation transaction published to message queue");
 
     // Wait for bond to be processed and persisted in database
-    log("\n⏳ Waiting for bond creation to be processed (15 seconds)...", colors.yellow);
-    await new Promise((resolve) => setTimeout(resolve, 15000));
+    log("\n⏳ Waiting for bond creation to be processed (10 seconds)...", colors.yellow);
+    await new Promise((resolve) => setTimeout(resolve, 10000));
 
     // Step 2: Get the latest bond from the API
     logHeader("📊 Step 2: Fetching Created Bond...");

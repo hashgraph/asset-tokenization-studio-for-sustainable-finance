@@ -3,19 +3,18 @@
 /** GBP configuration upgrade orchestrator - coordinates upgrades across all domains. */
 
 import type { Signer } from "ethers";
-import { constants } from "ethers";
+import { ZeroAddress, ZeroHash } from "ethers";
 import {
   info,
   success,
   warn,
   error as logError,
   section,
-  configureLogger,
-  LogLevel,
   saveDeploymentOutput,
   generateTimestamp,
+  CheckpointManager,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { upgradeFactorySuiteConfiguration } from "@hashgraph/green-bonds-platform-ats-contracts/scripts";
 import { upgradeTreasuryConfiguration } from "@hashgraph/green-bonds-platform-treasury-contracts/scripts";
 import {
@@ -152,7 +151,7 @@ async function validateBLR(blrAddress: string, signer: Signer): Promise<void> {
   section("Phase 1: Validation");
 
   // Validate address format
-  if (!blrAddress || blrAddress === constants.AddressZero) {
+  if (!blrAddress || blrAddress === ZeroAddress) {
     throw new Error("Invalid BLR address: address cannot be zero or empty");
   }
 
@@ -160,10 +159,10 @@ async function validateBLR(blrAddress: string, signer: Signer): Promise<void> {
 
   try {
     // Connect to BLR and test accessibility
-    const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     // Test BLR accessibility by querying a resolver key
-    await blrContract.resolveLatestBusinessLogic(constants.HashZero);
+    await blrContract.resolveLatestBusinessLogic(ZeroHash);
 
     success("✓ BLR validation successful");
   } catch (err) {
@@ -298,10 +297,11 @@ function printUpgradeSummary(output: UpgradeGbpConfigurationsOutput): void {
  *
  * @example Basic upgrade (all domains)
  * ```typescript
- * import { ethers } from 'ethers'
+ * import { JsonRpcProvider, Wallet } from 'ethers'
  * import { upgradeGbpConfigurations } from '@hashgraph/green-bonds-platform-shared-contracts/scripts'
  *
- * const signer = new ethers.Wallet(privateKey, provider)
+ * const provider = new JsonRpcProvider('https://testnet.hashio.io/api')
+ * const signer = new Wallet(privateKey, provider)
  * const result = await upgradeGbpConfigurations(signer, {
  *   blrAddress: '0x1234567890abcdef...',
  *   network: 'hedera-testnet',
@@ -350,11 +350,6 @@ export async function upgradeGbpConfigurations(
     proxyUpdates,
     saveOutput = false,
   } = options;
-
-  // Configure logger
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
 
   const deployer = await signer.getAddress();
   const domainResults: DomainUpgradeResult[] = [];
@@ -448,6 +443,17 @@ export async function upgradeGbpConfigurations(
     } else {
       warn(`⚠️  Failed to save upgrade output: ${saveResult.error}`);
     }
+  }
+
+  // Clean up old completed checkpoints (non-critical)
+  try {
+    const checkpointManager = new CheckpointManager(network);
+    const cleaned = await checkpointManager.cleanupOldCheckpoints(network, 30);
+    if (cleaned > 0) {
+      info(`🧹 Cleaned up ${cleaned} old checkpoint(s) (>30 days)`);
+    }
+  } catch {
+    // Non-critical - don't fail upgrade for cleanup errors
   }
 
   // Throw if any upgrades failed

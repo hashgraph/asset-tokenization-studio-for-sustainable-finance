@@ -19,21 +19,24 @@ contract MockTreasuryFacet is IStaticFunctionSelectors {
     address public paymentToken;
     address[] public environmentalAssets;
 
+    error LifecycleAlreadyInitialized();
+    error PortfolioAlreadyInitialized();
+
     /** @notice Initialize lifecycle cash flow with bond address */
     // solhint-disable-next-line func-name-mixedcase
     function initialize_LifeCycleCashFlow(address bond) external {
-        require(!lifeCycleCashFlowInitialized, "MockTreasuryFacet: lifecycle already initialized");
+        if (lifeCycleCashFlowInitialized) revert LifecycleAlreadyInitialized();
         lifeCycleCashFlowInitialized = true;
         bondAddress = bond;
     }
 
     /** @notice Initialize portfolio with payment token and environmental assets */
     // solhint-disable-next-line func-name-mixedcase
-    function initialize_Portfolio(address _paymentToken, address[] memory _environmentalAssets) external {
-        require(!portfolioInitialized, "MockTreasuryFacet: portfolio already initialized");
+    function initialize_Portfolio(address _paymentToken, address[] calldata _environmentalAssets) external {
+        if (portfolioInitialized) revert PortfolioAlreadyInitialized();
         portfolioInitialized = true;
         paymentToken = _paymentToken;
-        for (uint256 i = 0; i < _environmentalAssets.length; i++) {
+        for (uint256 i = 0; i < _environmentalAssets.length; ++i) {
             environmentalAssets.push(_environmentalAssets[i]);
         }
     }

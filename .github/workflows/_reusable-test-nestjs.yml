@@ -36,6 +36,7 @@ jobs:
     runs-on: green-bond-linux-medium
     timeout-minutes: 20
     env:
+      NODE_OPTIONS: --max-old-space-size=8192
       # Workspace name mapping
       WORKSPACE_NAME: >-
         ${{

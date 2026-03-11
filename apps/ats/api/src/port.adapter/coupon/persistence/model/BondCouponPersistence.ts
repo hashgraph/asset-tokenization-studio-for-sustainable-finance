@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { Entity, Column, PrimaryColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from "typeorm"
 import { BondPersistence } from "@port/bond/persistence/model/BondPersistence"
+import { CouponRateStatus } from "../../../../domain/coupon/model/CouponRateStatus"
 
 @Entity("BondCoupons")
 export class BondCouponPersistence {
@@ -26,6 +27,15 @@ export class BondCouponPersistence {
   @Column({ type: "timestamp" })
   executionDate: Date
 
+  @Column({ type: "timestamp" })
+  startDate: Date
+
+  @Column({ type: "timestamp" })
+  endDate: Date
+
+  @Column({ type: "timestamp" })
+  fixingDate: Date
+
   @Column({ type: "varchar" })
   rate: string
 
@@ -33,7 +43,7 @@ export class BondCouponPersistence {
   rateDecimals: string
 
   @Column({ type: "varchar" })
-  period: string
+  rateStatus: CouponRateStatus
 
   @CreateDateColumn({ type: "timestamp" })
   createdAt: Date

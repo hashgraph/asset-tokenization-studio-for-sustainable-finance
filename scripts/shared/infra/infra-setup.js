@@ -66,7 +66,6 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "ats_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "30471556",
     },
   },
   primaryMarketApi: {
@@ -80,7 +79,6 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "primary_market_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
     },
   },
   treasuryApi: {
@@ -94,7 +92,6 @@ const CONFIG = {
       POSTGRESQL_HOST: "localhost",
       POSTGRESQL_PORT: "5432",
       POSTGRESQL_DB: "treasury_db",
-      BLOCKCHAIN_LISTENER_BLOCK_NUMBER: "28703432",
     },
   },
   gateway: {
@@ -614,6 +611,15 @@ async function stopAllInfrastructure() {
   await stopNodeProcessOnPort(3002, "Primary Market API");
   await stopNodeProcessOnPort(3003, "Treasury API");
   await stopNodeProcessOnPort(3005, "Transaction Sender");
+
+  // Kill any remaining nest watchers and app child processes that may linger
+  try {
+    await execAsync(
+      "pkill -9 -f 'nest start --watch' 2>/dev/null; pkill -9 -f 'green-bond-platform/apps' 2>/dev/null; true",
+    );
+  } catch (_) {
+    /* ignore */
+  }
 
   // Stop Docker services
   log("\n🐳 Stopping Docker services...", colors.cyan);

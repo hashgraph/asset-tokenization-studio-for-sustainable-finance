@@ -23,7 +23,6 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
     const bond = {
       contractId,
       treasuryId: "0.0.6974684",
-      kpiId: "0.0.6974684",
       name: "Test Bond",
       symbol: "TB",
       isin: "US1234567890",

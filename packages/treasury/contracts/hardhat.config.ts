@@ -3,11 +3,8 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "tsconfig-paths/register";
 import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-chai-matchers";
-import "@typechain/hardhat";
 import "hardhat-contract-sizer";
-import "hardhat-gas-reporter";
-import "solidity-coverage";
+import "@primitivefi/hardhat-dodoc";
 import Configuration from "@configuration";
 import "hardhat-dependency-compiler";
 import "@tasks";
@@ -49,19 +46,25 @@ const config: HardhatUserConfig = {
       accounts: Configuration.privateKeys.local,
       timeout: 60_000,
     },
-    previewnet: {
-      url: Configuration.endpoints.previewnet.jsonRpc,
-      accounts: Configuration.privateKeys.previewnet,
+    "hedera-local": {
+      url: Configuration.endpoints["hedera-local"].jsonRpc,
+      accounts: Configuration.privateKeys["hedera-local"],
+      chainId: 298,
+      timeout: 60_000,
+    },
+    "hedera-previewnet": {
+      url: Configuration.endpoints["hedera-previewnet"].jsonRpc,
+      accounts: Configuration.privateKeys["hedera-previewnet"],
       timeout: 120_000,
     },
-    testnet: {
-      url: Configuration.endpoints.testnet.jsonRpc,
-      accounts: Configuration.privateKeys.testnet,
+    "hedera-testnet": {
+      url: Configuration.endpoints["hedera-testnet"].jsonRpc,
+      accounts: Configuration.privateKeys["hedera-testnet"],
       timeout: 120_000,
     },
-    mainnet: {
-      url: Configuration.endpoints.mainnet.jsonRpc,
-      accounts: Configuration.privateKeys.mainnet,
+    "hedera-mainnet": {
+      url: Configuration.endpoints["hedera-mainnet"].jsonRpc,
+      accounts: Configuration.privateKeys["hedera-mainnet"],
       timeout: 120_000,
     },
   },
@@ -79,16 +82,24 @@ const config: HardhatUserConfig = {
   },
   typechain: {
     outDir: "./typechain-types",
-    target: "ethers-v5",
+    target: "ethers-v6",
   },
   mocha: {
     timeout: 60_000, // 60 seconds per test (reduced from 50 min)
+    require: ["./test/helpers/register-tsx.cjs", "./test/helpers/globalSetup.cjs"],
   },
   dependencyCompiler: {
     paths: [
       "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol",
       "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
     ],
+  },
+  dodoc: {
+    runOnCompile: false,
+    outputDir: "./docs",
+    freshOutput: true,
+    include: ["contracts"],
+    exclude: ["mocks"],
   },
 };
 

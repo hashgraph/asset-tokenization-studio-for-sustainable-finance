@@ -2,19 +2,13 @@
 pragma solidity ^0.8.0;
 
 // solhint-disable max-line-length
-import { ProxyAdmin } from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import { TransparentUpgradeableProxy } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import { ResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/resolver/resolverProxy/ResolverProxy.sol";
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
-import {
-    _DEFAULT_ADMIN_ROLE,
-    _MATURITY_REDEEMER_ROLE
-} from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { _DEFAULT_ADMIN_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/constants/roles.sol";
+import { _MATURITY_REDEEMER_ROLE } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/constants/roles.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { IAccessControl } from "@openzeppelin/contracts/access/IAccessControl.sol";
 import { IFactorySuite, IAtsFactory, AtsFactoryRegulationData } from "../interfaces/IFactorySuite.sol";
-import { Kpi } from "../Kpi.sol";
-import { IKpi } from "../interfaces/IKpi.sol";
 import { ILifeCycleCashFlow } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/ILifeCycleCashFlow.sol";
 import { IPortfolio } from "@hashgraph/green-bonds-platform-treasury-contracts/contracts/interfaces/IPortfolio.sol";
 // solhint-enable max-line-length
@@ -25,59 +19,57 @@ import { IPortfolio } from "@hashgraph/green-bonds-platform-treasury-contracts/c
  */
 abstract contract FactorySuiteStorageWrapper is AtsCommon {
     /**
-     * @notice Deploys the Bond contract using the ATS Bond Factory implementation
-     * @dev KPI address parameter is reserved for future ATS Factory integration
+     * @notice Deploys the Bond contract with integrated KPI using the ATS Bond Factory implementation
      * @param bondFactoryAddress Address of the ATS Bond Factory contract
-     * @param bondData Bond configuration data
-     * @param factoryRegulationData Regulation data for compliance
-     * @return bondAddress Address of the deployed Bond contract
+     * @param bondKpiData Bond KPI Linked Rate configuration data (includes bondData and factoryRegulationData)
+     * @return bondAddress Address of the deployed Bond contract with integrated KPI
      */
     function _deployBondContract(
         address bondFactoryAddress,
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata factoryRegulationData,
-        address // kpiAddress - reserved for future use
+        IAtsFactory.BondKpiLinkedRateData calldata bondKpiData
     ) internal returns (address bondAddress) {
-        uint256 originalLength = bondData.security.rbacs.length;
+        uint256 originalLength = bondKpiData.bondData.security.rbacs.length;
 
         IResolverProxy.Rbac[] memory rbacs = new IResolverProxy.Rbac[](originalLength + 1);
         uint256 finalLength = 0;
         bool adminFound = false;
 
-        for (uint256 i = 0; i < originalLength; i++) {
-            IResolverProxy.Rbac memory currentRbac = bondData.security.rbacs[i];
+        for (uint256 i = 0; i < originalLength; ++i) {
+            IResolverProxy.Rbac memory currentRbac = bondKpiData.bondData.security.rbacs[i];
 
             if (currentRbac.role == _DEFAULT_ADMIN_ROLE) {
                 adminFound = true;
                 address[] memory newMembers = new address[](currentRbac.members.length + 1);
-                for (uint256 j = 0; j < currentRbac.members.length; j++) {
+                for (uint256 j = 0; j < currentRbac.members.length; ++j) {
                     newMembers[j] = currentRbac.members[j];
                 }
                 newMembers[currentRbac.members.length] = address(this);
-                rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
+                rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: newMembers });
             } else {
-                rbacs[finalLength++] = currentRbac;
+                rbacs[++finalLength - 1] = currentRbac;
             }
         }
 
         if (!adminFound) {
             address[] memory adminMembers = new address[](1);
             adminMembers[0] = address(this);
-            rbacs[finalLength++] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
+            rbacs[++finalLength - 1] = IResolverProxy.Rbac({ role: _DEFAULT_ADMIN_ROLE, members: adminMembers });
         }
 
         if (adminFound) {
+            // solhint-disable-next-line no-inline-assembly
             assembly {
-                mstore(rbacs, finalLength) // Resize array if ADMIN was found (we allocated one extra slot)
+                mstore(rbacs, finalLength)
             }
         }
 
-        IAtsFactory.BondData memory modifiedBondData = bondData;
-        modifiedBondData.security.rbacs = rbacs;
+        IAtsFactory.BondKpiLinkedRateData memory modifiedBondKpiData = bondKpiData;
+        modifiedBondKpiData.bondData.security.rbacs = rbacs;
 
         IAtsFactory bondFactory = IAtsFactory(bondFactoryAddress);
-        try bondFactory.deployBond(modifiedBondData, factoryRegulationData) returns (address deployedBondAddress) {
+        try bondFactory.deployBondKpiLinkedRate(modifiedBondKpiData) returns (address deployedBondAddress) {
             bondAddress = deployedBondAddress;
+            if (bondAddress == address(0)) revert IFactorySuite.BondDeploymentFailed();
         } catch {
             revert IFactorySuite.BondDeploymentFailed();
         }
@@ -109,30 +101,6 @@ abstract contract FactorySuiteStorageWrapper is AtsCommon {
 
         // Configure Treasury with payment token and environmental assets portfolio
         _configureTreasuryContract(treasuryAddress, treasuryData, bondAddress);
-    }
-
-    /**
-     * @notice Deploys the Kpi contract using the Transparent Upgradeable Proxy pattern
-     * @param kpiData Kpi configuration data containing admin and RBAC settings
-     * @return kpiAddress Address of the deployed Kpi proxy contract
-     */
-    function _deployKpiContract(IFactorySuite.KpiData calldata kpiData) internal returns (address kpiAddress) {
-        // Deploy Kpi logic contract
-        Kpi kpiLogic = new Kpi();
-
-        // Deploy ProxyAdmin with specified admin
-        ProxyAdmin proxyAdmin = new ProxyAdmin();
-        proxyAdmin.transferOwnership(kpiData.admin);
-
-        // Deploy TransparentUpgradeableProxy with initialize call
-        // RBAC roles are configured during initialization via the initialize() function
-        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
-            address(kpiLogic),
-            address(proxyAdmin),
-            abi.encodeWithSelector(IKpi.initialize.selector, kpiData.rbacs)
-        );
-
-        kpiAddress = address(proxy);
     }
 
     /**

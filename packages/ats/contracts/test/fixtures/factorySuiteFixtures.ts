@@ -17,15 +17,9 @@
 
 import { ethers } from "hardhat";
 import { ContractFactory } from "ethers";
-import {
-  configureLogger,
-  LogLevel,
-  deployFacets,
-  registerAdditionalFacets,
-  atsRegistry,
-} from "@hashgraph/asset-tokenization-contracts/scripts";
+import { deployFacets, registerAdditionalFacets, atsRegistry } from "@hashgraph/asset-tokenization-contracts/scripts";
 import type { ITimeTravel } from "@hashgraph/asset-tokenization-contracts";
-import { ITimeTravel__factory, IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { ITimeTravel__factory, BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import {
   deployFactorySuiteSystem,
   factorySuiteRegistry,
@@ -40,14 +34,17 @@ import {
   MOCK_ATS_FACTORY_CONTRACT_NAME,
   TREASURY_CONFIG_VERSION,
 } from "@test";
-import type { IFactorySuite, IBusinessLogicResolver, ProxyAdmin } from "@contract-types";
+import type { IFactorySuite, IBusinessLogicResolver, IAccessControl, IPause } from "@contract-types";
+import type { ProxyAdmin } from "@hashgraph/asset-tokenization-contracts";
 import {
   MockAtsFactory__factory,
   MockERC20__factory,
   MockERC721__factory,
   IFactorySuite__factory,
-  ProxyAdmin__factory,
+  IAccessControl__factory,
+  IPause__factory,
 } from "@contract-types";
+import { ProxyAdmin__factory } from "@hashgraph/asset-tokenization-contracts";
 
 /**
  * Fixture: Deploy complete FactorySuite infrastructure
@@ -58,9 +55,6 @@ import {
  * @returns Complete deployment output + test utilities
  */
 export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = true) {
-  // Configure logger to SILENT for tests (suppress all deployment logs)
-  configureLogger({ level: LogLevel.SILENT });
-
   const signers = await ethers.getSigners();
   const [deployer, admin, user, unauthorized] = signers;
 
@@ -74,7 +68,7 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
   // Get typed contract instances using TypeChain factories
   const factorySuite = IFactorySuite__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
-  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+  const blr = BusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   const proxyAdmin = ProxyAdmin__factory.connect(deployment.infrastructure.proxyAdmin.address, deployer);
 
@@ -127,9 +121,6 @@ export async function deployFactorySuiteInfrastructureFixture(useTimeTravel = tr
  * @returns Complete deployment + mocks for testing deployBondSuite() business logic
  */
 export async function deployFactorySuiteWithMocksForBusinessLogic() {
-  // Configure logger to SILENT for tests
-  configureLogger({ level: LogLevel.SILENT });
-
   const signers = await ethers.getSigners();
   const [deployer, admin, user, unauthorized] = signers;
 
@@ -143,14 +134,11 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
   // Get typed contract instances for Diamond proxy
   const factorySuite = IFactorySuite__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
-  const blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+  const blr = BusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
 
   // Get AccessControl and Pause facets for test setup
-  const accessControl = await ethers.getContractAt(
-    "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/accessControl/IAccessControl.sol:IAccessControl",
-    deployment.infrastructure.factorySuite.proxy,
-  );
-  const pause = await ethers.getContractAt("IPause", deployment.infrastructure.factorySuite.proxy);
+  const accessControl = IAccessControl__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
+  const pause = IPause__factory.connect(deployment.infrastructure.factorySuite.proxy, deployer);
 
   // ========================================
   // STEP 1: Deploy and register mock Treasury configuration
@@ -196,7 +184,7 @@ export async function deployFactorySuiteWithMocksForBusinessLogic() {
 
   // Register MockTreasuryFacet in BLR using registerAdditionalFacets
   const registerResult = await registerAdditionalFacets(deployer, {
-    blrAddress: blr.address,
+    blrAddress: await blr.getAddress(),
     newFacets: mockFacetsWithKeys,
   });
 

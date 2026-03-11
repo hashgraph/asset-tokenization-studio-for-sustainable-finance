@@ -5,20 +5,41 @@ import {
   IFactoryPrimaryMarket,
   IFactoryPrimaryMarket__factory,
   IBusinessLogicResolver,
-  IBusinessLogicResolver__factory,
   IAccessControl,
   IAccessControl__factory,
   IPrimaryMarket,
   IPrimaryMarket__factory,
+  PrecompiledMock,
   PrecompiledMock__factory,
+  MockBond,
+  MockBond__factory,
+  MockERC20,
+  MockERC20__factory,
 } from "@contract-types";
-import { IPause, IPause__factory, ITimeTravel, ITimeTravel__factory } from "@hashgraph/asset-tokenization-contracts";
+import {
+  IPause,
+  IPause__factory,
+  ITimeTravel,
+  ITimeTravel__factory,
+  BusinessLogicResolver__factory,
+} from "@hashgraph/asset-tokenization-contracts";
 import { deployFactoryPrimaryMarketSystem, PM_ROLES, ATS_ROLES } from "@scripts";
-import { ADDRESS_ZERO, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { ethers } from "hardhat";
-import { Signer, Contract } from "ethers";
+import type { Signer } from "ethers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { INT64_MAX, HEDERA_PRECOMPILED_ADDRESS } from "../constants";
+
+function findEventInReceipt(receipt: any, eventName: string, iface: any): any {
+  return receipt?.logs
+    .map((log: any) => {
+      try {
+        return iface.parseLog(log);
+      } catch {
+        return null;
+      }
+    })
+    .find((e: any) => e?.name === eventName);
+}
 
 const PaymentDecimals = 3;
 const NominalValue = 300;
@@ -51,20 +72,17 @@ let treasuryAddress: string;
 let primaryMarketAddress: string;
 
 // Mock contracts
-let mockAsset: Contract;
-let mockPaymentToken: Contract;
-let mockPrecompiled: Contract;
+let mockAsset: MockBond;
+let mockPaymentToken: MockERC20;
+let mockPrecompiled: PrecompiledMock;
 
 describe("PrimaryMarket", () => {
-  configureLogger({ level: LogLevel.SILENT });
-
   async function deployPrecompiledMock() {
     const PrecompiledMockContract = await ethers.getContractFactory("PrecompiledMock");
 
     const deployed = await PrecompiledMockContract.deploy();
-    await deployed.deployed();
 
-    const runtimeBytecode = await ethers.provider.getCode(deployed.address);
+    const runtimeBytecode = await ethers.provider.getCode(await deployed.getAddress());
     await ethers.provider.send("hardhat_setCode", [HEDERA_PRECOMPILED_ADDRESS, runtimeBytecode]);
 
     const [deployer] = await ethers.getSigners();
@@ -92,7 +110,10 @@ describe("PrimaryMarket", () => {
 
     accessControl = IAccessControl__factory.connect(deployment.infrastructure.factoryPrimaryMarket.proxy, deployer);
 
-    blr = IBusinessLogicResolver__factory.connect(deployment.infrastructure.blr.proxy, deployer);
+    blr = BusinessLogicResolver__factory.connect(
+      deployment.infrastructure.blr.proxy,
+      deployer,
+    ) as unknown as IBusinessLogicResolver;
 
     // Grant PM_DEPLOYER_ROLE to admin
     await accessControl.grantRole(PM_ROLES.DEPLOYER_ROLE, adminAddress);
@@ -118,28 +139,37 @@ describe("PrimaryMarket", () => {
       version: 0,
     };
 
-    const tx = await factoryPrimaryMarket.connect(admin).deployPrimaryMarket(blr.address, RESOLVER_PROXY_CONFIG, RBACS);
+    const tx = await factoryPrimaryMarket
+      .connect(admin)
+      .deployPrimaryMarket(await blr.getAddress(), RESOLVER_PROXY_CONFIG, RBACS);
 
     const receipt = await tx.wait();
 
     // Find PrimaryMarketDeployed event
-    const event = receipt.events?.find((e: any) => e.event === "PrimaryMarketDeployed");
+    const event = receipt?.logs
+      .map((log) => {
+        try {
+          return factoryPrimaryMarket.interface.parseLog(log);
+        } catch {
+          return null;
+        }
+      })
+      .find((e) => e?.name === "PrimaryMarketDeployed");
     if (!event || !event.args) {
       throw new Error("PrimaryMarketDeployed event not found");
     }
 
-    primaryMarketAddress = event!.args!.primaryMarketAddress;
+    primaryMarketAddress = event.args[1];
     primaryMarket = IPrimaryMarket__factory.connect(primaryMarketAddress, deployer);
     primaryMarketTimeTravel = ITimeTravel__factory.connect(primaryMarketAddress, deployer);
     pause = IPause__factory.connect(primaryMarketAddress, deployer);
 
     // Deploy mock tokens
-    const MockERC20 = await ethers.getContractFactory("MockERC20");
-    mockPaymentToken = await MockERC20.deploy("Mock USDC", "USDC", PaymentDecimals);
-    await mockPaymentToken.deployed();
+    const mockERC20Factory = new MockERC20__factory(deployer);
+    mockPaymentToken = await mockERC20Factory.deploy("Mock USDC", "USDC", PaymentDecimals);
 
-    const MockBond = await ethers.getContractFactory("MockBond");
-    mockAsset = await MockBond.deploy(
+    const mockBondFactory = new MockBond__factory(deployer);
+    mockAsset = await mockBondFactory.deploy(
       "Green Bond",
       "GB",
       treasuryAddress,
@@ -147,16 +177,15 @@ describe("PrimaryMarket", () => {
       NominalValueDecimals,
       AssetDecimals,
     );
-    await mockAsset.deployed();
 
     // Mint payment tokens to investors
-    await mockPaymentToken.mint(investor1Address, ethers.constants.MaxUint256.div(4));
-    await mockPaymentToken.mint(investor2Address, ethers.constants.MaxUint256.div(4));
-    await mockPaymentToken.mint(investor3Address, ethers.constants.MaxUint256.div(4));
+    await mockPaymentToken.mint(investor1Address, ethers.MaxUint256 / 4n);
+    await mockPaymentToken.mint(investor2Address, ethers.MaxUint256 / 4n);
+    await mockPaymentToken.mint(investor3Address, ethers.MaxUint256 / 4n);
 
     // Approve Primary Market to spend payment tokens
-    await mockPaymentToken.connect(investor1).approve(primaryMarket.address, ethers.constants.MaxUint256);
-    await mockPaymentToken.connect(investor2).approve(primaryMarket.address, ethers.constants.MaxUint256);
+    await mockPaymentToken.connect(investor1).approve(await primaryMarket.getAddress(), ethers.MaxUint256);
+    await mockPaymentToken.connect(investor2).approve(await primaryMarket.getAddress(), ethers.MaxUint256);
 
     // Initialize TimeTravel with deterministic starting time
     const MOCK_START_TIME = Math.floor(Date.now() / 1000);
@@ -210,12 +239,12 @@ describe("PrimaryMarket", () => {
 
   describe("Creating Offerings", () => {
     it("GIVEN valid offering params WHEN creating offering THEN success", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -252,15 +281,15 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN an offering with a payment token that cannot be associated WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
 
       await mockPrecompiled.setPrecompiledAssociationStatus(false);
 
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -279,12 +308,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN paused PM WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -305,12 +334,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid asset address WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: ADDRESS_ZERO,
+        asset: ethers.ZeroAddress,
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -328,12 +357,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid treasury address WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
-        treasury: ADDRESS_ZERO,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        asset: await mockAsset.getAddress(),
+        treasury: ethers.ZeroAddress,
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -351,12 +380,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid payment token address WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: ADDRESS_ZERO,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: ethers.ZeroAddress,
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -374,12 +403,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN star date bigger or equal than end date address WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering_1: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -396,10 +425,10 @@ describe("PrimaryMarket", () => {
         .withArgs(offering_1.startDate, offering_1.endDate);
 
       const offering_2: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -417,12 +446,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN start date less than current date address WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -440,11 +469,11 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN lots equal to 0  WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
+        paymentToken: await mockPaymentToken.getAddress(),
         lotSize: 0,
         minLots: 1,
         maxLots: 50,
@@ -462,10 +491,10 @@ describe("PrimaryMarket", () => {
         .withArgs(offering.lotSize, offering.minLots, offering.maxLots, offering.targetLots);
 
       const offering_2: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 0,
         maxLots: 50,
         targetLots: 100,
@@ -482,10 +511,10 @@ describe("PrimaryMarket", () => {
         .withArgs(offering_2.lotSize, offering_2.minLots, offering_2.maxLots, offering_2.targetLots);
 
       const offering_3: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 0,
         targetLots: 100,
@@ -502,10 +531,10 @@ describe("PrimaryMarket", () => {
         .withArgs(offering_3.lotSize, offering_3.minLots, offering_3.maxLots, offering_3.targetLots);
 
       const offering_4: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 0,
@@ -523,12 +552,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN minLots larger than maxLots WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 50,
         maxLots: 1,
         targetLots: 100,
@@ -546,12 +575,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN invalid rule combination WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -569,12 +598,12 @@ describe("PrimaryMarket", () => {
     });
 
     it("GIVEN unauthorized account WHEN creating offering THEN fail", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -598,12 +627,12 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -617,17 +646,17 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0; // Get offeringId from event
     });
 
     it("GIVEN offering with OVERSUBSCRIPTION_ALLOWED + WAIT_UNTIL_END WHEN target reached and during offering period THEN OPEN", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       const offering2: IPrimaryMarket.OfferingStruct = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -641,8 +670,8 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering2);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      const offering2Id = event?.args?.offeringId?.toNumber() || 0;
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      const offering2Id = Number(event?.args[0]) || 0;
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering2.startDate.toString()) + 1);
 
@@ -737,12 +766,12 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -756,9 +785,9 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0; // Get offeringId from event
+      const currentTime = Number(await primaryMarketTimeTravel.blockTimestamp());
       await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
@@ -767,8 +796,8 @@ describe("PrimaryMarket", () => {
     });
 
     async function checkSubscriptionSuccess() {
-      const paymentDecimals = await mockPaymentToken.decimals();
-      const nominalValueDecimals = (await mockAsset.getBondDetails()).nominalValueDecimals;
+      const paymentDecimals = Number(await mockPaymentToken.decimals());
+      const nominalValueDecimals = Number((await mockAsset.getBondDetails()).nominalValueDecimals);
       let decimalsDiff = 0;
       let multiply = false;
 
@@ -782,7 +811,7 @@ describe("PrimaryMarket", () => {
       const lotsUnit = parseInt(offering.minLots.toString()) + 1;
 
       const balanceInvestorBefore = await mockPaymentToken.balanceOf(investor1Address);
-      const balancePMBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const balancePMBefore = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
 
       await expect(primaryMarket.connect(investor1).submitSubscription(offeringId, lotsUnit))
@@ -796,7 +825,7 @@ describe("PrimaryMarket", () => {
       expect(investor).to.equal(investor1Address);
       expect(subscribedLotUnits).to.equal(lotsUnit);
 
-      let cost = lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue;
+      let cost = lotsUnit * parseInt(offering.lotSize.toString()) * Number(nominalValue);
       if (multiply) {
         cost = cost * 10 ** (decimalsDiff - AssetDecimals);
       } else {
@@ -804,10 +833,10 @@ describe("PrimaryMarket", () => {
       }
 
       const balanceInvestorAfter = await mockPaymentToken.balanceOf(investor1Address);
-      const balancePMAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const balancePMAfter = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
-      expect(balanceInvestorBefore.sub(balanceInvestorAfter)).to.equal(cost);
-      expect(balancePMAfter.sub(balancePMBefore)).to.equal(cost);
+      expect(balanceInvestorBefore - balanceInvestorAfter).to.equal(BigInt(cost));
+      expect(balancePMAfter - balancePMBefore).to.equal(BigInt(cost));
 
       const [, , totalLots, pendingLots] = await primaryMarket.getOffering(offeringId);
       expect(totalLots).to.equal(lotsUnit);
@@ -890,7 +919,7 @@ describe("PrimaryMarket", () => {
       const nominalValue = (await mockAsset.getBondDetails()).nominalValue;
 
       const cost =
-        lotsUnit * parseInt(offering.lotSize.toString()) * nominalValue * 10 ** (decimalsDiff - AssetDecimals); // Adjust for decimals difference
+        lotsUnit * parseInt(offering.lotSize.toString()) * Number(nominalValue) * 10 ** (decimalsDiff - AssetDecimals); // Adjust for decimals difference
 
       await expect(primaryMarket.connect(investor3).submitSubscription(offeringId, lotsUnit))
         .to.be.revertedWithCustomError(primaryMarket, "NotEnoughFunds")
@@ -905,7 +934,7 @@ describe("PrimaryMarket", () => {
       await mockPaymentToken.connect(investor3).transfer(investor1Address, investor3Balance);
 
       // Give allowance
-      await mockPaymentToken.connect(investor3).approve(primaryMarket.address, ethers.constants.MaxUint256);
+      await mockPaymentToken.connect(investor3).approve(await primaryMarket.getAddress(), ethers.MaxUint256);
 
       await expect(primaryMarket.connect(investor3).submitSubscription(offeringId, lotsUnit)).to.be.revertedWith(
         "ERC20: transfer amount exceeds balance",
@@ -1005,12 +1034,12 @@ describe("PrimaryMarket", () => {
     };
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("2", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("2", AssetDecimals),
         minLots: 1,
         maxLots: 5,
         targetLots: 10,
@@ -1024,9 +1053,9 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
-      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0; // Get offeringId from event
+      const currentTime = Number(await primaryMarketTimeTravel.blockTimestamp());
       await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
@@ -1077,7 +1106,7 @@ describe("PrimaryMarket", () => {
 
       const investorsList: string[] = [];
 
-      for (let i = 0; i < Math.floor(totalSubscriptions.toNumber() / 2); i++) {
+      for (let i = 0; i < Math.floor(Number(totalSubscriptions) / 2); i++) {
         for (let j = 1; j <= 2; j++) {
           const subscription = await primaryMarket.getSubscription(offeringId, 2 * i + j);
 
@@ -1087,8 +1116,8 @@ describe("PrimaryMarket", () => {
             tokens = investorsSubscriptions.get(subscription.investor)!.tokens;
           } else investorsList.push(subscription.investor);
 
-          tokens += subscription.lotUnits.toNumber() * parseInt(offering.lotSize.toString());
-          const price = tokens * nominalValue;
+          tokens += Number(subscription.lotUnits) * parseInt(offering.lotSize.toString());
+          const price = tokens * Number(nominalValue);
           investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
         }
 
@@ -1101,33 +1130,33 @@ describe("PrimaryMarket", () => {
         const receipt = await tx.wait();
 
         // Find the event
-        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+        const event = findEventInReceipt(receipt, "OfferingExecuted", primaryMarket.interface);
         expect(event).to.not.be.undefined;
-        expect(event!.args).to.not.be.undefined;
+        expect(event?.args).to.not.be.undefined;
 
         // Check scalar args
-        expect(event!.args!.offeringId).to.equal(offeringId);
-        expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+        expect(event!.args[0]).to.equal(offeringId);
+        expect(event!.args[1]).to.equal(offeringCreatorAddress);
 
         // Convert BigNumbers to numbers for array comparison
-        const succeeded = event!
-          .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-          .map((r: any) => r.subscriptionId.toNumber());
+        const succeeded = event!.args[2]
+          .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+          .map((r: any) => Number(r.subscriptionId));
         expect(succeeded).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
-        const failed = event!
-          .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-          .map((r: any) => r.subscriptionId.toNumber());
+        const failed = event!.args[2]
+          .filter((r: any) => Number(r.status) === 1) // OfferingProcessStatus.FAILED
+          .map((r: any) => Number(r.subscriptionId));
         expect(failed).to.deep.equal([]);
 
         const alreadyProcessed = event!
-          .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-          .map((r: any) => r.subscriptionId.toNumber());
+          .args!.result.filter((r: any) => Number(r.status) === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+          .map((r: any) => Number(r.subscriptionId));
         expect(alreadyProcessed).to.deep.equal([]);
       }
 
-      if (totalSubscriptions.toNumber() % 2 != 0) {
-        const subscription = await primaryMarket.getSubscription(offeringId, totalSubscriptions.toNumber());
+      if (Number(totalSubscriptions) % 2 != 0) {
+        const subscription = await primaryMarket.getSubscription(offeringId, Number(totalSubscriptions));
 
         let tokens = 0;
 
@@ -1135,43 +1164,41 @@ describe("PrimaryMarket", () => {
           tokens = investorsSubscriptions.get(subscription.investor)!.tokens;
         } else investorsList.push(subscription.investor);
 
-        tokens += subscription.lotUnits.toNumber() * parseInt(offering.lotSize.toString());
-        const price = tokens * nominalValue;
+        tokens += Number(subscription.lotUnits) * parseInt(offering.lotSize.toString());
+        const price = tokens * Number(nominalValue);
         investorsSubscriptions.set(subscription.investor, { tokens: tokens, price: price });
 
         const tx = paginatedMethod
-          ? await primaryMarket
-              .connect(offeringCreator)
-              .executeOffering(offeringId, totalSubscriptions.toNumber() - 1, 1)
+          ? await primaryMarket.connect(offeringCreator).executeOffering(offeringId, Number(totalSubscriptions) - 1, 1)
           : await primaryMarket
               .connect(offeringCreator)
-              .executeOfferingBySubscriptionId(offeringId, [totalSubscriptions.toNumber()]);
+              .executeOfferingBySubscriptionId(offeringId, [Number(totalSubscriptions)]);
 
         const receipt = await tx.wait();
 
         // Find the event
-        const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+        const event = findEventInReceipt(receipt, "OfferingExecuted", primaryMarket.interface);
         expect(event).to.not.be.undefined;
-        expect(event!.args).to.not.be.undefined;
+        expect(event?.args).to.not.be.undefined;
 
         // Check scalar args
-        expect(event!.args!.offeringId).to.equal(offeringId);
-        expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+        expect(event!.args[0]).to.equal(offeringId);
+        expect(event!.args[1]).to.equal(offeringCreatorAddress);
 
         // Convert BigNumbers to numbers for array comparison
-        const succeeded = event!
-          .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-          .map((r: any) => r.subscriptionId.toNumber());
-        expect(succeeded).to.deep.equal([totalSubscriptions.toNumber()]);
+        const succeeded = event!.args[2]
+          .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+          .map((r: any) => Number(r.subscriptionId));
+        expect(succeeded).to.deep.equal([Number(totalSubscriptions)]);
 
-        const failed = event!
-          .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-          .map((r: any) => r.subscriptionId.toNumber());
+        const failed = event!.args[2]
+          .filter((r: any) => Number(r.status) === 1) // OfferingProcessStatus.FAILED
+          .map((r: any) => Number(r.subscriptionId));
         expect(failed).to.deep.equal([]);
 
-        const alreadyProcessed = event!
-          .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-          .map((r: any) => r.subscriptionId.toNumber());
+        const alreadyProcessed = event!.args[2]
+          .filter((r: any) => Number(r.status) === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+          .map((r: any) => Number(r.subscriptionId));
         expect(alreadyProcessed).to.deep.equal([]);
       }
 
@@ -1181,8 +1208,8 @@ describe("PrimaryMarket", () => {
       let TotalAssets = parseInt(offering.targetLots.toString()) * parseInt(offering.lotSize.toString());
       if (!reach) TotalAssets -= parseInt(offering.lotSize.toString());
       const TotalCost =
-        (BigInt(10 ** paymentTokenDecimals) * BigInt(TotalAssets) * BigInt(nominalValue)) /
-        BigInt(10 ** (nominalValueDecimals + AssetDecimals));
+        (BigInt(10 ** Number(paymentTokenDecimals)) * BigInt(TotalAssets) * BigInt(nominalValue)) /
+        BigInt(10 ** (Number(nominalValueDecimals) + AssetDecimals));
 
       expect(BigInt(TreasuryBalanceBefore) + BigInt(TotalCost)).to.equal(BigInt(TreasuryBalanceAfter));
       expect(BigInt(PrimaryMarketBalanceBefore) - BigInt(TotalCost)).to.equal(BigInt(PrimaryMarketBalanceAfter));
@@ -1213,34 +1240,34 @@ describe("PrimaryMarket", () => {
 
       const totalSubscription = await primaryMarket.getTotalSubscriptions(offeringId);
 
-      await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription.sub(1));
+      await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1n);
 
-      const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription.sub(1));
+      const tx = await primaryMarket.connect(offeringCreator).executeOffering(offeringId, 0, totalSubscription - 1n);
       const receipt = await tx.wait();
 
       // Find the event
-      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+      const event = findEventInReceipt(receipt, "OfferingExecuted", primaryMarket.interface);
       expect(event).to.not.be.undefined;
 
       // Check scalar args
-      expect(event!.args!.offeringId).to.equal(offeringId);
-      expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+      expect(event!.args[0]).to.equal(offeringId);
+      expect(event!.args[1]).to.equal(offeringCreatorAddress);
 
       // Convert BigNumbers to numbers for array comparison
-      const succeeded = event!
-        .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-        .map((r: any) => r.subscriptionId.toNumber());
+      const succeeded = event!.args[2]
+        .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => Number(r.subscriptionId));
       expect(succeeded).to.deep.equal([]);
 
-      const failed = event!
-        .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-        .map((r: any) => r.subscriptionId.toNumber());
+      const failed = event!.args[2]
+        .filter((r: any) => Number(r.status) === 1) // OfferingProcessStatus.FAILED
+        .map((r: any) => Number(r.subscriptionId));
       expect(failed).to.deep.equal([]);
 
-      const alreadyProcessed = event!
-        .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-        .map((r: any) => r.subscriptionId.toNumber());
-      const arr = Array.from({ length: totalSubscription.sub(1).toNumber() }, (_, i) => i + 1);
+      const alreadyProcessed = event!.args[2]
+        .filter((r: any) => Number(r.status) === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => Number(r.subscriptionId));
+      const arr = Array.from({ length: Number(totalSubscription - 1n) }, (_, i) => i + 1);
       expect(alreadyProcessed).to.deep.equal(arr);
     });
 
@@ -1253,7 +1280,7 @@ describe("PrimaryMarket", () => {
 
       const totalSubscriptions = await primaryMarket.getTotalSubscriptions(offeringId);
 
-      for (let i = 0; i < totalSubscriptions.toNumber() / 2; i++) {
+      for (let i = 0; i < Number(totalSubscriptions) / 2; i++) {
         for (let methodId = 1; methodId < 2; methodId++) {
           const tx =
             methodId == 1
@@ -1265,27 +1292,27 @@ describe("PrimaryMarket", () => {
           const receipt = await tx?.wait();
 
           // Find the event
-          const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+          const event = findEventInReceipt(receipt, "OfferingExecuted", primaryMarket.interface);
           expect(event).to.not.be.undefined;
 
           // Check scalar args
-          expect(event!.args!.offeringId).to.equal(offeringId);
-          expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+          expect(event!.args[0]).to.equal(offeringId);
+          expect(event!.args[1]).to.equal(offeringCreatorAddress);
 
           // Convert BigNumbers to numbers for array comparison
-          const succeeded = event!
-            .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-            .map((r: any) => r.subscriptionId.toNumber());
+          const succeeded = event!.args[2]
+            .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+            .map((r: any) => Number(r.subscriptionId));
           expect(succeeded).to.deep.equal([]);
 
-          const failed = event!
-            .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-            .map((r: any) => r.subscriptionId.toNumber());
+          const failed = event!.args[2]
+            .filter((r: any) => Number(r.status) === 1) // OfferingProcessStatus.FAILED
+            .map((r: any) => Number(r.subscriptionId));
           expect(failed).to.deep.equal([i * 2 + 1, i * 2 + 2]);
 
-          const alreadyProcessed = event!
-            .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-            .map((r: any) => r.subscriptionId.toNumber());
+          const alreadyProcessed = event!.args[2]
+            .filter((r: any) => Number(r.status) === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+            .map((r: any) => Number(r.subscriptionId));
           expect(alreadyProcessed).to.deep.equal([]);
         }
       }
@@ -1387,23 +1414,23 @@ describe("PrimaryMarket", () => {
       // Try to execute same subscription again
       const tx = await primaryMarket.connect(offeringCreator).executeOfferingBySubscriptionId(offeringId, [1]);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e) => e.event === "OfferingExecuted");
+      const event = findEventInReceipt(receipt, "OfferingExecuted", primaryMarket.interface);
 
-      const alreadyProcessed = event!
-        .args!.result.filter((r: any) => r.status === 2) // OfferingProcessStatus.ALREADY_PROCESSED
-        .map((r: any) => r.subscriptionId.toNumber())
+      const alreadyProcessed = event!.args[2]
+        .filter((r: any) => Number(r.status) === 2) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => Number(r.subscriptionId))
         .filter((x: number) => x > 0);
       expect(alreadyProcessed).to.include(1);
     });
 
     it("GIVEN subscription with amount exceeding int64 max WHEN submitting THEN fails", async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
 
       const offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1", AssetDecimals),
         minLots: 1,
         maxLots: 1,
         targetLots: 1,
@@ -1417,8 +1444,8 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0; // Get offeringId from event
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0; // Get offeringId from event
 
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()) + 1);
 
@@ -1446,12 +1473,12 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     async function createOffering(targetQuantityRule: number, deadlineRule: number) {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 10,
@@ -1465,9 +1492,9 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0;
-      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0;
+      const currentTime = Number(await primaryMarketTimeTravel.blockTimestamp());
       await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61); // Move past startDate
     }
 
@@ -1488,32 +1515,32 @@ describe("PrimaryMarket", () => {
       // Get initial balances
       const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
       const investor2BalanceBefore = await mockPaymentToken.balanceOf(investor2Address);
-      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
       // Cancel offering (process subscriptions 0-4)
       const tx = await primaryMarket.connect(offeringCreator).cancelOffering(offeringId, 0, 5);
       const receipt = await tx.wait();
 
       // Find the event
-      const event = receipt.events?.find((e) => e.event === "OfferingCancelled");
+      const event = findEventInReceipt(receipt, "OfferingCancelled", primaryMarket.interface);
       expect(event).to.not.be.undefined;
 
       // Check event args
-      expect(event!.args!.offeringId).to.equal(offeringId);
-      expect(event!.args!.operator).to.equal(offeringCreatorAddress);
+      expect(event!.args[0]).to.equal(offeringId);
+      expect(event!.args[1]).to.equal(offeringCreatorAddress);
 
       // Convert BigNumbers to numbers for array comparison - filter out zeros
-      const succeeded = event!
-        .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-        .map((r: any) => r.subscriptionId.toNumber())
+      const succeeded = event!.args[2]
+        .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => Number(r.subscriptionId))
         .filter((x: number) => x > 0);
-      const failed = event!
-        .args!.result.filter((r: any) => r.status === 1) // OfferingProcessStatus.FAILED
-        .map((r: any) => r.subscriptionId.toNumber())
+      const failed = event!.args[2]
+        .filter((r: any) => Number(r.status) === 1) // OfferingProcessStatus.FAILED
+        .map((r: any) => Number(r.subscriptionId))
         .filter((x: number) => x > 0);
-      const alreadyProcessed = event!
-        .args!.result.filter((r: any) => r.status === 3) // OfferingProcessStatus.ALREADY_PROCESSED
-        .map((r: any) => r.subscriptionId.toNumber())
+      const alreadyProcessed = event!.args[2]
+        .filter((r: any) => Number(r.status) === 3) // OfferingProcessStatus.ALREADY_PROCESSED
+        .map((r: any) => Number(r.subscriptionId))
         .filter((x: number) => x > 0);
 
       expect(succeeded.length).to.equal(5);
@@ -1527,23 +1554,23 @@ describe("PrimaryMarket", () => {
       const paymentTokenDecimals = await mockPaymentToken.decimals();
 
       const refundPerSubscription =
-        (10 ** paymentTokenDecimals *
+        (10 ** Number(paymentTokenDecimals) *
           parseInt(offering.minLots.toString()) *
           parseInt(offering.lotSize.toString()) *
-          nominalValue) /
-        10 ** (nominalValueDecimals + AssetDecimals);
+          Number(nominalValue)) /
+        10 ** (Number(nominalValueDecimals) + AssetDecimals);
 
       // 3 subscriptions for investor1 (indices 0, 2, 4 -> subscription IDs 1, 3, 5)
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(refundPerSubscription * 3);
+      expect(investor1BalanceAfter - investor1BalanceBefore).to.equal(BigInt(refundPerSubscription * 3));
 
       // 2 subscriptions for investor2 (indices 1, 3 -> subscription IDs 2, 4)
       const investor2BalanceAfter = await mockPaymentToken.balanceOf(investor2Address);
-      expect(investor2BalanceAfter.sub(investor2BalanceBefore)).to.equal(refundPerSubscription * 2);
+      expect(investor2BalanceAfter - investor2BalanceBefore).to.equal(BigInt(refundPerSubscription * 2));
 
       // PM balance should decrease
-      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
-      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(refundPerSubscription * 5);
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
+      expect(pmBalanceBefore - pmBalanceAfter).to.equal(BigInt(refundPerSubscription * 5));
     });
 
     it("GIVEN cancellable offering WHEN cancelling by subscription IDs THEN success", async () => {
@@ -1553,7 +1580,7 @@ describe("PrimaryMarket", () => {
       await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.endDate.toString()) + 1);
 
       const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
-      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
       // Cancel specific subscriptions by ID
       const subscriptionIds = [1, 3, 5]; // investor1's subscriptions
@@ -1562,12 +1589,12 @@ describe("PrimaryMarket", () => {
         .cancelOfferingBySubscriptionId(offeringId, subscriptionIds);
       const receipt = await tx.wait();
 
-      const event = receipt.events?.find((e) => e.event === "OfferingCancelled");
+      const event = findEventInReceipt(receipt, "OfferingCancelled", primaryMarket.interface);
       expect(event).to.not.be.undefined;
 
-      const succeeded = event!
-        .args!.result.filter((r: any) => r.status === 0) // OfferingProcessStatus.SUCCEEDED
-        .map((r: any) => r.subscriptionId.toNumber())
+      const succeeded = event!.args[2]
+        .filter((r: any) => Number(r.status) === 0) // OfferingProcessStatus.SUCCEEDED
+        .map((r: any) => Number(r.subscriptionId))
         .filter((x: number) => x > 0);
       expect(succeeded.length).to.equal(3);
       expect(succeeded).to.include.members([1, 3, 5]);
@@ -1578,17 +1605,17 @@ describe("PrimaryMarket", () => {
       const paymentTokenDecimals = await mockPaymentToken.decimals();
 
       const refundPerSubscription =
-        (10 ** paymentTokenDecimals *
+        (10 ** Number(paymentTokenDecimals) *
           parseInt(offering.minLots.toString()) *
           parseInt(offering.lotSize.toString()) *
-          nominalValue) /
-        10 ** (nominalValueDecimals + AssetDecimals);
+          Number(nominalValue)) /
+        10 ** (Number(nominalValueDecimals) + AssetDecimals);
 
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
-      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(refundPerSubscription * 3);
-      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(refundPerSubscription * 3);
+      expect(investor1BalanceAfter - investor1BalanceBefore).to.equal(BigInt(refundPerSubscription * 3));
+      expect(pmBalanceBefore - pmBalanceAfter).to.equal(BigInt(refundPerSubscription * 3));
     });
 
     it("GIVEN paused PM WHEN cancelling THEN fail", async () => {
@@ -1695,12 +1722,12 @@ describe("PrimaryMarket", () => {
     let offering: IPrimaryMarket.OfferingStruct;
 
     beforeEach(async () => {
-      const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const now = Number(await primaryMarketTimeTravel.blockTimestamp());
       offering = {
-        asset: mockAsset.address,
+        asset: await mockAsset.getAddress(),
         treasury: treasuryAddress,
-        paymentToken: mockPaymentToken.address,
-        lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+        paymentToken: await mockPaymentToken.getAddress(),
+        lotSize: ethers.parseUnits("1000", AssetDecimals),
         minLots: 1,
         maxLots: 50,
         targetLots: 100,
@@ -1714,11 +1741,11 @@ describe("PrimaryMarket", () => {
 
       const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
       const receipt = await tx.wait();
-      const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-      offeringId = event?.args?.offeringId?.toNumber() || 0;
+      const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+      offeringId = Number(event?.args[0]) || 0;
 
       // Advance time to offering start
-      const currentTime = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+      const currentTime = Number(await primaryMarketTimeTravel.blockTimestamp());
       await primaryMarketTimeTravel.changeSystemTimestamp(currentTime + 61);
     });
 
@@ -1728,7 +1755,7 @@ describe("PrimaryMarket", () => {
 
       const subscriptionId = 1;
       const investor1BalanceBefore = await mockPaymentToken.balanceOf(investor1Address);
-      const pmBalanceBefore = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const pmBalanceBefore = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
       // Cancel subscription
       await expect(primaryMarket.connect(offeringCreator).cancelSubscription(offeringId, subscriptionId))
@@ -1741,17 +1768,17 @@ describe("PrimaryMarket", () => {
       const paymentTokenDecimals = await mockPaymentToken.decimals();
 
       const expectedRefund =
-        (10 ** paymentTokenDecimals *
+        (10 ** Number(paymentTokenDecimals) *
           parseInt(offering.minLots.toString()) *
           parseInt(offering.lotSize.toString()) *
-          nominalValue) /
-        10 ** (nominalValueDecimals + AssetDecimals);
+          Number(nominalValue)) /
+        10 ** (Number(nominalValueDecimals) + AssetDecimals);
 
       const investor1BalanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-      const pmBalanceAfter = await mockPaymentToken.balanceOf(primaryMarket.address);
+      const pmBalanceAfter = await mockPaymentToken.balanceOf(await primaryMarket.getAddress());
 
-      expect(investor1BalanceAfter.sub(investor1BalanceBefore)).to.equal(expectedRefund);
-      expect(pmBalanceBefore.sub(pmBalanceAfter)).to.equal(expectedRefund);
+      expect(investor1BalanceAfter - investor1BalanceBefore).to.equal(BigInt(expectedRefund));
+      expect(pmBalanceBefore - pmBalanceAfter).to.equal(BigInt(expectedRefund));
 
       // Check pending lots updated
       const [, , , pendingLots] = await primaryMarket.getOffering(offeringId);
@@ -1813,12 +1840,12 @@ describe("PrimaryMarket", () => {
       let offering: IPrimaryMarket.OfferingStruct;
 
       beforeEach(async () => {
-        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+        const now = Number(await primaryMarketTimeTravel.blockTimestamp());
         offering = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -1850,18 +1877,18 @@ describe("PrimaryMarket", () => {
         const paymentTokenDecimals = await mockPaymentToken.decimals();
 
         const expectedPayment =
-          (10 ** paymentTokenDecimals *
+          (10 ** Number(paymentTokenDecimals) *
             lotUnits *
             parseInt(offering.lotSize.toString()) *
-            bondDetails.nominalValue.toNumber()) /
-          10 ** (nominalValueDecimals + AssetDecimals);
+            Number(bondDetails.nominalValue)) /
+          10 ** (Number(nominalValueDecimals) + AssetDecimals);
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
 
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-        expect(balanceBefore.sub(balanceAfter)).to.equal(expectedPayment);
+        expect(balanceBefore - balanceAfter).to.equal(BigInt(expectedPayment));
       });
 
       it("WHEN cancelling subscription THEN refund uses bond nominal value", async () => {
@@ -1873,11 +1900,11 @@ describe("PrimaryMarket", () => {
         const paymentTokenDecimals = await mockPaymentToken.decimals();
 
         const expectedPayment =
-          (10 ** paymentTokenDecimals *
+          (10 ** Number(paymentTokenDecimals) *
             lotUnits *
             parseInt(offering.lotSize.toString()) *
-            bondDetails.nominalValue.toNumber()) /
-          10 ** (nominalValueDecimals + AssetDecimals);
+            Number(bondDetails.nominalValue)) /
+          10 ** (Number(nominalValueDecimals) + AssetDecimals);
 
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
 
@@ -1888,7 +1915,7 @@ describe("PrimaryMarket", () => {
           .withArgs(offeringId, 1);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-        expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);
+        expect(balanceAfter - balanceBefore).to.equal(BigInt(expectedPayment));
       });
     });
 
@@ -1899,12 +1926,12 @@ describe("PrimaryMarket", () => {
       const customPriceDecimals = NominalValueDecimals - 1;
 
       beforeEach(async () => {
-        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+        const now = Number(await primaryMarketTimeTravel.blockTimestamp());
         offering = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1000", AssetDecimals), // 1000 USDC worth per lot
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -1934,7 +1961,7 @@ describe("PrimaryMarket", () => {
         const paymentTokenDecimals = await mockPaymentToken.decimals();
 
         const expectedPayment =
-          (10 ** paymentTokenDecimals * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          (10 ** Number(paymentTokenDecimals) * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
           10 ** (customPriceDecimals + AssetDecimals);
 
         const balanceBefore = await mockPaymentToken.balanceOf(investor1Address);
@@ -1942,7 +1969,7 @@ describe("PrimaryMarket", () => {
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-        expect(balanceBefore.sub(balanceAfter)).to.equal(expectedPayment);
+        expect(balanceBefore - balanceAfter).to.equal(BigInt(expectedPayment));
       });
 
       it("WHEN cancelling subscription THEN refund uses custom price", async () => {
@@ -1952,7 +1979,7 @@ describe("PrimaryMarket", () => {
         const paymentTokenDecimals = await mockPaymentToken.decimals();
 
         const expectedPayment =
-          (10 ** paymentTokenDecimals * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          (10 ** Number(paymentTokenDecimals) * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
           10 ** (customPriceDecimals + AssetDecimals);
 
         await primaryMarket.connect(investor1).submitSubscription(offeringId, lotUnits);
@@ -1964,7 +1991,7 @@ describe("PrimaryMarket", () => {
           .withArgs(offeringId, 1);
 
         const balanceAfter = await mockPaymentToken.balanceOf(investor1Address);
-        expect(balanceAfter.sub(balanceBefore)).to.equal(expectedPayment);
+        expect(balanceAfter - balanceBefore).to.equal(BigInt(expectedPayment));
       });
 
       it("WHEN executing offering THEN calculation uses custom price", async () => {
@@ -1985,23 +2012,23 @@ describe("PrimaryMarket", () => {
         const paymentTokenDecimals = await mockPaymentToken.decimals();
 
         const expectedPayment =
-          (10 ** paymentTokenDecimals * 2 * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
+          (10 ** Number(paymentTokenDecimals) * 2 * lotUnits * parseInt(offering.lotSize.toString()) * customPrice) /
           10 ** (customPriceDecimals + AssetDecimals);
 
-        expect(treasuryBalanceAfter.sub(treasuryBalanceBefore)).to.equal(expectedPayment);
+        expect(treasuryBalanceAfter - treasuryBalanceBefore).to.equal(BigInt(expectedPayment));
       });
     });
 
     describe("GIVEN different prices across offerings", () => {
       it("WHEN creating multiple offerings with different prices THEN each uses its own price", async () => {
-        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+        const now = Number(await primaryMarketTimeTravel.blockTimestamp());
 
         // Offering 1 with price = 0 (uses nominal value)
         const offering1: IPrimaryMarket.OfferingStruct = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1000", AssetDecimals),
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -2015,10 +2042,10 @@ describe("PrimaryMarket", () => {
 
         // Offering 2 with custom price
         const offering2: IPrimaryMarket.OfferingStruct = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1000", AssetDecimals),
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1000", AssetDecimals),
           minLots: 1,
           maxLots: 50,
           targetLots: 100,
@@ -2044,7 +2071,7 @@ describe("PrimaryMarket", () => {
 
     describe("GIVEN super large price values (edge cases)", () => {
       it("WHEN executing offering with super large price THEN success with batch processing", async () => {
-        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+        const now = Number(await primaryMarketTimeTravel.blockTimestamp());
 
         // Calculate super large price that will trigger batch processing
         // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
@@ -2056,10 +2083,10 @@ describe("PrimaryMarket", () => {
         await mockPaymentToken.setDecimals(0);
 
         const offering: IPrimaryMarket.OfferingStruct = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
           minLots: 1,
           maxLots: 5,
           targetLots: 10,
@@ -2097,7 +2124,7 @@ describe("PrimaryMarket", () => {
       });
 
       it("WHEN cancelling offering with super large price THEN success with batch processing", async () => {
-        const now = (await primaryMarketTimeTravel.blockTimestamp()).toNumber();
+        const now = Number(await primaryMarketTimeTravel.blockTimestamp());
 
         // Calculate super large price that will trigger batch processing
         // Using a smaller lotSize to ensure tokensPerSubscription calculation is correct
@@ -2109,10 +2136,10 @@ describe("PrimaryMarket", () => {
         await mockPaymentToken.setDecimals(0);
 
         const offering: IPrimaryMarket.OfferingStruct = {
-          asset: mockAsset.address,
+          asset: await mockAsset.getAddress(),
           treasury: treasuryAddress,
-          paymentToken: mockPaymentToken.address,
-          lotSize: ethers.utils.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
+          paymentToken: await mockPaymentToken.getAddress(),
+          lotSize: ethers.parseUnits("1", AssetDecimals), // Small lotSize for easier int64 overflow calculation
           minLots: 1,
           maxLots: 5,
           targetLots: 100, // High target so we don't reach it
@@ -2126,8 +2153,8 @@ describe("PrimaryMarket", () => {
 
         const tx = await primaryMarket.connect(offeringCreator).createOffering(offering);
         const receipt = await tx.wait();
-        const event = receipt.events?.find((e: any) => e.event === "OfferingCreated");
-        const offeringId = event?.args?.offeringId?.toNumber() || 0;
+        const event = findEventInReceipt(receipt, "OfferingCreated", primaryMarket.interface);
+        const offeringId = Number(event?.args[0]) || 0;
 
         await primaryMarketTimeTravel.changeSystemTimestamp(parseInt(offering.startDate.toString()));
 

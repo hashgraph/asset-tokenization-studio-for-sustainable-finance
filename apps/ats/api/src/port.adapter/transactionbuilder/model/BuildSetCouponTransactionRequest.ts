@@ -13,6 +13,18 @@ export class BuildSetCouponTransactionRequest extends BaseBuildTransactionReques
 
   @IsNumberString()
   @IsNotEmpty()
+  startDate: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  endDate: string
+
+  @IsNumberString()
+  @IsNotEmpty()
+  fixingDate: string
+
+  @IsNumberString()
+  @IsNotEmpty()
   rate: string
 
   @IsNumberString()
@@ -21,5 +33,5 @@ export class BuildSetCouponTransactionRequest extends BaseBuildTransactionReques
 
   @IsNumberString()
   @IsNotEmpty()
-  period: string
+  rateStatus: string
 }

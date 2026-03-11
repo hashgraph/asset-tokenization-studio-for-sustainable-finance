@@ -49,8 +49,9 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
     })
   })
   afterEach(async () => {
-    await bondHoldRepository.query('DELETE FROM "Bonds"')
-    await bondHolderBalanceRepository.query('DELETE FROM "Bonds"')
+    await bondHoldRepository.query('DELETE FROM "BondHolds"')
+    await bondHolderBalanceRepository.query('DELETE FROM "BondHolderBalances"')
+    await bondRepository.query('DELETE FROM "Bonds"')
     jest.restoreAllMocks()
     await app.close()
   })
@@ -63,7 +64,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -146,7 +146,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",
@@ -228,7 +227,6 @@ describe("ReclaimedHoldByPartitionNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_HEDERA_ID,
         treasuryId: "0.0.1000001",
-        kpiId: "0.0.1000002",
         name: "Test Bond",
         symbol: "TBOND",
         isin: "US1234567890",

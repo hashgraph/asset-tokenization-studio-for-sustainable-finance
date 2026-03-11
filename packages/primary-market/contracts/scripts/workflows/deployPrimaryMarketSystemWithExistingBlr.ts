@@ -9,8 +9,6 @@ import {
   success,
   section,
   error as logError,
-  configureLogger,
-  LogLevel,
   getDeploymentConfig,
   DEFAULT_BATCH_SIZE,
   fetchHederaContractId,
@@ -73,11 +71,7 @@ export async function deployFactoryPrimaryMarketWithExistingInfra(
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployFactoryPrimaryMarketOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
-
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();

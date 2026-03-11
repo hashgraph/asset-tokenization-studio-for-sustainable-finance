@@ -296,37 +296,55 @@ When the script finishes, you will see this message in the console where you exe
 You will see these logs in the console where you started the Green Bond Platform:
 
 ```bash
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [Blockchain-Listener] Processing event BondDeployed from block 26498678
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSCommandBus] Executing command ProcessEventCommand
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSCommandBus] Executing command CreateBondCommand
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSEventBus] Event CreatedBondEvent published successfully:
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSEventBus] CreatedBondEvent {
-[ATS API] timestamp: 1761043511858,
-[ATS API] contractId: '0.0.7100367',
-[ATS API] treasuryId: '0.0.7100367',
-[ATS API] kpiId: '0.0.7100367',
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [Blockchain-Listener] Processing event BondSuiteDeployed from block 31962564
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSCommandBus] Executing command ProcessEventCommand
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSCommandBus] Executing command CreateBondCommand
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSEventBus] Event CreatedBondEvent published successfully:
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSEventBus] CreatedBondEvent {
+[ATS API] timestamp: 1708842908000,
+[ATS API] contractId: '0.0.8027503',
+[ATS API] treasuryId: '0.0.8027504',
 [ATS API] name: 'test',
 [ATS API] symbol: 'test',
 [ATS API] isin: 'US0378331005',
 [ATS API] decimals: 6,
-[ATS API] currency: 'h',
-[ATS API] nominalValue: '100',
-[ATS API] startingDate: 2029-08-09T19:20:00.000Z,
-[ATS API] maturityDate: 2032-10-10T05:06:40.000Z,
-[ATS API] maxSupply: '1000000'
+[ATS API] currency: 'EUR',
+[ATS API] nominalValue: '1000',
+[ATS API] startingDate: 2026-02-25T06:55:08.000Z,
+[ATS API] maturityDate: 2027-02-25T06:55:08.000Z,
+[ATS API] maxSupply: '1000000',
+[ATS API] interestRate: {
+[ATS API]   maxRate: '1000',
+[ATS API]   baseRate: '500',
+[ATS API]   minRate: '100',
+[ATS API]   startPeriod: '1708842908',
+[ATS API]   startRate: '500',
+[ATS API]   missedPenalty: '50',
+[ATS API]   reportPeriod: '2592000',
+[ATS API]   rateDecimals: '2'
+[ATS API] },
+[ATS API] impactData: {
+[ATS API]   maxDeviationCap: '150',
+[ATS API]   baseLine: '100',
+[ATS API]   maxDeviationFloor: '50',
+[ATS API]   impactDataDecimals: '2',
+[ATS API]   adjustmentPrecision: '2'
 [ATS API] }
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSEventBus] Event EventProcessedEvent published successfully:
-[ATS API] [Nest] 1355228  - 10/21/2025, 12:45:11 PM     LOG [NestJSEventBus] EventProcessedEvent {
-[ATS API] timestamp: 1761043511860,
+[ATS API] }
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSEventBus] Event EventProcessedEvent published successfully:
+[ATS API] [Nest] 1355228  - 02/25/2026, 05:55:08 AM     LOG [NestJSEventBus] EventProcessedEvent {
+[ATS API] timestamp: 1708842908000,
 [ATS API] id: '99c6de77-4830-467a-a283-8682d22949d6',
-[ATS API] eventName: 'BondDeployed',
+[ATS API] eventName: 'BondSuiteDeployed',
 [ATS API] status: 'PROCESSED',
 [ATS API] errorReason: null
 [ATS API] }
 ```
 
-You can check the PostgreSQL database to verify that the bond has been created in the Bonds table:
+You can check the PostgreSQL database to verify that the bond has been created in the Bonds table with integrated KPI data:
 ![new bond in the database](docs/static/img/db_create_bond.png)
+
+> **Note:** The KPI (Key Performance Indicator) data is now integrated directly into the bond contract. The `interestRate` and `impactData` are stored as part of the bond entity, not as a separate contract.
 
 ## Stop GBP demo
 

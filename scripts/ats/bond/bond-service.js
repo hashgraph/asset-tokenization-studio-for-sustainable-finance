@@ -4,6 +4,7 @@ const { ConverterUtils } = require("@hashgraph/green-bonds-shared-core");
 
 async function createBond(format, overrides = {}) {
   log(`\n📋 Creating ${format.toUpperCase()} bond...`, colors.bright);
+  log(`Using account ID: ${process.env.ACCOUNT_ID}`);
 
   // Convert ACCOUNT_ID to EVM address
   const accountEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(process.env.ACCOUNT_ID);
@@ -29,9 +30,9 @@ async function createBond(format, overrides = {}) {
       numberOfUnits: "1000000",
       nominalValue: "100",
       nominalValueDecimals: 2,
-      startingDate: new Date(1880997600000),
-      maturityDate: new Date(1980997600000),
-      configVersion: 0,
+      startingDate: new Date(Date.now() + 60 * 60 * 1000), // 1 hour from now (must be in the future)
+      maturityDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year from now
+      configVersion: 1,
       resolverAddress: process.env.RESOLVER_ADDRESS,
       proceedRecipientAddresses: [],
       proceedRecipientsData: [],
@@ -51,8 +52,23 @@ async function createBond(format, overrides = {}) {
       environmentalAssetsAddresses: [],
     },
     kpiData: {
-      adminAddress: accountEvmAddress,
-      ownerAccountAddress: accountEvmAddress,
+      interestRate: {
+        maxRate: "1000",
+        baseRate: "500",
+        minRate: "100",
+        startPeriod: (Math.floor(Date.now() / 1000) + 86400).toString(), // Current timestamp + 1 day
+        startRate: "500",
+        missedPenalty: "50",
+        reportPeriod: (86400 * 30).toString(), // 30 days
+        rateDecimals: 2,
+      },
+      impactData: {
+        maxDeviationCap: "150",
+        baseLine: "100",
+        maxDeviationFloor: "50",
+        impactDataDecimals: 2,
+        adjustmentPrecision: "100",
+      },
     },
     format: format,
     accountId: process.env.ACCOUNT_ID,

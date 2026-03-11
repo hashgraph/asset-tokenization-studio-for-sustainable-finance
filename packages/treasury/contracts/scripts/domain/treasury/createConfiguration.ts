@@ -12,7 +12,7 @@
  * @module domain/treasury/createConfiguration
  */
 
-import { Contract } from "ethers";
+import { BusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts";
 import {
   createBatchConfiguration,
   ConfigurationData,
@@ -77,7 +77,7 @@ const TREASURY_FACETS = [
  * ```
  */
 export async function createTreasuryConfiguration(
-  blrContract: Contract,
+  blrContract: BusinessLogicResolver,
   facetAddresses: Record<string, string>,
   _useTimeTravel: boolean = false,
   batchSize: number = DEFAULT_BATCH_SIZE,

@@ -47,7 +47,6 @@ describe("GetBondHoldsHttpAdapter API Integration", () => {
       await bondRepository.save({
         contractId: contractId,
         treasuryId: contractId,
-        kpiId: contractId,
         name: "Test Bond",
         symbol: "TEST",
         decimals: 18,

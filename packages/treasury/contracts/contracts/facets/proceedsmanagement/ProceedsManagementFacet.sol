@@ -17,14 +17,17 @@ contract ProceedsManagementFacet is ProceedsManagement, IStaticFunctionSelectors
     function getStaticFunctionSelectors() external pure override returns (bytes4[] memory staticFunctionSelectors) {
         uint256 selectorIndex;
         staticFunctionSelectors = new bytes4[](3);
+        // solhint-disable gas-increment-by-one
         staticFunctionSelectors[selectorIndex++] = this.transferPaymentToken.selector;
         staticFunctionSelectors[selectorIndex++] = this.transferEnvironmentalAssetToken.selector;
         staticFunctionSelectors[selectorIndex++] = this.fundProceedsRecipient.selector;
+        // solhint-enable gas-increment-by-one
     }
 
     function getStaticInterfaceIds() external pure override returns (bytes4[] memory staticInterfaceIds) {
         staticInterfaceIds = new bytes4[](1);
         uint256 selectorsIndex;
+        // solhint-disable-next-line gas-increment-by-one
         staticInterfaceIds[selectorsIndex++] = type(IProceedsManagement).interfaceId;
     }
 }

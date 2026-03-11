@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { providers, Wallet, type Signer } from "ethers";
+import { JsonRpcProvider, NonceManager, Wallet, type Signer } from "ethers";
 import {
   getNetworkConfig,
   validateNetwork,
@@ -50,11 +50,13 @@ export function createSignerForNetwork(network: string): Signer {
 
   const privateKey = privateKeys[0];
 
-  // Create provider and signer
-  const provider = new providers.JsonRpcProvider(networkConfig.jsonRpcUrl);
-  const signer = new Wallet(privateKey, provider);
+  // Create provider and signer with NonceManager to prevent nonce caching
+  // issues when deploying multiple contracts via JSON-RPC
+  const provider = new JsonRpcProvider(networkConfig.jsonRpcUrl);
+  const wallet = new Wallet(privateKey, provider);
+  const signer = new NonceManager(wallet);
 
-  info(`Signer address: ${signer.address}`);
+  info(`Signer address: ${wallet.address}`);
 
   return signer;
 }

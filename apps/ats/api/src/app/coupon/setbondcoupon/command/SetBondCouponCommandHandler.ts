@@ -24,9 +24,12 @@ export class SetBondCouponCommandHandler implements CommandHandler<SetBondCoupon
         bondCoupon.operator,
         bondCoupon.recordDate,
         bondCoupon.executionDate,
+        bondCoupon.startDate,
+        bondCoupon.endDate,
+        bondCoupon.fixingDate,
         bondCoupon.rate,
         bondCoupon.rateDecimals,
-        bondCoupon.period,
+        bondCoupon.rateStatus,
       ),
     )
   }

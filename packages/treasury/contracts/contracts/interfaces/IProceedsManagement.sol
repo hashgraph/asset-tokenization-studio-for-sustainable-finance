@@ -9,7 +9,7 @@ interface IProceedsManagement {
      * @param to The address the payment tokens were transferred to
      * @param amount The amount of payment tokens transferred
      */
-    event PaymentTokenTransferred(address to, uint256 amount);
+    event PaymentTokenTransferred(address indexed to, uint256 indexed amount);
 
     /*
      * @dev Emitted when an environmental asset token was transferred to an address
@@ -18,7 +18,11 @@ interface IProceedsManagement {
      * @param to The address the payment tokens were transferred to
      * @param tokenId The tokenId of the environmental asset token
      */
-    event EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId);
+    event EnvironmentalAssetTokenTransferred(
+        address indexed environmentalAsset,
+        address indexed to,
+        uint256 indexed tokenId
+    );
 
     /*
      * @dev Emitted when a proceeds recipient was funded with an amount
@@ -26,7 +30,7 @@ interface IProceedsManagement {
      * @param proceedsRecipient The address of the proceeds recipient that was funded
      * @param token The amount the proceeds recipient was funded with
      */
-    event ProceedsRecipientFunded(address proceedsRecipient, uint256 amount);
+    event ProceedsRecipientFunded(address indexed proceedsRecipient, uint256 indexed amount);
 
     /**
      * @notice Error thrown when transferring an amount of payment tokens greater than the maximum int64

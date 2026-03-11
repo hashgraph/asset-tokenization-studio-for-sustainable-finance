@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers } from "hardhat";
+import { ZeroAddress } from "ethers";
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { deployFactorySuiteInfrastructureFixture } from "@test";
 import { getFacetDefinition } from "@scripts/domain";
@@ -84,7 +84,7 @@ describe("FactorySuiteFacet", () => {
       const { facetAddresses, deployer } = await loadFixture(setupFixture);
       const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
-      const tx = await factorySuiteFacet.populateTransaction.getStaticFunctionSelectors();
+      const tx = await factorySuiteFacet.getStaticFunctionSelectors.populateTransaction();
       expect(tx.value).to.be.undefined;
     });
   });
@@ -114,8 +114,8 @@ describe("FactorySuiteFacet", () => {
       const { facetAddresses, deployer } = await loadFixture(setupFixture);
       const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
-      const gasEstimate1 = await factorySuiteFacet.estimateGas.getStaticInterfaceIds();
-      const gasEstimate2 = await factorySuiteFacet.estimateGas.getStaticInterfaceIds();
+      const gasEstimate1 = await factorySuiteFacet.getStaticInterfaceIds.estimateGas();
+      const gasEstimate2 = await factorySuiteFacet.getStaticInterfaceIds.estimateGas();
 
       expect(gasEstimate1).to.equal(gasEstimate2);
     });
@@ -124,13 +124,13 @@ describe("FactorySuiteFacet", () => {
   describe("Constructor", () => {
     it("GIVEN valid deployment parameters WHEN deploying FactorySuiteFacet THEN success", async () => {
       const { facetAddresses } = await loadFixture(setupFixture);
-      expect(facetAddresses.FactorySuiteFacet).to.not.equal(ethers.constants.AddressZero);
+      expect(facetAddresses.FactorySuiteFacet).to.not.equal(ZeroAddress);
     });
 
     it("GIVEN FactorySuiteFacet deployed WHEN checking deployBondSuite method existence THEN success", async () => {
       const { factorySuite, deployer } = await loadFixture(setupFixture);
       // Business logic functions are called through proxy
-      const factorySuiteFacet = FactorySuiteFacet__factory.connect(factorySuite.address, deployer);
+      const factorySuiteFacet = FactorySuiteFacet__factory.connect(await factorySuite.getAddress(), deployer);
 
       const hasDeployBondSuite = factorySuiteFacet.deployBondSuite !== undefined;
       expect(hasDeployBondSuite).to.be.true;
@@ -187,13 +187,13 @@ describe("FactorySuiteFacet", () => {
       const { facetAddresses, deployer } = await loadFixture(setupFixture);
       const factorySuiteFacet = FactorySuiteFacet__factory.connect(facetAddresses.FactorySuiteFacet, deployer);
 
-      const gasForResolverKey = await factorySuiteFacet.estimateGas.getStaticResolverKey();
-      const gasForSelectors = await factorySuiteFacet.estimateGas.getStaticFunctionSelectors();
-      const gasForInterfaces = await factorySuiteFacet.estimateGas.getStaticInterfaceIds();
+      const gasForResolverKey = await factorySuiteFacet.getStaticResolverKey.estimateGas();
+      const gasForSelectors = await factorySuiteFacet.getStaticFunctionSelectors.estimateGas();
+      const gasForInterfaces = await factorySuiteFacet.getStaticInterfaceIds.estimateGas();
 
-      expect(gasForResolverKey.lt(30000)).to.be.true;
-      expect(gasForSelectors.lt(50000)).to.be.true;
-      expect(gasForInterfaces.lt(50000)).to.be.true;
+      expect(gasForResolverKey < 30000n).to.be.true;
+      expect(gasForSelectors < 50000n).to.be.true;
+      expect(gasForInterfaces < 50000n).to.be.true;
     });
   });
 

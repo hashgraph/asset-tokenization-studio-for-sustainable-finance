@@ -35,6 +35,6 @@ export class BlockchainAdapter implements BlockchainAdapterPort {
       contractAddress,
       getEthereumProvider(environment),
     ).getOfferingStatus(offeringId)
-    return numericStatusToOfferingStatus(numericStatus)
+    return numericStatusToOfferingStatus(Number(numericStatus))
   }
 }

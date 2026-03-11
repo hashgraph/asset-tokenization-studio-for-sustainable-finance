@@ -530,11 +530,13 @@ const tx = await bondFactory.deployBond(
 await tx.wait();
 
 // Extract Bond address from events
-const event = tx.events?.find((e) => e.event === "BondDeployed");
+const event = tx.events?.find((e) => e.event === "BondSuiteDeployed");
 const bondProxy = event?.args?.bondAddress;
+const treasuryProxy = event?.args?.treasuryAddress;
 
 console.log("Bond deployed:", bondProxy);
-// Note: Treasury and KPI must be deployed separately
+console.log("Treasury deployed:", treasuryProxy);
+// Note: Bond, Treasury, and KPI are deployed together in a single transaction
 ```
 
 **Each instance is independent:**

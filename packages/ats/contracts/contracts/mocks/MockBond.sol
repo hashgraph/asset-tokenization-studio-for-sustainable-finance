@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
+// solhint-disable-next-line max-line-length
 import { IResolverProxy } from "@hashgraph/asset-tokenization-contracts/contracts/interfaces/resolver/resolverProxy/IResolverProxy.sol";
 
 contract MockBond is AccessControl {
@@ -12,11 +13,11 @@ contract MockBond is AccessControl {
         name = _name;
         symbol = _symbol;
 
-        for (uint256 i = 0; i < rbacs.length; i++) {
+        for (uint256 i = 0; i < rbacs.length; ++i) {
             bytes32 role = rbacs[i].role;
             address[] memory members = rbacs[i].members;
 
-            for (uint256 j = 0; j < members.length; j++) {
+            for (uint256 j = 0; j < members.length; ++j) {
                 _grantRole(role, members[j]);
             }
         }

@@ -7,8 +7,6 @@ import {
   success,
   section,
   error as logError,
-  configureLogger,
-  LogLevel,
   atsRegistry,
   getDeploymentConfig,
   isInstantMiningNetwork,
@@ -69,12 +67,7 @@ export async function deployTreasuryWithExistingInfra(
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployTreasuryOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
-
-  // Configure logger based on verbose flag
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   // Get network-specific deployment configuration
   const networkConfig = getDeploymentConfig(network);

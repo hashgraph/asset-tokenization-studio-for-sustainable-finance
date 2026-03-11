@@ -19,16 +19,16 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { promises as fs } from "fs";
 import { upgradeFactorySuiteConfiguration } from "@scripts";
 import { deployFactorySuiteInfrastructureFixture } from "@test";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
-import { deployResolverProxy, configureLogger, LogLevel } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { deployResolverProxy, getNetworkDeploymentDir } from "@hashgraph/asset-tokenization-contracts/scripts";
 import { FACTORY_SUITE_CONFIG_ID } from "@scripts/domain";
+import { join } from "path";
 
 describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
   /**
    * Deploy initial FactorySuite infrastructure (standard mode).
    */
   async function setupInitialDeploymentStandard() {
-    configureLogger({ level: LogLevel.SILENT });
     const fixture = await deployFactorySuiteInfrastructureFixture(false);
 
     return {
@@ -46,7 +46,6 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
    * Deploy initial FactorySuite infrastructure (TimeTravel mode).
    */
   async function setupInitialDeploymentTimeTravel() {
-    configureLogger({ level: LogLevel.SILENT });
     const fixture = await deployFactorySuiteInfrastructureFixture(true);
 
     return {
@@ -64,16 +63,16 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
    * Query configuration version from BLR.
    */
   async function getConfigVersion(blrAddress: string, configId: string, signer: Signer): Promise<number> {
-    const blr = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blr = BusinessLogicResolver__factory.connect(blrAddress, signer);
     const version = await blr.getLatestVersionByConfiguration(configId);
-    return version.toNumber();
+    return typeof version === "bigint" ? Number(version) : version;
   }
 
   /**
    * Query facet address from BLR by resolver key.
    */
   async function getFacetAddress(blrAddress: string, resolverKey: string, signer: Signer): Promise<string> {
-    const blr = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blr = BusinessLogicResolver__factory.connect(blrAddress, signer);
     return await blr.resolveLatestBusinessLogic(resolverKey);
   }
 
@@ -486,18 +485,24 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
   });
 
   describe("Output File Saving", () => {
+    const hardhatDeployDir = getNetworkDeploymentDir("hardhat");
+
     afterEach(async () => {
       // Clean up deployment files after each test
       try {
-        const files = await fs.readdir("deployments/hardhat").catch(() => []);
+        const files = await fs.readdir(hardhatDeployDir).catch(() => []);
         for (const file of files) {
           if (file.includes("factorysuite-upgrade")) {
-            await fs.unlink(`deployments/hardhat/${file}`);
+            await fs.unlink(join(hardhatDeployDir, file));
           }
         }
       } catch (_error) {
         // Ignore cleanup errors - file operations may fail if directories do not exist
       }
+    });
+
+    after(async () => {
+      await fs.rm(hardhatDeployDir, { recursive: true, force: true });
     });
 
     it("should not save output by default (saveOutput=false)", async () => {
@@ -512,7 +517,7 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
       expect(result.summary.success).to.be.true;
 
       // Check no file created
-      const files = await fs.readdir("deployments/hardhat").catch(() => []);
+      const files = await fs.readdir(hardhatDeployDir).catch(() => []);
       const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
       expect(upgradeFiles).to.have.lengthOf(0);
     });
@@ -529,12 +534,12 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
       expect(result.summary.success).to.be.true;
 
       // Check file exists (need to find it by timestamp match)
-      const files = await fs.readdir("deployments/hardhat");
+      const files = await fs.readdir(hardhatDeployDir);
       const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
       expect(upgradeFiles).to.have.lengthOf(1);
 
       // Verify JSON structure
-      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+      const filePath = join(hardhatDeployDir, upgradeFiles[0]);
       const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
       expect(savedData.network).to.equal("hardhat");
       expect(savedData.summary.success).to.be.true;
@@ -578,9 +583,9 @@ describe("upgradeFactorySuiteConfiguration Integration Tests", () => {
       expect(result.summary.configurationsCreated).to.be.greaterThan(0);
 
       // Find saved file
-      const files = await fs.readdir("deployments/hardhat");
+      const files = await fs.readdir(hardhatDeployDir);
       const upgradeFiles = files.filter((f) => f.includes("factorysuite-upgrade"));
-      const filePath = `deployments/hardhat/${upgradeFiles[0]}`;
+      const filePath = join(hardhatDeployDir, upgradeFiles[0]);
 
       const savedData = JSON.parse(await fs.readFile(filePath, "utf-8"));
 

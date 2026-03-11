@@ -51,7 +51,6 @@ describe("GetBondHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: "0.0.6823801",
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6823801",
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -73,7 +72,6 @@ describe("GetBondHttpAdapter API Integration", () => {
         id: bond.id,
         bondContractId: bond.contractId,
         treasuryId: bond.treasuryId,
-        kpiId: bond.kpiId,
         name: bond.name,
         symbol: bond.symbol,
         decimals: bond.decimals,

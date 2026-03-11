@@ -78,7 +78,7 @@ function filterESLintFiles(files) {
 }
 
 /**
- * Run ESLint on files - single process with caching for optimal performance
+ * Run ESLint on files in batches to reduce memory usage
  */
 function runESLint(files, fix = false) {
   if (files.length === 0) {
@@ -87,29 +87,49 @@ function runESLint(files, fix = false) {
   }
 
   const fixFlag = fix ? "--fix" : "";
-  const fileList = files.join(" ");
+  const BATCH_SIZE = 3; // Process 3 files at a time to minimize memory usage
 
-  console.log(`${fix ? "Linting and fixing" : "Linting"} ${files.length} changed file(s)...`);
+  console.log(
+    `${fix ? "Linting and fixing" : "Linting"} ${files.length} changed file(s) in batches of ${BATCH_SIZE}...`,
+  );
   console.log(`Base branch: ${getBaseBranch()}`);
   console.log("");
 
-  try {
-    execSync(`npx eslint --cache ${fixFlag} ${fileList}`, {
-      stdio: "inherit",
-    });
+  let hasErrors = false;
 
-    if (fix) {
-      console.log("\n✅ All changed files have been linted and auto-fixed where possible");
-    } else {
-      console.log("\n✅ All changed files pass ESLint checks");
+  // Process files in batches
+  for (let i = 0; i < files.length; i += BATCH_SIZE) {
+    const batch = files.slice(i, i + BATCH_SIZE);
+    const fileList = batch.join(" ");
+    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(files.length / BATCH_SIZE);
+
+    console.log(`[Batch ${batchNum}/${totalBatches}] Processing ${batch.length} file(s)...`);
+
+    try {
+      execSync(`npx eslint ${fixFlag} ${fileList}`, {
+        stdio: "inherit",
+      });
+    } catch (error) {
+      hasErrors = true;
     }
-  } catch (error) {
+  }
+
+  console.log("");
+
+  if (hasErrors) {
     if (fix) {
-      console.error("\n❌ Some lint errors could not be auto-fixed. Please review and fix manually.");
+      console.error("❌ Some lint errors could not be auto-fixed. Please review and fix manually.");
     } else {
-      console.error("\n❌ ESLint errors detected. Run: npm run lint:changed:fix");
+      console.error("❌ ESLint errors detected. Run: npm run lint:changed:fix");
     }
     process.exit(1);
+  }
+
+  if (fix) {
+    console.log("✅ All changed files have been linted and auto-fixed where possible");
+  } else {
+    console.log("✅ All changed files pass ESLint checks");
   }
 }
 

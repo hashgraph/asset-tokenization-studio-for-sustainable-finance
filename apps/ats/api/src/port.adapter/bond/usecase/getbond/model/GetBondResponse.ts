@@ -14,9 +14,6 @@ export class GetBondResponse {
   @ApiProperty({ description: "Treasury ID associated with the bond", example: "0.0.6823521" })
   readonly treasuryId: string
 
-  @ApiProperty({ description: "KPI ID associated with the bond", example: "0.0.6823930" })
-  readonly kpiId: string
-
   @ApiProperty({ description: "Name of the bond", example: "Green Bond 2024" })
   readonly name: string
 
@@ -56,7 +53,6 @@ export class GetBondResponse {
       id: queryResponse.id,
       bondContractId: queryResponse.contractId,
       treasuryId: queryResponse.treasuryId,
-      kpiId: queryResponse.kpiId,
       name: queryResponse.name,
       symbol: queryResponse.symbol,
       decimals: queryResponse.decimals,

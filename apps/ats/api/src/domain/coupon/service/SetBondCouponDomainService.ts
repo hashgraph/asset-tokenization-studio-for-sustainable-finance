@@ -31,9 +31,12 @@ export class SetBondCouponDomainService {
       operator: request.operator,
       recordDate: request.recordDate,
       executionDate: request.executionDate,
+      startDate: request.startDate,
+      endDate: request.endDate,
+      fixingDate: request.fixingDate,
       rate: request.rate,
       rateDecimals: request.rateDecimals,
-      period: request.period,
+      rateStatus: request.rateStatus,
     })
 
     return await this.bondCouponRepository.save(coupon)

@@ -42,20 +42,14 @@ jest.mock("ethers", () => {
   class MockContractFactory {}
   class MockContract {}
   return {
-    ethers: {
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          sendTransaction: jest.fn().mockResolvedValue({
-            wait: jest.fn().mockResolvedValue({
-              transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
-              status: 1,
-            }),
-          }),
-        })),
-      },
-      ContractFactory: MockContractFactory,
-      Contract: MockContract,
-    },
+    JsonRpcProvider: jest.fn().mockImplementation(() => ({
+      broadcastTransaction: jest.fn().mockResolvedValue({
+        wait: jest.fn().mockResolvedValue({
+          hash: "0x1234567890abcdef1234567890abcdef12345678",
+          status: 1,
+        }),
+      }),
+    })),
     ContractFactory: MockContractFactory,
     Contract: MockContract,
   }
@@ -169,17 +163,17 @@ describe("BlockchainTransactionSenderAdapter", () => {
     })
 
     it("should throw BlockchainError for Ethereum reverted transactions", async () => {
-      const { ethers } = jest.requireMock("ethers")
+      const { JsonRpcProvider } = jest.requireMock("ethers")
       const mockProvider = {
-        sendTransaction: jest.fn().mockResolvedValue({
+        broadcastTransaction: jest.fn().mockResolvedValue({
           wait: jest.fn().mockResolvedValue({
-            transactionHash: "0x1234567890abcdef1234567890abcdef12345678",
+            hash: "0x1234567890abcdef1234567890abcdef12345678",
             status: 0, // Failed
           }),
         }),
       }
 
-      ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
+      JsonRpcProvider.mockImplementationOnce(() => mockProvider)
 
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"
@@ -196,16 +190,16 @@ describe("BlockchainTransactionSenderAdapter", () => {
     })
 
     it("should throw BlockchainError for Ethereum execution errors", async () => {
-      const { ethers } = jest.requireMock("ethers")
+      const { JsonRpcProvider } = jest.requireMock("ethers")
       const mockError = {
         code: "INSUFFICIENT_FUNDS",
       }
 
       const mockProvider = {
-        sendTransaction: jest.fn().mockRejectedValue(mockError),
+        broadcastTransaction: jest.fn().mockRejectedValue(mockError),
       }
 
-      ethers.providers.JsonRpcProvider.mockImplementationOnce(() => mockProvider)
+      JsonRpcProvider.mockImplementationOnce(() => mockProvider)
 
       const signedTransaction = new SignedTransactionRequest()
       signedTransaction.payload = "0xabcdef1234567890"

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { Environment } from "../Environment"
-import { Interface } from "ethers/lib/utils"
+import { Interface } from "ethers"
 
 export type TransactionFormat = "hedera" | "ethereum"
 

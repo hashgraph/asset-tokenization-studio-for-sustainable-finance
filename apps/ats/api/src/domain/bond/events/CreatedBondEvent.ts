@@ -5,7 +5,6 @@ export class CreatedBondEvent extends Event {
   constructor(
     public readonly contractId: string,
     public readonly treasuryId: string,
-    public readonly kpiId: string,
     public readonly name: string,
     public readonly symbol: string,
     public readonly isin: string,

@@ -32,6 +32,7 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
     modifier validTreasuryData(TreasuryData calldata treasuryData) {
         if (address(treasuryData.resolver) == address(0)) revert InvalidTreasuryData();
         if (treasuryData.paymentToken == address(0)) revert InvalidTreasuryData();
+        if (treasuryData.rbacs.length == 0) revert InvalidTreasuryData();
 
         // Validate all environmental asset addresses are non-zero (empty array is allowed)
         for (uint256 i = 0; i < treasuryData.environmentalAssets.length; ++i) {
@@ -41,20 +42,25 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
     }
 
     /**
-     * @notice Validates Kpi data parameters
-     * @param kpiData Kpi configuration to validate
+     * @notice Validates Bond KPI-linked rate data parameters
+     * @param bondKpiData Bond configuration with KPI parameters to validate
      */
-    modifier validKpiData(KpiData calldata kpiData) {
-        if (kpiData.admin == address(0)) revert InvalidKpiData();
+    modifier validBondKpiData(IAtsFactory.BondKpiLinkedRateData calldata bondKpiData) {
+        // Validate interest rate: minRate <= baseRate <= maxRate
+        if (bondKpiData.interestRate.minRate > bondKpiData.interestRate.baseRate) revert InvalidInterestRateValues();
+        if (bondKpiData.interestRate.baseRate > bondKpiData.interestRate.maxRate) revert InvalidInterestRateValues();
+
+        // Validate impact data: floor <= baseline <= cap
+        if (bondKpiData.impactData.maxDeviationFloor > bondKpiData.impactData.baseLine)
+            revert InvalidImpactDataValues();
+        if (bondKpiData.impactData.baseLine > bondKpiData.impactData.maxDeviationCap) revert InvalidImpactDataValues();
         _;
     }
 
     function deployBondSuite(
         address bondFactoryAddress,
-        IAtsFactory.BondData calldata bondData,
-        AtsFactoryRegulationData calldata factoryRegulationData,
-        TreasuryData calldata treasuryData,
-        KpiData calldata kpiData
+        IAtsFactory.BondKpiLinkedRateData calldata bondKpiData,
+        TreasuryData calldata treasuryData
     )
         external
         nonReentrant
@@ -62,24 +68,13 @@ abstract contract FactorySuite is FactorySuiteStorageWrapper, IFactorySuite, Ree
         onlyRole(DEPLOYER_ROLE)
         validContractAddress(bondFactoryAddress)
         validTreasuryData(treasuryData)
-        validKpiData(kpiData)
-        returns (address bondAddress, address treasuryAddress, address kpiAddress)
+        validBondKpiData(bondKpiData)
+        returns (address bondAddress, address treasuryAddress)
     {
-        kpiAddress = _deployKpiContract(kpiData);
-
-        bondAddress = _deployBondContract(bondFactoryAddress, bondData, factoryRegulationData, kpiAddress);
+        bondAddress = _deployBondContract(bondFactoryAddress, bondKpiData);
 
         treasuryAddress = _deployTreasuryContract(treasuryData, bondAddress);
 
-        emit BondSuiteDeployed(
-            _msgSender(),
-            bondAddress,
-            treasuryAddress,
-            kpiAddress,
-            bondData,
-            factoryRegulationData,
-            treasuryData,
-            kpiData
-        );
+        emit BondSuiteDeployed(_msgSender(), bondAddress, treasuryAddress, bondKpiData, treasuryData);
     }
 }

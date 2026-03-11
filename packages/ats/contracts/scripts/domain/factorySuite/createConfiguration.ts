@@ -12,7 +12,6 @@
  * @module domain/factorySuite/createConfiguration
  */
 
-import { Contract } from "ethers";
 import {
   createBatchConfiguration,
   ConfigurationData,
@@ -20,6 +19,7 @@ import {
   OperationResult,
   DEFAULT_BATCH_SIZE,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+import { BusinessLogicResolver } from "@hashgraph/asset-tokenization-contracts";
 import { FACTORY_SUITE_CONFIG_ID, getFacetDefinitionFromRegistry } from "@scripts/domain";
 
 /** FactorySuite facets: 3 ATS standard + 1 custom FactorySuiteFacet */
@@ -30,7 +30,7 @@ const FACTORY_SUITE_FACETS = ["DiamondFacet", "AccessControlFacet", "PauseFacet"
  * Queries facet definitions from factorySuiteRegistry and atsRegistry.
  */
 export async function createFactorySuiteConfiguration(
-  blrContract: Contract,
+  blrContract: BusinessLogicResolver,
   facetAddresses: Record<string, string>,
   batchSize: number = DEFAULT_BATCH_SIZE,
   confirmations: number = 0,

@@ -29,6 +29,9 @@ describe("UnpausePrimaryMarketFactoryNestJSEventAdapter Integration", () => {
     eventBus = app.get("EventBus")
     factoryRepository = app.get(getRepositoryToken(PrimaryMarketFactoryPersistence))
 
+    // Clean up any existing data from previous test runs
+    await factoryRepository.delete({ contractId: CONTRACT_ID })
+
     await factoryRepository.save({
       contractId: CONTRACT_ID,
       isPaused: true,

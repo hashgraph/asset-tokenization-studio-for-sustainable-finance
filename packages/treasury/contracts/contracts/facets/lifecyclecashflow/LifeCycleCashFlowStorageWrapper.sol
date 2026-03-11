@@ -6,14 +6,10 @@ pragma solidity ^0.8.0;
 import { ILifeCycleCashFlow } from "../../interfaces/ILifeCycleCashFlow.sol";
 import { PortfolioStorageWrapper } from "../portfolio/PortfolioStorageWrapper.sol";
 import { LIFECYCLE_CASH_FLOW_STORAGE_POSITION } from "../../constants/storagePositions.sol";
-import { PortfolioStorageWrapper } from "../portfolio/PortfolioStorageWrapper.sol";
-import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/common/Common.sol";
+import { Common as AtsCommon } from "@hashgraph/asset-tokenization-contracts/contracts/layer_0/common/Common.sol";
 import { IBond } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/bond/IBond.sol";
 import { TRexIBondRead as IBondRead } from "@hashgraph/asset-tokenization-contracts/contracts/factory/ERC3643/interfaces/IBondRead.sol";
-import { IERC1410 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410.sol";
-import { IERC1410Read } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/interfaces/ERC1400/IERC1410Read.sol";
-import { ERC20 } from "@hashgraph/asset-tokenization-contracts/contracts/layer_1/ERC1400/ERC20/ERC20.sol";
-import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_3/interfaces/ISecurity.sol";
+import { ISecurity } from "@hashgraph/asset-tokenization-contracts/contracts/layer_2/interfaces/security/ISecurity.sol";
 import { HederaResponseCodes } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/HederaTokenService.sol";
 import { IHederaTokenService } from "@hashgraph/smart-contracts/contracts/system-contracts/hedera-token-service/IHederaTokenService.sol";
 // solhint-enable max-line-length
@@ -27,9 +23,9 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     struct LifeCycleCashFlowStorage {
+        bool initialized;
         address asset;
         mapping(uint256 => mapping(address => bool)) paidAddressesByDistribution;
-        bool initialized;
     }
 
     struct BatchInfo {
@@ -152,6 +148,27 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
+     * @dev Set the asset
+     *
+     * @param asset The asset to be set
+     */
+    function _getAsset() internal view returns (address) {
+        return _lifeCycleCashFlowStorage().asset;
+    }
+
+    /*
+     * @dev Checks if a distribution was already paid to a holder
+     *
+     * @param distributionId The distribution identifier
+     * @param holder The holder to the if the distribution was already paid
+     *
+     * @return True if the distribution was already paid to the holder, false otherwise
+     */
+    function _isDistributionHolderPaid(uint256 distributionId, address holder) internal view returns (bool) {
+        return _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder];
+    }
+
+    /*
      * @dev Check if the uint256 value can be safely converted to int64
      *
      * @param value The value to be checked
@@ -159,6 +176,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      * @return True if the value can be safely converted to int64, false otherwise
      */
     function _valueFitsInInt64(uint256 value) internal pure returns (bool) {
+        // solhint-disable-next-line gas-strict-inequalities
         return value <= uint256(uint64(type(int64).max));
     }
 
@@ -171,7 +189,25 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _valueFitsInUint8(int32 value) internal pure returns (bool) {
         if (value < 0) return false;
+        // solhint-disable-next-line gas-strict-inequalities
         return uint32(value) <= type(uint8).max;
+    }
+
+    /*
+     * @dev Get the LifeCycleCashFlow storage
+     *
+     * @returns The LifeCycleCashFlow storage
+     */
+    function _lifeCycleCashFlowStorage()
+        internal
+        pure
+        returns (LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage)
+    {
+        bytes32 position = LIFECYCLE_CASH_FLOW_STORAGE_POSITION;
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            lifeCycleCashFlowStorage.slot := position
+        }
     }
 
     /*
@@ -266,37 +302,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         return results;
     }
 
-    /*
-     * @dev Check if a holder address is valid
-     *
-     * @param holder The holder address to be checked
-     *
-     * @return True if the holder address is valid, false otherwise
-     */
-    function _isHolderValid(address holder) private pure returns (bool) {
-        return holder != address(0);
-    }
-
-    /*
-     * @dev Get the distribution amount to pay for a certain holder
-     *
-     * @param asset The asset its distribution amount is requested
-     * @param distributionId The distribution identifier
-     * @param holder The holder address to be paid
-     * @param paymentTokenDecimals The payment token decimals
-     *
-     * @return The amount to be paid
-     */
-    function _getDistributionAmount(
-        address asset,
-        uint256 distributionId,
-        address holder,
-        uint8 paymentTokenDecimals
-    ) private view returns (uint256 amount) {
-        IBondRead.CouponAmountFor memory couponAmountFor = IBondRead(asset).getCouponAmountFor(distributionId, holder);
-        amount = (couponAmountFor.numerator * 10 ** paymentTokenDecimals) / couponAmountFor.denominator;
-    }
-
     /**
      * @dev Get the payment token decimals
      *
@@ -342,13 +347,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             paymentToken
         );
 
-        _populateSourceArraysFromDataArrays(
-            succeededPayment,
-            batchInfo.holders,
-            batchInfo.amounts,
-            results,
-            resultIndex
-        );
+        _populateSourceArraysFromDataArrays(succeededPayment, batchInfo.holders, results, resultIndex);
     }
 
     /*
@@ -441,24 +440,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Get the redemption amount to pay for a certain holder
-     *
-     * @param bond The bond its redemption amount is requested
-     * @param holder The holder address to be paid
-     * @param uint8 paymentTokenDecimals  The payment token decimals
-     *
-     * @return The amount to be paid
-     */
-    function _getRedemptionAmount(
-        address bond,
-        address holder,
-        uint8 paymentTokenDecimals
-    ) private view returns (uint256 amount) {
-        IBondRead.PrincipalFor memory principalFor = IBondRead(bond).getPrincipalFor(holder);
-        amount = (principalFor.numerator * 10 ** paymentTokenDecimals) / principalFor.denominator;
-    }
-
-    /*
      * @dev Process a batch cash out payment to a list of holders
      *
      * @param batchInfo The information about the batch to be paid
@@ -482,13 +463,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
             paymentToken
         );
 
-        _populateSourceArraysFromDataArrays(
-            succeededPayment,
-            batchInfo.holders,
-            batchInfo.amounts,
-            results,
-            resultIndex
-        );
+        _populateSourceArraysFromDataArrays(succeededPayment, batchInfo.holders, results, resultIndex);
     }
 
     /*
@@ -505,15 +480,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
                 ++index;
             }
         }
-    }
-
-    /*
-     * @dev Set the asset
-     *
-     * @param asset The asset to be set
-     */
-    function _getAsset() internal view returns (address) {
-        return _lifeCycleCashFlowStorage().asset;
     }
 
     /*
@@ -576,35 +542,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
-     * @dev Checks if a distribution was already paid to a holder
-     *
-     * @param distributionId The distribution identifier
-     * @param holder The holder to the if the distribution was already paid
-     *
-     * @return True if the distribution was already paid to the holder, false otherwise
-     */
-    function _isDistributionHolderPaid(uint256 distributionId, address holder) internal view returns (bool) {
-        return _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder];
-    }
-
-    /*
-     * @dev Get the LifeCycleCashFlow storage
-     *
-     * @returns The LifeCycleCashFlow storage
-     */
-    function _lifeCycleCashFlowStorage()
-        internal
-        pure
-        returns (LifeCycleCashFlowStorage storage lifeCycleCashFlowStorage)
-    {
-        bytes32 position = LIFECYCLE_CASH_FLOW_STORAGE_POSITION;
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            lifeCycleCashFlowStorage.slot := position
-        }
-    }
-
-    /*
      * @dev Sets a payment to an array of holders for a distribution
      *
      * @param distributionId The distribution paid to a holder
@@ -628,6 +565,24 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _setDistributionHolderPaid(uint256 distributionId, address holder) private {
         _lifeCycleCashFlowStorage().paidAddressesByDistribution[distributionId][holder] = true;
+    }
+
+    /*
+     * @dev Get the redemption amount to pay for a certain holder
+     *
+     * @param bond The bond its redemption amount is requested
+     * @param holder The holder address to be paid
+     * @param uint8 paymentTokenDecimals  The payment token decimals
+     *
+     * @return The amount to be paid
+     */
+    function _getRedemptionAmount(
+        address bond,
+        address holder,
+        uint8 paymentTokenDecimals
+    ) private view returns (uint256 amount) {
+        IBondRead.PrincipalFor memory principalFor = IBondRead(bond).getPrincipalFor(holder);
+        amount = (principalFor.numerator * 10 ** paymentTokenDecimals) / principalFor.denominator;
     }
 
     /*
@@ -674,6 +629,26 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
         } catch {
             return holders;
         }
+    }
+
+    /*
+     * @dev Get the distribution amount to pay for a certain holder
+     *
+     * @param asset The asset its distribution amount is requested
+     * @param distributionId The distribution identifier
+     * @param holder The holder address to be paid
+     * @param paymentTokenDecimals The payment token decimals
+     *
+     * @return The amount to be paid
+     */
+    function _getDistributionAmount(
+        address asset,
+        uint256 distributionId,
+        address holder,
+        uint8 paymentTokenDecimals
+    ) private view returns (uint256 amount) {
+        IBondRead.CouponAmountFor memory couponAmountFor = IBondRead(asset).getCouponAmountFor(distributionId, holder);
+        amount = (couponAmountFor.numerator * 10 ** paymentTokenDecimals) / couponAmountFor.denominator;
     }
 
     /*
@@ -732,6 +707,17 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     }
 
     /*
+     * @dev Check if a holder address is valid
+     *
+     * @param holder The holder address to be checked
+     *
+     * @return True if the holder address is valid, false otherwise
+     */
+    function _isHolderValid(address holder) private pure returns (bool) {
+        return holder != address(0);
+    }
+
+    /*
      * @dev Populates an array with information of holders addresses and paid amounts arrays
      *
      * @param succeededPayment True if the payment succeeded, false otherwise
@@ -743,7 +729,6 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
     function _populateSourceArraysFromDataArrays(
         bool succeededPayment,
         address[] memory holdersArray,
-        int64[] memory amountsArray,
         ILifeCycleCashFlow.PaymentResult[] memory results,
         uint256 resultIndex
     ) private pure {
@@ -782,7 +767,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _createTransferAccounts(address[] memory arr, address val) private pure returns (address[] memory newArr) {
         newArr = new address[](arr.length + 1);
-        for (uint256 i; i < arr.length; i++) newArr[i] = arr[i];
+        for (uint256 i; i < arr.length; ++i) newArr[i] = arr[i];
         newArr[arr.length] = val;
     }
 
@@ -796,7 +781,7 @@ abstract contract LifeCycleCashFlowStorageWrapper is AtsCommon, PortfolioStorage
      */
     function _createTransferAmounts(int64[] memory arr, int64 val) private pure returns (int64[] memory newArr) {
         newArr = new int64[](arr.length + 1);
-        for (uint256 i; i < arr.length; i++) newArr[i] = arr[i];
+        for (uint256 i; i < arr.length; ++i) newArr[i] = arr[i];
         newArr[arr.length] = val;
     }
 

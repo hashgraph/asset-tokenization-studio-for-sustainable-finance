@@ -9,9 +9,6 @@ export class BondPersistence extends BaseEntityPersistence {
   @Column({ type: "varchar", length: 255, unique: true })
   treasuryId: string
 
-  @Column({ type: "varchar", length: 255, unique: true })
-  kpiId: string
-
   @Column({ type: "varchar", length: 255 })
   name: string
 

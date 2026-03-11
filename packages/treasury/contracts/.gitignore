@@ -1,5 +1,9 @@
-node_modules
-.env
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
 
 # Hardhat files
 /cache
@@ -9,49 +13,25 @@ node_modules
 /typechain
 /typechain-types
 
-# solidity-coverage files
-/coverage
-/coverage.json
-
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
-
-node_modules
+# Environment variables
 .env
-
-# Hardhat files
-/cache
-/artifacts
-
-# TypeChain files
-/typechain
-/typechain-types
+.env.local
+.env.*.local
+!.env.example
 
 # solidity-coverage files
 /coverage
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
+# Hardhat Ignition
 ignition/deployments/chain-31337
 
-node_modules
-.env
+# Deployment artifacts - track mainnet/testnet, ignore local/test
+deployments/local/
+deployments/hedera-local/
 
-# Hardhat files
-/cache
-/artifacts
+# Checkpoint files (auto-managed state)
+deployments/.checkpoints/
 
-# TypeChain files
-/typechain
-/typechain-types
-
-# solidity-coverage files
-/coverage
-/coverage.json
-
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
-
-build
-
+# Gas report
 gas-report.txt

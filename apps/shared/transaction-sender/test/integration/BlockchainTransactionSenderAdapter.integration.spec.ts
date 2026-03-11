@@ -40,33 +40,27 @@ jest.mock("ethers", () => {
   class MockContractFactory {}
   class MockContract {}
   return {
-    ethers: {
-      providers: {
-        JsonRpcProvider: jest.fn().mockImplementation(() => ({
-          sendTransaction: jest.fn().mockImplementation((rawTx) => {
-            if (!rawTx || !rawTx.startsWith("0x")) {
-              const error: any = new Error("Invalid transaction format")
-              error.code = "INVALID_ARGUMENT"
-              throw error
-            }
-            const generateEthHash = () => {
-              return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
-            }
+    JsonRpcProvider: jest.fn().mockImplementation(() => ({
+      broadcastTransaction: jest.fn().mockImplementation((rawTx) => {
+        if (!rawTx || !rawTx.startsWith("0x")) {
+          const error: any = new Error("Invalid transaction format")
+          error.code = "INVALID_ARGUMENT"
+          throw error
+        }
+        const generateEthHash = () => {
+          return "0x" + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join("")
+        }
 
-            return Promise.resolve({
-              hash: generateEthHash(),
-              wait: jest.fn().mockResolvedValue({
-                transactionHash: generateEthHash(),
-                status: 1,
-                blockNumber: Math.floor(Math.random() * 1000000),
-              }),
-            })
+        return Promise.resolve({
+          hash: generateEthHash(),
+          wait: jest.fn().mockResolvedValue({
+            hash: generateEthHash(),
+            status: 1,
+            blockNumber: Math.floor(Math.random() * 1000000),
           }),
-        })),
-      },
-      ContractFactory: MockContractFactory,
-      Contract: MockContract,
-    },
+        })
+      }),
+    })),
     ContractFactory: MockContractFactory,
     Contract: MockContract,
   }

@@ -38,7 +38,6 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
     await bondRepository.save({
       contractId: CONTRACT_ID,
       treasuryId: "0.0.6823801",
-      kpiId: "0.0.6974684",
       name: "Green Bond",
       symbol: "GBND",
       decimals: 18,
@@ -67,9 +66,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
+        "1672531200",
+        "1704067200",
+        "1703894400",
         "500",
         "2",
-        "2592000",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -86,9 +88,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       expect(savedCoupon!.operator).toBe(OPERATOR)
       expect(savedCoupon!.recordDate).toEqual(new Date(1704067200 * 1000))
       expect(savedCoupon!.executionDate).toEqual(new Date(1704153600 * 1000))
+      expect(savedCoupon!.startDate).toEqual(new Date(1672531200 * 1000))
+      expect(savedCoupon!.endDate).toEqual(new Date(1704067200 * 1000))
+      expect(savedCoupon!.fixingDate).toEqual(new Date(1703894400 * 1000))
       expect(savedCoupon!.rate).toBe("500")
       expect(savedCoupon!.rateDecimals).toBe("2")
-      expect(savedCoupon!.period).toBe("2592000")
+      expect(savedCoupon!.rateStatus).toBe("1")
     })
 
     it("should not duplicate coupon when CouponSetDLTEvent is published twice with same couponId", async () => {
@@ -100,9 +105,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
+        "1672531200",
+        "1704067200",
+        "1703894400",
         "500",
         "2",
-        "2592000",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -129,9 +137,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           `170406720${couponId}`,
           `170415360${couponId}`,
+          "1672531200",
+          "1704067200",
+          "1703894400",
           "500",
           "2",
-          "2592000",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -157,7 +168,6 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: contractId2,
         treasuryId: "0.0.6823802",
-        kpiId: "0.0.6974685",
         name: "Green Bond 2",
         symbol: "GBND2",
         decimals: 18,
@@ -181,9 +191,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           "1704067200",
           "1704153600",
+          "1672531200",
+          "1704067200",
+          "1703894400",
           "500",
           "2",
-          "2592000",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -214,9 +227,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
+        "1672531200",
+        "1704067200",
+        "1703894400",
         "500",
         "2",
-        "2592000",
+        "1",
       )
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -229,9 +245,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           operator: OPERATOR,
           recordDate: new Date(1704067200 * 1000),
           executionDate: new Date(1704153600 * 1000),
+          startDate: new Date(1672531200 * 1000),
+          endDate: new Date(1704067200 * 1000),
+          fixingDate: new Date(1703894400 * 1000),
           rate: "500",
           rateDecimals: "2",
-          period: "2592000",
+          rateStatus: "1",
           timestamp: expect.any(Number),
         }),
       )
@@ -248,9 +267,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         OPERATOR,
         "1704067200",
         "1704153600",
+        "1672531200",
+        "1704067200",
+        "1703894400",
         "500",
         "2",
-        "2592000",
+        "1",
       )
 
       await expect(eventBus.publishSync(event, CouponSetDLTEvent.name)).rejects.toThrow(
@@ -270,9 +292,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           "1704067200",
           "1704153600",
+          "1672531200",
+          "1704067200",
+          "1703894400",
           rates[i],
           "2",
-          "2592000",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -300,9 +325,12 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           OPERATOR,
           String(baseRecordDate + i * monthInSeconds),
           String(baseExecutionDate + i * monthInSeconds),
+          "1672531200",
+          "1704067200",
+          "1703894400",
           "500",
           "2",
-          "2592000",
+          "1",
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)

@@ -4,7 +4,6 @@ export class GetBondQueryResponse {
   readonly id: string
   readonly contractId: string
   readonly treasuryId: string
-  readonly kpiId: string
   readonly name: string
   readonly symbol: string
   readonly decimals: number

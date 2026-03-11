@@ -25,9 +25,12 @@ export class SetBondCouponTransactionHttpAdapter implements SetBondCouponTransac
       bondContractId,
       Math.floor(request.recordDate.getTime() / 1000).toString(),
       Math.floor(request.executionDate.getTime() / 1000).toString(),
+      Math.floor(request.startDate.getTime() / 1000).toString(),
+      Math.floor(request.endDate.getTime() / 1000).toString(),
+      Math.floor(request.fixingDate.getTime() / 1000).toString(),
       request.rate,
       request.rateDecimals,
-      request.period,
+      request.rateStatus,
     )
 
     return await this.setCouponTransactionAppService.execute(appServiceRequest)

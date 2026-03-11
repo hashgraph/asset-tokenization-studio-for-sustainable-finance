@@ -44,7 +44,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6974684",
         name: "Test Bond",
         symbol: "TB",
         decimals: 18,
@@ -82,7 +81,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6974684",
         name: "Test Bond",
         symbol: "TB",
         decimals: 18,
@@ -119,7 +117,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6974684",
         name: "Test Bond",
         symbol: "TB",
         decimals: 18,
@@ -160,7 +157,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6974684",
         name: "Test Bond",
         symbol: "TB",
         decimals: 18,
@@ -206,7 +202,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
         await bondRepository.save({
           contractId,
           treasuryId: contractId,
-          kpiId: contractId,
           name: `Test Bond ${contractId}`,
           symbol: "TB",
           decimals: 18,
@@ -251,7 +246,6 @@ describe("AddProceedRecipientNestJSEventAdapter Integration", () => {
       await bondRepository.save({
         contractId: CONTRACT_ID,
         treasuryId: "0.0.6823801",
-        kpiId: "0.0.6974684",
         name: "Test Bond",
         symbol: "TB",
         decimals: 18,

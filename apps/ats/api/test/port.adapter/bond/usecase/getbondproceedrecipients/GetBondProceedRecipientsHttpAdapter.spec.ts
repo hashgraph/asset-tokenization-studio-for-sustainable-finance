@@ -54,7 +54,6 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -84,7 +83,6 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,
@@ -143,7 +141,6 @@ describe("GetBondProceedRecipientsHttpAdapter API Integration", () => {
       const bond = await internalBondRepository.save({
         contractId: `0.0.${timestamp}`,
         treasuryId: `0.0.${timestamp + 1}`,
-        kpiId: `0.0.${timestamp + 2}`,
         name: "Green Bond",
         symbol: "GBND",
         decimals: 18,

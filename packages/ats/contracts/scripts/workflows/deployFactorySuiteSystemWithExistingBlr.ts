@@ -33,12 +33,10 @@ import {
   error as logError,
   getDeploymentConfig,
   isInstantMiningNetwork,
-  configureLogger,
-  LogLevel,
   DEFAULT_BATCH_SIZE,
   fetchHederaContractId,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
-import { IBusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
+import { BusinessLogicResolver__factory } from "@hashgraph/asset-tokenization-contracts";
 import { createFactorySuiteConfiguration, factorySuiteRegistry } from "@scripts/domain";
 import type { DeployFactorySuiteOutput } from "./deployFactorySuiteSystemWithNewBlr";
 
@@ -141,12 +139,7 @@ export async function deployFactorySuiteWithExistingInfra(
   existingInfra: ExistingInfrastructure,
   options: DeployWithExistingInfraOptions = {},
 ): Promise<DeployFactorySuiteOutput> {
-  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath, verbose = false } = options;
-
-  // Configure logger based on verbose flag
-  configureLogger({
-    level: verbose ? LogLevel.DEBUG : LogLevel.INFO,
-  });
+  const { useTimeTravel = false, saveOutput: _saveOutput = false, outputPath: _outputPath } = options;
 
   const startTime = Date.now();
   const deployer = await signer.getAddress();
@@ -250,7 +243,7 @@ export async function deployFactorySuiteWithExistingInfra(
       }
     });
 
-    const blrContract = IBusinessLogicResolver__factory.connect(blrAddress, signer);
+    const blrContract = BusinessLogicResolver__factory.connect(blrAddress, signer);
 
     const newFacetsWithKeys = Object.entries(newFacetAddresses).map(([name, address]) => {
       const factorySuiteFacet = factorySuiteRegistry.getFacetDefinition(name);

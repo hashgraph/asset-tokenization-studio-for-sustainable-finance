@@ -8,12 +8,12 @@
  *
  * To regenerate: npm run generate:registry
  *
- * Import from '../../domain/index.js' instead of this file directly.
+ * Import from '../../../domain/index.js' instead of this file directly.
  *
- * Generated: 2025-12-03T15:36:27.280Z
+ * Generated: 2026-03-09T07:36:50.632Z
  * Facets: 1
  * Infrastructure: 0
- * Mocks: 6
+ * Mocks: 7
  *
  * @module domain/atsRegistry.data
  */
@@ -31,6 +31,7 @@ import {
   MockBusinessLogicResolver__factory,
   MockERC20__factory,
   MockERC721__factory,
+  MockReentrantFactory__factory,
   MockTreasuryFacet__factory,
 } from "@contract-types";
 
@@ -49,24 +50,24 @@ export const FACET_REGISTRY: Record<string, FacetDefinition> = {
     methods: [
       {
         name: "deployBondSuite",
-        signature: "deployBondSuite(address,IAtsFactory.BondData,AtsFactoryRegulationData,TreasuryData,KpiData)",
-        selector: "0xe9822a54",
+        signature:
+          "function deployBondSuite(address bondFactoryAddress, (((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) bondKpiData, (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) treasuryData) returns (address bondAddress, address treasuryAddress)",
+        selector: "0xf817cfcc",
       },
     ],
     events: [
       {
         name: "BondSuiteDeployed",
-        signature:
-          "BondSuiteDeployed(address,address,address,address,IAtsFactory.BondData,AtsFactoryRegulationData,TreasuryData,KpiData)",
-        topic0: "0x9eeb7d43d9ee8ee6b3cd0acfd12b583a09b07eeb1ce05cb802df2d6c234f02e2",
+        signature: "BondSuiteDeployed(address,address,address,IAtsFactory.BondKpiLinkedRateData,TreasuryData)",
+        topic0: "0x9c8cff4064572e26ecf2bbf554bad90f1ad7de98630f8303f398292682494483",
       },
     ],
     errors: [
       { name: "BondDeploymentFailed", signature: "BondDeploymentFailed()", selector: "0xbe94552d" },
       { name: "InvalidContractAddress", signature: "InvalidContractAddress(address)", selector: "0x19bb4029" },
-      { name: "InvalidKpiData", signature: "InvalidKpiData()", selector: "0xa3442b7f" },
+      { name: "InvalidImpactDataValues", signature: "InvalidImpactDataValues()", selector: "0x37c89696" },
+      { name: "InvalidInterestRateValues", signature: "InvalidInterestRateValues()", selector: "0x5bada493" },
       { name: "InvalidTreasuryData", signature: "InvalidTreasuryData()", selector: "0xb153e4d6" },
-      { name: "KpiDeploymentFailed", signature: "KpiDeploymentFailed()", selector: "0x0fb0be11" },
       { name: "TreasuryDeploymentFailed", signature: "TreasuryDeploymentFailed()", selector: "0xc340e5b3" },
     ],
     factory: (signer, useTimeTravel = false) =>
@@ -101,24 +102,7 @@ export const STORAGE_WRAPPER_REGISTRY: Record<string, StorageWrapperDefinition> 
     name: "FactorySuiteStorageWrapper",
     description: "Storage wrapper with deployment and configuration logic for FactorySuite",
     inheritance: ["AtsCommon"],
-    methods: [
-      {
-        name: "_configureTreasuryContract",
-        signature: "_configureTreasuryContract(address,IFactorySuite.TreasuryData,address)",
-        selector: "0xf9a24525",
-      },
-      {
-        name: "_deployBondContract",
-        signature: "_deployBondContract(address,IAtsFactory.BondData,AtsFactoryRegulationData,address)",
-        selector: "0x63a506c4",
-      },
-      { name: "_deployKpiContract", signature: "_deployKpiContract(IFactorySuite.KpiData)", selector: "0x5af90fdb" },
-      {
-        name: "_deployTreasuryContract",
-        signature: "_deployTreasuryContract(IFactorySuite.TreasuryData,address)",
-        selector: "0xb63d9862",
-      },
-    ],
+    methods: [],
   },
 };
 
@@ -140,13 +124,33 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     description: "Mock implementation of ATS Factory for testing purposes",
     methods: [
       {
-        name: "deployBond",
-        signature: "deployBond(IAtsFactory.BondData,AtsFactoryRegulationData)",
-        selector: "0xd977b657",
+        name: "deployBondKpiLinkedRate",
+        signature:
+          "function deployBondKpiLinkedRate((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) bondKpiData) returns (address bondAddress)",
+        selector: "0x06e6effc",
       },
-      { name: "setNextBondAddress", signature: "setNextBondAddress(address)", selector: "0xf8a9043c" },
-      { name: "setShouldReturnZeroAddress", signature: "setShouldReturnZeroAddress(bool)", selector: "0xce40c8da" },
-      { name: "setShouldRevert", signature: "setShouldRevert(bool)", selector: "0x6813d787" },
+      {
+        name: "nextBondAddress",
+        signature: "function nextBondAddress() view returns (address)",
+        selector: "0x618467ab",
+      },
+      {
+        name: "setNextBondAddress",
+        signature: "function setNextBondAddress(address _bondAddress)",
+        selector: "0xf8a9043c",
+      },
+      {
+        name: "setShouldReturnZeroAddress",
+        signature: "function setShouldReturnZeroAddress(bool _shouldReturnZero)",
+        selector: "0xce40c8da",
+      },
+      { name: "setShouldRevert", signature: "function setShouldRevert(bool _shouldRevert)", selector: "0x6813d787" },
+      {
+        name: "shouldReturnZeroAddress",
+        signature: "function shouldReturnZeroAddress() view returns (bool)",
+        selector: "0x1c3f5e9e",
+      },
+      { name: "shouldRevert", signature: "function shouldRevert() view returns (bool)", selector: "0xd3072d82" },
     ],
     events: [
       {
@@ -155,13 +159,51 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
         topic0: "0x64a13e075654865871ffb29405741a6dfe43d9f0b26c347081e7f2d1be70816b",
       },
     ],
-    errors: [{ name: "DeployBondFailed", signature: "DeployBondFailed()", selector: "0x50257673" }],
+    errors: [
+      { name: "DeployBondFailed", signature: "DeployBondFailed()", selector: "0x50257673" },
+      {
+        name: "injection",
+        signature: "injection(address,IAtsFactory.BondData,AtsFactoryRegulationData)",
+        selector: "0xbf3c11c0",
+      },
+    ],
     factory: (signer) => new MockAtsFactory__factory(signer),
   },
 
   MockBond: {
     name: "MockBond",
     inheritance: ["AccessControl"],
+    methods: [
+      {
+        name: "DEFAULT_ADMIN_ROLE",
+        signature: "function DEFAULT_ADMIN_ROLE() view returns (bytes32)",
+        selector: "0xa217fddf",
+      },
+      {
+        name: "getRoleAdmin",
+        signature: "function getRoleAdmin(bytes32 role) view returns (bytes32)",
+        selector: "0x248a9ca3",
+      },
+      { name: "grantRole", signature: "function grantRole(bytes32 role, address account)", selector: "0x2f2ff15d" },
+      {
+        name: "hasRole",
+        signature: "function hasRole(bytes32 role, address account) view returns (bool)",
+        selector: "0x91d14854",
+      },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      {
+        name: "renounceRole",
+        signature: "function renounceRole(bytes32 role, address account)",
+        selector: "0x36568abe",
+      },
+      { name: "revokeRole", signature: "function revokeRole(bytes32 role, address account)", selector: "0xd547741f" },
+      {
+        name: "supportsInterface",
+        signature: "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+        selector: "0x01ffc9a7",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+    ],
     factory: (signer) => new MockBond__factory(signer),
   },
 
@@ -169,8 +211,16 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "MockBusinessLogicResolver",
     description: "Simplified mock implementation of Business Logic Resolver for testing",
     methods: [
-      { name: "getImplementation", signature: "getImplementation(bytes32)", selector: "0x3c2e0828" },
-      { name: "setImplementation", signature: "setImplementation(bytes32,address)", selector: "0x4640e9f2" },
+      {
+        name: "getImplementation",
+        signature: "function getImplementation(bytes32 key) view returns (address)",
+        selector: "0x3c2e0828",
+      },
+      {
+        name: "setImplementation",
+        signature: "function setImplementation(bytes32 key, address implementation)",
+        selector: "0x4640e9f2",
+      },
     ],
     factory: (signer) => new MockBusinessLogicResolver__factory(signer),
   },
@@ -179,7 +229,48 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "MockERC20",
     description: "Mock ERC20 token for testing purposes",
     inheritance: ["ERC20"],
-    methods: [{ name: "mint", signature: "mint(address,uint256)", selector: "0x40c10f19" }],
+    methods: [
+      {
+        name: "allowance",
+        signature: "function allowance(address owner, address spender) view returns (uint256)",
+        selector: "0xdd62ed3e",
+      },
+      {
+        name: "approve",
+        signature: "function approve(address spender, uint256 amount) returns (bool)",
+        selector: "0x095ea7b3",
+      },
+      {
+        name: "balanceOf",
+        signature: "function balanceOf(address account) view returns (uint256)",
+        selector: "0x70a08231",
+      },
+      { name: "decimals", signature: "function decimals() view returns (uint8)", selector: "0x313ce567" },
+      {
+        name: "decreaseAllowance",
+        signature: "function decreaseAllowance(address spender, uint256 subtractedValue) returns (bool)",
+        selector: "0xa457c2d7",
+      },
+      {
+        name: "increaseAllowance",
+        signature: "function increaseAllowance(address spender, uint256 addedValue) returns (bool)",
+        selector: "0x39509351",
+      },
+      { name: "mint", signature: "function mint(address to, uint256 amount)", selector: "0x40c10f19" },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      { name: "totalSupply", signature: "function totalSupply() view returns (uint256)", selector: "0x18160ddd" },
+      {
+        name: "transfer",
+        signature: "function transfer(address to, uint256 amount) returns (bool)",
+        selector: "0xa9059cbb",
+      },
+      {
+        name: "transferFrom",
+        signature: "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+        selector: "0x23b872dd",
+      },
+    ],
     factory: (signer) => new MockERC20__factory(signer),
   },
 
@@ -187,8 +278,108 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     name: "MockERC721",
     description: "Mock ERC721 token for environmental assets testing",
     inheritance: ["ERC721"],
-    methods: [{ name: "mint", signature: "mint(address)", selector: "0x6a627842" }],
+    methods: [
+      { name: "approve", signature: "function approve(address to, uint256 tokenId)", selector: "0x095ea7b3" },
+      {
+        name: "balanceOf",
+        signature: "function balanceOf(address owner) view returns (uint256)",
+        selector: "0x70a08231",
+      },
+      {
+        name: "getApproved",
+        signature: "function getApproved(uint256 tokenId) view returns (address)",
+        selector: "0x081812fc",
+      },
+      {
+        name: "isApprovedForAll",
+        signature: "function isApprovedForAll(address owner, address operator) view returns (bool)",
+        selector: "0xe985e9c5",
+      },
+      { name: "mint", signature: "function mint(address to, uint256 tokenId)", selector: "0x40c10f19" },
+      { name: "mint", signature: "function mint(address to) returns (uint256 tokenId)", selector: "0x6a627842" },
+      { name: "name", signature: "function name() view returns (string)", selector: "0x06fdde03" },
+      {
+        name: "ownerOf",
+        signature: "function ownerOf(uint256 tokenId) view returns (address)",
+        selector: "0x6352211e",
+      },
+      {
+        name: "safeTransferFrom",
+        signature: "function safeTransferFrom(address from, address to, uint256 tokenId)",
+        selector: "0x42842e0e",
+      },
+      {
+        name: "safeTransferFrom",
+        signature: "function safeTransferFrom(address from, address to, uint256 tokenId, bytes data)",
+        selector: "0xb88d4fde",
+      },
+      {
+        name: "setApprovalForAll",
+        signature: "function setApprovalForAll(address operator, bool approved)",
+        selector: "0xa22cb465",
+      },
+      {
+        name: "supportsInterface",
+        signature: "function supportsInterface(bytes4 interfaceId) view returns (bool)",
+        selector: "0x01ffc9a7",
+      },
+      { name: "symbol", signature: "function symbol() view returns (string)", selector: "0x95d89b41" },
+      {
+        name: "tokenURI",
+        signature: "function tokenURI(uint256 tokenId) view returns (string)",
+        selector: "0xc87b56dd",
+      },
+      {
+        name: "transferFrom",
+        signature: "function transferFrom(address from, address to, uint256 tokenId)",
+        selector: "0x23b872dd",
+      },
+    ],
     factory: (signer) => new MockERC721__factory(signer),
+  },
+
+  MockReentrantFactory: {
+    name: "MockReentrantFactory",
+    description: "Mock factory that attempts to perform a reentrancy attack on FactorySuite.deployBondSuite",
+    methods: [
+      {
+        name: "deployBondKpiLinkedRate",
+        signature:
+          "function deployBondKpiLinkedRate((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)) returns (address bondAddress)",
+        selector: "0x06e6effc",
+      },
+      {
+        name: "enableReentrancy",
+        signature:
+          "function enableReentrancy((((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData) _bondKpiData, (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, address paymentToken, address[] environmentalAssets) _treasuryData)",
+        selector: "0xad16079d",
+      },
+      { name: "factorySuite", signature: "function factorySuite() view returns (address)", selector: "0x525fb99d" },
+      {
+        name: "reentrancyAttempted",
+        signature: "function reentrancyAttempted() view returns (bool)",
+        selector: "0xfb160c2d",
+      },
+      { name: "setFactorySuite", signature: "function setFactorySuite(address _factorySuite)", selector: "0xa55eef0e" },
+      {
+        name: "shouldAttemptReentrancy",
+        signature: "function shouldAttemptReentrancy() view returns (bool)",
+        selector: "0xe4679dd2",
+      },
+      {
+        name: "storedBondKpiData",
+        signature:
+          "function storedBondKpiData() view returns (((bool arePartitionsProtected, bool isMultiPartition, address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, (bytes32 role, address[] members)[] rbacs, bool isControllable, bool isWhiteList, uint256 maxSupply, (string name, string symbol, string isin, uint8 decimals) erc20MetadataInfo, bool clearingActive, bool internalKycActivated, address[] externalPauses, address[] externalControlLists, address[] externalKycLists, bool erc20VotesActivated, address compliance, address identityRegistry) security, (bytes3 currency, uint256 nominalValue, uint8 nominalValueDecimals, uint256 startingDate, uint256 maturityDate) bondDetails, address[] proceedRecipients, bytes[] proceedRecipientsData) bondData, (uint8 regulationType, uint8 regulationSubType, (bool countriesControlListType, string listOfCountries, string info) additionalSecurityData) factoryRegulationData, (uint256 maxRate, uint256 baseRate, uint256 minRate, uint256 startPeriod, uint256 startRate, uint256 missedPenalty, uint256 reportPeriod, uint8 rateDecimals) interestRate, (uint256 maxDeviationCap, uint256 baseLine, uint256 maxDeviationFloor, uint8 impactDataDecimals, uint256 adjustmentPrecision) impactData)",
+        selector: "0x9eeeacc4",
+      },
+      {
+        name: "storedTreasuryData",
+        signature:
+          "function storedTreasuryData() view returns (address resolver, (bytes32 key, uint256 version) resolverProxyConfiguration, address paymentToken)",
+        selector: "0xc1fc1a28",
+      },
+    ],
+    factory: (signer) => new MockReentrantFactory__factory(signer),
   },
 
   MockTreasuryFacet: {
@@ -200,13 +391,42 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
     },
     inheritance: ["IStaticFunctionSelectors"],
     methods: [
-      { name: "getEnvironmentalAssetsCount", signature: "getEnvironmentalAssetsCount()", selector: "0x3c61f750" },
+      { name: "bondAddress", signature: "function bondAddress() view returns (address)", selector: "0x59e64d1e" },
+      {
+        name: "environmentalAssets",
+        signature: "function environmentalAssets(uint256) view returns (address)",
+        selector: "0xb7484501",
+      },
+      {
+        name: "getEnvironmentalAssetsCount",
+        signature: "function getEnvironmentalAssetsCount() view returns (uint256)",
+        selector: "0x3c61f750",
+      },
       {
         name: "initialize_LifeCycleCashFlow",
-        signature: "initialize_LifeCycleCashFlow(address)",
+        signature: "function initialize_LifeCycleCashFlow(address bond)",
         selector: "0x211afa54",
       },
-      { name: "initialize_Portfolio", signature: "initialize_Portfolio(address,address[])", selector: "0xde73748f" },
+      {
+        name: "initialize_Portfolio",
+        signature: "function initialize_Portfolio(address _paymentToken, address[] _environmentalAssets)",
+        selector: "0xde73748f",
+      },
+      {
+        name: "lifeCycleCashFlowInitialized",
+        signature: "function lifeCycleCashFlowInitialized() view returns (bool)",
+        selector: "0x142c4b77",
+      },
+      { name: "paymentToken", signature: "function paymentToken() view returns (address)", selector: "0x3013ce29" },
+      {
+        name: "portfolioInitialized",
+        signature: "function portfolioInitialized() view returns (bool)",
+        selector: "0x57d56ee2",
+      },
+    ],
+    errors: [
+      { name: "LifecycleAlreadyInitialized", signature: "LifecycleAlreadyInitialized()", selector: "0x383295b3" },
+      { name: "PortfolioAlreadyInitialized", signature: "PortfolioAlreadyInitialized()", selector: "0x49556743" },
     ],
     factory: (signer) => new MockTreasuryFacet__factory(signer),
   },
@@ -215,17 +435,16 @@ export const MOCK_CONTRACTS: Record<string, FacetDefinition> = {
 /**
  * Total number of mock contracts in the registry.
  */
-export const TOTAL_MOCKS = 6 as const;
+export const TOTAL_MOCKS = 7 as const;
 
 /**
  * All role identifiers extracted from contracts.
  */
 export const ROLES = {
   DEPLOYER_ROLE: "0x1e30887951e961109b31c3e05261cd69e3d6381327ba40ce9968bbadbebce283",
-  KPI_DATA_MANAGER_ROLE: "0x8108220811ff31812653b43da259792e3fb45324bd180667be52cdb5621e363e",
 } as const;
 
 /**
  * Total number of unique roles in the registry.
  */
-export const TOTAL_ROLES = 2 as const;
+export const TOTAL_ROLES = 1 as const;
