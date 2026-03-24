@@ -10,4 +10,4 @@ RUN npm run shared:build && npm run ats:api:build
 
 EXPOSE 3001
 
-CMD ["node", "apps/ats/api/dist/main.js"]
+CMD ["node", "apps/ats/api/dist/src/main.js"]

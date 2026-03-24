@@ -10,4 +10,4 @@ RUN npm run shared:build && npm run treasury:api:build
 
 EXPOSE 3003
 
-CMD ["node", "apps/treasury/api/dist/main.js"]
+CMD ["node", "apps/treasury/api/dist/src/main.js"]
