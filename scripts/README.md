@@ -359,7 +359,7 @@ npm run all:status
 
 # Manual health checks
 curl http://localhost:3000/api/v1/ats/bonds -H "x-api-key: demo-key-1"  # Gateway
-curl http://localhost:3001/health                                        # ATS API (direct)
+curl http://localhost:3001/api/v1/health                                        # ATS API (direct)
 curl http://localhost:5050                                               # PgAdmin
 curl http://localhost:15672                                              # RabbitMQ
 ```

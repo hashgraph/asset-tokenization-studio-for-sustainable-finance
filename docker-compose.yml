@@ -1,0 +1,193 @@
+# Green Bonds Platform - Full Stack
+#
+# Starts all infrastructure and API services.
+# Each service loads its own .env file; host overrides below replace
+# localhost references so containers can reach each other by service name.
+#
+# Usage:
+#   docker compose build          # Build all service images
+#   docker compose up -d          # Start everything
+#   docker compose up -d ats      # Start a single service (+ its dependencies)
+#   docker compose logs -f ats    # Follow logs for one service
+#   docker compose down           # Stop all
+#   docker compose down -v        # Stop and remove volumes (reset DBs)
+
+services:
+  # ---------------------------------------------------------------------------
+  # Infrastructure
+  # ---------------------------------------------------------------------------
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: green_bonds_postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - green_bonds_network
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: green_bonds_rabbitmq
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - green_bonds_network
+
+  # ---------------------------------------------------------------------------
+  # API Services
+  # ---------------------------------------------------------------------------
+
+  ats:
+    build:
+      context: .
+      dockerfile: apps/ats/api/Dockerfile
+    container_name: green_bonds_ats
+    env_file: apps/ats/api/.env
+    environment:
+      # Override localhost references for Docker networking
+      POSTGRESQL_HOST: postgres
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3001/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - green_bonds_network
+
+  primary-market:
+    build:
+      context: .
+      dockerfile: apps/primary-market/api/Dockerfile
+    container_name: green_bonds_primary_market
+    env_file: apps/primary-market/api/.env
+    environment:
+      POSTGRESQL_HOST: postgres
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    ports:
+      - "3002:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3002/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - green_bonds_network
+
+  treasury:
+    build:
+      context: .
+      dockerfile: apps/treasury/api/Dockerfile
+    container_name: green_bonds_treasury
+    env_file: apps/treasury/api/.env
+    environment:
+      POSTGRESQL_HOST: postgres
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    ports:
+      - "3003:3003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3003/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - green_bonds_network
+
+  transaction-sender:
+    build:
+      context: .
+      dockerfile: apps/shared/transaction-sender/Dockerfile
+    container_name: green_bonds_transaction_sender
+    env_file: apps/shared/transaction-sender/.env
+    environment:
+      RABBITMQ_URI: amqp://rabbitmq:5672
+    ports:
+      - "3010:3010"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3010/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - green_bonds_network
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/shared/gateway/Dockerfile
+    container_name: green_bonds_gateway
+    env_file: apps/shared/gateway/.env
+    environment:
+      # Override routes to use Docker service names instead of localhost
+      ROUTES: "http://treasury:3003,http://treasury:3003,http://treasury:3003,http://ats:3001,http://primary-market:3002"
+    ports:
+      - "3000:3000"
+    depends_on:
+      ats:
+        condition: service_healthy
+      primary-market:
+        condition: service_healthy
+      treasury:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/api/v1/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - green_bonds_network
+
+volumes:
+  postgres_data:
+
+networks:
+  green_bonds_network:
+    driver: bridge

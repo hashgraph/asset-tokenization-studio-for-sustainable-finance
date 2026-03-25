@@ -67,7 +67,7 @@ npm run start:dev
 ### 5. Verify Installation
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:3000/api/v1/health
 ```
 
 ## Next Steps

@@ -7,7 +7,7 @@ import { BlockchainListenerHealthIndicator } from "@hashgraph/green-bonds-blockc
 import { ApiExcludeController } from "@nestjs/swagger"
 
 @ApiExcludeController()
-@Controller("health")
+@Controller("api/v1/health")
 export class HealthHttpAdapter implements HealthPort {
   constructor(
     private readonly health: HealthCheckService,

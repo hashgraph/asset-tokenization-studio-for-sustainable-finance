@@ -304,15 +304,15 @@ npm run build
 npm run start:prod
 ```
 
-The API will be available at `http://localhost:3000` (or the PORT specified in `.env`).
+The API will be available at `http://localhost:3001` (or the PORT specified in `.env`).
 
 ## API Documentation
 
 Once the application is running, access the interactive Swagger API documentation:
 
-- **Swagger UI**: `http://localhost:3000/api/v1/docs`
-- **Base URL**: `http://localhost:3000/api/v1/ats`
-- **Health Check**: `http://localhost:3000/api/v1/health`
+- **Swagger UI**: `http://localhost:3001/api/v1/docs`
+- **Base URL**: `http://localhost:3001/api/v1/ats`
+- **Health Check**: `http://localhost:3001/api/v1/health`
 
 ### Main API Endpoints
 

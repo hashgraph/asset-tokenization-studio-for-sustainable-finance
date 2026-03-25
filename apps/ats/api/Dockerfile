@@ -6,8 +6,8 @@ COPY . .
 
 RUN npm ci
 
-RUN npm run shared:build && npm run ats:api:build
+RUN npm run contracts:build && npm run shared:build && npm run ats:api:build
 
 EXPOSE 3001
 
-CMD ["node", "apps/ats/api/dist/main.js"]
+CMD ["node", "apps/ats/api/dist/src/main.js"]

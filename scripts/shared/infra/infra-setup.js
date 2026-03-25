@@ -59,7 +59,7 @@ const CONFIG = {
     name: "ATS API",
     path: "../../../apps/ats/api",
     port: 3001,
-    healthUrl: "http://localhost:3001/health",
+    healthUrl: "http://localhost:3001/api/v1/health",
     command: "npm run start:dev",
     env: {
       PORT: "3001",
@@ -72,7 +72,7 @@ const CONFIG = {
     name: "Primary Market API",
     path: "../../../apps/primary-market/api",
     port: 3002,
-    healthUrl: "http://localhost:3002/health",
+    healthUrl: "http://localhost:3002/api/v1/health",
     command: "npm run start:dev",
     env: {
       PORT: "3002",
@@ -85,7 +85,7 @@ const CONFIG = {
     name: "Treasury API",
     path: "../../../apps/treasury/api",
     port: 3003,
-    healthUrl: "http://localhost:3003/health",
+    healthUrl: "http://localhost:3003/api/v1/health",
     command: "npm run start:dev",
     env: {
       PORT: "3003",
@@ -98,7 +98,7 @@ const CONFIG = {
     name: "API Gateway",
     path: "../../../apps/shared/gateway",
     port: 3000,
-    healthUrl: "http://localhost:3000/health",
+    healthUrl: "http://localhost:3000/api/v1/health",
     command: "npm run start:dev",
     env: {
       PORT: "3000",

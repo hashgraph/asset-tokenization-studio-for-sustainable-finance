@@ -19,7 +19,7 @@ services:
   # Connection: localhost:5432, user: postgres, password: postgres
   postgres:
     image: postgres:15-alpine
-    container_name: green_bonds_postgres
+    container_name: green_bonds_test_postgres
     hostname: postgres
     environment:
       - POSTGRES_USER=postgres
@@ -45,7 +45,7 @@ services:
   # Database password when connecting: postgres
   pgadmin:
     image: dpage/pgadmin4
-    container_name: green_bonds_pgadmin
+    container_name: green_bonds_test_pgadmin
     environment:
       - PGADMIN_DEFAULT_EMAIL=admin@admin.com
       - PGADMIN_DEFAULT_PASSWORD=admin
@@ -65,7 +65,7 @@ services:
   # Management UI: http://localhost:15672 (guest / guest)
   rabbitmq:
     image: rabbitmq:3-management-alpine
-    container_name: green_bonds_rabbitmq
+    container_name: green_bonds_test_rabbitmq
     hostname: rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=guest

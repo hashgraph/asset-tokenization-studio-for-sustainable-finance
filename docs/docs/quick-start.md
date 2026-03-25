@@ -53,7 +53,9 @@ npm ci
 Start PostgreSQL, RabbitMQ, and pgAdmin:
 
 ```bash
+cd scripts
 docker compose up -d
+cd ..
 ```
 
 Verify containers are running:
@@ -155,10 +157,10 @@ Consider using `tmux` or `screen` to manage multiple terminals, or use VS Code's
 
 Open your browser and check these health endpoints:
 
-- Gateway: [http://localhost:3000/health](http://localhost:3000/health)
-- ATS API: [http://localhost:3001/health](http://localhost:3001/health)
-- Primary Market: [http://localhost:3002/health](http://localhost:3002/health)
-- Treasury: [http://localhost:3003/health](http://localhost:3003/health)
+- Gateway: [http://localhost:3000/api/v1/health](http://localhost:3000/v1/api/health)
+- ATS API: [http://localhost:3001/api/v1/health](http://localhost:3001/v1/api/health)
+- Primary Market: [http://localhost:3002/api/v1/health](http://localhost:3002/api/v1/health)
+- Treasury: [http://localhost:3003/api/v1/health](http://localhost:3003/api/v1/health)
 
 Each should return `{"status":"ok"}` or similar.
 

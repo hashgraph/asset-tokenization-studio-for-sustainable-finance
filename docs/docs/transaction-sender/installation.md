@@ -84,7 +84,7 @@ npm run start:dev
 Check service health:
 
 ```bash
-curl http://localhost:3004/health
+curl http://localhost:3004/api/v1/health
 ```
 
 ## Next Steps

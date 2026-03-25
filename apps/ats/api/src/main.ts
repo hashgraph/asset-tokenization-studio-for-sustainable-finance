@@ -20,7 +20,7 @@ async function bootstrap() {
 
   // Set global prefix
   app.setGlobalPrefix("api/v1/ats", {
-    exclude: ["health"],
+    exclude: ["api/v1/health"],
   })
 
   // Swagger configuration

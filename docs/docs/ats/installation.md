@@ -124,7 +124,7 @@ npm run start:prod
 ### Check API Health
 
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:3001/api/v1/health
 ```
 
 Expected response:

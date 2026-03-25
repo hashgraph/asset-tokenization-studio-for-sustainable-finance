@@ -264,9 +264,9 @@ The API will be available at `http://localhost:3000` (or the PORT specified in `
 
 Once the application is running, access the interactive Swagger API documentation:
 
-- **Swagger UI**: `http://localhost:3000/api/v1/docs`
-- **Base URL**: `http://localhost:3000/api/v1/`
-- **Health Check**: `http://localhost:3000/api/v1/health`
+- **Swagger UI**: `http://localhost:3002/api/v1/docs`
+- **Base URL**: `http://localhost:3002/api/v1/`
+- **Health Check**: `http://localhost:3002/api/v1/health`
 
 ### Main API Endpoints
 

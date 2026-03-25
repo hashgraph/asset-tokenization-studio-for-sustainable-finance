@@ -186,19 +186,19 @@ Test each service's health endpoint:
 
 ```bash
 # Gateway
-curl http://localhost:3000/health
+curl http://localhost:3000/api/v1/health
 
 # ATS API
-curl http://localhost:3001/health
+curl http://localhost:3001/api/v1/health
 
 # Primary Market API
-curl http://localhost:3002/health
+curl http://localhost:3002/api/v1/health
 
 # Treasury API
-curl http://localhost:3003/health
+curl http://localhost:3003/api/v1/health
 
 # Transaction Sender
-curl http://localhost:3004/health
+curl http://localhost:3004/api/v1/health
 ```
 
 Each should return:
@@ -222,11 +222,11 @@ Create a script to check all services:
 # save as check-services.sh
 
 services=(
-  "Gateway:http://localhost:3000/health"
-  "ATS:http://localhost:3001/health"
-  "Primary-Market:http://localhost:3002/health"
-  "Treasury:http://localhost:3003/health"
-  "Transaction-Sender:http://localhost:3004/health"
+  "Gateway:http://localhost:3000/api/v1/health"
+  "ATS:http://localhost:3001/api/v1/health"
+  "Primary-Market:http://localhost:3002/api/v1/health"
+  "Treasury:http://localhost:3003/api/v1/health"
+  "Transaction-Sender:http://localhost:3004/api/v1/health"
 )
 
 echo "Checking services..."
@@ -600,7 +600,7 @@ htop
 Add timing to curl requests:
 
 ```bash
-curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3001/health
+curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3001/api/v1/health
 ```
 
 `curl-format.txt`:
