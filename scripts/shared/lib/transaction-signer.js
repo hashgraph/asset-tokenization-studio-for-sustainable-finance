@@ -17,11 +17,11 @@ async function signHederaTransaction(transaction, privateKeyStr) {
 }
 
 async function signEvmTransaction(transaction, privateKeyStr) {
-  const provider = new ethers.providers.JsonRpcProvider("https://testnet.hashio.io/api");
+  const provider = new ethers.JsonRpcProvider("https://testnet.hashio.io/api");
   const wallet = new ethers.Wallet(privateKeyStr, provider);
 
   const nonce = await provider.getTransactionCount(wallet.address, "pending");
-  const txBack = ethers.utils.parseTransaction(transaction);
+  const txBack = ethers.Transaction.from(transaction);
 
   const txToSign = {
     to: txBack.to,
@@ -30,7 +30,7 @@ async function signEvmTransaction(transaction, privateKeyStr) {
     data: txBack.data,
     value: txBack.value,
     chainId: txBack.chainId,
-    gasPrice: ethers.utils.parseUnits(config.ETHEREUM_GAS_PRICE_GWEI, "gwei"),
+    gasPrice: ethers.parseUnits(config.ETHEREUM_GAS_PRICE_GWEI, "gwei"),
     type: 0,
   };
   const signedTx = await wallet.signTransaction(txToSign);

@@ -251,21 +251,28 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
   private getEventParmsObject(input: any): any {
     if (Array.isArray(input)) {
-      const keys = Object.keys(input)
-      const hasNamedKeys = keys.some((k) => isNaN(Number(k)))
-
-      if (hasNamedKeys) {
-        const namedProps: any = {}
-        for (const key of keys) {
-          if (isNaN(Number(key))) {
-            const value = input[key]
-            namedProps[key] = this.getEventParmsObject(value)
+      // ethers v6 Result objects have a toObject() method.
+      // - Named tuples (structs): toObject(false) succeeds and returns { name: value, ... }
+      // - Array types (address[]): toObject() throws because elements have no names
+      if (typeof (input as any).toObject === "function") {
+        try {
+          const named = (input as any).toObject(false)
+          const namedKeys = Object.keys(named)
+          // Empty address[] returns {} without throwing — detect by empty keys + empty length
+          if (namedKeys.length === 0 && input.length === 0) {
+            return []
           }
+          const result: any = {}
+          for (const [key, value] of Object.entries(named)) {
+            result[key] = this.getEventParmsObject(value)
+          }
+          return result
+        } catch {
+          // Non-empty array type (e.g. address[]) — toObject throws because elements have no names
+          return Array.from(input).map((value) => this.getEventParmsObject(value))
         }
-        return namedProps
-      } else {
-        return input.map((value) => this.getEventParmsObject(value))
       }
+      return input.map((value: any) => this.getEventParmsObject(value))
     } else if (typeof input === "bigint") {
       return input.toString()
     } else if (typeof input === "object" && input !== null) {

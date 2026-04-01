@@ -5,7 +5,7 @@ const { publishSignedTransaction } = require("../../../shared/lib/infrastructure
 const { createBond } = require("../bond-service");
 const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { getLatestBond } = require("../document/set-bond-document");
-const { ethers } = require("ethers");
+const { Interface } = require("ethers");
 
 const CAP_CONFIG = {
   newMaxSupply: "2000000",
@@ -18,7 +18,7 @@ async function grantCapRole(bondContractId, accountAddress, format) {
   log(`\n=🔑 Granting CAP_ROLE to account ${accountAddress}...`, colors.bright);
 
   try {
-    const iface = new ethers.utils.Interface(["function grantRole(bytes32 role, address account)"]);
+    const iface = new Interface(["function grantRole(bytes32 role, address account)"]);
 
     const functionData = iface.encodeFunctionData("grantRole", [CAP_ROLE, accountAddress]);
 

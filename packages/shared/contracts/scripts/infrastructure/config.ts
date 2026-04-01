@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { JsonRpcProvider, NonceManager, Wallet, type Signer } from "ethers";
+import { JsonRpcProvider, NonceManager, Wallet, type Signer, type TransactionRequest } from "ethers";
 import {
   getNetworkConfig,
   validateNetwork,
@@ -8,6 +8,24 @@ import {
   error as logError,
   type NetworkConfig,
 } from "@hashgraph/asset-tokenization-contracts/scripts";
+
+const HEDERA_FALLBACK_GAS_LIMIT = BigInt(8_000_000);
+
+/**
+ * JsonRpcProvider that falls back to a high static gasLimit when estimateGas
+ * fails. Hedera's JSON-RPC relay returns non-standard errors for gas estimation
+ * on contract deployments, causing ethers v6 to throw CALL_EXCEPTION.
+ */
+class HederaFriendlyProvider extends JsonRpcProvider {
+  override async estimateGas(tx: TransactionRequest): Promise<bigint> {
+    try {
+      return await super.estimateGas(tx);
+    } catch {
+      info(`Gas estimation failed, using fallback gasLimit: ${HEDERA_FALLBACK_GAS_LIMIT}`);
+      return HEDERA_FALLBACK_GAS_LIMIT;
+    }
+  }
+}
 
 // Load environment variables immediately
 config();
@@ -52,7 +70,7 @@ export function createSignerForNetwork(network: string): Signer {
 
   // Create provider and signer with NonceManager to prevent nonce caching
   // issues when deploying multiple contracts via JSON-RPC
-  const provider = new JsonRpcProvider(networkConfig.jsonRpcUrl);
+  const provider = new HederaFriendlyProvider(networkConfig.jsonRpcUrl);
   const wallet = new Wallet(privateKey, provider);
   const signer = new NonceManager(wallet);
 

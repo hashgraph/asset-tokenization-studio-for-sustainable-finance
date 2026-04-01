@@ -18,10 +18,10 @@ export class CreateBondNestJSEventAdapter implements CreateBondPort, EventListen
         await ConverterUtils.getHederaAddressFromEvm(event.treasuryAddress), // treasuryId
         event.bondKpiData.bondData.security.erc20MetadataInfo.name,
         event.bondKpiData.bondData.security.erc20MetadataInfo.symbol,
-        event.bondKpiData.bondData.security.erc20MetadataInfo.decimals,
+        Number(event.bondKpiData.bondData.security.erc20MetadataInfo.decimals),
         this.decodeCurrency(event.bondKpiData.bondData.bondDetails.currency),
         event.bondKpiData.bondData.bondDetails.nominalValue,
-        event.bondKpiData.bondData.bondDetails.nominalValueDecimals,
+        Number(event.bondKpiData.bondData.bondDetails.nominalValueDecimals),
         new Date(Number(event.bondKpiData.bondData.bondDetails.startingDate) * 1000),
         new Date(Number(event.bondKpiData.bondData.bondDetails.maturityDate) * 1000),
         event.bondKpiData.bondData.security.maxSupply,
