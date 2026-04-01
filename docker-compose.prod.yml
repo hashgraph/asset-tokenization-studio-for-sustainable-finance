@@ -1,0 +1,25 @@
+services:
+  ats:
+    build:
+      context: .
+      dockerfile: apps/ats/api/Dockerfile
+
+  primary-market:
+    build:
+      context: .
+      dockerfile: apps/primary-market/api/Dockerfile
+
+  treasury:
+    build:
+      context: .
+      dockerfile: apps/treasury/api/Dockerfile
+
+  transaction-sender:
+    build:
+      context: .
+      dockerfile: apps/shared/transaction-sender/Dockerfile
+
+  gateway:
+    build:
+      context: .
+      dockerfile: apps/shared/gateway/Dockerfile

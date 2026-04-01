@@ -83,8 +83,8 @@ function extractTransactionId(signedTx, format) {
       return transactionId;
     } else if (format.toLowerCase() === "ethereum") {
       // Para Ethereum, el ID es el hash de la transacción
-      const { ethers } = require("ethers");
-      const txHash = ethers.utils.parseTransaction(signedTx).hash;
+      const { Transaction } = require("ethers");
+      const txHash = Transaction.from(signedTx).hash;
       return txHash;
     }
     return null;
