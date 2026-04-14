@@ -19,7 +19,9 @@ export class ProcessEventDomainService {
 
     // Process event
     try {
-      await this.eventBus.publishSync(blockchainEvent, eventStore.eventName + "DLTEvent")
+      const dltEventName = `${eventStore.eventName}DLTEvent`
+      await this.eventBus.publishSync(blockchainEvent, dltEventName) // triggers app adapters: @Handler(BondSuiteDeployedDLTEvent)
+      await this.eventBus.publishSync(blockchainEvent, `${dltEventName}.DLTEvent`) // triggers publisher: @OnEvent("*.DLTEvent")
       eventStore.process()
     } catch (error) {
       // Transit to failed with error reason

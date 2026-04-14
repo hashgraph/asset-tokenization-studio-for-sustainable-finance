@@ -28,8 +28,12 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
       if (!this.publishEnabled) {
         return
       }
+      const constructorName = ((event as any)?.constructor?.name || "").replace(/DLTEvent$/, "")
+      const eventName =
+        constructorName && constructorName !== "Object" ? constructorName : ((event as any)?.name ?? "Unknown")
+
       const payload = {
-        eventName: ((event as any)?.constructor?.name || "Unknown").replace(/DLTEvent$/, ""),
+        eventName,
         ...event,
       }
 
@@ -39,7 +43,7 @@ export class RabbitMQEventPublisherAdapter implements EventPublisherPort {
         headers: { source: "blockchain-listener" },
       }
 
-      const routingKey = `${this.routingKeyBase}.${payload.eventName}`
+      const routingKey = `${this.routingKeyBase}.${eventName}`
       await this.amqpConnection.publish(this.exchangeName, routingKey, payload, options as any)
     } catch (err) {
       this.logger.error(`Failed to publish DLT event to RabbitMQ: ${err?.message}`)

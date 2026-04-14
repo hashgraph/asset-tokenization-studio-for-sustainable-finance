@@ -56,6 +56,41 @@ You can copy .env.example to .env to have every property that the application is
 - `RABBITMQ_ETHEREUM_OUTGOING_ROUTING_KEY`: Ethereum format outgoing messages routing key (default: `ethereumFormat.outgoing`)
 - `RABBITMQ_CONNECTION_WAIT`: Whether to wait for connection on bootstrap. If true, server will fail to start if connection fails. Recommendation is to set it to false (`true|false`, default: `false`).
 
+## Queue Topology
+
+### Automatically Created Queues
+
+The Transaction Sender uses `@RabbitSubscribe` to consume incoming transaction queues. These queues are created automatically when the service starts:
+
+| Queue                     | Exchange | Routing Key               | Direction |
+| ------------------------- | -------- | ------------------------- | --------- |
+| `hederaFormat.incoming`   | `tx`     | `hederaFormat.incoming`   | Inbound   |
+| `ethereumFormat.incoming` | `tx`     | `ethereumFormat.incoming` | Inbound   |
+
+### Manually Created Queues (outgoing)
+
+The outgoing queues receive transaction results after the service submits a transaction to the blockchain. Since no internal service consumes these queues, they must be created externally (the infra setup script handles this automatically):
+
+| Queue                     | Exchange | Routing Key               | Direction |
+| ------------------------- | -------- | ------------------------- | --------- |
+| `hederaFormat.outgoing`   | `tx`     | `hederaFormat.outgoing`   | Outbound  |
+| `ethereumFormat.outgoing` | `tx`     | `ethereumFormat.outgoing` | Outbound  |
+
+External clients (e.g., front-end backends, automation scripts) subscribe to these queues to receive transaction status updates.
+
+### Message Flow
+
+```
+External Client
+     │
+     │  (publishes unsigned transaction)
+     ▼
+hederaFormat.incoming  ──►  Transaction Sender  ──►  hederaFormat.outgoing
+ethereumFormat.incoming ──►  Transaction Sender  ──►  ethereumFormat.outgoing
+                                     │
+                               (submits to blockchain)
+```
+
 ## Message Format
 
 ### Incoming Message

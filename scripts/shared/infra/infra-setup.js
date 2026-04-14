@@ -220,52 +220,115 @@ async function isDockerServiceRunning(serviceName) {
   }
 }
 
-async function initializeRabbitMQQueues() {
-  try {
-    // Try to require amqplib, if not available skip queue initialization
-    let amqp;
+// Full RabbitMQ topology to create on startup
+const RABBIT_TOPOLOGY = {
+  exchanges: [
+    { name: "tx", type: "topic" },
+    { name: "greenbond.events", type: "topic" },
+  ],
+  queues: [
+    // Transaction sender
+    { name: "hederaFormat.incoming", exchange: "tx", routingKey: "hederaFormat.incoming" },
+    { name: "hederaFormat.outgoing", exchange: "tx", routingKey: "hederaFormat.outgoing" },
+    { name: "ethereumFormat.incoming", exchange: "tx", routingKey: "ethereumFormat.incoming" },
+    { name: "ethereumFormat.outgoing", exchange: "tx", routingKey: "ethereumFormat.outgoing" },
+    // Blockchain listener — routing key format: blockchain.events.<module>.<EventName>
+    { name: "blockchain.events.all", exchange: "greenbond.events", routingKey: "blockchain.events.#" },
+    { name: "blockchain.events.ats", exchange: "greenbond.events", routingKey: "blockchain.events.ats.#" },
+    {
+      name: "blockchain.events.primary-market",
+      exchange: "greenbond.events",
+      routingKey: "blockchain.events.primary-market.#",
+    },
+    { name: "blockchain.events.treasury", exchange: "greenbond.events", routingKey: "blockchain.events.treasury.#" },
+  ],
+};
+
+async function waitForRabbitMQAPI(maxAttempts = 30, intervalMs = 2000) {
+  for (let i = 0; i < maxAttempts; i++) {
     try {
-      amqp = require("amqplib");
-    } catch (requireError) {
-      log("  ℹ️  amqplib not installed, skipping queue initialization", colors.blue);
-      log("  Queues will be created automatically when transaction sender starts", colors.blue);
+      await axios.get("http://localhost:15672/api/overview", {
+        auth: { username: "guest", password: "guest" },
+        timeout: 2000,
+      });
+      return true;
+    } catch (_) {
+      await new Promise((resolve) => setTimeout(resolve, intervalMs));
+    }
+  }
+  return false;
+}
+
+async function initializeRabbitMQQueuesViaAPI() {
+  const managementUrl = "http://localhost:15672/api";
+  const auth = { username: "guest", password: "guest" };
+  const vhost = encodeURIComponent("/");
+
+  for (const exchange of RABBIT_TOPOLOGY.exchanges) {
+    await axios.put(
+      `${managementUrl}/exchanges/${vhost}/${encodeURIComponent(exchange.name)}`,
+      { type: exchange.type, durable: true, auto_delete: false, internal: false, arguments: {} },
+      { auth },
+    );
+    log(`  ✓ Exchange: ${exchange.name} (${exchange.type})`, colors.green);
+  }
+
+  for (const queue of RABBIT_TOPOLOGY.queues) {
+    await axios.put(
+      `${managementUrl}/queues/${vhost}/${encodeURIComponent(queue.name)}`,
+      { durable: true, auto_delete: false, arguments: {} },
+      { auth },
+    );
+    await axios.post(
+      `${managementUrl}/bindings/${vhost}/e/${encodeURIComponent(queue.exchange)}/q/${encodeURIComponent(queue.name)}`,
+      { routing_key: queue.routingKey, arguments: {} },
+      { auth },
+    );
+    log(`  ✓ Queue: ${queue.name} → ${queue.routingKey}`, colors.green);
+  }
+
+  log("✅ RabbitMQ topology initialized via Management API", colors.green);
+}
+
+async function initializeRabbitMQQueues() {
+  let amqp;
+  try {
+    amqp = require("amqplib");
+  } catch (_) {
+    amqp = null;
+  }
+
+  if (amqp) {
+    try {
+      const connection = await amqp.connect("amqp://localhost:5672");
+      const channel = await connection.createChannel();
+
+      for (const exchange of RABBIT_TOPOLOGY.exchanges) {
+        await channel.assertExchange(exchange.name, exchange.type, { durable: true });
+        log(`  ✓ Exchange: ${exchange.name} (${exchange.type})`, colors.green);
+      }
+
+      for (const queue of RABBIT_TOPOLOGY.queues) {
+        await channel.assertQueue(queue.name, { durable: true });
+        await channel.bindQueue(queue.name, queue.exchange, queue.routingKey);
+        log(`  ✓ Queue: ${queue.name} → ${queue.routingKey}`, colors.green);
+      }
+
+      await channel.close();
+      await connection.close();
+      log("✅ RabbitMQ topology initialized", colors.green);
       return;
+    } catch (error) {
+      log(`⚠️  amqplib failed (${error.message}), falling back to Management API...`, colors.yellow);
     }
+  } else {
+    log("  ℹ️  amqplib not available, using RabbitMQ Management API", colors.blue);
+  }
 
-    const connection = await amqp.connect("amqp://localhost:5672");
-    const channel = await connection.createChannel();
-
-    const exchangeName = "tx";
-    const exchangeType = "topic";
-
-    // Ensure exchange exists
-    await channel.assertExchange(exchangeName, exchangeType, { durable: true });
-
-    // Define outgoing queues
-    const queues = [
-      {
-        name: "hederaFormat.outgoing",
-        routingKey: "hederaFormat.outgoing",
-      },
-      {
-        name: "ethereumFormat.outgoing",
-        routingKey: "ethereumFormat.outgoing",
-      },
-    ];
-
-    // Create and bind queues
-    for (const queue of queues) {
-      await channel.assertQueue(queue.name, { durable: true });
-      await channel.bindQueue(queue.name, exchangeName, queue.routingKey);
-      log(`  ✓ Created queue: ${queue.name}`, colors.green);
-    }
-
-    await channel.close();
-    await connection.close();
-    log("✅ RabbitMQ queues initialized", colors.green);
+  try {
+    await initializeRabbitMQQueuesViaAPI();
   } catch (error) {
-    log(`⚠️  Failed to initialize RabbitMQ queues: ${error.message}`, colors.yellow);
-    log("  Queues will be created automatically when transaction sender starts", colors.yellow);
+    log(`⚠️  Failed to initialize RabbitMQ topology: ${error.message}`, colors.yellow);
   }
 }
 
@@ -279,40 +342,39 @@ async function startDockerServices() {
       return false;
     }
 
-    // Start services
     await execAsync(`docker compose -f ${composeFile} up -d`, { cwd: __dirname });
     log("⏳ Waiting for services to be ready...", colors.yellow);
 
-    // Wait for health checks
+    // Wait for PostgreSQL via docker health check
     let attempts = 0;
-    const maxAttempts = 30;
-
-    while (attempts < maxAttempts) {
-      const postgresHealthy = await checkDockerServiceHealth("postgres");
-      const rabbitmqHealthy = await checkDockerServiceHealth("rabbitmq");
-
-      if (postgresHealthy && rabbitmqHealthy) {
-        log("✅ All Docker services are healthy", colors.green);
-
-        // Initialize RabbitMQ queues
-        log("🐰 Initializing RabbitMQ queues...", colors.cyan);
-        await initializeRabbitMQQueues();
-
-        log("🌐 Service URLs:", colors.blue);
-        log("• PostgreSQL: localhost:5432 (postgres/postgres)", colors.blue);
-        log("  - ATS Database: ats_db", colors.blue);
-        log("  - Primary Market Database: primary_market_db", colors.blue);
-        log("  - Treasury Database: treasury_db", colors.blue);
-        log("• PgAdmin: http://localhost:5050 (admin@admin.com/admin)", colors.blue);
-        log("• RabbitMQ Management: http://localhost:15672 (guest/guest)", colors.blue);
-        return true;
+    while (attempts < 30) {
+      if (await checkDockerServiceHealth("postgres")) {
+        log("✅ PostgreSQL is healthy", colors.green);
+        break;
       }
-
       await new Promise((resolve) => setTimeout(resolve, 2000));
       attempts++;
     }
 
-    log("⚠️  Some services may not be fully ready yet", colors.yellow);
+    // Wait for RabbitMQ Management API (HTTP check — works regardless of HEALTHCHECK in compose)
+    log("⏳ Waiting for RabbitMQ...", colors.yellow);
+    if (await waitForRabbitMQAPI()) {
+      log("✅ RabbitMQ is ready", colors.green);
+    } else {
+      log("⚠️  RabbitMQ timed out, attempting topology init anyway...", colors.yellow);
+    }
+
+    // Always initialize topology before apps start
+    log("🐰 Initializing RabbitMQ topology...", colors.cyan);
+    await initializeRabbitMQQueues();
+
+    log("🌐 Service URLs:", colors.blue);
+    log("• PostgreSQL: localhost:5432 (postgres/postgres)", colors.blue);
+    log("  - ATS Database: ats_db", colors.blue);
+    log("  - Primary Market Database: primary_market_db", colors.blue);
+    log("  - Treasury Database: treasury_db", colors.blue);
+    log("• PgAdmin: http://localhost:5050 (admin@admin.com/admin)", colors.blue);
+    log("• RabbitMQ Management: http://localhost:15672 (guest/guest)", colors.blue);
     return true;
   } catch (error) {
     log(`❌ Failed to start Docker services: ${error.error?.message || error.message}`, colors.red);
