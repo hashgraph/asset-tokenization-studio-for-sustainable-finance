@@ -434,6 +434,80 @@ docker exec rabbitmq rabbitmqctl list_connections
 docker exec rabbitmq rabbitmqctl status
 ```
 
+### RabbitMQ Queue Creation Model
+
+Understanding which queues are created automatically vs. manually is important for local development.
+
+#### Automatically Created Queues
+
+Queues are only created automatically when a `@RabbitSubscribe` decorator is present in the application code — i.e., when the platform itself is a consumer. The following queues are created automatically when the Transaction Sender starts:
+
+| Queue                     | Exchange | Routing Key               | Consumer           |
+| ------------------------- | -------- | ------------------------- | ------------------ |
+| `hederaFormat.incoming`   | `tx`     | `hederaFormat.incoming`   | Transaction Sender |
+| `ethereumFormat.incoming` | `tx`     | `ethereumFormat.incoming` | Transaction Sender |
+
+#### Manually Created Queues
+
+Queues that have no internal consumer must be created manually. The infra setup script (`scripts/shared/infra/infra-setup.js`) handles this automatically on startup using the RabbitMQ Management HTTP API.
+
+**Outgoing transaction result queues** — published by Transaction Sender after submitting a transaction; consumed by your external clients:
+
+| Queue                     | Exchange | Routing Key               |
+| ------------------------- | -------- | ------------------------- |
+| `hederaFormat.outgoing`   | `tx`     | `hederaFormat.outgoing`   |
+| `ethereumFormat.outgoing` | `tx`     | `ethereumFormat.outgoing` |
+
+**Blockchain event queues** — published by each API module's blockchain listener; consumed by external services:
+
+| Queue                              | Exchange           | Routing Key                          | Receives events from    |
+| ---------------------------------- | ------------------ | ------------------------------------ | ----------------------- |
+| `blockchain.events.all`            | `greenbond.events` | `blockchain.events.#`                | All modules             |
+| `blockchain.events.ats`            | `greenbond.events` | `blockchain.events.ats.#`            | ATS API only            |
+| `blockchain.events.primary-market` | `greenbond.events` | `blockchain.events.primary-market.#` | Primary Market API only |
+| `blockchain.events.treasury`       | `greenbond.events` | `blockchain.events.treasury.#`       | Treasury API only       |
+
+#### Blockchain Event Queue Options
+
+When consuming blockchain events from an external service, you have two strategies:
+
+**Option A — Single catch-all queue** (simpler, receives everything):
+
+```
+Queue: blockchain.events.all
+Routing Key: blockchain.events.#
+```
+
+Use this when you want a single consumer to process all blockchain events regardless of which module emitted them.
+
+**Option B — Per-module queues** (more granular, recommended for independent services):
+
+```
+Queue: blockchain.events.ats            → Routing Key: blockchain.events.ats.#
+Queue: blockchain.events.primary-market → Routing Key: blockchain.events.primary-market.#
+Queue: blockchain.events.treasury       → Routing Key: blockchain.events.treasury.#
+```
+
+Use this when different services need to react to events from specific modules independently.
+
+> **Note:** Both options can coexist. A message published to `blockchain.events.ats.BondSuiteDeployed` will be routed to **both** `blockchain.events.all` (via `#`) and `blockchain.events.ats` (via `ats.#`) if both queues and bindings exist.
+
+#### Event Routing Key Format
+
+Each API module publishes blockchain events with the following routing key pattern:
+
+```
+blockchain.events.<module>.<EventName>
+```
+
+For example:
+
+- `blockchain.events.ats.BondSuiteDeployed`
+- `blockchain.events.primary-market.PrimaryMarketDeployed`
+- `blockchain.events.treasury.BondSuiteDeployed`
+
+The `<module>` segment is controlled per application via the `RABBITMQ_BLOCKCHAIN_ROUTING_KEY` environment variable (e.g., `blockchain.events.ats`).
+
 ## Running Tests
 
 ### Unit Tests
