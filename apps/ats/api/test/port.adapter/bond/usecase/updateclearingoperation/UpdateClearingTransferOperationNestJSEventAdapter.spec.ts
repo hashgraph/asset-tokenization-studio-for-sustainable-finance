@@ -342,7 +342,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -364,7 +364,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
       await createTestBond("0.0.6974684")
 
       const event = new ClearingOperationCanceledDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -399,7 +399,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -435,7 +435,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
 
       for (const clearingId of clearingIds) {
         const event = new ClearingOperationCanceledDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${clearingId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -472,7 +472,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
       })
 
       const event = new ClearingOperationCanceledDLTEvent(
-        "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+        "0.0.6974684",
         "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
         "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
         "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -532,7 +532,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
 
       for (let i = 0; i < partitions.length; i++) {
         const event = new ClearingOperationCanceledDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${i}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
@@ -574,7 +574,7 @@ describe("UpdateClearingTransferOperationNestJSEventAdapter Integration", () => 
       // Cancel both clearings
       for (const clearingId of [1, 2]) {
         const event = new ClearingOperationCanceledDLTEvent(
-          "0x2fc2fdc1eae44f055f73469f4fe05915395c7ff7",
+          "0.0.6974684",
           `0x123456789${clearingId}abcdef1234567890abcdef1234567890abcdef1234567890abcdef`,
           "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
           "0xb3533f32594B689F19A94C608490451478F7197b",
