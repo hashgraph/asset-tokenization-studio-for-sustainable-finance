@@ -253,12 +253,19 @@ export class HederaMirrorNodeAdapter implements HederaPort {
     if (Array.isArray(input)) {
       // ethers v6 Result objects have a toObject() method.
       // - Named tuples (structs): toObject(false) succeeds and returns { name: value, ... }
-      // - Array types (address[]): toObject() throws because elements have no names
+      // - Array types of unnamed elements: ethers wraps each element in an AnonymousCoder
+      //   with localName "_", so toObject(false) does not throw — it returns
+      //   { "_": firstElement } because duplicate keys are dropped. Detect that and
+      //   convert to a real array.
+      // - Array types where elements still produce null names: toObject(false) throws.
       if (typeof (input as any).toObject === "function") {
         try {
           const named = (input as any).toObject(false)
           const namedKeys = Object.keys(named)
-          // Empty address[] returns {} without throwing — detect by empty keys + empty length
+          if (namedKeys.includes("_")) {
+            return Array.from(input).map((value) => this.getEventParmsObject(value))
+          }
+          // Empty array returns {} without throwing — detect by empty keys + empty length
           if (namedKeys.length === 0 && input.length === 0) {
             return []
           }
@@ -268,7 +275,6 @@ export class HederaMirrorNodeAdapter implements HederaPort {
           }
           return result
         } catch {
-          // Non-empty array type (e.g. address[]) — toObject throws because elements have no names
           return Array.from(input).map((value) => this.getEventParmsObject(value))
         }
       }

@@ -5,6 +5,7 @@ import { EventListener, Handler, Inject, Singleton } from "@hashgraph/green-bond
 import { ClearingOperationCanceledDLTEvent } from "@port/clearing/usecase/cancelclearingoperation/model/ClearingOperationCanceledDLTEvent"
 import { CancelClearingOperationPort } from "./CancelClearingOperationPort"
 import { CancelClearingCommand } from "@app/clearing/cancelclearing/command/CancelClearingCommand"
+import { ClearingOperationType } from "@domain/clearing/model/ClearingOperationType"
 
 @Singleton()
 export class CancelClearingOperationNestJSEventAdapter
@@ -17,11 +18,11 @@ export class CancelClearingOperationNestJSEventAdapter
     await this.commandBus.execute(
       new CancelClearingCommand(
         Number(event.clearingId),
-        await ConverterUtils.getHederaAddressFromEvm(event.contractId),
+        event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
-        event.clearingOperationType,
+        Number(event.clearingOperationType) as ClearingOperationType,
       ),
     )
   }

@@ -9,20 +9,37 @@ const { getLatestBond } = require("../document/set-bond-document");
 const COUPON_CONFIG = {
   recordDate: new Date(Date.now() + 86400000), // Tomorrow
   executionDate: new Date(Date.now() + 172800000), // Day after tomorrow
+  startDate: new Date(Date.now()), // Today (start of coupon period)
+  endDate: new Date(Date.now() + 31536000000), // 1 year from now
+  fixingDate: new Date(Date.now() + 79200000), // 22 hours from now (before recordDate)
   rate: "500",
   rateDecimals: "2", // 500 basis points = 5.00%
-  period: "31536000", // 1 year in seconds (365 days)
+  rateStatus: "0", // 0=PENDING, 1=FIXED
 };
 
-async function setBondCoupon(bondContractId, recordDate, executionDate, rate, rateDecimals, period, format) {
+async function setBondCoupon(
+  bondContractId,
+  recordDate,
+  executionDate,
+  startDate,
+  endDate,
+  fixingDate,
+  rate,
+  rateDecimals,
+  rateStatus,
+  format,
+) {
   log(`\n💰 Setting coupon on bond ${bondContractId}...`, colors.bright);
 
   const setCouponRequest = {
     recordDate: recordDate,
     executionDate: executionDate,
+    startDate: startDate,
+    endDate: endDate,
+    fixingDate: fixingDate,
     rate: rate,
     rateDecimals: rateDecimals,
-    period: period,
+    rateStatus: rateStatus,
     format: format,
     accountId: process.env.ACCOUNT_ID,
   };
@@ -34,9 +51,12 @@ async function setBondCoupon(bondContractId, recordDate, executionDate, rate, ra
     logInfo(`Bond Contract ID: ${bondContractId}`);
     logInfo(`Record Date: ${recordDate}`);
     logInfo(`Execution Date: ${executionDate}`);
+    logInfo(`Start Date: ${startDate}`);
+    logInfo(`End Date: ${endDate}`);
+    logInfo(`Fixing Date: ${fixingDate}`);
     logInfo(`Rate: ${rate} basis points (${rate / 100}%)`);
     logInfo(`Rate Decimals: ${rateDecimals}`);
-    logInfo(`Period: ${period} seconds (${period / 86400} days)`);
+    logInfo(`Rate Status: ${rateStatus === "0" ? "PENDING" : "FIXED"}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
 
     return { ...setCouponRequest, unsignedTx: response.data.unsignedTx };
@@ -125,17 +145,23 @@ async function runSetBondCouponSimulator() {
 
     logInfo(`Record Date: ${COUPON_CONFIG.recordDate}`);
     logInfo(`Execution Date: ${COUPON_CONFIG.executionDate}`);
+    logInfo(`Start Date: ${COUPON_CONFIG.startDate}`);
+    logInfo(`End Date: ${COUPON_CONFIG.endDate}`);
+    logInfo(`Fixing Date: ${COUPON_CONFIG.fixingDate}`);
     logInfo(`Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`);
     logInfo(`Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
-    logInfo(`Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
+    logInfo(`Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}`);
 
     const couponTransaction = await setBondCoupon(
       bondContractId,
       COUPON_CONFIG.recordDate,
       COUPON_CONFIG.executionDate,
+      COUPON_CONFIG.startDate,
+      COUPON_CONFIG.endDate,
+      COUPON_CONFIG.fixingDate,
       COUPON_CONFIG.rate,
       COUPON_CONFIG.rateDecimals,
-      COUPON_CONFIG.period,
+      COUPON_CONFIG.rateStatus,
       format,
     );
 
@@ -159,9 +185,12 @@ async function runSetBondCouponSimulator() {
     logInfo(`   • BondCoupons table for the new coupon entry`);
     logInfo(`   • Record Date: ${COUPON_CONFIG.recordDate}`);
     logInfo(`   • Execution Date: ${COUPON_CONFIG.executionDate}`);
+    logInfo(`   • Start Date: ${COUPON_CONFIG.startDate}`);
+    logInfo(`   • End Date: ${COUPON_CONFIG.endDate}`);
+    logInfo(`   • Fixing Date: ${COUPON_CONFIG.fixingDate}`);
     logInfo(`   • Rate: ${COUPON_CONFIG.rate} basis points`);
     logInfo(`   • Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
-    logInfo(`   • Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)`);
+    logInfo(`   • Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
     logError("Make sure:");
@@ -182,9 +211,12 @@ async function main() {
     log(`📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
     log(`📅 Record Date: ${COUPON_CONFIG.recordDate}`, colors.cyan);
     log(`📅 Execution Date: ${COUPON_CONFIG.executionDate}`, colors.cyan);
+    log(`� Start Date: ${COUPON_CONFIG.startDate}`, colors.cyan);
+    log(`📅 End Date: ${COUPON_CONFIG.endDate}`, colors.cyan);
+    log(`📅 Fixing Date: ${COUPON_CONFIG.fixingDate}`, colors.cyan);
     log(`💵 Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`, colors.cyan);
     log(`🔢 Rate Decimals: ${COUPON_CONFIG.rateDecimals}`, colors.cyan);
-    log(`⏱️  Period: ${COUPON_CONFIG.period} seconds (${COUPON_CONFIG.period / 86400} days)\n`, colors.cyan);
+    log(`📊 Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}\n`, colors.cyan);
 
     await runSetBondCouponSimulator();
   } catch (error) {

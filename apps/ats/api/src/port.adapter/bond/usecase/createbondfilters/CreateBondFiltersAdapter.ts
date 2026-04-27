@@ -29,7 +29,7 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "RedeemedByPartition(bytes32 indexed partition,address indexed operator,address indexed from,uint256 value,bytes data,bytes operatorData)",
         "LockedByPartition(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId,uint256 amount,uint256 expirationTimestamp)",
         "LockByPartitionReleased(address indexed operator,address indexed tokenHolder,bytes32 indexed partition,uint256 lockId)",
-        "TransferByPartition(bytes32 indexed _fromPartition,address indexed _operator,address indexed _from,address _to,uint256 _value,bytes _data,bytes _operatorData)",
+        "TransferByPartition(bytes32 indexed _fromPartition,address _operator,address indexed _from,address indexed _to,uint256 _value,bytes _data,bytes _operatorData)",
         "HeldByPartition(address indexed operator,address indexed tokenHolder,bytes32 partition,uint256 holdId,(uint256 amount,uint256 expirationTimestamp,address escrow,address to,bytes data) hold,bytes operatorData)",
         "HoldByPartitionExecuted(address indexed tokenHolder,bytes32 indexed partition,uint256 holdId,uint256 amount,address to)",
         "HoldByPartitionReleased(address indexed tokenHolder,bytes32 indexed partition,uint256 holdId,uint256 amount)",
@@ -46,6 +46,9 @@ export class CreateBondFiltersAdapter implements CreateBondFiltersPort, EventLis
         "TokenUnpaused(address indexed operator)",
         "ProceedRecipientAdded(address indexed operator,address indexed proceedRecipient,bytes data)",
         "ProceedRecipientRemoved(address indexed operator,address indexed proceedRecipient)",
+        "KpiDataAdded(address indexed project,uint256 date,uint256 value)",
+        "InterestRateUpdated(address indexed operator,(uint256 maxRate,uint256 baseRate,uint256 minRate,uint256 startPeriod,uint256 startRate,uint256 missedPenalty,uint256 reportPeriod,uint8 rateDecimals) newInterestRate)",
+        "ImpactDataUpdated(address indexed operator,(uint256 maxDeviationCap,uint256 baseLine,uint256 maxDeviationFloor,uint8 impactDataDecimals,uint256 adjustmentPrecision) newImpactData)",
       ]),
     )
   }

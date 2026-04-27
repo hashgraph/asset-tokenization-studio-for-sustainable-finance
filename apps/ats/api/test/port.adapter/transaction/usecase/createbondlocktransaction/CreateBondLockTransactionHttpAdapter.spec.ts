@@ -3,7 +3,7 @@
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
 import request from "supertest"
-import { BuildTransactionResponse, SharedModule } from "@hashgraph/green-bonds-shared-core"
+import { BuildTransactionResponse, ConverterUtils, SharedModule } from "@hashgraph/green-bonds-shared-core"
 import { PostgresModule } from "@config/PostgresModule"
 import { CONTROLLERS, PROVIDERS } from "@components"
 import { PostgreSqlContainer } from "@test/shared/containers/PostgresqlContainer"
@@ -12,6 +12,18 @@ import { CreateBondLockTransactionRequest } from "@port/transaction/usecase/crea
 describe("CreateBondLockTransaction API Integration", () => {
   let app: INestApplication
   beforeEach(async () => {
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      if (address === "invalid-holder") {
+        return Promise.reject(new Error("Invalid EVM address"))
+      }
+      return Promise.resolve("0.0.12345")
+    })
+    jest.spyOn(ConverterUtils, "getEvmAddressFromHederaAddress").mockImplementation((address: string) => {
+      if (address === "invalid-holder") {
+        return Promise.reject(new Error("Invalid Hedera address"))
+      }
+      return Promise.resolve("0x0000000000000000000000000000000000003039")
+    })
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [SharedModule, PostgresModule.forRoot(PostgreSqlContainer.getWorkerConfig())],
       controllers: CONTROLLERS,

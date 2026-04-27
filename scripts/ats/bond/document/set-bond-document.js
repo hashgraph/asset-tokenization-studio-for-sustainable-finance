@@ -38,32 +38,6 @@ function getMirrorNodeData(url) {
   });
 }
 
-async function validateTransaction(transactionId) {
-  log(`\n🔍 Validating transaction ${transactionId}...`, colors.bright);
-
-  try {
-    const response = await getMirrorNodeData(`${MIRROR_BASE}/transactions/${transactionId}`);
-    const tx = response.transactions?.[0] ?? response;
-
-    const status = tx.result ?? tx.status ?? "unknown";
-    const consensus = tx.consensus_timestamp ?? "";
-
-    logInfo(`Transaction status: ${status}`);
-    logInfo(`Consensus time: ${consensus}`);
-
-    if (status === "SUCCESS") {
-      logSuccess("Transaction validated successfully!");
-      return true;
-    } else {
-      logError(`Transaction failed with status: ${status}`);
-      return false;
-    }
-  } catch (error) {
-    logError(`Failed to validate transaction: ${error.message}`);
-    return false;
-  }
-}
-
 function extractTransactionId(signedTx, format) {
   try {
     if (format.toLowerCase() === "hedera") {
@@ -192,14 +166,6 @@ async function runSetBondDocumentSimulator() {
     // Wait a bit for transaction to be processed
     log("\n⏳ Waiting for transaction to be processed in mirror node (10 seconds)...", colors.yellow);
     await new Promise((resolve) => setTimeout(resolve, 10000));
-
-    // Validate transaction in mirror node
-    const isValid = await validateTransaction(transactionId);
-
-    if (!isValid) {
-      logError("Bond creation transaction validation failed. Aborting process.");
-      return;
-    }
 
     logSuccess("Bond creation transaction published to message queue");
 
