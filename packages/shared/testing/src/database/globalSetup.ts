@@ -18,6 +18,13 @@ import {
  * Each worker gets its own database for isolation.
  */
 export async function globalSetup() {
+  // Configure testcontainers for CI environments
+  // Disable ryuk in CI to avoid image pull issues
+  if (process.env.CI === "true") {
+    process.env.TESTCONTAINERS_RYUK_DISABLED = "true";
+    console.log("🔧 CI environment detected - Ryuk disabled for testcontainers");
+  }
+
   console.log(`🚀 Starting global PostgreSQL ${POSTGRES_VERSION} container for test suite...`);
 
   const container: StartedTestContainer = await new GenericContainer(`postgres:${POSTGRES_VERSION}`)
