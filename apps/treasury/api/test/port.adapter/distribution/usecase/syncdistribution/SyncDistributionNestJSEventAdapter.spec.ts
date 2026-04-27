@@ -92,10 +92,10 @@ describe("SyncDistribution Integration", () => {
     const failedAmount = "4000000" // Amount that was attempted but payment failed
 
     const result: PaymentResultItemEventModel[] = [
-      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
-      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
-      { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmount },
+      { holder: evmSuccessAddresses[0], status: "0", amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: "0", amount: paidAmounts[1] },
+      { holder: evmSuccessAddresses[2], status: "0", amount: paidAmounts[2] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmount },
     ]
 
     const event = new DistributionExecutedDLTEvent(
@@ -180,7 +180,7 @@ describe("SyncDistribution Integration", () => {
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(holderAccountId)
 
     const event = new DistributionExecutedDLTEvent(treasury.contractId, "testTransactionHash", distributionId, 0, 10, [
-      { holder: holderAccountId, status: 0, amount },
+      { holder: holderAccountId, status: "0", amount },
     ])
 
     await eventBus.publishSync(event, DistributionExecutedDLTEvent.name)
@@ -226,10 +226,10 @@ describe("SyncDistribution Integration", () => {
     const failedAmounts = ["7000000", "8000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultItemEventModel[] = [
-      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
-      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
-      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
+      { holder: evmSuccessAddresses[0], status: "0", amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: "0", amount: paidAmounts[1] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: "1", amount: failedAmounts[1] },
     ]
 
     const event = new DistributionByAddressesExecutedDLTEvent(
@@ -296,7 +296,7 @@ describe("SyncDistribution Integration", () => {
     const paidAmounts = ["2000000"]
 
     const result: PaymentResultItemEventModel[] = [
-      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[0], status: "0", amount: paidAmounts[0] },
     ]
 
     const event = new DistributionExecutedDLTEvent(
@@ -337,9 +337,9 @@ describe("SyncDistribution Integration", () => {
     const failedAmounts = ["1000000", "2000000", "3000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultItemEventModel[] = [
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
-      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
-      { holder: evmFailedAddresses[2], status: 1, amount: failedAmounts[2] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: "1", amount: failedAmounts[1] },
+      { holder: evmFailedAddresses[2], status: "1", amount: failedAmounts[2] },
     ]
 
     const event = new DistributionExecutedDLTEvent(
@@ -373,7 +373,7 @@ describe("SyncDistribution Integration", () => {
     })
 
     const distribution1Id = 10
-    const result1: PaymentResultItemEventModel[] = [{ holder: "0xevmAddress20", status: 0, amount: "1000000" }]
+    const result1: PaymentResultItemEventModel[] = [{ holder: "0xevmAddress20", status: "0", amount: "1000000" }]
 
     const event1 = new DistributionExecutedDLTEvent(
       treasury.contractId,
@@ -385,7 +385,7 @@ describe("SyncDistribution Integration", () => {
     )
 
     const distribution2Id = 11
-    const result2: PaymentResultItemEventModel[] = [{ holder: "0xevmAddress21", status: 0, amount: "2000000" }]
+    const result2: PaymentResultItemEventModel[] = [{ holder: "0xevmAddress21", status: "0", amount: "2000000" }]
 
     const event2 = new DistributionByAddressesExecutedDLTEvent(
       treasury.contractId,
