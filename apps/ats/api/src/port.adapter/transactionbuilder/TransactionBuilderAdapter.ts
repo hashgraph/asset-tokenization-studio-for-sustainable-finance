@@ -319,7 +319,7 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       IBond__factory.createInterface(),
       "setCoupon",
       req.contractId,
-      this.TRANSACTIONS_MEDIUM_GAS,
+      this.TRANSACTIONS_HIGH_GAS,
       req.accountId,
       req.format as "hedera" | "ethereum",
       [coupon],

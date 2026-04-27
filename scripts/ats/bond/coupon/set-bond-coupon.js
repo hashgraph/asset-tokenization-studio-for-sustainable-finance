@@ -6,15 +6,23 @@ const { createBond } = require("../bond-service");
 const { gatewayClient } = require("../../../shared/lib/gateway-client");
 const { getLatestBond } = require("../document/set-bond-document");
 
-const COUPON_CONFIG = {
-  recordDate: new Date(Date.now() + 86400000), // Tomorrow
-  executionDate: new Date(Date.now() + 172800000), // Day after tomorrow
-  startDate: new Date(Date.now()), // Today (start of coupon period)
-  endDate: new Date(Date.now() + 31536000000), // 1 year from now
-  fixingDate: new Date(Date.now() + 79200000), // 22 hours from now (before recordDate)
-  rate: "500",
-  rateDecimals: "2", // 500 basis points = 5.00%
-  rateStatus: "0", // 0=PENDING, 1=FIXED
+// GBP only deploys KpiLinkedRate bonds via FactorySuite.deployBondSuite. For
+// those bonds, BondStorageWrapperFixingDateInterestRate._checkCoupon enforces
+// rate == 0, rateDecimals == 0 and rateStatus == PENDING — the actual rate is
+// computed on chain from the KPI data at fixingDate. Sending non-zero values
+// reverts with InterestRateIsKpiLinked() (selector 0x68eba14f).
+const buildCouponConfig = () => {
+  const now = Date.now();
+  return {
+    recordDate: new Date(now + 86400000), // Tomorrow
+    executionDate: new Date(now + 172800000), // Day after tomorrow
+    startDate: new Date(now), // Today (start of coupon period)
+    endDate: new Date(now + 31536000000), // 1 year from now
+    fixingDate: new Date(now + 79200000), // 22 hours from now (before recordDate)
+    rate: "0",
+    rateDecimals: "0",
+    rateStatus: "0", // 0=PENDING, 1=FIXED
+  };
 };
 
 async function setBondCoupon(
@@ -54,7 +62,7 @@ async function setBondCoupon(
     logInfo(`Start Date: ${startDate}`);
     logInfo(`End Date: ${endDate}`);
     logInfo(`Fixing Date: ${fixingDate}`);
-    logInfo(`Rate: ${rate} basis points (${rate / 100}%)`);
+    logInfo(`Rate: ${rate} (KPI-derived on chain at fixingDate)`);
     logInfo(`Rate Decimals: ${rateDecimals}`);
     logInfo(`Rate Status: ${rateStatus === "0" ? "PENDING" : "FIXED"}`);
     logInfo(`Unsigned Tx: ${response.data.unsignedTx.substring(0, 100)}...`);
@@ -143,25 +151,26 @@ async function runSetBondCouponSimulator() {
 
     logHeader("💰 Step 3: Setting Bond Coupon...");
 
-    logInfo(`Record Date: ${COUPON_CONFIG.recordDate}`);
-    logInfo(`Execution Date: ${COUPON_CONFIG.executionDate}`);
-    logInfo(`Start Date: ${COUPON_CONFIG.startDate}`);
-    logInfo(`End Date: ${COUPON_CONFIG.endDate}`);
-    logInfo(`Fixing Date: ${COUPON_CONFIG.fixingDate}`);
-    logInfo(`Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`);
-    logInfo(`Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
-    logInfo(`Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}`);
+    const couponConfig = buildCouponConfig();
+    logInfo(`Record Date: ${couponConfig.recordDate}`);
+    logInfo(`Execution Date: ${couponConfig.executionDate}`);
+    logInfo(`Start Date: ${couponConfig.startDate}`);
+    logInfo(`End Date: ${couponConfig.endDate}`);
+    logInfo(`Fixing Date: ${couponConfig.fixingDate}`);
+    logInfo(`Rate: ${couponConfig.rate} (KPI-derived on chain at fixingDate)`);
+    logInfo(`Rate Decimals: ${couponConfig.rateDecimals}`);
+    logInfo(`Rate Status: ${couponConfig.rateStatus === "0" ? "PENDING" : "FIXED"}`);
 
     const couponTransaction = await setBondCoupon(
       bondContractId,
-      COUPON_CONFIG.recordDate,
-      COUPON_CONFIG.executionDate,
-      COUPON_CONFIG.startDate,
-      COUPON_CONFIG.endDate,
-      COUPON_CONFIG.fixingDate,
-      COUPON_CONFIG.rate,
-      COUPON_CONFIG.rateDecimals,
-      COUPON_CONFIG.rateStatus,
+      couponConfig.recordDate,
+      couponConfig.executionDate,
+      couponConfig.startDate,
+      couponConfig.endDate,
+      couponConfig.fixingDate,
+      couponConfig.rate,
+      couponConfig.rateDecimals,
+      couponConfig.rateStatus,
       format,
     );
 
@@ -179,18 +188,16 @@ async function runSetBondCouponSimulator() {
 
     logHeader("🎉 Set Bond Coupon Simulation Completed!");
     logSuccess(`Created bond with contract ID: ${bondContractId}`);
-    logSuccess(`Set coupon with rate ${COUPON_CONFIG.rate / 100}% on the bond`);
+    logSuccess(`Coupon scheduled — actual rate will be derived from KPI data at fixingDate`);
     logSuccess("✅ Check the database to verify:");
     logInfo(`   • Bonds table for contract ID: ${bondContractId}`);
     logInfo(`   • BondCoupons table for the new coupon entry`);
-    logInfo(`   • Record Date: ${COUPON_CONFIG.recordDate}`);
-    logInfo(`   • Execution Date: ${COUPON_CONFIG.executionDate}`);
-    logInfo(`   • Start Date: ${COUPON_CONFIG.startDate}`);
-    logInfo(`   • End Date: ${COUPON_CONFIG.endDate}`);
-    logInfo(`   • Fixing Date: ${COUPON_CONFIG.fixingDate}`);
-    logInfo(`   • Rate: ${COUPON_CONFIG.rate} basis points`);
-    logInfo(`   • Rate Decimals: ${COUPON_CONFIG.rateDecimals}`);
-    logInfo(`   • Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}`);
+    logInfo(`   • Record Date: ${couponConfig.recordDate}`);
+    logInfo(`   • Execution Date: ${couponConfig.executionDate}`);
+    logInfo(`   • Start Date: ${couponConfig.startDate}`);
+    logInfo(`   • End Date: ${couponConfig.endDate}`);
+    logInfo(`   • Fixing Date: ${couponConfig.fixingDate}`);
+    logInfo(`   • Rate Status: ${couponConfig.rateStatus === "0" ? "PENDING" : "FIXED"}`);
   } catch (error) {
     logError(`Failed to complete simulation: ${error.message}`);
     logError("Make sure:");
@@ -209,14 +216,7 @@ async function main() {
     logHeader("🏦 Evercity Set Bond Coupon Simulator");
     log("==========================================\n", colors.bright);
     log(`📡 Blockchain Format: ${config.BLOCKCHAIN_FORMAT.toUpperCase()}`, colors.blue);
-    log(`📅 Record Date: ${COUPON_CONFIG.recordDate}`, colors.cyan);
-    log(`📅 Execution Date: ${COUPON_CONFIG.executionDate}`, colors.cyan);
-    log(`� Start Date: ${COUPON_CONFIG.startDate}`, colors.cyan);
-    log(`📅 End Date: ${COUPON_CONFIG.endDate}`, colors.cyan);
-    log(`📅 Fixing Date: ${COUPON_CONFIG.fixingDate}`, colors.cyan);
-    log(`💵 Rate: ${COUPON_CONFIG.rate} basis points (${COUPON_CONFIG.rate / 100}%)`, colors.cyan);
-    log(`🔢 Rate Decimals: ${COUPON_CONFIG.rateDecimals}`, colors.cyan);
-    log(`📊 Rate Status: ${COUPON_CONFIG.rateStatus === "0" ? "PENDING" : "FIXED"}\n`, colors.cyan);
+    log(`📊 KpiLinkedRate bond — rate will be derived on chain from KPI data\n`, colors.cyan);
 
     await runSetBondCouponSimulator();
   } catch (error) {

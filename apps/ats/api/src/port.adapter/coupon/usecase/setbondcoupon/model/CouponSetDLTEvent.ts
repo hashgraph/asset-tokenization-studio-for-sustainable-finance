@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 import { DLTEvent } from "@hashgraph/green-bonds-shared-core"
 
-export class CouponSetDLTEvent extends DLTEvent {
-  readonly corporateActionId: string
-  readonly couponId: string
-  readonly operator: string
+export interface Coupon {
   readonly recordDate: string
   readonly executionDate: string
   readonly startDate: string
@@ -13,6 +10,13 @@ export class CouponSetDLTEvent extends DLTEvent {
   readonly rate: string
   readonly rateDecimals: string
   readonly rateStatus: string
+}
+
+export class CouponSetDLTEvent extends DLTEvent {
+  readonly corporateActionId: string
+  readonly couponId: string
+  readonly operator: string
+  readonly coupon: Coupon
 
   constructor(
     bondContractId: string,
@@ -20,26 +24,12 @@ export class CouponSetDLTEvent extends DLTEvent {
     corporateActionId: string,
     couponId: string,
     operator: string,
-    recordDate: string,
-    executionDate: string,
-    startDate: string,
-    endDate: string,
-    fixingDate: string,
-    rate: string,
-    rateDecimals: string,
-    rateStatus: string,
+    coupon: Coupon,
   ) {
     super(bondContractId, transactionHash)
     this.corporateActionId = corporateActionId
     this.couponId = couponId
     this.operator = operator
-    this.recordDate = recordDate
-    this.executionDate = executionDate
-    this.startDate = startDate
-    this.endDate = endDate
-    this.fixingDate = fixingDate
-    this.rate = rate
-    this.rateDecimals = rateDecimals
-    this.rateStatus = rateStatus
+    this.coupon = coupon
   }
 }

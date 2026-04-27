@@ -117,10 +117,20 @@ async function applyTreasuryRoles(treasuryContractId, userAccountId) {
 }
 
 /**
- * Deploy a bond, wait for treasury, and apply all roles to the signing account
+ * Deploy a bond, wait for treasury, and apply all roles to the signing account.
+ *
+ * Accepted call signatures (kept for backwards compatibility with existing scripts):
+ *   - deployBondWaitTreasuryAndApplyRoles()
+ *   - deployBondWaitTreasuryAndApplyRoles(overridesBondCreationRequest)
+ *   - deployBondWaitTreasuryAndApplyRoles(paymentTokenId, overridesBondCreationRequest)
+ *
  * @returns {Promise<Object>} The created treasury object with contractId, bondContractId, createdAt, etc.
  */
-async function deployBondWaitTreasuryAndApplyRoles(overridesBondCreationRequest = {}) {
+async function deployBondWaitTreasuryAndApplyRoles(arg1, arg2) {
+  // Detect signature: if arg2 is provided, the call is (paymentTokenId, overrides).
+  // Otherwise arg1 is the overrides object (or undefined).
+  const overridesBondCreationRequest = arg2 !== undefined ? arg2 : arg1 && typeof arg1 === "object" ? arg1 : {};
+
   const treasury = await deployBondAndWaitForTreasury(overridesBondCreationRequest);
 
   log(`\n📋 Applying all treasury roles to signing account...`, colors.bright);
