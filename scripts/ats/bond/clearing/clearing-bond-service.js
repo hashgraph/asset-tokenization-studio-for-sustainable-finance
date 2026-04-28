@@ -47,8 +47,23 @@ async function createClearingBond(format) {
       environmentalAssetsAddresses: [],
     },
     kpiData: {
-      adminAddress: process.env.ACCOUNT_EVM_ADDRESS,
-      ownerAccountAddress: process.env.ACCOUNT_EVM_ADDRESS,
+      interestRate: {
+        maxRate: "1000",
+        baseRate: "500",
+        minRate: "100",
+        startPeriod: (Math.floor(Date.now() / 1000) + 86400).toString(), // Current timestamp + 1 day
+        startRate: "500",
+        missedPenalty: "50",
+        reportPeriod: (86400 * 30).toString(), // 30 days
+        rateDecimals: 2,
+      },
+      impactData: {
+        maxDeviationCap: "150",
+        baseLine: "100",
+        maxDeviationFloor: "50",
+        impactDataDecimals: 2,
+        adjustmentPrecision: "100",
+      },
     },
     format: format,
     accountId: process.env.ACCOUNT_ID,

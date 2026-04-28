@@ -106,7 +106,7 @@ describe("CreateTreasuryFilters Integration", () => {
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetAdded",
-      eventSignature: "EnvironmentalAssetAdded(address indexed operator, address environmentalAsset)",
+      eventSignature: "EnvironmentalAssetAdded(address indexed operator, address indexed environmentalAsset)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -116,7 +116,8 @@ describe("CreateTreasuryFilters Integration", () => {
       contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetRemoved",
       eventSignature:
-        "EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError)",
+        "EnvironmentalAssetRemoved(address indexed operator, address indexed environmentalAsset, " +
+        "int256 indexed dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -126,8 +127,8 @@ describe("CreateTreasuryFilters Integration", () => {
       contractAddress: treasuryContractEvmAddress,
       eventName: "PaymentTokenUpdated",
       eventSignature:
-        "PaymentTokenUpdated(address indexed operator, address newPaymentToken, address oldPaymentToken, " +
-        "int256 dissociationError)",
+        "PaymentTokenUpdated(address indexed operator, address indexed newPaymentToken, " +
+        "address indexed oldPaymentToken, int256 dissociationError)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -136,7 +137,7 @@ describe("CreateTreasuryFilters Integration", () => {
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "TokenDissociated",
-      eventSignature: "TokenDissociated(address token)",
+      eventSignature: "TokenDissociated(address indexed token)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -145,7 +146,7 @@ describe("CreateTreasuryFilters Integration", () => {
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "PaymentTokenTransferred",
-      eventSignature: "PaymentTokenTransferred(address to, uint256 amount)",
+      eventSignature: "PaymentTokenTransferred(address indexed to, uint256 indexed amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -154,7 +155,9 @@ describe("CreateTreasuryFilters Integration", () => {
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "EnvironmentalAssetTokenTransferred",
-      eventSignature: "EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId)",
+      eventSignature:
+        "EnvironmentalAssetTokenTransferred(address indexed environmentalAsset, address indexed to, " +
+        "uint256 indexed tokenId)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -163,7 +166,7 @@ describe("CreateTreasuryFilters Integration", () => {
       id: expect.any(String),
       contractAddress: treasuryContractEvmAddress,
       eventName: "ProceedsRecipientFunded",
-      eventSignature: "ProceedsRecipientFunded(address proceedsRecipient, uint256 amount)",
+      eventSignature: "ProceedsRecipientFunded(address indexed proceedsRecipient, uint256 indexed amount)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -174,7 +177,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventName: "DistributionExecuted",
       eventSignature:
         "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, " +
-        "(address holder, uint8 status, int64 amount)[] results)",
+        "(address holder, int64 amount, uint8 status)[] results)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -185,7 +188,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventName: "DistributionByAddressesExecuted",
       eventSignature:
         "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, " +
-        "(address holder, uint8 status, int64 amount)[] results)",
+        "(address holder, int64 amount, uint8 status)[] results)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -196,7 +199,7 @@ describe("CreateTreasuryFilters Integration", () => {
       eventName: "RedemptionExecuted",
       eventSignature:
         "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, (address holder, " +
-        "uint8 status, int64 amount)[] results)",
+        "int64 amount, uint8 status)[] results)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,
@@ -206,7 +209,7 @@ describe("CreateTreasuryFilters Integration", () => {
       contractAddress: treasuryContractEvmAddress,
       eventName: "RedemptionByAddressesExecuted",
       eventSignature:
-        "RedemptionByAddressesExecuted(address[] holders, (address holder, uint8 status, int64 amount)[] results)",
+        "RedemptionByAddressesExecuted(address[] holders, (address holder, int64 amount, uint8 status)[] results)",
       createdAt: expect.any(Date),
       updatedAt: expect.any(Date),
       deletedAt: null,

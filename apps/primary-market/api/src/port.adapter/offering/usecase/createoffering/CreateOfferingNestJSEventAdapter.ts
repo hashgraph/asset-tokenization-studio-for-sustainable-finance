@@ -24,12 +24,12 @@ export class CreateOfferingNestJSEventAdapter implements CreateOfferingPort, Eve
         event.offering.minLots,
         event.offering.maxLots,
         event.offering.targetLots,
-        event.offering.targetQuantityRule,
+        Number(event.offering.targetQuantityRule),
         new Date(Number(event.offering.startDate) * 1000),
         new Date(Number(event.offering.endDate) * 1000),
-        event.offering.deadlineRule,
+        Number(event.offering.deadlineRule),
         event.offering.price,
-        event.offering.priceDecimals,
+        Number(event.offering.priceDecimals),
       ),
     )
   }

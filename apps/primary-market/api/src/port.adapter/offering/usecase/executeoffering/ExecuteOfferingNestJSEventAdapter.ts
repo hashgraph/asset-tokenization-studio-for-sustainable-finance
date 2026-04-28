@@ -17,7 +17,7 @@ export class ExecuteOfferingNestJSEventAdapter implements ExecuteOfferingPort, E
         Number(event.offeringId),
         event.contractId,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
-        event.result,
+        event.result.map((r) => ({ subscriptionId: r.subscriptionId, status: Number(r.status) })),
       ),
     )
   }

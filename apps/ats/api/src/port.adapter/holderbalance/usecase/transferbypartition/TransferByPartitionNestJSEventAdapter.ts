@@ -6,6 +6,8 @@ import { TransferByPartitionDLTEvent } from "@port/holderbalance/usecase/transfe
 import { TransferByPartitionCommand } from "@app/holderbalance/transferbypartition/command/TransferByPartitionCommand"
 import { TransferByPartitionPort } from "./TransferByPartitionPort"
 
+const ZERO_EVM_ADDRESS = "0x0000000000000000000000000000000000000000"
+
 @Singleton()
 export class TransferByPartitionNestJSEventAdapter
   implements TransferByPartitionPort, EventListener<TransferByPartitionDLTEvent>
@@ -14,6 +16,12 @@ export class TransferByPartitionNestJSEventAdapter
 
   @Handler(TransferByPartitionDLTEvent)
   async handle(event: TransferByPartitionDLTEvent): Promise<void> {
+    const from = event._from.toLowerCase()
+    const to = event._to.toLowerCase()
+    if (from === ZERO_EVM_ADDRESS || to === ZERO_EVM_ADDRESS || from === to) {
+      return
+    }
+
     await this.commandBus.execute(
       new TransferByPartitionCommand(
         event.contractId,

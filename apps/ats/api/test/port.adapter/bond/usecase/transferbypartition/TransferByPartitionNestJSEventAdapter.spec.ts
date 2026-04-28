@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
+/// <reference types="jest" />
 
 import { Test, TestingModule } from "@nestjs/testing"
 import { INestApplication } from "@nestjs/common"
@@ -263,7 +264,7 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
 
     it("should publish TransferByPartitionEvent after successful transfer", async () => {
       let publishedEvent: any
-      jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
+      jest.spyOn(eventBus, "publish").mockImplementation((event: unknown) => (publishedEvent = event))
 
       await createTestBond("0.0.6974684")
 
@@ -300,6 +301,43 @@ describe("TransferByPartitionNestJSEventAdapter Integration", () => {
           timestamp: expect.any(Number),
         }),
       )
+    })
+
+    it.each([
+      {
+        name: "mint (_from = address(0)) — handled by IssuedByPartition",
+        from: "0x0000000000000000000000000000000000000000",
+        to: "0x1234567890abcdef1234567890abcdef12345678",
+      },
+      {
+        name: "burn (_to = address(0)) — handled by RedeemedByPartition",
+        from: "0xb3533f32594B689F19A94C608490451478F7197b",
+        to: "0x0000000000000000000000000000000000000000",
+      },
+      {
+        name: "self-transfer (_from === _to) — no balance change",
+        from: "0xb3533f32594B689F19A94C608490451478F7197b",
+        to: "0xb3533f32594B689F19A94C608490451478F7197b",
+      },
+    ])("should ignore $name without throwing or persisting", async ({ from, to }: { from: string; to: string }) => {
+      await createTestBond("0.0.6974684")
+
+      const event = new TransferByPartitionDLTEvent(
+        "0.0.6974684",
+        "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+        "0x0000000000000000000000000000000000000000000000000000000000000001",
+        "0x48ca774f6942166bf37e178ccc1e861947ead8c7",
+        from,
+        to,
+        "2000",
+        "0x",
+        "0x",
+      )
+
+      await expect(eventBus.publishSync(event, TransferByPartitionDLTEvent.name)).resolves.not.toThrow()
+
+      const balances = await bondHolderBalanceRepository.find()
+      expect(balances).toHaveLength(0)
     })
 
     it("should handle multiple transfers in sequence", async () => {

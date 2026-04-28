@@ -58,21 +58,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
 
   describe("SetBondCouponNestJSEventAdapter", () => {
     it("should create a new coupon when CouponSetDLTEvent is published", async () => {
-      const event = new CouponSetDLTEvent(
-        CONTRACT_ID,
-        "0x1234567890abcdef",
-        CORPORATE_ACTION_ID,
-        "1",
-        OPERATOR,
-        "1704067200",
-        "1704153600",
-        "1672531200",
-        "1704067200",
-        "1703894400",
-        "500",
-        "2",
-        "1",
-      )
+      const event = new CouponSetDLTEvent(CONTRACT_ID, "0x1234567890abcdef", CORPORATE_ACTION_ID, "1", OPERATOR, {
+        recordDate: "1704067200",
+        executionDate: "1704153600",
+        startDate: "1672531200",
+        endDate: "1704067200",
+        fixingDate: "1703894400",
+        rate: "500",
+        rateDecimals: "2",
+        rateStatus: "1",
+      })
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
@@ -97,21 +92,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
     })
 
     it("should not duplicate coupon when CouponSetDLTEvent is published twice with same couponId", async () => {
-      const event = new CouponSetDLTEvent(
-        CONTRACT_ID,
-        "0x1234567890abcdef",
-        CORPORATE_ACTION_ID,
-        "1",
-        OPERATOR,
-        "1704067200",
-        "1704153600",
-        "1672531200",
-        "1704067200",
-        "1703894400",
-        "500",
-        "2",
-        "1",
-      )
+      const event = new CouponSetDLTEvent(CONTRACT_ID, "0x1234567890abcdef", CORPORATE_ACTION_ID, "1", OPERATOR, {
+        recordDate: "1704067200",
+        executionDate: "1704153600",
+        startDate: "1672531200",
+        endDate: "1704067200",
+        fixingDate: "1703894400",
+        rate: "500",
+        rateDecimals: "2",
+        rateStatus: "1",
+      })
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -135,14 +125,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           CORPORATE_ACTION_ID,
           couponId,
           OPERATOR,
-          `170406720${couponId}`,
-          `170415360${couponId}`,
-          "1672531200",
-          "1704067200",
-          "1703894400",
-          "500",
-          "2",
-          "1",
+          {
+            recordDate: `170406720${couponId}`,
+            executionDate: `170415360${couponId}`,
+            startDate: "1672531200",
+            endDate: "1704067200",
+            fixingDate: "1703894400",
+            rate: "500",
+            rateDecimals: "2",
+            rateStatus: "1",
+          },
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -183,21 +175,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       const contracts = [CONTRACT_ID, contractId2]
 
       for (const contractId of contracts) {
-        const event = new CouponSetDLTEvent(
-          contractId,
-          "0x1234567890abcdef",
-          CORPORATE_ACTION_ID,
-          "1",
-          OPERATOR,
-          "1704067200",
-          "1704153600",
-          "1672531200",
-          "1704067200",
-          "1703894400",
-          "500",
-          "2",
-          "1",
-        )
+        const event = new CouponSetDLTEvent(contractId, "0x1234567890abcdef", CORPORATE_ACTION_ID, "1", OPERATOR, {
+          recordDate: "1704067200",
+          executionDate: "1704153600",
+          startDate: "1672531200",
+          endDate: "1704067200",
+          fixingDate: "1703894400",
+          rate: "500",
+          rateDecimals: "2",
+          rateStatus: "1",
+        })
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
@@ -219,21 +206,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
       let publishedEvent: any
       jest.spyOn(eventBus, "publish").mockImplementation((event) => (publishedEvent = event))
 
-      const event = new CouponSetDLTEvent(
-        CONTRACT_ID,
-        "0x1234567890abcdef",
-        CORPORATE_ACTION_ID,
-        "1",
-        OPERATOR,
-        "1704067200",
-        "1704153600",
-        "1672531200",
-        "1704067200",
-        "1703894400",
-        "500",
-        "2",
-        "1",
-      )
+      const event = new CouponSetDLTEvent(CONTRACT_ID, "0x1234567890abcdef", CORPORATE_ACTION_ID, "1", OPERATOR, {
+        recordDate: "1704067200",
+        executionDate: "1704153600",
+        startDate: "1672531200",
+        endDate: "1704067200",
+        fixingDate: "1703894400",
+        rate: "500",
+        rateDecimals: "2",
+        rateStatus: "1",
+      })
 
       await eventBus.publishSync(event, CouponSetDLTEvent.name)
 
@@ -265,14 +247,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
         CORPORATE_ACTION_ID,
         "1",
         OPERATOR,
-        "1704067200",
-        "1704153600",
-        "1672531200",
-        "1704067200",
-        "1703894400",
-        "500",
-        "2",
-        "1",
+        {
+          recordDate: "1704067200",
+          executionDate: "1704153600",
+          startDate: "1672531200",
+          endDate: "1704067200",
+          fixingDate: "1703894400",
+          rate: "500",
+          rateDecimals: "2",
+          rateStatus: "1",
+        },
       )
 
       await expect(eventBus.publishSync(event, CouponSetDLTEvent.name)).rejects.toThrow(
@@ -290,14 +274,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           CORPORATE_ACTION_ID,
           String(i + 1),
           OPERATOR,
-          "1704067200",
-          "1704153600",
-          "1672531200",
-          "1704067200",
-          "1703894400",
-          rates[i],
-          "2",
-          "1",
+          {
+            recordDate: "1704067200",
+            executionDate: "1704153600",
+            startDate: "1672531200",
+            endDate: "1704067200",
+            fixingDate: "1703894400",
+            rate: rates[i],
+            rateDecimals: "2",
+            rateStatus: "1",
+          },
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)
@@ -323,14 +309,16 @@ describe("SetBondCouponNestJSEventAdapter Integration", () => {
           CORPORATE_ACTION_ID,
           String(i + 1),
           OPERATOR,
-          String(baseRecordDate + i * monthInSeconds),
-          String(baseExecutionDate + i * monthInSeconds),
-          "1672531200",
-          "1704067200",
-          "1703894400",
-          "500",
-          "2",
-          "1",
+          {
+            recordDate: String(baseRecordDate + i * monthInSeconds),
+            executionDate: String(baseExecutionDate + i * monthInSeconds),
+            startDate: "1672531200",
+            endDate: "1704067200",
+            fixingDate: "1703894400",
+            rate: "500",
+            rateDecimals: "2",
+            rateStatus: "1",
+          },
         )
 
         await eventBus.publishSync(event, CouponSetDLTEvent.name)

@@ -34,10 +34,10 @@ const FACTORY_CONTRACT_ID = "0.0.7408279";
 const CONFIG_VERSION = 0;
 
 // Bond Contract ID (testnet) - Used for offering creation and management
-const BOND_CONTRACT_ID = "0.0.7319744";
+const BOND_CONTRACT_ID = "0.0.8794490";
 
 // Treasury Contract ID (testnet) - Used for payment processing
-const TREASURY_CONTRACT_ID = "0.0.7319745";
+const TREASURY_CONTRACT_ID = "0.0.8794491";
 
 module.exports = {
   RESOLVER_CONTRACT_ID,

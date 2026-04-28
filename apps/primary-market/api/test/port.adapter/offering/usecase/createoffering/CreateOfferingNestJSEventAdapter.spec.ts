@@ -58,12 +58,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           minLots: "100",
           maxLots: "10000",
           targetLots: "5000",
-          targetQuantityRule: 0,
+          targetQuantityRule: "0",
           startDate: "1640995200",
           endDate: "1672531200",
-          deadlineRule: 0,
+          deadlineRule: "0",
           price: "100",
-          priceDecimals: 6,
+          priceDecimals: "6",
         },
       )
 
@@ -133,12 +133,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           minLots: "100",
           maxLots: "10000",
           targetLots: "5000",
-          targetQuantityRule: 0,
+          targetQuantityRule: "0",
           startDate: "1640995200",
           endDate: "1672531200",
-          deadlineRule: 0,
+          deadlineRule: "0",
           price: "100",
-          priceDecimals: 6,
+          priceDecimals: "6",
         },
       )
 
@@ -166,12 +166,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
             minLots: "100",
             maxLots: "10000",
             targetLots: "5000",
-            targetQuantityRule: 0,
+            targetQuantityRule: "0",
             startDate: "1640995200",
             endDate: "1672531200",
-            deadlineRule: 0,
+            deadlineRule: "0",
             price: "100",
-            priceDecimals: 6,
+            priceDecimals: "6",
           },
         )
 
@@ -211,12 +211,12 @@ describe("CreateOfferingNestJSEventAdapter Integration", () => {
           minLots: "100",
           maxLots: "10000",
           targetLots: "5000",
-          targetQuantityRule: 0,
+          targetQuantityRule: "0",
           startDate: "1640995200",
           endDate: "1672531200",
-          deadlineRule: 0,
+          deadlineRule: "0",
           price: "100",
-          priceDecimals: 6,
+          priceDecimals: "6",
         },
       )
 

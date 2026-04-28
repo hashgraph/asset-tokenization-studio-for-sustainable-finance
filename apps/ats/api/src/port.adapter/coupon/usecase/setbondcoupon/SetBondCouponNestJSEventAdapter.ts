@@ -10,20 +10,21 @@ export class SetBondCouponNestJSEventAdapter implements SetBondCouponPort, Event
 
   @Handler(CouponSetDLTEvent)
   async handle(event: CouponSetDLTEvent): Promise<void> {
+    const { coupon } = event
     await this.commandBus.execute(
       new SetBondCouponCommand(
         event.contractId,
         event.corporateActionId,
         event.couponId,
         event.operator,
-        new Date(Number(event.recordDate) * 1000),
-        new Date(Number(event.executionDate) * 1000),
-        new Date(Number(event.startDate) * 1000),
-        new Date(Number(event.endDate) * 1000),
-        new Date(Number(event.fixingDate) * 1000),
-        event.rate,
-        event.rateDecimals,
-        event.rateStatus,
+        new Date(Number(coupon.recordDate) * 1000),
+        new Date(Number(coupon.executionDate) * 1000),
+        new Date(Number(coupon.startDate) * 1000),
+        new Date(Number(coupon.endDate) * 1000),
+        new Date(Number(coupon.fixingDate) * 1000),
+        coupon.rate,
+        coupon.rateDecimals,
+        coupon.rateStatus,
       ),
     )
   }

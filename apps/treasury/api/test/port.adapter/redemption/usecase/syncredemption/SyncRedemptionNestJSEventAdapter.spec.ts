@@ -89,10 +89,10 @@ describe("SyncRedemption Integration", () => {
     const failedAmount = "4000000" // Amount that was attempted but payment failed
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
-      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
-      { holder: evmSuccessAddresses[2], status: 0, amount: paidAmounts[2] },
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmount },
+      { holder: evmSuccessAddresses[0], status: "0", amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: "0", amount: paidAmounts[1] },
+      { holder: evmSuccessAddresses[2], status: "0", amount: paidAmounts[2] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmount },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, result)
@@ -157,7 +157,7 @@ describe("SyncRedemption Integration", () => {
     jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockResolvedValue(holderAccountId)
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash", 0, 10, [
-      { holder: holderAccountId, status: 0, amount },
+      { holder: holderAccountId, status: "0", amount },
     ])
 
     await eventBus.publishSync(event, RedemptionExecutedDLTEvent.name)
@@ -202,10 +202,10 @@ describe("SyncRedemption Integration", () => {
     const failedAmounts = ["7000000", "8000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmSuccessAddresses[0], status: 0, amount: paidAmounts[0] },
-      { holder: evmSuccessAddresses[1], status: 0, amount: paidAmounts[1] },
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
-      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
+      { holder: evmSuccessAddresses[0], status: "0", amount: paidAmounts[0] },
+      { holder: evmSuccessAddresses[1], status: "0", amount: paidAmounts[1] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: "1", amount: failedAmounts[1] },
     ]
 
     const event = new RedemptionByAddressesExecutedDLTEvent(
@@ -248,9 +248,9 @@ describe("SyncRedemption Integration", () => {
     const failedAmounts = ["1000000", "2000000", "3000000"] // Amounts that were attempted but payments failed
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmFailedAddresses[0], status: 1, amount: failedAmounts[0] },
-      { holder: evmFailedAddresses[1], status: 1, amount: failedAmounts[1] },
-      { holder: evmFailedAddresses[2], status: 1, amount: failedAmounts[2] },
+      { holder: evmFailedAddresses[0], status: "1", amount: failedAmounts[0] },
+      { holder: evmFailedAddresses[1], status: "1", amount: failedAmounts[1] },
+      { holder: evmFailedAddresses[2], status: "1", amount: failedAmounts[2] },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
@@ -285,9 +285,9 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[0], status: "1", amount: "0" },
+      { holder: evmFailedAddresses[1], status: "1", amount: "0" },
+      { holder: evmFailedAddresses[2], status: "1", amount: "0" },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasury.contractId, "testTransactionHash5", 0, 10, result)
@@ -311,9 +311,9 @@ describe("SyncRedemption Integration", () => {
     const evmFailedAddresses = ["0xevmAddress13", "0xevmAddress14", "0xevmAddress15"]
 
     const result: PaymentResultEventModel[] = [
-      { holder: evmFailedAddresses[0], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[1], status: 1, amount: "0" },
-      { holder: evmFailedAddresses[2], status: 1, amount: "0" },
+      { holder: evmFailedAddresses[0], status: "1", amount: "0" },
+      { holder: evmFailedAddresses[1], status: "1", amount: "0" },
+      { holder: evmFailedAddresses[2], status: "1", amount: "0" },
     ]
 
     const event = new RedemptionExecutedDLTEvent(treasuryContractId, "testTransactionHash5", 0, 10, result)

@@ -23,12 +23,9 @@ export class ClearingOperationApprovedNestJSEventAdapter
 
   @Handler(ClearingOperationApprovedDLTEvent)
   async handle(event: ClearingOperationApprovedDLTEvent): Promise<void> {
+    const clearingOperationType = Number(event.clearingOperationType) as ClearingOperationType
     let holdId: number | undefined
-    if (
-      event.clearingOperationType === ClearingOperationType.HOLD &&
-      event.operationData &&
-      event.operationData !== "0x"
-    ) {
+    if (clearingOperationType === ClearingOperationType.HOLD && event.operationData && event.operationData !== "0x") {
       const decodedData = AbiCoder.defaultAbiCoder().decode(["uint256"], event.operationData)
       holdId = Number(decodedData[0])
     }
@@ -40,7 +37,7 @@ export class ClearingOperationApprovedNestJSEventAdapter
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
-        event.clearingOperationType,
+        clearingOperationType,
         holdId,
       ),
     )
@@ -62,7 +59,7 @@ export class ClearingOperationReclaimedNestJSEventAdapter
         await ConverterUtils.getHederaAddressFromEvm(event.tokenHolder),
         event.partition,
         await ConverterUtils.getHederaAddressFromEvm(event.operator),
-        event.clearingOperationType,
+        Number(event.clearingOperationType) as ClearingOperationType,
       ),
     )
   }

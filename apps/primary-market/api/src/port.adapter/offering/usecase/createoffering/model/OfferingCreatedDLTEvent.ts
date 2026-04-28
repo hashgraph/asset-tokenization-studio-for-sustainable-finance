@@ -10,12 +10,12 @@ export interface Offering {
   readonly minLots: string
   readonly maxLots: string
   readonly targetLots: string
-  readonly targetQuantityRule: number
+  readonly targetQuantityRule: string
   readonly startDate: string
   readonly endDate: string
-  readonly deadlineRule: number
+  readonly deadlineRule: string
   readonly price: string
-  readonly priceDecimals: number
+  readonly priceDecimals: string
 }
 
 export class OfferingCreatedDLTEvent extends DLTEvent {

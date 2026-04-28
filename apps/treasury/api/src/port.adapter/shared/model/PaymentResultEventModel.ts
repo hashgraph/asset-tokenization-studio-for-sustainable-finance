@@ -2,6 +2,6 @@
 
 export interface PaymentResultEventModel {
   holder: string
-  status: number
+  status: string
   amount: string
 }

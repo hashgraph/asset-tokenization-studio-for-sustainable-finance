@@ -161,24 +161,32 @@ async function verifyTreasuryDistributions() {
   const holderAccount1 = process.env.HOLDER_ACCOUNT_1 || process.env.ACCOUNT_ID;
   const holderAccount2 = process.env.HOLDER_ACCOUNT_2 || process.env.ACCOUNT_ID;
   const mintAmount = process.env.MINT_AMOUNT || "500000";
-  const COUPON_CONFIGS = [
-    {
-      name: "First Coupon (Paginated)",
-      recordDate: new Date(Date.now() + 60000), // 1 minute from now
-      executionDate: new Date(Date.now() + 90000), // 1.5 minutes from now
-      rate: "250", // 2.50%
-      rateDecimals: "2",
-      period: "31536000", // 1 year
-    },
-    {
-      name: "Second Coupon (By Holders)",
-      recordDate: new Date(Date.now() + 120000), // 2 minutes from now
-      executionDate: new Date(Date.now() + 150000), // 2.5 minutes from now
-      rate: "375", // 3.75%
-      rateDecimals: "2",
-      period: "31536000", // 1 year
-    },
-  ];
+  // Coupon dates are computed lazily right before each setBondCoupon call
+  // because the contract requires fixingDate / recordDate > block.timestamp,
+  // and the steps between here and that call (token deploy, bond deploy,
+  // mint, RabbitMQ, consensus) easily eat tens of seconds.
+  //
+  // For KpiLinkedRate bonds (which is what GBP deploys via FactorySuite), the
+  // contract enforces rate == 0, rateDecimals == 0, rateStatus == PENDING(0)
+  // — the actual rate is computed on chain from the KPI data at fixingDate.
+  // See BondStorageWrapperFixingDateInterestRate._checkCoupon and the
+  // InterestRateIsKpiLinked() error.
+  const buildCouponConfig = (name, fixingOffsetMs, recordOffsetMs, executionOffsetMs) => {
+    const now = Date.now();
+    return {
+      name,
+      recordDate: new Date(now + recordOffsetMs),
+      executionDate: new Date(now + executionOffsetMs),
+      startDate: new Date(now),
+      endDate: new Date(now + 31536000000), // 1 year from now
+      fixingDate: new Date(now + fixingOffsetMs),
+      rate: "0",
+      rateDecimals: "0",
+      rateStatus: "0", // 0=PENDING, 1=FIXED
+    };
+  };
+  const FIRST_COUPON_OFFSETS = { fixing: 120_000, record: 180_000, execution: 240_000 }; // 2 / 3 / 4 min
+  const SECOND_COUPON_OFFSETS = { fixing: 180_000, record: 240_000, execution: 300_000 }; // 3 / 4 / 5 min
 
   try {
     // 1. Deploy Custom Payment Token
@@ -230,14 +238,23 @@ async function verifyTreasuryDistributions() {
 
     // 5. Set first coupon
     log("\n5️⃣  Setting first coupon on bond...");
-    log(`   ${COUPON_CONFIGS[0].name}`, colors.cyan);
+    const firstCoupon = buildCouponConfig(
+      "First Coupon (Paginated)",
+      FIRST_COUPON_OFFSETS.fixing,
+      FIRST_COUPON_OFFSETS.record,
+      FIRST_COUPON_OFFSETS.execution,
+    );
+    log(`   ${firstCoupon.name}`, colors.cyan);
     const couponTx1 = await setBondCoupon(
       bondContractId,
-      COUPON_CONFIGS[0].recordDate,
-      COUPON_CONFIGS[0].executionDate,
-      COUPON_CONFIGS[0].rate,
-      COUPON_CONFIGS[0].rateDecimals,
-      COUPON_CONFIGS[0].period,
+      firstCoupon.recordDate,
+      firstCoupon.executionDate,
+      firstCoupon.startDate,
+      firstCoupon.endDate,
+      firstCoupon.fixingDate,
+      firstCoupon.rate,
+      firstCoupon.rateDecimals,
+      firstCoupon.rateStatus,
       format,
     );
     await publishSignedTransaction(await signTransaction(couponTx1.unsignedTx));
@@ -248,14 +265,23 @@ async function verifyTreasuryDistributions() {
 
     // 6. Set second coupon
     log("\n6️⃣  Setting second coupon on bond...");
-    log(`   ${COUPON_CONFIGS[1].name}`, colors.cyan);
+    const secondCoupon = buildCouponConfig(
+      "Second Coupon (By Holders)",
+      SECOND_COUPON_OFFSETS.fixing,
+      SECOND_COUPON_OFFSETS.record,
+      SECOND_COUPON_OFFSETS.execution,
+    );
+    log(`   ${secondCoupon.name}`, colors.cyan);
     const couponTx2 = await setBondCoupon(
       bondContractId,
-      COUPON_CONFIGS[1].recordDate,
-      COUPON_CONFIGS[1].executionDate,
-      COUPON_CONFIGS[1].rate,
-      COUPON_CONFIGS[1].rateDecimals,
-      COUPON_CONFIGS[1].period,
+      secondCoupon.recordDate,
+      secondCoupon.executionDate,
+      secondCoupon.startDate,
+      secondCoupon.endDate,
+      secondCoupon.fixingDate,
+      secondCoupon.rate,
+      secondCoupon.rateDecimals,
+      secondCoupon.rateStatus,
       format,
     );
     await publishSignedTransaction(await signTransaction(couponTx2.unsignedTx));
@@ -270,8 +296,8 @@ async function verifyTreasuryDistributions() {
 
     // 6. Wait for execution dates to pass
     const waitTime = Math.max(
-      COUPON_CONFIGS[0].executionDate.getTime() - Date.now(),
-      COUPON_CONFIGS[1].executionDate.getTime() - Date.now(),
+      firstCoupon.executionDate.getTime() - Date.now(),
+      secondCoupon.executionDate.getTime() - Date.now(),
     );
     if (waitTime > 0) {
       log(`\n⏳ Waiting ${Math.ceil(waitTime / 1000)} seconds for execution dates to pass...`, colors.yellow);
@@ -306,8 +332,8 @@ async function verifyTreasuryDistributions() {
     logInfo("\nSummary:");
     logInfo(`  • Bond: ${bondContractId}`);
     logInfo(`  • Treasury: ${treasuryId}`);
-    logInfo(`  • Distribution 1 (Paginated): ${distributionId1} - Rate: ${COUPON_CONFIGS[0].rate / 100}%`);
-    logInfo(`  • Distribution 2 (By Holders): ${distributionId2} - Rate: ${COUPON_CONFIGS[1].rate / 100}%`);
+    logInfo(`  • Distribution 1 (Paginated): ${distributionId1} (KPI-derived rate)`);
+    logInfo(`  • Distribution 2 (By Holders): ${distributionId2} (KPI-derived rate)`);
     logInfo(`  • Holder 1: ${holderAccount1}`);
     if (holderAccount1 !== holderAccount2) {
       logInfo(`  • Holder 2: ${holderAccount2}`);

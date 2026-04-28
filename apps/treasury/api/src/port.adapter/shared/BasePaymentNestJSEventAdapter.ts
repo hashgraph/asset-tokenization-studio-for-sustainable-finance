@@ -7,7 +7,7 @@ export abstract class BasePaymentNestJSEventAdapter {
     return Promise.all(
       results.map(async (item) => ({
         holder: await ConverterUtils.getHederaAddressFromEvm(String(item.holder)),
-        status: item.status,
+        status: Number(item.status),
         amount: item.amount,
       })),
     )

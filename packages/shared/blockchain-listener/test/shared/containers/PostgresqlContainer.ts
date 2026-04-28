@@ -13,6 +13,12 @@ export class PostgreSqlContainer {
   private container: StartedTestContainer
 
   static async create(): Promise<PostgreSqlContainer> {
+    // Configure testcontainers for CI environments
+    // Disable ryuk in CI to avoid image pull issues
+    if (process.env.CI === "true") {
+      process.env.TESTCONTAINERS_RYUK_DISABLED = "true"
+    }
+
     const postgresqlContainer = new PostgreSqlContainer()
 
     postgresqlContainer.container = await new GenericContainer("postgres")

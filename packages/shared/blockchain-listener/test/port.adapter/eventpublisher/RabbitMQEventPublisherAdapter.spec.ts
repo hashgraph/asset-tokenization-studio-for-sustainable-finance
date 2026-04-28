@@ -13,6 +13,12 @@ describe("RabbitMQ publish via EventEmitter e2e (enabled)", () => {
   let container: StartedRabbitMQContainer
 
   beforeAll(async () => {
+    // Configure testcontainers for CI environments
+    // Disable ryuk in CI to avoid image pull issues
+    if (process.env.CI === "true") {
+      process.env.TESTCONTAINERS_RYUK_DISABLED = "true"
+    }
+
     container = await new RabbitMQContainer("rabbitmq:3.13").withExposedPorts(5672).start()
     const uri = container.getAmqpUrl()
     process.env.RABBITMQ_URI = uri
@@ -102,6 +108,12 @@ describe("RabbitMQ publish via EventEmitter e2e (disabled)", () => {
   let container: any
 
   beforeAll(async () => {
+    // Configure testcontainers for CI environments
+    // Disable ryuk in CI to avoid image pull issues
+    if (process.env.CI === "true") {
+      process.env.TESTCONTAINERS_RYUK_DISABLED = "true"
+    }
+
     container = await new RabbitMQContainer("rabbitmq:3.13").withExposedPorts(5672).start()
     const uri = container.getAmqpUrl()
     process.env.RABBITMQ_URI = uri

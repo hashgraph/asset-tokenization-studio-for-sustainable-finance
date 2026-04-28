@@ -19,21 +19,23 @@ export class CreateTreasuryFiltersNestJSEventAdapter implements CreateTreasuryFi
         "RolesApplied(bytes32[] roles, bool[] actives, address account)",
         "TokenPaused(address indexed operator)",
         "TokenUnpaused(address indexed operator)",
-        "EnvironmentalAssetAdded(address indexed operator, address environmentalAsset)",
-        "EnvironmentalAssetRemoved(address indexed operator, address environmentalAsset, int256 dissociationError)",
-        "PaymentTokenUpdated(address indexed operator, address newPaymentToken, address oldPaymentToken, int256 " +
-          "dissociationError)",
-        "TokenDissociated(address token)",
-        "PaymentTokenTransferred(address to, uint256 amount)",
-        "EnvironmentalAssetTokenTransferred(address environmentalAsset, address to, uint256 tokenId)",
-        "ProceedsRecipientFunded(address proceedsRecipient, uint256 amount)",
+        "EnvironmentalAssetAdded(address indexed operator, address indexed environmentalAsset)",
+        "EnvironmentalAssetRemoved(address indexed operator, address indexed environmentalAsset, " +
+          "int256 indexed dissociationError)",
+        "PaymentTokenUpdated(address indexed operator, address indexed newPaymentToken, " +
+          "address indexed oldPaymentToken, int256 dissociationError)",
+        "TokenDissociated(address indexed token)",
+        "PaymentTokenTransferred(address indexed to, uint256 indexed amount)",
+        "EnvironmentalAssetTokenTransferred(address indexed environmentalAsset, address indexed to, " +
+          "uint256 indexed tokenId)",
+        "ProceedsRecipientFunded(address indexed proceedsRecipient, uint256 indexed amount)",
         "DistributionExecuted(uint256 distributionID, uint256 pageIndex, uint256 pageLength, " +
-          "(address holder, uint8 status, int64 amount)[] results)",
+          "(address holder, int64 amount, uint8 status)[] results)",
         "DistributionByAddressesExecuted(uint256 distributionID, address[] holders, " +
-          "(address holder, uint8 status, int64 amount)[] results)",
+          "(address holder, int64 amount, uint8 status)[] results)",
         "RedemptionExecuted(uint256 pageIndex, uint256 pageLength, " +
-          "(address holder, uint8 status, int64 amount)[] results)",
-        "RedemptionByAddressesExecuted(address[] holders, " + "(address holder, uint8 status, int64 amount)[] results)",
+          "(address holder, int64 amount, uint8 status)[] results)",
+        "RedemptionByAddressesExecuted(address[] holders, " + "(address holder, int64 amount, uint8 status)[] results)",
       ]),
     )
   }
