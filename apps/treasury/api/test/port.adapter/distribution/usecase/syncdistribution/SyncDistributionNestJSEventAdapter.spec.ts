@@ -406,4 +406,108 @@ describe("SyncDistribution Integration", () => {
     expect(holders[0].distributionId).toEqual(distribution1Id)
     expect(holders[1].distributionId).toEqual(distribution2Id)
   })
+
+  it("should handle FAILED holders with amount=0 on DistributionExecuted event", async () => {
+    const treasury = await createTreasuryWithPaymentToken("0.0.222")
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      const addressMap: Record<string, string> = {
+        "0xfailed1": "0.0.300",
+        "0xfailed2": "0.0.301",
+      }
+      return addressMap[address] || address
+    })
+
+    const distributionId = 20
+    const result: PaymentResultItemEventModel[] = [
+      { holder: "0xfailed1", status: "1", amount: "0" },
+      { holder: "0xfailed2", status: "1", amount: "0" },
+    ]
+
+    const event = new DistributionExecutedDLTEvent(
+      treasury.contractId,
+      "testTransactionHashZero",
+      distributionId,
+      0,
+      10,
+      result,
+    )
+
+    await eventBus.publishSync(event, DistributionExecutedDLTEvent.name)
+
+    const holders = await internalDistributionHolderRepository.find()
+    expect(holders).toHaveLength(2)
+    expect(holders.every((h) => h.status === <string>DistributionHolderStatus.FAILED)).toBe(true)
+    expect(holders[0].amount).toBe("0")
+    expect(holders[1].amount).toBe("0")
+  })
+
+  it("should handle mixed SUCCESS and FAILED holders where FAILED have amount=0", async () => {
+    const treasury = await createTreasuryWithPaymentToken("0.0.222")
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      const addressMap: Record<string, string> = {
+        "0xsuccess1": "0.0.400",
+        "0xfailedZero": "0.0.401",
+      }
+      return addressMap[address] || address
+    })
+
+    const distributionId = 21
+    const result: PaymentResultItemEventModel[] = [
+      { holder: "0xsuccess1", status: "0", amount: "5000000" },
+      { holder: "0xfailedZero", status: "1", amount: "0" },
+    ]
+
+    const event = new DistributionExecutedDLTEvent(
+      treasury.contractId,
+      "testTransactionHashMixed",
+      distributionId,
+      0,
+      10,
+      result,
+    )
+
+    await eventBus.publishSync(event, DistributionExecutedDLTEvent.name)
+
+    const holders = await internalDistributionHolderRepository.find()
+    expect(holders).toHaveLength(2)
+
+    const successHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.SUCCESS)
+    expect(successHolders).toHaveLength(1)
+    expect(successHolders[0].amount).toBe("5000000")
+
+    const failedHolders = holders.filter((h) => h.status === <string>DistributionHolderStatus.FAILED)
+    expect(failedHolders).toHaveLength(1)
+    expect(failedHolders[0].amount).toBe("0")
+  })
+
+  it("should handle FAILED holders with amount=0 on DistributionByAddressesExecuted event", async () => {
+    const treasury = await createTreasuryWithPaymentToken("0.0.222")
+
+    jest.spyOn(ConverterUtils, "getHederaAddressFromEvm").mockImplementation((address: string) => {
+      const addressMap: Record<string, string> = {
+        "0xbyAddrFailed": "0.0.500",
+      }
+      return addressMap[address] || address
+    })
+
+    const distributionId = 22
+    const result: PaymentResultItemEventModel[] = [{ holder: "0xbyAddrFailed", status: "1", amount: "0" }]
+
+    const event = new DistributionByAddressesExecutedDLTEvent(
+      treasury.contractId,
+      "testTransactionHashByAddrZero",
+      distributionId,
+      ["0xbyAddrFailed"],
+      result,
+    )
+
+    await eventBus.publishSync(event, DistributionByAddressesExecutedDLTEvent.name)
+
+    const holders = await internalDistributionHolderRepository.find()
+    expect(holders).toHaveLength(1)
+    expect(holders[0].status).toBe(<string>DistributionHolderStatus.FAILED)
+    expect(holders[0].amount).toBe("0")
+  })
 })
