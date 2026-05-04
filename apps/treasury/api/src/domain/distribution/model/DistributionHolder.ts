@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { BaseEntity } from "@hashgraph/green-bonds-shared-core"
-import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsOptional, NotEquals } from "class-validator"
+import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsOptional } from "class-validator"
 import { DistributionHolderStatus } from "./DistributionHolderStatus"
 
 export class DistributionHolder extends BaseEntity {
@@ -12,7 +12,6 @@ export class DistributionHolder extends BaseEntity {
   status: DistributionHolderStatus
 
   @IsOptional()
-  @NotEquals("0")
   @IsNumberString({ no_symbols: true })
   amount?: string
 
