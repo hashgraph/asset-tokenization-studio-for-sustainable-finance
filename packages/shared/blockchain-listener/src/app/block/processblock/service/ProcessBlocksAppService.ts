@@ -41,6 +41,8 @@ export class ProcessBlocksAppService {
         return await this.execute()
       }
       this.logger.error("Error processing blocks. Block processing stopped. Please check error and restart.", error)
+      await this.commandBus.execute(new SetSyncStateCommand(undefined, <string>SyncStateStatus.FAILED))
+      process.exit(1)
     }
   }
 
