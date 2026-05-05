@@ -63,6 +63,7 @@ export { BaseTransactionAppServiceRequest } from "./transaction/model/BaseTransa
 export { TransactionAppServiceResponse } from "./transaction/model/TransactionAppServiceResponse"
 
 export { ConverterUtils } from "./utils/ConverterUtils"
+export { readVersion } from "./utils/readVersion"
 
 export { OrderPageOptions } from "./pagination/OrderPageOptions"
 export { PageOptions } from "./pagination/PageOptions"
