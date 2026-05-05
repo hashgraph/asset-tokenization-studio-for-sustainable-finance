@@ -17,6 +17,10 @@ describe("CreateTreasuryFilters Integration", () => {
   let eventBus: EventBus
   let internalEventFilterRepository: Repository<EventFilterPersistence>
   beforeEach(async () => {
+    jest.spyOn(process, "exit").mockImplementation((_code?: string | number | null | undefined): never => {
+      return undefined as never
+    })
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         SharedModule,

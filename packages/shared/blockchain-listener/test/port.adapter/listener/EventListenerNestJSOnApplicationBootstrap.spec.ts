@@ -45,6 +45,9 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
   })
 
   beforeEach(async () => {
+    jest.spyOn(process, "exit").mockImplementation((_code?: string | number | null | undefined): never => {
+      return undefined as never
+    })
     const providers = EVENT_LISTENER_PROVIDERS.filter(
       (provider) =>
         provider !== PublishEventPortNestJSEventAdapter && provider?.useClass !== RabbitMQEventPublisherAdapter,
@@ -450,7 +453,17 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 1000)) // Wait time for processing to be completed
     expect(await internalEventStoreRepository.find()).toHaveLength(0)
-    expect(await internalSyncStateRepository.find()).toHaveLength(0)
+    const syncStates = await internalSyncStateRepository.find()
+    expect(syncStates.length).toEqual(1)
+    expect(syncStates[0]).toEqual({
+      id: expect.any(String),
+      lastBlockNumber: null,
+      status: SyncStateStatus.FAILED,
+      createdAt: expect.any(Date),
+      updatedAt: expect.any(Date),
+      deletedAt: null,
+    })
+    expect(process.exit).toHaveBeenCalledWith(1)
   })
 
   it("should process blocks when there are multiple app instances", async () => {
