@@ -3,6 +3,7 @@
 import { Controller, Get } from "@nestjs/common"
 import { HealthCheckService, HealthCheck, HealthIndicatorService } from "@nestjs/terminus"
 import axios from "axios"
+import { readVersion } from "@hashgraph/green-bonds-shared-core"
 import { HealthPort } from "./HealthPort"
 
 @Controller("api/v1/health")
@@ -17,7 +18,7 @@ export class HealthHttpAdapter implements HealthPort {
   check(): Promise<any> {
     const routes = Array.from(new Set(process.env.ROUTES.split(",")))
     return this.health.check([
-      () => this.healthIndicatorService.check("app").up({ version: process.env.npm_package_version ?? "unknown" }),
+      () => this.healthIndicatorService.check("app").up({ version: readVersion(__dirname) }),
       ...routes.map((route) => async () => {
         const indicator = this.healthIndicatorService.check(route)
         try {
