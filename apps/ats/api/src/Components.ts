@@ -233,6 +233,21 @@ import { DeleteClearingTransferDomainService } from "@domain/clearing/service/De
 import { ApproveHoldClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveHoldClearingBalanceDomainService"
 import { ApproveRedeemClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveRedeemClearingBalanceDomainService"
 import { ApproveTransferClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveTransferClearingBalanceDomainService"
+import { SetBondInterestRateNestJSEventAdapter } from "@port/interestrate/usecase/setbondinterestrate/SetBondInterestRateNestJSEventAdapter"
+import { SetBondInterestRateCommandHandler } from "@app/interestrate/setbondinterestrate/command/SetBondInterestRateCommandHandler"
+import { SetBondInterestRateDomainService } from "@domain/interestrate/service/SetBondInterestRateDomainService"
+import { BondInterestRatePersistence } from "@port/interestrate/persistence/model/BondInterestRatePersistence"
+import { BondInterestRateTypeOrmRepository } from "@port/interestrate/persistence/repositories/BondInterestRateTypeOrmRepository"
+import { SetBondImpactDataNestJSEventAdapter } from "@port/impactdata/usecase/setbondimpactdata/SetBondImpactDataNestJSEventAdapter"
+import { SetBondImpactDataCommandHandler } from "@app/impactdata/setbondimpactdata/command/SetBondImpactDataCommandHandler"
+import { SetBondImpactDataDomainService } from "@domain/impactdata/service/SetBondImpactDataDomainService"
+import { BondImpactDataPersistence } from "@port/impactdata/persistence/model/BondImpactDataPersistence"
+import { BondImpactDataTypeOrmRepository } from "@port/impactdata/persistence/repositories/BondImpactDataTypeOrmRepository"
+import { AddBondKpiDataNestJSEventAdapter } from "@port/kpidata/usecase/addbondkpidata/AddBondKpiDataNestJSEventAdapter"
+import { AddBondKpiDataCommandHandler } from "@app/kpidata/addbondkpidata/command/AddBondKpiDataCommandHandler"
+import { AddBondKpiDataDomainService } from "@domain/kpidata/service/AddBondKpiDataDomainService"
+import { BondKpiDataPersistence } from "@port/kpidata/persistence/model/BondKpiDataPersistence"
+import { BondKpiDataTypeOrmRepository } from "@port/kpidata/persistence/repositories/BondKpiDataTypeOrmRepository"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -282,6 +297,18 @@ const REPOSITORIES: Provider[] = [
   {
     provide: "FactoryRepository",
     useClass: FactoryTypeOrmRepository,
+  },
+  {
+    provide: "BondInterestRateRepository",
+    useClass: BondInterestRateTypeOrmRepository,
+  },
+  {
+    provide: "BondImpactDataRepository",
+    useClass: BondImpactDataTypeOrmRepository,
+  },
+  {
+    provide: "BondKpiDataRepository",
+    useClass: BondKpiDataTypeOrmRepository,
   },
 ]
 
@@ -493,6 +520,15 @@ export const PROVIDERS = [
   UnpauseFactoryCommandHandler,
   PauseFactoryNestJSEventAdapter,
   UnpauseFactoryNestJSEventAdapter,
+  SetBondInterestRateNestJSEventAdapter,
+  SetBondInterestRateCommandHandler,
+  SetBondInterestRateDomainService,
+  SetBondImpactDataNestJSEventAdapter,
+  SetBondImpactDataCommandHandler,
+  SetBondImpactDataDomainService,
+  AddBondKpiDataNestJSEventAdapter,
+  AddBondKpiDataCommandHandler,
+  AddBondKpiDataDomainService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
@@ -517,4 +553,7 @@ export const ENTITIES = [
   BondClearingRedeemPersistence,
   BondClearingTransferPersistence,
   FactoryPersistence,
+  BondInterestRatePersistence,
+  BondImpactDataPersistence,
+  BondKpiDataPersistence,
 ]
