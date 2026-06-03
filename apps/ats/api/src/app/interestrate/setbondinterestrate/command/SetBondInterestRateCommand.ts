@@ -3,16 +3,45 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsNumberString, IsString } from "class-validator"
 
 export class SetBondInterestRateCommand extends Command<void> {
-  @IsNotEmpty() @IsString() bondContractId: string
-  @IsNotEmpty() @IsString() operator: string
-  @IsNotEmpty() @IsNumberString() maxRate: string
-  @IsNotEmpty() @IsNumberString() baseRate: string
-  @IsNotEmpty() @IsNumberString() minRate: string
-  @IsNotEmpty() @IsNumberString() startPeriod: string
-  @IsNotEmpty() @IsNumberString() startRate: string
-  @IsNotEmpty() @IsNumberString() missedPenalty: string
-  @IsNotEmpty() @IsNumberString() reportPeriod: string
-  @IsNotEmpty() @IsNumberString() rateDecimals: string
+  @IsNotEmpty()
+  @IsString()
+  bondContractId: string
+
+  @IsNotEmpty()
+  @IsString()
+  operator: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  maxRate: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  baseRate: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  minRate: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  startPeriod: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  startRate: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  missedPenalty: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  reportPeriod: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  rateDecimals: string
 
   constructor(
     bondContractId: string,

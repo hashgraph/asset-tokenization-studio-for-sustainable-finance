@@ -3,13 +3,33 @@ import { Command } from "@hashgraph/green-bonds-shared-core"
 import { IsNotEmpty, IsNumberString, IsString } from "class-validator"
 
 export class SetBondImpactDataCommand extends Command<void> {
-  @IsNotEmpty() @IsString() bondContractId: string
-  @IsNotEmpty() @IsString() operator: string
-  @IsNotEmpty() @IsNumberString() maxDeviationCap: string
-  @IsNotEmpty() @IsNumberString() baseLine: string
-  @IsNotEmpty() @IsNumberString() maxDeviationFloor: string
-  @IsNotEmpty() @IsNumberString() impactDataDecimals: string
-  @IsNotEmpty() @IsNumberString() adjustmentPrecision: string
+  @IsNotEmpty()
+  @IsString()
+  bondContractId: string
+
+  @IsNotEmpty()
+  @IsString()
+  operator: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  maxDeviationCap: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  baseLine: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  maxDeviationFloor: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  impactDataDecimals: string
+
+  @IsNotEmpty()
+  @IsNumberString()
+  adjustmentPrecision: string
 
   constructor(
     bondContractId: string,
