@@ -248,6 +248,12 @@ import { AddBondKpiDataCommandHandler } from "@app/kpidata/addbondkpidata/comman
 import { AddBondKpiDataDomainService } from "@domain/kpidata/service/AddBondKpiDataDomainService"
 import { BondKpiDataPersistence } from "@port/kpidata/persistence/model/BondKpiDataPersistence"
 import { BondKpiDataTypeOrmRepository } from "@port/kpidata/persistence/repositories/BondKpiDataTypeOrmRepository"
+import { SetKpiInterestRateTransactionHttpAdapter } from "@port/transaction/usecase/setkpiinterestratetransaction/SetKpiInterestRateTransactionHttpAdapter"
+import { SetKpiInterestRateTransactionAppService } from "@app/transaction/interestrate/setkpiinterestratetransaction/service/SetKpiInterestRateTransactionAppService"
+import { SetKpiImpactDataTransactionHttpAdapter } from "@port/transaction/usecase/setkpiimpactdatatransaction/SetKpiImpactDataTransactionHttpAdapter"
+import { SetKpiImpactDataTransactionAppService } from "@app/transaction/impactdata/setkpiimpactdatatransaction/service/SetKpiImpactDataTransactionAppService"
+import { AddKpiDataTransactionHttpAdapter } from "@port/transaction/usecase/addkpidatatransaction/AddKpiDataTransactionHttpAdapter"
+import { AddKpiDataTransactionAppService } from "@app/transaction/kpidata/addkpidatatransaction/service/AddKpiDataTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -368,6 +374,9 @@ export const CONTROLLERS = [
   GetClearingTransferHttpAdapter,
   GetClearingsRedeemHttpAdapter,
   GetClearingRedeemHttpAdapter,
+  SetKpiInterestRateTransactionHttpAdapter,
+  SetKpiImpactDataTransactionHttpAdapter,
+  AddKpiDataTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -529,6 +538,9 @@ export const PROVIDERS = [
   AddBondKpiDataNestJSEventAdapter,
   AddBondKpiDataCommandHandler,
   AddBondKpiDataDomainService,
+  SetKpiInterestRateTransactionAppService,
+  SetKpiImpactDataTransactionAppService,
+  AddKpiDataTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,

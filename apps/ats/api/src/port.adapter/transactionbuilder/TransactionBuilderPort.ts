@@ -24,6 +24,9 @@ import { BuildCreateClearingTransferTransactionRequest } from "@port/transaction
 import { BuildExecuteHoldTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteHoldTransactionRequest"
 import { BuildReleaseHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseHoldTransactionRequest"
 import { BuildReclaimHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimHoldTransactionRequest"
+import { BuildSetInterestRateTransactionRequest } from "@port/transactionbuilder/model/BuildSetInterestRateTransactionRequest"
+import { BuildSetImpactDataTransactionRequest } from "@port/transactionbuilder/model/BuildSetImpactDataTransactionRequest"
+import { BuildAddKpiDataTransactionRequest } from "@port/transactionbuilder/model/BuildAddKpiDataTransactionRequest"
 
 export interface TransactionBuilderPort {
   createBondTransaction(request: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse>
@@ -60,4 +63,7 @@ export interface TransactionBuilderPort {
   executeHoldTransaction(request: BuildExecuteHoldTransactionRequest): Promise<BuildTransactionResponse>
   releaseHoldTransaction(request: BuildReleaseHoldTransactionRequest): Promise<BuildTransactionResponse>
   reclaimHoldTransaction(request: BuildReclaimHoldTransactionRequest): Promise<BuildTransactionResponse>
+  setInterestRateTransaction(request: BuildSetInterestRateTransactionRequest): Promise<BuildTransactionResponse>
+  setImpactDataTransaction(request: BuildSetImpactDataTransactionRequest): Promise<BuildTransactionResponse>
+  addKpiDataTransaction(request: BuildAddKpiDataTransactionRequest): Promise<BuildTransactionResponse>
 }
