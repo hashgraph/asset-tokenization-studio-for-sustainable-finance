@@ -233,6 +233,14 @@ import { DeleteClearingTransferDomainService } from "@domain/clearing/service/De
 import { ApproveHoldClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveHoldClearingBalanceDomainService"
 import { ApproveRedeemClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveRedeemClearingBalanceDomainService"
 import { ApproveTransferClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveTransferClearingBalanceDomainService"
+import { GetBondInterestRateHttpAdapter } from "@port/interestrate/usecase/getbondinterestrate/GetBondInterestRateHttpAdapter"
+import { GetBondInterestRateQueryHandler } from "@app/interestrate/getbondinterestrate/query/GetBondInterestRateQueryHandler"
+import { GetBondImpactDataHttpAdapter } from "@port/impactdata/usecase/getbondimpactdata/GetBondImpactDataHttpAdapter"
+import { GetBondImpactDataQueryHandler } from "@app/impactdata/getbondimpactdata/query/GetBondImpactDataQueryHandler"
+import { GetBondKpiDataHttpAdapter } from "@port/kpidata/usecase/getbondkpidata/GetBondKpiDataHttpAdapter"
+import { GetBondKpiDataQueryHandler } from "@app/kpidata/getbondkpidata/query/GetBondKpiDataQueryHandler"
+import { GetBondKpiDataItemHttpAdapter } from "@port/kpidata/usecase/getbondkpidataitem/GetBondKpiDataItemHttpAdapter"
+import { GetBondKpiDataItemQueryHandler } from "@app/kpidata/getbondkpidataitem/query/GetBondKpiDataItemQueryHandler"
 import { SetBondInterestRateNestJSEventAdapter } from "@port/interestrate/usecase/setbondinterestrate/SetBondInterestRateNestJSEventAdapter"
 import { SetBondInterestRateCommandHandler } from "@app/interestrate/setbondinterestrate/command/SetBondInterestRateCommandHandler"
 import { SetBondInterestRateDomainService } from "@domain/interestrate/service/SetBondInterestRateDomainService"
@@ -377,6 +385,10 @@ export const CONTROLLERS = [
   SetKpiInterestRateTransactionHttpAdapter,
   SetKpiImpactDataTransactionHttpAdapter,
   AddKpiDataTransactionHttpAdapter,
+  GetBondInterestRateHttpAdapter,
+  GetBondImpactDataHttpAdapter,
+  GetBondKpiDataHttpAdapter,
+  GetBondKpiDataItemHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -529,6 +541,10 @@ export const PROVIDERS = [
   UnpauseFactoryCommandHandler,
   PauseFactoryNestJSEventAdapter,
   UnpauseFactoryNestJSEventAdapter,
+  GetBondInterestRateQueryHandler,
+  GetBondImpactDataQueryHandler,
+  GetBondKpiDataQueryHandler,
+  GetBondKpiDataItemQueryHandler,
   SetBondInterestRateNestJSEventAdapter,
   SetBondInterestRateCommandHandler,
   SetBondInterestRateDomainService,
