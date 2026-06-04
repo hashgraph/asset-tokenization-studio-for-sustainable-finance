@@ -19,6 +19,8 @@ import {
   IClearingActions__factory,
   IClearingRedeem__factory,
   IClearingTransfer__factory,
+  IKpiLinkedRate__factory,
+  IKpis__factory,
 } from "@hashgraph/asset-tokenization-contracts"
 import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
 import { ConfigService } from "@nestjs/config"
@@ -47,6 +49,9 @@ import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder
 import { BuildExecuteHoldTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteHoldTransactionRequest"
 import { BuildReleaseHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseHoldTransactionRequest"
 import { BuildReclaimHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimHoldTransactionRequest"
+import { BuildSetInterestRateTransactionRequest } from "@port/transactionbuilder/model/BuildSetInterestRateTransactionRequest"
+import { BuildSetImpactDataTransactionRequest } from "@port/transactionbuilder/model/BuildSetImpactDataTransactionRequest"
+import { BuildAddKpiDataTransactionRequest } from "@port/transactionbuilder/model/BuildAddKpiDataTransactionRequest"
 
 @Singleton()
 export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
@@ -61,6 +66,8 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
   private readonly LOCKER_ROLE = "0xd8aa8c6f92fe8ac3f3c0f88216e25f7c08b3a6c374b4452a04d200c29786ce88"
   private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
   private readonly CLEARING_APPROVER_ROLE = "0x7b688898673e16c47810f5da9ce1262a3d7d022dfe27c8ff9305371cd435c619"
+  private readonly INTEREST_RATE_MANAGER_ROLE = "0xa174f099c94c902831d8b8a07810700505da86a76ea0bcb7629884ef26cf682e"
+  private readonly KPI_MANAGER_ROLE = "0x441e549cc2c88d01fa80bd9e7b40412d3106214149223501aa25d4fa23bf306d"
 
   private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
   private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
@@ -123,6 +130,18 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
           },
           {
             role: this.CLEARING_APPROVER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.INTEREST_RATE_MANAGER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.KPI_MANAGER_ROLE,
             members: req.securityTokenToCreate.diamondOwnerAccountAddress
               ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
               : [this.EVM_ZERO_ADDRESS],
@@ -700,6 +719,61 @@ export class TransactionBuilderAdapter extends BaseTransactionBuilder implements
       req.accountId,
       req.format as "hedera" | "ethereum",
       [partition, hold],
+    )
+  }
+
+  async setInterestRateTransaction(req: BuildSetInterestRateTransactionRequest): Promise<BuildTransactionResponse> {
+    const interestRate = {
+      maxRate: req.interestRate.maxRate,
+      baseRate: req.interestRate.baseRate,
+      minRate: req.interestRate.minRate,
+      startPeriod: req.interestRate.startPeriod,
+      startRate: req.interestRate.startRate,
+      missedPenalty: req.interestRate.missedPenalty,
+      reportPeriod: req.interestRate.reportPeriod,
+      rateDecimals: req.interestRate.rateDecimals,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IKpiLinkedRate__factory.createInterface(),
+      "setInterestRate",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [interestRate],
+    )
+  }
+
+  async setImpactDataTransaction(req: BuildSetImpactDataTransactionRequest): Promise<BuildTransactionResponse> {
+    const impactData = {
+      maxDeviationCap: req.impactData.maxDeviationCap,
+      baseLine: req.impactData.baseLine,
+      maxDeviationFloor: req.impactData.maxDeviationFloor,
+      impactDataDecimals: req.impactData.impactDataDecimals,
+      adjustmentPrecision: req.impactData.adjustmentPrecision,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IKpiLinkedRate__factory.createInterface(),
+      "setImpactData",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [impactData],
+    )
+  }
+
+  async addKpiDataTransaction(req: BuildAddKpiDataTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IKpis__factory.createInterface(),
+      "addKpiData",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.date, req.value, req.projectAddress],
     )
   }
 }

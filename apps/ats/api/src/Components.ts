@@ -233,6 +233,12 @@ import { DeleteClearingTransferDomainService } from "@domain/clearing/service/De
 import { ApproveHoldClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveHoldClearingBalanceDomainService"
 import { ApproveRedeemClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveRedeemClearingBalanceDomainService"
 import { ApproveTransferClearingBalanceDomainService } from "@domain/holderbalance/service/ApproveTransferClearingBalanceDomainService"
+import { SetKpiInterestRateTransactionHttpAdapter } from "@port/transaction/usecase/setkpiinterestratetransaction/SetKpiInterestRateTransactionHttpAdapter"
+import { SetKpiInterestRateTransactionAppService } from "@app/transaction/interestrate/setkpiinterestratetransaction/service/SetKpiInterestRateTransactionAppService"
+import { SetKpiImpactDataTransactionHttpAdapter } from "@port/transaction/usecase/setkpiimpactdatatransaction/SetKpiImpactDataTransactionHttpAdapter"
+import { SetKpiImpactDataTransactionAppService } from "@app/transaction/impactdata/setkpiimpactdatatransaction/service/SetKpiImpactDataTransactionAppService"
+import { AddKpiDataTransactionHttpAdapter } from "@port/transaction/usecase/addkpidatatransaction/AddKpiDataTransactionHttpAdapter"
+import { AddKpiDataTransactionAppService } from "@app/transaction/kpidata/addkpidatatransaction/service/AddKpiDataTransactionAppService"
 
 const REPOSITORIES: Provider[] = [
   {
@@ -341,6 +347,9 @@ export const CONTROLLERS = [
   GetClearingTransferHttpAdapter,
   GetClearingsRedeemHttpAdapter,
   GetClearingRedeemHttpAdapter,
+  SetKpiInterestRateTransactionHttpAdapter,
+  SetKpiImpactDataTransactionHttpAdapter,
+  AddKpiDataTransactionHttpAdapter,
 ]
 export const PROVIDERS = [
   ...REPOSITORIES,
@@ -493,6 +502,9 @@ export const PROVIDERS = [
   UnpauseFactoryCommandHandler,
   PauseFactoryNestJSEventAdapter,
   UnpauseFactoryNestJSEventAdapter,
+  SetKpiInterestRateTransactionAppService,
+  SetKpiImpactDataTransactionAppService,
+  AddKpiDataTransactionAppService,
   {
     provide: "TransactionBuilderPort",
     useClass: TransactionBuilderAdapter,
