@@ -70,7 +70,8 @@ describe("ProcessEventCommandHandler", () => {
 
   it("should process event, save Event store and publish EventProcessed event", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Test",
       signature: "Test(address)",
       field: "testField",
@@ -114,7 +115,8 @@ describe("ProcessEventCommandHandler", () => {
   it("should process event, save Event store in failed status and publish EventProcessed event", async () => {
     errorOnDLTEventListener = true
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Test",
       signature: "Test(address)",
       field: "testField",

@@ -4,7 +4,8 @@ import { EventSignatureRequest } from "@port/blockchain/model/EventSignatureRequ
 
 export default interface DecodeLogRequest {
   readonly timestamp: string
-  readonly transactionHash: string
+  readonly txId: string
+  readonly txHash: string
   readonly data: string
   readonly topics: string[]
   readonly eventSignatures: EventSignatureRequest[]

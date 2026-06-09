@@ -81,7 +81,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should process event from configured block and event filter", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Transfer",
       signature: "Transfer(address indexed from,address indexed to,uint256 value)",
       from: "testFrom",
@@ -89,7 +90,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -127,7 +129,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should skip event if the event has been already processed", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Transfer",
       signature: "Transfer(address indexed from,address indexed to,uint256 value)",
       from: "testFrom",
@@ -135,7 +138,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -169,7 +173,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should process event if the event has been already processed in FAILED status", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Transfer",
       signature: "Transfer(address indexed from,address indexed to,uint256 value)",
       from: "testFrom",
@@ -177,7 +182,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -225,7 +231,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should process event from dynamically created event filter", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Transfer",
       signature: "Transfer(address indexed from,address indexed to,uint256 value)",
       from: "testFrom",
@@ -233,7 +240,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -282,13 +290,15 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should process event from stored block and event filter", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "AmountSnapshotExecuted",
       signature: "AmountSnapshotExecuted(uint256)",
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -351,13 +361,15 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("if configured block is greater than stored block, configured block is used", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "AmountSnapshotExecuted",
       signature: "AmountSnapshotExecuted(uint256)",
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -402,13 +414,15 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("if there is no configured or stored block, last block from the blockchain is used", async () => {
     const blockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "AmountSnapshotExecuted",
       signature: "AmountSnapshotExecuted(uint256)",
       value: 1000000,
     } as BlockchainEvent
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -468,7 +482,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should process blocks when there are multiple app instances", async () => {
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -506,7 +521,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should stop processing blocks when an instance has failed", async () => {
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,
@@ -541,7 +557,8 @@ describe("EventListenerNestJSOnApplicationBootstrap", () => {
 
   it("should keep on processing blocks when the database lock gets timeout ", async () => {
     const errorBlockchainEvent = {
-      transactionHash: "testTransactionHash",
+      txId: "0.0.123@1234567890.0",
+      txHash: "testTransactionHash",
       name: "Error",
       signature: "Error(uint256 field)",
       field: 1000000,

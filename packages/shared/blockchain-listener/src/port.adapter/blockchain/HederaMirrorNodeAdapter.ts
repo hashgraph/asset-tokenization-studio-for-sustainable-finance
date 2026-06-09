@@ -71,12 +71,15 @@ export class HederaMirrorNodeAdapter implements HederaPort {
         blockHash,
       })
 
+      const txId = await this.getTransactionIdByTimestamp(contractResults.timestamp)
+
       events.push(
         ...contractResults.logs
           .map((log) =>
             this.decodeLog({
               ...log,
-              transactionHash: blockHash,
+              txId,
+              txHash: blockHash,
               timestamp: contractResults.timestamp,
               eventSignatures,
               contractId: log.contract_id,
@@ -86,6 +89,25 @@ export class HederaMirrorNodeAdapter implements HederaPort {
       )
     }
     return events
+  }
+
+  /**
+   * Resolves the Hedera transaction ID (0.0.X@seconds.nanos) for a given consensus timestamp.
+   * Every transaction on this platform runs on Hedera, so a Hedera id always exists — both for
+   * "hedera" and "ethereum"/EVM formats. Retries on transient failures and throws if it cannot be
+   * resolved, keeping txId mandatory in the published event.
+   */
+  @Retryable()
+  private async getTransactionIdByTimestamp(timestamp: string): Promise<string> {
+    const data = await this.fetchData<{ transactions?: { transaction_id?: string }[] }>(
+      `transactions?timestamp=${timestamp}`,
+    )
+    const rawTransactionId = data?.transactions?.[0]?.transaction_id
+    if (!rawTransactionId) {
+      throw new Error(`No transaction_id found in Mirror Node for timestamp ${timestamp}`)
+    }
+    // Mirror Node format "0.0.X-seconds-nanos" → Hedera format "0.0.X@seconds.nanos"
+    return rawTransactionId.replace(/(\d+\.\d+\.\d+)-(\d+)-(\d+)/, "$1@$2.$3")
   }
 
   private getMirrorNodeURL(network: string): string {
@@ -237,7 +259,8 @@ export class HederaMirrorNodeAdapter implements HederaPort {
 
       const eventObj: BlockchainEvent = {
         logTimestamp: request.timestamp,
-        transactionHash: request.transactionHash,
+        txId: request.txId,
+        txHash: request.txHash,
         name: eventName,
         signature: eventSignature,
         contractId: request.contractId,
