@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: Apache-2.0
+
+import { Inject, Singleton, Validate } from "@hashgraph/green-bonds-shared-core"
+import type { CommandBus } from "@hashgraph/green-bonds-shared-core"
+import { SyncProceedsRecipientAppServiceRequest } from "@app/proceedsrecipient/syncproceedsrecipient/service/model/SyncProceedsRecipientAppServiceRequest"
+import type { ProceedsRecipientRepository } from "@domain/proceedsrecipient/repositories/ProceedsRecipientRepository"
+import { CreateProceedsRecipientCommand } from "@app/proceedsrecipient/createproceedsrecipient/command/CreateProceedsRecipientCommand"
+import { AddProceedsRecipientAllocationCommand } from "@app/proceedsrecipient/addproceedsrecipientallocation/command/AddProceedsRecipientAllocationCommand"
+import { CheckTreasuryExistsDomainService } from "@domain/treasury/services/CheckTreasuryExistsDomainService"
+import { ProceedsRecipient } from "@domain/proceedsrecipient/model/ProceedsRecipient"
+
+@Singleton()
+export class SyncProceedsRecipientAppService {
+  constructor(
+    @Inject() private readonly proceedsRecipientRepository: ProceedsRecipientRepository,
+    private readonly checkTreasuryExistsDomainService: CheckTreasuryExistsDomainService,
+    @Inject() private readonly commandBus: CommandBus,
+  ) {}
+
+  @Validate()
+  async execute(request: SyncProceedsRecipientAppServiceRequest): Promise<void> {
+    const treasury = await this.checkTreasuryExistsDomainService.execute(request.treasuryContractId)
+    treasury.ensurePaymentTokenConfigured()
+
+    // Check if the proceeds recipient exists for this treasury
+    const existingProceedsRecipient = await this.proceedsRecipientRepository.findByContractIdAndTreasuryContractId(
+      request.proceedsRecipientContractId,
+      request.treasuryContractId,
+    )
+
+    let proceedsRecipientId: string
+
+    if (!existingProceedsRecipient) {
+      // Create a new proceeds recipient
+      const proceedsRecipient: ProceedsRecipient = await this.commandBus.execute(
+        new CreateProceedsRecipientCommand(request.proceedsRecipientContractId, request.treasuryContractId),
+      )
+      proceedsRecipientId = proceedsRecipient.id
+    } else {
+      proceedsRecipientId = existingProceedsRecipient.id
+    }
+
+    await this.commandBus.execute(
+      new AddProceedsRecipientAllocationCommand(proceedsRecipientId, treasury.paymentToken!.id, request.amount),
+    )
+  }
+}

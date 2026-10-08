@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false
+  },
+  "include": [
+    "scripts/domain/constants.ts",
+    "scripts/domain/index.ts",
+    "scripts/domain/factoryPrimaryMarket/index.ts",
+    "scripts/domain/primaryMarket/index.ts",
+    "scripts/infrastructure/index.ts",
+    "scripts/infrastructure/factoryPrimaryMarketRegistry.ts",
+    "scripts/constants.ts",
+    "scripts/index.ts",
+    "typechain-types/**/*",
+    "test/constants.ts",
+    "test/index.ts",
+    "test/types.ts"
+  ],
+  "exclude": ["node_modules", "test/unit/**/*"]
+}

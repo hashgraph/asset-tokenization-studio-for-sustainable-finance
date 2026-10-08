@@ -1,0 +1,39 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolvePackageJsonExports": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@command/*": ["src/command/*"],
+      "@config/*": ["src/config/*"],
+      "@decorators/*": ["src/decorators/*"],
+      "@domain/*": ["src/domain/*"],
+      "@errors/*": ["src/errors/*"],
+      "@event/*": ["src/event/*"],
+      "@logger/*": ["src/logger/*"],
+      "@pagination/*": ["src/pagination/*"],
+      "@persistence/*": ["src/persistence/*"],
+      "@query/*": ["src/query/*"],
+      "@retry/*": ["src/retry/*"],
+      "@transaction/*": ["src/transaction/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  }
+}

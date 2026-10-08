@@ -1,0 +1,89 @@
+# Green Bonds Platform - Docker Infrastructure
+#
+# Services:
+#   - PostgreSQL (5432): Database server with multiple databases (ats_db, primary_market_db, treasury_db)
+#   - PgAdmin (5050): Web UI for database management (admin@admin.com / admin)
+#   - RabbitMQ (5672, 15672): Message broker for async transaction processing
+#
+# Usage:
+#   docker compose up -d      # Start all services
+#   docker compose down       # Stop all services
+#   docker compose down -v    # Stop and remove volumes (reset databases)
+#
+# Note: The init-db.sh script only runs on first initialization (empty volume).
+#       To recreate databases, use: docker compose down -v && docker compose up -d
+
+services:
+  # PostgreSQL Database - Single instance with multiple databases
+  # Databases created by init-db.sh: ats_db, primary_market_db, treasury_db
+  # Connection: localhost:5432, user: postgres, password: postgres
+  postgres:
+    image: postgres:15-alpine
+    container_name: green_bonds_test_postgres
+    hostname: postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - green_bonds_network
+
+  # PgAdmin - Web UI for database management
+  # Access: http://localhost:5050
+  # Login: admin@admin.com / admin
+  # Pre-configured servers defined in: pgadmin-servers.json
+  # Database password when connecting: postgres
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: green_bonds_test_pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    ports:
+      - "5050:80"
+    volumes:
+      - ./pgadmin-servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - green_bonds_network
+
+  # RabbitMQ - Message broker for async transaction processing
+  # AMQP: localhost:5672
+  # Management UI: http://localhost:15672 (guest / guest)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: green_bonds_test_rabbitmq
+    hostname: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - green_bonds_network
+
+volumes:
+  postgres_data:
+
+networks:
+  green_bonds_network:
+    driver: bridge

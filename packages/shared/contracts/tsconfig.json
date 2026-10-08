@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node10",
+    "declaration": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "importHelpers": true,
+    "alwaysStrict": true,
+    "strict": true,
+    "outDir": "./build",
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "@configuration": ["./Configuration.ts"],
+      "@scripts": ["./scripts/index.ts"],
+      "@scripts/*": ["./scripts/*"],
+      "@test": ["./test/index.ts"],
+      "@test/*": ["./test/*"],
+      "ats-test-helpers": ["./node_modules/@hashgraph/asset-tokenization-contracts/build/test/helpers/index"]
+    }
+  },
+  "include": ["Configuration.ts", "scripts/**/*", "test/**/*"],
+  "exclude": ["node_modules", "build", "dist"],
+  "ts-node": {
+    "require": ["tsconfig-paths/register"],
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  }
+}

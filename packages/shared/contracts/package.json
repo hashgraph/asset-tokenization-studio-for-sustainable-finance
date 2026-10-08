@@ -1,0 +1,93 @@
+{
+  "name": "@hashgraph/green-bonds-platform-shared-contracts",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "Shared infrastructure orchestration for Green Bonds Platform",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "scripts": ["./build/index.d.ts"]
+    }
+  },
+  "files": ["build/", "!build/**/*.map"],
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "default": "./build/index.js"
+    },
+    "./scripts": {
+      "types": "./build/index.d.ts",
+      "import": "./build/index.js",
+      "require": "./build/index.js",
+      "default": "./build/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "keywords": ["hedera", "green-bonds", "infrastructure", "orchestration"],
+  "author": "",
+  "license": "Apache-2.0",
+  "scripts": {
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
+    "clean": "npm run clean:build; npm run clean:node",
+    "clean:build": "node -e \"const fs=require('fs'); ['build'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "bash -c 'npx hardhat test ${NO_COMPILE:+--no-compile} test/scripts/integration/*.test.ts'",
+    "test:only": "NO_COMPILE=1 npm test",
+    "test:integration": "bash -c 'npx hardhat test ${NO_COMPILE:+--no-compile} test/scripts/integration/*.test.ts'",
+    "deploy": "npm run build && npx tsx scripts/cli/standalone.ts",
+    "deploy:local": "NETWORK=local npm run deploy",
+    "deploy:local:auto": "npx hardhat node > hardhat-node.log 2>&1 & sleep 3 && npm run deploy:local; kill $!",
+    "deploy:hedera:local": "NETWORK=hedera-local npm run deploy",
+    "deploy:hedera:preview": "NETWORK=hedera-preview npm run deploy",
+    "deploy:hedera:testnet": "NETWORK=hedera-testnet npm run deploy",
+    "deploy:hedera:mainnet": "NETWORK=hedera-mainnet npm run deploy",
+    "upgrade": "npm run build && npx tsx scripts/cli/upgradeStandalone.ts",
+    "upgrade:local": "NETWORK=local npm run upgrade",
+    "upgrade:hedera:local": "NETWORK=hedera-local npm run upgrade",
+    "upgrade:hedera:preview": "NETWORK=hedera-preview npm run upgrade",
+    "upgrade:hedera:testnet": "NETWORK=hedera-testnet npm run upgrade",
+    "upgrade:hedera:mainnet": "NETWORK=hedera-mainnet npm run upgrade",
+    "local:hardhat": "npx hardhat node",
+    "checkpoint": "npx tsx node_modules/@hashgraph/asset-tokenization-contracts/build/scripts/cli/checkpoint.js",
+    "checkpoint:list": "npm run checkpoint -- list",
+    "checkpoint:cleanup": "npm run checkpoint -- cleanup"
+  },
+  "dependencies": {
+    "@hashgraph/asset-tokenization-contracts": "5.0.0",
+    "@hashgraph/green-bonds-platform-ats-contracts": "*",
+    "@hashgraph/green-bonds-platform-primarymarket-contracts": "*",
+    "@hashgraph/green-bonds-platform-treasury-contracts": "*",
+    "dotenv": "^16.0.0",
+    "ethers": "6.15.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "@nomicfoundation/hardhat-chai-matchers": "2.0.8",
+    "@nomicfoundation/hardhat-ethers": "3.1.0",
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "@nomicfoundation/hardhat-verify": "2.0.12",
+    "@types/node": "22.18.9",
+    "@typechain/ethers-v6": "0.5.1",
+    "@typechain/hardhat": "9.1.0",
+    "chai": "^4.4.0",
+    "eslint": "^9.36.0",
+    "hardhat": "2.26.5",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "tsx": "4.21.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1",
+    "@nomicfoundation/hardhat-ignition": "0.15.5"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

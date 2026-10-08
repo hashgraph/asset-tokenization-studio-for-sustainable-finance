@@ -1,0 +1,111 @@
+// SPDX-License-Identifier: Apache-2.0
+
+pragma solidity ^0.8.0;
+
+interface IProceedsManagement {
+    /*
+     * @dev Emitted when the payment tokens were transferred to an address
+     *
+     * @param to The address the payment tokens were transferred to
+     * @param amount The amount of payment tokens transferred
+     */
+    event PaymentTokenTransferred(address indexed to, uint256 indexed amount);
+
+    /*
+     * @dev Emitted when an environmental asset token was transferred to an address
+     *
+     * @param environmentalAsset The address of the environmental asset token
+     * @param to The address the payment tokens were transferred to
+     * @param tokenId The tokenId of the environmental asset token
+     */
+    event EnvironmentalAssetTokenTransferred(
+        address indexed environmentalAsset,
+        address indexed to,
+        uint256 indexed tokenId
+    );
+
+    /*
+     * @dev Emitted when a proceeds recipient was funded with an amount
+     *
+     * @param proceedsRecipient The address of the proceeds recipient that was funded
+     * @param token The amount the proceeds recipient was funded with
+     */
+    event ProceedsRecipientFunded(address indexed proceedsRecipient, uint256 indexed amount);
+
+    /**
+     * @notice Error thrown when transferring an amount of payment tokens greater than the maximum int64
+     *
+     * @param amount The amount of payment tokens to be transferred
+     */
+    error NotAllowedAmount(uint256 amount);
+
+    /**
+     * @notice Error thrown when transferring a NFT with a serial number greater than the maximum int64
+     *
+     * @param serialNumber The serial number of the NFT to be transferred
+     */
+    error NotAllowedSerialNumber(uint256 serialNumber);
+
+    /**
+     * @notice Error thrown when attempting to transfer an amount of payment tokens larger than the Treasury's balance
+     *
+     * @param amount The amount of payment tokens to transfer
+     */
+    error NotEnoughBalance(uint256 amount);
+
+    /**
+     * @notice Error thrown when transferring an environmental asset Token Id the Treasury does not own
+     *
+     * @param tokenId The tokenId of the environmental asset token
+     */
+    error NotTokenIdOwner(uint256 tokenId);
+
+    /**
+     * @notice Error thrown when something fails while attempting to transfer payment tokens
+     *
+     * @param to The address the payment tokens are transferred to
+     * @param amount The amount of payment tokens to transfer
+     */
+    error TransferPaymentTokenFailed(address to, uint256 amount);
+
+    /**
+     * @notice Error thrown when something fails while attempting to transfer an environmental asset token
+     *
+     * @param environmentalAsset The address of the environmental asset token contract
+     * @param to The address the payment tokens are transferred to
+     * @param tokenId The tokenId of the environmental asset token
+     */
+    error TransferEnvironmentalAssetTokenFailed(address environmentalAsset, address to, uint256 tokenId);
+
+    /**
+     * @notice Error thrown when funding an account that is not an asset proceeds recipient
+     *
+     * @param proceedsRecipient The address of the proceeds recipient that is funded
+     */
+    error WrongProceedsRecipient(address proceedsRecipient);
+
+    /*
+     * @dev Transfers an amount of payment tokens to an address
+     *
+     * @param to The address the payment tokens are transferred to
+     * @param amount The amount of payment tokens to be transferred
+     */
+    function transferPaymentToken(address to, uint256 amount) external;
+
+    /*
+     * @dev Transfers an environmental asset token to an address
+     *
+     * @param environmentalAsset The address of the environmental asset token contract
+     * @param to The address the environmental asset token is transferred to
+     * @param tokenId The tokenId of the environmental asset token
+     */
+    function transferEnvironmentalAssetToken(address environmentalAsset, address to, uint256 tokenId) external;
+
+    /*
+     * @dev Funds a proceeds recipient with an amount of tokens
+     *
+     * @param recipient The address of the proceeds recipient that is funded
+     * @param token The amount the proceeds recipient is funded with
+     */
+    function fundProceedsRecipient(address proceedsRecipient, uint256 amount) external;
+}

@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: Apache-2.0
+import { RestController, TransactionResponse } from "@hashgraph/green-bonds-shared-core"
+import { RemoveControlListMemberTransactionRequest } from "./model/RemoveControlListMemberTransactionRequest"
+import { Body, Delete, Param } from "@nestjs/common"
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger"
+import { RemoveControlListMemberTransactionPort } from "./RemoveControlListMemberTransactionPort"
+import { RemoveControlListMemberTransactionAppService } from "@app/transaction/controlllist/removecontrollistmembertransaction/service/RemoveControlListMemberTransactionAppService"
+import { RemoveControlListMemberTransactionAppServiceRequest } from "@app/transaction/controlllist/removecontrollistmembertransaction/service/model/RemoveControlListMemberTransactionAppServiceRequest"
+
+@ApiTags("ATS")
+@RestController("bonds")
+export class RemoveControlListMemberTransactionHttpAdapter implements RemoveControlListMemberTransactionPort {
+  constructor(
+    private readonly deleteControlListMemberTransactionAppService: RemoveControlListMemberTransactionAppService,
+  ) {}
+
+  @ApiOperation({ summary: "Remove member from bond control list" })
+  @ApiResponse({ status: 200, type: TransactionResponse })
+  @Delete(":bondContractId/control-list/:holderAccountId")
+  async deleteControlListMemberTransaction(
+    @Param("bondContractId") bondContractId: string,
+    @Param("holderAccountId") holderAccountId: string,
+    @Body() request: RemoveControlListMemberTransactionRequest,
+  ): Promise<TransactionResponse> {
+    const appServiceRequest = new RemoveControlListMemberTransactionAppServiceRequest(
+      request.format,
+      request.accountId ?? "",
+      bondContractId,
+      holderAccountId,
+    )
+
+    return await this.deleteControlListMemberTransactionAppService.execute(appServiceRequest)
+  }
+}

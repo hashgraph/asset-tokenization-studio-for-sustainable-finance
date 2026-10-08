@@ -1,0 +1,13 @@
+// SPDX-License-Identifier: Apache-2.0
+import { Page, PageOptions } from "@hashgraph/green-bonds-shared-core"
+import { BondControlListMember } from "../model/BondControlListMember"
+
+export interface BondControlListMemberRepository {
+  save(member: BondControlListMember): Promise<BondControlListMember>
+  findByContractIdAndHolderAccountId(
+    bondContractId: string,
+    holderAccountId: string,
+  ): Promise<BondControlListMember | null>
+  findAllByContractId(bondContractId: string, pageOptions: PageOptions): Promise<Page<BondControlListMember>>
+  delete(member: BondControlListMember): Promise<void>
+}

@@ -1,0 +1,779 @@
+// SPDX-License-Identifier: Apache-2.0
+import {
+  BaseTransactionBuilder,
+  BuildTransactionResponse,
+  ConverterUtils,
+  Environment,
+  Singleton,
+} from "@hashgraph/green-bonds-shared-core"
+import {
+  IBond__factory,
+  ICap__factory,
+  IControlList__factory,
+  IERC1410__factory,
+  IERC1643__factory,
+  IHoldTokenHolder__factory,
+  ILock__factory,
+  IProceedRecipients__factory,
+  IClearingHoldCreation__factory,
+  IClearingActions__factory,
+  IClearingRedeem__factory,
+  IClearingTransfer__factory,
+  IKpiLinkedRate__factory,
+  IKpis__factory,
+} from "@hashgraph/asset-tokenization-contracts"
+import { IFactorySuite__factory } from "@hashgraph/green-bonds-platform-ats-contracts"
+import { ConfigService } from "@nestjs/config"
+import { BuildCreateBondTransactionRequest } from "./model/BuildCreateBondTransactionRequest"
+import { TransactionBuilderPort } from "./TransactionBuilderPort"
+import { BuildSetBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondDocumentTransactionRequest"
+import { BuildSetBondCapTransactionRequest } from "@port/transactionbuilder/model/BuildSetBondCapTransactionRequest"
+import { BuildRemoveBondDocumentTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveBondDocumentTransactionRequest"
+import { BuildAddControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildAddControlListMemberTransactionRequest"
+import { BuildRemoveControlListMemberTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveControlListMemberTransactionRequest"
+import { BuildSetCouponTransactionRequest } from "@port/transactionbuilder/model/BuildSetCouponTransactionRequest"
+import { BuildCreateBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondLockTransactionRequest"
+import { BuildMintBondTransactionRequest } from "@port/transactionbuilder/model/BuildMintBondTransactionRequest"
+import { BuildReleaseBondLockTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseBondLockTransactionRequest"
+import { BuildCreateClearingHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingHoldTransactionRequest"
+import { BuildCreateClearingRedeemTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingRedeemTransactionRequest"
+import { BuildCreateClearingTransferTransactionRequest } from "@port/transactionbuilder/model/BuildCreateClearingTransferTransactionRequest"
+import { BuildAddProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildAddProceedRecipientTransactionRequest"
+import { BuildRemoveProceedRecipientTransactionRequest } from "@port/transactionbuilder/model/BuildRemoveProceedRecipientTransactionRequest"
+import { BuildTransferByPartitionTransactionRequest } from "@port/transactionbuilder/model/BuildTransferByPartitionTransactionRequest"
+import { BuildCreateBondHoldTransactionRequest } from "@port/transactionbuilder/model/BuildCreateBondHoldTransactionRequest"
+import { BuildRedeemBondTransactionRequest } from "@port/transactionbuilder/model/BuildRedeemBondTransactionRequest"
+import { BuildApproveClearingTransactionRequest } from "@port/transactionbuilder/model/BuildApproveClearingTransactionRequest"
+import { BuildCancelClearingTransactionRequest } from "@port/transactionbuilder/model/BuildCancelClearingTransactionRequest"
+import { BuildReclaimClearingTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimClearingTransactionRequest"
+import { BuildExecuteHoldTransactionRequest } from "@port/transactionbuilder/model/BuildExecuteHoldTransactionRequest"
+import { BuildReleaseHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReleaseHoldTransactionRequest"
+import { BuildReclaimHoldTransactionRequest } from "@port/transactionbuilder/model/BuildReclaimHoldTransactionRequest"
+import { BuildSetInterestRateTransactionRequest } from "@port/transactionbuilder/model/BuildSetInterestRateTransactionRequest"
+import { BuildSetImpactDataTransactionRequest } from "@port/transactionbuilder/model/BuildSetImpactDataTransactionRequest"
+import { BuildAddKpiDataTransactionRequest } from "@port/transactionbuilder/model/BuildAddKpiDataTransactionRequest"
+
+@Singleton()
+export class TransactionBuilderAdapter extends BaseTransactionBuilder implements TransactionBuilderPort {
+  private readonly TRANSACTIONS_HIGH_GAS = 15_000_000
+  private readonly TRANSACTIONS_MEDIUM_GAS = 700_000
+  private readonly TRANSACTIONS_LOW_GAS = 300_000
+  private readonly EVM_ZERO_ADDRESS = "0x0000000000000000000000000000000000000000"
+  private readonly DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000"
+  private readonly DOCUMENTER_ROLE = "0x83ace103a76d3729b4ba1350ad27522bbcda9a1a589d1e5091f443e76abccf41"
+  private readonly CONTROL_LIST_ROLE = "0xca537e1c88c9f52dc5692c96c482841c3bea25aafc5f3bfe96f645b5f800cac3"
+  private readonly CORPORATE_ACTION_ROLE = "0x8a139eeb747b9809192ae3de1b88acfd2568c15241a5c4f85db0443a536d77d6"
+  private readonly LOCKER_ROLE = "0xd8aa8c6f92fe8ac3f3c0f88216e25f7c08b3a6c374b4452a04d200c29786ce88"
+  private readonly ISSUER_ROLE = "0x4be32e8849414d19186807008dabd451c1d87dae5f8e22f32f5ce94d486da842"
+  private readonly CLEARING_APPROVER_ROLE = "0x7b688898673e16c47810f5da9ce1262a3d7d022dfe27c8ff9305371cd435c619"
+  private readonly INTEREST_RATE_MANAGER_ROLE = "0xa174f099c94c902831d8b8a07810700505da86a76ea0bcb7629884ef26cf682e"
+  private readonly KPI_MANAGER_ROLE = "0x441e549cc2c88d01fa80bd9e7b40412d3106214149223501aa25d4fa23bf306d"
+
+  private readonly DEFAULT_PARTITION = "0x0000000000000000000000000000000000000000000000000000000000000001"
+  private readonly DEFAULT_SECURITY_TOKEN_CONFIG_ID =
+    "0x0000000000000000000000000000000000000000000000000000000000000004"
+  private readonly DEFAULT_TREASURY_CONFIG_ID = "0x0000000000000000000000000000000000000000000000000000000000004e20"
+
+  constructor(private readonly configService: ConfigService) {
+    super()
+  }
+
+  async createBondTransaction(req: BuildCreateBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const contractInterface = IFactorySuite__factory.createInterface()
+
+    // 1. BondData (previously securityTokenToCreate)
+    const bondData = {
+      security: {
+        arePartitionsProtected: req.securityTokenToCreate.arePartitionsProtected,
+        isMultiPartition: req.securityTokenToCreate.isMultiPartition,
+        resolver: req.securityTokenToCreate.resolverAddress,
+        resolverProxyConfiguration: {
+          key: this.DEFAULT_SECURITY_TOKEN_CONFIG_ID,
+          version: req.securityTokenToCreate.configVersion,
+        },
+        rbacs: [
+          {
+            role: this.DEFAULT_ADMIN_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.DOCUMENTER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.CONTROL_LIST_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.CORPORATE_ACTION_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.LOCKER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.ISSUER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.CLEARING_APPROVER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.INTEREST_RATE_MANAGER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+          {
+            role: this.KPI_MANAGER_ROLE,
+            members: req.securityTokenToCreate.diamondOwnerAccountAddress
+              ? [req.securityTokenToCreate.diamondOwnerAccountAddress]
+              : [this.EVM_ZERO_ADDRESS],
+          },
+        ],
+        isControllable: req.securityTokenToCreate.isControllable,
+        isWhiteList: req.securityTokenToCreate.isWhiteList,
+        maxSupply: req.securityTokenToCreate.numberOfUnits ? req.securityTokenToCreate.numberOfUnits : "0",
+        erc20VotesActivated: req.securityTokenToCreate.erc20VotesActivated,
+        erc20MetadataInfo: {
+          name: req.securityTokenToCreate.name,
+          symbol: req.securityTokenToCreate.symbol,
+          isin: req.securityTokenToCreate.isin,
+          decimals: req.securityTokenToCreate.decimals,
+        },
+        clearingActive: req.securityTokenToCreate.clearingActive,
+        internalKycActivated: req.securityTokenToCreate.internalKycActivated,
+        externalPauses: req.securityTokenToCreate.externalPausesAddresses?.map((address) => address.toString()) ?? [],
+        externalControlLists:
+          req.securityTokenToCreate.externalControlListsAddresses?.map((address) => address.toString()) ?? [],
+        externalKycLists:
+          req.securityTokenToCreate.externalKycListsAddresses?.map((address) => address.toString()) ?? [],
+        compliance: req.securityTokenToCreate.complianceAddress
+          ? req.securityTokenToCreate.complianceAddress.toString()
+          : this.EVM_ZERO_ADDRESS,
+        identityRegistry: req.securityTokenToCreate.identityRegistryAddress
+          ? req.securityTokenToCreate.identityRegistryAddress.toString()
+          : this.EVM_ZERO_ADDRESS,
+      },
+      bondDetails: {
+        currency: req.securityTokenToCreate.currency,
+        nominalValue: req.securityTokenToCreate.nominalValue ? req.securityTokenToCreate.nominalValue : "0",
+        nominalValueDecimals: req.securityTokenToCreate.nominalValueDecimals,
+        startingDate: Math.floor(req.securityTokenToCreate.startingDate.getTime() / 1000),
+        maturityDate: Math.floor(req.securityTokenToCreate.maturityDate.getTime() / 1000),
+      },
+      proceedRecipients: req.securityTokenToCreate.proceedRecipientAddresses?.map((addr) => addr.toString()) ?? [],
+      proceedRecipientsData:
+        req.securityTokenToCreate.proceedRecipientsData?.map((data) => (data === "" ? "0x" : data)) ?? [],
+    }
+
+    // 2. FactoryRegulationData
+    const factoryRegulationData = {
+      regulationType: req.factoryRegulationData.regulationType,
+      regulationSubType: req.factoryRegulationData.regulationSubType,
+      additionalSecurityData: {
+        countriesControlListType: req.factoryRegulationData.isCountryControlListWhiteList,
+        listOfCountries: req.factoryRegulationData.countries ?? "",
+        info: req.factoryRegulationData.info ?? "",
+      },
+    }
+
+    // 3. InterestRate (NEW)
+    const interestRate = {
+      maxRate: req.kpiData.interestRate.maxRate,
+      baseRate: req.kpiData.interestRate.baseRate,
+      minRate: req.kpiData.interestRate.minRate,
+      startPeriod: req.kpiData.interestRate.startPeriod,
+      startRate: req.kpiData.interestRate.startRate,
+      missedPenalty: req.kpiData.interestRate.missedPenalty,
+      reportPeriod: req.kpiData.interestRate.reportPeriod,
+      rateDecimals: req.kpiData.interestRate.rateDecimals,
+    }
+
+    // 4. ImpactData (NEW)
+    const impactData = {
+      maxDeviationCap: req.kpiData.impactData.maxDeviationCap,
+      baseLine: req.kpiData.impactData.baseLine,
+      maxDeviationFloor: req.kpiData.impactData.maxDeviationFloor,
+      impactDataDecimals: req.kpiData.impactData.impactDataDecimals,
+      adjustmentPrecision: req.kpiData.impactData.adjustmentPrecision,
+    }
+
+    // 5. BondKpiLinkedRateData (consolidates bondData, factoryRegulationData, interestRate, impactData)
+    const bondKpiData = {
+      bondData,
+      factoryRegulationData,
+      interestRate,
+      impactData,
+    }
+
+    // 6. TreasuryData
+    const treasuryData = {
+      resolver: req.treasuryData.resolverAddress,
+      resolverProxyConfiguration: {
+        key: this.DEFAULT_TREASURY_CONFIG_ID,
+        version: req.treasuryData.configVersion,
+      },
+      rbacs: [
+        {
+          role: this.DEFAULT_ADMIN_ROLE,
+          members: req.treasuryData.ownerAccountAddress
+            ? [req.treasuryData.ownerAccountAddress]
+            : [this.EVM_ZERO_ADDRESS],
+        },
+      ],
+      paymentToken: req.treasuryData.paymentTokenAddress,
+      environmentalAssets: req.treasuryData.environmentalAssetsAddresses,
+    }
+
+    // 7. Call with new signature (3 parameters instead of 5)
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "deployBondSuite",
+      req.contractId,
+      this.TRANSACTIONS_HIGH_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.factoryAddress, bondKpiData, treasuryData],
+    )
+  }
+
+  async setBondDocumentTransaction(req: BuildSetBondDocumentTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IERC1643__factory.createInterface(),
+      "setDocument",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.name, req.uri, req.hash],
+    )
+  }
+
+  async removeBondDocumentTransaction(
+    req: BuildRemoveBondDocumentTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IERC1643__factory.createInterface(),
+      "removeDocument",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.name],
+    )
+  }
+
+  async setBondCapTransaction(req: BuildSetBondCapTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      ICap__factory.createInterface(),
+      "setMaxSupply",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.newMaxSupply],
+    )
+  }
+
+  async addControlListMemberTransaction(
+    req: BuildAddControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IControlList__factory.createInterface(),
+      "addToControlList",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)],
+    )
+  }
+
+  async removeControlListMemberTransaction(
+    req: BuildRemoveControlListMemberTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IControlList__factory.createInterface(),
+      "removeFromControlList",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)],
+    )
+  }
+
+  async setBondCouponTransaction(req: BuildSetCouponTransactionRequest): Promise<BuildTransactionResponse> {
+    // Map to Solidity Coupon struct format (IBondRead.Coupon)
+    // In ATS 4.0.1, the Coupon struct includes all fields: startDate, endDate, fixingDate, rateStatus
+    const coupon = {
+      recordDate: req.recordDate,
+      executionDate: req.executionDate,
+      startDate: req.startDate,
+      endDate: req.endDate,
+      fixingDate: req.fixingDate,
+      rate: req.rate,
+      rateDecimals: req.rateDecimals,
+      rateStatus: req.rateStatus,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IBond__factory.createInterface(),
+      "setCoupon",
+      req.contractId,
+      this.TRANSACTIONS_HIGH_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [coupon],
+    )
+  }
+
+  async createBondLockTransaction(req: BuildCreateBondLockTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
+
+    return await this.buildAndReturnTransactionResponse(
+      ILock__factory.createInterface(),
+      "lockByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.amount, holderEvmAddress, req.expirationTimestamp],
+    )
+  }
+
+  async mintBondTransaction(req: BuildMintBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const issueData = {
+      partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      value: req.amount,
+      data,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "issueByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [issueData],
+    )
+  }
+
+  async releaseBondLockTransaction(req: BuildReleaseBondLockTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const holderEvmAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId)
+
+    return await this.buildAndReturnTransactionResponse(
+      ILock__factory.createInterface(),
+      "releaseByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.lockId, holderEvmAddress],
+    )
+  }
+
+  async addProceedRecipientTransaction(
+    req: BuildAddProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "addProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress, data],
+    )
+  }
+
+  async removeProceedRecipientTransaction(
+    req: BuildRemoveProceedRecipientTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IProceedRecipients__factory.createInterface(),
+      "removeProceedRecipient",
+      req.contractId,
+      this.TRANSACTIONS_LOW_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.proceedRecipientAddress],
+    )
+  }
+
+  async transferByPartitionTransaction(
+    req: BuildTransferByPartitionTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const basicTransferInfo = {
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId),
+      value: req.amount,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "transferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, basicTransferInfo, data],
+    )
+  }
+
+  async redeemBondTransaction(req: BuildRedeemBondTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    return await this.buildAndReturnTransactionResponse(
+      IERC1410__factory.createInterface(),
+      "redeemByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, req.amount, data],
+    )
+  }
+
+  async createClearingHoldTransaction(
+    req: BuildCreateClearingHoldTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingHoldCreation__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    const hold = {
+      amount: req.amount,
+      expirationTimestamp: req.expirationTimestamp,
+      escrow: req.escrowAddress,
+      to: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      data: req.data || "0x",
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingCreateHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, hold],
+    )
+  }
+
+  async createClearingRedeemTransaction(
+    req: BuildCreateClearingRedeemTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingRedeem__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingRedeemByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, req.amount],
+    )
+  }
+
+  async createClearingTransferTransaction(
+    req: BuildCreateClearingTransferTransactionRequest,
+  ): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const contractInterface = IClearingTransfer__factory.createInterface()
+
+    const clearingOperation = {
+      partition: partition,
+      expirationTimestamp: req.expirationTimestamp,
+      data: req.data || "0x",
+    }
+
+    const to = req.toAccountId
+      ? await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+      : this.EVM_ZERO_ADDRESS
+
+    return await this.buildAndReturnTransactionResponse(
+      contractInterface,
+      "clearingTransferByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperation, req.amount, to],
+    )
+  }
+
+  async approveClearingTransaction(req: BuildApproveClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "approveClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
+  async cancelClearingTransaction(req: BuildCancelClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "cancelClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
+  async reclaimClearingTransaction(req: BuildReclaimClearingTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const clearingOperationIdentifier = {
+      clearingOperationType: req.operationType,
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      clearingId: req.clearingId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IClearingActions__factory.createInterface(),
+      "reclaimClearingOperationByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [clearingOperationIdentifier],
+    )
+  }
+
+  async executeHoldTransaction(req: BuildExecuteHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    const toAddress = await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "executeHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier, toAddress, req.amount],
+    )
+  }
+
+  async releaseHoldTransaction(req: BuildReleaseHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "releaseHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier, req.amount],
+    )
+  }
+
+  async reclaimHoldTransaction(req: BuildReclaimHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition || this.DEFAULT_PARTITION
+
+    const holdIdentifier = {
+      partition: partition,
+      tokenHolder: await ConverterUtils.getEvmAddressFromHederaAddress(req.holderAccountId),
+      holdId: req.holdId,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "reclaimHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [holdIdentifier],
+    )
+  }
+
+  private async buildAndReturnTransactionResponse(
+    contractInterface: any,
+    functionName: string,
+    contractId: string,
+    gas: number,
+    account: any,
+    format: "hedera" | "ethereum",
+    args: any[],
+  ): Promise<BuildTransactionResponse> {
+    const environment = this.configService.get<Environment>("HEDERA_NETWORK") || "testnet"
+
+    const transactionResponse = await this.buildAndSerializeTransaction({
+      contractInterface,
+      functionName,
+      contractId,
+      gas,
+      environment,
+      account,
+      format,
+      args,
+    } as any)
+    return new BuildTransactionResponse(transactionResponse.unsignedTx)
+  }
+
+  async createBondHoldTransaction(req: BuildCreateBondHoldTransactionRequest): Promise<BuildTransactionResponse> {
+    const partition = req.partition ?? this.DEFAULT_PARTITION
+    const data = req.data ?? "0x"
+
+    const hold = {
+      amount: req.amount,
+      expirationTimestamp: Math.floor(req.expirationTimestamp.getTime() / 1000),
+      escrow: await ConverterUtils.getEvmAddressFromHederaAddress(req.escrowAccountId),
+      to: req.toAccountId
+        ? await ConverterUtils.getEvmAddressFromHederaAddress(req.toAccountId)
+        : this.EVM_ZERO_ADDRESS,
+      data: data,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IHoldTokenHolder__factory.createInterface(),
+      "createHoldByPartition",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [partition, hold],
+    )
+  }
+
+  async setInterestRateTransaction(req: BuildSetInterestRateTransactionRequest): Promise<BuildTransactionResponse> {
+    const interestRate = {
+      maxRate: req.interestRate.maxRate,
+      baseRate: req.interestRate.baseRate,
+      minRate: req.interestRate.minRate,
+      startPeriod: req.interestRate.startPeriod,
+      startRate: req.interestRate.startRate,
+      missedPenalty: req.interestRate.missedPenalty,
+      reportPeriod: req.interestRate.reportPeriod,
+      rateDecimals: req.interestRate.rateDecimals,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IKpiLinkedRate__factory.createInterface(),
+      "setInterestRate",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [interestRate],
+    )
+  }
+
+  async setImpactDataTransaction(req: BuildSetImpactDataTransactionRequest): Promise<BuildTransactionResponse> {
+    const impactData = {
+      maxDeviationCap: req.impactData.maxDeviationCap,
+      baseLine: req.impactData.baseLine,
+      maxDeviationFloor: req.impactData.maxDeviationFloor,
+      impactDataDecimals: req.impactData.impactDataDecimals,
+      adjustmentPrecision: req.impactData.adjustmentPrecision,
+    }
+
+    return await this.buildAndReturnTransactionResponse(
+      IKpiLinkedRate__factory.createInterface(),
+      "setImpactData",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [impactData],
+    )
+  }
+
+  async addKpiDataTransaction(req: BuildAddKpiDataTransactionRequest): Promise<BuildTransactionResponse> {
+    return await this.buildAndReturnTransactionResponse(
+      IKpis__factory.createInterface(),
+      "addKpiData",
+      req.contractId,
+      this.TRANSACTIONS_MEDIUM_GAS,
+      req.accountId,
+      req.format as "hedera" | "ethereum",
+      [req.date, req.value, req.projectAddress],
+    )
+  }
+}

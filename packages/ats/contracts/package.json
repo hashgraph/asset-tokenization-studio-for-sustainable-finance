@@ -1,0 +1,130 @@
+{
+  "name": "@hashgraph/green-bonds-platform-ats-contracts",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "main": "./build/typechain-types/index.js",
+  "types": "./build/typechain-types/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "scripts": ["./build/scripts/index.d.ts"],
+      "typechain-types": ["./build/typechain-types/index.d.ts"],
+      "test": ["./build/test/index.d.ts"]
+    }
+  },
+  "files": ["artifacts/", "contracts/", "typechain-types/", "build/", "!artifacts/build-info/", "!build/**/*.map"],
+  "exports": {
+    ".": {
+      "types": "./build/typechain-types/index.d.ts",
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
+    },
+    "./artifacts/*": "./artifacts/*",
+    "./contracts/*": "./contracts/*",
+    "./scripts": {
+      "types": "./build/scripts/index.d.ts",
+      "import": "./build/scripts/index.js",
+      "require": "./build/scripts/index.js",
+      "default": "./build/scripts/index.js"
+    },
+    "./typechain-types": {
+      "types": "./build/typechain-types/index.d.ts",
+      "import": "./build/typechain-types/index.js",
+      "require": "./build/typechain-types/index.js",
+      "default": "./build/typechain-types/index.js"
+    },
+    "./test": {
+      "types": "./build/test/index.d.ts",
+      "import": "./build/test/index.js",
+      "require": "./build/test/index.js",
+      "default": "./build/test/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "keywords": ["hedera", "smart-contracts", "tokenization", "hardhat"],
+  "author": "",
+  "license": "Apache-2.0",
+  "scripts": {
+    "clean": "npm run clean:cache; npm run clean:build; npm run clean:node",
+    "clean:cache": "npx hardhat clean",
+    "clean:build": "node -e \"const fs=require('fs'); ['dist','build','artifacts','cache','typechain-types','coverage','.nyc_output'].forEach(d=>fs.rmSync(d,{recursive:true,force:true}))\"",
+    "clean:node": "node -e \"const fs=require('fs'); fs.rmSync('node_modules',{recursive:true,force:true})\"",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint:sol; npm run lint:js",
+    "lint:fix": "npm run lint:sol:fix; npm run lint:js:fix",
+    "lint:sol": "solhint --config solhint.config.js 'contracts/**/*.sol'",
+    "lint:sol:fix": "solhint --config solhint.config.js 'contracts/**/*.sol' --fix",
+    "lint:js": "eslint .",
+    "lint:js:fix": "eslint . --fix",
+    "generate:registry": "npx tsx scripts/tools/generateRegistry.ts",
+    "compile": "NODE_OPTIONS='--max-old-space-size=4096' npx hardhat compile",
+    "compile:force": "NODE_OPTIONS='--max-old-space-size=4096' npx hardhat compile --force",
+    "build": "node -e \"const fs=require('fs'); fs.rmSync('build',{recursive:true,force:true})\" && npm run compile && npx tsc -p tsconfig.build.json && npx tsc-alias -p tsconfig.build.json",
+    "test": "bash -c 'npx hardhat test ${NO_COMPILE:+--no-compile} ${PARALLEL:+--parallel} test/unit/*.test.ts test/integration/*.test.ts'",
+    "test:only": "NO_COMPILE=1 npm test",
+    "test:parallel": "PARALLEL=1 npm test",
+    "test:parallel:only": "PARALLEL=1 NO_COMPILE=1 npm test",
+    "test:factory-suite": "bash -c 'shopt -s nullglob; npx hardhat test ${NO_COMPILE:+--no-compile} ${PARALLEL:+--parallel} test/unit/*factorySuite*.test.ts test/integration/*factorySuite*.test.ts'",
+    "test:kpi": "bash -c 'shopt -s nullglob; npx hardhat test ${NO_COMPILE:+--no-compile} ${PARALLEL:+--parallel} test/unit/*kpi*.test.ts test/integration/*kpi*.test.ts'",
+    "test:integration": "bash -c 'npx hardhat test ${NO_COMPILE:+--no-compile} ${PARALLEL:+--parallel} test/integration/*.test.ts'",
+    "coverage": "npx hardhat coverage --testfiles 'test/{unit,integration}/*.test.ts'",
+    "coverage:factory-suite": "npx hardhat coverage --solcoverjs .solcover.factory-suite.js --testfiles 'test/{unit,integration}/*factorySuite*.test.ts'",
+    "coverage:kpi": "npx hardhat coverage --solcoverjs .solcover.kpi.js --testfiles 'test/{unit,integration}/*kpi*.test.ts'",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@hashgraph/asset-tokenization-contracts": "5.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.36.0",
+    "@hashgraph/smart-contracts": "github:hashgraph/hedera-smart-contracts#v0.10.1",
+    "@hiero-ledger/sdk": "2.79.0",
+    "@nomicfoundation/hardhat-chai-matchers": "2.0.8",
+    "@nomicfoundation/hardhat-ethers": "3.1.0",
+    "@nomicfoundation/hardhat-ignition-ethers": "0.15.17",
+    "@nomicfoundation/hardhat-network-helpers": "1.0.12",
+    "@nomicfoundation/hardhat-toolbox": "5.0.0",
+    "@nomicfoundation/hardhat-verify": "2.0.12",
+    "@nomiclabs/hardhat-solhint": "^5.0.0",
+    "@openzeppelin/contracts": "4.9.6",
+    "@openzeppelin/contracts-upgradeable": "4.9.6",
+    "@openzeppelin/hardhat-upgrades": "1.22.1",
+    "@primitivefi/hardhat-dodoc": "0.2.3",
+    "@typechain/ethers-v6": "0.5.1",
+    "@typechain/hardhat": "9.1.0",
+    "chai": "4.4.0",
+    "chai-as-promised": "^7.1.2",
+    "dotenv": "16.0.3",
+    "eslint": "9.36.0",
+    "ethers": "6.15.0",
+    "glob": "11.0.3",
+    "globals": "16.4.0",
+    "hardhat": "2.26.5",
+    "hardhat-contract-sizer": "2.10.1",
+    "hardhat-dependency-compiler": "1.2.1",
+    "hardhat-gas-reporter": "^1.0.8",
+    "jiti": "2.6.0",
+    "prettier": "3.6.2",
+    "prettier-plugin-solidity": "2.1.0",
+    "rimraf": "6.0.1",
+    "solhint": "6.0.3",
+    "solidity-coverage": "0.8.16",
+    "ts-node": "10.9.1",
+    "tsc-alias": "1.8.16",
+    "tsconfig-paths": "4.2.0",
+    "tsx": "4.21.0",
+    "typechain": "^8.3.2",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.44.1",
+    "@nomicfoundation/hardhat-ignition": "0.15.5"
+  },
+  "overrides": {
+    "@typechain/ethers-v6": "0.5.1",
+    "ws": "8.18.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

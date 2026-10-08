@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+
+const PREFIX = "BLOCKCHAIN_LISTENER_"
+
+export enum ConfigKeys {
+  BLOCK_NUMBER = PREFIX + "BLOCK_NUMBER",
+  CONTRACTS = PREFIX + "CONTRACTS",
+  EVENTS = PREFIX + "EVENTS",
+  POLL_INTERVAL = PREFIX + "POLL_INTERVAL",
+}

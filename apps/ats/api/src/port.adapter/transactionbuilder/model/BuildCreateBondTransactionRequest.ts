@@ -1,0 +1,33 @@
+import { BaseBuildTransactionRequest } from "@hashgraph/green-bonds-shared-core"
+import { Type } from "class-transformer"
+import { IsNotEmpty, IsString, ValidateNested } from "class-validator"
+import { SecurityTokenCreationRequest } from "@port/shared/model/SecurityTokenCreationRequest"
+import { FactoryRegulationRequest } from "@port/shared/model/FactoryRegulationRequest"
+import { KpiRequest } from "@port/shared/model/KpiRequest"
+import { TreasuryRequest } from "@port/shared/model/TreasuryRequest"
+
+export class BuildCreateBondTransactionRequest extends BaseBuildTransactionRequest {
+  @ValidateNested()
+  @Type(() => SecurityTokenCreationRequest)
+  @IsNotEmpty()
+  securityTokenToCreate: SecurityTokenCreationRequest
+
+  @ValidateNested()
+  @Type(() => FactoryRegulationRequest)
+  @IsNotEmpty()
+  factoryRegulationData: FactoryRegulationRequest
+
+  @ValidateNested()
+  @Type(() => TreasuryRequest)
+  @IsNotEmpty()
+  treasuryData: TreasuryRequest
+
+  @ValidateNested()
+  @Type(() => KpiRequest)
+  @IsNotEmpty()
+  kpiData: KpiRequest
+
+  @IsString()
+  @IsNotEmpty()
+  factoryAddress: string
+}

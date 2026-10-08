@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "sourceMap": false
+  },
+  "include": [
+    "scripts/**/*",
+    "typechain-types/**/*",
+    "test/fixtures/**/*",
+    "test/helpers/**/*",
+    "test/constants.ts",
+    "test/index.ts",
+    "test/types.d.ts"
+  ],
+  "exclude": ["node_modules", "test/integration/**/*", "test/unit/**/*", "tasks"]
+}
