@@ -23,10 +23,10 @@
     "@hashgraph/green-bonds-shared-core": "*",
     "@nestjs/axios": "4.0.1",
     "@nestjs/common": "11.1.16",
-    "@nestjs/core": "11.1.16",
+    "@nestjs/core": "12.1.2",
     "@nestjs/platform-express": "11.1.16",
     "@nestjs/swagger": "11.2.0",
-    "axios": "1.13.2",
+    "axios": "1.20.0",
     "http-proxy-middleware": "3.0.5",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.1"
