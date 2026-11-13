@@ -19,6 +19,7 @@ It follows Hexagonal Architecture and Domain-Driven Design (DDD) principles to e
 - **[Testing](#testing)**
 - **[Deployment](#deployment)**
 - **[Contributing](#contributing)**
+- **[Authors](#authors)**
 - **[License](#license)**
 
 # Features
@@ -381,6 +382,10 @@ In each specific workspace:
 1. Follow the architecture guidelines.
 2. Run `npm run lint` and `npm run format` before committing.
 3. Submit pull requests with clear descriptions.
+
+# Authors
+
+Evercity brought its green bond expertise and product design to Asset Tokenization Studio for Sustainable Finance, shaping how issuers prepare a bond and track how the funds they raise are used. The io.builders team contributed code. Thanks to Serg Metelin, Giuseppe Bertone, Greg Scullard, Nadine Loepfe and Wes Geisenberger at Hashgraph for helping bring the project to life.
 
 # License
 
