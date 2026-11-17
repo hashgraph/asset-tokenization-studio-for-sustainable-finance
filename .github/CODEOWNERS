@@ -2,7 +2,16 @@
 ##### Global Protection Rule ######
 ###################################
 # NOTE: This rule is overridden by the more specific rules below. This is the catch-all rule for all files not covered by the more specific rules below.
-*                                               @hashgraph/iobuilders-hedera-committers @hashgraph/developer-advocates-green-bond-platform
+*                                               @hashgraph/green-pond-platform-maintainers
+
+############################
+#####  Project Files  ######
+############################
+
+/apps/**                                        @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
+/packages/**                                    @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
+/scripts/**                                     @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
+/docs/**                                        @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
 
 #########################
 #####  Core Files  ######
@@ -11,20 +20,21 @@
 # NOTE: Must be placed last to ensure enforcement over all other rules
 
 # Protection Rules for Github Configuration Files and Actions Workflows
-/.github/                                       @hashgraph/platform-ci @hashgraph/platform-ci-committers
-/.github/workflows/                             @hashgraph/platform-ci @hashgraph/platform-ci-committers
-/.github/dependabot.yml                         @hashgraph/platform-ci @hashgraph/platform-ci-committers @hashgraph/iobuilders-hedera-committers
+/.github/                                       @hashgraph/platform-ci @hashgraph/green-pond-platform-maintainers
+
+# Semantic Release Configuration
+.releaserc                                      @hashgraph/platform-ci
 
 # Self-protection for root CODEOWNERS files (this file should not exist and should definitely require approval)
-/CODEOWNERS                                     @hashgraph/platform-ci @hashgraph/platform-ci-committers
+/CODEOWNERS                                     @hashgraph/platform-ci
 
 # Protect the repository root files
-/README.md                                      @hashgraph/platform-ci @hashgraph/platform-ci-committers @hashgraph/iobuilders-hedera-committers @hashgraph/developer-advocates-green-bond-platform
-**/LICENSE                                      @hashgraph/platform-ci @hashgraph/platform-ci-committers
+/README.md                                      @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers @hashgraph/platform-ci
+**/LICENSE                                      @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers @hashgraph/platform-ci
 
-# Git hooks run on every contributor's machine
-/.husky/                                        @hashgraph/platform-ci @hashgraph/platform-ci-committers @hashgraph/iobuilders-hedera-committers
+# CodeCov configuration
+**/codecov.yml                                  @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers @hashgraph/platform-ci
 
 # Git Ignore definitions
-**/.gitignore                                   @hashgraph/platform-ci @hashgraph/platform-ci-committers @hashgraph/iobuilders-hedera-committers @hashgraph/developer-advocates-green-bond-platform
-**/.gitignore.*                                 @hashgraph/platform-ci @hashgraph/platform-ci-committers @hashgraph/iobuilders-hedera-committers @hashgraph/developer-advocates-green-bond-platform
+**/.gitignore                                   @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers @hashgraph/platform-ci
+**/.gitignore.*                                 @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers @hashgraph/platform-ci
