@@ -1,0 +1,23 @@
+###################################
+##### Global Protection Rule ######
+###################################
+# NOTE: This rule is overridden by the more specific rules below. This is the catch-all rule for all files not covered by the more specific rules below.
+*                                               @hashgraph/iobuilders-hedera-committers @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
+
+#########################
+#####  Core Files  ######
+#########################
+
+# NOTE: Must be placed last to ensure enforcement over all other rules
+
+# Protection Rules for Github Configuration Files and Actions Workflows
+/.github/                                       @hashgraph/green-pond-platform-maintainers
+
+# Semantic Release Configuration
+.releaserc                                      @hashgraph/green-pond-platform-maintainers
+
+# Defensive: a root-level CODEOWNERS should not exist; require approval if one is added.
+/CODEOWNERS                                     @hashgraph/green-pond-platform-maintainers
+
+# Container Definitions
+Dockerfile*                                     @hashgraph/green-pond-platform-maintainers
