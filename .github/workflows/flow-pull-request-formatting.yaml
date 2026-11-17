@@ -26,7 +26,7 @@ jobs:
   # It must never check out or execute code from the pull request.
   title-check:
     name: Title Check
-    runs-on: token-studio-linux-medium
+    runs-on: green-bond-linux-medium
     timeout-minutes: 5
     steps:
       - name: Harden Runner
