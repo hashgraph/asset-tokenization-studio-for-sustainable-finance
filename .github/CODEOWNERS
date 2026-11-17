@@ -2,7 +2,7 @@
 ##### Global Protection Rule ######
 ###################################
 # NOTE: This rule is overridden by the more specific rules below. This is the catch-all rule for all files not covered by the more specific rules below.
-*                                               @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
+*                                               @hashgraph/iobuilders-hedera-committers @hashgraph/green-pond-platform-writers @hashgraph/green-pond-platform-maintainers
 
 #########################
 #####  Core Files  ######
