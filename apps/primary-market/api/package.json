@@ -30,7 +30,7 @@
     "@hashgraph/green-bonds-shared-core": "*",
     "@nestjs/swagger": "11.2.0",
     "@nestjs/typeorm": "11.0.0",
-    "typeorm": "0.3.27"
+    "typeorm": "0.3.31"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
